@@ -1,0 +1,124 @@
+# =======================================
+# Processors for transcriptome annotation
+# =======================================
+---
+
+- name: transdecoder
+  version: 1.0.1
+  label: TransDecoder (2.0.1)
+  type: data:annotation:transdecoder
+  category: analyses
+  persistence: CACHED
+  description: >
+    Identify candidate coding regions within transcript sequences.
+  input:
+    - name: gff
+      label: Annotation (GTF)
+      type: data:annotation:cuffmerge
+      required: true
+      description: >
+        A transcript annotation file produced by Cuffmerge.
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+      description: >
+        Genome to be used for a transcript fasta file construction.
+    - name: pfamDB
+      label: Pfam database
+      type: data:db:hmmer
+      required: false
+      description: >
+        Pfam database to search against.
+    - name: pfam
+      label: Pfam domain search
+      type: basic:boolean
+      default: false
+      description: >
+        Retain transcripts with a Pfam domain hit.
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many processor threads.
+  output:
+    - name: gff
+      label: TransDecoder transcripts (gff)
+      type: basic:file
+    - name: bed
+      label: TransDecoder transcripts (bed)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "TransDecoder analysis ({{ gff.output.merged_gtf.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the annotation track.
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['TransDecoder', 'Annotation']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of TransDecoder results.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "Prepare annotation file"
+      sed '/_random/d;/chrUn/d' {{gff.output.merged_gtf.file}} > cuffmerge_annotation.gtf
+      echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
+
+      echo "Convert cuffmerge_annotation.gtf file to .gff3 file format"
+      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cufflinks_gtf_to_alignment_gff3.pl cuffmerge_annotation.gtf > cuffmerge_annotation.gff3
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+
+      echo "Prepare transcripts.fasta file"
+      gzip -cd {{ genome.output.fasta.file }} > genome.fasta
+
+      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cufflinks_gtf_genome_to_cdna_fasta.pl cuffmerge_annotation.gtf genome.fasta > transcripts.fasta
+      echo "{\"proc.progress\":0.20,\"proc.rc\":$?}"
+
+      {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.LongOrfs -t transcripts.fasta
+
+      {% if pfam %}
+        DB_PATH={{ proc.data_path }}/{{ pfamDB.id }}/{{ pfamDB.output.database.refs.0 }}/{{ pfamDB.output.hmmerdb }}
+        {{proc.slugs_path}}/hmmer-3.1b1/binaries/hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
+        {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
+      {% else %}
+        {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.Predict -t transcripts.fasta
+      {% endif %}
+
+      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+
+      echo "Prepare genome aligned .gff3 annotation file"
+      ## Does not procude a valid gff3 file!!
+      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cdna_alignment_orf_to_genome_orf.pl transcripts.fasta.transdecoder.gff3 cuffmerge_annotation.gff3 transcripts.fasta > temp.gff
+
+      echo "Prepare and validate .gff and .bed tracks"
+      {{ proc.slugs_path }}//genometools-1.5.3/bin/gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o transdecoder_annotation.gff temp.gff
+
+      {{ proc.slugs_path }}//genometools-1.5.3/bin/gt gff3validator transdecoder_annotation.gff
+
+      {{proc.slugs_path}}/TransDecoder-2.0.1/util/gff3_file_to_bed.pl transdecoder_annotation.gff > transdecoder_annotation.bed
+
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      echo "Prepare .gff and .bed tracks for JBrowse"
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff transdecoder_annotation.gff --out . --trackLabel "gff-track"
+
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --bed transdecoder_annotation.bed --out . --trackLabel "bed-track"
+
+      echo "{\"proc.progress\":1,\"proc.rc\":$?,\"gff\":{\"file\":\"transdecoder_annotation.gff\",\"refs\":[\"tracks/gff-track\"]}, \"bed\":{\"file\":\"transdecoder_annotation.bed\",\"refs\":[\"tracks/bed-track\"]}}"

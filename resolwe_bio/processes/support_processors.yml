@@ -1,0 +1,213 @@
+# =============================
+# Processors for data manipulation.
+# =============================
+#
+# Processors for data manipulation.
+---
+
+- name: reads:merge
+  version: 1.0.1
+  label: Build paired-end reads from single-ended
+  type: data:reads:fastq:paired
+  persistence: CACHED
+  description: >
+    Takes in two fastq files and merges them into paired end.
+  input:
+    - name: reads_1
+      label: Upstream Reads
+      type: data:reads:fastq:single
+      required: true
+    - name: reads_2
+      label: Downstream Reads
+      type: data:reads:fastq:single
+      required: true
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: basic:file
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: basic:file
+    - name: number
+      label: Number of reads
+      type: basic:string
+    - name: bases
+      label: Number of bases
+      type: basic:string
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: basic:url:view
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["Fastq", "reads", "NGS", "paired-end"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      #TODO carry over descriptions
+      #echo "UNCOMPRESSING reads 1:"
+
+
+      cp {{ reads_1.output.fastq.file }} .
+      cp {{ reads_2.output.fastq.file }} .
+      NAME=`basename '{{ reads_1.output.fastq.file }}' .fastq.gz`
+      NAME2=`basename '{{ reads_2.output.fastq.file }}' .fastq.gz`
+
+      mkdir fastqc
+      7z x -o./fastqc -y {{ reads_1.output.fastqc_archive.file }}
+      7z x -o./fastqc -y {{ reads_2.output.fastqc_archive.file }}
+      cp {{ reads_1.output.fastqc_archive.file }} .
+      cp {{ reads_2.output.fastqc_archive.file }} .
+
+      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
+      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
+      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+
+      echo "{\"fastq\":{\"file\":\"${NAME}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"
+
+
+- name: bam:coverage
+  version: 1.0.2
+  label: Genome coverage
+  type: data:reads:coverage
+  category: analyses
+  persistence: CACHED
+  description: >
+    Calculation of genome-wide coverage output in BigWig format.
+  input:
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+      required: true
+  output:
+    - name: bigwig
+      label: Genome coverage (BigWig)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "BigWig ({{bam.output.bam.file}})"
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["BigWig"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of BigWig ({{bam.output.bam.file}})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      NAME='{{bam.output.bam.file}}'
+      BIGWIGOUT=`basename '{{bam.output.bam.file}}' .bam`
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
+      echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+      rm chrom.sizes && rm tmp.bedgraph
+      echo "{\"bigwig\":{\"file\":\"${BIGWIGOUT}.bw\"}}"
+
+
+- name: reference_compatibility
+  version: 1.0.0
+  label: Coordinate compatibility test
+  type: data:reports:compatibility
+  category: analyses
+  persistence: CACHED
+  description: >
+    Check for Genome compatibility with BAM and/or Annotation. 
+  input:
+    - name: reference
+      label: Reference genome
+      type: "data:genome:fasta:"
+      required: true
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+      required: false
+    - name: annot
+      label: Annotation file
+      type: "data:annotation:"
+      required: false
+  output:
+    - name: report_file
+      label: Report file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Compatibility check ({{reference.output.fasta.file}})"
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["Compatibility test"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of compatibility test ({{reference.output.fasta.file}})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      source {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      BAM_HEADER="bam_header.txt"
+
+      GENOME_NAME=`basename '{{ reference.output.fasta.file }}' .fasta.gz`
+      gzip -cd {{ reference.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+      
+      {% if bam %}
+      echo "Fetching bam header"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H "{{bam.output.bam.file}}" > "${BAM_HEADER}"
+      echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+      echo "${BAM_HEADER}"
+      {% endif %}
+
+      {% if annot.type == 'data:annotation:gff3:' %}
+        ANOT_FILE="{{annot.output.gff.file}}"
+      {% else %}
+        ANOT_FILE="{{annot.output.gtf.file}}"
+      {% endif %}
+
+      echo "Compatibility check"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/compatibilty_check.py --genome "${GENOME_NAME}.fasta" {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
+      echo "{\"proc.progress\":1,\"proc.rc\":$?, \"report_file\":{\"file\":\"${GENOME_NAME}_compatibility_report.txt\"}}"

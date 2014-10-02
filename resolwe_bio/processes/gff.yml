@@ -1,0 +1,84 @@
+# ==================================
+# Processors for expression profiles
+# ==================================
+#
+# Processors for computing the gene expression profile of NGS data.
+---
+
+- name: import:web:gtf:bcm-1-0-0
+  version: 1.0.7
+  label: Import GFF annotation from dictyBase
+  type: data:annotation:gff3
+  category: import
+  persistence: RAW
+  description: >
+    A GFF3 with gene locations for D. discoideum. One transcript per gene.
+
+    The sequence identifiers in the FASTA genome should be: chr1, chr2, chr2F, chr3, chr3F, chr4, chr5, chr6, chrBF, chrM and chrR.
+  output:
+    - name: gff
+      label: GFF file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "D. discoideum transcript GFF"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+  run:
+    runtime: polyglot
+    bash: |
+      echo "DOWNLOADING GFF..."
+      wget -O dicty_gff3.zip "http://dictybase.org/db/cgi-bin/dictyBase/download/download.pl?area=gff3&ID=dicty_gff3.zip"
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+
+      echo "ANNOTATION..."
+      unzip -o dicty_gff3.zip
+      RC=$?
+      echo "{\"proc.progress\":0.4}"}
+      if [ $RC -gt 1 ]; then
+         echo "{\"proc.rc\":$RC}"
+      fi
+
+      mv usr/local/dicty/data/gff3/* . && rm -r usr && rm dicty_gff3.zip && rm README.TXT
+      echo "{\"proc.progress\":0.41,\"proc.rc\":$?}"
+
+      # process gtf/gff3
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_1.gff "chr1"
+      echo "{\"proc.progress\":0.45,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_2.gff "chr2"
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_2F.gff "chr2F"
+      echo "{\"proc.progress\":0.55,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_3.gff "chr3"
+      echo "{\"proc.progress\":0.6,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_3F.gff "chr3F"
+      echo "{\"proc.progress\":0.65,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_4.gff "chr4"
+      echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_5.gff "chr5"
+      echo "{\"proc.progress\":0.75,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_6.gff "chr6"
+      echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_BF.gff "chrBF"
+      echo "{\"proc.progress\":0.85,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_M.gff "chrM"
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgff.py chromosome_R.gff "chrR"
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      echo "##gff-version 3" > dd_$(date +'%m-%d-%Y').gff
+      cat chr1.gff3 chr2.gff3 chr2F.gff3 chr3.gff3 chr3F.gff3 chr4.gff3 chr5.gff3 chr6.gff3 chrBF.gff3 chrM.gff3 chrR.gff3 >> dd_$(date +'%m-%d-%Y').gff
+      rm chr1.gff3 chr2.gff3 chr2F.gff3 chr3.gff3 chr3F.gff3 chr4.gff3 chr5.gff3 chr6.gff3 chrBF.gff3 chrM.gff3 chrR.gff3
+
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff dd_$(date +'%m-%d-%Y').gff --out . --trackLabel "gff-track"
+      rm trackList.json tracks.conf
+
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?,\"gff\":{\"file\":\"dd_$(date +'%m-%d-%Y').gff\", \"refs\":[\"tracks/gff-track\"]}}"
+
+      {{ proc.slugs_path }}//genometools-1.5.3/bin/gt gff3validator dd_$(date +'%m-%d-%Y').gff
+      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"

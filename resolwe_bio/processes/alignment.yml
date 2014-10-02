@@ -1,0 +1,1149 @@
+# =============================
+# Processors for aligning reads
+# =============================
+#
+# Processors for aligning/mapping reads on a given reference genome.
+---
+
+- name: alignment:bwa_mem-0.7.5a
+  version: 1.0.7
+  label: Aligner (BWA MEM 0.7.5a)
+  type: data:alignment:bam
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The algorithm works by seeding alignments with maximal exact matches (MEMs) and then extending seeds with the affine-gap Smith-Waterman algorithm (SW).
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: seed_l
+      label: Minimum seed length
+      type: basic:integer
+      default: 19
+      description: >
+        Minimum seed length. Matches shorter than minimum seed length will be missed. The alignment speed is usually insensitive to this value unless it significantly deviates 20.
+    - name: band_w
+      label: Band width
+      type: basic:integer
+      default: 100
+      description: >
+        Gaps longer than this will not be found.
+    - name: re_seeding
+      label: Re-seeding factor
+      type: basic:decimal
+      default: 1.5
+      description: >
+        Trigger re-seeding for a MEM longer than minSeedLen*FACTOR. This is a key heuristic parameter for tuning the performance. Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy.
+    - name: scoring
+      label: Scoring
+      group:
+      - name: match
+        label: Score of a match
+        type: basic:integer
+        default: 1
+      - name: missmatch
+        label: Mismatch penalty
+        type: basic:integer
+        default: 4
+      - name: gap_o
+        label: Gap open penalty
+        type: basic:integer
+        default: 6
+      - name: gap_e
+        label: Gap extension penalty
+        type: basic:integer
+        default: 1
+      - name: clipping
+        label: Clipping penalty
+        type: basic:integer
+        default: 5
+        description: >
+          Clipping is applied if final alignment score is smaller than (best score reaching the end of query) - (Clipping penalty)
+      - name: unpaired_p
+        label: Penalty for an unpaired read pair
+        type: basic:integer
+        default: 9
+        description: >
+          Affinity to force pair. Score: scoreRead1+scoreRead2-Penalty
+    - name: reporting
+      label: Reporting
+      group:
+      - name: report_all
+        label: Report all found alignments
+        type: basic:boolean
+        default: false
+        description: >
+          Output all found alignments for single-end or unpaired paired-end reads. These alignments will be flagged as secondary alignments.
+      - name: report_tr
+        label: Report threshold score
+        type: basic:integer
+        default: 30
+        description: >
+          Don't output alignment with score lower than defined number. This option only affects output.
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA mem"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      echo "ALIGNING with BWA-MEM:"
+      {% if reads.type == 'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+
+      {% else %}
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
+- name: alignment:bwa_sw-0.7.5a
+  version: 1.0.6
+  label: Aligner (BWA SW 0.7.5a)
+  type: data:alignment:bam
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The paired-end mode only works for reads Illumina short-insert libraries.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: match
+      label: Score of a match
+      type: basic:integer
+      default: 1
+    - name: missmatch
+      label: Mismatch penalty
+      type: basic:integer
+      default: 3
+    - name: gap_o
+      label: Gap open penalty
+      type: basic:integer
+      default: 5
+    - name: gap_e
+      label: Gap extension penalty
+      type: basic:integer
+      default: 2
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA SW"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      echo "ALIGNING with BWA-SW:"
+      {% if reads.type == 'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+
+      {% else %}
+
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      {% endif %}
+
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
+- name: alignment:bwa_aln-0.7.5a
+  version: 1.0.7
+  label: Aligner (BWA backtrack 0.7.5a)
+  type: data:alignment:bam
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for Illumina sequence reads up to 100bp.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: fraction
+      label: Fraction of missing alignments
+      type: basic:decimal
+      default: 0.04
+      description: >
+        the fraction of missing alignments given 2% uniform base error rate
+    - name: use_edit
+      label: Use maximum edit distance (excludes fraction of missing alignments)
+      type: basic:boolean
+      default: false
+      description: >
+        the fraction of missing alignments given 2% uniform base error rate
+    - name: edit_value
+      label: Maximum edit distance
+      type: basic:integer
+      default: 5
+    - name: seeds
+      label: Use seeds
+      type: basic:boolean
+      default: false
+    - name: seed_length
+      label: Seed length
+      type: basic:integer
+      default: 35
+      description: >
+        Take the first X subsequence as seed. If X is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for value 2 in seed maximum edit distance.
+    - name: seed_dist
+      label: Seed maximum edit distance
+      type: basic:integer
+      default: 2
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA BT"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      #quals detection
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      if [ "$encoding_t" = "Illumina_old" ]; then
+        encoding=-I
+      else
+        encoding=
+      fi
+
+      echo "ALIGNING with BWA-ALN:"
+      {% if reads.type == 'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
+
+      {% else %}
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME2}.fastq" > "${NAME2}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa sampe "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME2}_align.sai" "${NAME}.fastq" "${NAME2}.fastq" > "${NAME}_align_unsorted.sam"
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
+
+- name: alignment:bowtie-1-0-0-trimmx
+  version: 1.0.7
+  label: Aligner (Bowtie 1.0.0)
+  type: data:alignment:bam
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    An ultrafast memory-efficient short read aligner.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: mode
+      label: Alignment mode
+      type: basic:string
+      description: >
+        When the -n option is specified (which is the default), bowtie determines which alignments are valid according to the following policy, which is similar to Maq's default policy.
+        1. Alignments may have no more than N mismatches (where N is a number 0-3, set with -n) in the first L bases (where L is a number 5 or greater, set with -l) on the high-quality (left) end of the read. The first L bases are called the "seed".
+        2. The sum of the Phred quality values at all mismatched positions (not just in the seed) may not exceed E (set with -e). Where qualities are unavailable (e.g. if the reads are from a FASTA file), the Phred quality defaults to 40.
+        In -v mode, alignments may have no more than V mismatches, where V may be a number from 0 through 3 set using the -v option. Quality values are ignored. The -v option is mutually exclusive with the -n option.
+      required: true
+      default: -n
+      choices:
+        - label: Use qualities (-n)
+          value: -n
+        - label: Use mismatches (-v)
+          value: -v
+    - name: m
+      label: Allowed mismatches
+      type: basic:integer
+      description: >
+        When used with "Use qualities (-n)" it is the maximum number of mismatches permitted in the "seed", i.e. the first L base pairs of the read (where L is set with -l/--seedlen). This may be 0, 1, 2 or 3 and the default is 2
+        When used with "Use mismatches (-v)" report alignments with at most <int> mismatches.
+      default: 2
+    - name: l
+      label: Seed length (for -n only)
+      type: basic:integer
+      description: >
+        Only for "Use qualities (-n)". Seed length (-l) is the number of bases on the high-quality end of the read to which the -n ceiling applies. The lowest permitted setting is 5 and the default is 28. bowtie is faster for larger values of -l.
+      default: 28
+    - name: use_SE
+      label: Map as single-ended (for paired end reads only)
+      type: basic:boolean
+      description: >
+        If this option is selected paired-end reads will be mapped as single-ended.
+    - name: start_trimming
+      label: Initial trimming
+      group:
+        - name: trim_5
+          label: Bases to trim from 5'
+          type: basic:integer
+          description: >
+            Number of bases to trim from from 5' (left) end of each read before alignment
+          default: 0
+        - name: trim_3
+          label: Bases to trim from 3'
+          type: basic:integer
+          description: >
+            Number of bases to trim from from 3' (right) end of each read before alignment
+          default: 0
+    - name: trimming
+      label: Iterative trimming
+      group:
+        - name: trim_nucl
+          label: Bases to trim
+          type: basic:integer
+          description: >
+            Number of bases to trimm from 3' end in each iteration.
+          default: 2
+        - name: trim_iter
+          label: Iterations
+          type: basic:integer
+          description: >
+            Number of iterations.
+          default: 0
+    - name: reporting
+      label: Reporting
+      group:
+        - name: r
+          label: Reporting mode
+          type: basic:string
+          description: >
+            Report up to <int> valid alignments per read or pair (-k) (default: 1). Validity of alignments is determined by the alignment policy (combined effects of -n, -v, -l, and -e). If more than one valid alignment exists and the --best and --strata options are specified, then only those alignments belonging to the best alignment "stratum" will be reported. Bowtie is designed to be very fast for small -k but bowtie can become significantly slower as -k increases. If you would like to use Bowtie for larger values of -k, consider building an index with a denser suffix-array sample, i.e. specify a smaller -o/--offrate when invoking bowtie-build for the relevant index (see the Performance tuning section for details).
+          default: -a -m 1 --best --strata
+          required: true
+          choices:
+            - label: Report unique alignments
+              value: -a -m 1 --best --strata
+            - label: Report all alignments
+              value: -a --best
+            - label: Report all alignments in the best stratum
+              value: -a --best --strata
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "Bowtie"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bt.file }} ]; then
+        echo "Genome index found, uncompressing it"
+        tar -zxvf {{ genome.output.index_bt.file }}
+        mv ./bowtie_index/* .
+      else
+        echo "index not found, UNCOMPRESSING genome:"
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        echo "{\"proc.progress\":0.1}"
+        echo "BUILDING genome index:"
+        {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      #quals detection
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      if [ "$encoding_t" = "Illumina_old" ]; then
+        encoding=--phred64-quals
+      else
+        encoding=
+      fi
+
+      STATS="0 ${NAME}_align_unsorted.stats"
+
+      echo "ALIGNING with bowtie:"
+      {% if reads.type == 'data:reads:fastq:single:' or use_SE %}
+        {% if use_SE and reads.type == 'data:reads:fastq:paired:' %}
+          NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+          gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+          cat "${NAME2}.fastq" >> "${NAME}.fastq"
+        {% endif %}
+        {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam" 2>"${NAME}_align_unsorted.stats"
+        {% if trimming.trim_iter >= 1 %}
+        echo "iterative alignment of unmapped reads:"
+          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
+            do
+            {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped$((c+1)).fq" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" "${NAME}_unmapped$((c)).fq" 1>"${NAME}_new_mapped$((c+1)).sam" 2>"${NAME}_new_mapped$((c+1)).stats"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
+            STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${NAME}_new_mapped$((c+1)).stats"
+            done
+          mv "${NAME}_unmapped$((c)).fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+        {% else %}
+          mv "${NAME}_unmapped1.fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+        {% endif %}
+      {% else %}
+        NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+        gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+        echo "{\"proc.progress\":0.4}"
+        {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" -1 "${NAME}.fastq" -2 "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam" 2>"${NAME}_align_unsorted.stats"
+
+        {% if trimming.trim_iter >= 1 %}
+        echo "iterative alignment of unmapped reads:"
+        for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
+          do
+            {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped$((c+1)).fq" --trim5 {{start_trimming.trim_5}} --trim3 $(($c* {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" -1 "${NAME}_unmapped$((c))_1.fq" -2 "${NAME}_unmapped$((c))_2.fq" 1>"${NAME}_new_mapped$((c+1)).sam" 2>"${NAME}_new_mapped$((c+1)).stats"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
+            STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${NAME}_new_mapped$((c+1)).stats"
+          done
+          cat "${NAME}_unmapped$((c))_1.fq" "${NAME}_unmapped$((c))_2.fq" | gzip -c - > "${NAME}_unmapped.fastq.gz"
+        {% else %}
+          cat "${NAME}_unmapped1_1.fq" "${NAME}_unmapped1_2.fq" | gzip -c - >"${NAME}_unmapped.fastq.gz"
+        {% endif %}
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      echo "Formating, merging and sorting reads:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
+
+      {% if trimming.trim_iter >= 1 %}
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools merge -h "${NAME}_align_unsorted.sam" "${NAME}_align_merged_unsorted.bam" ${NAME}_*.bam
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_merged_unsorted.bam" "${NAME}_align"
+      {% else %}
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+      {% endif %}
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -b -F 4 "${NAME}_align.bam" > "${NAME}_mapped.bam"
+      #{{ proc.slugs_path }}/samtools-0.1.19/samtools view -b -f 4 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_mapped.bam" "${NAME}_mapped.bam.bai"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${NAME}_mapped.bam" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${NAME}_mapped.bam" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${NAME}_mapped.bam.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      python {{ proc.slugs_path }}/gencloud-20131109/mergebowtiestats.py $STATS
+
+      # TODO: test if all outputs exists, else return proc.rc 1
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_mapped.bam\",\"refs\":[\"${NAME}_mapped.bam.bw\"]},\"bai\":{\"file\":\"${NAME}_mapped.bam.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"},\"stats\":{\"file\":\"stats.tab\"}}"
+
+
+- name: alignment:bowtie-2-2-3_trim
+  version: 1.0.11
+  label: Aligner (Bowtie 2.2.3)
+  type: data:alignment:bam
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    An ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: mode
+      required: true
+      label: Alignment mode
+      type: basic:string
+      description: >
+        end to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
+        local: Bowtie 2 does not require that the entire read align from one end to the other. Rather, some characters may be omitted ("soft clipped") from the ends in order to achieve the greatest possible alignment score.
+      default: --end-to-end
+      choices:
+        - label: end to end mode
+          value: --end-to-end
+        - label: local
+          value: --local
+    - name: speed
+      required: true
+      label: Speed vs. Sensitivity
+      type: basic:string
+      default: --sensitive
+      choices:
+        - label: Very fast
+          value: --very-fast
+        - label: Fast
+          value: --fast
+        - label: Sensitive
+          value: --sensitive
+        - label: Very sensitive
+          value: --very-sensitive
+    - name: PE_options
+      label: Paired end alignment options
+      group:
+        - name: use_SE
+          label: Map as single-ended (for paired-end reads only)
+          type: basic:boolean
+          default: false
+          description: >
+            If this option is selected paired-end reads will be mapped as single-ended and other paired-end options are ignored.
+        - name: discordantly
+          label: Report discordantly matched read
+          type: basic:boolean
+          default: true
+          description: >
+            If both mates have unique alignments, but the alignments do not match paired-end expectations (orientation and relative distance) then alignment will be reported. Useful for detecting structural variations.
+        - name: rep_SE
+          label: Report single ended
+          type: basic:boolean
+          default: true
+          description: >
+            If paired alignment can not be found Bowtie2 tries to find alignments for the individual mates.
+        - name: I
+          label: Minimal distance
+          type: basic:integer
+          description: >
+            The minimum fragment length for valid paired-end alignments. 0 imposes no minimum.
+          default: 0
+        - name: X
+          label: Maximal distance
+          type: basic:integer
+          description: >
+            The maximum fragment length for valid paired-end alignments.
+          default: 500
+    - name: start_trimming
+      label: Initial trimming
+      group:
+        - name: trim_5
+          label: Bases to trim from 5'
+          type: basic:integer
+          description: >
+            Number of bases to trim from from 5' (left) end of each read before alignment
+          default: 0
+        - name: trim_3
+          label: Bases to trim from 3'
+          type: basic:integer
+          description: >
+            Number of bases to trim from from 3' (right) end of each read before alignment
+          default: 0
+    - name: trimming
+      label: Iterative trimming (Trimming options only apply to single-end reads and paired-end reads mapped as single-ended)
+      group:
+        - name: trim_iter
+          label: Iterations
+          type: basic:integer
+          description: >
+            Number of iterations.
+          default: 0
+        - name: trim_nucl
+          label: Bases to trim
+          type: basic:integer
+          description: >
+            Number of bases to trimm from 3' end in each iteration.
+          default: 2
+    - name: reporting
+      label: Reporting
+      group:
+        - name: rep_mode
+          label: Report mode
+          type: basic:string
+          description: >
+            Default mode: search for multiple alignments, report the best one;
+            -k mode: search for one or more alignments, report each;
+            -a mode: search for and report all alignments
+          required: true
+          default: def
+          choices:
+            - label: Default mode
+              value: def
+            - label: -k mode
+              value: k
+            - label: -a mode (very slow)
+              value: a
+        - name: k_reports
+          label: Number of reports (for -k mode only)
+          type: basic:integer
+          description: >
+            searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.          default: 5
+          default: 5
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "Bowtie2"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo "Searching for index"
+      INDEX_NAME=`basename '{{ genome.output.index_bt2.file }}' .tar.gz`
+      if [ {{ genome.output.index_bt2.file }} ]; then
+        echo "Genome index found, uncompressing it"
+        tar -zxvf {{ genome.output.index_bt2.file }}
+        mv ./bowtie2_index/* .
+      else
+        echo "index not found, UNCOMPRESSING genome:"
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        echo "{\"proc.progress\":0.1}"
+        echo "BUILDING genome index:"
+        {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      fi
+
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      # mode selection
+      if [ {{reporting.rep_mode}} == def ]; then
+        a_mode=
+      else
+        if [ {{reporting.rep_mode}} == a ]; then
+        a_mode="-a"
+        else
+        a_mode="-k {{reporting.k_reports}}"
+        fi
+      fi
+
+      s_mode={{ speed }}
+      if [ {{ mode }} == --local ]; then
+        s_mode={{ speed }}-local
+      fi
+
+      #quals detection
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      if [ "$encoding_t" = "Illumina_old" ]; then
+        encoding=--phred64
+      else
+        encoding=
+      fi
+
+      echo "ALIGNING with bowtie2:"
+      {% if reads.type == 'data:reads:fastq:single:' or PE_options.use_SE %}
+        {% if PE_options.use_SE and reads.type == 'data:reads:fastq:paired:' %}
+          NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+          gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+          cat "${NAME2}.fastq" >> "${NAME}.fastq"
+        {% endif %}
+
+        {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x "${GENOME_NAME}_index" -U "${NAME}.fastq" -S "${NAME}_align_unsorted.sam" --un "${NAME}_unmapped1.fq" 2> "${NAME}_report.txt"
+        {% if trimming.trim_iter >= 1 %}
+            echo "iterative alignment of unmapped reads:"
+          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
+            do
+            echo -e "\nReport for Trimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed in addition to initial trimed bases
+              ):" >> "${NAME}_report.txt"
+            {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${NAME}_new_mapped$((c+1)).sam" --un "${NAME}_unmapped$((c+1)).fq" 2>> "${NAME}_report.txt"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
+            done
+          mv "${NAME}_unmapped$((c)).fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+        {% else %}
+          mv "${NAME}_unmapped1.fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+        {% endif %}
+
+        echo "Formating, merging and sorting reads:"
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
+        {%  if trimming.trim_iter >= 1 %}
+          {{ proc.slugs_path }}/samtools-0.1.19/samtools merge -h "${NAME}_align_unsorted.sam" "${NAME}_align_merged_unsorted.bam" ${NAME}_*.bam
+          {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_merged_unsorted.bam" "${NAME}_align"
+        {% else %}
+          {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+        {% endif %}
+
+      {% else %}
+        NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+        gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+        echo "{\"proc.progress\":0.4}"
+
+        {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if PE_options.use_SE %} -U "${NAME}.fastq","${NAME2}.fastq" {% else %} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_SE %} --no-mixed {% endif %} -I  {{ PE_options.I}} -X {{ PE_options.X}} -1 "${NAME}.fastq" -2 "${NAME2}.fastq" {% endif %} -S "${NAME}_align_unsorted.sam" 2> "${NAME}_report.txt"
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+        {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+        gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -b -F 4 "${NAME}_align.bam" > "${NAME}_mapped.bam"
+
+      [ -f "${NAME}_mapped.bam" ] && OUTPUT_NAME="${NAME}_mapped.bam"
+      echo "{\"proc.progress\":0.5,\"bam\":{\"file\":\"$OUTPUT_NAME\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"},\"stats\":{\"file\":\"${NAME}_report.txt\"}}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_mapped.bam" "${NAME}_mapped.bam.bai"
+      echo "{\"proc.progress\":0.6,\"bai\":{\"file\":\"${NAME}_mapped.bam.bai\"}}"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}}"
+
+- name: alignment:tophat-2-0-13
+  version: 1.0.5
+  label: Aligner (TopHat v2.0.13)
+  type: data:alignment:bam
+  persistence: CACHED
+  description: >
+    TopHat is a program that aligns RNA-Seq reads to a genome in order to identify exon-exon splice junctions. It is built on the ultrafast short read mapping program Bowtie.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: gff
+      label: General feature format
+      type: data:annotation
+      required: false
+      description: >
+        Supply TopHat with a set of gene model annotations and/or known transcripts, as a GTF 2.2 or GFF3 formatted file. If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed) and merged with the novel mappings and junctions in the final tophat output. Please note that the values in the first column of the provided GTF/GFF file (column which indicates the chromosome or contig on which the feature is located), must match the name of the reference sequence (exact same chromosome/contig names (case sensitive)) in the Bowtie index you are using with TopHat.
+    - name: threads
+      label: Use this many threads to align reads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many threads to align reads. The default is 1.
+    - name: realign
+      label: Realign reads
+      type: basic:boolean
+      default: false
+      description: >
+        Some of the reads spanning multiple exons may be mapped incorrectly as a contiguous alignment to the genome even though the correct alignment should be a spliced one - this can happen in the presence of processed pseudogenes that are rarely (if at all) transcribed or expressed. This option can direct TopHat to re-align reads for which the edit distance of an alignment obtained in a previous mapping step is above or equal to this option value. If you set this option to 0, TopHat will map every read in all the mapping steps (transcriptome if you provided gene annotations, genome, and finally splice variants detected by TopHat), reporting the best possible alignment found in any of these mapping steps. This may greatly increase the mapping accuracy at the expense of an increase in running time. The default value is set to 0.
+    - name: PE_options
+      label: Paired end alignment options
+      group:
+        - name: inner_distance
+          label: Expected (mean) inner distance between mate pairs
+          type: basic:integer
+          default: 50
+          description: >
+            This is the expected (mean) inner distance between mate pairs. For, example, for paired end runs with fragments selected at 300bp, where each end is 50bp, you should set -r to be 200. The default is 50bp.
+        - name: mate_std_dev
+          label: Standard deviation of inner distances between mate pairs
+          type: basic:integer
+          default: 20
+          description: >
+            The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.
+        - name: library_type
+          required: true
+          label: Library type
+          type: basic:string
+          description: >
+            The default is unstranded (fr-unstranded). If either fr-firststrand or fr-secondstrand is specified, every read alignment will have an XS attribute tag as explained below. Consider supplying library type options below to select the correct RNA-seq protocol: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+          default: fr-unstranded
+          choices:
+            - label: fr-unstranded
+              value: fr-unstranded
+            - label: fr-firststrand
+              value: fr-firststrand
+            - label: fr-secondstrand
+              value: fr-secondstrand
+  output:
+    - name: bam
+      label: Alignment
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: junctions
+      label: Junctions track
+      type: basic:file
+    - name: deletions
+      label: Deletions track
+      type: basic:file
+    - name: insertions
+      label: Insertions track
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "TopHat"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo "Searching for index"
+      INDEX_NAME=`basename '{{ genome.output.index_bt2.file }}' .tar.gz`
+      if [ {{ genome.output.index_bt2.file }} ]; then
+        echo "Genome index found, uncompressing it"
+        tar -zxvf {{ genome.output.index_bt2.file }}
+        mv ./bowtie2_index/* .
+      else
+        echo "index not found, UNCOMPRESSING genome:"
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        echo "{\"proc.progress\":0.1}"
+        echo "BUILDING genome index:"
+        {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      fi
+
+      echo "Preparing genome fasta sequence to be used by TopHat"
+      gzip -cd "{{ genome.output.fasta.file }}" > "${GENOME_NAME}_index.fa"
+
+      echo "{\"proc.progress\":0.2}"
+
+      export PATH=$PATH:{{ proc.slugs_path }}/bowtie2-2.2.3
+      echo "ALIGNING with TopHat:"
+
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+
+      {% if reads.type == 'data:reads:fastq:single:' %}
+
+
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
+
+      {% else %}
+
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}' '{{ reads.output.fastq2.file }}'
+
+      {% endif %}
+
+      echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+
+      mv accepted_hits.bam ${NAME}_hits.bam
+      mv unmapped.bam ${NAME}_unmapped.bam
+      mv deletions.bed ${NAME}_deletions.bed
+      mv insertions.bed ${NAME}_insertions.bed
+      mv junctions.bed ${NAME}_junctions.bed
+      mv align_summary.txt ${NAME}_align_summary.txt
+
+      echo "Indexing aligned reads:"
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_hits.bam" "${NAME}_hits.bam.bai"
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_hits.bam\"}, \"bai\":{\"file\":\"${NAME}_hits.bam.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.bam\"}, \"stats\":{\"file\":\"${NAME}_align_summary.txt\"}, \"junctions\":{\"file\":\"${NAME}_junctions.bed\"}, \"deletions\":{\"file\":\"${NAME}_deletions.bed\"}, \"insertions\":{\"file\":\"${NAME}_insertions.bed\"}}"
