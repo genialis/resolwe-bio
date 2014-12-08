@@ -42,7 +42,7 @@ class BaseProcessorTestCase(TestCase):
             obj = obj[p]
         return obj
 
-    def create_data(self, processor_name, input_):
+    def run_processor(self, processor_name, input_):
         p = Processor.objects.get(name=processor_name)
 
         for field_schema, fields in iterate_schema(input_, p['input_schema']):
