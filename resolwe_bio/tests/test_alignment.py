@@ -3,11 +3,11 @@ from .base import BaseProcessorTestCase
 
 class AlignmentProcessorTestCase(BaseProcessorTestCase):
     def test_bowtie(self):
-        inputs = {'src': 'dd_masked_09.05.13.fasta'}
+        inputs = {'src': 'genome.fasta.gz'}
         genome = self.run_processor('import:upload:genome-fasta', inputs)
-        self.assertFiles(genome, 'fasta', 'dd_masked_09.05.13.fasta.gz')
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
 
-        inputs = {'src': 'AX4_on_ka_00Hr_bio1_small.fq.gz'}
+        inputs = {'src': 'reads.fastq.gz'}
         read = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertFields(read, 'bases', 35)
 

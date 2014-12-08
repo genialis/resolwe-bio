@@ -9,7 +9,7 @@ from django.test.client import Client
 
 from server.models import Data, Case, Processor, GenUser, iterate_schema
 from server.tasks import manager
-from ..utils import create_test_case, clear_all
+from ..unit.utils import create_test_case, clear_all
 
 
 class BaseProcessorTestCase(TestCase):
