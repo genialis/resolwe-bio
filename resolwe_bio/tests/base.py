@@ -79,6 +79,9 @@ class BaseProcessorTestCase(TestCase):
 
         return Data.objects.get(pk=d.pk)
 
+    def assertDone(self, obj):
+        self.assertEqual(obj.status, 'done')
+
     def assertFields(self, obj, path, value):
         field = self.get_field(obj['output'], path)
         self.assertEqual(field, str(value))
