@@ -9,10 +9,100 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
 
         inputs = {'src': 'reads.fastq.gz'}
-        read = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(read)
-        self.assertFields(read, 'bases', 35)
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
 
-        inputs = {'genome': genome.pk, 'reads': read.pk, 'reporting': {'r': "-a -m 1 --best --strata"}}
-        aligned_read = self.run_processor('alignment:bowtie-1-0-0-trimmx', inputs)
-        self.assertDone(aligned_read)
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'r': "-a -m 1 --best --strata"}}
+        aligned_reads = self.run_processor('alignment:bowtie-1-0-0-trimmx', inputs)
+        self.assertDone(aligned_reads)
+
+    def test_bowtie2(self):
+        inputs = {'src': 'genome.fasta.gz'}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        self.assertDone(genome)
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
+
+        inputs = {'src': 'reads.fastq.gz'}
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
+        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+        self.assertDone(aligned_reads)
+        self.assertFiles(aligned_reads, 'bam', 'bowtie2_reads_mapped.bam')
+        self.assertFiles(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
+
+    def test_tophat(self):
+        inputs = {'src': 'genome.fasta.gz'}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        self.assertDone(genome)
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
+
+        inputs = {'src': 'reads.fastq.gz'}
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
+
+        inputs = {'src': 'annotation.gff'}
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        self.assertDone(annotation)
+        self.assertFiles(annotation, 'gff', 'annotation.gff')
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        self.assertDone(aligned_reads)
+        self.assertFiles(aligned_reads, 'bam', 'tophat_reads_mapped.bam')
+        self.assertFiles(aligned_reads, 'stats', 'tophat_reads_report.txt')
+
+    def test_bwa_bt(self):
+        inputs = {'src': 'genome.fasta.gz'}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        self.assertDone(genome)
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
+
+        inputs = {'src': 'reads.fastq.gz'}
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk}
+        aligned_reads = self.run_processor('alignment:bwa_aln-0.7.5a', inputs)
+        self.assertDone(aligned_reads)
+        self.assertFiles(aligned_reads, 'bam', 'bwa_BT_reads_mapped.bam')
+        self.assertFiles(aligned_reads, 'stats', 'bwa_BT_reads_report.txt')
+
+    def test_bwa_sw(self):
+        inputs = {'src': 'genome.fasta.gz'}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        self.assertDone(genome)
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
+
+        inputs = {'src': 'reads.fastq.gz'}
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk}
+        aligned_reads = self.run_processor('alignment:bwa_sw-0.7.5a', inputs)
+        self.assertDone(aligned_reads)
+        self.assertFiles(aligned_reads, 'bam', 'bwa_sw_reads_mapped.bam')
+        self.assertFiles(aligned_reads, 'stats', 'bwa_sw_reads_report.txt')
+
+    def test_bwa_mem(self):
+        inputs = {'src': 'genome.fasta.gz'}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        self.assertDone(genome)
+        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
+
+        inputs = {'src': 'reads.fastq.gz'}
+        reads = self.run_processor('import:upload:reads-fastq', inputs)
+        self.assertDone(reads)
+        self.assertFields(reads, 'bases', 35)
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk}
+        aligned_reads = self.run_processor('alignment:bwa_mem-0.7.5a', inputs)
+        self.assertDone(aligned_reads)
+        self.assertFiles(aligned_reads, 'bam', 'bwa_mem_reads_mapped.bam')
+        self.assertFiles(aligned_reads, 'stats', 'bwa_mem_reads_report.txt')
