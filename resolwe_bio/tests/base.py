@@ -7,7 +7,7 @@ from django.core import management
 from django.test import TestCase
 from django.test.client import Client
 
-from server.models import Data, Case, Processor, GenUser, iterate_schema
+from server.models import Data, Case, Storage, Processor, GenUser, iterate_schema
 from server.tasks import manager
 from ..unit.utils import create_test_case, clear_all
 
@@ -93,4 +93,15 @@ class BaseProcessorTestCase(TestCase):
         wanted = os.path.join(self.current_path, 'outputs', fn)
         wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
 
-        return wanted_hash == output_hash
+        self.assertEqual(wanted_hash, output_hash)
+
+    def assertJSON(self, storage_id, field_path, fn):
+        storage = Storage.objects.get(pk=storage_id)
+
+        field = self.get_field(storage['json'], field_path)
+        field_hash = hashlib.sha256(field).hexdigest()
+
+        wanted = os.path.join(self.current_path, 'outputs', fn)
+        wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+
+        self.assertEqual(wanted_hash, field_hash)
