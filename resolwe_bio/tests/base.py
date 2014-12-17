@@ -61,8 +61,7 @@ class BaseProcessorTestCase(TestCase):
             if field_schema['type'].startswith('data:'):
                 fields[field_schema['name']] = str(fields[field_schema['name']])
             if field_schema['type'].startswith('list:data:'):
-                for obj in fields[field_schema['name']]:
-                    obj = str(obj)
+                fields[field_schema['name']] = [str(obj) for obj in fields[field_schema['name']]]
 
             # fill field with default values if empty
             if 'default' in field_schema and field_schema['name'] not in fields:
