@@ -5,9 +5,8 @@ import shutil
 from django.conf import settings
 from django.core import management
 from django.test import TestCase
-from django.test.client import Client
 
-from server.models import Data, Case, Storage, Processor, GenUser, iterate_schema
+from server.models import Data, Storage, Processor, GenUser, iterate_schema
 from server.tasks import manager
 from ..unit.utils import create_test_case, clear_all
 
@@ -21,6 +20,17 @@ class BaseProcessorTestCase(TestCase):
 
         cls.user = GenUser.objects.create_superuser(email="admin@genialis.com")
         management.call_command('register')
+
+        cls.created_files = []
+
+    @classmethod
+    def tearDownClass(cls):
+        super(BaseProcessorTestCase, cls).tearDownClass()
+
+        if len(cls.created_files):
+            print "#" * 80
+            print "WARNING: Next files were created: {}".format(', '.join(cls.created_files))
+            print "#" * 80
 
     def setUp(self):
         super(BaseProcessorTestCase, self).setUp()
@@ -83,7 +93,7 @@ class BaseProcessorTestCase(TestCase):
 
     def assertFields(self, obj, path, value):
         field = self.get_field(obj['output'], path)
-        self.assertEqual(field, str(value))
+        return self.assertEqual(field, str(value))
 
     def assertFiles(self, obj, field_path, fn):
         field = self.get_field(obj['output'], field_path)
@@ -91,9 +101,12 @@ class BaseProcessorTestCase(TestCase):
         output_hash = hashlib.sha256(open(output).read()).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
-        wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+        if os.path.isfile(wanted):
+            wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+            return self.assertEqual(wanted_hash, output_hash)
 
-        self.assertEqual(wanted_hash, output_hash)
+        shutil.copyfile(output, wanted)
+        self.created_files.append(fn)
 
     def assertJSON(self, storage_id, field_path, fn):
         storage = Storage.objects.get(pk=storage_id)
@@ -104,4 +117,4 @@ class BaseProcessorTestCase(TestCase):
         wanted = os.path.join(self.current_path, 'outputs', fn)
         wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
 
-        self.assertEqual(wanted_hash, field_hash)
+        return self.assertEqual(wanted_hash, field_hash)
