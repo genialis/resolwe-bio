@@ -43,7 +43,12 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertDone(annotation)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'gff': annotation.pk,
+            'PE_options': {
+                'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
         self.assertFiles(aligned_reads, 'stats', 'tophat_reads_report.txt')

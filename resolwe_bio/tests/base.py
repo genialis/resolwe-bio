@@ -88,14 +88,14 @@ class BaseProcessorTestCase(TestCase):
 
         return Data.objects.get(pk=d.pk)
 
-    def assertDone(self, obj):
+    def assertDone(self, obj):  # pylint: disable=invalid-name
         self.assertEqual(obj.status, 'done')
 
-    def assertFields(self, obj, path, value):
+    def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         field = self.get_field(obj['output'], path)
         return self.assertEqual(field, str(value))
 
-    def assertFiles(self, obj, field_path, fn):
+    def assertFiles(self, obj, field_path, fn):  # pylint: disable=invalid-name
         field = self.get_field(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
         output_hash = hashlib.sha256(open(output).read()).hexdigest()
@@ -108,7 +108,7 @@ class BaseProcessorTestCase(TestCase):
         shutil.copyfile(output, wanted)
         self.created_files.append(fn)
 
-    def assertJSON(self, storage_id, field_path, fn):
+    def assertJSON(self, storage_id, field_path, fn):  # pylint: disable=invalid-name
         storage = Storage.objects.get(pk=storage_id)
 
         field = self.get_field(storage['json'], field_path)

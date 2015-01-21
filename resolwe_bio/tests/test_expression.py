@@ -25,7 +25,12 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertDone(annotation)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'gff': annotation.pk,
+            'PE_options': {
+                'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
@@ -43,7 +48,11 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertDone(cuff_merge)
         self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
 
-        inputs = {'alignments': [aligned_reads.pk, aligned_reads.pk], 'replicates': ['1', '2'], 'labels': ['g1', 'g2'], 'gff': cuff_merge.pk}
+        inputs = {
+            'alignments': [aligned_reads.pk, aligned_reads.pk],
+            'replicates': ['1', '2'],
+            'labels': ['g1', 'g2'],
+            'gff': cuff_merge.pk}
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
         self.assertDone(cuffnorm)
         self.assertFiles(cuffnorm, 'isoforms_fpkm_tracking', 'cuffnorm_output')
@@ -57,7 +66,12 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertDone(annotation)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'gff': annotation.pk,
+            'PE_options': {
+                'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
