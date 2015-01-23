@@ -88,3 +88,23 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
         self.assertDone(etc)
+
+    def test_expression_htseq(self):
+        genome = self.prepair_genome()
+        reads = self.prepair_reads()
+
+        inputs = {'src': 'annotation.gtf'}
+        annotation = self.run_processor('import:upload:annotation-gtf', inputs)
+        self.assertDone(annotation)
+        self.assertFiles(annotation, 'gtf', 'annotation.gtf')
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        self.assertDone(aligned_reads)
+
+        inputs = {'alignments': aligned_reads.pk, 'gff': annotation.pk, 'stranded': "no", 'id_attribute': 'transcript_id'}
+        expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
+        self.assertDone(expression)
+        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz')
+        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz')
+        self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz')
