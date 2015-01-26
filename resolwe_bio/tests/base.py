@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core import management
 from django.test import TestCase
 
-from server.models import Data, Storage, Processor, GenUser, iterate_schema
+from server.models import Data, Storage, Processor, GenUser, iterate_fields, iterate_schema
 from server.tasks import manager
 from ..unit.utils import create_test_case, clear_all
 
@@ -55,7 +55,7 @@ class BaseProcessorTestCase(TestCase):
     def run_processor(self, processor_name, input_):
         p = Processor.objects.get(name=processor_name)
 
-        for field_schema, fields in iterate_schema(input_, p['input_schema']):
+        for field_schema, fields in iterate_fields(input_, p['input_schema']):
             # copy referenced files to upload dir
             if field_schema['type'] == "basic:file:":
                 old_path = os.path.join(self.current_path, 'inputs', fields[field_schema['name']])
@@ -72,10 +72,6 @@ class BaseProcessorTestCase(TestCase):
                 fields[field_schema['name']] = str(fields[field_schema['name']])
             if field_schema['type'].startswith('list:data:'):
                 fields[field_schema['name']] = [str(obj) for obj in fields[field_schema['name']]]
-
-            # fill field with default values if empty
-            if 'default' in field_schema and field_schema['name'] not in fields:
-                fields[field_schema['name']] = field_schema['default']
 
         d = Data(
             input=input_,
