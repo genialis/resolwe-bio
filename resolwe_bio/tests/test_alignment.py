@@ -20,7 +20,10 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         genome = self.prepair_genome()
         reads = self.prepair_reads()
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'r': "-a -m 1 --best --strata"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'reporting': {'r': "-a -m 1 --best --strata"}}
         aligned_reads = self.run_processor('alignment:bowtie-1-0-0-trimmx', inputs)
         self.assertDone(aligned_reads)
         self.assertFiles(aligned_reads, 'stats', 'bowtie_reads_report.tab')
@@ -29,7 +32,10 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         genome = self.prepair_genome()
         reads = self.prepair_reads()
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
         self.assertDone(aligned_reads)
         self.assertFiles(aligned_reads, 'stats', 'bowtie2_reads_report.txt')

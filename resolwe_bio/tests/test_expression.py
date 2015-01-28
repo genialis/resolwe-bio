@@ -34,16 +34,25 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
-        inputs = {'alignment': aligned_reads.pk, 'gff': annotation.pk, 'genome': genome.pk}
+        inputs = {
+            'alignment': aligned_reads.pk,
+            'gff': annotation.pk,
+            'genome': genome.pk}
         cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)
         self.assertDone(cuff_exp)
         self.assertFiles(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
 
-        inputs = {'alignment': aligned_reads.pk, 'gff': annotation.pk, 'genome': genome.pk}
+        inputs = {
+            'alignment': aligned_reads.pk,
+            'gff': annotation.pk,
+            'genome': genome.pk}
         cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs)
         self.assertDone(cuff_exp2)
 
-        inputs = {'expressions': [cuff_exp.pk, cuff_exp2.pk], 'gff': annotation.pk, 'genome': genome.pk}
+        inputs = {
+            'expressions': [cuff_exp.pk, cuff_exp2.pk],
+            'gff': annotation.pk,
+            'genome': genome.pk}
         cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
         self.assertDone(cuff_merge)
         self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
@@ -75,12 +84,17 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
-        inputs = {'genome': genome.pk, 'gff': annotation.pk}
+        inputs = {
+            'genome': genome.pk,
+            'gff': annotation.pk}
         mappability = self.run_processor('mappability:bcm-1-0-0', inputs)
         self.assertDone(mappability)
         self.assertFiles(mappability, 'mappability', 'mappability.tab')
 
-        inputs = {'alignment': aligned_reads.pk, 'gff': annotation.pk, 'mappable': mappability.pk}
+        inputs = {
+            'alignment': aligned_reads.pk,
+            'gff': annotation.pk,
+            'mappable': mappability.pk}
         expression = self.run_processor('expression:bcm-1-0-0', inputs)
         self.assertDone(expression)
         self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab')
@@ -98,11 +112,19 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertDone(annotation)
         self.assertFiles(annotation, 'gtf', 'annotation.gtf')
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'gff': annotation.pk, 'PE_options': {'library_type': "fr-unstranded"}}
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'gff': annotation.pk,
+            'PE_options': {'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
-        inputs = {'alignments': aligned_reads.pk, 'gff': annotation.pk, 'stranded': "no", 'id_attribute': 'transcript_id'}
+        inputs = {
+            'alignments': aligned_reads.pk,
+            'gff': annotation.pk,
+            'stranded': "no",
+            'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
         self.assertDone(expression)
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz')
