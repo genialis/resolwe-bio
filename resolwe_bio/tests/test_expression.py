@@ -58,7 +58,19 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
 
         inputs = {
-            'alignments': [aligned_reads.pk, aligned_reads.pk],
+            'alignment': aligned_reads.pk,
+            'gff': cuff_merge.pk}
+        cuffquant = self.run_processor('cuffquant:-2-2-1', inputs)
+        self.assertDone(cuffquant)
+
+        inputs = {
+            'alignment': aligned_reads.pk,
+            'gff': cuff_merge.pk}
+        cuffquant2 = self.run_processor('cuffquant:-2-2-1', inputs)
+        self.assertDone(cuffquant2)
+
+        inputs = {
+            'cuffquant': [cuffquant.pk, cuffquant2.pk],
             'replicates': ['1', '2'],
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
