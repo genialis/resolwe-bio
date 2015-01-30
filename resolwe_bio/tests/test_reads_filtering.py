@@ -3,7 +3,7 @@ from .base import BaseProcessorTestCase
 
 class ReadsFilteringProcessorTestCase(BaseProcessorTestCase):
 
-    def test_SortMeRNA_single(self):
+    def test_sormerna_single(self):
         inputs = {'src': 'rRNA_forw.fastq.gz'}
         reads = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads)
@@ -18,7 +18,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(filtered_reads, 'fastq', 'reads_wo_rRNA_single.fastq.gz')
         self.assertFiles(filtered_reads, 'fastq_rRNA', 'reads_rRNA_single.fastq.gz')
 
-    def test_SortMeRNA_paired(self):
+    def test_sortmerna_paired(self):
         inputs = {
             'src1': 'rRNA_forw.fastq.gz',
             'src2': 'rRNA_rew.fastq.gz'}

@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core import management
 from django.test import TestCase
 
-from server.models import Data, Storage, Processor, GenUser, iterate_fields, iterate_schema
+from server.models import Data, Storage, Processor, GenUser, iterate_fields
 from server.tasks import manager
 from ..unit.utils import create_test_case, clear_all
 
