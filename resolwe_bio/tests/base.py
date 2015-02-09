@@ -111,6 +111,11 @@ class BaseProcessorTestCase(TestCase):
         field_hash = hashlib.sha256(field).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
-        wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
 
-        return self.assertEqual(wanted_hash, field_hash)
+        if os.path.isfile(wanted):
+            wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+            return self.assertEqual(wanted_hash, field_hash)
+
+        with open(wanted, 'w') as file_:
+            file_.write(field)
+        self.created_files.append(fn)
