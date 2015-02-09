@@ -1,4 +1,5 @@
 import hashlib
+import gzip
 import os
 import shutil
 
@@ -91,21 +92,24 @@ class BaseProcessorTestCase(TestCase):
         field = self.get_field(obj['output'], path)
         return self.assertEqual(field, str(value))
 
-    def assertFiles(self, obj, field_path, fn):  # pylint: disable=invalid-name
+    def assertFiles(self, obj, field_path, fn, gziped=False):  # pylint: disable=invalid-name
         field = self.get_field(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
-        output_hash = hashlib.sha256(open(output).read()).hexdigest()
+        output_file = gzip.open(output, 'rb') if gziped else open(output)
+        output_hash = hashlib.sha256(output_file.read()).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
         if os.path.isfile(wanted):
-            wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+            wanted_file = gzip.open(wanted, 'rb') if gziped else open(wanted)
+            wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
             return self.assertEqual(wanted_hash, output_hash)
 
         shutil.copyfile(output, wanted)
         self.created_files.append(fn)
 
-    def assertJSON(self, storage_id, field_path, fn):  # pylint: disable=invalid-name
-        storage = Storage.objects.get(pk=storage_id)
+    def assertJSON(self, storage, field_path, fn):  # pylint: disable=invalid-name
+        if type(storage) is not Storage:
+            storage = Storage.objects.get(pk=str(storage))
 
         field = self.get_field(storage['json'], field_path)
         field_hash = hashlib.sha256(field).hexdigest()
