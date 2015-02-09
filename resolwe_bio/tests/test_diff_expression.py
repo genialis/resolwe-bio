@@ -147,4 +147,4 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'mappability': mappability.pk}
         diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
         self.assertDone(diff_exp)
-        # self.assertJSON(diff_exp, 'volcano_plot', 'bayseq_volcano.json')
+        self.assertJSON(diff_exp.pk, 'volcano_plot', 'bayseq_volcano.json')
