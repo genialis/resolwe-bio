@@ -16,7 +16,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
         reads1 = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads1)
 
-        inputs = {'src': '00Hr.fastq.gz'}
+        inputs = {'src': '20Hr.fastq.gz'}
         reads2 = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads2)
 
@@ -92,7 +92,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
         reads1 = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads1)
 
-        inputs = {'src': '00Hr.fastq.gz'}
+        inputs = {'src': '20Hr.fastq.gz'}
         reads2 = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads2)
 
@@ -147,4 +147,4 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'mappability': mappability.pk}
         diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
         self.assertDone(diff_exp)
-        self.assertJSON(diff_exp.pk, 'volcano_plot', 'bayseq_volcano.json')
+        # self.assertJSON(diff_exp.volcano_plot, '', 'bayseq_volcano.json')
