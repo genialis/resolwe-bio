@@ -87,13 +87,50 @@ class BaseProcessorTestCase(TestCase):
         return Data.objects.get(pk=d.pk)
 
     def assertDone(self, obj):  # pylint: disable=invalid-name
+        """Check if Data object's status id 'done'."""
         self.assertEqual(obj.status, 'done')
 
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
+        """Compare Data object's field to given value.
+
+        .. attribute:: obj
+
+            Data object with field to compare
+
+        .. attribute:: path
+
+            Path to field in Data object.
+
+        .. attribute:: value
+
+            Desired value.
+
+        """
         field = self.get_field(obj['output'], path)
         return self.assertEqual(field, str(value))
 
     def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
+        """Compare output file of a processor to the given correct file.
+
+        .. attribute:: obj
+
+            Data object which includes file that we want to compare.
+
+        .. attribute:: field_path
+
+            Path to file name in Data object.
+
+        .. attribute:: fn
+
+            File name (and relative path) of file to which we want to
+            compare.
+            Name/path is relative to 'server/tests/processor/outputs'.
+
+        .. attribute:: gzipped
+
+            If true, file is unziped before comparison.
+
+        """
         field = self.get_field(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
         output_file = gzip.open(output, 'rb') if gzipped else open(output)
@@ -109,6 +146,24 @@ class BaseProcessorTestCase(TestCase):
         self.created_files.append(fn)
 
     def assertJSON(self, storage, field_path, fn):  # pylint: disable=invalid-name
+        """Compare JSON in Storage object to the given correct output.
+
+        .. attribute:: storage
+
+            Storage (or storage id) which contains JSON to compare.
+
+        .. attribute:: field_path
+
+            Path to JSON subset to compare in Storage object. If it is
+            empty, entire Storage object will be compared.
+
+        .. attribute:: fn
+
+            File name (and relative path) of file to which we want to
+            compare.
+            Name/path is relative to 'server/tests/processor/outputs'.
+
+        """
         if type(storage) is not Storage:
             storage = Storage.objects.get(pk=str(storage))
 
