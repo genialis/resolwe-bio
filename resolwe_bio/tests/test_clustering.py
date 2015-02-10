@@ -10,6 +10,7 @@ class ClusteringProcessorTestCase(BaseProcessorTestCase):
         return genome
 
     def test_hc_clustering(self):
+        """Cannot use assertJSON - JSON output contains ETC object IDs."""
         genome = self.prepair_genome()
 
         inputs = {'src': '00Hr.fastq.gz'}
@@ -79,4 +80,3 @@ class ClusteringProcessorTestCase(BaseProcessorTestCase):
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067100']}
         clustering = self.run_processor('clustering:hierarchical:bcm-1-0-0', inputs)
         self.assertDone(clustering)
-        # self.assertJSON(clustering.clustering, '', 'HC_clustering.json')
