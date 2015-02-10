@@ -15,7 +15,7 @@ class EnrichmentProcessorTestCase(BaseProcessorTestCase):
             'ontology': ontology.pk,
             'gaf': annotation.pk,
             'genes': ['DDB_G0272813', 'DDB_G0288677', 'DDB_G0285417',
-                        'DDB_G0267442', 'DDB_G0268480', 'DDB_G0283279']}
+                      'DDB_G0267442', 'DDB_G0268480', 'DDB_G0283279']}
         enrichment = self.run_processor('goenrichment:bcm-1-0-0', inputs)
         self.assertDone(enrichment)
-        # self.assertJSON(enrichment.terms, '', 'go_enriched_terms.json')
+        self.assertJSON(enrichment.output['terms'], '', 'go_enriched_terms.json')
