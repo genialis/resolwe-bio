@@ -49,8 +49,9 @@ class BaseProcessorTestCase(TestCase):
             d.delete()
 
     def get_field(self, obj, path):
-        for p in path.split('.'):
-            obj = obj[p]
+        if len(path):
+            for p in path.split('.'):
+                obj = obj[p]
         return obj
 
     def run_processor(self, processor_name, input_):
@@ -92,15 +93,15 @@ class BaseProcessorTestCase(TestCase):
         field = self.get_field(obj['output'], path)
         return self.assertEqual(field, str(value))
 
-    def assertFiles(self, obj, field_path, fn, gziped=False):  # pylint: disable=invalid-name
+    def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
         field = self.get_field(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
-        output_file = gzip.open(output, 'rb') if gziped else open(output)
+        output_file = gzip.open(output, 'rb') if gzipped else open(output)
         output_hash = hashlib.sha256(output_file.read()).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
         if os.path.isfile(wanted):
-            wanted_file = gzip.open(wanted, 'rb') if gziped else open(wanted)
+            wanted_file = gzip.open(wanted, 'rb') if gzipped else open(wanted)
             wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
             return self.assertEqual(wanted_hash, output_hash)
 
@@ -111,7 +112,7 @@ class BaseProcessorTestCase(TestCase):
         if type(storage) is not Storage:
             storage = Storage.objects.get(pk=str(storage))
 
-        field = self.get_field(storage['json'], field_path)
+        field = str(self.get_field(storage['json'], field_path))
         field_hash = hashlib.sha256(field).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
