@@ -55,7 +55,7 @@ class BaseProcessorTestCase(TestCase):
             shutil.rmtree(data_dir, ignore_errors=True)
             d.delete()
 
-    def get_field(self, obj, path):
+    def _get_field(self, obj, path):
         if len(path):
             for p in path.split('.'):
                 obj = obj[p]
@@ -115,7 +115,7 @@ class BaseProcessorTestCase(TestCase):
         :type value: :obj:`str`
 
         """
-        field = self.get_field(obj['output'], path)
+        field = self._get_field(obj['output'], path)
         return self.assertEqual(field, str(value))
 
     def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
@@ -137,7 +137,7 @@ class BaseProcessorTestCase(TestCase):
         :type gzipped: :obj:`bool`
 
         """
-        field = self.get_field(obj['output'], field_path)
+        field = self._get_field(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
         output_file = gzip.open(output, 'rb') if gzipped else open(output)
         output_hash = hashlib.sha256(output_file.read()).hexdigest()
@@ -172,7 +172,7 @@ class BaseProcessorTestCase(TestCase):
         if type(storage) is not Storage:
             storage = Storage.objects.get(pk=str(storage))
 
-        field = str(self.get_field(storage['json'], field_path))
+        field = str(self._get_field(storage['json'], field_path))
         field_hash = hashlib.sha256(field).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
