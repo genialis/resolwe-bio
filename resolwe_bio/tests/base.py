@@ -1,10 +1,9 @@
 """
-:class:`server.tests.processor.base.BaseProcessorTestCase`
-
  .. autoclass:: server.tests.processor.base.BaseProcessorTestCase
-    :members: assertDone, assertFields, assertFiles, assertJSON
-"""
+    :members: run_processor, assertDone, assertFields, assertFiles,
+        assertJSON
 
+"""
 import hashlib
 import gzip
 import os
@@ -20,6 +19,29 @@ from ..unit.utils import create_test_case, clear_all
 
 
 class BaseProcessorTestCase(TestCase):
+    """Base class for writing processor tests.
+
+    This class is subclass of Django's ``TestCase`` with some specific
+    functions used for testing processors.
+
+    To write a processor test use standard Django's syntax for writing
+    tests and follow next steps:
+
+    #. Put input files (if any) in ``server/tests/processor/inputs``
+       folder.
+    #. Run test with :func:`run_processor`.
+    #. Check if processor has finished successfully with
+       :func:`assertDone` function.
+    #. Assert processor's output with :func:`assertFiles`,
+       :func:`assertFields` and :func:`assertJSON` functions.
+
+    .. DANGER::
+        If output files doesn't exists in
+        ``server/tests/processor/outputs`` folder, they are created
+        automatically. But you have to chack that they are correct
+        before using them for further runs.
+
+    """
     @classmethod
     def setUpClass(cls):
         clear_all()
@@ -56,12 +78,29 @@ class BaseProcessorTestCase(TestCase):
             d.delete()
 
     def _get_field(self, obj, path):
+        """Get field value ``path`` in multilevel dict ``obj``."""
         if len(path):
             for p in path.split('.'):
                 obj = obj[p]
         return obj
 
     def run_processor(self, processor_name, input_):
+        """Runs given processor with specified inputs.
+
+        If input is file, file path should be given relative to
+        ``server/tests/processor/inputs`` folder.
+
+        :param processor_name: name of the processor to run
+        :type processor_name: :obj:`str`
+
+        :param ``input_``: Input paramaters for processor. You don't
+            have to specifie parameters for which default values are
+            given.
+        :type ``input_``: :obj:`dict`
+
+        :return: :obj:`server.models.Data` object which is created by
+            the processor.
+        """
         p = Processor.objects.get(name=processor_name)
 
         for field_schema, fields in iterate_fields(input_, p['input_schema']):
@@ -94,7 +133,7 @@ class BaseProcessorTestCase(TestCase):
         return Data.objects.get(pk=d.pk)
 
     def assertDone(self, obj):  # pylint: disable=invalid-name
-        """Check if Data object's status id 'done'.
+        """Check if Data object's status is 'done'.
 
         :param obj: Data object for which to check status
         :type obj: :obj:`server.models.Data`
