@@ -1,3 +1,10 @@
+"""
+:class:`server.tests.processor.base.BaseProcessorTestCase`
+
+ .. autoclass:: server.tests.processor.base.BaseProcessorTestCase
+    :members: assertDone, assertFields, assertFiles, assertJSON
+"""
+
 import hashlib
 import gzip
 import os
@@ -87,23 +94,25 @@ class BaseProcessorTestCase(TestCase):
         return Data.objects.get(pk=d.pk)
 
     def assertDone(self, obj):  # pylint: disable=invalid-name
-        """Check if Data object's status id 'done'."""
+        """Check if Data object's status id 'done'.
+
+        :param obj: Data object for which to check status
+        :type obj: :obj:`server.models.Data`
+
+        """
         self.assertEqual(obj.status, 'done')
 
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         """Compare Data object's field to given value.
 
-        .. attribute:: obj
+        :param obj: Data object with field to compare
+        :type obj: :obj:`server.models.Data`
 
-            Data object with field to compare
+        :param path: Path to field in Data object.
+        :type path: :obj:`str`
 
-        .. attribute:: path
-
-            Path to field in Data object.
-
-        .. attribute:: value
-
-            Desired value.
+        :param value: Desired value.
+        :type value: :obj:`str`
 
         """
         field = self.get_field(obj['output'], path)
@@ -112,23 +121,20 @@ class BaseProcessorTestCase(TestCase):
     def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
         """Compare output file of a processor to the given correct file.
 
-        .. attribute:: obj
-
-            Data object which includes file that we want to compare.
-
-        .. attribute:: field_path
-
-            Path to file name in Data object.
-
-        .. attribute:: fn
-
-            File name (and relative path) of file to which we want to
+        :param obj: Data object which includes file that we want to
             compare.
-            Name/path is relative to 'server/tests/processor/outputs'.
+        :type obj: :obj:`server.models.Data`
 
-        .. attribute:: gzipped
+        :param field_path: Path to file name in Data object.
+        :type field_path: :obj:`str`
 
-            If true, file is unziped before comparison.
+        :param fn: File name (and relative path) of file to which we
+            want to compare. Name/path is relative to
+            'server/tests/processor/outputs'.
+        :type fn: :obj:`str`
+
+        :param gzipped: If true, file is unziped before comparison.
+        :type gzipped: :obj:`bool`
 
         """
         field = self.get_field(obj['output'], field_path)
@@ -148,20 +154,19 @@ class BaseProcessorTestCase(TestCase):
     def assertJSON(self, storage, field_path, fn):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
 
-        .. attribute:: storage
-
-            Storage (or storage id) which contains JSON to compare.
-
-        .. attribute:: field_path
-
-            Path to JSON subset to compare in Storage object. If it is
-            empty, entire Storage object will be compared.
-
-        .. attribute:: fn
-
-            File name (and relative path) of file to which we want to
+        :param storage: Storage (or storage id) which contains JSON to
             compare.
-            Name/path is relative to 'server/tests/processor/outputs'.
+        :type storage: :obj:`server.models.Storage` or :obj:`str`
+
+        :param field_path: Path to JSON subset to compare in Storage
+            object. If it is empty, entire Storage object will be
+            compared.
+        :type field_path: :obj:`str`
+
+        :param fn: File name (and relative path) of file to which we
+            want to compare. Name/path is relative to
+            'server/tests/processor/outputs'.
+        :type fn: :obj:`str`
 
         """
         if type(storage) is not Storage:
