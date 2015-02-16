@@ -155,6 +155,15 @@ class BaseProcessorTestCase(TestCase):
             print("#END OF STDOUT.TXT", "#" * 62, "\n")
             raise
 
+    def assertError(self, obj):  # pylint: disable=invalid-name
+        """Check if Data object's status is 'error'.
+
+        :param obj: Data object for which to check status
+        :type obj: :obj:`server.models.Data`
+
+        """
+        self.assertEqual(obj.status, 'error')
+
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         """Compare Data object's field to given value.
 
