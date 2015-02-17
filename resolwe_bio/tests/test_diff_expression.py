@@ -83,7 +83,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': cuff_merge.pk}
         cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs)
         self.assertDone(cuffdiff)
-        self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output')
+        self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', gzipped=True)
 
     def test_bayseq_bcm(self):
         genome = self.prepair_genome()

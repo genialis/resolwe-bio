@@ -76,7 +76,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
             'gff': cuff_merge.pk}
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
         self.assertDone(cuffnorm)
-        self.assertFiles(cuffnorm, 'isoforms_fpkm_tracking', 'cuffnorm_output')
+        self.assertFiles(cuffnorm, 'expression_set', 'expression_set.tsv.gz', gzipped=True)
 
     def test_expression_bcm(self):
         genome = self.prepair_genome()
@@ -114,6 +114,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
         self.assertDone(etc)
+        self.assertJSON(etc.output['etc'], '', 'etc.json')
 
     def test_expression_htseq(self):
         genome = self.prepair_genome()
@@ -142,3 +143,4 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz')
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz')
         self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz')
+        self.assertJSON(expression.output['exp'], '', 'expression.json')
