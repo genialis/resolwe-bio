@@ -109,7 +109,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
             'mappable': mappability.pk}
         expression = self.run_processor('expression:bcm-1-0-0', inputs)
         self.assertDone(expression)
-        self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab')
+        self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', gzipped=True)
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
