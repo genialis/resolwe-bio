@@ -140,7 +140,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
             'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
         self.assertDone(expression)
-        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz')
-        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz')
-        self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz')
+        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
+        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
+        self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz', gzipped=True)
         self.assertJSON(expression.output['exp'], '', 'expression.json')
