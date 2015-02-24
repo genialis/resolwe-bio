@@ -27,26 +27,26 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
 
         # GTF inport
         inputs = {'src': 'annotation_ok.gtf'}
-        annotation_GTF = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertDone(annotation_GTF)
-        self.assertFiles(annotation_GTF, 'gtf', 'annotation_ok.gtf')
+        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs)
+        self.assertDone(annotation_gtf)
+        self.assertFiles(annotation_gtf, 'gtf', 'annotation_ok.gtf')
 
-        # redundant GTF inport 
+        # redundant GTF inport
         inputs = {'src': 'annotation_red.gtf'}
-        annotation_GTF_red = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertDone(annotation_GTF_red)
-        self.assertFiles(annotation_GTF_red, 'gtf', 'annotation_red.gtf')
+        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs)
+        self.assertDone(annotation_gtf_red)
+        self.assertFiles(annotation_gtf_red, 'gtf', 'annotation_red.gtf')
 
         inputs = {
             'genome': genome.pk,
             'reads': reads.pk,
             'gff': annotation.pk,
             'PE_options': {
-            'library_type': "fr-unstranded"}}
+                'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertDone(aligned_reads)
 
-        #samtools mapping
+        # samtools mapping
         inputs = {
             'mapping': aligned_reads.pk,
             'genome': genome.pk}
@@ -56,19 +56,19 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
         # Coverage report
         inputs = {
             'mapping': aligned_reads.pk,
-            'gtf': annotation_GTF.pk,
+            'gtf': annotation_gtf.pk,
             'variants': variants.pk,
             'filter': 3,
             'genes': ['geneX']}
- 
+
         genc_results = self.run_processor('coverage:garvan', inputs)
         self.assertDone(genc_results)
         # self.assertFiles(genc_results, 'bigwig', 'genome_coverage.bw')
-        
+
         # Missing gene in BAM file test
         inputs = {
             'mapping': aligned_reads.pk,
-            'gtf': annotation_GTF_red.pk,
+            'gtf': annotation_gtf_red.pk,
             'variants': variants.pk,
             'filter': 3,
             'genes': ['geneX']}
