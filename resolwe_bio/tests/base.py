@@ -4,10 +4,13 @@
         assertJSON
 
 """
+from __future__ import print_function
+
 import hashlib
 import gzip
 import os
 import shutil
+import sys
 
 from django.conf import settings
 from django.core import management
@@ -58,9 +61,9 @@ class BaseProcessorTestCase(TestCase):
         super(BaseProcessorTestCase, cls).tearDownClass()
 
         if len(cls.created_files):
-            print "#" * 80
-            print "WARNING: Next files were created: {}".format(', '.join(cls.created_files))
-            print "#" * 80
+            print("#" * 80)
+            print("WARNING: Next files were created: {}".format(', '.join(cls.created_files)))
+            print("#" * 80)
 
     def setUp(self):
         super(BaseProcessorTestCase, self).setUp()
@@ -135,11 +138,22 @@ class BaseProcessorTestCase(TestCase):
     def assertDone(self, obj):  # pylint: disable=invalid-name
         """Check if Data object's status is 'done'.
 
+        Print stdout.txt file if status is not 'done'.
+
         :param obj: Data object for which to check status
         :type obj: :obj:`server.models.Data`
 
         """
-        self.assertEqual(obj.status, 'done')
+        try:
+            return self.assertEqual(obj.status, 'done')
+        except:  # pylint: disable=bare-except
+            print("\n", "#BEGINNING OF STDOUT.TXT", "#" * 56)
+            stdout = os.path.join(settings.DATAFS['data_path'], str(obj.pk), 'stdout.txt')
+            with open(stdout, 'r') as fn:
+                for line in fn.readlines():
+                    print('# {}'.format(line), file=sys.stderr)
+            print("#END OF STDOUT.TXT", "#" * 62, "\n")
+            raise
 
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         """Compare Data object's field to given value.
