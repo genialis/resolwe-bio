@@ -13,7 +13,6 @@ import shutil
 import sys
 
 from django.conf import settings
-from django.core import management
 from django.test import TestCase
 
 from server.models import Data, Storage, Processor, GenUser, iterate_fields
@@ -47,13 +46,11 @@ class BaseProcessorTestCase(TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        clear_all()
+        clear_all(clear_processors=False)
 
         super(BaseProcessorTestCase, cls).setUpClass()
 
         cls.user = GenUser.objects.create_superuser(email="admin@genialis.com")
-        management.call_command('register')
-
         cls.created_files = []
 
     @classmethod
@@ -103,6 +100,7 @@ class BaseProcessorTestCase(TestCase):
 
         :return: :obj:`server.models.Data` object which is created by
             the processor.
+
         """
         p = Processor.objects.get(name=processor_name)
 
@@ -131,7 +129,7 @@ class BaseProcessorTestCase(TestCase):
             case_ids=[self.case.pk],
         )
         d.save()
-        manager(run_sync=True)
+        manager(run_sync=True, verbosity=0)
 
         return Data.objects.get(pk=d.pk)
 
