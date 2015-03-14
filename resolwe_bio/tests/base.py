@@ -17,10 +17,11 @@ from django.test import TestCase
 
 from server.models import Data, Storage, Processor, GenUser, iterate_fields
 from server.tasks import manager
-from ..unit.utils import create_test_case, clear_all
+from ..unit.utils import create_admin, create_test_case, clear_all
 
 
 class BaseProcessorTestCase(TestCase):
+
     """Base class for writing processor tests.
 
     This class is subclass of Django's ``TestCase`` with some specific
@@ -44,29 +45,12 @@ class BaseProcessorTestCase(TestCase):
         before using them for further runs.
 
     """
-    @classmethod
-    def setUpClass(cls):
-        clear_all(clear_processors=False)
-
-        super(BaseProcessorTestCase, cls).setUpClass()
-
-        cls.user = GenUser.objects.create_superuser(email="admin@genialis.com")
-        cls.created_files = []
-
-    @classmethod
-    def tearDownClass(cls):
-        super(BaseProcessorTestCase, cls).tearDownClass()
-
-        if len(cls.created_files):
-            print("#" * 80)
-            print("WARNING: Next files were created: {}".format(', '.join(cls.created_files)))
-            print("#" * 80)
 
     def setUp(self):
         super(BaseProcessorTestCase, self).setUp()
-
+        self.admin = create_admin(clear_processors=False)
+        self.case = create_test_case(self.admin.pk)['c1']
         self.current_path = os.path.dirname(os.path.abspath(__file__))
-        self.case = create_test_case(self.user.pk)['c1']
 
     def tearDown(self):
         super(BaseProcessorTestCase, self).tearDown()
@@ -74,8 +58,8 @@ class BaseProcessorTestCase(TestCase):
         # Delete Data objects and their files
         for d in Data.objects.all():
             data_dir = os.path.join(settings.DATAFS['data_path'], str(d.pk))
-            shutil.rmtree(data_dir, ignore_errors=True)
             d.delete()
+            shutil.rmtree(data_dir, ignore_errors=True)
 
     def _get_field(self, obj, path):
         """Get field value ``path`` in multilevel dict ``obj``."""
@@ -124,7 +108,7 @@ class BaseProcessorTestCase(TestCase):
 
         d = Data(
             input=input_,
-            author_id=self.user.pk,
+            author_id=self.admin.pk,
             processor_name=processor_name,
             case_ids=[self.case.pk],
         )
@@ -203,13 +187,14 @@ class BaseProcessorTestCase(TestCase):
         output_hash = hashlib.sha256(output_file.read()).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
-        if os.path.isfile(wanted):
-            wanted_file = gzip.open(wanted, 'rb') if gzipped else open(wanted)
-            wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
-            return self.assertEqual(wanted_hash, output_hash)
 
-        shutil.copyfile(output, wanted)
-        self.created_files.append(fn)
+        if not os.path.isfile(wanted):
+            shutil.copyfile(output, wanted)
+            self.fail(msg="Output file {} missing so it was created.".format(fn))
+
+        wanted_file = gzip.open(wanted, 'rb') if gzipped else open(wanted)
+        wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
+        return self.assertEqual(wanted_hash, output_hash)
 
     def assertJSON(self, storage, field_path, fn):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
@@ -237,10 +222,12 @@ class BaseProcessorTestCase(TestCase):
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
 
+        if not os.path.isfile(wanted):
+            with open(wanted, 'w') as fp:
+                fp.write(field)
+
+            self.fail(msg="Output file {} missing so it was created.".format(fn))
+
         if os.path.isfile(wanted):
             wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
             return self.assertEqual(wanted_hash, field_hash)
-
-        with open(wanted, 'w') as file_:
-            file_.write(field)
-        self.created_files.append(fn)
