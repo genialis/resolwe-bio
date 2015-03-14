@@ -2,14 +2,14 @@ from .base import BaseProcessorTestCase
 
 
 class AlignmentProcessorTestCase(BaseProcessorTestCase):
-    def prepair_genome(self):
+    def prepare_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
         genome = self.run_processor('import:upload:genome-fasta', inputs)
         self.assertDone(genome)
         self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
         return genome
 
-    def prepair_reads(self):
+    def prepare_reads(self):
         inputs = {'src': 'reads.fastq.gz'}
         reads = self.run_processor('import:upload:reads-fastq', inputs)
         self.assertDone(reads)
@@ -17,8 +17,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         return reads
 
     def test_bowtie(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {
             'genome': genome.pk,
@@ -29,8 +29,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(aligned_reads, 'stats', 'bowtie_reads_report.tab')
 
     def test_bowtie2(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {
             'genome': genome.pk,
@@ -41,8 +41,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
 
     def test_tophat(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs)
@@ -60,8 +60,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(aligned_reads, 'stats', 'tophat_reads_report.txt')
 
     def test_bwa_bt(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment:bwa_aln-0.7.5a', inputs)
@@ -70,8 +70,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(aligned_reads, 'stats', 'bwa_bt_reads_report.txt')
 
     def test_bwa_sw(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment:bwa_sw-0.7.5a', inputs)
@@ -80,8 +80,8 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(aligned_reads, 'stats', 'bwa_sw_reads_report.txt')
 
     def test_bwa_mem(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment:bwa_mem-0.7.5a', inputs)
