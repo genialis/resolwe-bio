@@ -10,14 +10,13 @@ import hashlib
 import gzip
 import os
 import shutil
-import sys
 
 from django.conf import settings
 from django.test import TestCase
 
-from server.models import Data, Storage, Processor, GenUser, iterate_fields
+from server.models import Data, Storage, Processor, iterate_fields
 from server.tasks import manager
-from ..unit.utils import create_admin, create_test_case, clear_all
+from ..unit.utils import create_admin, create_test_case
 
 
 class BaseProcessorTestCase(TestCase):
@@ -60,13 +59,6 @@ class BaseProcessorTestCase(TestCase):
             data_dir = os.path.join(settings.DATAFS['data_path'], str(d.pk))
             d.delete()
             shutil.rmtree(data_dir, ignore_errors=True)
-
-    def _get_field(self, obj, path):
-        """Get field value ``path`` in multilevel dict ``obj``."""
-        if len(path):
-            for p in path.split('.'):
-                obj = obj[p]
-        return obj
 
     def run_processor(self, processor_name, input_):
         """Runs given processor with specified inputs.
@@ -120,22 +112,11 @@ class BaseProcessorTestCase(TestCase):
     def assertDone(self, obj):  # pylint: disable=invalid-name
         """Check if Data object's status is 'done'.
 
-        Print stdout.txt file if status is not 'done'.
-
         :param obj: Data object for which to check status
         :type obj: :obj:`server.models.Data`
 
         """
-        try:
-            return self.assertEqual(obj.status, 'done')
-        except:  # pylint: disable=bare-except
-            print("\n", "#BEGINNING OF STDOUT.TXT", "#" * 56)
-            stdout = os.path.join(settings.DATAFS['data_path'], str(obj.pk), 'stdout.txt')
-            with open(stdout, 'r') as fn:
-                for line in fn.readlines():
-                    print('# {}'.format(line), file=sys.stderr)
-            print("#END OF STDOUT.TXT", "#" * 62, "\n")
-            raise
+        self.assertEqual(obj.status, Data.STATUS_DONE, msg="Data status != 'done'" + self._msg_stdout(obj))
 
     def assertError(self, obj):  # pylint: disable=invalid-name
         """Check if Data object's status is 'error'.
@@ -144,7 +125,18 @@ class BaseProcessorTestCase(TestCase):
         :type obj: :obj:`server.models.Data`
 
         """
-        self.assertEqual(obj.status, 'error')
+        self.assertEqual(obj.status, Data.STATUS_ERROR, msg="Data status != 'error'" + self._msg_stdout(obj))
+
+    def assertStatus(self, obj, status):  # pylint: disable=invalid-name
+        """Check if Data object's status is 'status'.
+
+        :param obj: Data object for which to check status
+        :type obj: :obj:`server.models.Data`
+        :param status: Data status to check
+        :type status: str
+
+        """
+        self.assertEqual(obj.status, status, msg="Data status != '{}'".format(status) + self._msg_stdout(obj))
 
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         """Compare Data object's field to given value.
@@ -160,7 +152,9 @@ class BaseProcessorTestCase(TestCase):
 
         """
         field = self._get_field(obj['output'], path)
-        return self.assertEqual(field, str(value))
+        self.assertEqual(field, str(value),
+                         msg="Field 'output.{}' mismatch: {} != {}".format(path, field, str(value)) +
+                         self._msg_stdout(obj))
 
     def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
         """Compare output file of a processor to the given correct file.
@@ -194,10 +188,15 @@ class BaseProcessorTestCase(TestCase):
 
         wanted_file = gzip.open(wanted, 'rb') if gzipped else open(wanted)
         wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
-        return self.assertEqual(wanted_hash, output_hash)
+        self.assertEqual(wanted_hash, output_hash,
+                         msg="File hash mismatch: {} != {}".format(wanted_hash, output_hash) + self._msg_stdout(obj))
 
-    def assertJSON(self, storage, field_path, fn):  # pylint: disable=invalid-name
+    def assertJSON(self, obj, storage, field_path, fn):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
+
+        :param obj: Data object which includes file that we want to
+            compare.
+        :type obj: :obj:`server.models.Data`
 
         :param storage: Storage (or storage id) which contains JSON to
             compare.
@@ -223,11 +222,27 @@ class BaseProcessorTestCase(TestCase):
         wanted = os.path.join(self.current_path, 'outputs', fn)
 
         if not os.path.isfile(wanted):
-            with open(wanted, 'w') as fp:
-                fp.write(field)
+            with open(wanted, 'w') as fn:
+                fn.write(field)
 
             self.fail(msg="Output file {} missing so it was created.".format(fn))
 
-        if os.path.isfile(wanted):
-            wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
-            return self.assertEqual(wanted_hash, field_hash)
+        wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
+        self.assertEqual(wanted_hash, field_hash,
+                         msg="JSON hash mismatch: {} != {}".format(wanted_hash, field_hash) + self._msg_stdout(obj))
+
+    def _get_field(self, obj, path):
+        """Get field value ``path`` in multilevel dict ``obj``."""
+        if len(path):
+            for p in path.split('.'):
+                obj = obj[p]
+        return obj
+
+    def _msg_stdout(self, data):
+        msg = "\n\nDump stdout.txt:\n\n"
+        stdout = os.path.join(settings.DATAFS['data_path'], str(data.pk), 'stdout.txt')
+        if os.path.isfile(stdout):
+            with open(stdout, 'r') as fn:
+                msg += fn.read()
+
+        return msg

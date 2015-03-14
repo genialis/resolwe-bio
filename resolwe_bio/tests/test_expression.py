@@ -114,7 +114,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
         self.assertDone(etc)
-        self.assertJSON(etc.output['etc'], '', 'etc.json')
+        self.assertJSON(etc, etc.output['etc'], '', 'etc.json')
 
     def test_expression_htseq(self):
         genome = self.prepair_genome()
@@ -143,4 +143,4 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
         self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz', gzipped=True)
-        self.assertJSON(expression.output['exp'], '', 'expression.json')
+        self.assertJSON(expression, expression.output['exp'], '', 'expression.json')
