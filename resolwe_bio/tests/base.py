@@ -12,11 +12,32 @@ import os
 import shutil
 
 from django.conf import settings
+from django.core import management
 from django.test import TestCase
 
-from server.models import Data, Storage, Processor, iterate_fields
+from server.models import Data, GenUser, Storage, Processor, iterate_fields
 from server.tasks import manager
 from ..unit.utils import create_admin, create_test_case
+
+
+PROCESSORS_FIXTURE_CACHE = None
+
+
+def _register_processors():
+    Processor.objects.delete()
+
+    global PROCESSORS_FIXTURE_CACHE  # pylint: disable=global-statement
+    if PROCESSORS_FIXTURE_CACHE:
+        Processor.objects.insert(PROCESSORS_FIXTURE_CACHE)
+    else:
+        if len(GenUser.objects.filter(is_superuser=True)) == 0:
+            GenUser.objects.create_superuser(email='admin@genialis.com')
+
+        management.call_command('register', force=True, verbosity='0')
+        PROCESSORS_FIXTURE_CACHE = Processor.objects.all()
+        for p in PROCESSORS_FIXTURE_CACHE:
+            # Trick Mongoengine not to fail the insert
+            p._created = True  # pylint: disable=protected-access
 
 
 class BaseProcessorTestCase(TestCase):
@@ -47,7 +68,9 @@ class BaseProcessorTestCase(TestCase):
 
     def setUp(self):
         super(BaseProcessorTestCase, self).setUp()
-        self.admin = create_admin(clear_processors=False)
+        self.admin = create_admin()
+        _register_processors()
+
         self.case = create_test_case(self.admin.pk)['c1']
         self.current_path = os.path.dirname(os.path.abspath(__file__))
 
