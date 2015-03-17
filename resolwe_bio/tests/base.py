@@ -14,7 +14,8 @@ from django.conf import settings
 from django.core import management
 from django.test import TestCase
 
-from server.models import Data, GenUser, Storage, Processor, iterate_fields
+from genesis.models import GenUser
+from server.models import Data, Storage, Processor, iterate_fields
 from server.tasks import manager
 from ..unit.utils import create_admin, create_test_case
 
