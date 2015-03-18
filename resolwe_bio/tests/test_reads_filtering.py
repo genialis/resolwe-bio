@@ -1,13 +1,12 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class ReadsFilteringProcessorTestCase(BaseProcessorTestCase):
+class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_sormerna_single(self):
-        inputs = {'src': 'rRNA_forw.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-        self.assertFields(reads, 'bases', 101)
+        reads = self.prepare_reads('rRNA_forw.fastq.gz')
 
         inputs = {
             'reads': reads.pk,
@@ -34,8 +33,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(filtered_reads, 'fastq_rRNA', 'reads_rRNA_paired.fastq.gz')
 
     def test_prinseq_single(self):
-        inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
+        reads = self.prepare_reads()
 
         inputs = {'reads': reads.pk}
         filtered_reads = self.run_processor('filtering:prinseq-lite-20.4:single-end', inputs, Data.STATUS_DONE)
@@ -53,8 +51,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(filtered_reads, 'fastq2', 'filtered_reads_prinseq_paired_rw.fastq.gz')
 
     def test_fastqmcf_single(self):
-        inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
+        reads = self.prepare_reads()
 
         inputs = {'reads': reads.pk}
         filtered_reads = self.run_processor('filtering:fastq-mcf-1.1.2.537:single-end', inputs, Data.STATUS_DONE)

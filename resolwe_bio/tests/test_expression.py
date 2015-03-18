@@ -1,23 +1,12 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class ExpressionProcessorTestCase(BaseProcessorTestCase):
-    def prepair_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
-        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
-        return genome
-
-    def prepair_reads(self):
-        inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-        self.assertFields(reads, 'bases', 35)
-        return reads
-
+class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_cufflinks(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
@@ -70,8 +59,8 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertFiles(cuffnorm, 'expression_set', 'expression_set.tsv.gz', gzipped=True)
 
     def test_expression_bcm(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
@@ -103,8 +92,8 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase):
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json')
 
     def test_expression_htseq(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gtf'}
         annotation = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)

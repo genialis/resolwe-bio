@@ -1,20 +1,9 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class AlignmentProcessorTestCase(BaseProcessorTestCase):
-    def prepare_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
-        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
-        return genome
-
-    def prepare_reads(self):
-        inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-        self.assertFields(reads, 'bases', 35)
-        return reads
-
+class AlignmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_bowtie(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()

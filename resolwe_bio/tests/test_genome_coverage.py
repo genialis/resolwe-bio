@@ -1,23 +1,12 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class CoverageProcessorTestCase(BaseProcessorTestCase):
-    def prepair_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
-        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
-        return genome
-
-    def prepair_reads(self):
-        inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-        self.assertFields(reads, 'bases', 35)
-        return reads
-
+class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_coverage(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)

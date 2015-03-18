@@ -1,22 +1,12 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class VariantCallingTestCase(BaseProcessorTestCase):
-    def prepair_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
-        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
-        return genome
-
-    def prepair_reads(self):
-        inputs = {'src': 'vc_reads.fastq'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-        return reads
-
+class VariantCallingTestCase(BaseProcessorTestCase, PreparedData):
     def test_variant_calling(self):
-        genome = self.prepair_genome()
-        reads = self.prepair_reads()
+        genome = self.prepare_genome()
+        reads = self.prepare_reads('vc_reads.fastq')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs, Data.STATUS_DONE)

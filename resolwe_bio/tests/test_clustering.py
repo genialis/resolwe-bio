@@ -1,23 +1,14 @@
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 from server.models import Data
 
 
-class ClusteringProcessorTestCase(BaseProcessorTestCase):
-    def prepair_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
-        self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
-        return genome
-
+class ClusteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_hc_clustering(self):
         """Cannot use assertJSON - JSON output contains ETC object IDs."""
-        genome = self.prepair_genome()
-
-        inputs = {'src': '00Hr.fastq.gz'}
-        reads1 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
-
-        inputs = {'src': '20Hr.fastq.gz'}
-        reads2 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
+        genome = self.prepare_genome()
+        reads1 = self.prepare_reads('00Hr.fastq.gz')
+        reads2 = self.prepare_reads('20Hr.fastq.gz')
 
         inputs = {'src': 'annotation.gff'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
