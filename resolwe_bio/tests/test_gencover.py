@@ -1,18 +1,17 @@
 from .base import BaseProcessorTestCase
+from server.models import Data
 
 
 class GencoverProcessorTestCase(BaseProcessorTestCase):
     def prepair_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs)
-        self.assertDone(genome)
+        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
         self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
         return genome
 
     def prepair_reads(self):
         inputs = {'src': 'reads.fastq.gz'}
-        reads = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads)
+        reads = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
         self.assertFields(reads, 'bases', 35)
         return reads
 
@@ -21,20 +20,17 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
         reads = self.prepair_reads()
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertDone(annotation)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         # GTF inport
         inputs = {'src': 'annotation_ok.gtf'}
-        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertDone(annotation_gtf)
+        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation_gtf, 'gtf', 'annotation_ok.gtf')
 
         # redundant GTF inport
         inputs = {'src': 'annotation_red.gtf'}
-        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertDone(annotation_gtf_red)
+        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation_gtf_red, 'gtf', 'annotation_red.gtf')
 
         inputs = {
@@ -43,15 +39,13 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads)
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         # samtools mapping
         inputs = {
             'mapping': aligned_reads.pk,
             'genome': genome.pk}
-        variants = self.run_processor('vc-samtools', inputs)
-        self.assertDone(variants)
+        variants = self.run_processor('vc-samtools', inputs, Data.STATUS_DONE)
 
         # Coverage report
         inputs = {
@@ -61,8 +55,7 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs)
-        self.assertDone(genc_results)
+        genc_results = self.run_processor('coverage:garvan', inputs, Data.STATUS_DONE)
         # self.assertFiles(genc_results, 'bigwig', 'genome_coverage.bw')
 
         # Missing gene in BAM file test
@@ -73,6 +66,5 @@ class GencoverProcessorTestCase(BaseProcessorTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs)
+        genc_results = self.run_processor('coverage:garvan', inputs, Data.STATUS_DONE)
         self.assertFields(genc_results, 'proc.warning', 'Contig scaffold_fake not found in BAM file (for gene geneX)')
-        self.assertDone(genc_results)

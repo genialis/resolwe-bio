@@ -1,11 +1,11 @@
 from .base import BaseProcessorTestCase
+from server.models import Data
 
 
 class DiffExpProcessorTestCase(BaseProcessorTestCase):
     def prepair_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
-        genome = self.run_processor('import:upload:genome-fasta', inputs)
-        self.assertDone(genome)
+        genome = self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
         self.assertFiles(genome, 'fasta', 'genome.fasta.gz')
         return genome
 
@@ -13,16 +13,13 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
         genome = self.prepair_genome()
 
         inputs = {'src': '00Hr.fastq.gz'}
-        reads1 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads1)
+        reads1 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': '20Hr.fastq.gz'}
-        reads2 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads2)
+        reads2 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertDone(annotation)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
@@ -31,8 +28,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_1)
+        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'genome': genome.pk,
@@ -40,65 +36,55 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_2)
+        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_1.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)
-        self.assertDone(cuff_exp)
+        cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_2.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs)
-        self.assertDone(cuff_exp2)
+        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'expressions': [cuff_exp.pk, cuff_exp2.pk],
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
-        self.assertDone(cuff_merge)
+        cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_1.pk,
             'gff': cuff_merge.pk}
-        cuffquant = self.run_processor('cuffquant:-2-2-1', inputs)
-        self.assertDone(cuffquant)
+        cuffquant = self.run_processor('cuffquant:-2-2-1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_2.pk,
             'gff': cuff_merge.pk}
-        cuffquant2 = self.run_processor('cuffquant:-2-2-1', inputs)
-        self.assertDone(cuffquant2)
+        cuffquant2 = self.run_processor('cuffquant:-2-2-1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'cuffquant': [cuffquant.pk, cuffquant2.pk],
             'replicates': ['1', '2'],
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
-        cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs)
-        self.assertDone(cuffdiff)
+        cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs, Data.STATUS_DONE)
         self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', gzipped=True)
 
     def test_bayseq_bcm(self):
         genome = self.prepair_genome()
 
         inputs = {'src': '00Hr.fastq.gz'}
-        reads1 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads1)
+        reads1 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': '20Hr.fastq.gz'}
-        reads2 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads2)
+        reads2 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertDone(annotation)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
@@ -107,8 +93,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_1)
+        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'genome': genome.pk,
@@ -116,28 +101,24 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_2)
+        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'genome': genome.pk,
             'gff': annotation.pk}
-        mappability = self.run_processor('mappability:bcm-1-0-0', inputs)
-        self.assertDone(mappability)
+        mappability = self.run_processor('mappability:bcm-1-0-0', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_1.pk,
             'gff': annotation.pk,
             'mappable': mappability.pk}
-        expression_1 = self.run_processor('expression:bcm-1-0-0', inputs)
-        self.assertDone(expression_1)
+        expression_1 = self.run_processor('expression:bcm-1-0-0', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignment': aligned_reads_2.pk,
             'gff': annotation.pk,
             'mappable': mappability.pk}
-        expression_2 = self.run_processor('expression:bcm-1-0-0', inputs)
-        self.assertDone(expression_2)
+        expression_2 = self.run_processor('expression:bcm-1-0-0', inputs, Data.STATUS_DONE)
 
         inputs = {
             'name': "00vs20",
@@ -145,24 +126,20 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'control': [expression_2.pk],
             'replicates': ['1', '2'],
             'mappability': mappability.pk}
-        diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
-        self.assertDone(diff_exp)
+        diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs, Data.STATUS_DONE)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json')
 
     def test_deseq2(self):
         genome = self.prepair_genome()
 
         inputs = {'src': '00Hr.fastq.gz'}
-        reads1 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads1)
+        reads1 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': '20Hr.fastq.gz'}
-        reads2 = self.run_processor('import:upload:reads-fastq', inputs)
-        self.assertDone(reads2)
+        reads2 = self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
 
         inputs = {'src': 'annotation.gtf'}
-        annotation = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertDone(annotation)
+        annotation = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
         self.assertFiles(annotation, 'gtf', 'annotation.gtf')
 
         inputs = {
@@ -171,8 +148,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_1)
+        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'genome': genome.pk,
@@ -180,29 +156,25 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-        self.assertDone(aligned_reads_2)
+        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignments': aligned_reads_1.pk,
             'gff': annotation.pk,
             'stranded': "no",
             'id_attribute': 'transcript_id'}
-        expression_1 = self.run_processor('htseq-count:-0-6-1p1', inputs)
-        self.assertDone(expression_1)
+        expression_1 = self.run_processor('htseq-count:-0-6-1p1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'alignments': aligned_reads_2.pk,
             'gff': annotation.pk,
             'stranded': "no",
             'id_attribute': 'transcript_id'}
-        expression_2 = self.run_processor('htseq-count:-0-6-1p1', inputs)
-        self.assertDone(expression_2)
+        expression_2 = self.run_processor('htseq-count:-0-6-1p1', inputs, Data.STATUS_DONE)
 
         inputs = {
             'name': "00vs20",
             'case': [expression_1.pk],
             'control': [expression_2.pk]}
-        diff_exp = self.run_processor('differentialexpression:deseq2', inputs)
-        self.assertDone(diff_exp)
+        diff_exp = self.run_processor('differentialexpression:deseq2', inputs, Data.STATUS_DONE)
         self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', gzipped=True)

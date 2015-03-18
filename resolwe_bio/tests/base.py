@@ -1,7 +1,6 @@
 """
  .. autoclass:: server.tests.processor.base.BaseProcessorTestCase
-    :members: run_processor, assertDone, assertFields, assertFiles,
-        assertJSON
+    :members: run_processor, assertFields, assertFiles, assertJSON
 
 """
 from __future__ import print_function
@@ -83,11 +82,13 @@ class BaseProcessorTestCase(TestCase):
             d.delete()
             shutil.rmtree(data_dir, ignore_errors=True)
 
-    def run_processor(self, processor_name, input_):
+    def run_processor(self, processor_name, input_, assert_status=None):
         """Runs given processor with specified inputs.
 
         If input is file, file path should be given relative to
         ``server/tests/processor/inputs`` folder.
+        If ``assert_status`` is given check if Data object's status
+        matches ``assert_status`` after finishing processor.
 
         :param processor_name: name of the processor to run
         :type processor_name: :obj:`str`
@@ -96,6 +97,9 @@ class BaseProcessorTestCase(TestCase):
             have to specifie parameters for which default values are
             given.
         :type ``input_``: :obj:`dict`
+
+        :param ``assert_status``: Desired status of Data object
+        :type ``assert_status``: :obj:`str`
 
         :return: :obj:`server.models.Data` object which is created by
             the processor.
@@ -130,27 +134,15 @@ class BaseProcessorTestCase(TestCase):
         d.save()
         manager(run_sync=True, verbosity=0)
 
-        return Data.objects.get(pk=d.pk)
+        # Fetch latest Data object from database
+        d = Data.objects.get(pk=d.pk)
 
-    def assertDone(self, obj):  # pylint: disable=invalid-name
-        """Check if Data object's status is 'done'.
+        if assert_status:
+            self._assertStatus(d, assert_status)
 
-        :param obj: Data object for which to check status
-        :type obj: :obj:`server.models.Data`
+        return d
 
-        """
-        self.assertEqual(obj.status, Data.STATUS_DONE, msg="Data status != 'done'" + self._msg_stdout(obj))
-
-    def assertError(self, obj):  # pylint: disable=invalid-name
-        """Check if Data object's status is 'error'.
-
-        :param obj: Data object for which to check status
-        :type obj: :obj:`server.models.Data`
-
-        """
-        self.assertEqual(obj.status, Data.STATUS_ERROR, msg="Data status != 'error'" + self._msg_stdout(obj))
-
-    def assertStatus(self, obj, status):  # pylint: disable=invalid-name
+    def _assertStatus(self, obj, status):  # pylint: disable=invalid-name
         """Check if Data object's status is 'status'.
 
         :param obj: Data object for which to check status
