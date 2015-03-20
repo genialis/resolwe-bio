@@ -91,6 +91,28 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
         etc = self.run_processor('etc:bcm-1-0-0', inputs, Data.STATUS_DONE)
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json')
 
+        reads2 = self.prepare_reads('00Hr.fastq.gz')
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads2.pk,
+            'gff': annotation.pk,
+            'PE_options': {
+                'library_type': "fr-unstranded"}}
+        aligned_reads2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+
+        inputs = {
+            'alignment': aligned_reads2.pk,
+            'gff': annotation.pk,
+            'mappable': mappability.pk}
+        expression2 = self.run_processor('expression:bcm-1-0-0', inputs, Data.STATUS_DONE)
+
+        inputs = {
+            'expressions': [expression.pk, expression2.pk],
+            'genes': ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
+        }
+
+        self.run_processor('mergeexpressions', inputs, Data.STATUS_DONE)
+
     def test_expression_htseq(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
