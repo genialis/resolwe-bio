@@ -1,5 +1,4 @@
 # pylint: disable=no-member
-from server.models import Data
 
 
 class PreparedData(object):
@@ -12,16 +11,16 @@ class PreparedData(object):
     """
     def prepare_genome(self, fn='genome.fasta.gz'):
         inputs = {'src': fn}
-        return self.run_processor('import:upload:genome-fasta', inputs, Data.STATUS_DONE)
+        return self.run_processor('import:upload:genome-fasta', inputs)
 
     def prepare_reads(self, fn='reads.fastq.gz'):
         inputs = {'src': fn}
-        return self.run_processor('import:upload:reads-fastq', inputs, Data.STATUS_DONE)
+        return self.run_processor('import:upload:reads-fastq', inputs)
 
     def prepare_bam(self, fn='sp_test.bam'):
         inputs = {'src': fn}
-        return self.run_processor('import:upload:mapping-bam', inputs, Data.STATUS_DONE)
+        return self.run_processor('import:upload:mapping-bam', inputs)
 
     def prepare_annotation(self, fn='sp_test.gtf'):
         inputs = {'src': fn}
-        return self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
+        return self.run_processor('import:upload:annotation-gtf', inputs)

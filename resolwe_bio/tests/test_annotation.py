@@ -1,6 +1,5 @@
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
-from server.models import Data
 
 
 class AnnotationProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -10,7 +9,7 @@ class AnnotationProcessorTestCase(BaseProcessorTestCase, PreparedData):
         reads2 = self.prepare_reads('20Hr.fastq.gz')
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
@@ -19,7 +18,7 @@ class AnnotationProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -27,29 +26,29 @@ class AnnotationProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         inputs = {
             'alignment': aligned_reads_1.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs, Data.STATUS_DONE)
+        cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)
 
         inputs = {
             'alignment': aligned_reads_2.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs, Data.STATUS_DONE)
+        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs)
 
         inputs = {
             'expressions': [cuff_exp.pk, cuff_exp2.pk],
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs, Data.STATUS_DONE)
+        cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
 
         inputs = {
             'gff': cuff_merge.pk,
             'genome': genome.pk}
-        transdecoder = self.run_processor('transdecoder', inputs, Data.STATUS_DONE)
+        transdecoder = self.run_processor('transdecoder', inputs)
         self.assertFiles(transdecoder, 'gff', 'transdecoder_transcripts.gff')
         self.assertFiles(transdecoder, 'bed', 'transdecoder_transcripts.bed')

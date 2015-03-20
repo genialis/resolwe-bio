@@ -82,7 +82,7 @@ class BaseProcessorTestCase(TestCase):
             d.delete()
             shutil.rmtree(data_dir, ignore_errors=True)
 
-    def run_processor(self, processor_name, input_, assert_status=None):
+    def run_processor(self, processor_name, input_, assert_status=Data.STATUS_DONE):
         """Runs given processor with specified inputs.
 
         If input is file, file path should be given relative to

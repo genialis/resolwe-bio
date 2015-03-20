@@ -1,6 +1,5 @@
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
-from server.models import Data
 
 
 class ReadsProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -11,5 +10,5 @@ class ReadsProcessorTestCase(BaseProcessorTestCase, PreparedData):
         inputs = {
             'reads_1': reads.pk,
             'reads_2': reads2.pk}
-        merged_reads = self.run_processor('reads:merge', inputs, Data.STATUS_DONE)
+        merged_reads = self.run_processor('reads:merge', inputs)
         self.assertFiles(merged_reads, 'fastq', 'paired_end_forward.fastq.gz')

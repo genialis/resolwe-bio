@@ -1,6 +1,5 @@
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
-from server.models import Data
 
 
 class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -9,7 +8,7 @@ class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
@@ -18,8 +17,8 @@ class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         inputs = {'bam': aligned_reads.pk}
-        coverage = self.run_processor('bam:coverage', inputs, Data.STATUS_DONE)
+        coverage = self.run_processor('bam:coverage', inputs)
         self.assertFiles(coverage, 'bigwig', 'genome_coverage.bw')

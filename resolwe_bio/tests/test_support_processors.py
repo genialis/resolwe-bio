@@ -1,6 +1,5 @@
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
-from server.models import Data
 
 
 class CompatibilityProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -10,5 +9,5 @@ class CompatibilityProcessorTestCase(BaseProcessorTestCase, PreparedData):
         annotation = self.prepare_annotation()
 
         inputs = {'reference': genome.pk, 'bam': mapping.pk, 'annot': annotation.pk}
-        compatibility_test = self.run_processor('reference_compatibility', inputs, Data.STATUS_DONE)
+        compatibility_test = self.run_processor('reference_compatibility', inputs)
         self.assertFiles(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')

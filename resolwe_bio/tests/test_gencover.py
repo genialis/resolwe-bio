@@ -1,6 +1,5 @@
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
-from server.models import Data
 
 
 class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -9,17 +8,17 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs, Data.STATUS_DONE)
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
         self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         # GTF inport
         inputs = {'src': 'annotation_ok.gtf'}
-        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
+        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs)
         self.assertFiles(annotation_gtf, 'gtf', 'annotation_ok.gtf')
 
         # redundant GTF inport
         inputs = {'src': 'annotation_red.gtf'}
-        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs, Data.STATUS_DONE)
+        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs)
         self.assertFiles(annotation_gtf_red, 'gtf', 'annotation_red.gtf')
 
         inputs = {
@@ -28,13 +27,13 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         # samtools mapping
         inputs = {
             'mapping': aligned_reads.pk,
             'genome': genome.pk}
-        variants = self.run_processor('vc-samtools', inputs, Data.STATUS_DONE)
+        variants = self.run_processor('vc-samtools', inputs)
 
         # Coverage report
         inputs = {
@@ -44,7 +43,7 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs, Data.STATUS_DONE)
+        genc_results = self.run_processor('coverage:garvan', inputs)
         # self.assertFiles(genc_results, 'bigwig', 'genome_coverage.bw')
 
         # Missing gene in BAM file test
@@ -55,5 +54,5 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs, Data.STATUS_DONE)
+        genc_results = self.run_processor('coverage:garvan', inputs)
         self.assertFields(genc_results, 'proc.warning', 'Contig scaffold_fake not found in BAM file (for gene geneX)')
