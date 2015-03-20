@@ -97,20 +97,20 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads2 = self.run_processor('alignment:tophat-2-0-13', inputs, Data.STATUS_DONE)
+        aligned_reads2 = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         inputs = {
             'alignment': aligned_reads2.pk,
             'gff': annotation.pk,
             'mappable': mappability.pk}
-        expression2 = self.run_processor('expression:bcm-1-0-0', inputs, Data.STATUS_DONE)
+        expression2 = self.run_processor('expression:bcm-1-0-0', inputs)
 
         inputs = {
             'expressions': [expression.pk, expression2.pk],
             'genes': ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
         }
 
-        self.run_processor('mergeexpressions', inputs, Data.STATUS_DONE)
+        self.run_processor('mergeexpressions', inputs)
 
     def test_expression_htseq(self):
         genome = self.prepare_genome()
