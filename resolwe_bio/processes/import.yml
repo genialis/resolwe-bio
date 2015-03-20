@@ -776,7 +776,7 @@
 
 
 - name: import:upload:geneinfo
-  version: 1.0.5
+  version: 1.0.6
   label: Upload gene information
   type: data:geneinfo:dictyostelium
   category: upload
@@ -788,7 +788,7 @@
       label: Gene information
       type: basic:file
       description: >
-        Gene informations in Excel or (tab-separated) text file. Composition: first row is header follow by rows (ID, gene_name, synonyms, description). Supported extensions .tab, .txt, .xls, .xlsx.
+        Gene informations in Excel or (tab-separated) text file. Composition: first row is header follow by rows (Gene ID, Gene Name, Synonyms,  Gene products, Entrez ID, Ensembl ID, .. other (i.e. organism specific id)). Supported extensions .tab, .txt, .xls, .xlsx.
       required: true
       validate_regex: '\.(xls|xlsx|tab|txt)$'
   output:
@@ -825,6 +825,7 @@
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
       echo "{\"src\":{\"file\":\"${NAME}\"},\"date\":\"`date +%Y-%m-%d`\",\"proc.progress\":0.1,\"proc.rc\":$?}"
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
       python -u {{ proc.slugs_path }}/gencloud-20131109/import_geneinfo.py "${NAME}"
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
