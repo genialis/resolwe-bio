@@ -1,5 +1,9 @@
-# pylint: disable=no-member
+"""
+================================
+Processor Test Utility Functions
+================================
 
+"""
 
 class PreparedData(object):
     """MixIn with functions for processing common data types.

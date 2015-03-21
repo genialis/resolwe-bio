@@ -1,6 +1,6 @@
 """
 **************
-Procesor tests
+Procesor Tests
 **************
 
  .. automodule:: server.tests.processor.base

@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 from .base import BaseProcessorTestCase
 from server.models import Data
 
