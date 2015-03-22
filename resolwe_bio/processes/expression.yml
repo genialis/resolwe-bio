@@ -612,7 +612,7 @@
       echo "{\"proc.progress\":1,\"merged_gtf\":{\"file\":\"cuffmerge_$(date +'%m-%d-%Y').gtf\"}}"
 
 - name: cuffnorm:-2-2-1
-  version: 1.0.5
+  version: 1.0.6
   label: Expression (Cuffnorm 2.2.1)
   type: data:expressionset:cuffnorm
   category: analyses
@@ -689,10 +689,7 @@
       labels=""
       replicates=""
 
-      {% for experiment in cuffquant %}
-        experiment=$experiment"{{ experiment.output.abundances.file }},"
-        echo "{\"proc.rc\":$?}"
-      {% endfor %}
+      experiment='{% for experiment in cuffquant %}{{ experiment.output.abundances.file }},{% endfor %}'
 
       {% for r in replicates %}
         replicates=$replicates"{{r}},"
