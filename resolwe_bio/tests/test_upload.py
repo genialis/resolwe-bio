@@ -1,9 +1,11 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
 from server.models import Data
 
+from .base import BaseProcessorTestCase
+from .utils import PreparedData
 
-class UploadProcessorTestCase(BaseProcessorTestCase):
+
+class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_bam_upload(self):
         inputs = {"src": "name_sorted.bam"}
         upload_bam = self.run_processor("import:upload:mapping-bam", inputs)

@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring
 from .base import BaseProcessorTestCase
+from .utils import PreparedData
 
 
-class EnrichmentProcessorTestCase(BaseProcessorTestCase):
+class EnrichmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_go_enrichment(self):
         inputs = {'src': 'ontology.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)

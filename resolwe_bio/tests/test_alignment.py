@@ -4,6 +4,7 @@ from .utils import PreparedData
 
 
 class AlignmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
+
     def test_bowtie(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
