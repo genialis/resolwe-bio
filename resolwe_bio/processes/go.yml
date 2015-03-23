@@ -53,7 +53,7 @@
 
 
 - name: goenrichment:bcm-2-0-0
-  version: 2.0.4
+  version: 2.0.5
   label: GO Enrichment 2.0
   type: data:ontologyenrichment
   category: analyses
@@ -102,7 +102,7 @@
         echo {{genes|join:" "}} > temp.txt
       fi
       echo -n "{\"terms\":"
-      {{proc.slugs_path}}/gotea/processor 0.2 1 {{ontology.output.obo_obj.file}} {{gaf.output.gaf_obj.file}} temp.txt 2> /dev/null
+      {{proc.slugs_path}}/gotea/processor 0.1 1 {{ontology.output.obo_obj.file}} {{gaf.output.gaf_obj.file}} temp.txt 2> /dev/null
       RC=$?
       echo "}"
       echo "{\"proc.rc\":$RC}"
