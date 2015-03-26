@@ -229,7 +229,7 @@ class BaseProcessorTestCase(TestCase):
         :type fn: :obj:`str`
 
         """
-        if type(storage) is not Storage:
+        if not isinstance(storage, Storage):
             storage = Storage.objects.get(pk=str(storage))
 
         field = str(self._get_field(storage['json'], field_path))
