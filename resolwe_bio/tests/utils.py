@@ -84,7 +84,7 @@ class PreparedData(object):
 
         d = Data(
             input=input_,
-            author_id=self.admin.pk,
+            author_id=str(self.admin.pk),
             processor_name=processor_name,
             case_ids=[self.case.pk],
         )
