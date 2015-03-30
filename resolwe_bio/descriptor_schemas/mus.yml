@@ -1,0 +1,30 @@
+- name: mus:bcm:musexpress
+  label: MusExpress data annotation
+  description: Mus musculus experiment/sequencing data annotation
+  var:
+    - name: sex
+      label: Sex
+      type: basic:string
+      choices:
+        - label: male
+          value: male
+        - label: female
+          value: female
+        - label: none
+          value: none
+    - name: tissue
+      label: Tissue
+      type: basic:string
+      choices:
+        - label: retina
+          value: retina
+        - label: neuronal
+          value: neuronal
+    - name: genotype
+      label: Genotype
+      type: basic:string
+      choices:
+        - label: WT
+          value: WT
+        - label: spata7 KO
+          value: spata7 KO
