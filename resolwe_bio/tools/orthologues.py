@@ -1,6 +1,6 @@
 import argparse
 import csv
-
+import gzip
 
 parser = argparse.ArgumentParser(description='Change genes names to orthologues ones.')
 
@@ -11,7 +11,7 @@ args = parser.parse_args()
 
 orthologues = {}
 
-with open(args.ortholog_file, 'r') as ortholog_tsv:
+with gzip.open(args.ortholog_file, 'r') as ortholog_tsv:
     for ortholog in csv.reader(ortholog_tsv, delimiter='\t'):
         orthologues[ortholog[0]] = ortholog[1]
 
