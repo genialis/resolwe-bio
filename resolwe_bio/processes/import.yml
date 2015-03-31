@@ -6,7 +6,7 @@
 ---
 
 - name: import:upload:genome-fasta
-  version: 1.0.15
+  version: 1.0.16
   label: Upload genome
   type: "data:genome:fasta:"
   category: upload
@@ -61,8 +61,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" uncomp
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 0.5 uncomp
 
       mkdir bowtie_index
       {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${NAME}.fasta" "./bowtie_index/${NAME}_index"
@@ -91,7 +90,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?,\"fasta\":{\"file\":\"${NAME}.fasta.gz\",\"refs\":[\"seq\",\"seq/refSeqs.json\"]},\"index_bt\":{\"file\":\"${NAME}_bt_index.tar.gz\"},\"index_bt2\":{\"file\":\"${NAME}_bt2_index.tar.gz\"}, \"index_bwa\":{\"file\":\"${NAME}_bwa_index.tar.gz\"}}"
 
 - name: import:upload:reads-fastq
-  version: 1.0.10
+  version: 1.0.11
   label: Upload NGS reads
   type: data:reads:fastq:single
   category: upload
@@ -215,8 +214,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" uncomp
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5 uncomp
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -243,7 +241,7 @@
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.10
+  version: 1.0.11
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
@@ -383,12 +381,10 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" uncomp
-      echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3 uncomp
       NAME1=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" uncomp
-      echo "{\"proc.progress\":0.6,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6 uncomp
       NAME2=$NAME
 
       echo "Postprocessing FastQC..."
@@ -418,7 +414,7 @@
       echo "{\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME1}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"
 
 - name: import:upload:multiplexed
-  version: 1.0.9
+  version: 1.0.11
   label: Upload multiplexed NGS reads
   type: data:multiplexed:qseq:single
   category: upload
@@ -496,12 +492,10 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq"
-      echo "{\"proc.progress\":0.01,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq"
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1
       READS_NAME=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
@@ -514,7 +508,7 @@
 
 
 - name: import:upload:multiplexed-paired-end
-  version: 1.0.10
+  version: 1.0.11
   label: Upload paired-end multiplexed NGS reads
   type: data:multiplexed:qseq:paired
   category: upload
@@ -599,16 +593,13 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq"
-      echo "{\"proc.progress\":0.01,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq"
-      echo "{\"proc.progress\":0.07,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07
       READS_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq"
-      echo "{\"proc.progress\":0.14,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14
       READS_NAME2=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
@@ -621,7 +612,7 @@
 
 
 - name: import:upload:annotation-gff3
-  version: 1.0.9
+  version: 1.0.10
   label: Upload annotation (GFF3)
   type: data:annotation:gff3
   category: upload
@@ -664,8 +655,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" uncomp
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1 uncomp
 
       {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\"}}"
@@ -677,7 +667,7 @@
 
 
 - name: import:upload:annotation-gtf
-  version: 1.0.11
+  version: 1.0.12
   label: Upload annotation (GTF2.2)
   type: data:annotation:gtf
   category: upload
@@ -720,8 +710,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" uncomp
-      echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3 uncomp
 
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
@@ -918,7 +907,7 @@
 
 
 - name: import:upload:variants-vcf
-  version: 1.0.9
+  version: 1.0.10
   label: Upload VCF variants
   type: data:variants:vcf
   category: upload
@@ -961,8 +950,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" uncomp
-      echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3 uncomp
 
       {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
       {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${NAME}.vcf.bgz"
@@ -971,7 +959,7 @@
 
 
 - name: import:upload:variants-bed
-  version: 1.0.5
+  version: 1.0.6
   label: Upload BED variants
   type: data:variants:bed
   category: upload
@@ -1014,12 +1002,12 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" uncomp
-      echo "{\"proc.progress\":1,\"proc.rc\":$?,\"bed\":{\"file\":\"${NAME}.bed\"}}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0 uncomp
+      echo "{\"bed\":{\"file\":\"${NAME}.bed\"}}"
 
 
 - name: import:upload:rmsk-annotation
-  version: 1.0.7
+  version: 1.0.8
   label: Upload RepeatMasker result file
   type: "data:annotation:gff3:"
   category: upload
@@ -1062,8 +1050,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" uncomp
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1 uncomp
 
       echo "Generating GFF3 file..."
 
@@ -1082,7 +1069,7 @@
 
 
 - name: import:upload:mappability-bigwig
-  version: 1.0.7
+  version: 1.0.8
   label: Upload mappability coverage (BigWig)
   type: data:bigwig:mappability
   category: upload
@@ -1125,8 +1112,8 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" uncomp
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?,\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1 uncomp
+      echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
 
 
 - name: import:upload:differentialexpression
@@ -1332,7 +1319,7 @@
 
 
 - name: import:upload:import_nucl_seq
-  version: 1.0.4
+  version: 1.0.5
   label: Upload nucleotide sequence(s) (FASTA)
   type: data:seq:nucleotide
   category: upload
@@ -1379,13 +1366,13 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       echo "{\"proc.rc\":$?,\"number\":${NUMBER},\"fasta\":{\"file\":\"${NAME}.fasta.gz\"}}"
 
 
 - name: import:upload:orthologues
-  version: 1.0.4
+  version: 1.0.5
   label: Upload gene orthologues file
   type: data:orthologues
   category: upload
@@ -1420,7 +1407,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" "uncomp"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0 uncomp
       python {{ proc.slugs_path }}/gencloud-20131109/verify_orthologues.py "${NAME}.txt"
       echo "{\"proc.rc\":$?,\"ort\":{\"file\":\"$NAME.txt.gz\"}}"
 

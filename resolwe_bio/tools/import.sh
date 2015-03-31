@@ -16,16 +16,18 @@
 #                3.) matches if the file end just with zip                    #
 #                    supported (gz|bz2|zip|rar|7z)                            #
 # OUT_FORMAT:    the desired output format before compression, ie. fasta      #
+# MAX_PROGRES:   maximum progress at the end of transfer (0.0 to 1.0)         #
 # LEAVE_UNCOMP:  if any string given (uncomp string is prefered),             #
 #                leave the uncompressed file as well                          #
 #                                                                             #
 ###############################################################################
-
 TEMP=$1
 FILE=$2
 IN_FORMAT=$3
 OUT_FORMAT=$4
-LEAVE_UNCOMP=$5
+LEAVE_UNCOMP=$6
+MAX_PROGRES=${5:-1.0}
+DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 echo "Importing and compressing..."
 shopt -s nocasematch
@@ -94,7 +96,27 @@ function importUncompressed {
   fi
 }
 
-# add a dot to all input formats except for no extension
+if [[ "$FILE" =~ $regex ]]
+then
+    URL=${TEMP}
+    FILE=${FILE:-`basename "${URL%%\?*}"`}
+    TEMP=download_`basename "${URL%%\?*}"`
+    curl -# -L -o "${TEMP}" "${URL}" 2>&1 | stdbuf -oL tr '\r' '\n' | grep -o '[0-9]*\.[0-9]' | python -u $DIR/curlprogress.py --scale $MAX_PROGRES
+    testrc
+fi
+
+# Check if a temporary file exists
+if [ ! -f "${TEMP}" ]; then
+    echo "{\"proc.error\":\"File transfer failed: temporary file not found\"}"
+fi
+
+# Set FILE to extracted filename from TEMP if FILE not set
+FILE=${FILE:-`basename "${TEMP%%\?*}"`}
+
+# Take basename if FILE not nice
+FILE=`basename "${FILE%%\?*}"`
+
+# Add a dot to all input formats except for no extension
 # txt|csv -> .txt|.csv, txt|csv| -> .txt|.csv|
 IN_FORMAT=`python -c "print '|'.join(['.' + a if a else a for a in '$IN_FORMAT'.split('|')])"`
 
@@ -120,9 +142,11 @@ elif [[ ".${FILE}" =~ (${IN_FORMAT})$ ]]; then
   else
     export NAME=`echo "$FILE" | sed -E "s/(${IN_FORMAT})$//g"`
     importUncompressed
-
   fi
+
 else
   echo "{\"proc.rc\":1}"
   exit 1
 fi
+
+echo "{\"proc.progress\":$MAX_PROGRES}"

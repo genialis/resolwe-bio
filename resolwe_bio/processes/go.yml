@@ -109,7 +109,7 @@
 
 
 - name: import:upload:ontology
-  version: 1.0.12
+  version: 1.0.13
   label: Upload gene ontology
   type: data:ontology:obo
   category: upload
@@ -155,13 +155,13 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" 0.8 uncomp
       {{proc.slugs_path}}/gotea/preprocessor obo "${NAME}.obo" obo_obj
       echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"
 
 
 - name: import:upload:gaf
-  version: 1.0.6
+  version: 1.0.7
   label: Upload GO annotation file (GAF v2.0)
   type: data:gaf:2:0
   category: upload
@@ -198,6 +198,6 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" "uncomp"
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" 0.8 uncomp
       {{proc.slugs_path}}/gotea/preprocessor gaf "${NAME}.txt" gaf_obj
       echo "{\"proc.rc\":$?,\"gaf\":{\"file\":\"$NAME.txt.gz\"},\"gaf_obj\":{\"file\":\"gaf_obj\"}}"
