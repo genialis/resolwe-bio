@@ -17,16 +17,17 @@
 #                    supported (gz|bz2|zip|rar|7z)                            #
 # OUT_FORMAT:    the desired output format before compression, ie. fasta      #
 # MAX_PROGRES:   maximum progress at the end of transfer (0.0 to 1.0)         #
-# LEAVE_UNCOMP:  if any string given (uncomp string is prefered),             #
-#                leave the uncompressed file as well                          #
+# COMPRESSION:   if "compress" return compressed data                         #
+#                if "extract" return extracted data                           #
+#                else return both                                             #
 #                                                                             #
 ###############################################################################
 TEMP=$1
 FILE=$2
 IN_FORMAT=$3
 OUT_FORMAT=$4
-LEAVE_UNCOMP=$6
 MAX_PROGRES=${5:-1.0}
+COMPRESSION=$6
 DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
 echo "Importing and compressing..."
@@ -51,18 +52,24 @@ function importGz {
   mv "${TEMP}" "${NAME}.${OUT_FORMAT}.gz"
   testrc
 
-  # Return code 2 "trailing garbage ignored" is OK
-  gzip -t "${NAME}.${OUT_FORMAT}.gz"
-  testrc 1
+  if [ "$COMPRESSION" != extract ]; then
+    gzip -t "${NAME}.${OUT_FORMAT}.gz"
+    testrc 1  # RC 2 "trailing garbage ignored" is OK
+  fi
 
-  if [[ $LEAVE_UNCOMP ]]; then
-    # Return code 2 "trailing garbage ignored" is OK
+  if [ "$COMPRESSION" != compress ]; then
     gzip -dc "${NAME}.${OUT_FORMAT}.gz" > "${NAME}.${OUT_FORMAT}"
-    testrc 1
+    testrc 1  # RC 2 "trailing garbage ignored" is OK
+
+    if [ "$COMPRESSION" = extract ]; then
+      rm "${NAME}.${OUT_FORMAT}.gz"
+      testrc
+    fi
   fi
 }
 
 function import7z {
+  # Uncompress original file
   if [[ ".${FILE}" =~ \.(tgz|tar\.gz|tar\.bz2)$ ]]; then
     7z x -y -so "${TEMP}" | tar -xO > "${NAME}.${OUT_FORMAT}"
     testrc
@@ -71,27 +78,36 @@ function import7z {
     testrc
   fi
 
+  # Remove original file
   rm "${TEMP}"
   testrc
 
-  gzip -c "${NAME}.${OUT_FORMAT}" > "${NAME}.${OUT_FORMAT}.gz"
-  testrc
-
-  if [[ ! $LEAVE_UNCOMP ]]; then
-    rm "${NAME}.${OUT_FORMAT}"
+  if [ "$COMPRESSION" != extract ]; then
+    # Compress uncompressed file
+    gzip -c "${NAME}.${OUT_FORMAT}" > "${NAME}.${OUT_FORMAT}.gz"
     testrc
+
+    if [ "$COMPRESSION" = compress ]; then
+      # Remove uncompressed file
+      rm "${NAME}.${OUT_FORMAT}"
+      testrc
+    fi
   fi
 }
 
 function importUncompressed {
-  gzip -c "${TEMP}" > "${NAME}.${OUT_FORMAT}.gz"
-  testrc
-
-  if [[ $LEAVE_UNCOMP ]]; then
+  if [ "$COMPRESSION" = compress ]; then
+    gzip -c "${TEMP}" > "${NAME}.${OUT_FORMAT}.gz"
+    testrc
+    rm "${TEMP}"
+    testrc
+  elif [ "$COMPRESSION" = extract ]; then
     mv "${TEMP}" "${NAME}.${OUT_FORMAT}"
     testrc
   else
-    rm "${TEMP}"
+    gzip -c "${TEMP}" > "${NAME}.${OUT_FORMAT}.gz"
+    testrc
+    mv "${TEMP}" "${NAME}.${OUT_FORMAT}"
     testrc
   fi
 }

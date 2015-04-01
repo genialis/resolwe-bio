@@ -15,7 +15,7 @@ from django.core import management
 from django.test import TestCase
 
 from genesis.models import GenUser
-from server.models import Data, Storage, Processor
+from server.models import Data, Storage, Processor, dict_dot
 from ..unit.utils import create_admin, create_test_case
 
 
@@ -78,15 +78,26 @@ class BaseProcessorTestCase(TestCase):
 
         self.case = create_test_case(self.admin.pk)['c1']
         self.current_path = os.path.dirname(os.path.abspath(__file__))
+        self._keep_all = False
+        self._keep_failed = False
 
     def tearDown(self):
         super(BaseProcessorTestCase, self).tearDown()
 
-        # Delete Data objects and their files
+        # Delete Data objects and their files unless keep_failed
         for d in Data.objects.all():
-            data_dir = os.path.join(settings.DATAFS['data_path'], str(d.pk))
-            d.delete()
-            shutil.rmtree(data_dir, ignore_errors=True)
+            if self._keep_all or (self._keep_failed and d.status == "error"):
+                print("KEEPING DATA: {}".format(d.pk))
+            else:
+                data_dir = os.path.join(settings.DATAFS['data_path'], str(d.pk))
+                d.delete()
+                shutil.rmtree(data_dir, ignore_errors=True)
+
+    def keep_all(self):
+        self._keep_all = True
+
+    def keep_failed(self):
+        self._keep_failed = True
 
     def assertStatus(self, obj, status):  # pylint: disable=invalid-name
         """Check if Data object's status is 'status'.
@@ -194,10 +205,7 @@ class BaseProcessorTestCase(TestCase):
 
     def _get_field(self, obj, path):
         """Get field value ``path`` in multilevel dict ``obj``."""
-        if len(path):
-            for p in path.split('.'):
-                obj = obj[p]
-        return obj
+        return dict_dot(obj, path)
 
     def _msg_stdout(self, data):
         """Print stdout.txt content."""

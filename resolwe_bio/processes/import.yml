@@ -61,7 +61,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 0.5 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 0.5
 
       mkdir bowtie_index
       {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${NAME}.fasta" "./bowtie_index/${NAME}_index"
@@ -214,7 +214,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -381,10 +381,10 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3
       NAME1=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6
       NAME2=$NAME
 
       echo "Postprocessing FastQC..."
@@ -492,10 +492,10 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
       READS_NAME=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
@@ -593,13 +593,13 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
       READS_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
       READS_NAME2=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
@@ -655,7 +655,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
 
       {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\"}}"
@@ -710,7 +710,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3
 
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
@@ -820,7 +820,7 @@
 
 
 - name: import:upload:mapping-bam
-  version: 1.0.8
+  version: 1.0.9
   label: Upload BAM file mapping
   type: data:alignment:bam
   category: upload
@@ -866,20 +866,9 @@
   run:
     runtime: polyglot
     bash: |
-        NAME='{{ src.file }}'
-        TEMP='{{ src.file_temp|default:src.file }}'
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
 
-        # import file with full path
-        if [ ! -f $TEMP ]; then
-            TEMP='{{ src.file_temp }}'
-        fi
-
-        echo "Uploading BAM file..."
-        shopt -s nocasematch
-        mv "${TEMP}" "${NAME}"
-        echo "{\"proc.rc\":$?}"
-
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}" 2> stderr.txt
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam" 2> stderr.txt
         indexrc=$?
 
         grep -Fq 'fail to index' stderr.txt
@@ -892,18 +881,83 @@
         # Position sort and re-index if indexing failed
         if [ $indexerr -eq 0 ] || [ $indexrc -ne 0 ]; then
             echo "SORTING input BAM file per coordinate:"
-            {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}" "${NAME}_aligned" >&2
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}.bam" "${NAME}_aligned" >&2
             echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
-            mv "${NAME}_aligned.bam" "${NAME}" >&2
+            mv "${NAME}_aligned.bam" "${NAME}.bam"
             echo "{\"proc.rc\":$?}"
             echo "INDEXING input BAM file"
-            {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam"
             echo "{\"proc.rc\":$?}"
         fi
 
+        echo "{\"bam\":{\"file\":\"${NAME}.bam\"},\"bai\":{\"file\":\"${NAME}.bam.bai\"}}"
 
 
-        echo "{\"bam\":{\"file\":\"${NAME}\"},\"bai\":{\"file\":\"${NAME}.bai\"}}"
+- name: import:upload:mapping-bam-indexed
+  version: 1.0.4
+  label: Upload BAM file and index
+  type: data:alignment:bam
+  category: upload
+  persistence: RAW
+  description: >
+    Upload a mapping file in BAM format with index.
+  input:
+    - name: src
+      label: Mapping (BAM)
+      type: basic:file
+      description: >
+        A mapping file in BAM format.
+      required: true
+      validate_regex: '\.(bam)$'
+    - name: src2
+      label: bam index (*.bam.bai file)
+      type: basic:file
+      description: >
+        An index file of a BAM mapping file (ending with bam.bai).
+      required: true
+      validate_regex: '\.(bam.bai)$'
+  output:
+    - name: bam
+      label: Uploaded file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['mapping', 'BAM']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        BAM_NAME=${NAME}.bam
+
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
+        BAI_NAME=${NAME}.bai
+
+        if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then
+            echo "{\"bam\":{\"file\":\"${BAM_NAME}\"},\"bai\":{\"file\":\"${BAI_NAME}\"}}"
+        else
+            echo "{\"proc.error\":\"BAI should have the same name as BAM with .bai extension\"}"
+        fi
 
 
 - name: import:upload:variants-vcf
@@ -950,7 +1004,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3
 
       {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
       {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${NAME}.vcf.bgz"
@@ -1002,7 +1056,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0
       echo "{\"bed\":{\"file\":\"${NAME}.bed\"}}"
 
 
@@ -1050,7 +1104,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1
 
       echo "Generating GFF3 file..."
 
@@ -1112,7 +1166,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1
       echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
 
 
@@ -1249,75 +1303,6 @@
       echo $str
 
 
-- name: import:upload:mapping-bam-indexed
-  version: 1.0.3
-  label: Upload BAM file and index
-  type: data:alignment:bam
-  category: upload
-  persistence: RAW
-  description: >
-    Upload a mapping file in BAM format with index.
-  input:
-    - name: src
-      label: Mapping (BAM)
-      type: basic:file
-      description: >
-        A mapping file in BAM format.
-      required: true
-      validate_regex: '\.(bam)$'
-    - name: src2
-      label: bam index (*.bam.bai file)
-      type: basic:file
-      description: >
-        An index file of a BAM mapping file (ending with bam.bai).
-      required: true
-      validate_regex: '\.(bam.bai)$'
-  output:
-    - name: bam
-      label: Uploaded file
-      type: basic:file
-    - name: bai
-      label: Index BAI
-      type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['mapping', 'BAM']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
-  run:
-    runtime: polyglot
-    bash: |
-        NAME='{{ src.file }}'
-        TEMP='{{ src.file_temp|default:src.file }}'
-
-        if [ ! -f $TEMP ]; then
-            TEMP='{{ src.file_temp }}'
-        fi
-
-        echo "Uploading BAM file..."
-        shopt -s nocasematch
-        mv "${TEMP}" "${NAME}"
-        mv "{{ src2.file_temp|default:src.file }}" "${NAME}.bai"
-        echo "{\"proc.progress\":1,\"proc.rc\":$?}"
-        echo "{\"bam\":{\"file\":\"${NAME}\"},\"bai\":{\"file\":\"${NAME}.bai\"}}"
-
-
 - name: import:upload:import_nucl_seq
   version: 1.0.5
   label: Upload nucleotide sequence(s) (FASTA)
@@ -1366,7 +1351,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       echo "{\"proc.rc\":$?,\"number\":${NUMBER},\"fasta\":{\"file\":\"${NAME}.fasta.gz\"}}"
 
@@ -1407,7 +1392,7 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0 uncomp
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0
       python {{ proc.slugs_path }}/gencloud-20131109/verify_orthologues.py "${NAME}.txt"
       echo "{\"proc.rc\":$?,\"ort\":{\"file\":\"$NAME.txt.gz\"}}"
 
