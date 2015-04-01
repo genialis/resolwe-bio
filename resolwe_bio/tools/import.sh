@@ -96,7 +96,8 @@ function importUncompressed {
   fi
 }
 
-if [[ "$FILE" =~ $regex ]]
+regex='^(https?|ftp)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+if [[ "$TEMP" =~ $regex ]]
 then
     URL=${TEMP}
     FILE=${FILE:-`basename "${URL%%\?*}"`}
