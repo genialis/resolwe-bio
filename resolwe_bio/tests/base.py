@@ -94,9 +94,11 @@ class BaseProcessorTestCase(TestCase):
                 shutil.rmtree(data_dir, ignore_errors=True)
 
     def keep_all(self):
+        """Do not delete output files after test for all data."""
         self._keep_all = True
 
     def keep_failed(self):
+        """Do not delete output files after test for failed data."""
         self._keep_failed = True
 
     def assertStatus(self, obj, status):  # pylint: disable=invalid-name
@@ -123,7 +125,7 @@ class BaseProcessorTestCase(TestCase):
         :type value: :obj:`str`
 
         """
-        field = self._get_field(obj['output'], path)
+        field = dict_dot(obj['output'], path)
         self.assertEqual(field, str(value),
                          msg="Field 'output.{}' mismatch: {} != {}".format(path, field, str(value)) +
                          self._msg_stdout(obj))
@@ -147,7 +149,7 @@ class BaseProcessorTestCase(TestCase):
         :type gzipped: :obj:`bool`
 
         """
-        field = self._get_field(obj['output'], field_path)
+        field = dict_dot(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
         output_file = gzip.open(output, 'rb') if gzipped else open(output)
         output_hash = hashlib.sha256(output_file.read()).hexdigest()
@@ -188,7 +190,7 @@ class BaseProcessorTestCase(TestCase):
         if not isinstance(storage, Storage):
             storage = Storage.objects.get(pk=str(storage))
 
-        field = str(self._get_field(storage['json'], field_path))
+        field = str(dict_dot(storage['json'], field_path))
         field_hash = hashlib.sha256(field).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
@@ -202,10 +204,6 @@ class BaseProcessorTestCase(TestCase):
         wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
         self.assertEqual(wanted_hash, field_hash,
                          msg="JSON hash mismatch: {} != {}".format(wanted_hash, field_hash) + self._msg_stdout(obj))
-
-    def _get_field(self, obj, path):
-        """Get field value ``path`` in multilevel dict ``obj``."""
-        return dict_dot(obj, path)
 
     def _msg_stdout(self, data):
         """Print stdout.txt content."""
