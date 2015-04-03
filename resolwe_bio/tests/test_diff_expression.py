@@ -114,7 +114,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'replicates': ['1', '2'],
             'mappability': mappability.pk}
         diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
-        self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json')
+        self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
     def test_deseq2(self):
         genome = self.prepare_genome()

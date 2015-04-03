@@ -45,4 +45,4 @@ class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {'expressions': [expression_1.pk, expression_2.pk]}
         pca = self.run_processor('pca:1-0-0', inputs)
-        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca.json')
+        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca.json.gz')

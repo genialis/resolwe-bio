@@ -7,6 +7,7 @@ from __future__ import print_function
 
 import hashlib
 import gzip
+import json
 import os
 import shutil
 
@@ -165,7 +166,7 @@ class BaseProcessorTestCase(TestCase):
         self.assertEqual(wanted_hash, output_hash,
                          msg="File hash mismatch: {} != {}".format(wanted_hash, output_hash) + self._msg_stdout(obj))
 
-    def assertJSON(self, obj, storage, field_path, fn):  # pylint: disable=invalid-name
+    def assertJSON(self, obj, storage, field_path, file_name):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
 
         :param obj: Data object which includes file that we want to
@@ -181,29 +182,32 @@ class BaseProcessorTestCase(TestCase):
             compared.
         :type field_path: :obj:`str`
 
-        :param fn: File name (and relative path) of file to which we
+        :param file_name: File name (and relative path) of file to which we
             want to compare. Name/path is relative to
             'server/tests/processor/outputs'.
-        :type fn: :obj:`str`
+        :type file_name: :obj:`str`
 
         """
+        self.assertEqual(os.path.splitext(file_name)[1], '.gz', msg='File extension must be .gz')
+
         if not isinstance(storage, Storage):
             storage = Storage.objects.get(pk=str(storage))
 
-        field = str(dict_dot(storage['json'], field_path))
-        field_hash = hashlib.sha256(field).hexdigest()
+        storage_obj = dict_dot(storage['json'], field_path)
 
-        wanted = os.path.join(self.current_path, 'outputs', fn)
+        file_path = os.path.join(self.current_path, 'outputs', file_name)
+        if not os.path.isfile(file_path):
+            with gzip.open(file_path, 'w') as f:
+                json.dump(storage_obj, f)
 
-        if not os.path.isfile(wanted):
-            with open(wanted, 'w') as fn:
-                fn.write(field)
+            self.fail(msg="Output file {} missing so it was created.".format(file_name))
 
-            self.fail(msg="Output file {} missing so it was created.".format(fn))
+        with gzip.open(file_path) as f:
+            file_obj = json.load(f)
 
-        wanted_hash = hashlib.sha256(open(wanted).read()).hexdigest()
-        self.assertEqual(wanted_hash, field_hash,
-                         msg="JSON hash mismatch: {} != {}".format(wanted_hash, field_hash) + self._msg_stdout(obj))
+        self.assertEqual(storage_obj, file_obj,
+                         msg="Storage {} field '{}' does not match file {}".format(
+                             storage.id, field_path, file_name) + self._msg_stdout(obj))
 
     def _msg_stdout(self, data):
         """Print stdout.txt content."""

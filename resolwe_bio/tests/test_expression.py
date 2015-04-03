@@ -89,7 +89,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
-        self.assertJSON(etc, etc.output['etc'], '', 'etc.json')
+        self.assertJSON(etc, etc.output['etc'], '', 'etc.json.gz')
 
         reads2 = self.prepare_reads('00Hr.fastq.gz')
         inputs = {
@@ -137,4 +137,4 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
         self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz', gzipped=True)
-        self.assertJSON(expression, expression.output['exp'], '', 'expression.json')
+        self.assertJSON(expression, expression.output['exp'], '', 'expression.json.gz')
