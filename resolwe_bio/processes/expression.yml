@@ -29,7 +29,7 @@
       type: data:mappability:bcm
       required: true
   output:
-    - name: rpkumpolya
+    - name: exp
       label: Expression RPKUM (polyA)
       type: basic:file
       description: mRNA reads scaled by uniquely mappable part of exons.
@@ -37,7 +37,7 @@
       label: Expression RPKM (polyA)
       type: basic:file
       description: mRNA reads scaled by exon length.
-    - name: rcpolya
+    - name: rc
       label: Read counts (polyA)
       type: basic:file
       description: mRNA reads uniquely mapped to gene exons.
@@ -49,13 +49,17 @@
       label: Expression RPKM
       type: basic:file
       description: Reads scaled by exon length.
-    - name: rc
-      label: Read counts
+    - name: rc_raw
+      label: Read counts (raw)
       type: basic:file
       description: Reads uniquely mapped to gene exons.
-    - name: exp
-      label: Expression RPKUM (polyA) (JSON)
+    - name: exp_json
+      label: Expression RPKUM (polyA) (json)
       type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+      default: polyA
   static:
     - name: name
       label: Name
@@ -102,12 +106,12 @@
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc.tab.gz ]
       then
         compute_coverage "expression_rc.tab.gz"
-        str=$str",\"rc\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}"
+        str=$str",\"rc_raw\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}"
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc_polya.tab.gz ]
       then
         compute_coverage "expression_rc_polya.tab.gz"
-        str=$str",\"rcpolya\":{\"file\":\"expression_rc_polya.tab.gz\", \"refs\":[\"expression_rc_polya.tab.gz.bw\"]}"
+        str=$str",\"rc\":{\"file\":\"expression_rc_polya.tab.gz\", \"refs\":[\"expression_rc_polya.tab.gz.bw\"]}"
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
       then
@@ -128,14 +132,14 @@
       then
         compute_coverage "expression_rpkum_polya.tab.gz"
         python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "expression_rpkum_polya.tab.gz"
-        str=$str",\"rpkumpolya\":{\"file\":\"expression_rpkum_polya.tab.gz\", \"refs\":[\"expression_rpkum_polya.tab.gz.bw\"]}"
+        str=$str",\"exp\":{\"file\":\"expression_rpkum_polya.tab.gz\", \"refs\":[\"expression_rpkum_polya.tab.gz.bw\"]}"
       fi
       str=$str"}"
       echo $str
 
 
 - name: mergeexpressions
-  version: 1.0.2
+  version: 1.0.3
   label: Merge Expressions
   type: data:expressionset
   category: analyses
@@ -143,7 +147,7 @@
   description: >
     Merge expression data and filter genes.
   input:
-    - name: expressions
+    - name: exps
       label: Gene expressions
       type: list:data:expression
       required: true
@@ -153,9 +157,12 @@
       required: false
       default: ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
   output:
-    - name: expression_set
+    - name: expset
       label: Expression set
       type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
   static:
     - name: name
       label: Name
@@ -179,12 +186,21 @@
   run:
     runtime: polyglot
     bash: |
-      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in expressions %}"{{e.output.tpm.file}}" {% endfor %} --experiments {% for e in expressions %}"{{e.static.name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
-      echo "{\"expression_set\":{\"file\":\"sample.tab\"},\"proc.rc\":$?}"
+
+      EXPSET_TYPE="{{exps.0.output.exp_type}}"
+
+      {% for e in exps %}
+        {% if exps.0.output.exp_type != e.output.exp_type %}
+          echo "{\"proc.error\":\"Expressions must be of the same expression type\"}"
+        {% endif %}
+      {% endfor %}
+
+      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e.static.name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
+      echo "{\"expset_type\":\"${EXPSET_TYPE}\",\"expset\":{\"file\":\"sample.tab\"},\"proc.rc\":$?}"
 
 
 - name: etc:bcm-1-0-0
-  version: 1.0.4
+  version: 1.0.5
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -235,7 +251,7 @@
   run:
     runtime: polyglot
     bash: |
-      python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.rpkumpolya.file}}" {% endfor %} --names {% for e in expressions %}"{{e.static.name}}" {% endfor %} {% if avg %}--mean{% endif %}
+      python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e.static.name}}" {% endfor %} {% if avg %}--mean{% endif %}
       str="{\"proc.progress\":1.0,\"proc.rc\":$?"
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
       then
@@ -246,7 +262,7 @@
 
 
 - name: differentialexpression:bcm-1-0-0
-  version: 1.0.4
+  version: 1.0.5
   label: Differential Expression (baySeq)
   type: data:differentialexpression
   category: analyses
@@ -309,17 +325,30 @@
   run:
     runtime: polyglot
     bash: |
-      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmerge.py {% for c in case %}"{{c.output.rcpolya.file}}" {% endfor %} {% for c in control %}"{{c.output.rcpolya.file}}" {% endfor %} --experiments {% for c in case %}"Case_Counts_{{c.id}}" {% endfor %} {% for c in control %}"Control_Counts_{{c.id}}" {% endfor %} > expressions.tab
+
+      {% for c in case %}
+        {% if not c.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"
+        {% endif %}
+      {% endfor %}
+
+      {% for c in control %}
+        {% if not c.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"
+        {% endif %}
+      {% endfor %}
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmerge.py {% for c in case %}"{{c.output.rc.file}}" {% endfor %} {% for c in control %}"{{c.output.rc.file}}" {% endfor %} --experiments {% for c in case %}"Case_Counts_{{c.id}}" {% endfor %} {% for c in control %}"Control_Counts_{{c.id}}" {% endfor %} > expressions.tab
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       Rscript {{ proc.slugs_path }}/gencloud-20131109/run_bayseq.R expressions.tab {{mappability.output.mappability.file}} --groups {% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %} --replicates {% if replicates %}{% for r in replicates %}{{r}} {% endfor %}{% else %}{% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %}{% endif %}
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in case %}"{{c.output.rpkumpolya.file}}" {% endfor %} --name Case_RPKUM_ > rpkum_median_case.tab
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in case %}"{{c.output.exp.file}}" {% endfor %} --name Case_RPKUM_ > rpkum_median_case.tab
       gzip rpkum_median_case.tab
       echo "{\"proc.progress\":0.85,\"proc.rc\":$?}"
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in control %}"{{c.output.rpkumpolya.file}}" {% endfor %} --name Control_RPKUM_ > rpkum_median_control.tab
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in control %}"{{c.output.exp.file}}" {% endfor %} --name Control_RPKUM_ > rpkum_median_control.tab
       gzip rpkum_median_control.tab
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
 
@@ -983,17 +1012,21 @@
     - name: fpkm
       label: FPKM
       type: basic:file
-    - name: tpm
+    - name: exp
       label: TPM (Transcripts Per Million)
       type: basic:file
-    - name: exp
+    - name: exp_json
       label: TPM (json)
       type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+      default: TPM
   static:
     - name: name
       label: Name
       type: basic:string
-      default: HTSeq-count analysis ({{ alignments.output.bam.file|basename|default:'?' }})
+      default: "{{ alignments.output.bam.file|basename|default:'?' }}"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -1009,7 +1042,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: Description of HTSeq-count expression analysis results
+      default: HTSeq-count analysis
   var:
     - name: notes
       label: Notes
@@ -1021,8 +1054,6 @@
 
       NAME=`basename '{{ alignments.output.bam.file }}' .bam`
       echo "{\"proc.progress\":0.05}"
-
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
 
       if {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
@@ -1055,7 +1086,8 @@
 
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
-      echo "{\"proc.progress\":1,\"rc\":{\"file\":\"${NAME}_rc.tab.gz\"}, \"fpkm\":{\"file\":\"${NAME}_fpkm.tab.gz\"}, \"tpm\":{\"file\":\"${NAME}_tpm.tab.gz\"}, \"htseq_output\":{\"file\":\"${NAME}_HTseq_rc.txt.gz\"}}"
+      echo "{\"proc.progress\":1,\"rc\":{\"file\":\"${NAME}_rc.tab.gz\"}, \"fpkm\":{\"file\":\"${NAME}_fpkm.tab.gz\"}, \"exp\":{\"file\":\"${NAME}_tpm.tab.gz\"}, \"htseq_output\":{\"file\":\"${NAME}_HTseq_rc.txt.gz\"}}"
+
 
 - name: cuffquant:-2-2-1
   version: 1.0.3
@@ -1161,7 +1193,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.0
+  version: 1.0.1
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1223,11 +1255,17 @@
     bash: |
 
       {% for c in control %}
+        {% if not c.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts are required when using DESeq2\"}"
+        {% endif %}
         controls=$controls"{{c.output.rc.file}} "
         sampleConditions=$sampleConditions"control "
       {% endfor %}
 
       {% for t in case %}
+        {% if not t.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts are required when using DESeq2\"}"
+        {% endif %}
         cases=$cases"{{t.output.rc.file}} "
         sampleConditions=$sampleConditions"case "
       {% endfor %}

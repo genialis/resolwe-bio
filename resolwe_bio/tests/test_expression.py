@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+from server.models import Data
+
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
 
@@ -74,16 +76,12 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
                 'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
 
-        inputs = {
-            'genome': genome.pk,
-            'gff': annotation.pk}
-        mappability = self.run_processor('mappability:bcm-1-0-0', inputs)
-        self.assertFiles(mappability, 'mappability', 'mappability.tab')
+        mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
         inputs = {
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
-            'mappable': mappability.pk}
+            'mappable': mappa.pk}
         expression = self.run_processor('expression:bcm-1-0-0', inputs)
         self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', gzipped=True)
 
@@ -103,15 +101,8 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
         inputs = {
             'alignment': aligned_reads2.pk,
             'gff': annotation.pk,
-            'mappable': mappability.pk}
+            'mappable': mappa.pk}
         expression2 = self.run_processor('expression:bcm-1-0-0', inputs)
-
-        inputs = {
-            'expressions': [expression.pk, expression2.pk],
-            'genes': ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
-        }
-
-        self.run_processor('mergeexpressions', inputs)
 
     def test_expression_htseq(self):
         genome = self.prepare_genome()
@@ -134,7 +125,30 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'stranded': "no",
             'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
+        expression2 = self.run_processor('htseq-count:-0-6-1p1', inputs)
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
-        self.assertFiles(expression, 'tpm', 'reads_tpm.tab.gz', gzipped=True)
-        self.assertJSON(expression, expression.output['exp'], '', 'expression.json.gz')
+        self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', gzipped=True)
+        self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
+
+    def test_mergeexpression(self):
+        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
+        expression_3 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="RC")
+
+        inputs = {
+            'exps': [expression_1.pk, expression_2.pk],
+            'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067102']
+        }
+
+        mergeexpression_1 = self.run_processor('mergeexpressions', inputs)
+        self.assertFiles(mergeexpression_1, "expset", "merged_expset.tab")
+
+        mergeexpression_2 = self.run_processor('mergeexpressions', {'exps': [expression_1.pk, expression_2.pk]})
+        self.assertFiles(mergeexpression_2, "expset", "merged_expset_2.tab")
+
+        inputs = {
+            'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
+            'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067102']
+        }
+        mergeexpression_3 = self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)

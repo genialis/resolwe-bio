@@ -118,3 +118,8 @@ class PreparedData(object):
         """Prepare annotation GTF."""
         inputs = {'src': fn}
         return self.run_processor('import:upload:annotation-gtf', inputs)
+
+    def prepare_expression(self, f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM"):
+        """Prepare expression."""
+        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type}
+        return self.run_processor('import:upload:expression', inputs)

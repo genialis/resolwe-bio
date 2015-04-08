@@ -82,3 +82,51 @@
       fi
       str=$str"}"
       echo $str
+
+
+- name: import:upload:mappability
+  version: 1.0.0
+  label: Upload mappability info
+  type: data:mappability:bcm
+  category: upload
+  persistence: RAW
+  description: >
+    Upload mappability information.
+  input:
+    - name: src
+      label: Mappability file
+      type: basic:file
+      description: >
+        Mappability file: 2 column tab separated
+      required: true
+      validate_regex: '\.(tab)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: mappability
+      label: Uploaded mappability
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Upload mappability ({{ src.file }})'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['mappability']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} mappability.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab" "tab" 1.0 extract
+      echo "{\"mappability\":{\"file\":\"${NAME}.tab\"}}"

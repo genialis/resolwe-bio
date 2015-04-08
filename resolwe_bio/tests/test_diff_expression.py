@@ -65,95 +65,26 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs)
         self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', gzipped=True)
 
+
     def test_bayseq_bcm(self):
-        genome = self.prepare_genome()
-        reads1 = self.prepare_reads('00Hr.fastq.gz')
-        reads2 = self.prepare_reads('20Hr.fastq.gz')
+        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
-        inputs = {'src': 'annotation.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertFiles(annotation, 'gff', 'annotation.gff')
-
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads1.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads2.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'genome': genome.pk,
-            'gff': annotation.pk}
-        mappability = self.run_processor('mappability:bcm-1-0-0', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_1.pk,
-            'gff': annotation.pk,
-            'mappable': mappability.pk}
-        expression_1 = self.run_processor('expression:bcm-1-0-0', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_2.pk,
-            'gff': annotation.pk,
-            'mappable': mappability.pk}
-        expression_2 = self.run_processor('expression:bcm-1-0-0', inputs)
+        mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
         inputs = {
             'name': "00vs20",
             'case': [expression_1.pk],
             'control': [expression_2.pk],
             'replicates': ['1', '2'],
-            'mappability': mappability.pk}
+            'mappability': mappa.pk}
         diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
+
     def test_deseq2(self):
-        genome = self.prepare_genome()
-        reads1 = self.prepare_reads('00Hr.fastq.gz')
-        reads2 = self.prepare_reads('20Hr.fastq.gz')
-
-        inputs = {'src': 'annotation.gtf'}
-        annotation = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertFiles(annotation, 'gtf', 'annotation.gtf')
-
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads1.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads2.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'alignments': aligned_reads_1.pk,
-            'gff': annotation.pk,
-            'stranded': "no",
-            'id_attribute': 'transcript_id'}
-        expression_1 = self.run_processor('htseq-count:-0-6-1p1', inputs)
-
-        inputs = {
-            'alignments': aligned_reads_2.pk,
-            'gff': annotation.pk,
-            'stranded': "no",
-            'id_attribute': 'transcript_id'}
-        expression_2 = self.run_processor('htseq-count:-0-6-1p1', inputs)
+        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
         inputs = {
             'name': "00vs20",

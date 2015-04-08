@@ -31,4 +31,4 @@ with gzip.open(fname, 'rb') as f:
                      gene_exp in (l.split('\t') for l in f) if
                      len(gene_exp) == 2 and isfloat(gene_exp[1])}}
 
-print '{"exp":%s}' % json.dumps(exp, separators=(',', ':'))
+print '{"exp_json":%s}' % json.dumps(exp, separators=(',', ':'))

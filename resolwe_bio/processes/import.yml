@@ -1467,3 +1467,101 @@
 
       echo "database representation file" > ${NAME}
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?,\"database\":{\"file\":\"${NAME}\",\"refs\":[\"db\"]}, \"hmmerdb\":\"${NAME}.hmm\"}"
+
+
+- name: import:upload:expression
+  version: 1.0.0
+  label: Upload Expression
+  type: data:expression
+  category: upload
+  persistence: RAW
+  description: >
+        Upload expression data. Please provide raw expression data (read counts) and/or normalized expression data together with the associated data normalization type.
+  input:
+    - name: rc
+      label: Read counts (raw expression)
+      type: basic:file
+      description: >
+        Reads mapped to genomic features (raw count data).
+      required: false
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+      description: >
+        Normalized expression data
+      required: false
+    - name: exp_type
+      label: Normalization type
+      type: basic:string
+      description: >
+        Normalization type
+      required: false
+  output:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+      description: Normalized expression
+    - name: rc
+      label: Read counts
+      type: basic:file
+      description: Reads mapped to genomic features.
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Expression upload'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['expression', 'upload']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% if not exp and not rc %}
+        echo "{\"proc.rc\":1}"
+
+      {% elif exp and not exp_type %}
+        echo "{\"proc.rc\":1}"
+
+      {% elif not exp and exp_type and rc %}
+        echo "{\"proc.rc\":1}"
+
+      {% elif rc and not exp and not exp_type %}
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.1 compress
+        RC_NAME=${NAME}
+        EXP_TYPE="RC"
+        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${RC_NAME}.tab.gz\"},\"rc\":{\"file\":\"${RC_NAME}.tab.gz\"}}"
+
+      {% elif exp and exp_type and not rc %}
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
+        EXP_NAME=${NAME}
+
+        EXP_TYPE="{{exp_type}}"
+
+        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "${EXP_NAME}.tab.gz"
+        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${EXP_NAME}.tab.gz\"}}"
+
+      {% else %}
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.5 compress
+        RC_NAME=${NAME}
+
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.9 compress
+        EXP_NAME=${NAME}
+
+        EXP_TYPE="{{exp_type}}"
+
+        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "${EXP_NAME}.tab.gz"
+        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${EXP_NAME}.tab.gz\"},\"rc\":{\"file\":\"${RC_NAME}.tab.gz\"}}"
+
+      {% endif %}

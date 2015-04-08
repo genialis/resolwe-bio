@@ -4,7 +4,7 @@
 ---
 
 - name: pca:1-0-0
-  version: 1.0.0
+  version: 1.0.1
   label: PCA
   type: data:pca
   category: analyses
@@ -36,11 +36,7 @@
       . {{proc.slugs_path}}/venv-gencloud-0.1/bin/activate
 
       {% for exp in expressions %}
-        if [ {{ exp.output.tpm.file }} ]; then
-          exp=$exp"{{ exp.output.tpm.file }},"
-        elif [ {{ exp.output.rpkumpolya.file }} ]; then
-          exp=$exp"{{ exp.output.rpkumpolya.file }},"
-        fi
+        exp=$exp"{{ exp.output.exp.file }},"
         obj_id=$obj_id"{{ exp.id }},"
       {% endfor %}
 

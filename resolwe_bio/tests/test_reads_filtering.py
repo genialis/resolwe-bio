@@ -5,12 +5,12 @@ from .utils import PreparedData
 
 class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
-    def test_sormerna_single(self):
+    def test_sortmerna_single(self):
         reads = self.prepare_reads('rRNA_forw.fastq.gz')
 
         inputs = {
             'reads': reads.pk,
-            'database_selection': ['rfam-5s-database-id98.fasta'],
+            'database_selection': ['rfam-5.8s-database-id98.fasta'],
             'options': {'threads': 2}}
         filtered_reads = self.run_processor('filtering:sortmerna-2.0-single-end', inputs)
         self.assertFiles(filtered_reads, 'fastq', 'reads_wo_rRNA_single.fastq.gz')
@@ -25,7 +25,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {
             'reads': reads.pk,
-            'database_selection': ['rfam-5s-database-id98.fasta'],
+            'database_selection': ['rfam-5.8s-database-id98.fasta'],
             'options': {'threads': 2}}
         filtered_reads = self.run_processor('filtering:sortmerna-2.0-paired-end', inputs)
         self.assertFiles(filtered_reads, 'fastq', 'reads_wo_rRNA_paired_forw.fastq.gz')
