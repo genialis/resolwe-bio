@@ -1226,7 +1226,6 @@
       if [[ '.{{ src.file }}' =~ \.(xls)|(xlsx)$ ]]; then
         echo "Importing and transforming"
         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/import_DE_excel_table.py "${NAME}" > "${NAME}.tab"
-        gzip "${NAME}.tab"
         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
 
       else

@@ -142,10 +142,15 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
         }
 
         mergeexpression_1 = self.run_processor('mergeexpressions', inputs)
-        self.assertFiles(mergeexpression_1, "expset", "merged_expset.tab")
+        self.assertFiles(mergeexpression_1, "expset", "merged_expset_subset.tab")
 
-        mergeexpression_2 = self.run_processor('mergeexpressions', {'exps': [expression_1.pk, expression_2.pk]})
-        self.assertFiles(mergeexpression_2, "expset", "merged_expset_2.tab")
+        inputs = {
+            'exps': [expression_1.pk, expression_2.pk],
+            'genes': []
+        }
+
+        mergeexpression_2 = self.run_processor('mergeexpressions', inputs)
+        self.assertFiles(mergeexpression_2, "expset", "merged_expset_all.tab")
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
