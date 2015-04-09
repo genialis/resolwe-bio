@@ -359,10 +359,11 @@
 
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/diffexp_bayseq.tab ]
       then
-        echo "{\"diffexp\":{\"file\":\"diffexp_bayseq.tab\"}}"
+        gzip diffexp_bayseq.tab
+        echo "{\"diffexp\":{\"file\":\"diffexp_bayseq.tab.gz\"}}"
       fi
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py diffexp_bayseq.tab
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py diffexp_bayseq.tab.gz
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: findsimilar

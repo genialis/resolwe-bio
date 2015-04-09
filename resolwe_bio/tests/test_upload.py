@@ -43,7 +43,6 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {"exp": "00Hr_tpm.tab.gz", "exp_type": "TPM"}
         expressions_4 = self.run_processor("import:upload:expression", inputs)
-        self.assertFiles(expressions_4, "rc", "00Hr_rc_2.tab.gz")
         self.assertFiles(expressions_4, 'exp', '00Hr_tpm_2.tab.gz')
 
         inputs = {"rc": "00Hr_rc.tab.gz", "exp": "00Hr_tpm.tab.gz", "exp_type": "TPM"}

@@ -2,6 +2,7 @@ import argparse
 import csv
 import json
 import os
+import gzip
 
 import numpy as np
 
@@ -14,6 +15,12 @@ args = parser.parse_args()
 if not os.path.isfile(args.bayseq_results):
     exit(1)
 
+def is_gzipped(f):
+    with open(f, 'rb') as rpkm_file:
+        magic = rpkm_file.read(2)
+
+    return magic == '\037\213'
+
 base, ext = os.path.splitext(args.bayseq_results)
 delimiter = ';' if ext == '.csv' else '\t'
 genes = []
@@ -21,7 +28,9 @@ case_rpkum_median = []
 control_rpkum_median = []
 fdr_de = []
 
-with open(args.bayseq_results, 'rb') as csvfile:
+myopen = gzip.open if is_gzipped(args.bayseq_results) else open
+
+with myopen(args.bayseq_results, 'rb') as csvfile:
     reader = csv.reader(csvfile, delimiter=delimiter)
     header = reader.next()
 
