@@ -10,6 +10,7 @@ from sklearn.decomposition import PCA
 parser = argparse.ArgumentParser(description="PCA")
 parser.add_argument('samples', help="All samples (comma separated)")
 parser.add_argument('sample_ids', help="Sample IDs (comma separated")
+parser.add_argument('--genes', nargs='+', help='filter genes')
 args = parser.parse_args()
 
 
@@ -47,6 +48,9 @@ for fname in samples:
                     and isfloat(gene_exp[1])})
 
         allgenes.update(exp[-1].keys())
+
+if args.genes:
+    allgenes = allgenes.intersection(args.genes)
 
 # Default expression value is 0.
 exp = np.array([[genemap.get(g, 0.) for g in allgenes] for genemap in exp])
