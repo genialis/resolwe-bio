@@ -90,7 +90,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?,\"fasta\":{\"file\":\"${NAME}.fasta.gz\",\"refs\":[\"seq\",\"seq/refSeqs.json\"]},\"index_bt\":{\"file\":\"${NAME}_bt_index.tar.gz\"},\"index_bt2\":{\"file\":\"${NAME}_bt2_index.tar.gz\"}, \"index_bwa\":{\"file\":\"${NAME}_bwa_index.tar.gz\"}}"
 
 - name: import:upload:reads-fastq
-  version: 1.0.11
+  version: 1.0.12
   label: Upload NGS reads
   type: data:reads:fastq:single
   category: upload
@@ -218,8 +218,15 @@
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME}.fastq.gz" --outdir="fastqc" >&2
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME}.fastq.gz" --outdir="fastqc" 2> stderr.txt
+      grep --text "Failed to process file" stderr.txt
+      err=$?
+
+      if [ $err -eq 0 ]; then
+        echo "{\"proc.error\":\"FASTQC failed to process FASTQ file\"}"
+      fi
+
+      echo "{\"proc.progress\":0.9}"
 
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt)
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
@@ -241,7 +248,7 @@
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.11
+  version: 1.0.12
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
@@ -389,8 +396,16 @@
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --outdir="fastqc" >&2
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --outdir="fastqc" 2> stderr.txt
+      grep --text "Failed to process file" stderr.txt
+      err=$?
+
+      if [ $err -eq 0 ]; then
+        echo "{\"proc.error\":\"FASTQC failed to process FASTQ file\"}"
+      fi
+
+      echo "{\"proc.progress\":0.9}"
 
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
       FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"

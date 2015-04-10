@@ -52,3 +52,20 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFiles(expressions_5, 'exp', 'expression_tpm.tab.gz')
         self.assertFiles(expressions_5, 'rc', 'expression_rc.tab.gz')
         self.assertJSON(expressions_5, expressions_5.output['exp_json'], '', 'expression.json.gz')
+
+    def test_upload_paired_end_reads(self):
+        inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}
+        self.run_processor("import:upload:reads-fastq-paired-end", inputs, Data.STATUS_ERROR)
+
+        inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
+        reads = self.run_processor("import:upload:reads-fastq-paired-end", inputs)
+        self.assertFiles(reads, "fastq", "rRNA_forw.fastq.gz")
+        self.assertFiles(reads, "fastq2", "rRNA_rew.fastq.gz")
+
+    def test_upload_single_end_reads(self):
+        inputs = {"src": "mate1.fastq.gz"}
+        self.run_processor("import:upload:reads-fastq", inputs, Data.STATUS_ERROR)
+
+        inputs = {"src": "rRNA_forw.fastq.gz"}
+        reads = self.run_processor("import:upload:reads-fastq", inputs)
+        self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz")
