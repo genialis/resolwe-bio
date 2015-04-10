@@ -14,7 +14,7 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'reads': reads.pk,
             'reporting': {'r': "-a -m 1 --best --strata"}}
         aligned_reads = self.run_processor('alignment:bowtie-1-0-0-trimmx', inputs)
-        self.assertFiles(aligned_reads, 'stats', 'bowtie_reads_report.tab')
+        self.assertFiles(aligned_reads, 'stats', 'bowtie_reads_report.tab.gz', gzipped=True)
 
     def test_bowtie2(self):
         genome = self.prepare_genome()

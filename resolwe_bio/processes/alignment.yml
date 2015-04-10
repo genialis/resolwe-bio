@@ -467,7 +467,7 @@
 
 
 - name: alignment:bowtie-1-0-0-trimmx
-  version: 1.0.8
+  version: 1.0.9
   label: Aligner (Bowtie 1.0.0)
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
@@ -701,10 +701,11 @@
       rm chrom.sizes && rm tmp.bedgraph
 
       python {{ proc.slugs_path }}/gencloud-20131109/mergebowtiestats.py $STATS
+      gzip stats.tab
 
       # TODO: test if all outputs exists, else return proc.rc 1
 
-      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_mapped.bam\",\"refs\":[\"${NAME}_mapped.bam.bw\"]},\"bai\":{\"file\":\"${NAME}_mapped.bam.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"},\"stats\":{\"file\":\"stats.tab\"}}"
+      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_mapped.bam\",\"refs\":[\"${NAME}_mapped.bam.bw\"]},\"bai\":{\"file\":\"${NAME}_mapped.bam.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"},\"stats\":{\"file\":\"stats.tab.gz\"}}"
 
 
 - name: alignment:bowtie-2-2-3_trim

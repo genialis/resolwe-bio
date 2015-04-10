@@ -765,9 +765,9 @@
 
 
 - name: import:upload:geneinfo
-  version: 1.0.6
+  version: 1.0.7
   label: Upload gene information
-  type: data:geneinfo:dictyostelium
+  type: data:geneinfo
   category: upload
   persistence: RAW
   description: >
