@@ -14,8 +14,8 @@ class ProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         for p in procs:
             fields = sorted('{} {}'.format(pth, schema['type']) for schema, _, pth in
-                                            iterate_schema({}, p.output_schema, 'output'))
-            if not p.type in types:
+                            iterate_schema({}, p.output_schema, 'output'))
+            if p.type not in types:
                 types[p.type] = {
                     'fields': fields,
                     'name': [p.name]
@@ -28,7 +28,7 @@ class ProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         if len(errors_equals) > 0:
             self.fail('Processors of the same type should have the same output fields:\n\n    {}'.format(
-                        '\n    '.join(', '.join(types[typ]['name']) for typ in errors_equals)))
+                '\n    '.join(', '.join(types[typ]['name']) for typ in errors_equals)))
 
         type_list = sorted(types.iterkeys())
         for i, typ in enumerate(type_list):
@@ -41,4 +41,4 @@ class ProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         if len(errors_subtype) > 0:
             self.fail('Processors should include all output fields of the parent type:\n\n    {}'.format(
-                        '\n    '.join(errors_subtype)))
+                '\n    '.join(errors_subtype)))

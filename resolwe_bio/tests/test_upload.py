@@ -31,10 +31,10 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_upload_expression(self):
         inputs = {"exp_type": "TPM"}
-        expressions_1 = self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
 
         inputs = {"exp": "00Hr_tpm.tab.gz", "rc": "00Hr_rc.tab.gz"}
-        expressions_2 = self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
 
         inputs = {"rc": "00Hr_rc.tab.gz"}
         expressions_3 = self.run_processor("import:upload:expression", inputs)

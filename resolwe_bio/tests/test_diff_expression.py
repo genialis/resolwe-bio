@@ -65,7 +65,6 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs)
         self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', gzipped=True)
 
-
     def test_bayseq_bcm(self):
         expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
@@ -81,7 +80,6 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         diff_exp = self.run_processor('differentialexpression:bcm-1-0-0', inputs)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
-
     def test_deseq2(self):
         expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
@@ -89,6 +87,8 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         inputs = {
             'name': "00vs20",
             'case': [expression_1.pk],
-            'control': [expression_2.pk]}
+            'control': [expression_2.pk]
+        }
+
         diff_exp = self.run_processor('differentialexpression:deseq2', inputs)
         self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', gzipped=True)

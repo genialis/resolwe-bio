@@ -102,7 +102,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'alignment': aligned_reads2.pk,
             'gff': annotation.pk,
             'mappable': mappa.pk}
-        expression2 = self.run_processor('expression:bcm-1-0-0', inputs)
+        self.run_processor('expression:bcm-1-0-0', inputs)
 
     def test_expression_htseq(self):
         genome = self.prepare_genome()
@@ -125,7 +125,6 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'stranded': "no",
             'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
-        expression2 = self.run_processor('htseq-count:-0-6-1p1', inputs)
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
         self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', gzipped=True)
@@ -156,4 +155,4 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067102']
         }
-        mergeexpression_3 = self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)
+        self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)
