@@ -6,9 +6,9 @@
 ---
 
 - name: alignment:bwa_mem-0.7.5a
-  version: 1.0.7
+  version: 1.0.8
   label: Aligner (BWA MEM 0.7.5a)
-  type: data:alignment:bam
+  type: data:alignment:bam:bwamem
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -182,9 +182,9 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_sw-0.7.5a
-  version: 1.0.6
+  version: 1.0.7
   label: Aligner (BWA SW 0.7.5a)
-  type: data:alignment:bam
+  type: data:alignment:bam:bwasw
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -312,9 +312,9 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_aln-0.7.5a
-  version: 1.0.7
+  version: 1.0.8
   label: Aligner (BWA backtrack 0.7.5a)
-  type: data:alignment:bam
+  type: data:alignment:bam:bwaaln
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -467,9 +467,9 @@
 
 
 - name: alignment:bowtie-1-0-0-trimmx
-  version: 1.0.7
+  version: 1.0.8
   label: Aligner (Bowtie 1.0.0)
-  type: data:alignment:bam
+  type: data:alignment:bam:bowtie1
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -708,9 +708,9 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.11
+  version: 1.0.12
   label: Aligner (Bowtie 2.2.3)
-  type: data:alignment:bam
+  type: data:alignment:bam:bowtie2
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -990,7 +990,7 @@
 - name: alignment:tophat-2-0-13
   version: 1.0.5
   label: Aligner (TopHat v2.0.13)
-  type: data:alignment:bam
+  type: data:alignment:bam:tophat
   persistence: CACHED
   description: >
     TopHat is a program that aligns RNA-Seq reads to a genome in order to identify exon-exon splice junctions. It is built on the ultrafast short read mapping program Bowtie.

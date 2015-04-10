@@ -822,7 +822,7 @@
 - name: import:upload:mapping-bam
   version: 1.0.9
   label: Upload BAM file mapping
-  type: data:alignment:bam
+  type: data:alignment:bam:upload
   category: upload
   persistence: RAW
   description: >
@@ -896,7 +896,7 @@
 - name: import:upload:mapping-bam-indexed
   version: 1.0.4
   label: Upload BAM file and index
-  type: data:alignment:bam
+  type: data:alignment:bam:upload
   category: upload
   persistence: RAW
   description: >
@@ -1171,9 +1171,9 @@
 
 
 - name: import:upload:differentialexpression
-  version: 1.0.4
+  version: 1.0.5
   label: Upload Differential Expression table
-  type: data:differentialexpression
+  type: data:differentialexpression:upload
   category: upload
   persistence: RAW
   description: >

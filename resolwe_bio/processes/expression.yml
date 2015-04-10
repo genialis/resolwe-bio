@@ -264,7 +264,7 @@
 - name: differentialexpression:bcm-1-0-0
   version: 1.0.5
   label: Differential Expression (baySeq)
-  type: data:differentialexpression
+  type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED
   description: >
@@ -423,9 +423,9 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: cufflinks:-2-2-1
-  version: 1.0.4
+  version: 1.0.5
   label: Expression (Cufflinks 2.2.1)
-  type: data:cufflinks
+  type: data:cufflinks:cufflinks
   category: analyses
   persistence: CACHED
   description: >
@@ -550,7 +550,7 @@
       echo "{\"proc.progress\":1,\"transcripts\":{\"file\":\"${NAME}_transcripts.gtf\"}, \"isoforms_fpkm_tracking\":{\"file\":\"${NAME}_isoforms_fpkm_tracking.txt\"}, \"genes_fpkm_tracking\":{\"file\":\"${NAME}_genes_fpkm_tracking.txt\"}, \"skipped_loci\":{\"file\":\"${NAME}_skipped.gtf\"}}"
 
 - name: cuffmerge:-2-2-1
-  version: 1.0.6
+  version: 1.0.7
   label: Merge Cufflinks assemblies (Cuffmerge 2.2.1)
   type: data:annotation:cuffmerge
   category: analyses
@@ -560,7 +560,7 @@
   input:
     - name: expressions
       label: Cufflinks transcripts (GTF)
-      type: list:data:cufflinks
+      type: list:data:cufflinks:cufflinks
       required: true
     - name: gff
       label: Reference annotation (GTF/GFF3)
@@ -642,7 +642,7 @@
       echo "{\"proc.progress\":1,\"merged_gtf\":{\"file\":\"cuffmerge_$(date +'%m-%d-%Y').gtf\"}}"
 
 - name: cuffnorm:-2-2-1
-  version: 1.0.6
+  version: 1.0.7
   label: Expression (Cuffnorm 2.2.1)
   type: data:expressionset:cuffnorm
   category: analyses
@@ -679,12 +679,16 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: expression_set
+    - name: expset
       label: Expression set (FPKM)
       type: basic:file
     - name: cuffnorm_output
       label: Cuffnorm output
       type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+      default: 'Cuffnorm'
   static:
     - name: name
       label: Name
@@ -748,10 +752,10 @@
       gzip expression_set.tsv
       zip cuffnorm_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups* read_groups.info run.info
 
-      echo "{\"proc.progress\":1,\"expression_set\":{\"file\":\"expression_set.tsv.gz\"}, \"cuffnorm_output\":{\"file\":\"cuffnorm_output_$(date +'%m-%d-%Y').zip\"}}"
+      echo "{\"proc.progress\":1,\"expset\":{\"file\":\"expression_set.tsv.gz\"}, \"cuffnorm_output\":{\"file\":\"cuffnorm_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: cuffdiff:-2-2-1
-  version: 1.0.6
+  version: 1.0.7
   label: Differential Expression (Cuffdiff 2.2.1)
   type: data:differentialexpression:cuffdiff
   category: analyses
@@ -856,7 +860,7 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: isoform_diff_exp
+    - name: diffexp
       label: Differential expression (transcript level)
       type: basic:file
     - name: gene_diff_exp
@@ -944,7 +948,7 @@
 
       zip cuffdiff_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff gene_exp.diff isoform_exp.diff tss_group_exp.diff
 
-      echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"isoform_diff_exp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
+      echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: htseq-count:-0-6-1p1
   version: 1.0.4

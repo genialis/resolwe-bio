@@ -58,7 +58,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
-        self.assertFiles(cuffnorm, 'expression_set', 'expression_set.tsv.gz', gzipped=True)
+        self.assertFiles(cuffnorm, 'expset', 'expression_set.tsv.gz', gzipped=True)
 
     def test_expression_bcm(self):
         genome = self.prepare_genome()

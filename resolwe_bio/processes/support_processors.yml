@@ -6,7 +6,7 @@
 ---
 
 - name: reads:merge
-  version: 1.0.1
+  version: 1.0.2
   label: Build paired-end reads from single-ended
   type: data:reads:fastq:paired
   persistence: CACHED
@@ -30,7 +30,7 @@
       type: basic:file
     - name: number
       label: Number of reads
-      type: basic:string
+      type: basic:integer
     - name: bases
       label: Number of bases
       type: basic:string
@@ -149,7 +149,7 @@
   category: analyses
   persistence: CACHED
   description: >
-    Check for Genome compatibility with BAM and/or Annotation. 
+    Check for Genome compatibility with BAM and/or Annotation.
   input:
     - name: reference
       label: Reference genome
@@ -194,7 +194,7 @@
       GENOME_NAME=`basename '{{ reference.output.fasta.file }}' .fasta.gz`
       gzip -cd {{ reference.output.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-      
+
       {% if bam %}
       echo "Fetching bam header"
       {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H "{{bam.output.bam.file}}" > "${BAM_HEADER}"

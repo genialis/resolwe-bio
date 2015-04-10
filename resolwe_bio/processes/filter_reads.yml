@@ -583,7 +583,7 @@
 
 
 - name: filtering:sortmerna-2.0-single-end
-  version: 1.0.4
+  version: 1.0.5
   label: Filter single-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:single:sortmerna
   category: analyses
@@ -630,6 +630,18 @@
       type: basic:file
     - name: stats
       label: Filter statistics
+      type: basic:file
+    - name: number
+      label: Number of reads
+      type: basic:integer
+    - name: bases
+      label: Number of bases
+      type: basic:string
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive
       type: basic:file
   static:
     - name: name
@@ -688,15 +700,28 @@
 
       mv ${NAME}_rRNA.log stats.log
 
+      echo "Postprocessing FastQC..."
+      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME}.fastq.gz" --outdir="fastqc" >&2
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt)
+      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
+      mv "fastqc/${NAME}_fastqc.zip" .
+
       {% if options.sam %}
-        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME}_rRNA.fastq.gz\"}, \"fastq_rRNA_sam\":{\"file\":\"${NAME}_rRNA.sam\"}, \"stats\":{\"file\":\"stats.log\"}}"
+        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME}_rRNA.fastq.gz\"}, \"fastq_rRNA_sam\":{\"file\":\"${NAME}_rRNA.sam\"}, \"stats\":{\"file\":\"stats.log\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"number\":${NUMBER},\"bases\":\"$BASES\", \"fastqc_url\":$FASTQC_URL}}"
+
       {% else %}
-        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME}_rRNA.fastq.gz\"}, \"stats\":{\"file\":\"stats.log\"}}"
+        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME}_rRNA.fastq.gz\"}, \"stats\":{\"file\":\"stats.log\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"number\":${NUMBER},\"bases\":\"$BASES\", \"fastqc_url\":$FASTQC_URL}}"
       {% endif %}
 
 
 - name: filtering:sortmerna-2.0-paired-end
-  version: 1.0.4
+  version: 1.0.5
   label: Filter paired-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:paired:sortmerna
   category: analyses
@@ -757,6 +782,24 @@
       type: basic:file
     - name: stats
       label: Filter statistics
+      type: basic:file
+    - name: number
+      label: Number of reads
+      type: basic:integer
+    - name: bases
+      label: Number of bases
+      type: basic:string
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: basic:url:view
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
       type: basic:file
   static:
     - name: name
@@ -830,8 +873,21 @@
 
       mv ${NAME1}_rRNA.log stats.log
 
+      echo "Postprocessing FastQC..."
+      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --outdir="fastqc" >&2
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
+      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+      mv "fastqc/${NAME1}_fastqc.zip" .
+      mv "fastqc/${NAME2}_fastqc.zip" .
+
+      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
+      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+
       {% if options.sam %}
-        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"}, \"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME1}_rRNA.fastq.gz\"}, \"fastq_rRNA_sam\":{\"file\":\"${NAME1}_rRNA.sam\"}, \"stats\":{\"file\":\"stats.log\"}}"
+        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"}, \"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME1}_rRNA.fastq.gz\"}, \"fastq_rRNA_sam\":{\"file\":\"${NAME1}_rRNA.sam\"}, \"stats\":{\"file\":\"stats.log\"}, \"fastqc_archive\": {\"file\":\"${NAME1}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2}}"
       {% else %}
-        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"}, \"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME1}_rRNA.fastq.gz\"}, \"stats\":{\"file\":\"stats.log\"}}"
+        echo "{\"proc.progress\":1,\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"}, \"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastq_rRNA\":{\"file\":\"${NAME1}_rRNA.fastq.gz\"}, \"stats\":{\"file\":\"stats.log\"}, \"fastqc_archive\": {\"file\":\"${NAME1}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2}}"
       {% endif %}
