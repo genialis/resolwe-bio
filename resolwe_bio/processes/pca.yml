@@ -20,7 +20,6 @@
       label: Filter genes
       type: list:basic:string
       required: false
-      default: ['NM_007659', 'NM_183417', 'NM_009870', 'NM_007668', 'NM_009873', 'NM_009874', 'NM_153599']
   output:
     - name: pca
       label: PCA
