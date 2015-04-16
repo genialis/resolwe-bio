@@ -55,7 +55,7 @@ if args.genes:
 # Default expression value is 0.
 exp = np.array([[genemap.get(g, 0.) for g in allgenes] for genemap in exp])
 
-pca = PCA(n_components=2)
+pca = PCA(n_components=0.99, whiten=True)
 transformed_data = pca.fit_transform(exp)
 
 data = {'pca': {'flot': {'data': transformed_data.tolist(), 'xlabel': 'PC 1',
