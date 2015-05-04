@@ -69,3 +69,10 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         inputs = {"src": "rRNA_forw.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
         self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz")
+
+    def test_upload_de(self):
+        inputs = {'src': 'deseq2_output.tab.gz'}
+        diff_exp = self.run_processor("import:upload:diffexp", inputs)
+
+        self.assertFiles(diff_exp, 'diffexp', 'deseq2_output.tab.gz')
+        self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'deseq2_volcano_plot.json.gz')

@@ -1185,8 +1185,79 @@
       echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
 
 
-- name: import:upload:differentialexpression
-  version: 1.0.5
+# Column validation does not work for variable number of experiments included in DE analysis!
+# - name: import:upload:diffexp:bcm
+#   version: 1.0.6
+#   label: Upload Differential expression table (BCM)
+#   type: data:differentialexpression:upload
+#   category: upload
+#   persistence: RAW
+#   description: >
+#     Upload Differential Expression table.
+#   input:
+#     - name: src
+#       label: Differential expression file (xls/tab)
+#       type: basic:file
+#       description: >
+#         Differential expression file. Supported file types: *.tab, *.xls and *.xlsx. First row should contain values in the following order: 'Gene', 'Case_Counts_<identifier>','Control_Counts_<identifier>' ,'Lik.DE', 'FDR.DE', 'Lik.NDE', 'FDR.NDE', 'Case_RPKUM_Median', 'Control_RPKUM_Median'. All values (except 'Gene') should be numbers.
+#       required: true
+#       validate_regex: '\.(xls|xlsx|tab)$'
+#   output:
+#     - name: diffexp
+#       label: Differential expression
+#       type: basic:file
+#     - name: volcano_plot
+#       label: Volcano plot
+#       type: basic:json
+#   static:
+#     - name: name
+#       label: Name
+#       type: basic:string
+#       default: 'Upload differential expression ({{ src.file }})'
+#     - name: cite
+#       label: Citation
+#       type: list:basic:url:link
+#     - name: tags
+#       label: Tags
+#       type: list:basic:string
+#       default: ['differential expression']
+#       placeholder: new tag
+#     - name: description
+#       label: Description
+#       type: basic:text
+#       default: 'Description of {{ src.file }} differential expression upload.'
+#   var:
+#     - name: notes
+#       label: Notes
+#       type: basic:text
+#   run:
+#     runtime: polyglot
+#     bash: |
+#       NAME='{{ src.file }}'; NAME="${NAME%.*}"; NAME="${NAME%.*}"
+#       TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
+
+#       mv "${TEMP}" "${NAME}"
+#       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+
+#       if [[ '.{{ src.file }}' =~ \.(xls)|(xlsx)$ ]]; then
+#         echo "Importing and transforming"
+#         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/import_DE_excel_table.py "${NAME}" > "${NAME}.tab"
+#         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+
+#       else
+#         python {{ proc.slugs_path }}/gencloud-20131109/import_DE_tab.py "${NAME}"
+#         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+#         mv "${NAME}" "${NAME}.tab" >&2
+#         echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+#       fi
+#       echo "{\"proc.progress\":0.5,\"proc.rc\":$?,\"diffexp\":{\"file\":\"${NAME}.tab\"}}"
+#       python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
+#       {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot-bcm.py diffexp_bayseq.tab
+#       #TODO: Change the processor to be generaly more compatible
+
+
+- name: import:upload:diffexp
+  version: 1.0.0
   label: Upload Differential Expression table
   type: data:differentialexpression:upload
   category: upload
@@ -1195,12 +1266,12 @@
     Upload Differential Expression table.
   input:
     - name: src
-      label: Differential extensions file (xls)
+      label: Differential expression file
       type: basic:file
       description: >
-        Differential expression file. Supported file types: *.tab, *.xls and *.xlsx. First row should contain values in the following order: 'Gene', 'Case_Counts_<identifier>','Control_Counts_<identifier>' ,'Lik.DE', 'FDR.DE', 'Lik.NDE', 'FDR.NDE', 'Case_RPKUM_Median', 'Control_RPKUM_Median'. All values (except 'Gene') should be numbers.
+        Differential expression file. Supported file types: *.xls, *.xlsx, *.tab (tab-delimited file). First column must contain gene/transcript IDs. DE file must include columns with log2(fold change) and FDR or pval information. DE file must contain header row with column names. Accepts DESeq, DESeq2 and edgeR output files.
       required: true
-      validate_regex: '\.(xls|xlsx|tab)$'
+      validate_regex: '\.(xls|xlsx|tab|tab.gz)$'
   output:
     - name: diffexp
       label: Differential expression
@@ -1232,27 +1303,24 @@
   run:
     runtime: polyglot
     bash: |
-      NAME='{{ src.file }}'; NAME="${NAME%.*}"; NAME="${NAME%.*}"
-      TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
+      NAME='{{ src.file }}'
 
-      mv "${TEMP}" "${NAME}"
-      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-
-      if [[ '.{{ src.file }}' =~ \.(xls)|(xlsx)$ ]]; then
-        echo "Importing and transforming"
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/import_DE_excel_table.py "${NAME}" > "${NAME}.tab"
+      if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
+        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
-
+      elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
+        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
+        echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
       else
-        python {{ proc.slugs_path }}/gencloud-20131109/import_DE_tab.py "${NAME}"
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab|gz" "tab" 0.3 compress
+        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab.gz"
         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
-        mv "${NAME}" "${NAME}.tab" >&2
-        echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
       fi
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?,\"diffexp\":{\"file\":\"${NAME}.tab\"}}"
-      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
-      {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py diffexp_bayseq.tab
-      #TODO: Change the processor to be generaly more compatible
+      echo "{\"diffexp\":{\"file\":\"${NAME}.tab.gz\"}}"
 
 
 - name: import:upload:ETC

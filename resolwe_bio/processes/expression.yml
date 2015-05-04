@@ -262,7 +262,7 @@
 
 
 - name: differentialexpression:bcm-1-0-0
-  version: 1.0.5
+  version: 1.0.6
   label: Differential Expression (baySeq)
   type: data:differentialexpression:bayseq
   category: analyses
@@ -363,7 +363,7 @@
         echo "{\"diffexp\":{\"file\":\"diffexp_bayseq.tab.gz\"}}"
       fi
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py diffexp_bayseq.tab.gz
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot-bcm.py diffexp_bayseq.tab.gz
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: findsimilar
@@ -1227,6 +1227,9 @@
     - name: diffexp
       label: Differential expression
       type: basic:file
+    - name: volcano_plot
+      label: Volcano plot
+      type: basic:json
     - name: ma_plot
       label: MA plot
       type: basic:file
@@ -1295,6 +1298,8 @@
 
       # gen-save-progress 0.95
       gen-save proc.progress 0.95
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_deseq2.tab'
 
       gzip 'diffexp_deseq2.tab'
       mv Rplots.pdf DESeq2_MAplot.pdf
