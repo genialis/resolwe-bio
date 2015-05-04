@@ -4,7 +4,7 @@
 ---
 
 - name: pca:1-0-0
-  version: 1.0.2
+  version: 1.0.3
   label: PCA
   type: data:pca
   category: analyses
@@ -20,6 +20,10 @@
       label: Filter genes
       type: list:basic:string
       required: false
+    - name: filter
+      label: Exclude genes with low expression
+      type: basic:boolean
+      default: true
   output:
     - name: pca
       label: PCA
@@ -56,5 +60,5 @@
       obj_id=${obj_id%?}
       exp=${exp%?}
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-      python -u {{ proc.slugs_path }}/gencloud-20131109/pca.py ${exp} ${obj_id} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %}
+      python -u {{ proc.slugs_path }}/gencloud-20131109/pca.py ${exp} ${obj_id} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} {% if filter %}--filter{% endif %}
       echo "{\"proc.rc\":$?}"

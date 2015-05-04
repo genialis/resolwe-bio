@@ -11,6 +11,7 @@ parser = argparse.ArgumentParser(description="PCA")
 parser.add_argument('samples', help="All samples (comma separated)")
 parser.add_argument('sample_ids', help="Sample IDs (comma separated")
 parser.add_argument('--genes', nargs='+', help='filter genes')
+parser.add_argument('--filter', help="Filter genes with low expression", action="store_true")
 args = parser.parse_args()
 
 
@@ -54,6 +55,11 @@ if args.genes:
 
 # Default expression value is 0.
 exp = np.array([[genemap.get(g, 0.) for g in allgenes] for genemap in exp])
+
+if args.filter:
+    exp = np.transpose(exp)
+    f_exp = exp[np.sum(exp, axis=1) > exp.shape[1]]
+    exp = np.transpose(f_exp)
 
 pca = PCA(n_components=0.99, whiten=True)
 transformed_data = pca.fit_transform(exp)
