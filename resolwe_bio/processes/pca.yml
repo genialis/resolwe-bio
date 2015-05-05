@@ -24,6 +24,8 @@
       label: Exclude genes with low expression
       type: basic:boolean
       default: true
+      description: >
+        Exclude/filter unexpressed genes and genes with cumulative normalized expression lower than number of samples.
   output:
     - name: pca
       label: PCA
