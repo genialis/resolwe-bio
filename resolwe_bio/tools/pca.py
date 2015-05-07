@@ -54,7 +54,8 @@ if args.genes:
     allgenes = allgenes.intersection(args.genes)
 
 # Default expression value is 0.
-exp = np.array([[genemap.get(g, 0.) for g in allgenes] for genemap in exp])
+allgenes_array = np.array(list(allgenes))
+exp = np.array([[genemap.get(g, 0.) for g in allgenes_array] for genemap in exp])
 
 if args.filter:
     exp = np.transpose(exp)
@@ -66,6 +67,15 @@ transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
+def top_components_with_genes(component):
+    """Returns top 10 absolute components"""
+    # 10x faster, but not supported in current numpy:
+    #   abs_component = np.abs(component)
+    #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
+    #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
+    ixs = np.argsort(np.abs(component))[:-11:-1]
+    return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
+
 data = {
     'pca': {
         'flot': {
@@ -74,7 +84,8 @@ data = {
             'ylabel': 'PC 2',
             'samples': sample_ids
         },
-        'explained_variance_ratios': pca.explained_variance_ratio_.tolist()
+        'explained_variance_ratios': pca.explained_variance_ratio_.tolist(),
+        'components': [top_components_with_genes(component) for component in pca.components_]
     }
 }
 
