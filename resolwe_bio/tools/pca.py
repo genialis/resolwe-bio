@@ -66,7 +66,16 @@ transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
-data = {'pca': {'flot': {'data': coordinates, 'xlabel': 'PC 1',
-        'ylabel': 'PC 2', 'samples': sample_ids}, 'explained_variance_ratios': pca.explained_variance_ratio_.tolist()}}
+data = {
+    'pca': {
+        'flot': {
+            'data': coordinates,
+            'xlabel': 'PC 1',
+            'ylabel': 'PC 2',
+            'samples': sample_ids
+        },
+        'explained_variance_ratios': pca.explained_variance_ratio_.tolist()
+    }
+}
 
 print json.dumps(data, separators=(',', ':'))
