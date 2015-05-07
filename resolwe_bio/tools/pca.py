@@ -1,6 +1,8 @@
 from collections import defaultdict
 import gzip
 import os
+import sys
+import warnings
 import argparse
 import json
 
@@ -61,6 +63,22 @@ if args.filter:
     exp = np.transpose(exp)
     f_exp = exp[np.sum(exp, axis=1) > exp.shape[1]]
     exp = np.transpose(f_exp)
+
+if exp.shape[1] == 0:
+    warnings.warn('Use of filtering parameters resulted in no attributes to perform PCA with!')
+
+    print json.dumps({
+        'pca': {
+            'flot': {
+            'data':  [[0, 0] for i in range(exp.shape[0])],
+            'xlabel': 'PC 1',
+            'ylabel': 'PC 2',
+            'samples': sample_ids
+            }
+        }
+    }, separators=(',', ':'))
+
+    sys.exit(0)
 
 pca = PCA(n_components=0.99, whiten=True)
 transformed_data = pca.fit_transform(exp)
