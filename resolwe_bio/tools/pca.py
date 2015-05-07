@@ -83,10 +83,11 @@ data = {
             'xlabel': 'PC 1',
             'ylabel': 'PC 2',
             'samples': sample_ids
-        },
-        'explained_variance_ratios': pca.explained_variance_ratio_.tolist(),
-        'components': [top_components_with_genes(component) for component in pca.components_]
+        }
     }
 }
+if not any(np.isnan(pca.explained_variance_ratio_)):
+    data['pca']['explained_variance_ratios'] = pca.explained_variance_ratio_.tolist()
+    data['pca']['components'] = [top_components_with_genes(component) for component in pca.components_]
 
-print json.dumps(data, separators=(',', ':'))
+print json.dumps(data, separators=(',', ':'), allow_nan=False)
