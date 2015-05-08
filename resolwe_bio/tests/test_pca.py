@@ -32,4 +32,4 @@ class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
         storage = Storage.objects.get(pk=str(pca.output['pca']))
         del storage['json']['flot']['samples']
         self.assertJSON(pca, storage, '', 'pca_filtered_zeros.json.gz')
-        self.assertEqual("no attributes" in pca.output['proc']['warning'], True)
+        self.assertTrue(pca.output['proc']['warning'])

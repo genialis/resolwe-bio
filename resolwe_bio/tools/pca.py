@@ -65,7 +65,7 @@ if args.filter:
 
 if exp.shape[1] == 0:
     print json.dumps({
-        'proc.warning': 'Use of filtering parameters resulted in no attributes to perform PCA with!',
+        'proc.warning': 'Filtering removed all PCA attributes.',
         'pca': {
             'flot': {
             'data':  [[0, 0] for i in range(exp.shape[0])],
@@ -84,7 +84,7 @@ transformed_data = pca.fit_transform(exp)
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
 def top_components_with_genes(component):
-    """Returns top 10 absolute components"""
+    """Returns top 10 absolute components."""
     # 10x faster, but not supported in current numpy:
     #   abs_component = np.abs(component)
     #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
