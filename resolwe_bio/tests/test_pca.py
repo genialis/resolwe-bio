@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 from .base import BaseProcessorTestCase
 from .utils import PreparedData
+from server.models import Storage
 
 
 class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
@@ -12,6 +13,7 @@ class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
         pca = self.run_processor('pca:1-0-0', inputs)
         self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_plot.json.gz')
         self.assertJSON(pca, pca.output['pca'], 'explained_variance_ratios', 'pca_ratios.json.gz')
+        self.assertJSON(pca, pca.output['pca'], 'components', 'pca_components.json.gz')
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],
@@ -20,3 +22,14 @@ class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         pca = self.run_processor('pca:1-0-0', inputs)
         self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_plot_w_genes.json.gz')
+
+        inputs = {
+            'exps': [expression_1.pk, expression_2.pk],
+            'genes': ['DPU_G0067098', 'DPU_G0067100', 'DPU_G0067104']  # all zero
+        }
+        pca = self.run_processor('pca:1-0-0', inputs)
+
+        storage = Storage.objects.get(pk=str(pca.output['pca']))
+        del storage['json']['flot']['samples']
+        self.assertJSON(pca, storage, '', 'pca_filtered_zeros.json.gz')
+        self.assertEqual("no attributes" in pca.output['proc']['warning'], True)

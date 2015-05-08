@@ -4,7 +4,7 @@
 ---
 
 - name: pca:1-0-0
-  version: 1.0.4
+  version: 1.0.5
   label: PCA
   type: data:pca
   category: analyses

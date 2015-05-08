@@ -2,7 +2,6 @@ from collections import defaultdict
 import gzip
 import os
 import sys
-import warnings
 import argparse
 import json
 
@@ -65,9 +64,8 @@ if args.filter:
     exp = np.transpose(f_exp)
 
 if exp.shape[1] == 0:
-    warnings.warn('Use of filtering parameters resulted in no attributes to perform PCA with!')
-
     print json.dumps({
+        'proc.warning': 'Use of filtering parameters resulted in no attributes to perform PCA with!',
         'pca': {
             'flot': {
             'data':  [[0, 0] for i in range(exp.shape[0])],
