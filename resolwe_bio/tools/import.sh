@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "DeprecationWarning: This function will be removed in near future. Use gen-import instead!"
+
 ###############################################################################
 #                                                                             #
 # INPUT ARGUMENTS                                                             #
