@@ -1269,9 +1269,9 @@
       label: Differential expression file
       type: basic:file
       description: >
-        Differential expression file. Supported file types: *.xls, *.xlsx, *.tab (tab-delimited file). First column must contain gene/transcript IDs. DE file must include columns with log2(fold change) and FDR or pval information. DE file must contain header row with column names. Accepts DESeq, DESeq2 and edgeR output files.
+        Differential expression file. Supported file types: *.xls, *.xlsx, *.tab (tab-delimited file), *.diff. First column must contain gene/transcript IDs. DE file must include columns with log2(fold change) and FDR or pval information. DE file must contain header row with column names. Accepts DESeq, DESeq2, edgeR and CuffDiff output files.
       required: true
-      validate_regex: '\.(xls|xlsx|tab|tab.gz)$'
+      validate_regex: '\.(xls|xlsx|tab|tab.gz|diff|diff.gz)$'
   output:
     - name: diffexp
       label: Differential expression
@@ -1316,7 +1316,7 @@
         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
       else
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab|gz" "tab" 0.3 compress
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3 compress
         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab.gz"
         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
       fi

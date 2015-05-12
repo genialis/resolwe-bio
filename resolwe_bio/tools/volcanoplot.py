@@ -38,6 +38,8 @@ elif 'avg_FC' in header:
     x = np.array(de['avg_FC'])
 elif 'logFC' in header:
     x = np.array(de['logFC'])
+elif 'log2(fold_change)' in header:
+    x = np.array(de['log2(fold_change)'])
 
 # get FDR/pval data
 if 'padj' in header:
@@ -46,6 +48,8 @@ elif 'FDR.DE' in header:
     y = -np.log10(np.array(de['fdr.de']))
 elif 'FDR' in header:
     y = -np.log10(np.array(de['FDR']))
+elif 'q_value' in header:
+    y = -np.log10(np.array(de['q_value']))
 
 try:
     data = {'volcano_plot': {'flot': {'data': zip(x, y)}, 'xlabel': 'log2',
