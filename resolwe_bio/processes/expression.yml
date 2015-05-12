@@ -1198,7 +1198,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.1
+  version: 1.0.2
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1258,10 +1258,12 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
 
       {% for c in control %}
         {% if not c.output.rc.file %}
-          echo "{\"proc.error\":\"Read counts are required when using DESeq2\"}"
+          # gen-save-error "Read counts are required when using DESeq2"
+          gen-save proc.error "Read counts are required when using DESeq2"
         {% endif %}
         controls=$controls"{{c.output.rc.file}} "
         sampleConditions=$sampleConditions"control "
@@ -1269,7 +1271,8 @@
 
       {% for t in case %}
         {% if not t.output.rc.file %}
-          echo "{\"proc.error\":\"Read counts are required when using DESeq2\"}"
+          # gen-save-error "Read counts are required when using DESeq2"
+          gen-save proc.error "Read counts are required when using DESeq2"
         {% endif %}
         cases=$cases"{{t.output.rc.file}} "
         sampleConditions=$sampleConditions"case "
@@ -1279,15 +1282,22 @@
       cases=${cases%?}
       sampleFiles=$controls"$cases"
 
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+      # gen-save-progress 0.1
+      gen-save proc.progress 0.1
 
-      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      # gen-assertrc "Error merging read counts."
+      gan-save proc.rc $?
 
-      Rscript {{ proc.slugs_path }}/gencloud-20131109/run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
+      run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
+      # gen-assertrc "Error computing differential expression (DESeq2)."
+      gan-save proc.rc $?
 
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      # gen-save-progress 0.95
+      gen-save proc.progress 0.95
 
       gzip 'diffexp_deseq2.tab'
       mv Rplots.pdf DESeq2_MAplot.pdf
 
-      echo "{\"proc.progress\":1,\"diffexp\":{\"file\":\"diffexp_deseq2.tab.gz"\"},\"ma_plot\":{\"file\":\"DESeq2_MAplot.pdf"\"}}"
+      gen-save-file diffexp diffexp_deseq2.tab.gz
+      gen-save-file ma_plot DESeq2_MAplot.pdf

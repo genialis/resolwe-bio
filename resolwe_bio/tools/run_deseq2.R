@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 require('argparse') : require("DESeq2")
 
 parser = ArgumentParser(description='Run DESeq2 differential expression.')
