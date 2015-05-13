@@ -109,6 +109,18 @@ class PreparedData(object):
         inputs = {'src': fn}
         return self.run_processor('import:upload:reads-fastq', inputs)
 
+    def prepare_filtered_reads_single(self, fn='filtered_reads_fastqmcf_single.fastq.gz'):
+        """Prepare filtered NGS reads FASTQ (single-end)."""
+        inputs = {'src': fn}
+        return self.run_processor('import:upload:reads-fastq', inputs)
+
+    def prepare_filtered_reads_paired(
+            self, f_fr='filtered_reads_fastqmcf_paired_fw.fastq.gz',
+            f_rw='filtered_reads_fastqmcf_paired_rw.fastq.gz'):
+        """Prepare filtered NGS reads FASTQ (paired-end)."""
+        inputs = {'src1': f_fr, 'src2': f_rw}
+        return self.run_processor('import:upload:reads-fastq-paired-end', inputs)
+
     def prepare_bam(self, fn='sp_test.bam'):
         """Prepare alignment BAM."""
         inputs = {'src': fn}

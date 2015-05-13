@@ -6,7 +6,7 @@
 ---
 
 - name: alignment:bwa_mem-0.7.5a
-  version: 1.0.8
+  version: 1.0.9
   label: Aligner (BWA MEM 0.7.5a)
   type: data:alignment:bam:bwamem
   category: analyses:alignment
@@ -146,7 +146,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-MEM:"
-      {% if reads.type == 'data:reads:fastq:single:' %}
+      {% if reads.type|supertype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -182,7 +182,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_sw-0.7.5a
-  version: 1.0.7
+  version: 1.0.8
   label: Aligner (BWA SW 0.7.5a)
   type: data:alignment:bam:bwasw
   category: analyses:alignment
@@ -274,7 +274,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-SW:"
-      {% if reads.type == 'data:reads:fastq:single:' %}
+      {% if reads.type|supertype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -312,7 +312,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_aln-0.7.5a
-  version: 1.0.8
+  version: 1.0.9
   label: Aligner (BWA backtrack 0.7.5a)
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
@@ -426,7 +426,7 @@
       fi
 
       echo "ALIGNING with BWA-ALN:"
-      {% if reads.type == 'data:reads:fastq:single:' %}
+      {% if reads.type|supertype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
 
@@ -467,7 +467,7 @@
 
 
 - name: alignment:bowtie-1-0-0-trimmx
-  version: 1.0.9
+  version: 1.0.10
   label: Aligner (Bowtie 1.0.0)
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
@@ -636,8 +636,8 @@
       STATS="0 ${NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
-      {% if reads.type == 'data:reads:fastq:single:' or use_SE %}
-        {% if use_SE and reads.type == 'data:reads:fastq:paired:' %}
+      {% if reads.type|supertype:'data:reads:fastq:single:' or use_SE %}
+        {% if use_SE and reads.type|supertype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
@@ -709,7 +709,7 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.12
+  version: 1.0.13
   label: Aligner (Bowtie 2.2.3)
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
@@ -925,8 +925,8 @@
       fi
 
       echo "ALIGNING with bowtie2:"
-      {% if reads.type == 'data:reads:fastq:single:' or PE_options.use_SE %}
-        {% if PE_options.use_SE and reads.type == 'data:reads:fastq:paired:' %}
+      {% if reads.type|supertype:'data:reads:fastq:single:' or PE_options.use_SE %}
+        {% if PE_options.use_SE and reads.type|supertype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
@@ -989,7 +989,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\":\"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}}"
 
 - name: alignment:tophat-2-0-13
-  version: 1.0.5
+  version: 1.0.7
   label: Aligner (TopHat v2.0.13)
   type: data:alignment:bam:tophat
   persistence: CACHED
@@ -1123,8 +1123,7 @@
 
       NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
 
-      {% if reads.type == 'data:reads:fastq:single:' %}
-
+      {% if reads.type|supertype:'data:reads:fastq:single:' %}
 
         {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
 
