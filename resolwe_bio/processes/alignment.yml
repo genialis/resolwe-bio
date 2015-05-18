@@ -146,7 +146,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-MEM:"
-      {% if reads.type|supertype:'data:reads:fastq:single:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -274,7 +274,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-SW:"
-      {% if reads.type|supertype:'data:reads:fastq:single:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -426,7 +426,7 @@
       fi
 
       echo "ALIGNING with BWA-ALN:"
-      {% if reads.type|supertype:'data:reads:fastq:single:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
 
@@ -636,8 +636,8 @@
       STATS="0 ${NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
-      {% if reads.type|supertype:'data:reads:fastq:single:' or use_SE %}
-        {% if use_SE and reads.type|supertype:'data:reads:fastq:paired:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' or use_SE %}
+        {% if use_SE and reads.type|subtype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
@@ -925,8 +925,8 @@
       fi
 
       echo "ALIGNING with bowtie2:"
-      {% if reads.type|supertype:'data:reads:fastq:single:' or PE_options.use_SE %}
-        {% if PE_options.use_SE and reads.type|supertype:'data:reads:fastq:paired:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' or PE_options.use_SE %}
+        {% if PE_options.use_SE and reads.type|subtype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
@@ -1123,7 +1123,7 @@
 
       NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
 
-      {% if reads.type|supertype:'data:reads:fastq:single:' %}
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
 
         {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
 
