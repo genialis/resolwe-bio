@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 require('rtracklayer') ; require('argparse')
 
 parser = ArgumentParser(description='Calculate expression values in FPKM and TPM units.')

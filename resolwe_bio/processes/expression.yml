@@ -951,7 +951,7 @@
       echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: htseq-count:-0-6-1p1
-  version: 1.0.4
+  version: 1.0.6
   label: Expression (HTSeq-count 0.6.1p1)
   type: data:expression:htseq
   category: analyses
@@ -1055,44 +1055,48 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/venv-gencloud-0.1/bin/activate
+      gen-require common
+      gen-require samtools-0.1.19
 
       NAME=`basename '{{ alignments.output.bam.file }}' .bam`
-      echo "{\"proc.progress\":0.05}"
+      gen-save proc.progress 0.1
 
-      if {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+      if samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
+        htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
       else
         echo "Name sorting aligned reads:"
-
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
-        echo "{\"proc.progress\":0.50,\"proc.rc\":$?}"
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+        samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
+        gen-save proc.rc $?
+        gen-save proc.progress 0.5
+        htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
       fi
 
-      echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
+      gen-save proc.rc $?
+      gen-save proc.progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
+      expression_fpkm_tpm.R  '{{ gff.output.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+      gen-save proc.rc $?
+      gen-save proc.progress 0.9
 
-      Rscript {{ proc.slugs_path }}/gencloud-20131109/expression_fpkm_tpm.R  '{{ gff.output.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
-
-      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
-
-      python -u {{ proc.slugs_path }}/gencloud-20131109/add_header.py rc_wo_header.txt rc.txt
-      python -u {{ proc.slugs_path }}/gencloud-20131109/add_header.py fpkm_wo_header.tab fpkm.tab
-      python -u {{ proc.slugs_path }}/gencloud-20131109/add_header.py tpm_wo_header.tab tpm.tab
+      add_header.py rc_wo_header.txt rc.txt
+      add_header.py fpkm_wo_header.tab fpkm.tab
+      add_header.py tpm_wo_header.tab tpm.tab
 
       gzip -c HTseq_rc.txt > ${NAME}_HTseq_rc.txt.gz
       gzip -c rc.txt > ${NAME}_rc.tab.gz
       gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
       gzip -c tpm.tab > ${NAME}_tpm.tab.gz
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py ${NAME}_tpm.tab.gz
+      expression2storage.py ${NAME}_tpm.tab.gz
 
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      gen-save proc.rc $?
+      gen-save proc.progress 0.95
 
-      echo "{\"proc.progress\":1,\"rc\":{\"file\":\"${NAME}_rc.tab.gz\"}, \"fpkm\":{\"file\":\"${NAME}_fpkm.tab.gz\"}, \"exp\":{\"file\":\"${NAME}_tpm.tab.gz\"}, \"htseq_output\":{\"file\":\"${NAME}_HTseq_rc.txt.gz\"}}"
-
+      gen-save-file rc "${NAME}_rc.tab.gz"
+      gen-save-file fpkm "${NAME}_fpkm.tab.gz"
+      gen-save-file exp "${NAME}_tpm.tab.gz"
+      gen-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
 
 - name: cuffquant:-2-2-1
   version: 1.0.3
@@ -1198,7 +1202,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.2
+  version: 1.0.3
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1262,7 +1266,6 @@
     runtime: polyglot
     bash: |
       gen-require common
-
       {% for c in control %}
         {% if not c.output.rc.file %}
           # gen-save-error "Read counts are required when using DESeq2"
@@ -1294,7 +1297,7 @@
 
       run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
       # gen-assertrc "Error computing differential expression (DESeq2)."
-      gan-save proc.rc $?
+      gen-save proc.rc $?
 
       # gen-save-progress 0.95
       gen-save proc.progress 0.95

@@ -76,3 +76,11 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         self.assertFiles(diff_exp, 'diffexp', 'deseq2_output.tab.gz')
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'deseq2_volcano_plot.json.gz')
+
+    def test_upload_genome(self):
+        inputs = {"src": "genome.fasta.gz"}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+
+        self.assertFileExist(genome, "index_bt")
+        self.assertFileExist(genome, "index_bt2")
+        self.assertFileExist(genome, "index_bwa")
