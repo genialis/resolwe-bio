@@ -72,7 +72,7 @@ def isnum(a):
 
 
 if args.mapping:
-    for l in open(args.mapping, 'rt'):
+    for l in open(args.mapping, 'rU'):
         l = l.strip()
         if l:
             t = l.split('\t')
@@ -215,6 +215,8 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
 
             if reads2_file:
                 r2 = f2.readline()
+                if not r2:
+                    break
 
         save_results(matched, notmatched, badquality, skipped, id, 0.9)
 
