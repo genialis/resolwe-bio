@@ -167,6 +167,23 @@ class BaseProcessorTestCase(TestCase):
         self.assertEqual(wanted_hash, output_hash,
                          msg="File hash mismatch: {} != {}".format(wanted_hash, output_hash) + self._msg_stdout(obj))
 
+    def assertFileExist(self, obj, field_path):  # pylint: disable=invalid-name
+        """Compare output file of a processor to the given correct file.
+
+        :param obj: Data object which includes file that we want to
+            compare.
+        :type obj: :obj:`server.models.Data`
+
+        :param field_path: Path to file name in Data object.
+        :type field_path: :obj:`str`
+
+        """
+        field = dict_dot(obj['output'], field_path)
+        output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
+
+        if not os.path.isfile(output):
+            self.fail(msg="Field {} in data object is empty.".format(field_path))
+
     def assertJSON(self, obj, storage, field_path, file_name):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
 
