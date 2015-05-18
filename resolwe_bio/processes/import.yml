@@ -66,7 +66,9 @@
       gen-require bowtie2-2.2.3
       gen-require bwa-0.7.5a
       gen-require jbrowse-1.11.4/bin
+
       gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 0.5
+
       # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.
       if [ "$(tail -n 1 ${NAME}.fasta)" == "" ]; then
         echo "Removing empty line at the end of FASTA file."
@@ -93,7 +95,7 @@
 
       mkdir BWA_index
       bwa index -p "./BWA_index/${NAME}.fasta" "$NAME.fasta"
-      tar cfz "${NAME}_bwa_index.tar.gz" ./BWA_index/*c
+      tar cfz "${NAME}_bwa_index.tar.gz" ./BWA_index/*
       gen-save proc.rc $?
       gen-save proc.progress 0.9
       gen-save-file index_bwa "${NAME}_bwa_index.tar.gz"
