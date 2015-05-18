@@ -127,7 +127,7 @@ class BaseProcessorTestCase(TestCase):
 
         """
         field = dict_dot(obj['output'], path)
-        self.assertEqual(field, str(value),
+        self.assertEqual(field, value,
                          msg="Field 'output.{}' mismatch: {} != {}".format(path, field, str(value)) +
                          self._msg_stdout(obj))
 
