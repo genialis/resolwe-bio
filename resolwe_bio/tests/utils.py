@@ -39,7 +39,7 @@ class PreparedData(object):
         self.assertStatus = getattr(self, 'assertStatus')  # pylint: disable=invalid-name
         self.current_path = getattr(self, 'current_path')
 
-    def run_processor(self, processor_name, input_, assert_status=Data.STATUS_DONE):
+    def run_processor(self, processor_name, input_={}, assert_status=Data.STATUS_DONE):
         """Runs given processor with specified inputs.
 
         If input is file, file path should be given relative to
