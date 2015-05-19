@@ -111,7 +111,8 @@ class BaseProcessorTestCase(TestCase):
         :type status: str
 
         """
-        self.assertEqual(obj.status, status, msg="Data status != '{}'".format(status) + self._msg_stdout(obj))
+        self.assertEqual(obj.status, status,
+                         msg="Data status is '{}', not '{}'".format(obj.status, status) + self._msg_stdout(obj))
 
     def assertFields(self, obj, path, value):  # pylint: disable=invalid-name
         """Compare Data object's field to given value.
