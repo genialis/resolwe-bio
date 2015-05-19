@@ -39,7 +39,7 @@ def _register_processors():
         if len(GenUser.objects.filter(is_superuser=True)) == 0:
             GenUser.objects.create_superuser(email='admin@genialis.com')
 
-        management.call_command('register', force=True, verbosity='0')
+        management.call_command('register', force=True, testing=True, verbosity='0')
         PROCESSORS_FIXTURE_CACHE = Processor.objects.all()
         for p in PROCESSORS_FIXTURE_CACHE:
             # Trick Mongoengine not to fail the insert
