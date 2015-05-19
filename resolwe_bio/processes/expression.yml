@@ -198,6 +198,61 @@
       python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e.static.name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
       echo "{\"expset_type\":\"${EXPSET_TYPE}\",\"expset\":{\"file\":\"sample.tab\"},\"proc.rc\":$?}"
 
+- name: mergeetc
+  version: 1.0.0
+  label: Merge Expressions (ETC)
+  type: data:expressionset:etc
+  category: analyses
+  persistence: CACHED
+  description: >
+    Merge Expression Time Course (ETC) data.
+  input:
+    - name: exps
+      label: Expression Time Course (ETC)
+      type: list:data:etc
+      required: true
+    - name: genes
+      label: Filter genes
+      type: list:basic:string
+      required: false
+  output:
+    - name: expset
+      label: Expression set
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Merged expressions"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression", "ETC"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+
+      gen-require common
+
+      mergeetc.py {% for e in exps %}"{{e.output.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e.static.name}}" {% endfor %} --out 'etc.tab'
+
+      gzip 'etc.tab'
+      gen-save-file expset 'etc.tab.gz'
+      gen-save expset_type "ETC"
 
 - name: etc:bcm-1-0-0
   version: 1.0.5

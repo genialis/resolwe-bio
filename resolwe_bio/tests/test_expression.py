@@ -156,3 +156,38 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067102']
         }
         self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)
+
+    def test_etcmerge(self):
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
+
+        inputs = {'src': 'annotation.gff'}
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk,
+            'gff': annotation.pk,
+            'PE_options': {
+                'library_type': "fr-unstranded"}}
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+
+        mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
+
+        inputs = {
+            'alignment': aligned_reads.pk,
+            'gff': annotation.pk,
+            'mappable': mappa.pk}
+
+        expression = self.run_processor('expression:bcm-1-0-0', inputs)
+
+        inputs = {'expressions': [expression.pk, expression.pk]}
+        etc = self.run_processor('etc:bcm-1-0-0', inputs)
+
+        inputs = {
+            'exps': [etc.pk],
+            'genes': ['DPU_G0067110', 'DPU_G0067098', 'DPU_G0067102']
+        }
+
+        etcmerge = self.run_processor('mergeetc', inputs)
+        self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", gzipped=True)
