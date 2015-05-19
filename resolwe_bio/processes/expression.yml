@@ -1323,8 +1323,7 @@
       gen-require common
       {% for c in control %}
         {% if not c.output.rc.file %}
-          # gen-save-error "Read counts are required when using DESeq2"
-          gen-save proc.error "Read counts are required when using DESeq2"
+          gen-error "Read counts are required when using DESeq2"
         {% endif %}
         controls=$controls"{{c.output.rc.file}} "
         sampleConditions=$sampleConditions"control "
@@ -1332,8 +1331,7 @@
 
       {% for t in case %}
         {% if not t.output.rc.file %}
-          # gen-save-error "Read counts are required when using DESeq2"
-          gen-save proc.error "Read counts are required when using DESeq2"
+          gen-error "Read counts are required when using DESeq2"
         {% endif %}
         cases=$cases"{{t.output.rc.file}} "
         sampleConditions=$sampleConditions"case "
@@ -1343,19 +1341,15 @@
       cases=${cases%?}
       sampleFiles=$controls"$cases"
 
-      # gen-save-progress 0.1
-      gen-save proc.progress 0.1
+      gen-progress 0.1
 
       expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
-      # gen-assertrc "Error merging read counts."
-      gan-save proc.rc $?
+      gen-checkrc "Error merging read counts."
 
       run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
-      # gen-assertrc "Error computing differential expression (DESeq2)."
-      gen-save proc.rc $?
+      gen-checkrc "Error computing differential expression (DESeq2)."
 
-      # gen-save-progress 0.95
-      gen-save proc.progress 0.95
+      gen-progress 0.95
 
       python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_deseq2.tab'
 
