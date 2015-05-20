@@ -153,24 +153,39 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             }, separators=(',', ':'))
 
         f1 = gzip.GzipFile(reads1_file, 'r')
-        r1 = f1.readline()
         fbar = gzip.GzipFile(barcodes_file, 'r')
-        rbar = fbar.readline()
 
         if reads2_file:
             f2 = gzip.GzipFile(reads2_file, 'r')
-            r2 = f2.readline()
 
-        while r1:
+        while True:
             id += 1
+
+            r1 = f1.readline()
+            if not r1: break
             r1 = r1.rstrip('\r').rstrip('\n').split('\t')
+            if len(r1) != 11:
+                print "SKIPPED: error in {} line in r1".format(id)
+                continue
             s1 = r1[-3].replace('.', 'N')
+            p1 = r1[-1]
+
+            rbar = fbar.readline()
+            if not rbar: break
             rbar = rbar.rstrip('\r').rstrip('\n').split('\t')
+            if len(rbar) != 11:
+                print "SKIPPED: error in {} line in rbar".format(id)
+                continue
             sbar = rbar[-3].replace('.', 'N')[:-1]
-            p1, pbar = r1[-1], rbar[-1]
+            pbar = rbar[-1]
 
             if reads2_file:
+                r2 = f2.readline()
+                if not r2: break
                 r2 = r2.rstrip('\r').rstrip('\n').split('\t')
+                if len(r2) != 11:
+                    print "SKIPPED: error in {} line in r2".format(id)
+                    continue
                 s2 = r2[-3].replace('.', 'N')
                 p2 = r2[-1]
             else:
@@ -209,14 +224,6 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             if id % progress_span == 0:
                 progress += progress_step
                 save_results(matched, notmatched, badquality, skipped, id, progress)
-
-            r1 = f1.readline()
-            rbar = fbar.readline()
-
-            if reads2_file:
-                r2 = f2.readline()
-                if not r2:
-                    break
 
         save_results(matched, notmatched, badquality, skipped, id, 0.9)
 
