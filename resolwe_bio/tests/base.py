@@ -182,7 +182,7 @@ class BaseProcessorTestCase(TestCase):
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
 
         if not os.path.isfile(output):
-            self.fail(msg="Field {} in data object is empty.".format(field_path))
+            self.fail(msg="File {} does not exist.".format(field_path))
 
     def assertJSON(self, obj, storage, field_path, file_name):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.
