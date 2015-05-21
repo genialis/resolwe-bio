@@ -55,14 +55,6 @@ if args.mapping and not os.path.isfile(args.mapping):
 pool_maps = {}
 
 
-def read_line(t, index, code_col):
-    try:
-        if t[index]:
-            pool_maps[t[code_col]] = t[index]
-    except:
-        pass
-
-
 def isnum(a):
     try:
         b = int(a)
@@ -70,14 +62,33 @@ def isnum(a):
     except:
         return False
 
+barcode_length = 0
 
 if args.mapping:
-    for l in open(args.mapping, 'rU'):
-        l = l.strip()
-        if l:
+    with open(args.mapping, 'rU') as fd:
+        for l in fd:
+            l = l.rstrip()
+            if not l: continue
+
             t = l.split('\t')
-            if isnum(t[0]):
-                read_line(t, 2, 1)
+            barcode, filename = '', ''
+
+            if len(t) == 2:
+                barcode, filename = t[0:2]
+
+            if len(t) > 2 and isnum(t[0]):
+                barcode, filename = t[1:3]
+
+            barcode, filename = barcode.strip(), filename.strip()
+
+            if barcode and filename:
+                pool_maps[barcode] = filename
+
+                if barcode_length > 0 and barcode_length != len(barcode):
+                    print '{"proc.error":"Barcodes should be of the same length."}'
+                    exit(1)
+                else:
+                    barcode_length = len(barcode)
 
 for bar, map in pool_maps.iteritems():
     print '{}: {}'.format(bar, map)
@@ -100,30 +111,30 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
         for barcode in barcodes:
             name = nicename(pool_maps[barcode])
             if reads2_file:
-                filename = os.path.join(prefix, '{}_{}_{}_mate1.fq.gz'.format(pool_name, barcode, name))
+                filename = os.path.join(prefix, '{}_{}_{}_mate1.fq.gz'.format(pool_name, name, barcode))
                 files[barcode] = gzip.open(filename, 'wb')
 
-                filename = os.path.join(prefix, '{}_{}_{}_mate2.fq.gz'.format(pool_name, barcode, name))
+                filename = os.path.join(prefix, '{}_{}_{}_mate2.fq.gz'.format(pool_name, name, barcode))
                 files[barcode + '2'] = gzip.open(filename, 'wb')
 
             else:
-                filename = os.path.join(prefix, '{}_{}_{}.fq.gz'.format(pool_name, barcode, name))
+                filename = os.path.join(prefix, '{}_{}_{}.fq.gz'.format(pool_name, name, barcode))
                 files[barcode] = gzip.open(filename, 'wb')
 
         if reads2_file:
             files['notmatched'] = gzip.open(
-                os.path.join(prefix, '{}_Not_Matched_mate1.fq.gz'.format(pool_name)), 'wb')
+                os.path.join(prefix, 'Not_Matched_{}_mate1.fq.gz'.format(pool_name)), 'wb')
             files['badquality'] = gzip.open(
-                os.path.join(prefix, '{}_Bad_Quality_mate1.fq.gz'.format(pool_name)), 'wb')
+                os.path.join(prefix, 'Bad_Quality_{}_mate1.fq.gz'.format(pool_name)), 'wb')
             files['notmatched2'] = gzip.open(
-                os.path.join(prefix, '{}_Not_Matched_mate2.fq.gz'.format(pool_name)), 'wb')
+                os.path.join(prefix, 'Not_Matched_{}_mate2.fq.gz'.format(pool_name)), 'wb')
             files['badquality2'] = gzip.open(
-                os.path.join(prefix, '{}_Bad_Quality_mate2.fq.gz'.format(pool_name)), 'wb')
+                os.path.join(prefix, 'Bad_Quality_{}_mate2.fq.gz'.format(pool_name)), 'wb')
         else:
-            files['notmatched'] = gzip.open(os.path.join(prefix, '{}_Not_Matched.fq.gz'.format(pool_name)), 'wb')
-            files['badquality'] = gzip.open(os.path.join(prefix, '{}_Bad_Quality.fq.gz'.format(pool_name)), 'wb')
+            files['notmatched'] = gzip.open(os.path.join(prefix, 'Not_Matched_{}.fq.gz'.format(pool_name)), 'wb')
+            files['badquality'] = gzip.open(os.path.join(prefix, 'Bad_Quality_{}.fq.gz'.format(pool_name)), 'wb')
 
-        filenames = [f.name for f in files.values()]
+        filenames = list(set(f.name for f in files.values()))
 
         p = subprocess.Popen(
             'pigz -dc {} | wc -l'.format(barcodes_file),
@@ -131,6 +142,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
         numlines, err = p.communicate()
+
         if err:
             raise Exception(err)
 
@@ -176,7 +188,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             if len(rbar) != 11:
                 print "SKIPPED: error in {} line in rbar".format(id)
                 continue
-            sbar = rbar[-3].replace('.', 'N')[:-1]
+            sbar = rbar[-3].replace('.', 'N')[:barcode_length]
             pbar = rbar[-1]
 
             if reads2_file:
@@ -245,7 +257,7 @@ filenames = read_multiplexed(reads1, reads2, args.barcodes, pool_maps, args.prog
 
 for name in filenames:
     if reads2:
-        if name.endswith('_mate2'):
+        if name.endswith('_mate2.fq.gz'):
             continue
 
         name2 = name.replace('_mate1', '_mate2')

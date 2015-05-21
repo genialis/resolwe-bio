@@ -451,7 +451,7 @@
       echo "{\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME1}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"
 
 - name: import:upload:multiplexed
-  version: 1.0.11
+  version: 1.0.12
   label: Upload multiplexed NGS reads
   type: data:multiplexed:qseq:single
   category: upload
@@ -479,7 +479,7 @@
       validate_regex: '(\.csv|\.tsv)$'
       required: true
       description: >
-        A tsv file mapping barcodes to experiment name, e.g. first row: "1\tTCGCAGG\tHr00".
+        A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
   output:
     - name: qseq_reads
       label: Multiplexed NGS reads
@@ -545,7 +545,7 @@
 
 
 - name: import:upload:multiplexed-paired-end
-  version: 1.0.11
+  version: 1.0.12
   label: Upload paired-end multiplexed NGS reads
   type: data:multiplexed:qseq:paired
   category: upload
@@ -580,7 +580,7 @@
       validate_regex: '(\.csv|\.tsv)$'
       required: true
       description: >
-        A tsv file mapping barcodes to experiment name, e.g. first row: "1\tTCGCAGG\tHr00".
+        A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
   output:
     - name: qseq_reads
       label: Multiplexed upstream reads
