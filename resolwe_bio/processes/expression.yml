@@ -139,7 +139,7 @@
 
 
 - name: mergeexpressions
-  version: 1.0.3
+  version: 1.0.4
   label: Merge Expressions
   type: data:expressionset
   category: analyses
@@ -195,11 +195,11 @@
         {% endif %}
       {% endfor %}
 
-      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e.static.name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
+      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
       echo "{\"expset_type\":\"${EXPSET_TYPE}\",\"expset\":{\"file\":\"sample.tab\"},\"proc.rc\":$?}"
 
 - name: mergeetc
-  version: 1.0.0
+  version: 1.0.1
   label: Merge Expressions (ETC)
   type: data:expressionset:etc
   category: analyses
@@ -248,14 +248,14 @@
 
       gen-require common
 
-      mergeetc.py {% for e in exps %}"{{e.output.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e.static.name}}" {% endfor %} --out 'etc.tab'
+      mergeetc.py {% for e in exps %}"{{e.output.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
 
       gzip 'etc.tab'
       gen-save-file expset 'etc.tab.gz'
       gen-save expset_type "ETC"
 
 - name: etc:bcm-1-0-0
-  version: 1.0.5
+  version: 1.0.6
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -306,7 +306,7 @@
   run:
     runtime: polyglot
     bash: |
-      python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e.static.name}}" {% endfor %} {% if avg %}--mean{% endif %}
+      python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
       str="{\"proc.progress\":1.0,\"proc.rc\":$?"
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
       then
