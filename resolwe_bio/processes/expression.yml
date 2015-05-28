@@ -1325,15 +1325,15 @@
         {% if not c.output.rc.file %}
           gen-error "Read counts are required when using DESeq2"
         {% endif %}
-        controls=$controls"{{c.output.rc.file}} "
+        controls=$controls"{{c.rc.file}} "
         sampleConditions=$sampleConditions"control "
       {% endfor %}
 
       {% for t in case %}
-        {% if not t.output.rc.file %}
+        {% if not t.rc.file %}
           gen-error "Read counts are required when using DESeq2"
         {% endif %}
-        cases=$cases"{{t.output.rc.file}} "
+        cases=$cases"{{t.rc.file}} "
         sampleConditions=$sampleConditions"case "
       {% endfor %}
 
