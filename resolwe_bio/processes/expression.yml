@@ -186,17 +186,20 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
 
-      EXPSET_TYPE="{{exps.0.output.exp_type}}"
+      EXPSET_TYPE="{{ exps.0.output.exp_type }}"
 
       {% for e in exps %}
         {% if exps.0.output.exp_type != e.output.exp_type %}
-          echo "{\"proc.error\":\"Expressions must be of the same expression type\"}"
+          gen-error "Expressions must be of the same expression type"
         {% endif %}
       {% endfor %}
 
       python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
-      echo "{\"expset_type\":\"${EXPSET_TYPE}\",\"expset\":{\"file\":\"sample.tab\"},\"proc.rc\":$?}"
+      gen-checkrc
+      gen=save expset_type "$EXPSET_TYPE"
+      gen-save-file expset sample.tab
 
 - name: mergeetc
   version: 1.0.1
@@ -245,7 +248,6 @@
   run:
     runtime: polyglot
     bash: |
-
       gen-require common
 
       mergeetc.py {% for e in exps %}"{{e.output.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
@@ -306,14 +308,15 @@
   run:
     runtime: polyglot
     bash: |
+      gen-reguire common
+
       python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
-      str="{\"proc.progress\":1.0,\"proc.rc\":$?"
+      gen-checkrc
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
       then
-        str=$str",\"etcfile\":{\"file\":\"etc.json.gz\"}"
+        gen-save-file etcfile etc.json.gz
       fi
-      str=$str"}"
-      echo $str
+      gen-progress 1
 
 
 - name: differentialexpression:bcm-1-0-0
