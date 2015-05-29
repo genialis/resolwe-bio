@@ -202,7 +202,7 @@
       gen-save-file expset sample.tab
 
 - name: mergeetc
-  version: 1.0.1
+  version: 1.0.2
   label: Merge Expressions (ETC)
   type: data:expressionset:etc
   category: analyses
@@ -250,14 +250,14 @@
     bash: |
       gen-require common
 
-      mergeetc.py {% for e in exps %}"{{e.output.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
+      mergeetc.py {% for e in exps %}"{{e.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
 
       gzip 'etc.tab'
       gen-save-file expset 'etc.tab.gz'
-      gen-save expset_type "ETC"
+      gen-save expset_type 'ETC'
 
 - name: etc:bcm-1-0-0
-  version: 1.0.6
+  version: 1.0.7
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -308,16 +308,12 @@
   run:
     runtime: polyglot
     bash: |
-      gen-reguire common
+      gen-require common
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/etc.py {% for e in expressions %}"{{e.output.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
+      etc.py {% for e in expressions %}"{{e.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
       gen-checkrc
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
-      then
-        gen-save-file etcfile etc.json.gz
-      fi
-      gen-progress 1
 
+      gen-save-file etcfile etc.json.gz
 
 - name: differentialexpression:bcm-1-0-0
   version: 1.0.6
