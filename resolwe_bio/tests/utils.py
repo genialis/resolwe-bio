@@ -39,7 +39,7 @@ class PreparedData(object):
         self.assertStatus = getattr(self, 'assertStatus')  # pylint: disable=invalid-name
         self.current_path = getattr(self, 'current_path')
 
-    def run_processor(self, processor_name, input_={}, assert_status=Data.STATUS_DONE, verbosity=0):
+    def run_processor(self, processor_name, input_={}, assert_status=Data.STATUS_DONE, run_manager=True, verbosity=0):
         """Runs given processor with specified inputs.
 
         If input is file, file path should be given relative to
@@ -89,10 +89,14 @@ class PreparedData(object):
             case_ids=[self.case.pk],
         )
         d.save()
-        manager(run_sync=True, verbosity=verbosity)
+        if run_manager:
+            manager(run_sync=True, verbosity=verbosity)
 
         # Fetch latest Data object from database
         d = Data.objects.get(pk=d.pk)
+
+        if not run_manager and assert_status == Data.STATUS_DONE:
+            assert_status = Data.STATUS_RESOLVING
 
         if assert_status:
             self.assertStatus(d, assert_status)
