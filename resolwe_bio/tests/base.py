@@ -77,7 +77,9 @@ class BaseProcessorTestCase(TestCase):
         self.admin = create_admin()
         _register_processors()
 
-        self.case = create_test_case(self.admin.pk)['c1']
+        cases = create_test_case(self.admin.pk)
+        self.case = cases['c1']
+        self.case2 = cases['c2']
         self.current_path = os.path.dirname(os.path.abspath(__file__))
         self._keep_all = False
         self._keep_failed = False
