@@ -1256,7 +1256,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.3
+  version: 1.0.4
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1332,8 +1332,12 @@
         {% if not t.rc.file %}
           gen-error "Read counts are required when using DESeq2"
         {% endif %}
-        cases=$cases"{{t.rc.file}} "
-        sampleConditions=$sampleConditions"case "
+        {% if t not in control %}
+          cases=$cases"{{t.rc.file}} "
+          sampleConditions=$sampleConditions"case "
+        {% else %}
+          gen-error "DE analysis failed. Case and Control groups must contain unique samples."
+        {% endif %}
       {% endfor %}
 
       sampleConditions=${sampleConditions%?}

@@ -51,10 +51,12 @@ elif 'FDR' in header:
 elif 'q_value' in header:
     y = -np.log10(np.array(de['q_value']))
 
+y[y == np.inf] = np.amax(y[np.isfinite(y)])
+
 try:
     data = {'volcano_plot': {'flot': {'data': zip(x, y)}, 'xlabel': 'log2',
         'ylabel': '-log10(FDR)', 'id': ids}}
     print json.dumps(data, separators=(',', ':'))
 except NameError:
-    print json.dumps({'proc.error': 'FC and/or FDR/pval data is missing.'}, separators=(',', ':'))
+    print json.dumps({'proc.error': 'FC and/or FDR/pval data is missing.'}, separators=(',', ':'), allow_nan=False)
     exit(1)
