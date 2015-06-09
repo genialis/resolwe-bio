@@ -87,7 +87,7 @@
       echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_samtoolscalls.vcf\",\"refs\":[\"${BAM_FILE}_samtoolscalls.vcf.bgz\",\"${BAM_FILE}_samtoolscalls.vcf.bgz.tbi\"]}}"
 
 - name: vc-gatk
-  version: 1.0.6
+  version: 1.0.9
   label: Variant calling (GATK)
   type: data:variants:vcf:gatk
   category: analyses:variants
@@ -258,18 +258,18 @@
 
       {% if br_and_ind_ra %}
         echo "indel realignment"
-        echo "java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I \"${BAM_FILE}_indh.bam\" -R \"${GENOME_NAME}.fasta\" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.output.vcf.file }} {% endfor %}{% endif %}" > temp.sh
+        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.output.vcf.file }} {% endfor %}{% endif %}\"" > temp.sh
         sudo unshare -n bash temp.sh
         echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
-        echo "java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T IndelRealigner -I \"${BAM_FILE}_indh.bam\" -R \"${GENOME_NAME}.fasta\" -o \"${BAM_FILE}_noncal.bam\" -targetIntervals indel_interval.bed -compress 0" > temp.sh
+        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T IndelRealigner -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_noncal.bam' -targetIntervals indel_interval.bed -compress 0\"" > temp.sh
         sudo unshare -n bash temp.sh
         echo "{\"proc.progress\":0.35,\"proc.rc\":$?}"
 
         echo "Base recalibration"
-        echo "java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I \"${BAM_FILE}_noncal.bam\"  -R \"${GENOME_NAME}.fasta\" -o recal_data.table -knownSites \"{{ known_sites.output.vcf.file }}\"" > temp.sh
+        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I '${BAM_FILE}_noncal.bam'  -R '${GENOME_NAME}.fasta' -o recal_data.table -knownSites '{{ known_sites.output.vcf.file }}'\"" > temp.sh
         sudo unshare -n bash temp.sh
         echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
-        echo "java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T PrintReads -I \"${BAM_FILE}_noncal.bam\" -R \"${GENOME_NAME}.fasta\" -o \"${BAM_FILE}_final.bam\" -BQSR recal_data.table" > temp.sh
+        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T PrintReads -I '${BAM_FILE}_noncal.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_final.bam' -BQSR recal_data.table\"" > temp.sh
         sudo unshare -n bash temp.sh
         echo "{\"proc.progress\":0.45,\"proc.rc\":$?}"
       {% else %}
@@ -279,7 +279,7 @@
       {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${BAM_FILE}_final.bam"
 
       echo "variant calling"
-      echo "java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper -I \"${BAM_FILE}_final.bam\" -R \"${GENOME_NAME}.fasta\" -o \"${BAM_FILE}_GATKvariants.vcf\" {% if known_sites %} --dbsnp {{ known_sites.output.vcf.file }} {% endif %} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60" > temp.sh
+      echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper -I '${BAM_FILE}_final.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_GATKvariants.vcf' {% if known_sites %} --dbsnp {{ known_sites.output.vcf.file }} {% endif %} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60\"" > temp.sh
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
 
@@ -297,7 +297,7 @@
 
 
 - name: vcf-annotation
-  version: 1.0.8
+  version: 1.0.9
   label: Variant calling annotation (SNPdat)
   type: data:variants:annotation
   category: analyses:variants
@@ -375,10 +375,10 @@
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
 
       # filtering
-      echo "java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T VariantFiltration -V \"{{variants.output.vcf.file}}\" -o "${VARIANTS}_filtered.vcf" -R \"${GENOME_NAME}.fasta\" --filterName DepthFilter --filterExpression \"DP < {{filtration.rd}} || AF < {{filtration.af}}\"" > temp.sh
+      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T VariantFiltration -V '{{variants.output.vcf.file}}' -o '${VARIANTS}_filtered.vcf' -R '${GENOME_NAME}.fasta' --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'\"" > temp.sh
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-      echo "java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T SelectVariants --variant \"${VARIANTS}_filtered.vcf\" -o \"${VARIANTS}_selected.vcf\" -R \"${GENOME_NAME}.fasta\" -ef" > temp.sh
+      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T SelectVariants --variant '${VARIANTS}_filtered.vcf' -o '${VARIANTS}_selected.vcf' -R '${GENOME_NAME}.fasta' -ef\"" > temp.sh
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.25,\"proc.rc\":$?}"
 
