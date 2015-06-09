@@ -1264,11 +1264,6 @@
   description: >
     Find differentially expressed genes.
   input:
-    - name: name
-      label: Name
-      type: basic:string
-      required: true
-      default: "Differential expression (case vs. control)"
     - name: case
       label: Case
       type: list:data:expression
@@ -1295,7 +1290,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "{{ name }}"
+      default: 'Differential expression (case vs. control)'
     - name: alias
       label: Alias
       type: basic:string

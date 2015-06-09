@@ -85,7 +85,6 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
         inputs = {
-            'name': "00vs20",
             'case': [expression_1.pk],
             'control': [expression_2.pk]
         }
