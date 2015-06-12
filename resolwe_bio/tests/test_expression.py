@@ -58,7 +58,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
-        self.assertFiles(cuffnorm, 'expset', 'expression_set.tsv.gz', gzipped=True)
+        self.assertFiles(cuffnorm, 'expset', 'expression_set.tsv.gz', compression='gzip')
 
     def test_expression_bcm(self):
         genome = self.prepare_genome()
@@ -83,7 +83,7 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'gff': annotation.pk,
             'mappable': mappa.pk}
         expression = self.run_processor('expression:bcm-1-0-0', inputs)
-        self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', gzipped=True)
+        self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
@@ -125,9 +125,9 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'stranded': "no",
             'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
-        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', gzipped=True)
-        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', gzipped=True)
-        self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', gzipped=True)
+        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
+        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
+        self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
 
     def test_mergeexpression(self):
@@ -190,4 +190,4 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
         }
 
         etcmerge = self.run_processor('mergeetc', inputs)
-        self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", gzipped=True)
+        self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')

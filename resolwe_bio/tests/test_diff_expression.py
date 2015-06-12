@@ -63,7 +63,7 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
         cuffdiff = self.run_processor('cuffdiff:-2-2-1', inputs)
-        self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', gzipped=True)
+        self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', compression='gzip')
 
     def test_bayseq_bcm(self):
         expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
@@ -90,4 +90,4 @@ class DiffExpProcessorTestCase(BaseProcessorTestCase, PreparedData):
         }
 
         diff_exp = self.run_processor('differentialexpression:deseq2', inputs)
-        self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', gzipped=True)
+        self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')

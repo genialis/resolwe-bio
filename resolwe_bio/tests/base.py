@@ -10,6 +10,7 @@ import gzip
 import json
 import os
 import shutil
+import zipfile
 
 from django.conf import settings
 from django.core import management
@@ -134,7 +135,7 @@ class BaseProcessorTestCase(TestCase):
                          msg="Field 'output.{}' mismatch: {} != {}".format(path, field, str(value)) +
                          self._msg_stdout(obj))
 
-    def assertFiles(self, obj, field_path, fn, gzipped=False):  # pylint: disable=invalid-name
+    def assertFiles(self, obj, field_path, fn, compression=None):  # pylint: disable=invalid-name
         """Compare output file of a processor to the given correct file.
 
         :param obj: Data object which includes file that we want to
@@ -149,13 +150,25 @@ class BaseProcessorTestCase(TestCase):
             'server/tests/processor/outputs'.
         :type fn: :obj:`str`
 
-        :param gzipped: If true, file is unziped before comparison.
-        :type gzipped: :obj:`bool`
+        :param compression: If not None, files will be uncompressed with
+            the appropriate compression library before comparison.
+            Currently supported compression formats are "gzip" and
+            "zip".
+        :type compression: :obj:`str`
 
         """
+        if compression is None:
+            open_fn = open
+        elif compression == 'gzip':
+            open_fn = gzip.open
+        elif compression == 'zip':
+            open_fn = zipfile.ZipFile.open
+        else:
+            raise ValueError("Unsupported compression format.")
+
         field = dict_dot(obj['output'], field_path)
         output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
-        output_file = gzip.open(output, 'rb') if gzipped else open(output)
+        output_file = open_fn(output)
         output_hash = hashlib.sha256(output_file.read()).hexdigest()
 
         wanted = os.path.join(self.current_path, 'outputs', fn)
@@ -164,7 +177,7 @@ class BaseProcessorTestCase(TestCase):
             shutil.copyfile(output, wanted)
             self.fail(msg="Output file {} missing so it was created.".format(fn))
 
-        wanted_file = gzip.open(wanted, 'rb') if gzipped else open(wanted)
+        wanted_file = open_fn(wanted)
         wanted_hash = hashlib.sha256(wanted_file.read()).hexdigest()
         self.assertEqual(wanted_hash, output_hash,
                          msg="File hash mismatch: {} != {}".format(wanted_hash, output_hash) + self._msg_stdout(obj))
