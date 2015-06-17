@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import sys
 import xlrd
 file_name = sys.argv[1]

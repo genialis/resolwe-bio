@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import argparse
 import json
 import os
@@ -34,28 +35,39 @@ ids = list(de.ix[:,0])
 # get FC data
 if 'log2FoldChange' in header:
     x = np.array(de['log2FoldChange'])
-elif 'avg_FC' in header:
-    x = np.array(de['avg_FC'])
+    xlabel = 'log2FoldChange'
+elif 'paired_avg_FC' in header:
+    x = np.array(de['paired_avg_FC'])
+    xlabel = 'paired_avg_FC'
 elif 'logFC' in header:
     x = np.array(de['logFC'])
+    xlabel = 'logFC'
 elif 'log2(fold_change)' in header:
     x = np.array(de['log2(fold_change)'])
+    xlabel = 'log2(fold_change)'
 
 # get FDR/pval data
-if 'padj' in header:
+if 'ebays.pval' in header:
+    y = -np.log10(np.array(de['ebays.pval']))
+    ylabel = '-log10(' + 'ebays.pval' + ')'
+elif 'padj' in header:
     y = -np.log10(np.array(de['padj']))
+    ylabel = '-log10(' + 'padj' + ')'
 elif 'FDR.DE' in header:
     y = -np.log10(np.array(de['fdr.de']))
+    ylabel = '-log10(' + 'fdr.de' + ')'
 elif 'FDR' in header:
     y = -np.log10(np.array(de['FDR']))
+    ylabel = '-log10(' + 'FDR' + ')'
 elif 'q_value' in header:
     y = -np.log10(np.array(de['q_value']))
+    ylabel = '-log10(' + 'q_value' + ')'
 
 y[y == np.inf] = np.amax(y[np.isfinite(y)])
 
 try:
-    data = {'volcano_plot': {'flot': {'data': zip(x, y)}, 'xlabel': 'log2',
-        'ylabel': '-log10(FDR)', 'id': ids}}
+    data = {'volcano_plot': {'flot': {'data': zip(x, y)}, 'xlabel': xlabel,
+        'ylabel': ylabel, 'id': ids}}
     print json.dumps(data, separators=(',', ':'))
 except NameError:
     print json.dumps({'proc.error': 'FC and/or FDR/pval data is missing.'}, separators=(',', ':'), allow_nan=False)

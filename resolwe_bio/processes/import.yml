@@ -1279,7 +1279,7 @@
 
 
 - name: import:upload:diffexp
-  version: 1.0.0
+  version: 1.0.1
   label: Upload Differential Expression table
   type: data:differentialexpression:upload
   category: upload
@@ -1318,6 +1318,14 @@
       label: Description
       type: basic:text
       default: 'Description of {{ src.file }} differential expression upload.'
+    - name: vp_x_label
+      label: Volcano plot x-label
+      type: basic:string
+      default: 'log2 FC'
+    - name: vp_y_label
+      label: Volcano plot y-label
+      type: basic:string
+      default: '-log10(FDR)'
   var:
     - name: notes
       label: Notes
@@ -1325,24 +1333,31 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
+
       NAME='{{ src.file }}'
 
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
-        echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+        gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
+        convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        volcanoplot.py ${NAME}.tab
+        gen-checkrc
+        gen-progress 0.7
+        gzip "${NAME}.tab"
       elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
-        echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+        gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
+        convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        volcanoplot.py ${NAME}.tab
+        gen-checkrc
+        gen-progress 0.7
+        gzip "${NAME}.tab"
       else
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3 compress
-        {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab.gz"
-        echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+        gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3 compress
+        volcanoplot.py ${NAME}.tab.gz
+        gen-checkrc
+        gen-progress 0.7
       fi
-      echo "{\"diffexp\":{\"file\":\"${NAME}.tab.gz\"}}"
+      gen-save-file diffexp ${NAME}.tab.gz
 
 
 - name: import:upload:ETC
