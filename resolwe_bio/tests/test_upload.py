@@ -84,3 +84,11 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFileExist(genome, "index_bt")
         self.assertFileExist(genome, "index_bt2")
         self.assertFileExist(genome, "index_bwa")
+
+    def test_upload_bed(self):
+        inputs = {"src": "bad.bed"}
+        bed = self.run_processor('import:upload:bed', inputs, Data.STATUS_ERROR)
+
+        inputs = {"src": "good.bed"}
+        bed = self.run_processor('import:upload:bed', inputs)
+        self.assertFiles(bed, 'BED', 'good.bed')
