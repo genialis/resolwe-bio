@@ -112,7 +112,7 @@
       # gen-save-file twobit "${NAME}.2bit"
 
 - name: import:upload:reads-fastq
-  version: 1.0.12
+  version: 1.0.13
   label: Upload NGS reads
   type: data:reads:fastq:single
   category: upload
@@ -236,24 +236,24 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5
+
+      gen-require common
+      gen-require fastqc-0.11.3
+
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME}.fastq.gz" --outdir="fastqc" 2> stderr.txt
-      grep --text "Failed to process file" stderr.txt
-      err=$?
-
-      if [ $err -eq 0 ]; then
-        echo "{\"proc.error\":\"FASTQC failed to process FASTQ file\"}"
+      mkdir "fastqc" && fastqc "${NAME}.fastq.gz" --extract --outdir="fastqc" 2> stderr.txt
+      gen-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        gen-error "Failed while processing with FastQC."
       fi
-
-      echo "{\"proc.progress\":0.9}"
+      gen-progress 0.9
 
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt)
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
-
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
       mv "fastqc/${NAME}_fastqc.zip" .
 
@@ -262,15 +262,19 @@
       E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
       if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
         sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME}.fastq"
-        echo "{\"proc.progress\":0.97,\"proc.rc\":$?}"
         gzip -c "${NAME}.fastq" > "${NAME}.fastq.gz"
       fi
 
-      echo {\"fastq\":{\"file\":\"${NAME}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"number\":${NUMBER},\"bases\":\"$BASES\", \"fastqc_url\":$FASTQC_URL,\"proc.progress\":1,\"proc.rc\":$?}
+      gen-save-file fastq ${NAME}.fastq.gz
+      gen-save-file fastqc_archive ${NAME}_fastqc.zip
+      gen-save number $NUMBER
+      gen-save bases "$BASES"
+      gen-save fastqc_url $FASTQC_URL
+
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.12
+  version: 1.0.13
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
@@ -410,24 +414,26 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3
+
+
+      gen-require common
+      gen-require fastqc-0.11.3
+
+      gen-import "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3
       NAME1=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6
+      gen-import "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6
       NAME2=$NAME
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-
-      mkdir "fastqc" && {{ proc.slugs_path }}/fastqc-0.10.1/fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --outdir="fastqc" 2> stderr.txt
-      grep --text "Failed to process file" stderr.txt
-      err=$?
-
-      if [ $err -eq 0 ]; then
-        echo "{\"proc.error\":\"FASTQC failed to process FASTQ file\"}"
+      mkdir "fastqc" && fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --extract --outdir="fastqc" 2> stderr.txt
+      gen-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        gen-error "Failed while processing with FastQC."
       fi
-
-      echo "{\"proc.progress\":0.9}"
+      gen-progress 0.9
 
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
       FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
@@ -441,14 +447,20 @@
       E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
       if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
         sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME1}.fastq"
-        echo "{\"proc.progress\":0.97,\"proc.rc\":$?}"
         gzip -c "${NAME1}.fastq" > "${NAME1}.fastq.gz"
         sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME2}.fastq"
-        echo "{\"proc.progress\":0.97,\"proc.rc\":$?}"
         gzip -c "${NAME2}.fastq" > "${NAME2}.fastq.gz"
       fi
 
-      echo "{\"fastq\":{\"file\":\"${NAME1}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME1}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"
+      gen-save-file fastq ${NAME1}.fastq.gz
+      gen-save-file fastq2 ${NAME2}.fastq.gz
+      gen-save-file fastqc_archive ${NAME1}_fastqc.zip
+      gen-save-file fastqc_archive2 ${NAME2}_fastqc.zip
+      gen-save number $NUMBER
+      gen-save bases "$BASES"
+      gen-save fastqc_url $FASTQC_URL
+      gen-save fastqc_url2 $FASTQC_URL2
+
 
 - name: import:upload:multiplexed
   version: 1.0.12

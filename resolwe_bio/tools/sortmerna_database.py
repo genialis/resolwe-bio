@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import argparse
 
 parser = argparse.ArgumentParser(description="Prepare rRNA database paths")

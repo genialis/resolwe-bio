@@ -8,6 +8,7 @@ from .utils import PreparedData
 
 
 class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
+
     def test_bam_upload(self):
         inputs = {"src": "alignment_name_sorted.bam"}
         upload_bam = self.run_processor("import:upload:mapping-bam", inputs)
@@ -59,8 +60,14 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq-paired-end", inputs)
-        self.assertFiles(reads, "fastq", "rRNA_forw.fastq.gz")
-        self.assertFiles(reads, "fastq2", "rRNA_rew.fastq.gz")
+        self.assertFiles(reads, "fastq", "rRNA_forw.fastq.gz", compression='gzip')
+        self.assertFiles(reads, "fastq2", "rRNA_rew.fastq.gz", compression='gzip')
+        self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
+        self.assertFields(reads, "fastqc_archive2.file", "rRNA_rew_fastqc.zip")
+        self.assertFields(reads, "number", 13)
+        self.assertFields(reads, "bases", " 101, 101")
+        self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
+        self.assertFields(reads, "fastqc_url2.url", "fastqc/rRNA_rew_fastqc/fastqc_report.html")
 
     def test_upload_single_end_reads(self):
         inputs = {"src": "mate1.fastq.gz"}
@@ -68,7 +75,11 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         inputs = {"src": "rRNA_forw.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
-        self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz")
+        self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz", compression='gzip')
+        self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
+        self.assertFields(reads, "number", 13)
+        self.assertFields(reads, "bases", 101)
+        self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
 
     def test_upload_de(self):
         inputs = {'src': 'deseq2_output.tab.gz'}
