@@ -800,6 +800,158 @@
       python -u {{ proc.slugs_path }}/gencloud-20131109/import_geneinfo.py "{{ proc.data_path }}/{{ proc.data_id }}/gene_information.txt"
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
+- name: import:web:geneinfo:hsapiens
+  version: 1.0.0
+  label: Import gene info (H. sapiens)
+  type: data:geneinfo:hsapiens
+  category: import
+  persistence: RAW
+  description: >
+    Import/build gene information based on ENSEMBL annotation.
+  output:
+    - name: src
+      label: Gene information
+      type: basic:file
+    - name: ensembl_release
+      label: Ensembl release
+      type: basic:string
+    - name: date
+      label: Download date
+      type: basic:date
+    - name: info
+      label: Gene information JSON
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Gene information (H. sapiens)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'information']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      ENSEMBL_RELEASE="80"
+
+      # Download Ensembl annotation file (GTF)
+      wget -O "ensembl_annotation.gtf.gz" "ftp.ensembl.org/pub/release-${ENSEMBL_RELEASE}/gtf/homo_sapiens//Homo_sapiens.GRCh38.${ENSEMBL_RELEASE}.gtf.gz"
+      gen-checkrc "Could not download ENSEMBL annotation file."
+      gen-progress 0.1
+
+      # Download NCBI annotation file
+      wget -O "ncbi_gene_info.gz" "ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Homo_sapiens.gene_info.gz"
+      gen-checkrc "Could not download NCBI gene-info file."
+      gen-progress 0.2
+
+      # Download UniprotKB mappings file
+      wget -O "UniprotKB_id_mapping.tab.gz" "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping//by_organism/HUMAN_9606_idmapping_selected.tab.gz"
+      gen-checkrc "Could not download UniprotKB ID mapping file."
+      gen-progress 0.3
+
+      gzip -d ensembl_annotation.gtf.gz
+      gzip -d ncbi_gene_info.gz
+      gzip -d UniprotKB_id_mapping.tab.gz
+      gen-progress 0.5
+
+      # Build gene information
+      build_gene_info_hsapiens.py --annotation ensembl_annotation.gtf --gene_info ncbi_gene_info --uniprotKB UniprotKB_id_mapping.tab --out hs_gene_info.tab
+      gen-checkrc
+      gen-progress 0.8
+
+      # # Save gene info to JSON object
+      # import_geneinfo.py hs_gene_info.tab
+      # gen-checkrc
+      # gen-progress 0.9
+
+      gzip hs_gene_info.tab
+      gen-save-file src hs_gene_info.tab.gz
+      gen-save date `date +%Y-%m-%d`
+      gen-save ensembl_release ${ENSEMBL_RELEASE}
+
+
+- name: import:web:geneinfo:mus
+  version: 1.0.0
+  label: Import gene info (M. musculus)
+  type: data:geneinfo:mus
+  category: import
+  persistence: RAW
+  description: >
+    Import/build gene information based on ENSEMBL annotation.
+  output:
+    - name: src
+      label: Gene information
+      type: basic:file
+    - name: ensembl_release
+      label: Ensembl release
+      type: basic:string
+    - name: date
+      label: Download date
+      type: basic:date
+    - name: info
+      label: Gene information JSON
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Gene information (M. musculus)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'information']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      ENSEMBL_RELEASE="80"
+
+      # Download Ensembl annotation file (GTF)
+      wget -O "ensembl_annotation.gtf.gz" "ftp.ensembl.org/pub/release-${ENSEMBL_RELEASE}/gtf/mus_musculus//Mus_musculus.GRCm38.${ENSEMBL_RELEASE}.gtf.gz"
+      gen-checkrc "Could not download ENSEMBL annotation file."
+      gen-progress 0.1
+
+      # Download NCBI annotation file
+      wget -O "ncbi_gene_info.gz" "ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz"
+      gen-checkrc "Could not download NCBI gene-info file."
+      gen-progress 0.2
+
+      # Download UniprotKB mappings file
+      wget -O "mgi_association_file.tab" "ftp://ftp.informatics.jax.org/pub/reports/MRK_ENSEMBL.rpt"
+      gen-checkrc "Could not download MGI ID mapping file."
+      gen-progress 0.3
+
+      gzip -d ensembl_annotation.gtf.gz
+      gzip -d ncbi_gene_info.gz
+      gen-progress 0.5
+
+      # Build gene information
+      build_gene_info_mus.py --annotation ensembl_annotation.gtf --gene_info ncbi_gene_info --mgi mgi_association_file.tab --out mm_gene_info.tab
+      gen-checkrc
+      gen-progress 0.8
+
+      # # Save gene info to JSON object
+      # import_geneinfo.py mm_gene_info.tab
+      # gen-checkrc
+      # gen-progress 0.9
+
+      gzip mm_gene_info.tab
+      gen-save-file src mm_gene_info.tab.gz
+      gen-save date `date +%Y-%m-%d`
+      gen-save ensembl_release ${ENSEMBL_RELEASE}
+
 
 - name: import:upload:geneinfo
   version: 1.0.7
@@ -1205,77 +1357,6 @@
     bash: |
       . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1
       echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
-
-
-# Column validation does not work for variable number of experiments included in DE analysis!
-# - name: import:upload:diffexp:bcm
-#   version: 1.0.6
-#   label: Upload Differential expression table (BCM)
-#   type: data:differentialexpression:upload
-#   category: upload
-#   persistence: RAW
-#   description: >
-#     Upload Differential Expression table.
-#   input:
-#     - name: src
-#       label: Differential expression file (xls/tab)
-#       type: basic:file
-#       description: >
-#         Differential expression file. Supported file types: *.tab, *.xls and *.xlsx. First row should contain values in the following order: 'Gene', 'Case_Counts_<identifier>','Control_Counts_<identifier>' ,'Lik.DE', 'FDR.DE', 'Lik.NDE', 'FDR.NDE', 'Case_RPKUM_Median', 'Control_RPKUM_Median'. All values (except 'Gene') should be numbers.
-#       required: true
-#       validate_regex: '\.(xls|xlsx|tab)$'
-#   output:
-#     - name: diffexp
-#       label: Differential expression
-#       type: basic:file
-#     - name: volcano_plot
-#       label: Volcano plot
-#       type: basic:json
-#   static:
-#     - name: name
-#       label: Name
-#       type: basic:string
-#       default: 'Upload differential expression ({{ src.file }})'
-#     - name: cite
-#       label: Citation
-#       type: list:basic:url:link
-#     - name: tags
-#       label: Tags
-#       type: list:basic:string
-#       default: ['differential expression']
-#       placeholder: new tag
-#     - name: description
-#       label: Description
-#       type: basic:text
-#       default: 'Description of {{ src.file }} differential expression upload.'
-#   var:
-#     - name: notes
-#       label: Notes
-#       type: basic:text
-#   run:
-#     runtime: polyglot
-#     bash: |
-#       NAME='{{ src.file }}'; NAME="${NAME%.*}"; NAME="${NAME%.*}"
-#       TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
-
-#       mv "${TEMP}" "${NAME}"
-#       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-
-#       if [[ '.{{ src.file }}' =~ \.(xls)|(xlsx)$ ]]; then
-#         echo "Importing and transforming"
-#         {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python {{ proc.slugs_path }}/gencloud-20131109/import_DE_excel_table.py "${NAME}" > "${NAME}.tab"
-#         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
-
-#       else
-#         python {{ proc.slugs_path }}/gencloud-20131109/import_DE_tab.py "${NAME}"
-#         echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
-#         mv "${NAME}" "${NAME}.tab" >&2
-#         echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
-#       fi
-#       echo "{\"proc.progress\":0.5,\"proc.rc\":$?,\"diffexp\":{\"file\":\"${NAME}.tab\"}}"
-#       python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py "${NAME}.tab"
-#       {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot-bcm.py diffexp_bayseq.tab
-#       #TODO: Change the processor to be generaly more compatible
 
 
 - name: import:upload:diffexp
