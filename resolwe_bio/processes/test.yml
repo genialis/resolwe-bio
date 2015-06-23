@@ -114,13 +114,13 @@
           label: String 3 disabled
           type: basic:string
           description: "String 3 description."
-          disabled: true
+          disabled: "true"
           default: "disabled"
         - name: string4
           label: String 4 hidden
           type: basic:string
           description: "String 4 description."
-          hidden: true
+          hidden: "true"
           default: "hidden"
         - name: string5
           label: String 5 choices
@@ -327,5 +327,83 @@
       echo "{\"output\":\"test\"}"
       exit 0
 
+- name: test:disabled
+  version: 1.0.0
+  label: Test disabled inputs
+  type: data:test:disabled
+  persistence: CACHED
+  description: >
+    Test disabled input fields.
+  input:
+    - name: broad
+      label: Broad peaks
+      type: basic:boolean
+      default: false
+    - name: broad_width
+      label: Width of peaks
+      type: basic:integer
+      default: 5
+      disabled: broad === false
+  output:
+    - name: output
+      label: Result
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      echo "Testing dissabled fields"
+      gen-save output "Done"
 
-
+- name: test:hidden
+  version: 1.0.0
+  label: Test hidden inputs
+  type: data:test:hidden
+  persistence: CACHED
+  description: >
+    Test hidden input fields
+  input:
+    - name: broad
+      label: Broad peaks
+      type: basic:boolean
+      default: false
+    - name: parameters_broad_f
+      label: Parameters
+      hidden: broad === true
+      group:
+      - name: parameter1
+        label: parameter1
+        type: basic:integer
+        default: 10
+      - name: parameter2
+        label: parameter2
+        type: basic:integer
+        default: 10
+    - name: parameters_broad_t
+      label: Parameters
+      hidden: broad === false
+      group:
+      - name: broad_width
+        label: Width of peaks
+        type: basic:integer
+        default: 5
+  output:
+    - name: output
+      label: Result
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      echo "Testning hidden fields"
+      gen-save output "Done"
