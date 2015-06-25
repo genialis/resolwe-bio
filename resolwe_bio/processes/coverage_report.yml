@@ -6,7 +6,7 @@
 ---
 
 - name: coverage:garvan
-  version: 1.0.10
+  version: 1.0.11
   label: Exome Coverage Report
   type: data:coverage
   category: analyses
@@ -79,6 +79,9 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
+      gen-require vid_tools-20130515
+
       echo "Generating exome-wide coverage report..."
       filter='{{ filter }}'
       exonage="exonage"
@@ -87,35 +90,46 @@
       annotation='{{ gtf.output.gtf.file }}'
       samtools='{{ proc.slugs_path }}/samtools-0.1.19/samtools'
 
-      echo "{\"proc.rc\":$?}"
+      gen-checkrc
       json='{"report": ['
       missingjson="{\"genes\": [ "
 
       my_genes=""
       {% for g in genes %} my_genes="${my_genes}\"{{g}}\"|" {% endfor %}
       my_genes=${my_genes%?}
+
+      if [ ! -f ${annotation} ]; then
+        gen-error "Annotation file (GTF) not found!"
+      fi
+
       grep -E $'\texon\t'".*gene_name (${my_genes})" ${annotation} > gtf_timmmed.gtf
-      echo "{\"proc.progress\":0.1}"
+      gen-progress 0.1
 
       {% with length=genes|length %}
       {% for g in genes %}
-        python -u {{ proc.slugs_path }}/gencloud-20131109/exonage_create2.py "${samtools}" "{{g}}" "gtf_timmmed.gtf" "${mapping}" "${exonage}_{{g}}" warning.log
-        echo "{\"proc.progress\": {{ forloop.counter|div:length }}, \"proc.rc\":$?}"
+        exonage_create2.py "${samtools}" "{{g}}" "gtf_timmmed.gtf" "${mapping}" "${exonage}_{{g}}" warning.log 2> err.txt
+
         if [ -s "warning.log" ]; then
-          WARN=$(cat warning.log)
-          echo "{\"proc.warning\":\"$WARN\"}"
+          gen-warning "`cat warning.log | sed -e :a -e '$!N; s/\n/ /; ta'`"
         fi
-        
+
+        if [ -s "err.txt" ]; then
+          gen-error "`cat err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
+        fi
+
         if [ ! -s ${exonage}_{{g}} ]; then
           missingjson=$missingjson"\"{{g}}\","
         fi
+
+        gen-progress {{ forloop.counter|div:length }}
+
       {% endfor %}
-      python -u {{ proc.slugs_path }}/vid_tools-20130515/jsonify_coverage2.py  "${filter}" "${variants}"
-      echo "{\"proc.rc\":$?}"
+
+      jsonify_coverage2.py "${filter}" "${variants}"
+      gen-checkrc
       {% endwith %}
 
       missingjson="${missingjson%?}"]}
-      echo "{\"missing\": $missingjson}"
-      echo "{\"exon_coverage\": {\"file\": \"exon_coverage.tsv\"}}"
-      echo "{\"transcript_coverage\": {\"file\": \"transcript_coverage.tsv\"}}"
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+      gen-save missing "$missingjson"
+      gen-save-file exon_coverage exon_coverage.tsv
+      gen-save-file transcript_coverage transcript_coverage.tsv

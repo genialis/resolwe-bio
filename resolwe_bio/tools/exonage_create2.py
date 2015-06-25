@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 """
     arg 1: samtools path
     arg 2: gene name
