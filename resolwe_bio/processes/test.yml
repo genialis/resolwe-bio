@@ -52,7 +52,7 @@
 
 
 - name: test:basic-fields
-  version: 1.0.2
+  version: 1.0.3
   label: Test basic fields
   type: data:test:fields
   persistence: CACHED
@@ -138,7 +138,7 @@
           label: String 6 regex only "Aa"
           type: basic:string
           default: "AAaAaaa"
-          validate_regex: /^[aA]*$/
+          validate_regex: "^[aA]*$"
     - name: tricky
       label: Tricky
       group:
