@@ -331,7 +331,7 @@
       exit 0
 
 - name: test:disabled
-  version: 1.0.0
+  version: 1.0.1
   label: Test disabled inputs
   type: data:test:disabled
   persistence: CACHED
@@ -346,7 +346,17 @@
       label: Width of peaks
       type: basic:integer
       default: 5
-      disabled: broad === false
+      disabled: "broad === false"
+    - name: width_label
+      label: Width label
+      type: basic:string
+      default: 'FD'
+      disabled: "broad === false"
+    - name: if_and_condition
+      label: If width is 5 and label FDR
+      type: basic:integer
+      default: 5
+      disabled: "broad_width == 5 && width_label == 'FDR'"
   output:
     - name: output
       label: Result
@@ -364,7 +374,7 @@
       gen-save output "Done"
 
 - name: test:hidden
-  version: 1.0.0
+  version: 1.0.1
   label: Test hidden inputs
   type: data:test:hidden
   persistence: CACHED
@@ -375,9 +385,14 @@
       label: Broad peaks
       type: basic:boolean
       default: false
+    - name: broad_width
+      label: Width of peaks
+      type: basic:integer
+      default: 5
+      hidden: "broad === false"
     - name: parameters_broad_f
       label: Parameters
-      hidden: broad === true
+      hidden: "broad === true"
       group:
       - name: parameter1
         label: parameter1
@@ -389,10 +404,10 @@
         default: 10
     - name: parameters_broad_t
       label: Parameters
-      hidden: broad === false
+      hidden: "broad === false"
       group:
-      - name: broad_width
-        label: Width of peaks
+      - name: broad_width2
+        label: Width of peaks2
         type: basic:integer
         default: 5
   output:
