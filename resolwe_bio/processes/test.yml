@@ -52,7 +52,7 @@
 
 
 - name: test:basic-fields
-  version: 1.0.3
+  version: 1.0.4
   label: Test basic fields
   type: data:test:fields
   persistence: CACHED
@@ -108,6 +108,8 @@
           label: String 2 required
           type: basic:string
           description: "String 2 description."
+          disabled: "false"
+          hidden: "false"
           required: true
           placeholder: "Enter string"
         - name: string3
@@ -120,12 +122,13 @@
           label: String 4 hidden
           type: basic:string
           description: "String 4 description."
-          hidden: "true"
+          hidden: true
           default: "hidden"
         - name: string5
           label: String 5 choices
           type: basic:string
           description: "String 5 description."
+          hidden: false
           default: "choice_2"
           choices:
             - label: Choice 1
