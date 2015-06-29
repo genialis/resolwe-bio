@@ -1683,7 +1683,7 @@
 
 
 - name: import:upload:expression
-  version: 1.0.0
+  version: 1.0.2
   label: Upload Expression
   type: data:expression
   category: upload
@@ -1695,14 +1695,16 @@
       label: Read counts (raw expression)
       type: basic:file
       description: >
-        Reads mapped to genomic features (raw count data).
+        Reads mapped to genomic features (raw count data). Supported extensions: .txt.gz (preferred), .tab.* or .txt.*
       required: false
+      validate_regex: '\.(txt|tab|gz)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: exp
       label: Normalized expression
       type: basic:file
       description: >
-        Normalized expression data
+        Normalized expression data. Supported extensions: .tab.gz (preferred) or .tab.*
       required: false
+      validate_regex: '\.(tab|gz)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: exp_type
       label: Normalization type
       type: basic:string
