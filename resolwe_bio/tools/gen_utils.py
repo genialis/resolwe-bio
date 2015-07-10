@@ -13,6 +13,7 @@ def gen_save(key, value):
     where value can represent any JSON object.
 
     """
+    value = value.replace("\n", " ")
     try:
         value_json = json.loads(value)
     except ValueError:
