@@ -96,6 +96,26 @@ class AlignmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
         aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
         self.assertFiles(aligned_reads, 'stats', 'tophat_reads_report_filtered_paired.txt')
 
+    def test_star(self):
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
+
+        inputs = {'src': 'annotation.gff'}
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+
+        inputs = {'genome': genome.pk, 'annotation': annotation.pk}
+        genome_index = self.run_processor('alignment:star:index', inputs)
+
+        inputs = {
+            'genome': genome_index.pk,
+            'reads': reads.pk,
+            'threads': 1,
+            't_coordinates': {
+                'quantmode': True,
+                'gene_counts': True}}
+        aligned_reads = self.run_processor('alignment:star', inputs)
+        self.assertFiles(aligned_reads, 'gene_counts', 'gene_counts_star.tab.gz', compression='gzip')
+
     def test_bwa_bt(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()

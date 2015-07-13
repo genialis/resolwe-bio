@@ -1147,3 +1147,335 @@
       {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_hits.bam" "${NAME}_hits.bam.bai"
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_hits.bam\"}, \"bai\":{\"file\":\"${NAME}_hits.bam.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.bam\"}, \"stats\":{\"file\":\"${NAME}_align_summary.txt\"}, \"junctions\":{\"file\":\"${NAME}_junctions.bed\"}, \"deletions\":{\"file\":\"${NAME}_deletions.bed\"}, \"insertions\":{\"file\":\"${NAME}_insertions.bed\"}}"
+
+
+- name: alignment:star:index
+  version: 1.0.0
+  label: Prepare genome index (STAR 2.4.2a)
+  type: data:genomeindex:star
+  persistence: CACHED
+  description: >
+    Generate genome indices files from the supplied reference genome sequence and annotation (GTF) files.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: annotation
+      label: Annotation file (GTF/GFF3)
+      type: data:annotation
+      required: true
+    - name: sjdbOverhang
+      label: Junction length (sjdbOverhang)
+      type: basic:integer
+      default: 100
+      description: >
+        This parameter specifies the length of the genomic sequence around the annotated junction to be used in constructing the splice junction database. Ideally, this length should be equal to the ReadLength-1, where ReadLength is the length of the reads. For instance, for Illumina 2x100b paired-end reads, the ideal value is 100-1=99. In case of reads of varying length, the ideal value is max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Number of threads to be used for genome index generation.
+    - name: advanced
+      label: Advanced options
+      group:
+        - name: genomeSAindexNbases
+          label: Small genome adjustment
+          type: basic:integer
+          required: false
+          description: >
+            For small genomes, the parameter --genomeSAindexNbases needs to be scaled down, with a typical value of min(14, log2(GenomeLength)/2 - 1). For example, for 1 megaBase genome, this is equal to 9, for 100 kiloBase genome, this is equal to 7.
+        - name: genomeChrBinNbits
+          label: Large number of references adjustment
+          type: basic:integer
+          required: false
+          description: >
+            If you are using a genome with a large (>5,000) number of references (chrosomes/scaffolds), you may need to reduce the --genomeChrBinNbits to reduce RAM consumption. The following scaling is recommended: --genomeChrBinNbits = min(18, log2(GenomeLength / NumberOfReferences)). For example, for 3 gigaBase genome with 100,000 chromosomes/scaffolds, this is equal to 15.
+  output:
+    - name: index
+      label: Indexed genome
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "STAR genome index ({{ genome.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["STAR", "Genome", "Indices"]
+      placeholder: new tag
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require STAR_2.4.2a
+
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      gzip -dc {{ genome.fasta.file }} > genome.fasta
+      gen-progress 0.1
+      mkdir genome_index
+      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} --genomeDir ./genome_index/ --genomeFastaFiles genome.fasta --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }}
+      gen-checkrc "Genome index build failed."
+      gen-progress 0.8
+      echo "Index files for genome ${GENOME_NAME}" > info.txt
+      gen-save-file index info.txt genome_index
+
+
+- name: alignment:star
+  version: 1.0.0
+  label: Aligner (STAR 2.4.2a)
+  type: data:alignment:star
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Spliced Transcripts Alignment to a Reference
+  input:
+    - name: genome
+      label: Indexed reference genome
+      type: data:genomeindex:star
+      required: true
+      description: >
+        Genome index and annotation files prepared by STAR aligner indexing tool.
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      required: true
+      default: 1
+      description: >
+        Number of processor threads to be used when mapping reads to the reference sequence.
+    - name: unstranded
+      label: The data is unstranded
+      type: basic:boolean
+      default: false
+      description: >
+        For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute, which STAR will generate with --outSAMstrandField intronMotif option. As required, the XS strand attribute will be generated for all alignments that contain splice junctions. The spliced alignments that have undefined strand (i.e. containing only non-canonical unannotated junctions) will be suppressed. If you have stranded RNA-seq data, you do not need to use any specific STAR options. Instead, you need to run Cufflinks with the library option --library-type options. For example, cufflinks --library-type fr-firststrand should be used for the standard dUTP protocol, including Illumina's stranded Tru-Seq. This option has to be used only for Cufflinks runs and not for STAR runs.
+    - name: noncannonical
+      label: Remove non-cannonical junctions (Cufflinks compatibility)
+      type: basic:boolean
+      default: false
+      description: >
+        It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
+    - name: detect_chimeric
+      label: Detect chimeric and circular alignments
+      group:
+        - name: chimeric
+          label: Detect chimeric and circular alignments
+          type: basic:boolean
+          default: false
+          description: >
+            To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
+        - name: chimSegmentMin
+          label: --chimSegmentMin
+          type: basic:integer
+          default: 20
+          disabled: "detect_chimeric.chimeric != true"
+    - name: t_coordinates
+      label: Output in transcript coordinates
+      group:
+        - name: quantmode
+          label: Output in transcript coordinates
+          type: basic:boolean
+          default: false
+          description: >
+            With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
+        - name: singleend
+          label: Allow soft-clipping and indels
+          type: basic:boolean
+          default: false
+          disabled: "t_coordinates.quantmode != true"
+          description: >
+            By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
+        - name: gene_counts
+          label: Count reads
+          type: basic:boolean
+          default: false
+          disabled: "t_coordinates.quantmode != true"
+          description: >
+            With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
+    - name: filtering
+      label: Output Filtering
+      group:
+        - name: outFilterType
+          label: Type of filtering
+          type: basic:string
+          default: Normal
+          required: true
+          description: >
+            Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
+          choices:
+            - label: Normal
+              value: Normal
+            - label: BySJout
+              value: BySJout
+        - name: outFilterMultimapNmax
+          label: --outFilterMultimapNmax
+          type: basic:integer
+          required: false
+          description: >
+            Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
+        - name: outFilterMismatchNmax
+          label: --outFilterMismatchNmax
+          type: basic:integer
+          required: false
+          description: >
+            Alignment will be output only if it has fewer mismatches than this value (default: 10).
+    - name: alignment
+      label: Alignment and Seeding
+      group:
+        - name: alignSJoverhangMin
+          label: --alignSJoverhangMin
+          type: basic:integer
+          required: false
+          description: >
+            Minimum overhang (i.e. block size) for spliced alignments (default: 5).
+        - name: alignSJDBoverhangMin
+          label: --alignSJDBoverhangMin
+          type: basic:integer
+          required: false
+          description: >
+            Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
+        - name: alignIntronMin
+          label: --alignIntronMin
+          type: basic:integer
+          required: false
+          description: >
+            Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
+        - name: alignIntronMax
+          label: --alignIntronMax
+          type: basic:integer
+          required: false
+          description: >
+            Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+        - name: alignMatesGapMax
+          label: --alignMatesGapMax
+          type: basic:integer
+          required: false
+          description: >
+            Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped_f
+      label: Unmapped reads (mate 1)
+      type: basic:file
+    - name: unmapped_r
+      label: Unmapped reads (mate 2)
+      type: basic:file
+    - name: sj
+      label: Splice junctions
+      type: basic:file
+    - name: chimeric
+      label: Chimeric alignments
+      type: basic:file
+    - name: alignment_transcriptome
+      label: Alignment (trancriptome coordinates)
+      type: basic:file
+    - name: gene_counts
+      label: Gene counts
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Reads alignment ({{ reads.fastq.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "STAR"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of reads alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require STAR_2.4.2a
+      gen-require samtools-0.1.19
+
+      GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
+
+      gen-progress 0.05
+
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+        STAR --runThreadN '{{threads}}' --genomeDir ${GENOME_PATH} --readFilesIn '{{reads.fastq.file}}' --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        gen-checkrc "Reads alignment failed!"
+
+      if [ -f Unmapped.out.mate1 ]
+      then
+        mv Unmapped.out.mate1 Unmapped.out.mate1.fastq
+        gzip Unmapped.out.mate1.fastq
+        gen-save-file unmapped_f Unmapped.out.mate1.fastq.gz
+      fi
+
+      {% else %}
+        STAR --runThreadN '{{ threads }}' --genomeDir ${GENOME_PATH} --readFilesIn '{{ reads.fastq.file }}' '{{ reads.fastq2.file }}' --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{filtering.outFilterType}}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        gen-checkrc "Reads alignment failed!"
+
+      if [ -f Unmapped.out.mate1 ]
+      then
+        mv Unmapped.out.mate1 Unmapped.out.mate1.fastq
+        gzip Unmapped.out.mate1.fastq
+        gen-save-file unmapped_f Unmapped.out.mate1.fastq.gz
+      fi
+
+      if [ -f Unmapped.out.mate2 ]
+      then
+        mv Unmapped.out.mate2 Unmapped.out.mate2.fastq
+        gzip Unmapped.out.mate2.fastq
+        gen-save-file unmapped_r Unmapped.out.mate2.fastq.gz
+      fi
+
+      {% endif %}
+
+      gen-progress 0.8
+      samtools index Aligned.sortedByCoord.out.bam Aligned.sortedByCoord.out.bam.bai
+      gen-checkrc
+      gen-progress 0.9
+
+      {% if detect_chimeric.chimeric %}
+        gen-save-file chimeric Chimeric.out.sam
+      {% endif %}
+
+      {% if t_coordinates.quantmode %}
+        gen-save-file alignment_transcriptome Aligned.toTranscriptome.out.bam
+      {% endif %}
+
+      {% if t_coordinates.gene_counts %}
+        gzip ReadsPerGene.out.tab
+        gen-save-file gene_counts ReadsPerGene.out.tab.gz
+      {% endif %}
+
+      gen-save-file bam Aligned.sortedByCoord.out.bam
+      gen-save-file bai Aligned.sortedByCoord.out.bam.bai
+      gen-save-file sj SJ.out.tab
+      gen-save-file stats Log.final.out
