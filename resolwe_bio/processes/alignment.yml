@@ -989,7 +989,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\":\"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}}"
 
 - name: alignment:tophat-2-0-13
-  version: 1.0.7
+  version: 1.0.8
   label: Aligner (TopHat v2.0.13)
   type: data:alignment:bam:tophat
   persistence: CACHED
@@ -1022,6 +1022,27 @@
       default: false
       description: >
         Some of the reads spanning multiple exons may be mapped incorrectly as a contiguous alignment to the genome even though the correct alignment should be a spliced one - this can happen in the presence of processed pseudogenes that are rarely (if at all) transcribed or expressed. This option can direct TopHat to re-align reads for which the edit distance of an alignment obtained in a previous mapping step is above or equal to this option value. If you set this option to 0, TopHat will map every read in all the mapping steps (transcriptome if you provided gene annotations, genome, and finally splice variants detected by TopHat), reporting the best possible alignment found in any of these mapping steps. This may greatly increase the mapping accuracy at the expense of an increase in running time. The default value is set to 0.
+    - name: options
+      label: Options
+      group:
+        - name: max_multihits
+          label: Maximum number of multihits
+          type: basic:integer
+          default: 20
+          description: >
+            Instructs TopHat to allow up to this many alignments to the reference for a given read, and choose the alignments based on their alignment scores if there are more than this number. The default is 20 for read mapping. Unless you use --report-secondary-alignments, TopHat will report the alignments with the best alignment score. If there are more alignments with the same score than this number, TopHat will randomly report only this many alignments. In case of using --report-secondary-alignments, TopHat will try to report alignments up to this option value, and TopHat may randomly output some of the alignments with the same score to meet this number.
+        - name: secondary_alignments
+          label: Report secondary alignments
+          type: basic:boolean
+          default: false
+          description: >
+            By default TopHat reports best or primary alignments based on alignment scores (AS). Use this option if you want to output additional or secondary alignments  (up to 20 alignments will be reported this way, this limit can be changed by using the -g/--max-multihits option above).
+        - name: microexon_search
+          label: Microexon search
+          type: basic:boolean
+          default: false
+          description: >
+            With this option, the pipeline will attempt to find alignments incident to micro-exons. Works only for reads 50bp or longer.
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -1125,11 +1146,11 @@
 
       {% if reads.type|subtype:'data:reads:fastq:single:' %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
 
       {% else %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}' '{{ reads.output.fastq2.file }}'
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}' '{{ reads.output.fastq2.file }}'
 
       {% endif %}
 

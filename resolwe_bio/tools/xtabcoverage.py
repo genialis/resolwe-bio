@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import argparse
 import csv
 import re
@@ -27,7 +28,7 @@ with open(args.gff3_file, 'r') as f:
         if row[0][0:2] == '##':
             continue
         # skip if not mRNA
-        if row[2] != 'mRNA':
+        if row[2] != 'mRNA' or row[2] != 'transcript':
             continue
 
         gene_id = gene_id_regex.search(row[8])

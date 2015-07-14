@@ -137,7 +137,6 @@
       str=$str"}"
       echo $str
 
-
 - name: mergeexpressions
   version: 1.0.4
   label: Merge Expressions
@@ -198,7 +197,7 @@
 
       python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
       gen-checkrc
-      gen=save expset_type "$EXPSET_TYPE"
+      gen-save expset_type "$EXPSET_TYPE"
       gen-save-file expset sample.tab
 
 - name: mergeetc
@@ -257,7 +256,7 @@
       gen-save expset_type 'ETC'
 
 - name: etc:bcm-1-0-0
-  version: 1.0.7
+  version: 1.0.8
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -267,7 +266,7 @@
   input:
     - name: expressions
       label: RPKM expression profile
-      type: list:data:expression:polya
+      type: list:data:expression
       required: true
     - name: avg
       label: Average by time
@@ -604,7 +603,7 @@
       echo "{\"proc.progress\":1,\"transcripts\":{\"file\":\"${NAME}_transcripts.gtf\"}, \"isoforms_fpkm_tracking\":{\"file\":\"${NAME}_isoforms_fpkm_tracking.txt\"}, \"genes_fpkm_tracking\":{\"file\":\"${NAME}_genes_fpkm_tracking.txt\"}, \"skipped_loci\":{\"file\":\"${NAME}_skipped.gtf\"}}"
 
 - name: cuffmerge:-2-2-1
-  version: 1.0.7
+  version: 1.0.8
   label: Merge Cufflinks assemblies (Cuffmerge 2.2.1)
   type: data:annotation:cuffmerge
   category: analyses
@@ -615,7 +614,13 @@
     - name: expressions
       label: Cufflinks transcripts (GTF)
       type: list:data:cufflinks:cufflinks
-      required: true
+      required: false
+    - name: gtf
+      label: Annotation files (GTF)
+      type: list:data:annotation:gtf
+      required: false
+      description: >
+        Annotation files you wish to merge together with Cufflinks produced annotation files (e.g. upload Cufflinks annotation GTF file)
     - name: gff
       label: Reference annotation (GTF/GFF3)
       type: data:annotation
@@ -666,34 +671,42 @@
   run:
     runtime: polyglot
     bash: |
-
-      export PATH=$PATH:{{ proc.slugs_path }}/cufflinks-2.2.1
+      gen-require common
+      gen-require cufflinks-2.2.1
 
       echo "Preparing transcript assembly list!"
 
       {% for exp in expressions %}
-        echo '{{ exp.output.transcripts.file }}' >> transcript_assembly_list.txt
-        echo "{\"proc.rc\":$?}"
+        echo '{{ exp.transcripts.file }}' >> transcript_assembly_list.txt
+        gen-checkrc
       {% endfor %}
 
-      echo "{\"proc.progress\":0.1}"
+      {% for annotation in gtf %}
+        echo '{{ annotation.gtf.file }}' >> transcript_assembly_list.txt
+        gen-checkrc
+      {% endfor %}
+
+      gen-progress 0.1
 
       {% if genome %}
-
         GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
         gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      {% endif %}
 
+      {% if gff.gff.file %}
+        gffread '{{gff.gff.file}}' -T -o reference_annotation.gtf
+        gen-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
       {% endif %}
 
       echo "Running Cuffmerge"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.output.gtf.file %} --ref-gtf '{{ gff.output.gtf.file }}' {% elif gff.output.gff.file %} --ref-gtf '{{ gff.output.gff.file }}' {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.output.gtf.file %} --ref-gtf '{{ gff.output.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
 
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      gen-checkrc
+      gen-progress 0.95
 
       mv merged.gtf cuffmerge_$(date +'%m-%d-%Y').gtf
-
-      echo "{\"proc.progress\":1,\"merged_gtf\":{\"file\":\"cuffmerge_$(date +'%m-%d-%Y').gtf\"}}"
+      gen-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
 
 - name: cuffnorm:-2-2-1
   version: 1.0.7

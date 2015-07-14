@@ -191,3 +191,59 @@ class ExpressionProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         etcmerge = self.run_processor('mergeetc', inputs)
         self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
+
+    def test_ncrna(self):
+        inputs = {"src": "ncRNA_sample1.bam"}
+        sample_1 = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {"src": "ncRNA_sample2.bam"}
+        sample_2 = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {'src': 'ncRNA_annotation.gff'}
+        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+
+        inputs = {"src": "ncRNA_genome.fasta.gz"}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+
+        mappa = self.run_processor("import:upload:mappability", {"src": "ncRNA_mappability.tab.gz"})
+
+        inputs = {
+            'alignment': sample_1.pk,
+            'gff': annotation.pk,
+            'library_type': "fr-firststrand"}
+        cuff_exp_1 = self.run_processor('cufflinks:-2-2-1', inputs)
+
+        inputs = {
+            'alignment': sample_2.pk,
+            'gff': annotation.pk,
+            'library_type': "fr-firststrand"}
+        cuff_exp_2 = self.run_processor('cufflinks:-2-2-1', inputs)
+
+        inputs = {
+            'expressions': [cuff_exp_1.pk, cuff_exp_2.pk],
+            'gff': annotation.pk,
+            'genome': genome.pk}
+        merged_annotation = self.run_processor('cuffmerge:-2-2-1', inputs)
+
+        annotation_gff3 = self.run_processor('cuffmerge-gtf-to-gff3', {"cuffmerge": merged_annotation.pk})
+
+        inputs = {
+            'alignment': sample_1.pk,
+            'gff': annotation_gff3.pk,
+            'mappable': mappa.pk,
+            'stranded': True}
+        expression_1 = self.run_processor('expression:bcm:ncrna', inputs)
+
+        inputs = {
+            'alignment': sample_2.pk,
+            'gff': annotation_gff3.pk,
+            'mappable': mappa.pk,
+            'stranded': True}
+        expression_2 = self.run_processor('expression:bcm:ncrna', inputs)
+
+        inputs = {
+            'exps': [expression_1.pk, expression_2.pk],
+            'annotation': annotation_gff3.pk}
+        ncrna_expressions = self.run_processor('summarizexpressions-ncrna', inputs)
+        self.assertFiles(ncrna_expressions, 'expset', 'ncRNA_exp_all.tab.gz', compression='gzip')
+        self.assertFiles(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')
