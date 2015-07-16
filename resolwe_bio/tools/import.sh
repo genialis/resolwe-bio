@@ -120,7 +120,7 @@ then
     URL=${TEMP}
     FILE=${FILE:-`basename "${URL%%\?*}"`}
     TEMP=download_`basename "${URL%%\?*}"`
-    curl -# -L -o "${TEMP}" "${URL}" 2>&1 | stdbuf -oL tr '\r' '\n' | grep -o '[0-9]*\.[0-9]' | python -u $DIR/curlprogress.py --scale $MAX_PROGRES
+    curl --connect-timeout 10 -a --retry 10 -# -L -o "${TEMP}" "${URL}" 2>&1 | stdbuf -oL tr '\r' '\n' | grep -o '[0-9]*\.[0-9]' | python -u $DIR/curlprogress.py --scale $MAX_PROGRES
     testrc
 fi
 
