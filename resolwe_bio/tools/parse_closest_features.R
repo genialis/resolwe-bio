@@ -23,7 +23,7 @@ parse_closest_features <- function(results_file){
 	data_filt$dogene_distance = data_filt$V16 - data_filt$summit_location
 	data_filt$dogene_distance[data_filt$dogene_orientation != '+'] = NA
 	data_filt = data_filt[(data_filt$upgene_distance > 0 | is.na(data_filt$upgene_distance)),]
-	data_filt$intergenic_distance = abs(data_filt$V11 - data_filt$V3)
+	data_filt$intergenic_distance = abs(data_filt$V12 - data_filt$V16)
 	data_filt$upgene_peakScore = (data_filt$fold_enrichment)*exp(-abs(data_filt$upgene_distance/data_filt$intergenic_distance))
 	data_filt$dogene_peakScore = (data_filt$fold_enrichment)*exp(-abs(data_filt$dogene_distance/data_filt$intergenic_distance))
 	colnames(data_filt)[1:3] = c('chr','peakStart','peakEnd')
