@@ -1,0 +1,156 @@
+# ========================================
+# Processors for JBrowse tracks processing
+# ========================================
+#
+---
+
+- name: jbrowse:refseq
+  version: 1.0.0
+  label: Build reference sequence track (JBrowse)
+  type: data:jbrowse:refseq:genome
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare reference sequence (genome) track for JBrowse.
+  input:
+    - name: refseq
+      label: Reference genome sequence
+      type: data:genome:fasta
+      description: >
+        Reference genome sequence in FASTA format.
+  output:
+    - name: refseq_track
+      label: RefSeq file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'RefSeq track ({{ refseq.fasta.file|default:"?" }})'
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require jbrowse-1.11.6/bin
+
+      prepare-refseqs.pl --fasta '{{refseq.fasta.file}}' --out .
+      gen-checkrc "Reference sequence processing for JBrowse failed."
+      gen-progress 0.9
+      gen-save-file refseq_track seq/refSeqs.json seq
+
+
+- name: jbrowse:gff3
+  version: 1.0.1
+  label: Build GFF3 annotation track (JBrowse)
+  type: data:jbrowse:annotation:gff3
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare GFF3 annotation track for JBrowse.
+  input:
+    - name: gff
+      label: Annotation file (GFF3)
+      type: data:annotation:gff3
+      description: >
+        Annotation file (GFF3)
+  output:
+    - name: annotation_track
+      label: Annotation track (GFF3)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Annotation track ({{ gff.gff.file|default:"?" }})'
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require jbrowse-1.11.6/bin
+
+      flatfile-to-json.pl --gff '{{gff.gff.file}}' --out . --trackLabel "annotation"
+      gen-checkrc "Annotation track processing for JBrowse failed."
+      gen-save-file annotation_track trackList.json tracks/annotation
+
+
+- name: jbrowse:gtf
+  version: 1.0.1
+  label: Build GTF annotation track (JBrowse)
+  type: data:jbrowse:annotation:gtf
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare GTF annotation track for JBrowse.
+  input:
+    - name: gtf
+      label: Annotation file (GTF)
+      type: data:annotation:gtf
+      description: >
+        Annotation file (GTF)
+  output:
+    - name: annotation_track
+      label: Annotation track (GTF)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Annotation track ({{ gtf.gtf.file|default:"?" }})'
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require jbrowse-1.11.6/bin
+
+      flatfile-to-json.pl --gff '{{gtf.gtf.file}}' --out . --trackLabel "annotation"
+      gen-checkrc "Annotation track processing for JBrowse failed."
+      gen-save-file annotation_track trackList.json tracks/annotation
+
+
+- name: jbrowse:bam:coverage
+  version: 1.0.0
+  label: Build coverage track (JBrowse)
+  type: data:jbrowse:bigwig:coverage
+  category: analyses
+  persistence: CACHED
+  description: >
+    Prepare genome-wide coverage track in BigWig format.
+  input:
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+  output:
+    - name: bigwig_track
+      label: Genome coverage (BigWig)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Coverage track ({{bam.bam.file}})"
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require samtools-0.1.19
+      gen-require bedtools-2.17.0
+      gen-require kentUtils-2.9.1
+
+      NAME='{{bam.bam.file}}'
+      BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
+      gen-checkrc
+      gen-progress 0.1
+
+      samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      gen-checkrc
+      gen-progress 0.15
+
+      genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
+      gen-checkrc
+      gen-progress 0.80
+
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
+      gen-checkrc
+      gen-progress 0.90
+
+      gen-save-file bigwig_track ${BIGWIGOUT}.bw
