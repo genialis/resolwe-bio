@@ -1572,7 +1572,7 @@
 
 
 - name: import:upload:import_nucl_seq
-  version: 1.0.5
+  version: 1.0.6
   label: Upload nucleotide sequence(s) (FASTA)
   type: data:seq:nucleotide
   category: upload
@@ -1608,7 +1608,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: '{{ fasta.file|default:"?" }} (Upload)'
+      default: '{{ src.file|default:"?" }} (Upload)'
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -1619,9 +1619,12 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
+      gen-require common
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
-      echo "{\"proc.rc\":$?,\"number\":${NUMBER},\"fasta\":{\"file\":\"${NAME}.fasta.gz\"}}"
+      gen-checkrc
+      gen-save number ${NUMBER}
+      gen-save-file fasta ${NAME}.fasta.gz
 
 
 - name: import:upload:orthologues
