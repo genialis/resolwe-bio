@@ -7,6 +7,7 @@ import gzip
 import re
 
 from itertools import chain
+from collections import defaultdict
 
 parser = argparse.ArgumentParser(description='Merge columns of multiple experiments by gene id.')
 parser.add_argument('files', nargs='*', help='expression files')
@@ -25,6 +26,7 @@ args = parser.parse_args()
 gene_id_re = re.compile('ID=([\w\-\.]*)')
 gene_name_re = re.compile('oId=([\w\-\.]*)')
 class_code_re = re.compile('class_code=([\w\-\.]*)')
+parent_id_re = re.compile('Parent=([\w\-\.]*)')
 
 def _search(regex, string):
     match = regex.search(string)
@@ -41,6 +43,10 @@ def get_gene_name(ids):
 
 def get_class_code(ids):
     return _search(class_code_re, ids)
+
+
+def get_parent_id(ids):
+    return _search(parent_id_re, ids)
 
 
 genes = set()
@@ -67,37 +73,54 @@ for f in args.files:
 if args.genes:
     genes = genes.intersection(args.genes)
 
-
 with open(args.ncrna) as gff:
     gene_id_to_name = {}
     gene_id_to_type = {}
-    gene_id_to_location = {}
+    gene_id_to_chr = {}
+    gene_id_to_start = {}
+    gene_id_to_stop = {}
+    gene_id_to_length = {}
     gene_id_to_strand = {}
+    exons = defaultdict(list)
 
     for l in gff:
         if l.startswith('#'):
             continue
         t = l.split('\t')
-        if t[2] != 'transcript':
-            continue
-        gene_id_to_name[get_gene_id(l)] = get_gene_name(l)
-        gene_id_to_type[get_gene_id(l)] = get_class_code(l)
-        gene_id_to_location[get_gene_id(l)] = '{}:{}-{}'.format(t[0], t[3], t[4])
-        gene_id_to_strand[get_gene_id(l)] = t[6]
+        if t[2] == 'transcript':
+            gene_id_to_name[get_gene_id(l)] = get_gene_name(l)
+            gene_id_to_type[get_gene_id(l)] = get_class_code(l)
+            gene_id_to_chr[get_gene_id(l)] = t[0]
+            gene_id_to_start[get_gene_id(l)] = t[3]
+            gene_id_to_stop[get_gene_id(l)] = t[4]
+            gene_id_to_length[get_gene_id(l)] = int(t[4]) - int(t[3])
+            gene_id_to_strand[get_gene_id(l)] = t[6]
+        if t[2] == "exon":
+            parent = get_parent_id(l)
+            if parent not in exons:
+                exons[parent] = [int(t[4]) - int(t[3])]
+            else:
+                exons[parent].append(int(t[4]) - int(t[3]))
 
 genes = sorted(genes)
-he = zip(headers, expressions)
+he = sorted(zip(headers, expressions))
 rows = []
 
 for g in genes:
     exp = [zip(h, e[g]) for h, e in he if g in e]
-    exp.append([('Location', gene_id_to_location[g])])
+    exp.append([('Chr', gene_id_to_chr[g])])
+    exp.append([('Start', gene_id_to_start[g])])
+    exp.append([('Stop', gene_id_to_stop[g])])
     exp.append([('Strand', gene_id_to_strand[g])])
+    exp.append([('Transcript length', gene_id_to_length[g])])
+    exp.append([('Exon length', sum(exons[g]))])
+    exp.append([('Exon count', len(exons[g]))])
     exp.append([('Class_code', gene_id_to_type[g])])
     rows.append(dict(chain.from_iterable(exp), **{'Gene': gene_id_to_name[g]}))
 fhandler = open(args.out, 'wb') if args.out else sys.stdout
 
-writer = csv.DictWriter(fhandler, ['Gene'] + ['Location'] + ['Strand'] + ['Class_code'] +
-                        [h for subheader in headers for h in subheader], delimiter='\t')
+writer = csv.DictWriter(fhandler, ['Gene'] + ['Chr'] + ['Start'] + ['Stop'] + ['Strand'] + ['Transcript length'] +
+                        ['Exon length'] + ['Exon count'] + ['Class_code'] +
+                        [h for subheader in headers for h in sorted(subheader)], delimiter='\t')
 writer.writeheader()
 writer.writerows(rows)

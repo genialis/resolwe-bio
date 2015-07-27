@@ -813,13 +813,17 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: import:web:geneinfo:hsapiens
-  version: 1.0.0
+  version: 1.0.1
   label: Import gene info (H. sapiens)
   type: data:geneinfo:hsapiens
   category: import
   persistence: RAW
   description: >
     Import/build gene information based on ENSEMBL annotation.
+  input:
+    - name: ensembl_release
+      label: Ensembl release
+      type: basic:string
   output:
     - name: src
       label: Gene information
@@ -851,7 +855,7 @@
     bash: |
       gen-require common
 
-      ENSEMBL_RELEASE="80"
+      ENSEMBL_RELEASE='{{ensembl_release}}'
 
       # Download Ensembl annotation file (GTF)
       wget -O "ensembl_annotation.gtf.gz" "ftp.ensembl.org/pub/release-${ENSEMBL_RELEASE}/gtf/homo_sapiens//Homo_sapiens.GRCh38.${ENSEMBL_RELEASE}.gtf.gz"
@@ -890,13 +894,17 @@
 
 
 - name: import:web:geneinfo:mus
-  version: 1.0.0
+  version: 1.0.1
   label: Import gene info (M. musculus)
   type: data:geneinfo:mus
   category: import
   persistence: RAW
   description: >
     Import/build gene information based on ENSEMBL annotation.
+  input:
+    - name: ensembl_release
+      label: Ensembl release
+      type: basic:string
   output:
     - name: src
       label: Gene information
@@ -928,7 +936,7 @@
     bash: |
       gen-require common
 
-      ENSEMBL_RELEASE="80"
+      ENSEMBL_RELEASE='{{ensembl_release}}'
 
       # Download Ensembl annotation file (GTF)
       wget -O "ensembl_annotation.gtf.gz" "ftp.ensembl.org/pub/release-${ENSEMBL_RELEASE}/gtf/mus_musculus//Mus_musculus.GRCm38.${ENSEMBL_RELEASE}.gtf.gz"
