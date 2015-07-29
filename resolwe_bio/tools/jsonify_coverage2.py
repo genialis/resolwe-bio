@@ -27,6 +27,9 @@ transcript_coverage.write(
     "Exons Covered (>{0}x) Ratio\tVariants All\tVariants Covered (>{0}x)\t"
     "Variants Covered (>{0}x) Ratio\n".format(min_filter))
 
+variants_coverage = open('variants_coverage.tsv', 'w')
+variants_coverage.write("Exon\tChromosome\tLocation\tCoverage\tX-Ref\tAbove Filter\n")
+
 report = {'report': []}
 
 for exonage in os.listdir('.'):
@@ -90,6 +93,15 @@ for exonage in os.listdir('.'):
                     "variants_above_filter_ratio": (nvariants_above_filter / float(nvariants)) if nvariants else 0.,
                     "variants": variantset
                 })
+
+                for variant in variantset:
+                    variants_coverage.write("\t".join([
+                        l[3],
+                        variant["chromosome"],
+                        variant["location"],
+                        str(variant["coverage"]),
+                        variant["x-ref"],
+                        str(variant["above_filter"]).lower()]) + "\n")
 
                 coverage_map[l[3]] = coverage
                 ts.add(l[2].strip("\";"))
@@ -182,4 +194,6 @@ for exonage in os.listdir('.'):
 
 exon_coverage.close()
 transcript_coverage.close()
-print json.dumps({'report': report}, separators=(',', ':'))
+variants_coverage.close()
+
+# print json.dumps({'report': report}, separators=(',', ':'))

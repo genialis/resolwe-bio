@@ -6,7 +6,7 @@
 ---
 
 - name: coverage:garvan
-  version: 1.0.12
+  version: 2.0.0
   label: Exome Coverage Report
   type: data:coverage
   category: analyses
@@ -46,6 +46,7 @@
     - name: report
       label: Coverage Report
       type: basic:json
+      required: false
     - name: missing
       label: Missing Genes
       type: basic:json
@@ -57,6 +58,9 @@
       type: basic:file
     - name: transcript_coverage
       label: Transcript coverage in tsv format
+      type: basic:file
+    - name: variants_coverage
+      label: Variants coverage in tsv format
       type: basic:file
   static:
     - name: name
@@ -133,3 +137,4 @@
       gen-save missing "$missingjson"
       gen-save-file exon_coverage exon_coverage.tsv
       gen-save-file transcript_coverage transcript_coverage.tsv
+      gen-save-file variants_coverage variants_coverage.tsv
