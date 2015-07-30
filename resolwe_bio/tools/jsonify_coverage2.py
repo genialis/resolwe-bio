@@ -22,7 +22,7 @@ exon_coverage.write(
 
 transcript_coverage = open('transcript_coverage.tsv', 'w')
 transcript_coverage.write(
-    "Chromosome\tGene\tTranscript\tCoverage Total\tCoverage Mean\tCoverage Median\tBases All\t"
+    "Chromosome\tLocation\tGene\tTranscript\tCoverage Total\tCoverage Mean\tCoverage Median\tBases All\t"
     "Bases Covered (>{0}x)\tBases Covered (>{0}x) Ratio\tExons All\tExons Covered (>{0}x)\t"
     "Exons Covered (>{0}x) Ratio\tVariants All\tVariants Covered (>{0}x)\t"
     "Variants Covered (>{0}x) Ratio\n".format(min_filter))
@@ -176,6 +176,7 @@ for exonage in os.listdir('.'):
     for meta in transcripts:
         transcript_coverage.write("\t".join([
             meta['chromosome'],
+            meta['location'],
             meta['gene'],
             meta['transcript'],
             str(meta['coverage_total']),
