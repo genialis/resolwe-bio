@@ -6,11 +6,11 @@
 ---
 
 - name: coverage:garvan
-  version: 1.0.11
+  version: 1.0.12
   label: Exome Coverage Report
   type: data:coverage
   category: analyses
-  persistence: CACHED
+  persistence: TEMP
   description: >
     An exome coverage report tool developed for the Garvan Institute, Sydney, Australia. The tool reports coverage
     of exons and their potential variants in JSON format.
