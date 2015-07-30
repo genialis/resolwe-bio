@@ -59,9 +59,9 @@ class BaseProcessorTestCase(TestCase):
 
     #. Put input files (if any) in ``server/tests/processor/inputs``
        folder.
-    #. Run test with :func:`run_processor`.
+    #. Run test with run_processor.
     #. Check if processor has finished successfully with
-       :func:`assertDone` function.
+       assertDone function.
     #. Assert processor's output with :func:`assertFiles`,
        :func:`assertFields` and :func:`assertJSON` functions.
 

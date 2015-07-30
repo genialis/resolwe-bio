@@ -16,7 +16,7 @@ class PreparedData(object):
     """Mixin to prepare processor test data.
 
     This class is Mixin can be used with
-    :class:`BaseProcessorTestCase` and includes functions for processing
+    BaseProcessorTestCase and includes functions for processing
     common data types as inputs for more advanced tests.
 
     """
