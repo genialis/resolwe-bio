@@ -78,7 +78,7 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz", compression='gzip')
         self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
         self.assertFields(reads, "number", 13)
-        self.assertFields(reads, "bases", 101)
+        self.assertFields(reads, "bases", "101")
         self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
 
     def test_upload_de(self):

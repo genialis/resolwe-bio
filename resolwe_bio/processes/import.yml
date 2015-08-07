@@ -112,7 +112,7 @@
       # gen-save-file twobit "${NAME}.2bit"
 
 - name: import:upload:reads-fastq
-  version: 1.0.13
+  version: 1.0.14
   label: Upload NGS reads
   type: data:reads:fastq:single
   category: upload
@@ -268,13 +268,13 @@
       gen-save-file fastq ${NAME}.fastq.gz
       gen-save-file fastqc_archive ${NAME}_fastqc.zip
       gen-save number $NUMBER
-      gen-save bases "$BASES"
+      gen-save bases "\"$BASES\""
       gen-save fastqc_url $FASTQC_URL
 
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.13
+  version: 1.0.14
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
@@ -457,7 +457,7 @@
       gen-save-file fastqc_archive ${NAME1}_fastqc.zip
       gen-save-file fastqc_archive2 ${NAME2}_fastqc.zip
       gen-save number $NUMBER
-      gen-save bases "$BASES"
+      gen-save bases "\"$BASES\""
       gen-save fastqc_url $FASTQC_URL
       gen-save fastqc_url2 $FASTQC_URL2
 

@@ -12,7 +12,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
         filtered_reads = self.run_processor('filtering:prinseq-lite-20.4:single-end', inputs)
         self.assertFiles(filtered_reads, 'fastq', 'filtered_reads_prinseq_single.fastq.gz', compression='gzip')
         self.assertFields(filtered_reads, 'number', 18)
-        self.assertFields(filtered_reads, 'bases', 35)
+        self.assertFields(filtered_reads, 'bases', '35')
         self.assertFields(filtered_reads, 'fastqc_url.url', u'fastqc/reads_fastqc/fastqc_report.html')
         self.assertFields(filtered_reads, 'fastqc_archive.file', u'reads_fastqc.zip')
 
@@ -74,7 +74,7 @@ class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFields(filtered_reads, 'fastq_rRNA_sam.file', 'rRNA_forw_rRNA.sam')
         self.assertFields(filtered_reads, 'stats.file', 'stats.log')
         self.assertFields(filtered_reads, 'number', 13)
-        self.assertFields(filtered_reads, 'bases', 101)
+        self.assertFields(filtered_reads, 'bases', '101')
         self.assertFields(filtered_reads, 'fastqc_url.url', u'fastqc/rRNA_forw_fastqc/fastqc_report.html')
         self.assertFields(filtered_reads, 'fastqc_archive.file', u'rRNA_forw_fastqc.zip')
 
