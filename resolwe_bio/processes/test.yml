@@ -52,7 +52,7 @@
 
 
 - name: test:basic-fields
-  version: 1.0.4
+  version: 1.0.5
   label: Test basic fields
   type: data:test:fields
   persistence: CACHED
@@ -99,8 +99,8 @@
       label: URL view
       type: basic:url:view
       default:
-        name: Google
-        url: "http://www.google.com/"
+        name: Something
+        url: "http://www.something.com/"
     - name: group
       label: Group
       group:
@@ -228,7 +228,7 @@
       label: URL view
       type: basic:url:view
       default:
-        url: "http://www.google.com/"
+        url: "http://www.something.com/"
     - name: pmid
       label: PMID
       type: basic:url:link
@@ -258,10 +258,10 @@
       echo "Starting..."
       echo "boolean={{ boolean }}"
       echo "{\"out_boolean\":{% if boolean %}true{% else %}false{% endif %}}"
-      echo "date={{ date|date:'%Y-%m-%d' }}"
-      echo "{\"out_date\":\"{{ date|date:'%Y-%m-%d' }}\"}"
-      echo "datetime={{ datetime|date:'%Y-%m-%d %H:%M:%S' }}"
-      echo "{\"out_datetime\":\"{{ datetime|date:'%Y-%m-%d %H:%M:%S' }}\"}"
+      echo "date={{ date }}"
+      echo "{\"out_date\":\"{{ date }}\"}"
+      echo "datetime={{ datetime }}"
+      echo "{\"out_datetime\":\"{{ datetime }}\"}"
       echo "decimal={{ decimal }}"
       echo "{\"out_decimal\":{{ decimal }}}"
       echo "integer={{ integer }}"
@@ -271,9 +271,9 @@
       echo "text={{ text|escapejs }}"
       echo "{\"out_text\":\"{{ text|escapejs }}\"}"
       echo "url_download={{ url_download }}"
-      echo "{\"out_url_download\":\"{{ url_download }}\"}"
+      echo "{\"out_url_download\": {\"name\": \"{{ url_download.name }}\", \"url\": \"{{ url_download.url }}\"} }"
       echo "url_view={{ url_view }}"
-      echo "{\"out_url_view\":\"{{ url_view }}\"}"
+      echo "{\"out_url_view\": {\"name\": \"{{ url_view.name }}\", \"url\": \"{{ url_view.url }}\"} }"
       echo "group.string2={{ group.string2 }}"
       echo "{\"out_group.string2\":\"{{ group.string2 }}\"}"
       echo "group.string3={{ group.string3 }}"
@@ -287,7 +287,7 @@
       echo "tricky.tricky1.tricky2={{ tricky.tricky1.tricky2 }}"
       echo "{\"out_tricky.tricky1.tricky2\":\"{{ tricky.tricky1.tricky2 }}\"}"
       echo "Done."
-      echo "{\"output\":\"/api/data/{{ data_id }}/download/stdout.txt\"}"
+      echo "{\"output\": {\"url\": \"stdout.txt\"} }"
       exit 0
 
 - name: test:list

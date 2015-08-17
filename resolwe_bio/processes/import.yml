@@ -894,7 +894,7 @@
 
 
 - name: import:web:geneinfo:mus
-  version: 1.0.1
+  version: 1.0.2
   label: Import gene info (M. musculus)
   type: data:geneinfo:mus
   category: import
@@ -970,7 +970,7 @@
       gzip mm_gene_info.tab
       gen-save-file src mm_gene_info.tab.gz
       gen-save date `date +%Y-%m-%d`
-      gen-save ensembl_release ${ENSEMBL_RELEASE}
+      gen-save ensembl_release "\"${ENSEMBL_RELEASE}\""
 
 
 - name: import:upload:geneinfo
