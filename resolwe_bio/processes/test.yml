@@ -52,7 +52,7 @@
 
 
 - name: test:basic-fields
-  version: 1.0.5
+  version: 1.0.6
   label: Test basic fields
   type: data:test:fields
   persistence: CACHED
@@ -142,6 +142,20 @@
           type: basic:string
           default: "AAaAaaa"
           validate_regex: "^[aA]*$"
+        - name: string7
+          label: String 7 optional choices
+          type: basic:string
+          description: "String 7 description."
+          required: false
+          hidden: false
+          default: "choice_2"
+          choices:
+            - label: Choice 1
+              value: choice_1
+            - label: Choice 2
+              value: choice_2
+            - label: Choice 3
+              value: choice_3
     - name: tricky
       label: Tricky
       group:
@@ -204,6 +218,9 @@
           description: "String 5 description."
         - name: string6
           label: String 6 regex only "Aa"
+          type: basic:string
+        - name: string7
+          label: String 7 optional choices
           type: basic:string
     - name: out_tricky
       label: Tricky
@@ -284,6 +301,8 @@
       echo "{\"out_group.string5\":\"{{ group.string5 }}\"}"
       echo "group.string6={{ group.string6 }}"
       echo "{\"out_group.string6\":\"{{ group.string6 }}\"}"
+      echo "group.string7={{ group.string7 }}"
+      echo "{\"out_group.string7\":\"{{ group.string7 }}\"}"
       echo "tricky.tricky1.tricky2={{ tricky.tricky1.tricky2 }}"
       echo "{\"out_tricky.tricky1.tricky2\":\"{{ tricky.tricky1.tricky2 }}\"}"
       echo "Done."
