@@ -73,7 +73,6 @@ class PreparedData(object):
                 fields[field_schema['name']] = {
                     'file': file_name,
                     'file_temp': file_name,
-                    'is_remote': False,
                 }
 
             # convert primary keys to strings
