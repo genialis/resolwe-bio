@@ -1171,7 +1171,7 @@
 
 
 - name: alignment:star:index
-  version: 1.0.0
+  version: 1.0.1
   label: Prepare genome index (STAR 2.4.2a)
   type: data:genomeindex:star
   persistence: CACHED
@@ -1198,6 +1198,15 @@
       default: 1
       description: >
         Number of threads to be used for genome index generation.
+    - name: annotation_options
+      label: Annotation file options
+      group:
+        - name: exon_name
+          label: --sjdbGTFfeatureExon
+          type: basic:string
+          default: exon
+          description: >
+            Feature type in GTF file to be used as exons for building transcripts.
     - name: advanced
       label: Advanced options
       group:
@@ -1213,6 +1222,12 @@
           required: false
           description: >
             If you are using a genome with a large (>5,000) number of references (chrosomes/scaffolds), you may need to reduce the --genomeChrBinNbits to reduce RAM consumption. The following scaling is recommended: --genomeChrBinNbits = min(18, log2(GenomeLength / NumberOfReferences)). For example, for 3 gigaBase genome with 100,000 chromosomes/scaffolds, this is equal to 15.
+        - name: genomeSAsparseD
+          label: Sufflux array sparsity
+          type: basic:integer
+          required: false
+          description: >
+            Suffux array sparsity, i.e. distance between indices: use bigger numbers to decrease needed RAM at the cost of mapping speed reduction (integer > 0, default = 1).
   output:
     - name: index
       label: Indexed genome
@@ -1225,6 +1240,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1244,7 +1265,7 @@
       gzip -dc {{ genome.fasta.file }} > genome.fasta
       gen-progress 0.1
       mkdir genome_index
-      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} --genomeDir ./genome_index/ --genomeFastaFiles genome.fasta --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }}
+      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} --genomeDir ./genome_index/ --genomeFastaFiles genome.fasta --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }} --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       gen-checkrc "Genome index build failed."
       gen-progress 0.8
       echo "Index files for genome ${GENOME_NAME}" > info.txt
@@ -1252,9 +1273,9 @@
 
 
 - name: alignment:star
-  version: 1.0.0
+  version: 1.0.1
   label: Aligner (STAR 2.4.2a)
-  type: data:alignment:star
+  type: data:alignment:bam:star
   category: analyses:alignment
   persistence: CACHED
   description: >
@@ -1423,6 +1444,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

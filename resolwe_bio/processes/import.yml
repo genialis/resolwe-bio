@@ -6,7 +6,7 @@
 ---
 
 - name: import:upload:genome-fasta
-  version: 1.0.17
+  version: 1.0.18
   label: Upload genome
   type: "data:genome:fasta:"
   category: upload
@@ -20,7 +20,7 @@
       description: >
         Genome sequence in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
       required: true
-      validate_regex: '\.(fasta|fa|fna)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+      validate_regex: '\.(fasta|fa|fna|fsa)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: fasta
       label: Uploaded file
@@ -67,7 +67,7 @@
       gen-require bwa-0.7.5a
       gen-require jbrowse-1.11.4/bin
 
-      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 0.5
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna|fsa" "fasta" 0.5
 
       # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.
       if [ "$(tail -n 1 "${NAME}.fasta")" == "" ]; then
