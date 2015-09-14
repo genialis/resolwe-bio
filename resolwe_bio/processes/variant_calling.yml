@@ -6,7 +6,7 @@
 ---
 
 - name: vc-samtools
-  version: 1.0.4
+  version: 1.0.5
   label: Variant calling (Samtools)
   type: data:variants:vcf
   category: analyses:variants
@@ -34,6 +34,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -87,7 +93,7 @@
       echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_samtoolscalls.vcf\",\"refs\":[\"${BAM_FILE}_samtoolscalls.vcf.bgz\",\"${BAM_FILE}_samtoolscalls.vcf.bgz.tbi\"]}}"
 
 - name: vc-gatk
-  version: 1.0.9
+  version: 1.0.10
   label: Variant calling (GATK)
   type: data:variants:vcf:gatk
   category: analyses:variants
@@ -216,6 +222,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -297,7 +309,7 @@
 
 
 - name: vcf-annotation
-  version: 1.0.9
+  version: 1.0.10
   label: Variant calling annotation (SNPdat)
   type: data:variants:annotation
   category: analyses:variants
@@ -344,6 +356,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

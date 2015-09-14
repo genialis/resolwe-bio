@@ -5,7 +5,7 @@
 ---
 
 - name: expression:bcm:ncrna
-  version: 1.0.0
+  version: 1.0.1
   label: Expression ncRNA (BCM)
   type: data:expression:ncrna
   category: analyses
@@ -63,6 +63,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -125,7 +131,7 @@
       fi
 
 - name: summarizexpressions-ncrna
-  version: 1.0.1
+  version: 1.0.2
   label: Summarize ncRNA expressions
   type: data:expressionset:ncrna
   category: analyses
@@ -169,6 +175,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -216,7 +228,7 @@
       gen-save-file ncrna_raw_counts ncRNA_rc.tab.gz
 
 - name: cuffmerge-gtf-to-gff3
-  version: 1.0.0
+  version: 1.0.1
   label: Convert Cuffmerge GTF to GFF3 format
   type: data:annotation:gff3
   category: analyses
@@ -244,6 +256,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

@@ -4,7 +4,7 @@
 ---
 
 - name: macs2:callpeak
-  version: 1.0.1
+  version: 1.0.2
   label: MACS2 (Call peaks)
   type: data:chipseq:macs2:callpeak
   category: analyses
@@ -166,6 +166,18 @@
       label: Name
       type: basic:string
       default: "MACS2 analysis ({{ case.bam.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -213,7 +225,7 @@
       {% endif %}
 
 - name: chipseq:peakscore
-  version: 1.0.1
+  version: 1.0.2
   label: ChIP-Seq (Peak Score)
   type: data:chipseq:peakscore
   category: analyses
@@ -238,6 +250,18 @@
       label: Name
       type: basic:string
       default: "Peak score ({{ peaks.narrow_peaks.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -260,7 +284,7 @@
       gen-save-file peak_score macs2_peakscore_genomicContext
 
 - name: chipseq:genescore
-  version: 1.0.0
+  version: 1.0.1
   label: ChIP-Seq (Gene Score)
   type: data:chipseq:genescore
   category: analyses
@@ -302,6 +326,18 @@
       label: Name
       type: basic:string
       default: "Gene score ({{ peakscore.peak_score.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

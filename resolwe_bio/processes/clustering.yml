@@ -4,7 +4,7 @@
 ---
 
 - name: clustering:hierarchical:bcm-1-0-0
-  version: 1.0.1
+  version: 1.0.2
   label: Hierarchical clustering
   type: data:clustering:hierarchical:etc
   category: analyses
@@ -59,6 +59,12 @@
       label: Name
       type: basic:string
       default: 'Hierarchical clustering of {{genes|join:", "|default:"?"}}'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

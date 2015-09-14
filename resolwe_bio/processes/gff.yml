@@ -6,7 +6,7 @@
 ---
 
 - name: import:web:gtf:bcm-1-0-0
-  version: 1.0.7
+  version: 1.0.8
   label: Import GFF annotation from dictyBase
   type: data:annotation:gff3
   category: import
@@ -27,6 +27,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

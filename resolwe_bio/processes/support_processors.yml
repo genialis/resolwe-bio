@@ -6,7 +6,7 @@
 ---
 
 - name: reads:merge
-  version: 1.0.2
+  version: 1.0.3
   label: Build paired-end reads from single-ended
   type: data:reads:fastq:paired
   persistence: CACHED
@@ -51,6 +51,12 @@
       label: Name
       type: basic:string
       default: "Reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -92,7 +98,7 @@
 
 
 - name: bam:coverage
-  version: 1.0.2
+  version: 1.0.3
   label: Genome coverage
   type: data:reads:coverage
   category: analyses
@@ -113,6 +119,12 @@
       label: Name
       type: basic:string
       default: "BigWig ({{bam.output.bam.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -143,7 +155,7 @@
 
 
 - name: reference_compatibility
-  version: 1.0.0
+  version: 1.0.1
   label: Coordinate compatibility test
   type: data:reports:compatibility
   category: analyses
@@ -172,6 +184,12 @@
       label: Name
       type: basic:string
       default: "Compatibility check ({{reference.output.fasta.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

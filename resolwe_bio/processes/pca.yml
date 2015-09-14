@@ -4,7 +4,7 @@
 ---
 
 - name: pca:1-0-0
-  version: 1.0.6
+  version: 1.0.7
   label: PCA
   type: data:pca
   category: analyses
@@ -35,6 +35,12 @@
       label: Name
       type: basic:string
       default: PCA
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

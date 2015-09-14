@@ -6,7 +6,7 @@
 ---
 
 - name: mappability:bcm-1-0-0
-  version: 1.0.7
+  version: 1.0.8
   label: Mappability
   type: data:mappability:bcm
   category: analyses
@@ -41,6 +41,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -85,7 +91,7 @@
 
 
 - name: import:upload:mappability
-  version: 1.0.0
+  version: 1.0.1
   label: Upload mappability info
   type: data:mappability:bcm
   category: upload
@@ -112,6 +118,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

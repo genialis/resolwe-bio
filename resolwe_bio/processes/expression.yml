@@ -6,7 +6,7 @@
 ---
 
 - name: expression:bcm-1-0-0
-  version: 1.0.7
+  version: 1.0.9
   label: Expression (BCM)
   type: data:expression:polya
   category: analyses
@@ -72,6 +72,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -138,7 +144,7 @@
       echo $str
 
 - name: mergeexpressions
-  version: 1.0.4
+  version: 1.0.5
   label: Merge Expressions
   type: data:expressionset
   category: analyses
@@ -170,6 +176,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -201,7 +213,7 @@
       gen-save-file expset sample.tab
 
 - name: mergeetc
-  version: 1.0.2
+  version: 1.0.3
   label: Merge Expressions (ETC)
   type: data:expressionset:etc
   category: analyses
@@ -232,6 +244,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -256,7 +274,7 @@
       gen-save expset_type 'ETC'
 
 - name: etc:bcm-1-0-0
-  version: 1.0.8
+  version: 1.0.9
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -291,6 +309,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -315,7 +339,7 @@
       gen-save-file etcfile etc.json.gz
 
 - name: differentialexpression:bcm-1-0-0
-  version: 1.0.6
+  version: 1.0.7
   label: Differential Expression (baySeq)
   type: data:differentialexpression:bayseq
   category: analyses
@@ -362,6 +386,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -420,7 +450,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: findsimilar
-  version: 1.0.3
+  version: 1.0.4
   label: Find genes with similar expression
   type: data:similarexpression
   persistence: TEMP
@@ -456,6 +486,12 @@
       label: Name
       type: basic:string
       default: "Expression of genes similar to {{gene}}"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -476,7 +512,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: cufflinks:-2-2-1
-  version: 1.0.5
+  version: 1.0.6
   label: Expression (Cufflinks 2.2.1)
   type: data:cufflinks:cufflinks
   category: analyses
@@ -563,6 +599,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -603,7 +645,7 @@
       echo "{\"proc.progress\":1,\"transcripts\":{\"file\":\"${NAME}_transcripts.gtf\"}, \"isoforms_fpkm_tracking\":{\"file\":\"${NAME}_isoforms_fpkm_tracking.txt\"}, \"genes_fpkm_tracking\":{\"file\":\"${NAME}_genes_fpkm_tracking.txt\"}, \"skipped_loci\":{\"file\":\"${NAME}_skipped.gtf\"}}"
 
 - name: cuffmerge:-2-2-1
-  version: 1.0.8
+  version: 1.0.9
   label: Merge Cufflinks assemblies (Cuffmerge 2.2.1)
   type: data:annotation:cuffmerge
   category: analyses
@@ -655,6 +697,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -709,7 +757,7 @@
       gen-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
 
 - name: cuffnorm:-2-2-1
-  version: 1.0.7
+  version: 1.0.8
   label: Expression (Cuffnorm 2.2.1)
   type: data:expressionset:cuffnorm
   category: analyses
@@ -768,6 +816,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -822,7 +876,7 @@
       echo "{\"proc.progress\":1,\"expset\":{\"file\":\"expression_set.tsv.gz\"}, \"cuffnorm_output\":{\"file\":\"cuffnorm_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: cuffdiff:-2-2-1
-  version: 1.0.7
+  version: 1.0.8
   label: Differential Expression (Cuffdiff 2.2.1)
   type: data:differentialexpression:cuffdiff
   category: analyses
@@ -954,6 +1008,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1018,7 +1078,7 @@
       echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: htseq-count:-0-6-1p1
-  version: 1.0.6
+  version: 1.0.7
   label: Expression (HTSeq-count 0.6.1p1)
   type: data:expression:htseq
   category: analyses
@@ -1106,6 +1166,12 @@
       label: Alias
       type: basic:string
       description: Short name for the expression analysis
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1166,7 +1232,7 @@
       gen-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
 
 - name: cuffquant:-2-2-1
-  version: 1.0.3
+  version: 1.0.4
   label: Expression (Cuffquant 2.2.1)
   type: data:cufflinks:cuffquant
   category: analyses
@@ -1232,6 +1298,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1269,7 +1341,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.4
+  version: 1.0.5
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1311,6 +1383,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1371,7 +1449,7 @@
       gen-save-file ma_plot DESeq2_MAplot.pdf
 
 - name: kallisto:index
-  version: 1.0.0
+  version: 1.0.1
   label: Expression (Kallisto - Index)
   type: data:index:kallisto
   category: analyses
@@ -1404,6 +1482,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -1431,7 +1515,7 @@
       gen-save-file index ${NAME}
 
 - name: kallisto:quant
-  version: 1.0.0
+  version: 1.0.1
   label: Expression (Kallisto - Quant)
   type: data:expression:kallisto
   category: analyses
@@ -1544,6 +1628,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

@@ -5,7 +5,7 @@
 ---
 
 - name: jbrowse:refseq
-  version: 1.0.0
+  version: 1.0.1
   label: Build reference sequence track (JBrowse)
   type: data:jbrowse:refseq:genome
   category: jbrowse
@@ -27,6 +27,12 @@
       label: Name
       type: basic:string
       default: 'RefSeq track ({{ refseq.fasta.file|default:"?" }})'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -62,6 +68,12 @@
       label: Name
       type: basic:string
       default: 'Annotation track ({{ gff.gff.file|default:"?" }})'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -96,6 +108,12 @@
       label: Name
       type: basic:string
       default: 'Annotation track ({{ gtf.gtf.file|default:"?" }})'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -108,7 +126,7 @@
 
 
 - name: jbrowse:bam:coverage
-  version: 1.0.0
+  version: 1.0.1
   label: Build coverage track (JBrowse)
   type: data:jbrowse:bigwig:coverage
   category: analyses
@@ -128,6 +146,12 @@
       label: Name
       type: basic:string
       default: "Coverage track ({{bam.bam.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

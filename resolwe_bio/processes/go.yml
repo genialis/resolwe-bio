@@ -4,7 +4,7 @@
 ---
 
 - name: goenrichment:bcm-2-0-0
-  version: 2.0.8
+  version: 2.0.9
   label: GO Enrichment 2.0
   type: data:ontologyenrichment
   category: analyses
@@ -50,6 +50,12 @@
       label: Name
       type: basic:string
       default: 'GO Enrichment for {{genes|join:", "|default:"?"}}'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -71,7 +77,7 @@
 
 
 - name: import:upload:ontology
-  version: 1.0.13
+  version: 1.0.14
   label: Upload gene ontology
   type: data:ontology:obo
   category: upload
@@ -101,6 +107,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -123,7 +135,7 @@
 
 
 - name: import:upload:gaf
-  version: 1.0.7
+  version: 1.0.8
   label: Upload GO annotation file (GAF v2.0)
   type: data:gaf:2:0
   category: upload
@@ -152,6 +164,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

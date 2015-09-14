@@ -6,7 +6,7 @@
 ---
 
 - name: alignment:bwa_mem-0.7.5a
-  version: 1.0.9
+  version: 1.0.10
   label: Aligner (BWA MEM 0.7.5a)
   type: data:alignment:bam:bwamem
   category: analyses:alignment
@@ -108,6 +108,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -182,7 +188,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_sw-0.7.5a
-  version: 1.0.8
+  version: 1.0.9
   label: Aligner (BWA SW 0.7.5a)
   type: data:alignment:bam:bwasw
   category: analyses:alignment
@@ -236,6 +242,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -312,7 +324,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 - name: alignment:bwa_aln-0.7.5a
-  version: 1.0.9
+  version: 1.0.10
   label: Aligner (BWA backtrack 0.7.5a)
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
@@ -380,6 +392,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -467,7 +485,7 @@
 
 
 - name: alignment:bowtie-1-0-0-trimmx
-  version: 1.0.10
+  version: 1.0.11
   label: Aligner (Bowtie 1.0.0)
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
@@ -585,6 +603,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -709,7 +733,7 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.13
+  version: 1.0.14
   label: Aligner (Bowtie 2.2.3)
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
@@ -862,6 +886,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -989,7 +1019,7 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\":\"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}}"
 
 - name: alignment:tophat-2-0-13
-  version: 1.0.8
+  version: 1.0.9
   label: Aligner (TopHat v2.0.13)
   type: data:alignment:bam:tophat
   persistence: CACHED
@@ -1103,6 +1133,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

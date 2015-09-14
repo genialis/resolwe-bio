@@ -4,7 +4,7 @@
 ---
 
 - name: transdecoder
-  version: 1.0.1
+  version: 1.0.2
   label: TransDecoder (2.0.1)
   type: data:annotation:transdecoder
   category: analyses
@@ -61,6 +61,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

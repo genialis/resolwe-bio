@@ -7,7 +7,7 @@
 
 
 - name: filtering:prinseq-lite-20.4:single-end
-  version: 1.0.5
+  version: 1.0.6
   label: Filter single-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:single:prinseq
   category: analyses
@@ -81,6 +81,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -144,7 +150,7 @@
 
 
 - name: filtering:prinseq-lite-20.4:paired-end
-  version: 1.0.5
+  version: 1.0.6
   label: Filter paired-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:paired:prinseq
   category: analyses
@@ -227,6 +233,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -304,7 +316,7 @@
 
 
 - name: filtering:fastq-mcf-1.1.2.537:single-end
-  version: 1.0.5
+  version: 1.0.6
   label: Filter single-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:single:fastqmcf
   category: analyses
@@ -387,6 +399,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -458,7 +476,7 @@
 
 
 - name: filtering:fastq-mcf-1.1.2.537:paired-end
-  version: 1.0.5
+  version: 1.0.6
   label: Filter paired-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
@@ -550,6 +568,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -629,7 +653,7 @@
 
 
 - name: filtering:sortmerna-2.0-single-end
-  version: 1.0.7
+  version: 1.0.8
   label: Filter single-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:single:sortmerna
   category: analyses
@@ -697,6 +721,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -775,7 +805,7 @@
 
 
 - name: filtering:sortmerna-2.0-paired-end
-  version: 1.0.7
+  version: 1.0.8
   label: Filter paired-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:paired:sortmerna
   category: analyses
@@ -863,6 +893,12 @@
     - name: cite
       label: Citation
       type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string

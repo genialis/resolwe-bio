@@ -4,7 +4,7 @@
 ---
 
 - name: test:sleep-progress
-  version: 1.0.2
+  version: 1.0.3
   label: Test sleep progress
   type: data:test:result
   persistence: CACHED
@@ -24,6 +24,12 @@
       label: Name
       type: basic:string
       default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -52,7 +58,7 @@
 
 
 - name: test:basic-fields
-  version: 1.0.6
+  version: 1.0.7
   label: Test basic fields
   type: data:test:fields
   persistence: CACHED
@@ -236,6 +242,12 @@
       label: Name
       type: basic:string
       default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: url_download
       label: URL download
       type: basic:url:download
@@ -310,7 +322,7 @@
       exit 0
 
 - name: test:list
-  version: 1.0.0
+  version: 1.0.1
   label: Test select controler
   type: data:test:result
   persistence: CACHED
@@ -332,6 +344,12 @@
       label: Name
       type: basic:string
       default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
     - name: tags
       label: Tags
       type: list:basic:string
@@ -350,7 +368,7 @@
       exit 0
 
 - name: test:disabled
-  version: 1.0.1
+  version: 1.0.2
   label: Test disabled inputs
   type: data:test:disabled
   persistence: CACHED
@@ -385,6 +403,12 @@
       label: Name
       type: basic:string
       default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -393,7 +417,7 @@
       gen-save output "Done"
 
 - name: test:hidden
-  version: 1.0.1
+  version: 1.0.2
   label: Test hidden inputs
   type: data:test:hidden
   persistence: CACHED
@@ -438,6 +462,12 @@
       label: Name
       type: basic:string
       default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
