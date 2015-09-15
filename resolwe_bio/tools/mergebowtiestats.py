@@ -1,3 +1,5 @@
+from __future__ import division
+
 import os
 import sys
 
@@ -35,21 +37,19 @@ for i in range(1, len(sys.argv), 2):
             if 'reads with alignments suppressed due to -m' in line:
                 suppressed = int(vals[-2])
 
-        if processed > 0:
-            tprocessed += processed
         if onevalid > 0:
             tonevalid += onevalid
-        if failed > 0:
-            tfailed += failed
-        if suppressed > 0:
-            tsuppressed += suppressed
 
-        stats.append((trimmed, processed, onevalid, failed, suppressed))
+        mapped = round((onevalid / processed)*100, 1)
+
+        stats.append((trimmed, processed, onevalid, failed, suppressed, mapped))
 
 with open('stats.tab', 'w') as f:
     f.write("Trim3 size\tReads processed\tReads with at least one reported alignment\t"
-            "Reads that failed to align\tReads with alignments suppressed due to\n")
+            "Reads that failed to align\tReads with alignments suppressed due to -m\tMapped (%)\n")
     for vals in stats:
         f.write("\t".join(map(str, vals)) + "\n")
 
-    f.write("\t".join(map(str, ("Total", tprocessed, tonevalid, tfailed, tsuppressed))) + "\n")
+    tmapped = round((tonevalid / stats[0][1])*100, 1)
+
+    f.write("\t".join(map(str, ("Total", stats[0][1], tonevalid, stats[-1][3], stats[-1][4], tmapped))) + "\n")
