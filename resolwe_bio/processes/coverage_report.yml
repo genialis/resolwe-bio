@@ -6,7 +6,7 @@
 ---
 
 - name: coverage:garvan
-  version: 2.0.0
+  version: 2.0.1
   label: Exome Coverage Report
   type: data:coverage
   category: analyses
@@ -84,57 +84,11 @@
     runtime: polyglot
     bash: |
       gen-require common
-      gen-require vid_tools-20130515
+      gen-require samtools-0.1.19
 
-      echo "Generating exome-wide coverage report..."
-      filter='{{ filter }}'
-      exonage="exonage"
-      variants='{{ variants.output.vcf.file }}'
-      mapping='{{ mapping.output.bam.file }}'
-      annotation='{{ gtf.output.gtf.file }}'
-      samtools='{{ proc.slugs_path }}/samtools-0.1.19/samtools'
-
+      garvan_coverage.py {{ filter }} '{{ mapping.output.bam.file }}' '{{ gtf.output.gtf.file }}' {% if variants %}--variants '{{ variants.output.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
       gen-checkrc
-      json='{"report": ['
-      missingjson="{\"genes\": [ "
 
-      my_genes=""
-      {% for g in genes %} my_genes="${my_genes}\"{{g}}\"|" {% endfor %}
-      my_genes=${my_genes%?}
-
-      if [ ! -f ${annotation} ]; then
-        gen-error "Annotation file (GTF) not found!"
-      fi
-
-      grep -E $'\texon\t'".*gene_name (${my_genes})" ${annotation} > gtf_timmmed.gtf
-      gen-progress 0.1
-
-      {% with length=genes|length %}
-      {% for g in genes %}
-        exonage_create2.py "${samtools}" "{{g}}" "gtf_timmmed.gtf" "${mapping}" "${exonage}_{{g}}" warning.log 2> err.txt
-
-        if [ -s "warning.log" ]; then
-          gen-warning "`cat warning.log | sed -e :a -e '$!N; s/\n/ /; ta'`"
-        fi
-
-        if [ -s "err.txt" ]; then
-          gen-error "`cat err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
-        fi
-
-        if [ ! -s ${exonage}_{{g}} ]; then
-          missingjson=$missingjson"\"{{g}}\","
-        fi
-
-        gen-progress {{ forloop.counter|div:length }}
-
-      {% endfor %}
-
-      jsonify_coverage2.py "${filter}" "${variants}"
-      gen-checkrc
-      {% endwith %}
-
-      missingjson="${missingjson%?}"]}
-      gen-save missing "$missingjson"
-      gen-save-file exon_coverage exon_coverage.tsv
-      gen-save-file transcript_coverage transcript_coverage.tsv
-      gen-save-file variants_coverage variants_coverage.tsv
+      gen-save-file exon_coverage exons.txt.gz
+      gen-save-file transcript_coverage transcripts.txt.gz
+      gen-save-file variants_coverage variants.txt.gz

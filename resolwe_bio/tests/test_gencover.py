@@ -44,8 +44,7 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs)
-        # self.assertFiles(genc_results, 'bigwig', 'genome_coverage.bw')
+        self.run_processor('coverage:garvan', inputs)
 
         # Missing gene in BAM file test
         inputs = {
@@ -55,5 +54,4 @@ class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'filter': 3,
             'genes': ['geneX']}
 
-        genc_results = self.run_processor('coverage:garvan', inputs)
-        self.assertFields(genc_results, 'proc.warning', 'Contig scaffold_fake not found in BAM file (for gene geneX)')
+        self.run_processor('coverage:garvan', inputs)
