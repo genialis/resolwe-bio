@@ -109,26 +109,27 @@ try:
     variants_file = gzip.open('variants.txt.gz', 'wb')
 
     trans_file.write('\t'.join([
-        'seq', 'start', 'end', 'gene_name', 'transcript_id', 'coverage_total',
-        'coverage_max', 'coverage_mean', 'coverage_median', 'bases_all',
-        'bases_above_filter', 'bases_above_filter_ratio', 'exons_all',
-        'exons_above_filter', 'exons_above_filter_ratio', 'variants_all',
-        'variants_above_filter', 'variants_above_filter_ratio']) + '\n')
+        'Sequence Name', 'Location', 'Gene', 'Transcript', 'Coverage Total',
+        'Coverage Max', 'Coverage Mean', 'Coverage Median', 'Bases All',
+        'Bases Covered (>{0}x)', 'Bases Covered (>{0}x) Ratio', 'Exons All',
+        'Exons Covered (>{0}x)', 'Exons Covered (>{0}x) Ratio', 'Variants All',
+        'Variants Covered (>{0}x)', 'Variants Covered (>{0}x) Ratio']).format(args.filter) + '\n')
 
     exons_file.write('\t'.join([
-        'seq', 'start', 'end', 'gene_name', 'transcript_id', 'coverage_total',
-        'coverage_max', 'coverage_min', 'coverage_mean', 'coverage_median',
-        'bases_all', 'bases_above_filter', 'bases_above_filter_ratio',
-        'variants_all', 'variants_above_filter', 'variants_above_filter_ratio']) + '\n')
+        'Sequence Name', 'Location', 'Gene', 'Exon', 'Transcript', 'Coverage Total',
+        'Coverage Max', 'Coverage Min', 'Coverage Mean', 'Coverage Median',
+        'Bases All', 'Bases Covered (>{0}x)', 'Bases Covered (>{0}x) Ratio',
+        'Variants All', 'Variants Covered (>{0}x)', 'Variants Covered (>{0}x) Ratio']).format(args.filter) + '\n')
 
     variants_file.write('\t'.join([
-        'seq', 'pos', 'gene_name', 'transcript_id', 'coverage',
-        'x-ref', 'above_filter']) + '\n')
+        'Sequence Name', 'Location', 'Gene', 'Exon', 'Transcript', 'Coverage',
+        'X-Ref', 'Above Filter']) + '\n')
 
 
     count, nexons = 0, float(len(exons))
     count_span = nexons / 100.
     count_threshold = count_span
+    exon_count = 1
     exons.sort(key=itemgetter('gene_name', 'transcript_id'))
     for gene_name, gene_exons in itertools.groupby(exons, key=itemgetter('gene_name')):
         gene_exons = list(gene_exons)
@@ -185,6 +186,7 @@ try:
                         gene_seq + '\t' +
                         str(var_pos[v]) + '\t' +
                         gene_name + '\t' +
+                        str(exon_count) + '\t' +
                         transcript_id + '\t' +
                         str(vc) + '\t' +
                         var_names[v] + '\t' +
@@ -198,9 +200,9 @@ try:
 
                 exons_file.write(
                     e['seq'] + '\t' +
-                    str(e['start']) + '\t' +
-                    str(e['end']) + '\t' +
+                    str(e['start']) + '-' + str(e['end']) + '\t' +
                     e['gene_name'] + '\t' +
+                    str(exon_count) + '\t' +
                     e['transcript_id'] + '\t' +
                     str(coverage_total) + '\t' +
                     str(coverage_max) + '\t' +
@@ -214,6 +216,7 @@ try:
                     str(variants_above_filter) + '\t' +
                     str((variants_above_filter / float(variants_all)) if variants_all else 0.) + '\n'
                 )
+                exon_count += 1
 
                 trans_coverage_total += coverage_total
                 trans_coverage_max = max(trans_coverage_max, coverage_max)
@@ -233,8 +236,7 @@ try:
 
             trans_file.write(
                 gene_seq + '\t' +
-                str(trans_start) + '\t' +
-                str(trans_end) + '\t' +
+                str(trans_start) + '-' + str(trans_end) + '\t' +
                 gene_name + '\t' +
                 transcript_id + '\t' +
                 str(trans_coverage_total) + '\t' +
