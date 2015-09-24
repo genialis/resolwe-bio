@@ -861,7 +861,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: import:web:geneinfo:hsapiens
-  version: 1.0.2
+  version: 1.0.3
   label: Import gene info (H. sapiens)
   type: data:geneinfo:hsapiens
   category: import
@@ -944,7 +944,7 @@
       gzip hs_gene_info.tab
       gen-save-file src hs_gene_info.tab.gz
       gen-save date `date +%Y-%m-%d`
-      gen-save ensembl_release ${ENSEMBL_RELEASE}
+      gen-save ensembl_release "\"${ENSEMBL_RELEASE}\""
 
 
 - name: import:web:geneinfo:mus
