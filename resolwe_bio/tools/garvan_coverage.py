@@ -25,7 +25,14 @@ genes = args.genes
 
 
 def runcmd(command):
-    return Popen(args=command, stdout=PIPE, shell=True).stdout.read()
+    p = Popen(args=command, stdout=PIPE, stderr=PIPE, shell=True)
+    out, err = p.communicate()
+
+    if 'samtools: can\'t load index' in err:
+        print '{"proc.error": "samtools: can\'t load index"}'
+        exit(1)
+
+    return out
 
 
 def median(lst, lst_size=None):
@@ -71,21 +78,23 @@ seqnames = set()
 bam_header = runcmd('samtools view -H {}'.format(args.bam))
 for line in bam_header.split('\n'):
     values = line.split()
-    if len(values) == 3 and values[0] == '@SQ':
+    if len(values) > 1 and values[0] == '@SQ':
         seqnames.add(values[1].split(':')[1])
 
 # read gene model
-exons, missing_genes = [], []
+exons, missing_genes = [], set(genes)
 parse_t = re.compile(r'transcript_id[ =]"([^"]*)"')
 parse_g = re.compile(r'gene_name[ =]"([^"]*)"')
 for l in open(args.gtf):
     gtf = l.split('\t')
+
     if len(gtf) == 9 and gtf[2] == 'exon' and gtf[0] in seqnames:
         g = parse_g.search(gtf[8])
 
         if g.group(1) not in genes:
-            missing_genes.append(g.group(1))
             continue
+
+        missing_genes.discard(g.group(1))
 
         t = parse_t.search(gtf[8])
 
@@ -100,7 +109,7 @@ for l in open(args.gtf):
         if '88928799-88929480' == '{}-{}'.format(int(gtf[3]), int(gtf[4])):
             print exons[-1]
 
-print json.dumps({'missing': {'genes': missing_genes}}, separators=(',', ':'))
+print json.dumps({'missing': {'genes': sorted(missing_genes)}}, separators=(',', ':'))
 
 # compute coverage
 try:
@@ -217,7 +226,7 @@ try:
                     str((variants_above_filter / float(variants_all)) if variants_all else 0.) + '\n'
                 )
                 exon_count += 1
-
+                print exon_count, float(len(exons))
                 trans_coverage_total += coverage_total
                 trans_coverage_max = max(trans_coverage_max, coverage_max)
                 trans_bases_all += exon_coverage_len
