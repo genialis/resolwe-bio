@@ -1309,7 +1309,7 @@
 
 
 - name: alignment:star
-  version: 1.0.1
+  version: 1.0.2
   label: Aligner (STAR 2.4.2a)
   type: data:alignment:bam:star
   category: analyses:alignment
@@ -1507,6 +1507,7 @@
       gen-require samtools-0.1.19
 
       GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
+      READS_NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
       gen-progress 0.05
 
@@ -1542,7 +1543,7 @@
       {% endif %}
 
       gen-progress 0.8
-      samtools index Aligned.sortedByCoord.out.bam Aligned.sortedByCoord.out.bam.bai
+      samtools index Aligned.sortedByCoord.out.bam ${READS_NAME}.bam.bai
       gen-checkrc
       gen-progress 0.9
 
@@ -1559,7 +1560,10 @@
         gen-save-file gene_counts ReadsPerGene.out.tab.gz
       {% endif %}
 
-      gen-save-file bam Aligned.sortedByCoord.out.bam
-      gen-save-file bai Aligned.sortedByCoord.out.bam.bai
+      mv Aligned.sortedByCoord.out.bam ${READS_NAME}.bam
+      mv Log.final.out Log.final.txt
+      
+      gen-save-file bam ${READS_NAME}.bam
+      gen-save-file bai ${READS_NAME}.bam.bai
       gen-save-file sj SJ.out.tab
-      gen-save-file stats Log.final.out
+      gen-save-file stats Log.final.txt
