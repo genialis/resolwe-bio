@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import gzip
 import json
 import math
@@ -51,5 +52,5 @@ similarity = [{'gene': gene, 'distance': search_f(expressions['etc']['genes'][ge
 
 similarity = filter(lambda x: not math.isnan(x['distance']), similarity)
 similarity.sort(reverse=rev_sort, key=lambda x: x['distance'])
-similarity = {'search gene': search_gene, 'similar genes': similarity[:30]}
+similarity = {'search gene': search_gene, 'similar genes': similarity}
 print json.dumps({'simgenes': similarity}, separators=(',', ':'))

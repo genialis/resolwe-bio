@@ -450,7 +450,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: findsimilar
-  version: 1.0.4
+  version: 1.0.5
   label: Find genes with similar expression
   type: data:similarexpression
   persistence: TEMP
@@ -508,8 +508,9 @@
   run:
     runtime: polyglot
     bash: |
-      python -u {{ proc.slugs_path }}/gencloud-20131109/find_similar.py -g "{{gene}}" -d "{{scoring_function}}" "{{etcx.output.etcfile.file}}"
-      echo "{\"proc.progress\":1,\"proc.rc\":$?}"
+      gen-require common
+      find_similar.py -g "{{gene}}" -d "{{scoring_function}}" "{{etcx.etcfile.file}}"
+      gen-checkrc
 
 - name: cufflinks:-2-2-1
   version: 1.0.6
