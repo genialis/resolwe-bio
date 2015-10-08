@@ -11,10 +11,8 @@ parser.add_argument('--output', help='Output "GeneInfo" file')
 args = parser.parse_args()
 
 
-all_transcript_ids = set()
-transcriptId2GeneName = {}
-transcriptId2GeneID = {}
-transcriptId2variant = {}
+all_gene_ids = set()
+geneId2GeneName = {}
 GeneID2EntrezID = {}
 GeneID2synonyms = {}
 GeneID2description = {}
@@ -23,13 +21,10 @@ EntrezID2UniprotKB = {}
 
 with open(args.annotation) as annotation_file:
     for line in annotation_file:
-        if "transcript_id" in line:
-            trans_id = build.get_transcript_id(line)
-
-            all_transcript_ids.add(trans_id)
-            transcriptId2variant[trans_id] = build.get_transcript_name(line)
-            transcriptId2GeneID[trans_id] = build.get_gene_id(line)
-            transcriptId2GeneName[trans_id] = build.get_gene_name(line)
+        if "gene_id" in line:
+            gene_id = build.get_gene_id(line)
+            all_gene_ids.add(gene_id)
+            geneId2GeneName[gene_id] = build.get_gene_name(line)
 
 with open(args.gene_info) as gene_info:
     gene_info.readline()
@@ -51,19 +46,15 @@ with open(args.uniprotKB) as uniprot:
             EntrezID2UniprotKB[l[2]] = l[0]
 
 with open(args.output, "w") as f:
-    f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID", "Ensembl ID",
-            "OMIM ID", "UniprotKB ID", "Variant Number"]) + '\n')
+    f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",
+            "OMIM ID", "UniprotKB ID"]) + '\n')
 
-    for trans_id in all_transcript_ids:
-        gene_id = transcriptId2GeneID[trans_id]
-
+    for gene_id in all_gene_ids:
         if gene_id not in GeneID2EntrezID:
             continue
 
         entrez_id = GeneID2EntrezID[gene_id]
-        gene_name = transcriptId2GeneName[trans_id]
-        ens_id = transcriptId2GeneID[trans_id]
-        variant = transcriptId2variant[trans_id]
+        gene_name = geneId2GeneName[gene_id]
 
         synonyms = GeneID2synonyms[gene_id] if gene_id in GeneID2synonyms else 'N/A'
         description = GeneID2description[gene_id] if gene_id in GeneID2description else  'N/A'
@@ -73,5 +64,5 @@ with open(args.output, "w") as f:
         if gene_id in GeneID2EntrezID and GeneID2EntrezID[gene_id] in EntrezID2UniprotKB:
             uniprotKB = EntrezID2UniprotKB[GeneID2EntrezID[gene_id]]
 
-        f.write('\t'.join([trans_id, gene_name, synonyms, description, entrez_id, ens_id,
-                omim_id, uniprotKB, variant]) + '\n')
+        f.write('\t'.join([gene_id, gene_name, synonyms, description, entrez_id,
+                omim_id, uniprotKB]) + '\n')

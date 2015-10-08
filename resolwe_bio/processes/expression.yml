@@ -1082,7 +1082,7 @@
       echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: htseq-count:-0-6-1p1
-  version: 1.0.7
+  version: 1.0.8
   label: Expression (HTSeq-count 0.6.1p1)
   type: data:expression:htseq
   category: analyses
@@ -1135,9 +1135,16 @@
     - name: id_attribute
       label: ID attribute
       type: basic:string
-      default: transcript_id
+      default: gene_id
       description: >
         GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
+    - name: name_ordered
+      label: Use name-ordered BAM file for counting reads
+      type: basic:boolean
+      default: false
+      required: false
+      description: >
+        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM files, but requires more computational time.
   output:
     - name: htseq_output
       label: HTseq-count output
@@ -1196,25 +1203,29 @@
       gen-require samtools-0.1.19
 
       NAME=`basename '{{ alignments.output.bam.file }}' .bam`
-      gen-save proc.progress 0.1
+      gen-progress 0.1
 
-      if samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
-        htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
-      else
-        echo "Name sorting aligned reads:"
-        samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
-        gen-save proc.rc $?
-        gen-save proc.progress 0.5
-        htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
-      fi
+      {% if name_ordered %}
+        if samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
+          htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+        else
+          echo "Name sorting aligned reads:"
+          samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
+          gen-checkrc
+          gen-progress 0.5
+          htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+        fi
+      {% else %}
+        htseq-count --format=bam --order=pos --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+      {% endif %}
 
-      gen-save proc.rc $?
-      gen-save proc.progress 0.8
+      gen-checkrc
+      gen-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
       expression_fpkm_tpm.R  '{{ gff.output.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
-      gen-save proc.rc $?
-      gen-save proc.progress 0.9
+      gen-checkrc
+      gen-progress 0.9
 
       add_header.py rc_wo_header.txt rc.txt
       add_header.py fpkm_wo_header.tab fpkm.tab
@@ -1227,8 +1238,8 @@
 
       expression2storage.py ${NAME}_tpm.tab.gz
 
-      gen-save proc.rc $?
-      gen-save proc.progress 0.95
+      gen-checkrc
+      gen-progress 0.95
 
       gen-save-file rc "${NAME}_rc.tab.gz"
       gen-save-file fpkm "${NAME}_fpkm.tab.gz"
