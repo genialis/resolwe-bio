@@ -274,7 +274,7 @@
       gen-save expset_type 'ETC'
 
 - name: etc:bcm-1-0-0
-  version: 1.0.9
+  version: 1.0.10
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -324,6 +324,9 @@
       label: Description
       type: basic:text
       default: "Description of gene expression time course."
+    - name: jbrowse_tracks
+      label: Associated JBrowse tracks
+      type: list:data:jbrowse
   var:
     - name: notes
       label: Notes

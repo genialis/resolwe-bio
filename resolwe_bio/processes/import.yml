@@ -1631,7 +1631,7 @@
 
 
 - name: import:upload:ETC
-  version: 1.0.4
+  version: 1.0.5
   label: Upload Expression time course
   type: data:etc
   category: upload
@@ -1676,6 +1676,9 @@
       label: Description
       type: basic:text
       default: "Description of gene expression time course."
+    - name: jbrowse_tracks
+      label: Associated JBrowse tracks
+      type: list:data:jbrowse
   var:
     - name: notes
       label: Notes
