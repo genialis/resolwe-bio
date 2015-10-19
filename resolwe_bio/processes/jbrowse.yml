@@ -125,6 +125,70 @@
       gen-save-file annotation_track trackList.json tracks/annotation
 
 
+- name: jbrowse:bed
+  version: 1.0.0
+  label: Build BED annotation track (JBrowse)
+  type: data:jbrowse:annotation:bed
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare BED annotation track for JBrowse.
+  input:
+    - name: bed
+      label: BED file
+      type: data:bed
+      required: false
+      description: >
+        Annotation file (BED)
+    - name: macs2
+      label: MACS2 results
+      type: data:chipseq:macs2:callpeak
+      required: false
+      description: >
+        NarrowPeak file (BED format) produced by MACS2
+  output:
+    - name: bed_track
+      label: Annotation track (BED)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'BED annotation track (JBrowse)'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require jbrowse-1.11.6/bin
+
+      {% if not bed.BED.file and not macs2.narrow_peaks.file %}
+        gen-warning "Please select only one file type (BAM file or MACS2 results file) as an input."
+        gen-error "Missing input files."
+      {% endif %}
+
+      {% if bed.BED.file and macs2.narrow_peaks.file %}
+        gen-error "Please select only one file type (BAM file or MACS2 results file) as an input."
+      {% endif %}
+
+      {% if bed.BED.file %}
+        flatfile-to-json.pl --bed '{{bed.BED.file}}' --out . --trackLabel "bed"
+        gen-checkrc "BED track processing for JBrowse failed."
+      {% endif %}
+
+      {% if macs2.narrow_peaks.file %}
+        flatfile-to-json.pl --bed '{{macs2.narrow_peaks.file}}' --out . --trackLabel "bed"
+        gen-checkrc "BED track processing for JBrowse failed."
+      {% endif %}
+
+      gen-save-file bed_track trackList.json tracks/bed
+
+
 - name: jbrowse:bam:coverage
   version: 1.0.1
   label: Build coverage track (JBrowse)

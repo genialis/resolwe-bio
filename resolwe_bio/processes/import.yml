@@ -1995,7 +1995,7 @@
       {% endif %}
 
 - name: import:upload:bed
-  version: 1.0.1
+  version: 1.0.2
   label: Upload BED track file
   type: data:bed
   category: upload
@@ -2009,7 +2009,7 @@
       description: >
         Upload BED file annotation track. The first three required BED fields are chrom, chromStart and chromEnd.
       required: true
-      validate_regex: '\.(bed)$'
+      validate_regex: '\.(bed|narrowPeak)$'
   output:
     - name: BED
       label: BED file
@@ -2038,7 +2038,7 @@
     bash: |
       gen-require common
       gen-require bedops-2.4.14
-      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       gen-checkrc "BED file format validation failed. Check file integrity."
       gen-save-file BED "${NAME}.bed"

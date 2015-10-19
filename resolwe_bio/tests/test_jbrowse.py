@@ -3,7 +3,7 @@ from .base import BaseProcessorTestCase
 from .utils import PreparedData
 
 
-class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class JbrowseProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_refseq_track(self):
         genome = self.prepare_genome()
         refseq_track = self.run_processor('jbrowse:refseq', {'refseq': genome.pk})
@@ -19,6 +19,12 @@ class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
         annotation = self.prepare_annotation()
         gtf = self.run_processor('jbrowse:gtf', {'gtf': annotation.pk})
         self.assertFields(gtf, 'annotation_track.refs', ['tracks/annotation'])
+
+    def test_bed_track(self):
+        inputs = {'src': 'bed_track.bed'}
+        bed_file = self.run_processor('import:upload:bed', inputs)
+        bed = self.run_processor('jbrowse:bed', {'bed': bed_file.pk})
+        self.assertFields(bed, 'bed_track.refs', ['tracks/bed'])
 
     def test_coverage_track(self):
         inputs = {"src": "alignment_name_sorted.bam"}
