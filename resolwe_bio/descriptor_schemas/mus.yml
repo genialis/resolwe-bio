@@ -1,30 +1,42 @@
-- name: mus:bcm:musexpress
-  label: MusExpress data annotation
+- name: mus:bcm:kompexpress
+  label: kompExpress data annotation
   description: Mus musculus experiment/sequencing data annotation
   var:
-    - name: sex
-      label: Sex
+    - name: project
+      label: Project
       type: basic:string
-      choices:
-        - label: male
-          value: male
-        - label: female
-          value: female
-        - label: none
-          value: none
-    - name: tissue
-      label: Tissue
-      type: basic:string
-      choices:
-        - label: retina
-          value: retina
-        - label: neuronal
-          value: neuronal
-    - name: genotype
-      label: Genotype
-      type: basic:string
-      choices:
-        - label: WT
-          value: WT
-        - label: spata7 KO
-          value: spata7 KO
+    - name: description
+      label: Description
+      type: basic:text
+    - name: sample
+      label: Biological sample
+      group:
+        - name: strain
+          label: Strain
+          type: basic:string
+        - name: organism_part
+          label: Organism part
+          type: basic:string
+        - name: genotype
+          label: Genotype
+          type: basic:string
+          choices:
+            - label: WT
+              value: WT
+            - label: KO
+              value: KO
+            - label: other
+              value: Other
+        - name: sex
+          label: Sex
+          type: basic:string
+          choices:
+            - label: male
+              value: male
+            - label: female
+              value: female
+            - label: N/A
+              value: N/A
+        - name: developmental_stage
+          label: Developmental stage
+          type: basic:string
