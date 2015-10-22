@@ -4,7 +4,7 @@
 ---
 
 - name: macs2:callpeak
-  version: 1.0.2
+  version: 1.0.3
   label: MACS2 (Call peaks)
   type: data:chipseq:macs2:callpeak
   category: analyses
@@ -26,7 +26,7 @@
         - name: gsize
           label: Mappable genome size
           type: basic:string
-          default: 3.4e7
+          placeholder: '3.4e7'
           required: false
           description: >
             It's the mappable genome size or effective genome size which is defined as the genome size which can be sequenced. Because of the repetitive features on the chromsomes, the actual mappable genome size will be smaller than the original size, about 90% or 70% of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is recommended for Dicty genome.
@@ -39,7 +39,7 @@
         - name: pvalue
           label: P-value cutoff
           type: basic:decimal
-          default: 0.001
+          placeholder: '0.001'
           required: false
           description: >
             The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
@@ -58,7 +58,7 @@
         - name: slocal
           label: Small local region
           type: basic:integer
-          default: 2000
+          placeholder: '2000'
           required: false
           description: >
             Slocal and llocal parameters control which two levels of regions will be checked around the peak regions to calculate the maximum lambda as local lambda. By default, MACS considers 1000bp for small local region(--slocal), and 10000bps for large local region(--llocal) which captures the bias from a long range effect like an open chromatin domain. You can tweak these according to your project. Remember that if the region is set too small, a sharp spike in the input data may kill the significant peak.
@@ -71,7 +71,7 @@
         - name: extsize
           label: extsize
           type: basic:integer
-          default: 100
+          placeholder: '100'
           required: false
           description: >
             While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction to fix-sized fragments. For example, if the size of binding region for your transcription factor is 200 bp, and you want to bypass the model building by MACS, this parameter can be set as 200. This option is only valid when --nomodel is set or when MACS fails to build model and --fix-bimodal is on.
@@ -84,7 +84,7 @@
         - name: band_width
           label: Band width
           type: basic:integer
-          default: 200
+          placeholder: '200'
           required: false
           description: >
             The band width which is used to scan the genome ONLY for model building. You can set this parameter as the sonication fragment size expected from wet experiment. The previous side effect on the peak detection process has been removed. So this parameter only affects the model building.
@@ -128,12 +128,14 @@
           label: Composite broad regions
           type: basic:boolean
           default: false
+          disabled: "settings.call_summits === true"
           description: >
             When this flag is on, MACS will try to composite broad regions in BED12 ( a gene-model-like format ) by putting nearby highly enriched regions into a broad region with loose cutoff. The broad region is controlled by another cutoff through --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
         - name: broad_cutoff
           label: Broad cutoff
           type: basic:integer
           required: false
+          disabled: "settings.call_summits === true"
           description: >
             Cutoff for broad region. This option is not available unless --broad is set. If -p is set, this is a pvalue cutoff, otherwise, it's a qvalue cutoff. DEFAULT: 0.1
   output:
@@ -189,12 +191,35 @@
       gen-require common
       gen-require macs2
 
+      {% if settings.broad and settings.call_summits %}
+        gen-error "--broad can't be combined with --call-summits!"
+      {% endif %}
+
       NAME=`basename '{{ case.bam.file }}' .bam`
 
       gen-progress 0.1
 
-      macs2 callpeak -t '{{ case.bam.file }}' {% if control %} -c '{{ control.bam.file }}' {% endif %} -f BAM -n ${NAME} {% if settings.gsize %} -g '{{ settings.gsize }}' {% endif %} {% if settings.qvalue %} -q '{{ settings.qvalue }}' {% endif %} {% if settings.pvalue %} -p '{{ settings.pvalue }}' {% endif %} {% if settings.mfold_lower %} -m '{{ settings.mfold_lower }}' '{{ settings.mfold_upper }}' {% endif %} {% if settings.nolambda %} --nolambda {% endif %} {% if settings.slocal %} --slocal '{{settings.slocal}}' {% endif %} {% if settings.llocal %} --llocal '{{settings.llocal}}' {% endif %} {% if settings.fix_bimodal %} --fix-bimodal {% endif %} {% if settings.nomodel %} --nomodel {% endif %} {% if settings.extsize %} --extsize '{{settings.extsize}}' {% endif %} {% if settings.shift %} --shift '{{settings.shift}}' {% endif %} {% if settings.band_width %} --bw '{{settings.band_width}}' {% endif %} {% if settings.broad %} --broad {% if settings.broad_cutoff %} --broad-cutoff '{{settings.broad_cutoff}}' {% endif %} {% endif %} {% if settings.down_sample %} --down-sample {% endif %} {% if settings.bedgraph %} -B {% endif %} {% if settings.call_summits %} --call-summits {% endif %} --outdir . 2>err.txt
+      CONTROL='{% if control %} -c '{{ control.bam.file }}' {% endif %}'
+      GSIZE='{% if settings.gsize %} -g '{{ settings.gsize }}' {% endif %}'
+      QVAL='{% if settings.qvalue %} -q '{{ settings.qvalue }}' {% endif %}'
+      PVAL='{% if settings.pvalue %} -p '{{ settings.pvalue }}' {% endif %}'
+      MFOLD='{% if settings.mfold_lower %} -m '{{ settings.mfold_lower }}' '{{ settings.mfold_upper }}' {% endif %}'
+      NO_LAMBDA='{% if settings.nolambda %} --nolambda {% endif %}'
+      SLOCAL='{% if settings.slocal %} --slocal '{{settings.slocal}}' {% endif %}'
+      ILOCAL='{% if settings.llocal %} --llocal '{{settings.llocal}}' {% endif %}'
+      FIX_BIMODAL='{% if settings.fix_bimodal %} --fix-bimodal {% endif %}'
+      NO_MODEL='{% if settings.nomodel %} --nomodel {% endif %}'
+      EXTSIZE='{% if settings.extsize %} --extsize '{{settings.extsize}}' {% endif %}'
+      SHIFT='{% if settings.shift %} --shift '{{settings.shift}}' {% endif %}'
+      BAND_WIDTH='{% if settings.band_width %} --bw '{{settings.band_width}}' {% endif %}'
+      BROAD_CUTOFF='{% if settings.broad_cutoff %} --broad-cutoff '{{settings.broad_cutoff}}' {% endif %}'
+      BROAD='{% if settings.broad and not settings.call_summits %} --broad ${BROAD_CUTOFF} {% endif %}'
+      DOWN_SAMPLE='{% if settings.down_sample %} --down-sample {% endif %}'
+      BEDGRAPH='{% if settings.bedgraph %} -B {% endif %}'
+      CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
 
+      macs2 callpeak -t '{{ case.bam.file }}' ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
+      gen-checkrc "MACS2 processing failed"
       gen-progress 0.8
 
       cat err.txt
@@ -211,7 +236,7 @@
 
       gen-save-file called_peaks ${NAME}_peaks.xls
 
-      {% if settings.broad %}
+      {% if settings.broad and not settings.call_summits %}
         gen-save-file broad_peaks ${NAME}_peaks.broadPeak
         gen-save-file gappedPeak ${NAME}_peaks.gappedPeak
       {% else %}

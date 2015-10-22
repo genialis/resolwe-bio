@@ -17,7 +17,12 @@ class ChipSeqProcessorTestCase(BaseProcessorTestCase, PreparedData):
         inputs = {
             'case': case_bam.pk,
             'control': control_bam.pk,
-            'settings': {'nomodel': True}}
+            'settings': {'nomodel': True,
+                         'gsize': '3.4e7',
+                         'pvalue': 0.001,
+                         'slocal': 2000,
+                         'extsize': 100,
+                         'call_summits': True}}
         macs2 = self.run_processor("macs2:callpeak", inputs)
 
         inputs = {
