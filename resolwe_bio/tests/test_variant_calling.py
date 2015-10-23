@@ -33,3 +33,16 @@ class VariantCallingTestCase(BaseProcessorTestCase, PreparedData):
             'Varc_param': {'stand_emit_conf': 10, 'stand_call_conf': 30}}
         self.run_processor('vc-gatk', inputs)
         # NOTE: output can not be tested
+
+        # GATK joint variant calling test
+        inputs = {
+            'genome': genome.pk,
+            'mapping': [aligned_reads.pk],
+            'reads_info': {
+                'PL': "Illumina",
+                'LB': "x",
+                'CN': "def",
+                'DT': "2014-08-05"},
+            'Varc_param': {'stand_emit_conf': 10, 'stand_call_conf': 30}}
+        self.run_processor('vc-gatk-joint', inputs)
+        # NOTE: output can not be tested
