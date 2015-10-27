@@ -6,7 +6,7 @@
 ---
 
 - name: expression:bcm-1-0-0
-  version: 1.0.9
+  version: 1.0.10
   label: Expression (BCM)
   type: data:expression:polya
   category: analyses
@@ -94,54 +94,70 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
+      gen-require samtools-0.1.19
+      gen-require kentUtils-2.9.1
+
+      NAME=`basename '{{ alignment.bam.file }}' .bam`
+
       function compute_coverage {
-        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.output.gff.file }}" > tmp.bedgraph
-        {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
+        xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
         rm tmp.bedgraph
       }
 
       echo "XEXPRESSION..."
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/xexpression.py "{{ gff.output.gff.file }}" "{{ alignment.output.bam.file }}" --rc --rpkm --rpkum {{mappable.output.mappability.file}}
-      echo "{\"proc.progress\":0.5, \"proc.rc\":$?}"
-      python -u {{ proc.slugs_path }}/gencloud-20131109/xexpression.py "{{ gff.output.gff.file }}" "{{ alignment.output.bam.file }}" --rc --rpkm --rpkum {{mappable.output.mappability.file}} --mrna
+      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}}
+      gen-checkrc
+      gen-progress 0.5
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "{{ alignment.output.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
+      samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
 
-      str="{\"proc.progress\":1.0,\"proc.rc\":$?"
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc.tab.gz ]
       then
-        compute_coverage "expression_rc.tab.gz"
-        str=$str",\"rc_raw\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}"
+        mv expression_rc.tab.gz ${NAME}_expression_rc.tab.gz
+        compute_coverage ${NAME}_expression_rc.tab.gz
+        gen-checkrc
+        gen-save-file rc_raw ${NAME}_expression_rc.tab.gz ${NAME}_expression_rc.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc_polya.tab.gz ]
       then
-        compute_coverage "expression_rc_polya.tab.gz"
-        str=$str",\"rc\":{\"file\":\"expression_rc_polya.tab.gz\", \"refs\":[\"expression_rc_polya.tab.gz.bw\"]}"
+        mv expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz
+        compute_coverage ${NAME}_expression_rc_polya.tab.gz
+        gen-checkrc
+        gen-save-file rc ${NAME}_expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
       then
-        compute_coverage "expression_rpkm.tab.gz"
-        str=$str",\"rpkm\":{\"file\":\"expression_rpkm.tab.gz\", \"refs\":[\"expression_rpkm.tab.gz.bw\"]}"
+        mv expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz
+        compute_coverage ${NAME}_expression_rpkm.tab.gz
+        gen-checkrc
+        gen-save-file rpkm ${NAME}_expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm_polya.tab.gz ]
       then
-        compute_coverage "expression_rpkm_polya.tab.gz"
-        str=$str",\"rpkmpolya\":{\"file\":\"expression_rpkm_polya.tab.gz\", \"refs\":[\"expression_rpkm_polya.tab.gz.bw\"]}"
+        mv expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz
+        compute_coverage ${NAME}_expression_rpkm_polya.tab.gz
+        gen-checkrc
+        gen-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
       then
-        compute_coverage "expression_rpkum.tab.gz"
-        str=$str",\"rpkum\":{\"file\":\"expression_rpkum.tab.gz\", \"refs\":[\"expression_rpkum.tab.gz.bw\"]}"
+        mv expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz
+        compute_coverage ${NAME}_expression_rpkum.tab.gz
+        gen-checkrc
+        gen-save-file rpkum ${NAME}_expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum_polya.tab.gz ]
       then
-        compute_coverage "expression_rpkum_polya.tab.gz"
-        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "expression_rpkum_polya.tab.gz"
-        str=$str",\"exp\":{\"file\":\"expression_rpkum_polya.tab.gz\", \"refs\":[\"expression_rpkum_polya.tab.gz.bw\"]}"
+        mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
+        compute_coverage ${NAME}_expression_rpkum_polya.tab.gz
+        gen-checkrc
+        expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
+        gen-checkrc
+        gen-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
       fi
-      str=$str"}"
-      echo $str
 
 - name: mergeexpressions
   version: 1.0.5
