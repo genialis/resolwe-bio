@@ -10,10 +10,10 @@ parser.add_argument('--id_type', help='Feature ID')
 parser.add_argument('--summarize_exons', action='store_true', default=False)
 args = parser.parse_args()
 
-gene_id_re = re.compile('gene_id "([\w\-\.]*)"')
-transcript_id_re = re.compile('transcript_id "([\w\-\.]*)"')
-id_re = re.compile('ID=([\w\-\.]*)')
-parent_re = re.compile('Parent=([\w\-\.]*)')
+gene_id_re = re.compile('gene_id "([\w\-\.\$]*)"')
+transcript_id_re = re.compile('transcript_id "([\w\-\.\$]*)"')
+id_re = re.compile('ID=([\w\-\.\$]*)')
+parent_re = re.compile('Parent=([\w\-\.\$]*)')
 
 
 def _search(regex, string):
@@ -37,7 +37,7 @@ def get_parent_id(ids):
     return _search(id_re, ids)
 
 
-def fix_invalid_key(key):
+def escape_geneid(key):
     return key.replace('$', u'\uff04').replace('.', u'\uff0e')
 
 
@@ -89,5 +89,5 @@ with open(args.annotation) as annotation:
             feature_locations[feature_id]['str'] = str(min(map(int, feature_locations[feature_id]['str'])))
             feature_locations[feature_id]['end'] = str(max(map(int, feature_locations[feature_id]['end'])))
 
-new_feature_locations = {fix_invalid_key(key): val for (key, val) in feature_locations.iteritems()}
+new_feature_locations = {escape_geneid(key): val for (key, val) in feature_locations.iteritems()}
 print json.dumps({'feature_location': new_feature_locations}, separators=(',', ':'))
