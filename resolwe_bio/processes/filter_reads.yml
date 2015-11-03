@@ -7,7 +7,7 @@
 
 
 - name: filtering:prinseq-lite-20.4:single-end
-  version: 1.0.6
+  version: 1.0.7
   label: Filter single-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:single:prinseq
   category: analyses
@@ -120,6 +120,7 @@
       gen-progress 0.6
 
       gzip -c -n "${NAME}_prinseq.fastq" > "${NAME}.fastq.gz"
+      gen-save-file fastq $NAME.fastq.gz
       gen-progress 0.8
 
       echo "Postprocessing FastQC..."
@@ -142,7 +143,6 @@
         gzip -c "${NAME}.fastq" > "${NAME}.fastq.gz"
       fi
 
-      gen-save-file fastq $NAME.fastq.gz
       gen-save-file fastqc_archive ${NAME}_fastqc.zip
       gen-save number $NUMBER
       gen-save bases "\"$BASES\""
@@ -150,7 +150,7 @@
 
 
 - name: filtering:prinseq-lite-20.4:paired-end
-  version: 1.0.6
+  version: 1.0.7
   label: Filter paired-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:paired:prinseq
   category: analyses
@@ -280,6 +280,8 @@
 
       gzip -c -n "${NAME1}_prinseq_1.fastq" > "${NAME1}.fastq.gz"
       gzip -c -n "${NAME1}_prinseq_2.fastq" > "${NAME2}.fastq.gz"
+      gen-save-file fastq ${NAME1}.fastq.gz
+      gen-save-file fastq2 ${NAME2}.fastq.gz
       gen-progress 0.8
 
       echo "Postprocessing FastQC..."
@@ -305,8 +307,6 @@
         gzip -c "${NAME2}.fastq" > "${NAME2}.fastq.gz"
       fi
 
-      gen-save-file fastq ${NAME1}.fastq.gz
-      gen-save-file fastq2 ${NAME2}.fastq.gz
       gen-save-file fastqc_archive ${NAME1}_fastqc.zip
       gen-save-file fastqc_archive2 ${NAME2}_fastqc.zip
       gen-save number $NUMBER
@@ -316,7 +316,7 @@
 
 
 - name: filtering:fastq-mcf-1.1.2.537:single-end
-  version: 1.0.6
+  version: 1.0.7
   label: Filter single-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:single:fastqmcf
   category: analyses
@@ -447,6 +447,7 @@
       gen-checkrc "Failed while processing with FastqMcf."
       gen-progress 0.7
       gzip -c -n "${NAME}_filtered.fastq" > "${NAME}.fastq.gz"
+      gen-save-file fastq ${NAME}.fastq.gz
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -460,15 +461,6 @@
       mv "fastqc/${NAME}_fastqc.zip" .
       gen-progress 0.95
 
-      #detect and if old Illumina encoding is found transform to new format
-      fq_path="./fastqc/""$NAME""_fastqc/fastqc_data.txt"
-      E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
-      if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME}.fastq"
-        gzip -c "${NAME}.fastq" > "${NAME}.fastq.gz"
-      fi
-
-      gen-save-file fastq ${NAME}.fastq.gz
       gen-save-file fastqc_archive ${NAME}_fastqc.zip
       gen-save number $NUMBER
       gen-save bases "\"$BASES\""
@@ -476,7 +468,7 @@
 
 
 - name: filtering:fastq-mcf-1.1.2.537:paired-end
-  version: 1.0.6
+  version: 1.0.7
   label: Filter paired-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
@@ -618,6 +610,8 @@
 
       gzip -c -n "${NAME1}_filtered.fastq" > "${NAME1}.fastq.gz"
       gzip -c -n "${NAME2}_filtered.fastq" > "${NAME2}.fastq.gz"
+      gen-save-file fastq ${NAME1}.fastq.gz
+      gen-save-file fastq2 ${NAME2}.fastq.gz
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -633,17 +627,6 @@
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
 
-      fq_path="./fastqc/""$NAME1""_fastqc/fastqc_data.txt"
-      E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
-      if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME1}.fastq"
-        gzip -c "${NAME1}.fastq" > "${NAME1}.fastq.gz"
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME2}.fastq"
-        gzip -c "${NAME2}.fastq" > "${NAME2}.fastq.gz"
-      fi
-
-      gen-save-file fastq ${NAME1}.fastq.gz
-      gen-save-file fastq2 ${NAME2}.fastq.gz
       gen-save-file fastqc_archive ${NAME1}_fastqc.zip
       gen-save-file fastqc_archive2 ${NAME2}_fastqc.zip
       gen-save number $NUMBER

@@ -81,6 +81,15 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFields(reads, "bases", "101")
         self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
 
+    def test_upload_reads_old_encoding(self):
+        inputs = {"src": "old_encoding.fastq.gz"}
+        reads = self.run_processor("import:upload:reads-fastq", inputs)
+        self.assertFiles(reads, "fastq", "old_encoding.fastq.gz", compression='gzip')
+        self.assertFields(reads, "fastqc_archive.file", "old_encoding_fastqc.zip")
+        self.assertFields(reads, "number", 100)
+        self.assertFields(reads, "bases", "40")
+        self.assertFields(reads, "fastqc_url.url", "fastqc/old_encoding_fastqc/fastqc_report.html")
+
     def test_upload_de(self):
         inputs = {'src': 'deseq2_output.tab.gz'}
         diff_exp = self.run_processor("import:upload:diffexp", inputs)

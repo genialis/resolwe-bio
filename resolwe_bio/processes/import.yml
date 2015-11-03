@@ -118,7 +118,7 @@
       # gen-save-file twobit "${NAME}.2bit"
 
 - name: import:upload:reads-fastq
-  version: 1.0.15
+  version: 1.0.16
   label: Upload NGS reads
   type: data:reads:fastq:single
   category: upload
@@ -252,11 +252,20 @@
       gen-require common
       gen-require fastqc-0.11.3
 
-      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5 "extract"
+
+      #detect and if old Illumina encoding is found transform to new format
+      fastqFormatDetect.pl ${NAME}.fastq &> encoding.txt
+      if [[ $(grep 'Solexa/Illumina1.3+/Illumina1.5+' "encoding.txt") ]]
+      then
+        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME}.fastq"
+      fi
+
+      gzip -c ${NAME}.fastq > ${NAME}.fastq.gz
+      gen-save-file fastq ${NAME}.fastq.gz
 
       echo "Postprocessing FastQC..."
-      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME}.fastq.gz" --extract --outdir="fastqc" 2> stderr.txt
+      mkdir "fastqc" && fastqc "${NAME}.fastq" --extract --outdir="fastqc" 2> stderr.txt
       gen-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -269,15 +278,6 @@
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
       mv "fastqc/${NAME}_fastqc.zip" .
 
-      #detect and if old Illumina encoding is found transform to new format
-      fq_path="./fastqc/""$NAME""_fastqc/fastqc_data.txt"
-      E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
-      if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME}.fastq"
-        gzip -c "${NAME}.fastq" > "${NAME}.fastq.gz"
-      fi
-
-      gen-save-file fastq ${NAME}.fastq.gz
       gen-save-file fastqc_archive ${NAME}_fastqc.zip
       gen-save number $NUMBER
       gen-save bases "\"$BASES\""
@@ -286,7 +286,7 @@
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.15
+  version: 1.0.16
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
@@ -432,20 +432,31 @@
   run:
     runtime: polyglot
     bash: |
-
-
       gen-require common
       gen-require fastqc-0.11.3
 
-      gen-import "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3
+      gen-import "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3 "extract"
       NAME1=$NAME
 
-      gen-import "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6
+      gen-import "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "fastq|fq|bz2" "fastq" 0.6 "extract"
       NAME2=$NAME
+
+      #detect and if old Illumina encoding is found transform to new format
+      fastqFormatDetect.pl ${NAME}.fastq &> encoding.txt
+      if [[ $(grep 'Solexa/Illumina1.3+/Illumina1.5+' "encoding.txt") ]]
+      then
+        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME1}.fastq"
+        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME2}.fastq"
+      fi
+
+      gzip -c "${NAME1}.fastq" > "${NAME1}.fastq.gz"
+      gzip -c "${NAME2}.fastq" > "${NAME2}.fastq.gz"
+      gen-save-file fastq ${NAME1}.fastq.gz
+      gen-save-file fastq2 ${NAME2}.fastq.gz
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --extract --outdir="fastqc" 2> stderr.txt
+      mkdir "fastqc" && fastqc "${NAME1}.fastq" "${NAME2}.fastq" --extract --outdir="fastqc" 2> stderr.txt
       gen-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -461,17 +472,6 @@
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
 
-      fq_path="./fastqc/""$NAME1""_fastqc/fastqc_data.txt"
-      E="$(grep "Encoding" "$fq_path" |cut -f2 -)"
-      if [ "$E" = "Illumina 1.3" ] || [ "$E" = "Illumina 1.5" ]; then
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME1}.fastq"
-        gzip -c "${NAME1}.fastq" > "${NAME1}.fastq.gz"
-        sed -i -e '4~4y/@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghi/!"#$%&'\''()*+,-.\/0123456789:;<=>?@ABCDEFGHIJ/' "${NAME2}.fastq"
-        gzip -c "${NAME2}.fastq" > "${NAME2}.fastq.gz"
-      fi
-
-      gen-save-file fastq ${NAME1}.fastq.gz
-      gen-save-file fastq2 ${NAME2}.fastq.gz
       gen-save-file fastqc_archive ${NAME1}_fastqc.zip
       gen-save-file fastqc_archive2 ${NAME2}_fastqc.zip
       gen-save number $NUMBER
