@@ -733,7 +733,7 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.14
+  version: 1.0.15
   label: Aligner (Bowtie 2.2.3)
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
@@ -908,27 +908,34 @@
   run:
     runtime: polyglot
     bash: |
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      gen-require common
+      gen-require bowtie2-2.2.3
+      gen-require samtools-0.1.19
+      gen-require bedtools-2.17.0
+      gen-require kentUtils-2.9.1
+
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       echo "Searching for index"
-      INDEX_NAME=`basename '{{ genome.output.index_bt2.file }}' .tar.gz`
-      if [ {{ genome.output.index_bt2.file }} ]; then
+      INDEX_NAME=`basename '{{ genome.index_bt2.file }}' .tar.gz`
+      if [ {{ genome.index_bt2.file }} ]; then
         echo "Genome index found, uncompressing it"
-        tar -zxvf {{ genome.output.index_bt2.file }}
+        tar -zxvf {{ genome.index_bt2.file }}
         mv ./bowtie2_index/* .
       else
         echo "index not found, UNCOMPRESSING genome:"
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
-        echo "{\"proc.progress\":0.1}"
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
+        gen-progress 0.1
         echo "BUILDING genome index:"
-        {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+        bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+        gen-checkrc
       fi
 
-      echo "{\"proc.progress\":0.2}"
+      gen-progress 0.2
 
       echo "UNCOMPRESSING reads:"
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
-      echo "{\"proc.progress\":0.3}"
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
+      gen-progress 0.3
 
       # mode selection
       if [ {{reporting.rep_mode}} == def ]; then
@@ -947,7 +954,7 @@
       fi
 
       #quals detection
-      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | get_encoding_type.py -n 5000)
       if [ "$encoding_t" = "Illumina_old" ]; then
         encoding=--phred64
       else
@@ -957,66 +964,83 @@
       echo "ALIGNING with bowtie2:"
       {% if reads.type|subtype:'data:reads:fastq:single:' or PE_options.use_SE %}
         {% if PE_options.use_SE and reads.type|subtype:'data:reads:fastq:paired:' %}
-          NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-          gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+          NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+          gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
         {% endif %}
 
-        {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x "${GENOME_NAME}_index" -U "${NAME}.fastq" -S "${NAME}_align_unsorted.sam" --un "${NAME}_unmapped1.fq" 2> "${NAME}_report.txt"
+        bowtie2 $encoding {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x "${GENOME_NAME}_index" -U "${NAME}.fastq" -S "${NAME}_align_unsorted.sam" --un "${NAME}_unmapped1.fq" 2> "report.txt"
+        gen-checkrc
         {% if trimming.trim_iter >= 1 %}
             echo "iterative alignment of unmapped reads:"
           for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
             do
-            echo -e "\nReport for Trimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed in addition to initial trimed bases
-              ):" >> "${NAME}_report.txt"
-            {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${NAME}_new_mapped$((c+1)).sam" --un "${NAME}_unmapped$((c+1)).fq" 2>> "${NAME}_report.txt"
-            {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
+            echo -e "\nTrimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed)" >> "report.txt"
+            bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${NAME}_new_mapped$((c+1)).sam" --un "${NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
+            gen-checkrc
+            samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
+            gen-checkrc
+            mergebowtie2stats.py "report.txt"
+            gen-checkrc
+            mv stats.tab "${NAME}_report.txt"
             done
           mv "${NAME}_unmapped$((c)).fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
         {% else %}
           mv "${NAME}_unmapped1.fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+          mv "report.txt" "${NAME}_report.txt"
         {% endif %}
 
         echo "Formating, merging and sorting reads:"
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
+        samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
         {%  if trimming.trim_iter >= 1 %}
-          {{ proc.slugs_path }}/samtools-0.1.19/samtools merge -h "${NAME}_align_unsorted.sam" "${NAME}_align_merged_unsorted.bam" ${NAME}_*.bam
-          {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_merged_unsorted.bam" "${NAME}_align"
+          samtools merge -h "${NAME}_align_unsorted.sam" "${NAME}_align_merged_unsorted.bam" ${NAME}_*.bam
+          gen-checkrc
+          samtools sort "${NAME}_align_merged_unsorted.bam" "${NAME}_align"
+          gen-checkrc
         {% else %}
-          {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+          samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+          gen-checkrc
         {% endif %}
 
       {% else %}
-        NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-        gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
-        echo "{\"proc.progress\":0.4}"
+        NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+        gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
+        gen-progress 0.4
 
-        {{proc.slugs_path}}/bowtie2-2.2.3/bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if PE_options.use_SE %} -U "${NAME}.fastq","${NAME2}.fastq" {% else %} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_SE %} --no-mixed {% endif %} -I  {{ PE_options.I}} -X {{ PE_options.X}} -1 "${NAME}.fastq" -2 "${NAME2}.fastq" {% endif %} -S "${NAME}_align_unsorted.sam" 2> "${NAME}_report.txt"
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
-        {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+        bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if PE_options.use_SE %} -U "${NAME}.fastq","${NAME2}.fastq" {% else %} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_SE %} --no-mixed {% endif %} -I  {{ PE_options.I}} -X {{ PE_options.X}} -1 "${NAME}.fastq" -2 "${NAME2}.fastq" {% endif %} -S "${NAME}_align_unsorted.sam" 2> "${NAME}_report.txt"
+        gen-checkrc
+        samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
+        gen-checkrc
+        samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
+        gen-checkrc
+        samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+        gen-checkrc
+        bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+        gen-checkrc
         gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
       {% endif %}
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      gen-progress 0.5
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -b -F 4 "${NAME}_align.bam" > "${NAME}_mapped.bam"
+      samtools view -b -F 4 "${NAME}_align.bam" > "${NAME}_mapped.bam"
 
       [ -f "${NAME}_mapped.bam" ] && OUTPUT_NAME="${NAME}_mapped.bam"
-      echo "{\"proc.progress\":0.5,\"bam\":{\"file\":\"$OUTPUT_NAME\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"},\"stats\":{\"file\":\"${NAME}_report.txt\"}}"
+      gen-save-file bam $OUTPUT_NAME
+      gen-save-file unmapped ${NAME}_unmapped.fastq.gz
+      gen-save-file stats ${NAME}_report.txt
 
       echo -e "\nINDEXING bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_mapped.bam" "${NAME}_mapped.bam.bai"
-      echo "{\"proc.progress\":0.6,\"bai\":{\"file\":\"${NAME}_mapped.bam.bai\"}}"
+      samtools index "${NAME}_mapped.bam" "${NAME}_mapped.bam.bai"
+      gen-checkrc
+      gen-save-file bai ${NAME}_mapped.bam.bai
+      gen-progress 0.6
 
       echo "Computing BigWig file:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
-      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
-      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
-      rm chrom.sizes && rm tmp.bedgraph
+      samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
 
-      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}}"
+      gen-save-file bam $OUTPUT_NAME ${OUTPUT_NAME}.bw
 
 - name: alignment:tophat-2-0-13
   version: 1.0.9
