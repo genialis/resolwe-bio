@@ -20,13 +20,13 @@
         - name: genotype
           label: Genotype
           type: basic:string
+          placeholder: Start typing
+          allow_custom_choice: true
           choices:
             - label: WT
               value: WT
             - label: KO
               value: KO
-            - label: other
-              value: Other
         - name: sex
           label: Sex
           type: basic:string
