@@ -1,0 +1,13 @@
+- name: assembler:abyss
+  label: ABySS annotation
+  description: ABySS assebler annotation template
+  var:
+    - name: project
+      label: Project
+      type: basic:string
+    - name: description
+      label: Description
+      type: basic:text
+    - name: n_contigs
+      label: Number of contigs
+      type: basic:integer
