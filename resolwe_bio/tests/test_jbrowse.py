@@ -32,3 +32,11 @@ class JbrowseProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
         coverage = self.run_processor('jbrowse:bam:coverage', {'bam': bam.pk})
         self.assertFiles(coverage, 'bigwig_track', 'Jbrowse_genome_coverage.bw')
+
+    def test_norm_coverage_track(self):
+        inputs = {"src": "alignment_name_sorted.bam"}
+        bam = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {'bam': bam.pk, 'size': 34000000}
+        coverage = self.run_processor('jbrowse:bam:coverage:normalized', inputs)
+        self.assertFiles(coverage, 'bigwig_track', 'Jbrowse_norm_genome_coverage.bw')
