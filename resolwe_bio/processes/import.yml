@@ -861,8 +861,8 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: import:web:geneinfo:hsapiens
-  version: 1.0.3
-  label: Import gene info (H. sapiens)
+  version: 1.0.4
+  label: Import gene info (H. sapiens - Ensembl)
   type: data:geneinfo:hsapiens
   category: import
   persistence: RAW
@@ -948,9 +948,9 @@
 
 
 - name: import:web:geneinfo:mus
-  version: 1.0.3
-  label: Import gene info (M. musculus)
-  type: data:geneinfo:mus
+  version: 1.0.4
+  label: Import gene info (M. musculus - Ensembl)
+  type: data:geneinfo:mus:ensembl
   category: import
   persistence: RAW
   description: >
@@ -1031,6 +1031,75 @@
       gen-save-file src mm_gene_info.tab.gz
       gen-save date `date +%Y-%m-%d`
       gen-save ensembl_release "\"${ENSEMBL_RELEASE}\""
+
+
+- name: import:web:geneinfo:mm10
+  version: 1.0.0
+  label: Import gene info (M. musculus - mm10)
+  type: data:geneinfo:mus
+  category: import
+  persistence: RAW
+  description: >
+    Import/build gene information based on mm10 annotation.
+  input:
+    - name: src
+      label: Mouse mm10 annotation file (GTF)
+      type: data:annotation:gtf
+  output:
+    - name: src
+      label: Gene information
+      type: basic:file
+    - name: date
+      label: Creation date
+      type: basic:date
+    - name: info
+      label: Gene information JSON
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Gene information (M. musculus)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'information']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      # Download NCBI annotation file
+      wget -O "ncbi_gene_info.gz" "ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz"
+      gen-checkrc "Could not download NCBI gene-info file."
+      gen-progress 0.2
+
+      gzip -d ncbi_gene_info.gz
+      gen-progress 0.5
+
+      # Build gene information
+      build_gene_info_mm10.py --annotation {{ src.gtf.file }} --gene_info ncbi_gene_info --out mm10_gene_info.tab
+      gen-checkrc
+      gen-progress 0.8
+
+      # # Save gene info to JSON object
+      # import_geneinfo.py mm_gene_info.tab
+      # gen-checkrc
+      # gen-progress 0.9
+
+      gzip mm10_gene_info.tab
+      gen-save-file src mm10_gene_info.tab.gz
+      gen-save date `date +%Y-%m-%d`
 
 
 - name: import:upload:geneinfo

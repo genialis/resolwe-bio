@@ -6,6 +6,7 @@ gene_name_re = re.compile('gene_name "([\w\-\.]*)"')
 transcript_id_re = re.compile('transcript_id "([\w\-\.]*)"')
 transcript_name_re = re.compile('transcript_name "([\w\-\.]*)"')
 ensembl_id_re = re.compile('Ensembl:([\w]*)')
+mgi_id_re = re.compile('MGI:([\w\:]*)')
 omim_id_re = re.compile('MIM:([\w]*)')
 
 
@@ -36,3 +37,7 @@ def get_ensembl_id(ids):
 
 def get_omim_id(ids):
     return _search(omim_id_re, ids)
+
+
+def get_mgi_id(ids):
+    return _search(mgi_id_re, ids)
