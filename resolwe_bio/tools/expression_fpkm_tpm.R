@@ -10,7 +10,7 @@ parser$add_argument('counts_file', help='Read-count data')
 args = parser$parse_args(commandArgs(trailingOnly=TRUE))
 
 # retrieve exon lengths
-annot <- import.gff(args$GTFfile, format="gtf", genome="NA", asRangedData=F, feature.type=args$feature_type)
+annot <- import.gff(args$GTFfile, format="gtf", genome="NA", feature.type=args$feature_type)
 exon_lengths=width(annot)
 names(exon_lengths)=elementMetadata(annot)[,args$id_attribute]
 
