@@ -1,0 +1,100 @@
+# =================================
+# Processors for the reads assembly
+# =================================
+---
+
+- name: assembler:abyss
+  version: 1.0.0
+  label: Assembler ABySS (1.9.0)
+  type: data:abyss
+  category: analyses
+  persistence: CACHED
+  description: >
+    ABySS assembler
+  input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq:paired
+      description: >
+        Paired-end library
+    - name: se
+      label: Reads without mates
+      type: data:reads:fastq:single
+      required: false
+      description: >
+        Reads without mates should be placed in a file specified by the parameter se (single-end). Reads without mates in the paired-end files will slow down the paired-end assembler considerably during the abyss-fixmate stage.
+    - name: options
+      label: Options
+      group:
+        - name: name
+          label: Name
+          type: basic:string
+          description: >
+            The name of this  assembly. The  resulting  scaffolds  will  be stored in NAME-scaffolds.fa.
+        - name: k
+          label: Size  of a k-mer
+          type: basic:integer
+        - name: s
+          label: Minimum untig size
+          type: basic:integer
+          default: 200
+          description: >
+            Minimum unitig size required for building contigs (bp) [200]
+              The seed length should be at least twice the value of k. If more
+              sequence  is  assembled  than  the  expected  genome  size,  try
+              increasing s.
+  output:
+    - name: contigs
+      label: Contigs
+      type: basic:file
+    - name: stats
+      label: Stats
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "ABySS assembly ({{ reads.fastq.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the annotation track.
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['ABySS', 'assembly']
+      placeholder: new tag
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require abyss-1.9.0
+
+      NAME_1=`basename '{{reads.fastq.file}}' .fastq.gz`
+      NAME_2=`basename '{{reads.fastq2.file}}' .fastq.gz`
+      cp '{{reads.fastq.file}}' ${NAME_1}_1.fastq.gz
+      cp '{{reads.fastq2.file}}' ${NAME_2}_2.fastq.gz
+
+      gen-progress 0.1
+
+      abyss-pe name='{{options.name}}' k='{{options.k}}' s='{{options.s}}' {% if se %} se='{{se.fastq.file}}' {% endif %} in=''${NAME_1}'_1.fastq.gz '${NAME_2}'_2.fastq.gz'
+      gen-checkrc
+      gen-progress 0.9
+
+      zip '{{options.name}}'_contigs *.fa
+      
+      gen-save-file contigs '{{options.name}}'_contigs.zip
+      gen-save-file stats '{{options.name}}'-stats.tab

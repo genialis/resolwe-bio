@@ -1,0 +1,379 @@
+# ================
+# ChipSeq analysis
+# ================
+---
+
+- name: macs2:callpeak
+  version: 1.0.3
+  label: MACS2 (Call peaks)
+  type: data:chipseq:macs2:callpeak
+  category: analyses
+  persistence: TEMP
+  description: >
+    Tool for Model-based Analysis of ChIP-Seq (MACS) - Callpeak module.
+  input:
+    - name: case
+      label: Case (treatment)
+      type: data:alignment:bam
+      required: true
+    - name: control
+      label: Control
+      type: data:alignment:bam
+      required: false
+    - name: settings
+      label: Settings
+      group:
+        - name: gsize
+          label: Mappable genome size
+          type: basic:string
+          placeholder: '3.4e7'
+          required: false
+          description: >
+            It's the mappable genome size or effective genome size which is defined as the genome size which can be sequenced. Because of the repetitive features on the chromsomes, the actual mappable genome size will be smaller than the original size, about 90% or 70% of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is recommended for Dicty genome.
+        - name: qvalue
+          label: Q-value cutoff
+          type: basic:decimal
+          required: false
+          description: >
+            The qvalue (minimum FDR) cutoff to call significant regions. Default is 0.01. For broad marks, you can try 0.05 as cutoff. Q-values are calculated from p-values using Benjamini-Hochberg procedure.
+        - name: pvalue
+          label: P-value cutoff
+          type: basic:decimal
+          placeholder: '0.001'
+          required: false
+          description: >
+            The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
+        - name: mfold_lower
+          label: MFOLD range (lower limit)
+          type: basic:integer
+          required: false
+          description: >
+            This parameter is used to select the regions within MFOLD range of high-confidence enrichment ratio against background to build model. The regions must be lower than upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means using all regions not too low (>10) and not too high (<30) to build paired-peaks model. If MACS can not find more than 100 regions to build model, it will use the --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: mfold_upper
+          label: MFOLD range (upper limit)
+          type: basic:integer
+          required: false
+          description: >
+            This parameter is used to select the regions within MFOLD range of high-confidence enrichment ratio against background to build model. The regions must be lower than upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means using all regions not too low (>10) and not too high (<30) to build paired-peaks model. If MACS can not find more than 100 regions to build model, it will use the --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: slocal
+          label: Small local region
+          type: basic:integer
+          placeholder: '2000'
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked around the peak regions to calculate the maximum lambda as local lambda. By default, MACS considers 1000bp for small local region(--slocal), and 10000bps for large local region(--llocal) which captures the bias from a long range effect like an open chromatin domain. You can tweak these according to your project. Remember that if the region is set too small, a sharp spike in the input data may kill the significant peak.
+        - name: llocal
+          label: Large local region
+          type: basic:integer
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked around the peak regions to calculate the maximum lambda as local lambda. By default, MACS considers 1000bp for small local region(--slocal), and 10000bps for large local region(--llocal) which captures the bias from a long range effect like an open chromatin domain. You can tweak these according to your project. Remember that if the region is set too small, a sharp spike in the input data may kill the significant peak.
+        - name: extsize
+          label: extsize
+          type: basic:integer
+          placeholder: '100'
+          required: false
+          description: >
+            While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction to fix-sized fragments. For example, if the size of binding region for your transcription factor is 200 bp, and you want to bypass the model building by MACS, this parameter can be set as 200. This option is only valid when --nomodel is set or when MACS fails to build model and --fix-bimodal is on.
+        - name: shift
+          label: Shift
+          type: basic:integer
+          required: false
+          description: >
+            Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You can set an arbitrary shift in bp here. Please Use discretion while setting it other than default value (0). When --nomodel is set, MACS will use this value to move cutting ends (5') then apply --extsize from 5' to 3' direction to extend them to fragments. When this value is negative, ends will be moved toward 3'->5' direction, otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets, or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if format is BAMPE for paired-end data. Default is 0.
+        - name: band_width
+          label: Band width
+          type: basic:integer
+          placeholder: '200'
+          required: false
+          description: >
+            The band width which is used to scan the genome ONLY for model building. You can set this parameter as the sonication fragment size expected from wet experiment. The previous side effect on the peak detection process has been removed. So this parameter only affects the model building.
+        - name: nolambda
+          label: Use backgroud lambda as local lambda
+          type: basic:boolean
+          default: false
+          description: >
+            With this flag on, MACS will use the background lambda as local lambda. This means MACS will not consider the local bias at peak candidate regions.
+        - name: fix_bimodal
+          label: Turn on the auto paired-peak model process
+          type: basic:boolean
+          default: false
+          description: >
+            Whether turn on the auto paired-peak model process. If it's set, when MACS failed to build paired model, it will use the nomodel settings, the '--extsize' parameter to extend each tags. If set, MACS will be terminated if paried-peak model is failed.
+        - name: nomodel
+          label: Bypass building the shifting model
+          type: basic:boolean
+          default: false
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: down_sample
+          label: Down-sample
+          type: basic:boolean
+          default: false
+          description: >
+            When set, random sampling method will scale down the bigger sample. By default, MACS uses linear scaling. This option will make the results unstable and irreproducible since each time, random reads would be selected, especially the numbers (pileup, pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs instead.
+        - name: bedgraph
+          label: Save fragment pileup and control lambda
+          type: basic:boolean
+          default: true
+          description: >
+            If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in current directory named NAME+'_treat_pileup.bdg' for treatment data, NAME+'_control_lambda.bdg' for local lambda values from control, NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in -log10(pvalue) form), and NAME+'_treat_qvalue.bdg' for q-value scores from Benjamini-Hochberg-Yekutieli procedure.
+        - name: call_summits
+          label: Call summits
+          type: basic:boolean
+          default: true
+          description: >
+            MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff setting) to deconvolve subpeaks within each peak called from general procedure. It's highly recommended to detect adjacent binding events. While used, the output subpeaks of a big peak region will have the same peak boundaries, and different scores and peak summit positions.
+        - name: broad
+          label: Composite broad regions
+          type: basic:boolean
+          default: false
+          disabled: "settings.call_summits === true"
+          description: >
+            When this flag is on, MACS will try to composite broad regions in BED12 ( a gene-model-like format ) by putting nearby highly enriched regions into a broad region with loose cutoff. The broad region is controlled by another cutoff through --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
+        - name: broad_cutoff
+          label: Broad cutoff
+          type: basic:integer
+          required: false
+          disabled: "settings.call_summits === true"
+          description: >
+            Cutoff for broad region. This option is not available unless --broad is set. If -p is set, this is a pvalue cutoff, otherwise, it's a qvalue cutoff. DEFAULT: 0.1
+  output:
+    - name: called_peaks
+      label: Called peaks
+      type: basic:file
+    - name: narrow_peaks
+      label: Narrow peaks
+      type: basic:file
+    - name: summits
+      label: Peak summits
+      type: basic:file
+    - name: broad_peaks
+      label: Broad peaks
+      type: basic:file
+    - name: gappedPeak
+      label: Broad peaks (bed12/gappedPeak)
+      type: basic:file
+    - name: treat_pileup
+      label: Treatment pileup (bedGraph)
+      type: basic:file
+    - name: control_lambda
+      label: Control lambda (bedGraph)
+      type: basic:file
+    - name: model
+      label: Model
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "MACS2 analysis ({{ case.bam.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['MACS2', 'Chip-Seq']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require macs2
+
+      {% if settings.broad and settings.call_summits %}
+        gen-error "--broad can't be combined with --call-summits!"
+      {% endif %}
+
+      NAME=`basename '{{ case.bam.file }}' .bam`
+
+      gen-progress 0.1
+
+      CONTROL='{% if control %} -c '{{ control.bam.file }}' {% endif %}'
+      GSIZE='{% if settings.gsize %} -g '{{ settings.gsize }}' {% endif %}'
+      QVAL='{% if settings.qvalue %} -q '{{ settings.qvalue }}' {% endif %}'
+      PVAL='{% if settings.pvalue %} -p '{{ settings.pvalue }}' {% endif %}'
+      MFOLD='{% if settings.mfold_lower %} -m '{{ settings.mfold_lower }}' '{{ settings.mfold_upper }}' {% endif %}'
+      NO_LAMBDA='{% if settings.nolambda %} --nolambda {% endif %}'
+      SLOCAL='{% if settings.slocal %} --slocal '{{settings.slocal}}' {% endif %}'
+      ILOCAL='{% if settings.llocal %} --llocal '{{settings.llocal}}' {% endif %}'
+      FIX_BIMODAL='{% if settings.fix_bimodal %} --fix-bimodal {% endif %}'
+      NO_MODEL='{% if settings.nomodel %} --nomodel {% endif %}'
+      EXTSIZE='{% if settings.extsize %} --extsize '{{settings.extsize}}' {% endif %}'
+      SHIFT='{% if settings.shift %} --shift '{{settings.shift}}' {% endif %}'
+      BAND_WIDTH='{% if settings.band_width %} --bw '{{settings.band_width}}' {% endif %}'
+      BROAD_CUTOFF='{% if settings.broad_cutoff %} --broad-cutoff '{{settings.broad_cutoff}}' {% endif %}'
+      BROAD='{% if settings.broad and not settings.call_summits %} --broad ${BROAD_CUTOFF} {% endif %}'
+      DOWN_SAMPLE='{% if settings.down_sample %} --down-sample {% endif %}'
+      BEDGRAPH='{% if settings.bedgraph %} -B {% endif %}'
+      CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
+
+      macs2 callpeak -t '{{ case.bam.file }}' ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
+      gen-checkrc "MACS2 processing failed"
+      gen-progress 0.8
+
+      cat err.txt
+      gen-warning "`grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
+
+      if [ -f ${NAME}_model.r ]
+      then
+        Rscript ${NAME}_model.r
+        gen-checkrc
+        gen-save-file model ${NAME}_model.pdf
+      fi
+
+      gen-progress 0.9
+
+      gen-save-file called_peaks ${NAME}_peaks.xls
+
+      {% if settings.broad and not settings.call_summits %}
+        gen-save-file broad_peaks ${NAME}_peaks.broadPeak
+        gen-save-file gappedPeak ${NAME}_peaks.gappedPeak
+      {% else %}
+        gen-save-file narrow_peaks ${NAME}_peaks.narrowPeak
+        gen-save-file summits ${NAME}_summits.bed
+      {% endif %}
+
+      {% if settings.bedgraph %}
+        gen-save-file treat_pileup ${NAME}_treat_pileup.bdg
+        gen-save-file control_lambda ${NAME}_control_lambda.bdg
+      {% endif %}
+
+- name: chipseq:peakscore
+  version: 1.0.2
+  label: ChIP-Seq (Peak Score)
+  type: data:chipseq:peakscore
+  category: analyses
+  persistence: TEMP
+  description: Chip-Seq analysis - Peak Score (BCM)
+  input:
+    - name: peaks
+      label: MACS2 results
+      type: data:chipseq:macs2:callpeak
+      required: true
+      description: MACS2 results file (NarrowPeak)
+    - name: bed
+      label: BED file
+      type: data:bed
+      required: true
+  output:
+    - name: peak_score
+      label: Peak Score
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Peak score ({{ peaks.narrow_peaks.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: [Chip-Seq', 'Peak Score']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require bedops-2.4.14
+
+      closest-features --dist '{{ peaks.narrow_peaks.file }}' '{{ bed.BED.file }}' > macs2_peakscore
+      gen-checkrc
+      gen-progress 0.3
+
+      parse_closest_features.R macs2_peakscore
+      gen-checkrc
+      gen-progress 0.6
+
+      gen-save-file peak_score macs2_peakscore_genomicContext
+
+- name: chipseq:genescore
+  version: 1.0.1
+  label: ChIP-Seq (Gene Score)
+  type: data:chipseq:genescore
+  category: analyses
+  persistence: TEMP
+  description: Chip-Seq analysis - Gene Score (BCM)
+  input:
+    - name: peakscore
+      label: PeakScore file
+      type: data:chipseq:peakscore
+      required: true
+      description: PeakScore file
+    - name: fdr
+      label: FDR threshold
+      type: basic:decimal
+      required: true
+      default: 0.00005
+      description: >
+        FDR threshold value (default = 0.00005).
+    - name: pval
+      label: Pval threshold
+      type: basic:decimal
+      required: true
+      default: 0.00005
+      description: >
+        Pval threshold value (default = 0.00005).
+    - name: logratio
+      label: Log-ratio threshold
+      type: basic:decimal
+      required: true
+      default: 2.0
+      description: >
+        Log-ratio threshold value (default = 2).
+  output:
+    - name: genescore
+      label: Gene Score
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Gene score ({{ peakscore.peak_score.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: [Chip-Seq', 'Gene Score']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      peak2geneScore.R '{{peakscore.peak_score.file}}' {% if fdr %} --fdr '{{fdr}}' {% endif %} {% if pval %} --pval '{{pval}}' {% endif %} {% if logratio %} --logratio '{{logratio}}' {% endif %}
+      gen-checkrc "GeneScore computing failed."
+
+      gen-save-file genescore geneScore.xls

@@ -1,0 +1,305 @@
+# ==================================================
+# Processors for ncRNA processing and quantification
+# ==================================================
+#
+---
+
+- name: expression:bcm:ncrna
+  version: 1.0.1
+  label: Expression ncRNA (BCM)
+  type: data:expression:ncrna
+  category: analyses
+  persistence: CACHED
+  description: >
+    Compute gene expression profile for ncRNA experiments. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,
+    University of Ljubljana, Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics, Baylor College of
+    Medicine, Houston, TX, USA.
+  input:
+    - name: alignment
+      label: Aligned sequence
+      type: data:alignment:bam
+      required: true
+    - name: gff
+      label: Features (GFF3)
+      type: data:annotation:gff3
+      required: true
+    - name: mappable
+      label: Mappability
+      type: data:mappability:bcm
+      required: true
+    - name: stranded
+      label: Strand-specific library
+      type: basic:boolean
+      default: false
+  output:
+    - name: exp
+      label: Expression (RPKUM ncRNA)
+      type: basic:file
+      description: Non chrR reads scaled by uniquely mappable part of exons.
+    - name: rpkm
+      label: Expression (RPKM ncRNA)
+      type: basic:file
+      description: Non chrR reads scaled by exon length.
+    - name: rc
+      label: Read counts
+      type: basic:file
+      description: Reads uniquely mapped to gene exons.
+    - name: exp_json
+      label: Expression (RPKUM ncRNA) (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+      default: RPKUM ncRNA
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Expressions ({{ alignment.bam.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the expression analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression", "profiles", "ncRNA"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of {{ alignment.bam.file|basename|default:'?' }} ncRNA gene expression."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      # gen-require common
+      # gen-require kentUtils-2.9.1
+      # gen-require samtools-0.1.19
+
+      function compute_coverage {
+        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
+        rm tmp.bedgraph
+      }
+
+      echo "XEXPRESSION..."
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --ncrna {% if stranded %} --stranded {% endif %}
+      # gen-checkrc "Expression analysis failed"
+      # gen-progress 0.5
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+      # gen-checkrc
+      echo "{\"proc.rc\":$?}"
+
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc.tab.gz ]
+      then
+        compute_coverage "expression_rc.tab.gz"
+        # gen-checkrc "Computing coverage failed"
+        # gen-save-file rc expression_rc.tab.gz expression_rc.tab.gz.bw
+        echo "{\"proc.rc\":$?, \"rc\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}}"
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
+      then
+        compute_coverage "expression_rpkm.tab.gz"
+        # gen-checkrc "Computing coverage failed"
+        # gen-save-file rpkm expression_rpkm.tab.gz expression_rpkm.tab.gz.bw
+        echo "{\"proc.rc\":$?, \"rpkm\":{\"file\":\"expression_rpkm.tab.gz\", \"refs\":[\"expression_rpkm.tab.gz.bw\"]}}"
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
+      then
+        compute_coverage "expression_rpkum.tab.gz"
+        # gen-checkrc "Computing coverage failed"
+        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "expression_rpkum.tab.gz"
+        # gen-checkrc "Saving to JSON storage failed"
+        # gen-save-file exp expression_rpkum.tab.gz expression_rpkum.tab.gz.bw
+        echo "{\"proc.rc\":$?, \"exp\":{\"file\":\"expression_rpkum.tab.gz\", \"refs\":[\"expression_rpkum.tab.gz.bw\"]}}"
+      fi
+
+- name: summarizexpressions-ncrna
+  version: 1.0.2
+  label: Summarize ncRNA expressions
+  type: data:expressionset:ncrna
+  category: analyses
+  persistence: CACHED
+  description: >
+    Summarize ncRNA expression data.
+  input:
+    - name: exps
+      label: Gene expressions
+      type: list:data:expression
+      required: true
+    - name: annotation
+      label: Annotation file
+      type: data:annotation:gff3
+      required: true
+    - name: genes
+      label: Filter genes
+      type: list:basic:string
+      required: false
+  output:
+    - name: expset
+      label: Expression set
+      type: basic:file
+    - name: ncrna
+      label: ncRNA transcripts
+      type: basic:file
+    - name: expset_raw_counts
+      label: Expression set (raw counts)
+      type: basic:file
+    - name: ncrna_raw_counts
+      label: ncRNA transcripts (raw counts)
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Summarized ncRNA expressions"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      {% for e in exps %}
+        {% if exps.0.output.exp_type != e.output.exp_type %}
+          gen-error "Expressions must be of the same expression type"
+        {% endif %}
+      {% endfor %}
+
+      summarize_expression_ncRNA.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts.tab'
+      gen-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
+
+      summarize_expression_ncRNA.py {% for e in exps %}"{{e.rc.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts_rc.tab'
+      gen-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
+
+      head -n 1 all_transcripts.tab > ncRNA.tab
+      awk '{ if ($9 == "u") print }' all_transcripts.tab >> ncRNA.tab
+
+      head -n 1 all_transcripts_rc.tab > ncRNA_rc.tab
+      awk '{ if ($9 == "u") print }' all_transcripts_rc.tab >> ncRNA_rc.tab
+
+      gzip all_transcripts.tab
+      gzip ncRNA.tab
+      gzip all_transcripts_rc.tab
+      gzip ncRNA_rc.tab
+
+      gen-save expset_type "RPKUM ncRNA"
+      gen-save-file expset all_transcripts.tab.gz
+      gen-save-file ncrna ncRNA.tab.gz
+      gen-save-file expset_raw_counts all_transcripts_rc.tab.gz
+      gen-save-file ncrna_raw_counts ncRNA_rc.tab.gz
+
+- name: cuffmerge-gtf-to-gff3
+  version: 1.0.1
+  label: Convert Cuffmerge GTF to GFF3 format
+  type: data:annotation:gff3
+  category: analyses
+  persistence: CACHED
+  description: >
+    Convert Cuffmerge GTF annotation file to valid GFF3 format.
+  input:
+    - name: cuffmerge
+      label: Annotation file
+      type: data:annotation
+      required: true
+  output:
+    - name: gff
+      label: Cuffmerge annotation file (GFF3)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Cuffmerge annotation (GFF3)'
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Description of Cuffmerge annotation file
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['Cuffmerge', 'Annotation']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of Cuffmerge annotation file.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-require cufflinks-2.2.1
+      gen-require genometools-1.5.3/bin
+
+      {% if cuffmerge.merged_gtf.file %}
+        ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`
+        gffread -E -F -O '{{cuffmerge.merged_gtf.file}}' -o- > temp.gff
+        gen-checkrc "GTF to GFF3 conversion failed."
+        gen-progress 0.5
+      {% else %}
+        ANNOTATION_NAME=`basename '{{cuffmerge.gtf.file}}' .gtf`
+        gffread -E -F -O '{{cuffmerge.gtf.file}}' -o- > temp.gff
+        gen-checkrc "GTF to GFF3 conversion failed."
+        gen-progress 0.5
+      {% endif %}
+
+      sed -i 's/class_code==/class_code=asInReference/g' temp.gff
+      gen-checkrc
+
+      gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o ${ANNOTATION_NAME}.gff temp.gff
+      gen-checkrc
+
+      sed -i '/gffread/d' ${ANNOTATION_NAME}.gff
+
+      gen-save-file gff ${ANNOTATION_NAME}.gff

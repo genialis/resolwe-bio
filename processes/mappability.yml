@@ -1,0 +1,144 @@
+# =================================
+# Processors for genome mappability
+# =================================
+#
+# Processors for computing the genome mappability.
+---
+
+- name: mappability:bcm-1-0-0
+  version: 1.0.8
+  label: Mappability
+  type: data:mappability:bcm
+  category: analyses
+  persistence: CACHED
+  description: >
+    Compute genome mappability. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,
+    University of Ljubljana, Slovenia and Shaulsky's Lab, Department of Molecular and Human Genetics, Baylor College of
+    Medicine, Houston, TX, USA.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: gff
+      label: General feature format
+      type: data:annotation:gff3
+      required: true
+    - name: length
+      label: Read length
+      type: basic:integer
+      default: 50
+      required: true
+  output:
+    - name: mappability
+      label: Mappability
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Mappability ({{genome.output.fasta.file|basename|default:'?'}}, length {{length}})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["genome", "mappability"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of genome mappability of {{genome.output.fasta.file|basename|default:'?'}} with read length {{length}}."
+  run:
+    runtime: polyglot
+    bash: |
+      echo "MAPPABILITY..."
+      echo "UNCOMPRESSING genome..."
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+
+      echo "BUILDING genome index..."
+      {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      python -u {{ proc.slugs_path }}/gencloud-20131109/mappability.py "${GENOME_NAME}.fasta" "{{ gff.output.gff.file }}" {{length}}
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      str="{\"proc.progress\":1"
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab ]
+      then
+        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab" --tab-coverage-col 4 --gff3 "{{ gff.output.gff.file }}" > tmp.bedgraph
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta"
+        cat "${GENOME_NAME}.fasta.fai" | cut -f -2 > chrom.sizes
+        {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${GENOME_NAME}_mappability_{{length}}.tab.bw"
+        rm tmp.bedgraph
+
+        str=$str",\"mappability\":{\"file\":\"${GENOME_NAME}_mappability_{{length}}.tab\",\"refs\":[\"${GENOME_NAME}_mappability_{{length}}.tab.bw\"]}"
+      else
+        str=$str",\"proc.rc\":1"
+      fi
+      str=$str"}"
+      echo $str
+
+
+- name: import:upload:mappability
+  version: 1.0.1
+  label: Upload mappability info
+  type: data:mappability:bcm
+  category: upload
+  persistence: RAW
+  description: >
+    Upload mappability information.
+  input:
+    - name: src
+      label: Mappability file
+      type: basic:file
+      description: >
+        Mappability file: 2 column tab separated
+      required: true
+      validate_regex: '\.(tab)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: mappability
+      label: Uploaded mappability
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Upload mappability ({{ src.file }})'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['mappability']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} mappability.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab" "tab" 1.0 extract
+      echo "{\"mappability\":{\"file\":\"${NAME}.tab\"}}"

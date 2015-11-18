@@ -1,0 +1,145 @@
+---
+
+- name: test:purge
+  version: 1.0.0
+  label: Test purge
+  type: "data:test:purge:"
+  category: test
+  persistence: CACHED
+  description: >
+    Make complex dir structure and reference some dirs and files.
+  output:
+    - name: reference1
+      label: Reference 1
+      type: basic:file
+    - name: reference2
+      label: Reference 2
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      touch foo
+
+      mkdir foodir
+      touch foodir/foo
+      touch foodir/bar
+
+      mkdir foodir/foodir
+      touch foodir/foodir/kuku
+
+      mkdir foodir/bardir
+      touch foodir/bardir/kuku
+
+      gen-save-file reference1 foo foodir/bardir/kuku
+      gen-save-file reference2 foodir/bar
+
+- name: test:invalid-templatetag
+  version: 1.0.0
+  label: Test purge
+  type: "data:test:invalidsyntax:templatetag"
+  category: test
+  persistence: CACHED
+  description: >
+    Use invalid templatetag
+  run:
+    runtime: polyglot
+    bash: |
+      {% if reads.type.startswith("data:reads:") %}
+
+- name: test:nonexisting
+  version: 1.0.0
+  label: Test non-existing
+  type: "data:test:nonexisting:"
+  category: test
+  persistence: CACHED
+  description: >
+    Reference non-existing file.
+  output:
+    - name: reference
+      label: Reference
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      gen-save-file reference you/cant/find.me
+
+- name: test:templatetags
+  version: 1.0.0
+  label: Test templatetags
+  type: "data:test:templatetags"
+  category: test
+  persistence: CACHED
+  description: >
+    Test tempaltetags to get special fields from inputs.
+  input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+  output:
+    - name: reads_name
+      label: Reads name
+      type: basic:text
+    - name: reads_type
+      label: Reads type
+      type: basic:string
+    - name: reads_id
+      label: Reads_id
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-save reads_name "{{ reads|name }}"
+      gen-save reads_type "{{ reads|type }}"
+      gen-save reads_id "{{ reads|id }}"
+
+- name: test:failed
+  version: 1.0.0
+  label: Test failed
+  type: "data:test:failed:"
+  category: test
+  persistence: CACHED
+  description: >
+    Test will fail
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-save proc.rc 1
+
+- name: test:success
+  version: 1.0.0
+  label: Successful processor
+  type: "data:test:success:"
+  category: test
+  persistence: CACHED
+  description: >
+    Test will success
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-checkrc
+
+- name: test:lxc_ip_addr
+  version: 1.0.0
+  label: Test assignment of IP address to LXCs
+  type: "data:test:lxcipaddr:"
+  category: test
+  persistence: CACHED
+  description: >
+    Test will parse LXC's IP address
+  output:
+    - name: ip_address
+      label: IP address
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      gen-save ip_address "$(ip -o -4 address show eth0 | awk '{print $4}' | cut -d / -f 1)"

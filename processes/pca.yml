@@ -1,0 +1,77 @@
+# ===
+# PCA
+# ===
+---
+
+- name: pca:1-0-0
+  version: 1.0.7
+  label: PCA
+  type: data:pca
+  category: analyses
+  persistence: TEMP
+  description: >
+    Principal component analysis (PCA)
+  input:
+    - name: exps
+      label: Expressions
+      type: list:data:expression
+      required: true
+    - name: genes
+      label: Filter genes
+      type: list:basic:string
+      required: false
+    - name: filter
+      label: Exclude genes with low expression
+      type: basic:boolean
+      default: true
+      description: >
+        Exclude/filter unexpressed genes and genes with cumulative normalized expression lower than number of samples.
+  output:
+    - name: pca
+      label: PCA
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: PCA
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['PCA', 'plot', 'expressions']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      EXPSET_TYPE="{{exps.0.output.exp_type}}"
+
+      {% for e in exps %}
+        {% if exps.0.output.exp_type != e.output.exp_type %}
+          gen-save proc.error "Expressions must be of the same expression type"
+        {% endif %}
+      {% endfor %}
+
+      {% for exp in exps %}
+        exp=$exp"{{ exp.output.exp.file }},"
+        obj_id=$obj_id"{{ exp.id }},"
+      {% endfor %}
+
+      gen-save proc.rc $?
+      gen-save proc.progress 0.1
+
+      obj_id=${obj_id%?}
+      exp=${exp%?}
+
+      gen-save proc.rc $?
+      gen-save proc.progress 0.2
+
+      pca.py ${exp} ${obj_id} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} {% if filter %}--filter{% endif %}
+      gen-save proc.rc $?

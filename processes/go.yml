@@ -1,0 +1,183 @@
+# =================================
+# Gene Ontology Enrichment Analysis
+# =================================
+---
+
+- name: goenrichment:bcm-2-0-0
+  version: 2.0.9
+  label: GO Enrichment 2.0
+  type: data:ontologyenrichment
+  category: analyses
+  persistence: TEMP
+  description: >
+    Identify significantly enriched Gene Ontology terms for given genes.
+  input:
+    - name: ontology
+      label: Gene Ontology
+      type: data:ontology:obo
+      required: true
+    - name: gaf
+      label: GO annotation file (GAF v2.0)
+      type: data:gaf
+      required: true
+    - name: orthologues
+      label: Gene orthologues file
+      type: data:orthologues
+      required: false
+    - name: genes
+      label: List of genes
+      type: list:basic:string
+      placeholder: new gene id
+      required: true
+      default: [DDB_G0267640, DDB_G0279331, DDB_G0289651, DDB_G0281087]
+    - name: pval_threshold
+      label: P-value threshold
+      type: basic:decimal
+      default: 0.1
+      required: false
+    - name: min_genes
+      label: Minimum number of genes
+      type: basic:integer
+      default: 1
+      required: false
+      description: Minimum number of genes on a GO term.
+  output:
+    - name: terms
+      label: Enriched terms
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'GO Enrichment for {{genes|join:", "|default:"?"}}'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'ontology', 'enrichment']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      if [[ -n "{{ orthologues }}" ]]; then
+        python {{ proc.slugs_path }}/gencloud-20131109/orthologues.py {{ orthologues.output.ort.file }} {{ genes | join:" " }} > temp.txt
+      else
+        echo {{genes|join:" "}} > temp.txt
+      fi
+      echo -n "{\"terms\":"
+      {{proc.slugs_path}}/gotea/processor {{pval_threshold}} {{min_genes}} {{ontology.output.obo_obj.file}} {{gaf.output.gaf_obj.file}} temp.txt 2> /dev/null
+      RC=$?
+      echo "}"
+      echo "{\"proc.rc\":$RC}"
+
+
+- name: import:upload:ontology
+  version: 1.0.14
+  label: Upload gene ontology
+  type: data:ontology:obo
+  category: upload
+  persistence: RAW
+  description: >
+    Upload gene ontology in OBO format.
+  input:
+    - name: src
+      label: Gene ontology (OBO)
+      type: basic:file
+      description: >
+        Gene ontology in OBO format.
+      required: true
+      validate_regex: '\.obo(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: obo
+      label: Ontology file
+      type: basic:file
+    - name: obo_obj
+      label: OBO object
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'ontology', 'OBO']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} ontology upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" 0.8
+      {{proc.slugs_path}}/gotea/preprocessor obo "${NAME}.obo" obo_obj
+      echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"
+
+
+- name: import:upload:gaf
+  version: 1.0.8
+  label: Upload GO annotation file (GAF v2.0)
+  type: data:gaf:2:0
+  category: upload
+  persistence: RAW
+  description: >
+        GO annotation file (GAF v2.0) relating gene ID and associated GO terms
+  input:
+    - name: src
+      label: GO annotation file (GAF v2.0)
+      type: basic:file
+      description: >
+        Upload GO annotation file (GAF v2.0) relating gene ID and associated GO terms
+      required: true
+  output:
+    - name: gaf
+      label: GO annotation file (GAF v2.0)
+      type: basic:file
+    - name : gaf_obj
+      label: GAF object
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'GO annotation file ({{ src.file|default:"?" }}) upload'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['genes', 'annotation']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" 0.8
+      {{proc.slugs_path}}/gotea/preprocessor gaf "${NAME}.txt" gaf_obj
+      echo "{\"proc.rc\":$?,\"gaf\":{\"file\":\"$NAME.txt.gz\"},\"gaf_obj\":{\"file\":\"gaf_obj\"}}"
