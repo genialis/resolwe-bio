@@ -1,0 +1,2 @@
+track name='transdecoder_annotation.gff'
+test_transdecoder	3	309	ID=TCONS_00000001|m.1;TCONS_00000001|g.1;ORF	0	+	3	309	0	1	306	0

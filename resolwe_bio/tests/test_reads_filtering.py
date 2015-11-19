@@ -1,9 +1,8 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class ReadsFilteringProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class ReadsFilteringProcessorTestCase(ProcessTestCase):
 
     def test_prinseq_single(self):
         reads = self.prepare_reads()

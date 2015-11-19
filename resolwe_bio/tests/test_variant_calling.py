@@ -1,12 +1,13 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
+import unittest
 
 
-class VariantCallingTestCase(BaseProcessorTestCase, PreparedData):
+class VariantCallingTestCase(ProcessTestCase):
+    @unittest.skip("test data not ready")
     def test_variant_calling(self):
         genome = self.prepare_genome()
-        reads = self.prepare_reads('vc_reads.fastq')
+        reads = self.prepare_reads('vc_reads.fastq.gz')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)

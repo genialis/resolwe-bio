@@ -1,0 +1,6 @@
+scaffold_418	Cufflinks	transcript	10	100	1	+	.	gene_id ""; transcript_id "DPU_G0067096"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000"; full_read_support "no";
+scaffold_418	Cufflinks	exon	10	30	1	+	.	gene_id ""; transcript_id "DPU_G0067096"; exon_number "1"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000";
+scaffold_418	Cufflinks	exon	40	70	1	+	.	gene_id ""; transcript_id "DPU_G0067096"; exon_number "2"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000";
+scaffold_418	Cufflinks	exon	82	100	1	+	.	gene_id ""; transcript_id "DPU_G0067096"; exon_number "3"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000";
+scaffold_418	Cufflinks	transcript	180	270	1	-	.	gene_id ""; transcript_id "DPU_G0067098"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000"; full_read_support "no";
+scaffold_418	Cufflinks	exon	180	270	1	-	.	gene_id ""; transcript_id "DPU_G0067098"; exon_number "1"; FPKM "0.0000000000"; frac "0.000000"; conf_lo "0.000000"; conf_hi "0.000000"; cov "0.000000";

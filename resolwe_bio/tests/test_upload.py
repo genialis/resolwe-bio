@@ -1,13 +1,10 @@
 # pylint: disable=missing-docstring
 import mongoengine
 
-from server.models import Data
-
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class UploadProcessorTestCase(ProcessTestCase):
 
     def test_bam_upload(self):
         inputs = {"src": "alignment_name_sorted.bam"}
@@ -15,14 +12,11 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
         self.assertFiles(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFiles(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
 
-        inputs = {"src": "alignment_invalid_unsorted.bam"}
-        upload_bam = self.run_processor("import:upload:mapping-bam", inputs, Data.STATUS_ERROR)
-
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bai"}
         self.assertRaises(mongoengine.ValidationError, self.run_processor, "import:upload:mapping-bam-indexed", inputs)
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bam.bai"}
-        upload_bam = self.run_processor("import:upload:mapping-bam-indexed", inputs, Data.STATUS_ERROR)
+        upload_bam = self.run_processor("import:upload:mapping-bam-indexed", inputs, 'error')
         self.assertFields(upload_bam, 'proc.error', 'BAI should have the same name as BAM with .bai extension')
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_position_sorted.bam.bai"}
@@ -32,15 +26,15 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_upload_expression(self):
         inputs = {"exp_type": "TPM"}
-        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:expression", inputs, 'error')
 
         inputs = {"exp": "00Hr_tpm.tab.gz", "rc": "00Hr_rc.tab.gz"}
-        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:expression", inputs, 'error')
 
         inputs = {"rc": "00Hr_rc.tab.gz"}
         expressions_3 = self.run_processor("import:upload:expression", inputs)
         self.assertFiles(expressions_3, "rc", "00Hr_rc.tab.gz")
-        self.assertFiles(expressions_3, 'exp', '00Hr_tpm.tab.gz')
+        self.assertFiles(expressions_3, 'exp', '00Hr_tpm_3.tab.gz')
 
         inputs = {"exp": "00Hr_tpm.tab.gz", "exp_type": "TPM"}
         expressions_4 = self.run_processor("import:upload:expression", inputs)
@@ -56,7 +50,7 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_upload_paired_end_reads(self):
         inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}
-        self.run_processor("import:upload:reads-fastq-paired-end", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:reads-fastq-paired-end", inputs, 'error')
 
         inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq-paired-end", inputs)
@@ -71,7 +65,7 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_upload_single_end_reads(self):
         inputs = {"src": "mate1.fastq.gz"}
-        self.run_processor("import:upload:reads-fastq", inputs, Data.STATUS_ERROR)
+        self.run_processor("import:upload:reads-fastq", inputs, 'error')
 
         inputs = {"src": "rRNA_forw.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
@@ -84,9 +78,9 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
     def test_upload_reads_old_encoding(self):
         inputs = {"src": "old_encoding.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
-        self.assertFiles(reads, "fastq", "old_encoding.fastq.gz", compression='gzip')
+        self.assertFiles(reads, "fastq", "old_encoding_transformed.fastq.gz", compression='gzip')
         self.assertFields(reads, "fastqc_archive.file", "old_encoding_fastqc.zip")
-        self.assertFields(reads, "number", 100)
+        self.assertFields(reads, "number", 25)
         self.assertFields(reads, "bases", "40")
         self.assertFields(reads, "fastqc_url.url", "fastqc/old_encoding_fastqc/fastqc_report.html")
 
@@ -107,7 +101,7 @@ class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
 
     def test_upload_bed(self):
         inputs = {"src": "bad.bed"}
-        bed = self.run_processor('import:upload:bed', inputs, Data.STATUS_ERROR)
+        bed = self.run_processor('import:upload:bed', inputs, 'error')
 
         inputs = {"src": "good.bed"}
         bed = self.run_processor('import:upload:bed', inputs)

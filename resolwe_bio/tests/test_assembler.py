@@ -1,13 +1,12 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class AbyssProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class AbyssProcessorTestCase(ProcessTestCase):
     def test_abyss(self):
-        se_reads = self.prepare_reads('20Hr.fastq.gz')
+        se_reads = self.prepare_reads('reads.fastq.gz')
 
-        inputs = {'src1': 'abyss_reads1.fastq.gz', 'src2': 'abyss_reads2.fastq.gz'}
+        inputs = {'src1': 'reads_paired_abyss_1.fastq.gz', 'src2': 'reads_paired_abyss_2.fastq.gz'}
         reads = self.run_processor('import:upload:reads-fastq-paired-end', inputs)
 
         inputs = {'reads': reads.pk,

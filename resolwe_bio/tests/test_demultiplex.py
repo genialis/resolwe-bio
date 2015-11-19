@@ -1,9 +1,8 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class UploadProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class UploadProcessorTestCase(ProcessTestCase):
     def test_bam_upload(self):
         inputs = {
             'reads': 'pool24.read1.small.qseq.bz2',

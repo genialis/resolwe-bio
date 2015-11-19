@@ -1,9 +1,10 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
+import unittest
 
 
-class EnrichmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class EnrichmentProcessorTestCase(ProcessTestCase):
+    @unittest.skip("test data not ready")
     def test_go_enrichment_v2(self):
         inputs = {'src': 'ontology.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)
@@ -52,6 +53,7 @@ class EnrichmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
         enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_2.json.gz')
 
+    @unittest.skip("test data not ready")
     def test_go_enrichment_mouse(self):
         inputs = {'src': 'ontology.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)

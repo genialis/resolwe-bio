@@ -1,9 +1,8 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class ReadsProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class ReadsProcessorTestCase(ProcessTestCase):
     def test_merge_reads(self):
         reads = self.prepare_reads()
         reads2 = self.prepare_reads()

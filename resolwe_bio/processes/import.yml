@@ -1103,7 +1103,7 @@
 
 
 - name: import:upload:geneinfo
-  version: 1.0.8
+  version: 1.0.9
   label: Upload gene information
   type: data:geneinfo
   category: upload
@@ -1115,9 +1115,9 @@
       label: Gene information
       type: basic:file
       description: >
-        Gene informations in Excel or (tab-separated) text file. Composition: first row is header follow by rows (Gene ID, Gene Name, Synonyms,  Gene products, Entrez ID, Ensembl ID, .. other (i.e. organism specific id)). Supported extensions .tab, .txt, .xls, .xlsx.
+        Gene informations in tab-separated text file. Composition: first row is header follow by rows (Gene ID, Gene Name, Synonyms,  Gene products, Entrez ID, Ensembl ID, .. other (i.e. organism specific id)). Supported extensions: .tab, .txt.
       required: true
-      validate_regex: '\.(xls|xlsx|tab|txt)$'
+      validate_regex: '\.(tab|txt)$'
   output:
     - name: src
       label: Gene information
@@ -1150,79 +1150,14 @@
   run:
     runtime: polyglot
     bash: |
-      source {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      NAME=`basename '{{ src.file }}'`
-      TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
+      gen-require common
+      gen-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|tab" "tab" 0.3
 
-      mv "${TEMP}" "${NAME}"
-      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+      gen-save-file src ${NAME}.tab
+      gen-save date `date +%Y-%m-%d`
 
-      echo "{\"src\":{\"file\":\"${NAME}\"},\"date\":\"`date +%Y-%m-%d`\",\"proc.progress\":0.1,\"proc.rc\":$?}"
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/import_geneinfo.py "${NAME}"
-      echo "{\"proc.progress\":1,\"proc.rc\":$?}"
-
-
-- name: import:upload:geneinfo:ncrna
-  version: 1.0.1
-  label: Upload gene information (ncRNA)
-  type: data:geneinfo:ncrna
-  category: upload
-  persistence: RAW
-  description: >
-    Upload gene information (ncRNA) from text or Excel file.
-  input:
-    - name: src
-      label: Gene information
-      type: basic:file
-      description: >
-        Gene informations in Excel or (tab-separated) text file. Composition: first row is header follow by rows (Gene ID, Gene Name, Synonyms,  Gene products, Entrez ID, Ensembl ID, .. other (i.e. organism specific id)). Supported extensions .tab, .txt, .xls, .xlsx.
-      required: true
-      validate_regex: '\.(xls|xlsx|tab|txt)$'
-  output:
-    - name: src
-      label: Gene information (ncRNA)
-      type: basic:file
-    - name: date
-      label: Upload date
-      type: basic:date
-    - name: info
-      label: Gene information JSON
-      type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Gene information ncRNA (upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['gene', 'information', 'ncRNA']
-      placeholder: new tag
-  run:
-    runtime: polyglot
-    bash: |
-      source {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      NAME=`basename '{{ src.file }}'`
-      TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
-
-      mv "${TEMP}" "${NAME}"
-      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-
-      echo "{\"src\":{\"file\":\"${NAME}\"},\"date\":\"`date +%Y-%m-%d`\",\"proc.progress\":0.1,\"proc.rc\":$?}"
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/import_geneinfo.py "${NAME}"
-      echo "{\"proc.progress\":1,\"proc.rc\":$?}"
-
+      import_geneinfo.py "${NAME}.tab"
+      gen-checkrc
 
 - name: import:upload:mapping-bam
   version: 1.0.11

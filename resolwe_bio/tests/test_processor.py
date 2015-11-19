@@ -1,11 +1,10 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from django.test import TestCase
 
 from server.models import Processor, iterate_schema
 
 
-class ProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class ProcessFieldsTestCase(TestCase):
     def test_processor_types(self):
         procs = list(Processor.objects.all())
         types = {}

@@ -1,9 +1,8 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class PseudoalignmentProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class PseudoalignmentProcessorTestCase(ProcessTestCase):
     def test_kallisto(self):
         inputs = {"src": "cDNA_reference.fasta.gz"}
         cdna = self.run_processor("import:upload:import_nucl_seq", inputs)

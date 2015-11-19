@@ -1,17 +1,16 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class ChipSeqProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class ChipSeqProcessorTestCase(ProcessTestCase):
     def test_chipseq(self):
-        inputs = {"src": "ChIP-Seq-Control.bam"}
+        inputs = {"src": "chip_seq_control.bam"}
         control_bam = self.run_processor("import:upload:mapping-bam", inputs)
 
-        inputs = {"src": "ChIP-Seq-Case.bam"}
+        inputs = {"src": "chip_seq_case.bam"}
         case_bam = self.run_processor("import:upload:mapping-bam", inputs)
 
-        inputs = {"src": "dd_genes_chr1.bed"}
+        inputs = {"src": "chip_seq.bed"}
         bed = self.run_processor("import:upload:bed", inputs)
 
         inputs = {
@@ -29,8 +28,8 @@ class ChipSeqProcessorTestCase(BaseProcessorTestCase, PreparedData):
             'peaks': macs2.pk,
             'bed': bed.pk}
         peak_score = self.run_processor("chipseq:peakscore", inputs)
-        self.assertFiles(peak_score, "peak_score", "macs2_peakscore_genomicContext")
+        self.assertFiles(peak_score, "peak_score", "chip_seq_peakscore_genomicContext")
 
         inputs = {"peakscore": peak_score.pk}
         gene_score = self.run_processor("chipseq:genescore", inputs)
-        self.assertFiles(gene_score, "genescore", "macs2_geneScore.xls")
+        self.assertFiles(gene_score, "genescore", "chip_seq_geneScore.xls")

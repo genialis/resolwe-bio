@@ -1,26 +1,22 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class GencoverProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class GencoverProcessorTestCase(ProcessTestCase):
     def test_coverage(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff'}
+        inputs = {'src': 'annotation.gff.gz'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         # GTF inport
-        inputs = {'src': 'annotation_ok.gtf'}
+        inputs = {'src': 'annotation_ok.gtf.gz'}
         annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertFiles(annotation_gtf, 'gtf', 'annotation_ok.gtf')
 
         # redundant GTF inport
-        inputs = {'src': 'annotation_red.gtf'}
+        inputs = {'src': 'annotation_red.gtf.gz'}
         annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs)
-        self.assertFiles(annotation_gtf_red, 'gtf', 'annotation_red.gtf')
 
         inputs = {
             'genome': genome.pk,

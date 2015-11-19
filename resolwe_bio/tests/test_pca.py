@@ -1,10 +1,8 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
-from server.models import Storage
+from .utils import ProcessTestCase
 
 
-class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class PcaProcessorTestCase(ProcessTestCase):
     def test_pca(self):
         expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
@@ -29,7 +27,5 @@ class PcaProcessorTestCase(BaseProcessorTestCase, PreparedData):
         }
         pca = self.run_processor('pca:1-0-0', inputs)
 
-        storage = Storage.objects.get(pk=str(pca.output['pca']))
-        del storage['json']['flot']['samples']
-        self.assertJSON(pca, storage, '', 'pca_filtered_zeros.json.gz')
+        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_filtered_zeros.json.gz')
         self.assertTrue(pca.output['proc']['warning'])

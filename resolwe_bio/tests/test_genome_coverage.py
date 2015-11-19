@@ -1,16 +1,14 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class CoverageProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class CoverageProcessorTestCase(ProcessTestCase):
     def test_coverage(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff'}
+        inputs = {'src': 'annotation.gff.gz'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
             'genome': genome.pk,

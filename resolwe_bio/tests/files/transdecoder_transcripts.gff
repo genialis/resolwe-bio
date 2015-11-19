@@ -1,0 +1,7 @@
+##gff-version   3
+##sequence-region   test_transdecoder 4 309
+test_transdecoder	transdecoder	gene	4	309	.	+	.	ID=TCONS_00000001|g.1;Name=ORF
+test_transdecoder	transdecoder	mRNA	4	309	.	+	.	ID=TCONS_00000001|m.1;Parent=TCONS_00000001|g.1;Name=ORF
+test_transdecoder	transdecoder	exon	4	309	.	+	.	ID=TCONS_00000001|m.1.exon1;Parent=TCONS_00000001|m.1
+test_transdecoder	transdecoder	CDS	4	309	.	+	0	ID=cds.TCONS_00000001|m.1;Parent=TCONS_00000001|m.1
+###

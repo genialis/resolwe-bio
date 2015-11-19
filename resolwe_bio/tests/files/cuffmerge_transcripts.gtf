@@ -1,0 +1,4 @@
+scaffold_418	Cufflinks	exon	10	30	.	+	.	gene_id "XLOC_000001"; transcript_id "TCONS_00000001"; exon_number "1"; oId "DPU_G0067096"; nearest_ref "DPU_G0067096"; class_code "="; tss_id "TSS1";
+scaffold_418	Cufflinks	exon	40	70	.	+	.	gene_id "XLOC_000001"; transcript_id "TCONS_00000001"; exon_number "2"; oId "DPU_G0067096"; nearest_ref "DPU_G0067096"; class_code "="; tss_id "TSS1";
+scaffold_418	Cufflinks	exon	82	100	.	+	.	gene_id "XLOC_000001"; transcript_id "TCONS_00000001"; exon_number "3"; oId "DPU_G0067096"; nearest_ref "DPU_G0067096"; class_code "="; tss_id "TSS1";
+scaffold_418	Cufflinks	exon	180	270	.	-	.	gene_id "XLOC_000002"; transcript_id "TCONS_00000002"; exon_number "1"; oId "DPU_G0067098"; nearest_ref "DPU_G0067098"; class_code "="; tss_id "TSS2";
