@@ -1,0 +1,2 @@
+chr	peakStart	peakEnd	upgene_orientation	dogene_orientation	upgene_distance	dogene_distance	summit_location	pvalue	FDR	fold_enrichment	intergenic_distance	upgene_peakScore	dogene_peakScore	upgene_ddb_g	dogene_ddb_g
+chr1	63274	63385	-	+	1067	303	63288	0.000204070392601425	0.457509377329848	1.93386	1370	0.887528974173994	1.5501475537496	DDB_G0267248	DDB_G0267250

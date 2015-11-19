@@ -1,0 +1,16 @@
+Checking compatibility of genome with BAM mapping.
+FAIL	seq3 sequence not found in BAM mapping.
+FAIL	seq2 sequence lengths missmatch(lengths are 6 and 20).
+FAIL	seq4 sequence not found in BAM mapping.
+
+Checking compatibility of BAM mapping with genome.
+FAIL	seq2 sequence lengths missmatch(lengths are 20 and 6).
+FAIL	seq5 sequence not found in genome.
+
+Checking compatibility of genome with annotation file
+WARN	seq4 sequence not found in annotaion file
+FAIL	annotation interval on seq3 sequence is out of reference range.
+FAIL	annotation interval on seq1 sequence is out of reference range.
+FAIL	seq7 sequence in annotation but not in genome.
+
+DONE.	Check FAILS!

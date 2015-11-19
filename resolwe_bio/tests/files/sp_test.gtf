@@ -1,0 +1,4 @@
+seq1	TestInterval	intron	208	241	42	.	.	hid=trf;
+seq2	TestInterval	intron	2	4	2502	-	.	hid=AluSx;
+seq3	TestInterval	intron	243	245	0	.	.	hid=dust
+seq7	TestInterval	intron	1	8	450.19	-	2	hid=dust
