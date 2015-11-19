@@ -4,6 +4,7 @@ import csv
 import os
 import sys
 import gzip
+import io
 
 from itertools import chain
 
@@ -35,7 +36,7 @@ for f in args.files:
     base, ext = os.path.splitext(f)
     delimiter = ';' if ext == '.csv' else '\t'
 
-    with gzip.open(f, 'rb') as csvfile:
+    with io.TextIOWrapper(io.BufferedReader(gzip.open(f))) as csvfile:
         reader = csv.reader(csvfile, delimiter=delimiter)
         header = reader.next()[1:]
         headers.append(args.experiments[offset:offset + len(header)] if args.experiments else header)

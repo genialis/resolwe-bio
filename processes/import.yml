@@ -1959,7 +1959,7 @@
 
 
 - name: import:upload:expression
-  version: 1.0.3
+  version: 1.0.4
   label: Upload Expression
   type: data:expression
   category: upload
@@ -2024,43 +2024,47 @@
   run:
     runtime: polyglot
     bash: |
+      gen-require common
 
       {% if not exp and not rc %}
-        echo "{\"proc.rc\":1}"
+        gen-error "Please provide raw or/and normalized expression files."
 
       {% elif exp and not exp_type %}
-        echo "{\"proc.rc\":1}"
+        gen-error "Please provide normalization type together with normalized expressions."
 
       {% elif not exp and exp_type and rc %}
-        echo "{\"proc.rc\":1}"
+        gen-error "Please provide raw or/and normalized expression files."
 
       {% elif rc and not exp and not exp_type %}
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.1 compress
-        RC_NAME=${NAME}
+        gen-import "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.1 compress
         EXP_TYPE="RC"
-        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${RC_NAME}.tab.gz\"},\"rc\":{\"file\":\"${RC_NAME}.tab.gz\"}}"
-
+        gen-save exp_type ${EXP_TYPE}
+        gen-save-file exp ${NAME}.tab.gz
+        gen-save-file rc ${NAME}.tab.gz
+        expression2storage.py "${NAME}.tab.gz"
+        gen-checkrc
+      
       {% elif exp and exp_type and not rc %}
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
+        gen-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
         EXP_NAME=${NAME}
-
         EXP_TYPE="{{exp_type}}"
-
-        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "${EXP_NAME}.tab.gz"
-        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${EXP_NAME}.tab.gz\"}}"
+        gen-save exp_type ${EXP_TYPE}
+        gen-save-file exp ${EXP_NAME}.tab.gz        
+        expression2storage.py "${NAME}.tab.gz"
+        gen-checkrc
 
       {% else %}
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.5 compress
+        gen-import "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.5 compress
         RC_NAME=${NAME}
-
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.9 compress
+        gen-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.9 compress
         EXP_NAME=${NAME}
-
         EXP_TYPE="{{exp_type}}"
-
-        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "${EXP_NAME}.tab.gz"
-        echo "{\"proc.rc\":$?,\"exp_type\":\"${EXP_TYPE}\",\"exp\":{\"file\":\"${EXP_NAME}.tab.gz\"},\"rc\":{\"file\":\"${RC_NAME}.tab.gz\"}}"
-
+        gen-save exp_type ${EXP_TYPE}
+        gen-save-file exp ${EXP_NAME}.tab.gz
+        gen-save-file rc ${RC_NAME}.tab.gz
+        expression2storage.py "${EXP_NAME}.tab.gz"
+        gen-checkrc
+        
       {% endif %}
 
 - name: import:upload:bed

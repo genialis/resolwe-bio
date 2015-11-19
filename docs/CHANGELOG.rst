@@ -14,6 +14,7 @@ Changed
 
 Fixed
 -----
+* Fixed Upload expressions not saving to storage in some cases.
 
 Added
 -----
