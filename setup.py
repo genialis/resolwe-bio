@@ -45,7 +45,7 @@ if __name__ == '__main__':
         ],
         zip_safe=False,
         install_requires=(
-            # "resolwe>=0.0.1",
+            # "resolwe>=0.9.1",
         ),
         test_suite='resolwe_bio.tests',
     )

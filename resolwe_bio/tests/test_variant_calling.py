@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
 import unittest
+from .utils import ProcessTestCase
 
 
 class VariantCallingTestCase(ProcessTestCase):

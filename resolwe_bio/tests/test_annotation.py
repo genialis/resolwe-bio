@@ -1,48 +1,33 @@
 # pylint: disable=missing-docstring
-from .base import BaseProcessorTestCase
-from .utils import PreparedData
+from .utils import ProcessTestCase
 
 
-class AnnotationProcessorTestCase(BaseProcessorTestCase, PreparedData):
+class AnnotationProcessorTestCase(ProcessTestCase):
     def test_transdecoder(self):
-        genome = self.prepare_genome()
-        reads1 = self.prepare_reads('00Hr.fastq.gz')
-        reads2 = self.prepare_reads('20Hr.fastq.gz')
+        inputs = {'src': 'reads_transdecoder.fastq.gz'}
+        reads = self.run_processor("import:upload:reads-fastq", inputs)
 
-        inputs = {'src': 'annotation.gff'}
+        inputs = {"src": "genome_transdecoder.fasta.gz"}
+        genome = self.run_processor('import:upload:genome-fasta', inputs)
+
+        inputs = {'src': 'annotation_transdecoder.gff.gz'}
         annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        self.assertFiles(annotation, 'gff', 'annotation.gff')
 
         inputs = {
             'genome': genome.pk,
-            'reads': reads1.pk,
-            'gff': annotation.pk,
+            'reads': reads.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
 
         inputs = {
-            'genome': genome.pk,
-            'reads': reads2.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_1.pk,
+            'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
         cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)
 
         inputs = {
-            'alignment': aligned_reads_2.pk,
-            'gff': annotation.pk,
-            'genome': genome.pk}
-        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs)
-
-        inputs = {
-            'expressions': [cuff_exp.pk, cuff_exp2.pk],
+            'expressions': [cuff_exp.pk],
             'gff': annotation.pk,
             'genome': genome.pk}
         cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
