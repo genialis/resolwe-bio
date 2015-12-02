@@ -3,8 +3,8 @@ import argparse
 import csv
 import os
 import sys
-import gzip
 import re
+import utils
 
 from itertools import chain
 from collections import defaultdict
@@ -27,6 +27,7 @@ gene_id_re = re.compile('ID=([\w\-\.]*)')
 gene_name_re = re.compile('oId=([\w\-\.]*)')
 class_code_re = re.compile('class_code=([\w\-\.]*)')
 parent_id_re = re.compile('Parent=([\w\-\.]*)')
+
 
 def _search(regex, string):
     match = regex.search(string)
@@ -62,7 +63,7 @@ for f in args.files:
     base, ext = os.path.splitext(f)
     delimiter = ';' if ext == '.csv' else '\t'
 
-    with gzip.open(f, 'rb') as csvfile:
+    with utils.gzopen(f) as csvfile:
         reader = csv.reader(csvfile, delimiter=delimiter)
         header = reader.next()[1:]
         headers.append(args.experiments[offset:offset + len(header)] if args.experiments else header)

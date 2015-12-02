@@ -1,10 +1,8 @@
 #!/usr/bin/env python2
-from collections import defaultdict
-import gzip
-import os
 import sys
 import argparse
 import json
+import utils
 
 import numpy as np
 from sklearn.decomposition import PCA
@@ -43,7 +41,7 @@ exp = []
 allgenes = set()
 
 for fname in samples:
-    myopen = gzip.open if isgzipped(fname) else open
+    myopen = utils.gzopen if isgzipped(fname) else open
 
     with myopen(fname) as f:
         exp.append({gene_exp[0]: float(gene_exp[1]) for gene_exp in

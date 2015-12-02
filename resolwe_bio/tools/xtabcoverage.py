@@ -3,7 +3,7 @@ import argparse
 import csv
 import re
 import sys
-import gzip
+import utils
 
 parser = argparse.ArgumentParser(
     description='Create BEDGRAPH coverage file for a tab file w.r.t. given GFF3 annotations.')
@@ -13,7 +13,7 @@ parser.add_argument('--gff3', dest='gff3_file', help='GFF3 file')
 args = parser.parse_args()
 
 # Fetch gene ids and their expressions from tab file
-with gzip.open(args.tab_file, 'rb') as f:
+with utils.gzopen(args.tab_file) as f:
     rdr = csv.reader(f, delimiter='\t')
     rdr.next()  # skip header
     tab_vals = {row[0]: float(row[int(args.tab_col_val)]) for row in rdr}

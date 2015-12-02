@@ -1,13 +1,9 @@
 import argparse
-import glob
 import gzip
 import json
 import os
-import shutil
 import subprocess
 import sys
-
-from collections import defaultdict
 
 
 parser = argparse.ArgumentParser(description='NGS reads demultiplexer.')

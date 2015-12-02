@@ -2,8 +2,8 @@
 import argparse
 import gzip
 import json
-import sys
 import numpy as np
+import utils
 
 from collections import Counter
 
@@ -50,7 +50,7 @@ def is_gzipped(f):
 
 # Go through files
 for t, f in sorted(zip(times, files)):
-    myopen = gzip.open if is_gzipped(f) else open
+    myopen = utils.gzopen if is_gzipped(f) else open
 
     with myopen(f) as rpkm_file:
         rpkm_file.readline()  # skip first line

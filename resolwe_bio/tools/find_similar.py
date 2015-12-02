@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
-import gzip
 import json
 import math
 import numpy as np
 import argparse
+import utils
+
 from scipy.stats import spearmanr
 from scipy.stats.stats import pearsonr
 
@@ -36,7 +37,7 @@ distance_map = {
 }
 
 search_gene = args.gene
-file_handler = gzip.open(args.etc_file, 'rb')
+file_handler = utils.gzopen(args.etc_file)
 expressions = json.load(file_handler)
 file_handler.close()
 search_f, rev_sort = distance_map[args.dstfunc]

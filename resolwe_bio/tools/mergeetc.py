@@ -1,9 +1,10 @@
 #!/usr/bin/env python2
 import json
 import argparse
-import gzip
 import os
 import itertools
+import utils
+
 from collections import defaultdict
 
 
@@ -27,7 +28,7 @@ for etc in args.files:
     if not os.path.isfile(etc):
         exit(1)
 
-    with gzip.open(etc) as f:
+    with utils.gzopen(etc) as f:
         etc_data = json.load(f)
         x = experiments.next()
         header = header + [x + ' - ' + tp + 'h' for tp in map(str, etc_data["etc"]["timePoints"])]

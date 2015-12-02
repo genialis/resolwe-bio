@@ -29,25 +29,37 @@ class UploadProcessorTestCase(ProcessTestCase):
         inputs = {"exp_type": "TPM"}
         self.run_processor("import:upload:expression", inputs, 'error')
 
-        inputs = {"exp": "00Hr_tpm.tab.gz", "rc": "00Hr_rc.tab.gz"}
+        inputs = {"exp": "exp_1_tpm.tab.gz", "rc": "exp_1_rc.tab.gz"}
         self.run_processor("import:upload:expression", inputs, 'error')
 
-        inputs = {"rc": "00Hr_rc.tab.gz"}
-        expressions_3 = self.run_processor("import:upload:expression", inputs)
-        self.assertFiles(expressions_3, "rc", "00Hr_rc.tab.gz")
-        self.assertFiles(expressions_3, 'exp', '00Hr_tpm_3.tab.gz')
+        inputs = {"rc": "exp_1_rc.tab.gz"}
+        exp_3 = self.run_processor("import:upload:expression", inputs)
+        self.assertFiles(exp_3, "rc", "exp_1_rc.tab.gz")
+        self.assertFiles(exp_3, 'exp', 'exp_1_rc.tab.gz')
+        self.assertJSON(exp_3, exp_3.output['exp_json'], '', 'exp_1.json.gz')
 
-        inputs = {"exp": "00Hr_tpm.tab.gz", "exp_type": "TPM"}
-        expressions_4 = self.run_processor("import:upload:expression", inputs)
-        self.assertFiles(expressions_4, 'exp', '00Hr_tpm_2.tab.gz')
+        inputs = {"exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
+        exp_4 = self.run_processor("import:upload:expression", inputs)
+        self.assertFiles(exp_4, 'exp', 'exp_1_tpm.tab.gz')
 
-        inputs = {"rc": "00Hr_rc.tab.gz", "exp": "00Hr_tpm.tab.gz", "exp_type": "TPM"}
-        expressions_5 = self.run_processor("import:upload:expression", inputs)
+        inputs = {"rc": "exp_1_rc.tab.gz", "exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
+        exp_5 = self.run_processor("import:upload:expression", inputs)
+        self.assertFields(exp_5, 'exp_type', 'TPM')
+        self.assertFiles(exp_5, 'exp', 'exp_1_tpm.tab.gz')
+        self.assertFiles(exp_5, 'rc', 'exp_1_rc.tab.gz')
+        self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
 
-        self.assertFields(expressions_5, 'exp_type', 'TPM')
-        self.assertFiles(expressions_5, 'exp', 'expression_tpm.tab.gz')
-        self.assertFiles(expressions_5, 'rc', 'expression_rc.tab.gz')
-        self.assertJSON(expressions_5, expressions_5.output['exp_json'], '', 'expression.json.gz')
+        inputs = {"rc": "exp_mac_line_ending.txt.gz"}
+        exp_6 = self.run_processor("import:upload:expression", inputs)
+        self.assertJSON(exp_6, exp_6.output['exp_json'], '', 'exp.json.gz')
+
+        inputs = {"rc": "exp_unix_line_ending.txt.gz"}
+        exp_7 = self.run_processor("import:upload:expression", inputs)
+        self.assertJSON(exp_7, exp_7.output['exp_json'], '', 'exp.json.gz')
+
+        inputs = {"rc": "exp_windows_line_ending.txt.gz"}
+        exp_8 = self.run_processor("import:upload:expression", inputs)
+        self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
     def test_upload_paired_end_reads(self):
         inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}

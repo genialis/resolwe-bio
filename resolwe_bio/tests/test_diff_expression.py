@@ -64,7 +64,7 @@ class DiffExpProcessorTestCase(ProcessTestCase):
         self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', compression='gzip')
 
     def test_bayseq_bcm(self):
-        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
         mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
@@ -79,7 +79,7 @@ class DiffExpProcessorTestCase(ProcessTestCase):
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
     def test_deseq2(self):
-        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
         inputs = {

@@ -3,7 +3,7 @@ import collections
 import csv
 import os
 import sys
-import gzip
+import utils
 
 import numpy as np
 
@@ -23,7 +23,7 @@ for f in args.files:
     base, ext = os.path.splitext(f)
     delimiter = ';' if ext == '.csv' else '\t'
 
-    with gzip.open(f, 'rb') as csvfile:
+    with utils.gzopen(f) as csvfile:
         reader = csv.reader(csvfile, delimiter=delimiter)
         header = reader.next()
         for gene, exp in reader:

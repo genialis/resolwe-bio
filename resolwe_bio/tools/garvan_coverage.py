@@ -1,7 +1,6 @@
 #!/usr/bin/env pypy
 import argparse
 import bisect
-import csv
 import gzip
 import itertools
 import json
@@ -133,7 +132,6 @@ try:
     variants_file.write('\t'.join([
         'Sequence Name', 'Location', 'Gene', 'Exon', 'Transcript', 'Coverage',
         'X-Ref', 'Above Filter']) + '\n')
-
 
     count, nexons = 0, float(len(exons))
     count_span = nexons / 100.

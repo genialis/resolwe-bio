@@ -1,9 +1,8 @@
 import argparse
 import cPickle as pickle
-import gzip
 import json
 import os
-import string
+import utils
 
 from collections import defaultdict
 
@@ -94,7 +93,7 @@ if os.path.isfile(annotation_cache):
         raise
 
 else:
-    with gzip.open(args.ontology) as fd:
+    with utils.gzopen(args.ontology) as fd:
         ontology = Ontology(fd)
 
     annotations = Annotations(file=args.annotation, ontology=ontology)
@@ -108,7 +107,7 @@ orth = {}
 genes = set()
 
 if args.orthologues:
-    orth = dict(l.strip().split("\t") for l in gzip.open(args.orthologues))
+    orth = dict(l.strip().split("\t") for l in utils.gzopen(args.orthologues))
 
 for g in args.genes:
     if g in annotations.aliasMapper:

@@ -2,7 +2,7 @@ import argparse
 import csv
 import json
 import os
-import gzip
+import utils
 
 import numpy as np
 
@@ -28,9 +28,9 @@ case_rpkum_median = []
 control_rpkum_median = []
 fdr_de = []
 
-myopen = gzip.open if is_gzipped(args.bayseq_results) else open
+myopen = utils.gzopen if is_gzipped(args.bayseq_results) else open
 
-with myopen(args.bayseq_results, 'rb') as csvfile:
+with myopen(args.bayseq_results) as csvfile:
     reader = csv.reader(csvfile, delimiter=delimiter)
     header = reader.next()
 

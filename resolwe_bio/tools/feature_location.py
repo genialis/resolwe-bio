@@ -2,6 +2,7 @@
 import json
 import argparse
 import re
+import utils
 
 parser = argparse.ArgumentParser(description='Extract feature locations')
 parser.add_argument('--annotation', help='Annotation file')
@@ -35,10 +36,6 @@ def get_id(ids):
 
 def get_parent_id(ids):
     return _search(id_re, ids)
-
-
-def escape_geneid(key):
-    return key.replace('$', u'\uff04').replace('.', u'\uff0e')
 
 
 feature_locations = {}
@@ -89,5 +86,5 @@ with open(args.annotation) as annotation:
             feature_locations[feature_id]['str'] = str(min(map(int, feature_locations[feature_id]['str'])))
             feature_locations[feature_id]['end'] = str(max(map(int, feature_locations[feature_id]['end'])))
 
-new_feature_locations = {escape_geneid(key): val for (key, val) in feature_locations.iteritems()}
+new_feature_locations = {utils.escape_geneid(key): val for (key, val) in feature_locations.iteritems()}
 print json.dumps({'feature_location': new_feature_locations}, separators=(',', ':'))

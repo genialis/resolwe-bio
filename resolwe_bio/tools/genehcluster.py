@@ -1,6 +1,6 @@
 import argparse
-import gzip
 import json
+import utils
 
 import numpy as np
 
@@ -47,7 +47,7 @@ timepoints = set()
 
 # read data
 for i, fname in enumerate(args.etc_files):
-    etcjson = json.load(gzip.open(fname, 'rb'))
+    etcjson = json.load(utils.gzopen(fname))
     tps = etcjson['etc']['timePoints']
     expid = args.expids[i]
 

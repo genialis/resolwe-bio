@@ -4,7 +4,7 @@ from .utils import ProcessTestCase
 
 class PcaProcessorTestCase(ProcessTestCase):
     def test_pca(self):
-        expression_1 = self.prepare_expression(f_rc='00Hr_rc.tab.gz', f_exp='00Hr_tpm.tab.gz', f_type="TPM")
+        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
 
         inputs = {'exps': [expression_1.pk, expression_2.pk]}
