@@ -295,6 +295,9 @@ class ProcessTestCase(TestCase):
                          msg="Storage {} field '{}' does not match file {}".format(
                              storage.id, field_path, file_name) + self._msg_stdout(obj))
 
+    def assertDataCount(self, count):
+        self.assertEquals(Data.objects.count(), count)
+
     def _msg_stdout(self, data):
         """Print stdout.txt content."""
         msg = "\n\nDump stdout.txt:\n\n"

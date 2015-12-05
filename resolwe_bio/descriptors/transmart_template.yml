@@ -1,0 +1,48 @@
+- name: transmart
+  label: TranSMART Annotation
+  description: Annotation for tranSMART import.
+  var:
+    - name: group
+      label: Group
+      type: basic:string
+    - name: gender
+      label: Gender
+      type: basic:string
+      choices:
+        - label: M
+          value: M
+        - label: F
+          value: F
+    - name: age
+      label: Age
+      type: basic:integer
+    - name: plateid
+      label: PlateID
+      type: basic:integer
+    - name: batch
+      label: Batch
+      type: basic:string
+      choices:
+        - label: A
+          value: A
+        - label: B
+          value: B
+        - label: C
+          value: C
+        - label: D
+          value: D
+    - name: "gold stage"
+      label: Gold Stage
+      type: basic:string
+      choices:
+        - label: "Stage I"
+          value: "Stage I"
+        - label: "Stage II"
+          value: "Stage II"
+        - label: "Stage III"
+          value: "Stage III"
+        - label: "Stage IV"
+          value: "Stage IV"
+    - name: "hyb date"
+      label: Hyb Date
+      type: basic:string

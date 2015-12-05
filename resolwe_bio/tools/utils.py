@@ -11,6 +11,6 @@ def gzopen(fname):
     return io.TextIOWrapper(io.BufferedReader(gzip.open(fname)))
 
 
-def escape_geneid(key):
+def escape_mongokey(key):
     """Escape keys when serializing database entries"""
     return key.replace('$', u'\uff04').replace('.', u'\uff0e')

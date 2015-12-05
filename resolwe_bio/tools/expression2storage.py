@@ -28,7 +28,7 @@ with utils.gzopen(fname) as f:
     # Split lines by tabs
     # Ignore lines without a number in second column
     # Build a dictionary of gene-expression pairs
-    exp = {'genes': {utils.escape_geneid(gene_exp[0]): float(gene_exp[1]) for
+    exp = {'genes': {utils.escape_mongokey(gene_exp[0]): float(gene_exp[1]) for
                      gene_exp in (l.split('\t') for l in f) if
                      len(gene_exp) == 2 and isfloat(gene_exp[1])}}
 

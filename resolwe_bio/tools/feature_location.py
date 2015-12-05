@@ -86,5 +86,5 @@ with open(args.annotation) as annotation:
             feature_locations[feature_id]['str'] = str(min(map(int, feature_locations[feature_id]['str'])))
             feature_locations[feature_id]['end'] = str(max(map(int, feature_locations[feature_id]['end'])))
 
-new_feature_locations = {utils.escape_geneid(key): val for (key, val) in feature_locations.iteritems()}
+new_feature_locations = {utils.escape_mongokey(key): val for (key, val) in feature_locations.iteritems()}
 print json.dumps({'feature_location': new_feature_locations}, separators=(',', ':'))

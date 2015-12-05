@@ -1,0 +1,75 @@
+# ==========================
+# Integration with tranSMART
+# ==========================
+#
+# Processors for the integration of Genialis and tranSMART platforms.
+---
+
+- name: import:web:transmart:expressions
+  version: 0.0.1
+  label: Import Expressions from tranSMART
+  type: "data:expressionset"
+  category: import
+  persistence: RAW
+  description: >
+    Import gene expressions and the corresponding annotations from tranSMART.
+  input:
+    - name: exps
+      label: Gene expressions
+      type: basic:file
+      required: true
+    - name: ann
+      label: Sample annotations
+      type: basic:file
+      required: false
+    - name: tpl
+      label: Annotation template
+      type: basic:string
+      required: false
+      default: '[{"type":"basic:string:","name":"group","label":"Group"},{"choices":[{"value":"M","label":"M"},{"value":"F","label":"F"}],"type":"basic:string:","name":"gender","label":"Gender"},{"type":"basic:integer:","name":"age","label":"Age"},{"type":"basic:integer:","name":"plateid","label":"PlateID"},{"choices":[{"value":"A","label":"A"},{"value":"B","label":"B"},{"value":"C","label":"C"},{"value":"D","label":"D"}],"type":"basic:string:","name":"batch","label":"Batch"},{"choices":[{"value":"Stage I","label":"Stage I"},{"value":"Stage II","label":"Stage II"},{"value":"Stage III","label":"Stage III"},{"value":"Stage IV","label":"Stage IV"}],"type":"basic:string:","name":"gold stage","label":"Gold Stage"},{"type":"basic:string:","name":"hyb date","label":"Hyb Date"}]'
+  output:
+    - name: expset
+      label: Expression set
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ exps.file|default:"?" }} (tranSMART)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+
+      gen-import "{{ exps.file_temp|default:exps.file }}" "{{ exps.file }}" "xlsx" "xlsx" 0.1 extract
+
+      {% if ann %}
+        gen-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "xlsx" "xlsx" 0.2 extract
+      {% endif %}
+
+      transmart_import.py {{ exps.file }} {% if ann %}--annotation {{ ann.file }}{% endif %} {% if tpl %}--template '{{ tpl }}'{% endif %} --progress 0.2
+      gen-checkrc "Import from tranSMART failed."

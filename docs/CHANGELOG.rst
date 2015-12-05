@@ -18,3 +18,4 @@ Fixed
 
 Added
 -----
+* Import expressions from tranSMART.
