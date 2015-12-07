@@ -57,13 +57,13 @@ with gzip.open(tabname, 'wb') as tabfile:
     tabwriter = csv.writer(tabfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
     tabwriter.writerows(ws.row_values(row, 0, ws.ncols) for row in xrange(ws.nrows))
 
-print '{"expset": {"file": "%s"}}' % tabname
+os.makedirs('temp')
+print '{"expset": {"file": "%s", "refs": ["temp"]}}' % tabname
 
 genes = ws.col_values(0, 1, ws.nrows)
 samples = ws.row_values(0, 1)
 
 sample_ndx = 1
-os.makedirs('temp')
 progress_current = args.progress
 progress_step = (1. - args.progress) / len(samples)
 
