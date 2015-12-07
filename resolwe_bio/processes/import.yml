@@ -1941,7 +1941,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: 'Expression upload'
+      default: '{{ exp.file|default:"?" }}'
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -1978,13 +1978,13 @@
         gen-save-file rc ${NAME}.tab.gz
         expression2storage.py "${NAME}.tab.gz"
         gen-checkrc
-      
+
       {% elif exp and exp_type and not rc %}
         gen-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
         EXP_NAME=${NAME}
         EXP_TYPE="{{exp_type}}"
         gen-save exp_type ${EXP_TYPE}
-        gen-save-file exp ${EXP_NAME}.tab.gz        
+        gen-save-file exp ${EXP_NAME}.tab.gz
         expression2storage.py "${NAME}.tab.gz"
         gen-checkrc
 
@@ -1999,7 +1999,7 @@
         gen-save-file rc ${RC_NAME}.tab.gz
         expression2storage.py "${EXP_NAME}.tab.gz"
         gen-checkrc
-        
+
       {% endif %}
 
 - name: import:upload:bed
