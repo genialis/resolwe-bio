@@ -109,9 +109,9 @@ class UploadProcessorTestCase(ProcessTestCase):
         inputs = {"src": "genome.fasta.gz"}
         genome = self.run_processor('import:upload:genome-fasta', inputs)
 
-        self.assertFileExist(genome, "index_bt")
-        self.assertFileExist(genome, "index_bt2")
-        self.assertFileExist(genome, "index_bwa")
+        self.assertFileExists(genome, "index_bt")
+        self.assertFileExists(genome, "index_bt2")
+        self.assertFileExists(genome, "index_bwa")
 
     def test_upload_bed(self):
         inputs = {"src": "bad.bed"}

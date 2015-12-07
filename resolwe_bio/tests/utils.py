@@ -235,7 +235,7 @@ class ProcessTestCase(TestCase):
         self.assertEqual(wanted_hash, output_hash,
                          msg="File hash mismatch: {} != {}".format(wanted_hash, output_hash) + self._msg_stdout(obj))
 
-    def assertFileExist(self, obj, field_path):  # pylint: disable=invalid-name
+    def assertFileExists(self, obj, field_path):  # pylint: disable=invalid-name
         """Compare output file of a processor to the given correct file.
 
         :param obj: Data object which includes file that we want to
@@ -246,11 +246,15 @@ class ProcessTestCase(TestCase):
         :type field_path: :obj:`str`
 
         """
-        field = dict_dot(obj['output'], field_path)
-        output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
+        try:
+            field = dict_dot(obj['output'], field_path)
+            output = os.path.join(settings.DATAFS['data_path'], str(obj.pk), field['file'])
+            if os.path.isfile(output):
+                return
+        except KeyError:
+            pass
 
-        if not os.path.isfile(output):
-            self.fail(msg="File {} does not exist.".format(field_path))
+        self.fail(msg="File not found for field <{}>".format(field_path))
 
     def assertJSON(self, obj, storage, field_path, file_name):  # pylint: disable=invalid-name
         """Compare JSON in Storage object to the given correct output.

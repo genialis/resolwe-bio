@@ -11,10 +11,12 @@ Unreleased
 
 Changed
 -------
+* Renamed assertFileExist to assertFileExists.
 
 Fixed
 -----
-* Different line endings are correctly handled when opening gzipped files
+* Different line endings are correctly handled when opening gzipped files.
+* Fail gracefully if the field does not exist assertFileExists.
 
 Added
 -----
