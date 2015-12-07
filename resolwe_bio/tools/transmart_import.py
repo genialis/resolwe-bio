@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import argparse
 import csv
+import gzip
 import json
 import os
 import xlrd
@@ -47,6 +48,16 @@ has_annotation = sample_characteristics_ndx >= 0
 
 wb = xlrd.open_workbook(args.expressions)
 ws = wb.sheets()[0]
+
+# Save Excel expressions as TAB
+tabname, _ = os.path.splitext(args.expressions)
+tabname += '.tab.gz'
+
+with gzip.open(tabname, 'wb') as tabfile:
+    tabwriter = csv.writer(tabfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+    tabwriter.writerows(ws.row_values(row, 0, ws.ncols) for row in xrange(ws.nrows))
+
+print '{"expset": {"file": "%s"}}' % tabname
 
 genes = ws.col_values(0, 1, ws.nrows)
 samples = ws.row_values(0, 1)
