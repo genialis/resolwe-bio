@@ -62,6 +62,9 @@ elif 'FDR' in header:
 elif 'q_value' in header:
     y = -np.log10(np.array(de['q_value']))
     ylabel = '-log10(' + 'q_value' + ')'
+elif 'adj.P.Val' in header:
+    y = -np.log10(np.array(de['adj.P.Val']))
+    ylabel = '-log10(' + 'adj.P.Val' + ')'
 
 y[y == np.inf] = np.amax(y[np.isfinite(y)])
 

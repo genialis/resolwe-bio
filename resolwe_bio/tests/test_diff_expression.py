@@ -89,3 +89,17 @@ class DiffExpProcessorTestCase(ProcessTestCase):
 
         diff_exp = self.run_processor('differentialexpression:deseq2', inputs)
         self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')
+
+    def test_limma(self):
+        expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")
+        expression_2 = self.prepare_expression(f_exp='exp_limma_2.tab.gz', f_type="Log2")
+        expression_3 = self.prepare_expression(f_exp='exp_limma_3.tab.gz', f_type="Log2")
+        expression_4 = self.prepare_expression(f_exp='exp_limma_4.tab.gz', f_type="Log2")
+
+        inputs = {
+            'case': [expression_1.pk, expression_2.pk],
+            'control': [expression_3.pk, expression_4.pk]
+        }
+
+        diff_exp = self.run_processor('differentialexpression:limma', inputs)
+        self.assertFiles(diff_exp, "diffexp", 'diffexp_limma.tab.gz', compression='gzip')

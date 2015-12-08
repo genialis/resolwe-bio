@@ -114,4 +114,3 @@ for sample in samples:
 
     progress_current += progress_step
     print '{{"proc.progress": {}}}'.format(progress_current)
-

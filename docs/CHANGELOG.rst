@@ -21,3 +21,4 @@ Fixed
 Added
 -----
 * Import expressions from tranSMART.
+* Limma differential expression (tranSMART)

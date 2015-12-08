@@ -1,0 +1,107 @@
+# =================================================
+# Differential Expression - Limma (microarray data)
+# =================================================
+#
+---
+
+- name: differentialexpression:limma
+  version: 1.0.0
+  label: Differential Expression (limma)
+  type: data:differentialexpression:limma
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find differentially expressed genes.
+  input:
+    - name: case
+      label: Case
+      type: list:data:expression
+      required: true
+      description: >
+        Case samples (replicates)
+    - name: control
+      label: Control
+      type: list:data:expression
+      required: true
+      description: >
+        Control samples (replicates)
+  output:
+    - name: diffexp
+      label: Differential expression
+      type: basic:file
+    - name: volcano_plot
+      label: Volcano plot
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Differential expression (case vs. control)'
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the DE analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["differential", "expression", "limma"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of the differential expression."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      gen-require common
+      
+      {% for c in control %}
+        controls=$controls"{{c.exp.file}} "
+        contVec=$contVec"1,"
+        caseVec=$caseVec"0,"
+      {% endfor %}
+
+      {% for t in case %}
+        {% if t not in control %}
+          cases=$cases"{{t.exp.file}} "
+          contVec=$contVec"0,"
+          caseVec=$caseVec"1,"
+        {% else %}
+          gen-error "DE analysis failed. Case and Control groups must contain unique samples."
+        {% endif %}
+      {% endfor %}
+
+      contVec=${contVec%?}
+      caseVec=${caseVec%?}
+
+      cases=${cases%?}
+      sampleFiles=$controls"$cases"
+
+      gen-progress 0.1
+
+      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      gen-checkrc "Error merging expression data."
+
+      run_limma.R counts.tab --control ${contVec} --case ${caseVec} --out diffexp_limma.tab
+      gen-checkrc "Error computing differential expression (limma)."
+
+      gen-progress 0.95
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_limma.tab'
+      gen-checkrc "Error computing Volcano plot."
+
+      gzip 'diffexp_limma.tab'
+      gen-save-file diffexp diffexp_limma.tab.gz
