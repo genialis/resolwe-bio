@@ -65,7 +65,7 @@ class DiffExpProcessorTestCase(ProcessTestCase):
 
     def test_bayseq_bcm(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
-        expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
+        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
 
         mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
@@ -80,7 +80,7 @@ class DiffExpProcessorTestCase(ProcessTestCase):
 
     def test_deseq2(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
-        expression_2 = self.prepare_expression(f_rc='20Hr_rc.tab.gz', f_exp='20Hr_tpm.tab.gz', f_type="TPM")
+        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
 
         inputs = {
             'case': [expression_1.pk],

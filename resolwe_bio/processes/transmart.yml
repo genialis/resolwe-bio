@@ -26,7 +26,7 @@
       label: Annotation template
       type: basic:string
       required: false
-      default: '[{"type":"basic:string:","name":"group","label":"Group"},{"choices":[{"value":"M","label":"M"},{"value":"F","label":"F"}],"type":"basic:string:","name":"gender","label":"Gender"},{"type":"basic:integer:","name":"age","label":"Age"},{"type":"basic:integer:","name":"plateid","label":"PlateID"},{"choices":[{"value":"A","label":"A"},{"value":"B","label":"B"},{"value":"C","label":"C"},{"value":"D","label":"D"}],"type":"basic:string:","name":"batch","label":"Batch"},{"choices":[{"value":"Stage I","label":"Stage I"},{"value":"Stage II","label":"Stage II"},{"value":"Stage III","label":"Stage III"},{"value":"Stage IV","label":"Stage IV"}],"type":"basic:string:","name":"gold stage","label":"Gold Stage"},{"type":"basic:string:","name":"hyb date","label":"Hyb Date"}]'
+      default: '[{"type":"basic:string:","name":"group","label":"Group"},{"choices":[{"value":"M","label":"M"},{"value":"F","label":"F"}],"type":"basic:string:","name":"gender","label":"Gender"},{"type":"basic:integer:","name":"age","label":"Age"},{"type":"basic:integer:","name":"plateid","label":"PlateID"},{"choices":[{"value":"A","label":"A"},{"value":"B","label":"B"},{"value":"C","label":"C"},{"value":"D","label":"D"}],"type":"basic:string:","name":"batch","label":"Batch"},{"choices":[{"value":"Stage I","label":"Stage I"},{"value":"Stage II","label":"Stage II"},{"value":"Stage III","label":"Stage III"},{"value":"Stage IV","label":"Stage IV"}],"type":"basic:string:","name":"gold_stage","label":"Gold Stage"},{"type":"basic:string:","name":"hyb_date","label":"Hyb Date"}]'
   output:
     - name: expset
       label: Expression set
