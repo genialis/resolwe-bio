@@ -4,7 +4,7 @@
 ---
 
 - name: assembler:abyss
-  version: 1.0.0
+  version: 1.0.1
   label: Assembler ABySS (1.9.0)
   type: data:abyss
   category: analyses
@@ -80,21 +80,21 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require abyss-1.9.0
+      re-require common
+      re-require abyss-1.9.0
 
       NAME_1=`basename '{{reads.fastq.file}}' .fastq.gz`
       NAME_2=`basename '{{reads.fastq2.file}}' .fastq.gz`
       cp '{{reads.fastq.file}}' ${NAME_1}_1.fastq.gz
       cp '{{reads.fastq2.file}}' ${NAME_2}_2.fastq.gz
 
-      gen-progress 0.1
+      re-progress 0.1
 
       abyss-pe name='{{options.name}}' k='{{options.k}}' s='{{options.s}}' {% if se %} se='{{se.fastq.file}}' {% endif %} in=''${NAME_1}'_1.fastq.gz '${NAME_2}'_2.fastq.gz'
-      gen-checkrc
-      gen-progress 0.9
+      re-checkrc
+      re-progress 0.9
 
       zip '{{options.name}}'_contigs *.fa
       
-      gen-save-file contigs '{{options.name}}'_contigs.zip
-      gen-save-file stats '{{options.name}}'-stats.tab
+      re-save-file contigs '{{options.name}}'_contigs.zip
+      re-save-file stats '{{options.name}}'-stats.tab

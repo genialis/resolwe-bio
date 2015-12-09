@@ -4,7 +4,7 @@
 ---
 
 - name: macs2:callpeak
-  version: 1.0.3
+  version: 1.0.4
   label: MACS2 (Call peaks)
   type: data:chipseq:macs2:callpeak
   category: analyses
@@ -188,16 +188,16 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require macs2
+      re-require common
+      re-require macs2
 
       {% if settings.broad and settings.call_summits %}
-        gen-error "--broad can't be combined with --call-summits!"
+        re-error "--broad can't be combined with --call-summits!"
       {% endif %}
 
       NAME=`basename '{{ case.bam.file }}' .bam`
 
-      gen-progress 0.1
+      re-progress 0.1
 
       CONTROL='{% if control %} -c '{{ control.bam.file }}' {% endif %}'
       GSIZE='{% if settings.gsize %} -g '{{ settings.gsize }}' {% endif %}'
@@ -219,38 +219,38 @@
       CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
 
       macs2 callpeak -t '{{ case.bam.file }}' ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
-      gen-checkrc "MACS2 processing failed"
-      gen-progress 0.8
+      re-checkrc "MACS2 processing failed"
+      re-progress 0.8
 
       cat err.txt
-      gen-warning "`grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
+      re-warning "`grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
 
       if [ -f ${NAME}_model.r ]
       then
         Rscript ${NAME}_model.r
-        gen-checkrc
-        gen-save-file model ${NAME}_model.pdf
+        re-checkrc
+        re-save-file model ${NAME}_model.pdf
       fi
 
-      gen-progress 0.9
+      re-progress 0.9
 
-      gen-save-file called_peaks ${NAME}_peaks.xls
+      re-save-file called_peaks ${NAME}_peaks.xls
 
       {% if settings.broad and not settings.call_summits %}
-        gen-save-file broad_peaks ${NAME}_peaks.broadPeak
-        gen-save-file gappedPeak ${NAME}_peaks.gappedPeak
+        re-save-file broad_peaks ${NAME}_peaks.broadPeak
+        re-save-file gappedPeak ${NAME}_peaks.gappedPeak
       {% else %}
-        gen-save-file narrow_peaks ${NAME}_peaks.narrowPeak
-        gen-save-file summits ${NAME}_summits.bed
+        re-save-file narrow_peaks ${NAME}_peaks.narrowPeak
+        re-save-file summits ${NAME}_summits.bed
       {% endif %}
 
       {% if settings.bedgraph %}
-        gen-save-file treat_pileup ${NAME}_treat_pileup.bdg
-        gen-save-file control_lambda ${NAME}_control_lambda.bdg
+        re-save-file treat_pileup ${NAME}_treat_pileup.bdg
+        re-save-file control_lambda ${NAME}_control_lambda.bdg
       {% endif %}
 
 - name: chipseq:peakscore
-  version: 1.0.2
+  version: 1.0.3
   label: ChIP-Seq (Peak Score)
   type: data:chipseq:peakscore
   category: analyses
@@ -295,21 +295,21 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require bedops-2.4.14
+      re-require common
+      re-require bedops-2.4.14
 
       closest-features --dist '{{ peaks.narrow_peaks.file }}' '{{ bed.BED.file }}' > macs2_peakscore
-      gen-checkrc
-      gen-progress 0.3
+      re-checkrc
+      re-progress 0.3
 
       parse_closest_features.R macs2_peakscore
-      gen-checkrc
-      gen-progress 0.6
+      re-checkrc
+      re-progress 0.6
 
-      gen-save-file peak_score macs2_peakscore_genomicContext
+      re-save-file peak_score macs2_peakscore_genomicContext
 
 - name: chipseq:genescore
-  version: 1.0.1
+  version: 1.0.2
   label: ChIP-Seq (Gene Score)
   type: data:chipseq:genescore
   category: analyses
@@ -371,9 +371,9 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       peak2geneScore.R '{{peakscore.peak_score.file}}' {% if fdr %} --fdr '{{fdr}}' {% endif %} {% if pval %} --pval '{{pval}}' {% endif %} {% if logratio %} --logratio '{{logratio}}' {% endif %}
-      gen-checkrc "GeneScore computing failed."
+      re-checkrc "GeneScore computing failed."
 
-      gen-save-file genescore geneScore.xls
+      re-save-file genescore geneScore.xls

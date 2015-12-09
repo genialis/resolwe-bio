@@ -231,7 +231,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?, \"report_file\":{\"file\":\"${GENOME_NAME}_compatibility_report.txt\"}}"
 
 - name: feature_location
-  version: 1.0.0
+  version: 1.0.1
   label: Feature locations
   type: data:featurelocation
   category: analyses
@@ -305,7 +305,7 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       feature_location.py --annotation {% if annotation.gff.file %} '{{annotation.gff.file}}' {% else %} '{{annotation.gtf.file}}' {% endif %} --feature_type '{{feature_type}}' --id_type '{{id_type}}' {% if summarize_exons %} --summarize_exons {% endif %}
-      gen-checkrc "Parsing of annotation file failed."
+      re-checkrc "Parsing of annotation file failed."

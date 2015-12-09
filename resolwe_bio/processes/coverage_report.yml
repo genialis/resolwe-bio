@@ -6,7 +6,7 @@
 ---
 
 - name: coverage:garvan
-  version: 2.0.1
+  version: 2.0.2
   label: Exome Coverage Report
   type: data:coverage
   category: analyses
@@ -89,12 +89,12 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require samtools-0.1.19
+      re-require common
+      re-require samtools-0.1.19
 
       garvan_coverage.py {{ filter }} '{{ mapping.output.bam.file }}' '{{ gtf.output.gtf.file }}' {% if variants %}--variants '{{ variants.output.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
-      gen-checkrc
+      re-checkrc
 
-      gen-save-file exon_coverage exons.txt.gz
-      gen-save-file transcript_coverage transcripts.txt.gz
-      gen-save-file variants_coverage variants.txt.gz
+      re-save-file exon_coverage exons.txt.gz
+      re-save-file transcript_coverage transcripts.txt.gz
+      re-save-file variants_coverage variants.txt.gz

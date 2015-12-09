@@ -6,7 +6,7 @@
 ---
 
 - name: import:web:transmart:expressions
-  version: 0.0.1
+  version: 0.0.2
   label: Import Expressions from tranSMART
   type: "data:expressionset"
   category: import
@@ -63,15 +63,15 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
-      gen-import "{{ exps.file_temp|default:exps.file }}" "{{ exps.file }}" "xlsx" "xlsx" 0.1 extract
+      re-import "{{ exps.file_temp|default:exps.file }}" "{{ exps.file }}" "xlsx" "xlsx" 0.1 extract
 
       {% if ann %}
-        gen-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "xlsx" "xlsx" 0.2 extract
+        re-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "xlsx" "xlsx" 0.2 extract
       {% endif %}
 
-      gen-save expset_type "Log2"
+      re-save expset_type "Log2"
 
       transmart_import.py {{ exps.file }} {% if ann %}--annotation {{ ann.file }}{% endif %} {% if tpl %}--template '{{ tpl }}'{% endif %} --progress 0.2
-      gen-checkrc "Import from tranSMART failed."
+      re-checkrc "Import from tranSMART failed."

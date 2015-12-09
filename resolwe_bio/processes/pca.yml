@@ -4,7 +4,7 @@
 ---
 
 - name: pca:1-0-0
-  version: 1.0.7
+  version: 1.0.8
   label: PCA
   type: data:pca
   category: analyses
@@ -49,13 +49,13 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       EXPSET_TYPE="{{exps.0.output.exp_type}}"
 
       {% for e in exps %}
         {% if exps.0.output.exp_type != e.output.exp_type %}
-          gen-save proc.error "Expressions must be of the same expression type"
+          re-save proc.error "Expressions must be of the same expression type"
         {% endif %}
       {% endfor %}
 
@@ -64,14 +64,14 @@
         obj_id=$obj_id"{{ exp.id }},"
       {% endfor %}
 
-      gen-save proc.rc $?
-      gen-save proc.progress 0.1
+      re-save proc.rc $?
+      re-save proc.progress 0.1
 
       obj_id=${obj_id%?}
       exp=${exp%?}
 
-      gen-save proc.rc $?
-      gen-save proc.progress 0.2
+      re-save proc.rc $?
+      re-save proc.progress 0.2
 
       pca.py ${exp} ${obj_id} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} {% if filter %}--filter{% endif %}
-      gen-save proc.rc $?
+      re-save proc.rc $?

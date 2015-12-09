@@ -368,7 +368,7 @@
       exit 0
 
 - name: test:disabled
-  version: 1.0.2
+  version: 1.0.3
   label: Test disabled inputs
   type: data:test:disabled
   persistence: CACHED
@@ -412,12 +412,12 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
       echo "Testing dissabled fields"
-      gen-save output "Done"
+      re-save output "Done"
 
 - name: test:hidden
-  version: 1.0.2
+  version: 1.0.3
   label: Test hidden inputs
   type: data:test:hidden
   persistence: CACHED
@@ -471,6 +471,6 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
       echo "Testning hidden fields"
-      gen-save output "Done"
+      re-save output "Done"

@@ -5,7 +5,7 @@
 ---
 
 - name: jbrowse:refseq
-  version: 1.0.1
+  version: 1.0.2
   label: Build reference sequence track (JBrowse)
   type: data:jbrowse:refseq:genome
   category: jbrowse
@@ -36,17 +36,17 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require jbrowse-1.11.6/bin
+      re-require common
+      re-require jbrowse-1.11.6/bin
 
       prepare-refseqs.pl --fasta '{{refseq.fasta.file}}' --out .
-      gen-checkrc "Reference sequence processing for JBrowse failed."
-      gen-progress 0.9
-      gen-save-file refseq_track seq/refSeqs.json seq
+      re-checkrc "Reference sequence processing for JBrowse failed."
+      re-progress 0.9
+      re-save-file refseq_track seq/refSeqs.json seq
 
 
 - name: jbrowse:gff3
-  version: 1.0.1
+  version: 1.0.2
   label: Build GFF3 annotation track (JBrowse)
   type: data:jbrowse:annotation:gff3
   category: jbrowse
@@ -77,16 +77,16 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require jbrowse-1.11.6/bin
+      re-require common
+      re-require jbrowse-1.11.6/bin
 
       flatfile-to-json.pl --gff '{{gff.gff.file}}' --out . --trackLabel "annotation"
-      gen-checkrc "Annotation track processing for JBrowse failed."
-      gen-save-file annotation_track trackList.json tracks/annotation
+      re-checkrc "Annotation track processing for JBrowse failed."
+      re-save-file annotation_track trackList.json tracks/annotation
 
 
 - name: jbrowse:gtf
-  version: 1.0.1
+  version: 1.0.2
   label: Build GTF annotation track (JBrowse)
   type: data:jbrowse:annotation:gtf
   category: jbrowse
@@ -117,16 +117,16 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require jbrowse-1.11.6/bin
+      re-require common
+      re-require jbrowse-1.11.6/bin
 
       flatfile-to-json.pl --gff '{{gtf.gtf.file}}' --out . --trackLabel "annotation"
-      gen-checkrc "Annotation track processing for JBrowse failed."
-      gen-save-file annotation_track trackList.json tracks/annotation
+      re-checkrc "Annotation track processing for JBrowse failed."
+      re-save-file annotation_track trackList.json tracks/annotation
 
 
 - name: jbrowse:bed
-  version: 1.0.0
+  version: 1.0.1
   label: Build BED annotation track (JBrowse)
   type: data:jbrowse:annotation:bed
   category: jbrowse
@@ -164,33 +164,33 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require jbrowse-1.11.6/bin
+      re-require common
+      re-require jbrowse-1.11.6/bin
 
       {% if not bed.BED.file and not macs2.narrow_peaks.file %}
-        gen-warning "Please select only one file type (BAM file or MACS2 results file) as an input."
-        gen-error "Missing input files."
+        re-warning "Please select only one file type (BAM file or MACS2 results file) as an input."
+        re-error "Missing input files."
       {% endif %}
 
       {% if bed.BED.file and macs2.narrow_peaks.file %}
-        gen-error "Please select only one file type (BAM file or MACS2 results file) as an input."
+        re-error "Please select only one file type (BAM file or MACS2 results file) as an input."
       {% endif %}
 
       {% if bed.BED.file %}
         flatfile-to-json.pl --bed '{{bed.BED.file}}' --out . --trackLabel "bed"
-        gen-checkrc "BED track processing for JBrowse failed."
+        re-checkrc "BED track processing for JBrowse failed."
       {% endif %}
 
       {% if macs2.narrow_peaks.file %}
         flatfile-to-json.pl --bed '{{macs2.narrow_peaks.file}}' --out . --trackLabel "bed"
-        gen-checkrc "BED track processing for JBrowse failed."
+        re-checkrc "BED track processing for JBrowse failed."
       {% endif %}
 
-      gen-save-file bed_track trackList.json tracks/bed
+      re-save-file bed_track trackList.json tracks/bed
 
 
 - name: jbrowse:bam:coverage
-  version: 1.0.1
+  version: 1.0.2
   label: Build coverage track (JBrowse)
   type: data:jbrowse:bigwig:coverage
   category: analyses
@@ -219,32 +219,32 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require samtools-0.1.19
-      gen-require bedtools-2.17.0
-      gen-require kentUtils-2.9.1
+      re-require common
+      re-require samtools-0.1.19
+      re-require bedtools-2.17.0
+      re-require kentUtils-2.9.1
 
       NAME='{{bam.bam.file}}'
       BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
-      gen-checkrc
-      gen-progress 0.1
+      re-checkrc
+      re-progress 0.1
 
       samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
-      gen-checkrc
-      gen-progress 0.15
+      re-checkrc
+      re-progress 0.15
 
       genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
-      gen-checkrc
-      gen-progress 0.80
+      re-checkrc
+      re-progress 0.80
 
       bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
-      gen-checkrc
-      gen-progress 0.90
+      re-checkrc
+      re-progress 0.90
 
-      gen-save-file bigwig_track ${BIGWIGOUT}.bw
+      re-save-file bigwig_track ${BIGWIGOUT}.bw
 
 - name: jbrowse:bam:coverage:normalized
-  version: 1.0.0
+  version: 1.0.1
   label: Build normalized coverage track (JBrowse)
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
@@ -302,19 +302,19 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require kentUtils-2.9.1
+      re-require common
+      re-require kentUtils-2.9.1
 
       {% if normalize == "--normalizeTo1x" and not size %}
-        gen-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."
+        re-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."
       {% endif %}
 
-      gen-progress 0.1
+      re-progress 0.1
 
       NAME=`basename '{{ bam.bam.file }}' .bam`
 
       bamCoverage --bam '{{bam.bam.file}}' --outFileName ${NAME}.bigWig --outFileFormat bigwig '{{normalize}}' {% if normalize == "--normalizeTo1x" %} '{{size}}' {% endif %} --binSize '{{binSize}}' --fragmentLength '{{fragmentLength}}' --verbose
-      gen-checkrc "Normalized coverage track computation failed."
-      gen-progress 0.9
+      re-checkrc "Normalized coverage track computation failed."
+      re-progress 0.9
 
-      gen-save-file bigwig_track ${NAME}.bigWig
+      re-save-file bigwig_track ${NAME}.bigWig

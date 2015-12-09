@@ -6,7 +6,7 @@
 ---
 
 - name: import:upload:microarray:affy
-  version: 1.0.0
+  version: 1.0.1
   label: Upload microarray data (Affymetrix)
   type: data:microarray:affy
   category: upload
@@ -72,12 +72,12 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-import "{{ cel.file_temp|default:cel.file }}" "{{ cel.file }}" "cel|CEL" "CEL"
-      gen-save-file cel "${NAME}.CEL"
+      re-require common
+      re-import "{{ cel.file_temp|default:cel.file }}" "{{ cel.file }}" "cel|CEL" "CEL"
+      re-save-file cel "${NAME}.CEL"
 
 - name: microarray:affy:qc
-  version: 1.0.0
+  version: 1.0.1
   label: Microarray Quality Metrics
   type: data:microarray:qc:affy
   category: analyses
@@ -141,15 +141,15 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       {% for c in cel %}
         cp "{{c.cel.file}}" .
       {% endfor %}
 
       microarrayQC.R '{{ library }}' {% if logtransform %} --logtransform {% endif %}
-      gen-checkrc "Array Quality Metrics processing failed. Try loading data using alternative R library."
+      re-checkrc "Array Quality Metrics processing failed. Try loading data using alternative R library."
 
-      gen-save qc_report_url "{\"name\":\"View\",\"url\":\"report/index.html\",\"refs\":[\"report\"]}"
+      re-save qc_report_url "{\"name\":\"View\",\"url\":\"report/index.html\",\"refs\":[\"report\"]}"
       zip -r report report
-      gen-save-file qc_report report.zip
+      re-save-file qc_report report.zip

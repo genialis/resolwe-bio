@@ -5,7 +5,7 @@
 ---
 
 - name: differentialexpression:limma
-  version: 1.0.0
+  version: 1.0.1
   label: Differential Expression (limma)
   type: data:differentialexpression:limma
   category: analyses
@@ -66,7 +66,7 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
       
       {% for c in control %}
         controls=$controls"{{c.exp.file}} "
@@ -80,7 +80,7 @@
           contVec=$contVec"0,"
           caseVec=$caseVec"1,"
         {% else %}
-          gen-error "DE analysis failed. Case and Control groups must contain unique samples."
+          re-error "DE analysis failed. Case and Control groups must contain unique samples."
         {% endif %}
       {% endfor %}
 
@@ -90,18 +90,18 @@
       cases=${cases%?}
       sampleFiles=$controls"$cases"
 
-      gen-progress 0.1
+      re-progress 0.1
 
       expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
-      gen-checkrc "Error merging expression data."
+      re-checkrc "Error merging expression data."
 
       run_limma.R counts.tab --control ${contVec} --case ${caseVec} --out diffexp_limma.tab
-      gen-checkrc "Error computing differential expression (limma)."
+      re-checkrc "Error computing differential expression (limma)."
 
-      gen-progress 0.95
+      re-progress 0.95
 
       python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_limma.tab'
-      gen-checkrc "Error computing Volcano plot."
+      re-checkrc "Error computing Volcano plot."
 
       gzip 'diffexp_limma.tab'
-      gen-save-file diffexp diffexp_limma.tab.gz
+      re-save-file diffexp diffexp_limma.tab.gz

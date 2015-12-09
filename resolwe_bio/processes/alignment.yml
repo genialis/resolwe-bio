@@ -733,7 +733,7 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.15
+  version: 1.0.16
   label: Aligner (Bowtie 2.2.3)
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
@@ -908,11 +908,11 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require bowtie2-2.2.3
-      gen-require samtools-0.1.19
-      gen-require bedtools-2.17.0
-      gen-require kentUtils-2.9.1
+      re-require common
+      re-require bowtie2-2.2.3
+      re-require samtools-0.1.19
+      re-require bedtools-2.17.0
+      re-require kentUtils-2.9.1
 
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       echo "Searching for index"
@@ -924,18 +924,18 @@
       else
         echo "index not found, UNCOMPRESSING genome:"
         gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-        gen-progress 0.1
+        re-progress 0.1
         echo "BUILDING genome index:"
         bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
-        gen-checkrc
+        re-checkrc
       fi
 
-      gen-progress 0.2
+      re-progress 0.2
 
       echo "UNCOMPRESSING reads:"
       NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
       gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
-      gen-progress 0.3
+      re-progress 0.3
 
       # mode selection
       if [ {{reporting.rep_mode}} == def ]; then
@@ -970,18 +970,18 @@
         {% endif %}
 
         bowtie2 $encoding {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x "${GENOME_NAME}_index" -U "${NAME}.fastq" -S "${NAME}_align_unsorted.sam" --un "${NAME}_unmapped1.fq" 2> "report.txt"
-        gen-checkrc
+        re-checkrc
         {% if trimming.trim_iter >= 1 %}
             echo "iterative alignment of unmapped reads:"
           for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
             do
             echo -e "\nTrimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed)" >> "report.txt"
             bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${NAME}_new_mapped$((c+1)).sam" --un "${NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
-            gen-checkrc
+            re-checkrc
             samtools view -bS "${NAME}_new_mapped$((c+1)).sam" > "${NAME}_new_mapped$((c+1)).bam"
-            gen-checkrc
+            re-checkrc
             mergebowtie2stats.py "report.txt"
-            gen-checkrc
+            re-checkrc
             mv stats.tab "${NAME}_report.txt"
             done
           mv "${NAME}_unmapped$((c)).fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
@@ -994,53 +994,53 @@
         samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
         {%  if trimming.trim_iter >= 1 %}
           samtools merge -h "${NAME}_align_unsorted.sam" "${NAME}_align_merged_unsorted.bam" ${NAME}_*.bam
-          gen-checkrc
+          re-checkrc
           samtools sort "${NAME}_align_merged_unsorted.bam" "${NAME}_align"
-          gen-checkrc
+          re-checkrc
         {% else %}
           samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
-          gen-checkrc
+          re-checkrc
         {% endif %}
 
       {% else %}
         NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
         gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
-        gen-progress 0.4
+        re-progress 0.4
 
         bowtie2 $encoding {{mode}} $a_mode $s_mode -x "${GENOME_NAME}_index" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if PE_options.use_SE %} -U "${NAME}.fastq","${NAME2}.fastq" {% else %} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_SE %} --no-mixed {% endif %} -I  {{ PE_options.I}} -X {{ PE_options.X}} -1 "${NAME}.fastq" -2 "${NAME2}.fastq" {% endif %} -S "${NAME}_align_unsorted.sam" 2> "${NAME}_report.txt"
-        gen-checkrc
+        re-checkrc
         samtools view -bS "${NAME}_align_unsorted.sam" > "${NAME}_align_unsorted.bam"
-        gen-checkrc
+        re-checkrc
         samtools sort "${NAME}_align_unsorted.bam" "${NAME}_align"
-        gen-checkrc
+        re-checkrc
         samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
-        gen-checkrc
+        re-checkrc
         bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
-        gen-checkrc
+        re-checkrc
         gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
       {% endif %}
-      gen-progress 0.5
+      re-progress 0.5
 
       samtools view -b -F 4 "${NAME}_align.bam" > "${NAME}_mapped.bam"
 
       [ -f "${NAME}_mapped.bam" ] && OUTPUT_NAME="${NAME}_mapped.bam"
-      gen-save-file bam $OUTPUT_NAME
-      gen-save-file unmapped ${NAME}_unmapped.fastq.gz
-      gen-save-file stats ${NAME}_report.txt
+      re-save-file bam $OUTPUT_NAME
+      re-save-file unmapped ${NAME}_unmapped.fastq.gz
+      re-save-file stats ${NAME}_report.txt
 
       echo -e "\nINDEXING bam:"
       samtools index "${NAME}_mapped.bam" "${NAME}_mapped.bam.bai"
-      gen-checkrc
-      gen-save-file bai ${NAME}_mapped.bam.bai
-      gen-progress 0.6
+      re-checkrc
+      re-save-file bai ${NAME}_mapped.bam.bai
+      re-progress 0.6
 
       echo "Computing BigWig file:"
       samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
       genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
       bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
 
-      gen-save-file bam $OUTPUT_NAME ${OUTPUT_NAME}.bw
+      re-save-file bam $OUTPUT_NAME ${OUTPUT_NAME}.bw
 
 - name: alignment:tophat-2-0-13
   version: 1.0.9
@@ -1231,7 +1231,7 @@
 
 
 - name: alignment:star:index
-  version: 1.0.1
+  version: 1.0.2
   label: Prepare genome index (STAR 2.4.2a)
   type: data:genomeindex:star
   persistence: CACHED
@@ -1318,22 +1318,22 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require STAR_2.4.2a
+      re-require common
+      re-require STAR_2.4.2a
 
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       gzip -dc {{ genome.fasta.file }} > genome.fasta
-      gen-progress 0.1
+      re-progress 0.1
       mkdir genome_index
       STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} --genomeDir ./genome_index/ --genomeFastaFiles genome.fasta --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }} --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
-      gen-checkrc "Genome index build failed."
-      gen-progress 0.8
+      re-checkrc "Genome index build failed."
+      re-progress 0.8
       echo "Index files for genome ${GENOME_NAME}" > info.txt
-      gen-save-file index info.txt genome_index
+      re-save-file index info.txt genome_index
 
 
 - name: alignment:star
-  version: 1.0.2
+  version: 1.0.3
   label: Aligner (STAR 2.4.2a)
   type: data:alignment:bam:star
   category: analyses:alignment
@@ -1526,68 +1526,68 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require STAR_2.4.2a
-      gen-require samtools-0.1.19
+      re-require common
+      re-require STAR_2.4.2a
+      re-require samtools-0.1.19
 
       GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
       READS_NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
-      gen-progress 0.05
+      re-progress 0.05
 
       {% if reads.type|subtype:'data:reads:fastq:single:' %}
         STAR --runThreadN '{{threads}}' --genomeDir ${GENOME_PATH} --readFilesIn '{{reads.fastq.file}}' --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
-        gen-checkrc "Reads alignment failed!"
+        re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
       then
         mv Unmapped.out.mate1 Unmapped.out.mate1.fastq
         gzip Unmapped.out.mate1.fastq
-        gen-save-file unmapped_f Unmapped.out.mate1.fastq.gz
+        re-save-file unmapped_f Unmapped.out.mate1.fastq.gz
       fi
 
       {% else %}
         STAR --runThreadN '{{ threads }}' --genomeDir ${GENOME_PATH} --readFilesIn '{{ reads.fastq.file }}' '{{ reads.fastq2.file }}' --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{filtering.outFilterType}}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
-        gen-checkrc "Reads alignment failed!"
+        re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
       then
         mv Unmapped.out.mate1 Unmapped.out.mate1.fastq
         gzip Unmapped.out.mate1.fastq
-        gen-save-file unmapped_f Unmapped.out.mate1.fastq.gz
+        re-save-file unmapped_f Unmapped.out.mate1.fastq.gz
       fi
 
       if [ -f Unmapped.out.mate2 ]
       then
         mv Unmapped.out.mate2 Unmapped.out.mate2.fastq
         gzip Unmapped.out.mate2.fastq
-        gen-save-file unmapped_r Unmapped.out.mate2.fastq.gz
+        re-save-file unmapped_r Unmapped.out.mate2.fastq.gz
       fi
 
       {% endif %}
 
-      gen-progress 0.8
+      re-progress 0.8
       samtools index Aligned.sortedByCoord.out.bam ${READS_NAME}.bam.bai
-      gen-checkrc
-      gen-progress 0.9
+      re-checkrc
+      re-progress 0.9
 
       {% if detect_chimeric.chimeric %}
-        gen-save-file chimeric Chimeric.out.sam
+        re-save-file chimeric Chimeric.out.sam
       {% endif %}
 
       {% if t_coordinates.quantmode %}
-        gen-save-file alignment_transcriptome Aligned.toTranscriptome.out.bam
+        re-save-file alignment_transcriptome Aligned.toTranscriptome.out.bam
       {% endif %}
 
       {% if t_coordinates.gene_counts %}
         gzip ReadsPerGene.out.tab
-        gen-save-file gene_counts ReadsPerGene.out.tab.gz
+        re-save-file gene_counts ReadsPerGene.out.tab.gz
       {% endif %}
 
       mv Aligned.sortedByCoord.out.bam ${READS_NAME}.bam
       mv Log.final.out Log.final.txt
       
-      gen-save-file bam ${READS_NAME}.bam
-      gen-save-file bai ${READS_NAME}.bam.bai
-      gen-save-file sj SJ.out.tab
-      gen-save-file stats Log.final.txt
+      re-save-file bam ${READS_NAME}.bam
+      re-save-file bai ${READS_NAME}.bam.bai
+      re-save-file sj SJ.out.tab
+      re-save-file stats Log.final.txt

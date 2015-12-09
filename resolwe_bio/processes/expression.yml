@@ -6,7 +6,7 @@
 ---
 
 - name: expression:bcm-1-0-0
-  version: 1.0.10
+  version: 1.0.11
   label: Expression (BCM)
   type: data:expression:polya
   category: analyses
@@ -94,9 +94,9 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require samtools-0.1.19
-      gen-require kentUtils-2.9.1
+      re-require common
+      re-require samtools-0.1.19
+      re-require kentUtils-2.9.1
 
       NAME=`basename '{{ alignment.bam.file }}' .bam`
 
@@ -108,8 +108,8 @@
 
       echo "XEXPRESSION..."
       xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}}
-      gen-checkrc
-      gen-progress 0.5
+      re-checkrc
+      re-progress 0.5
 
       xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
       samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
@@ -118,49 +118,49 @@
       then
         mv expression_rc.tab.gz ${NAME}_expression_rc.tab.gz
         compute_coverage ${NAME}_expression_rc.tab.gz
-        gen-checkrc
-        gen-save-file rc_raw ${NAME}_expression_rc.tab.gz ${NAME}_expression_rc.tab.gz.bw
+        re-checkrc
+        re-save-file rc_raw ${NAME}_expression_rc.tab.gz ${NAME}_expression_rc.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc_polya.tab.gz ]
       then
         mv expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz
         compute_coverage ${NAME}_expression_rc_polya.tab.gz
-        gen-checkrc
-        gen-save-file rc ${NAME}_expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz.bw
+        re-checkrc
+        re-save-file rc ${NAME}_expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
       then
         mv expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz
         compute_coverage ${NAME}_expression_rpkm.tab.gz
-        gen-checkrc
-        gen-save-file rpkm ${NAME}_expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz.bw
+        re-checkrc
+        re-save-file rpkm ${NAME}_expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm_polya.tab.gz ]
       then
         mv expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz
         compute_coverage ${NAME}_expression_rpkm_polya.tab.gz
-        gen-checkrc
-        gen-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz.bw
+        re-checkrc
+        re-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
       then
         mv expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz
         compute_coverage ${NAME}_expression_rpkum.tab.gz
-        gen-checkrc
-        gen-save-file rpkum ${NAME}_expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz.bw
+        re-checkrc
+        re-save-file rpkum ${NAME}_expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz.bw
       fi
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum_polya.tab.gz ]
       then
         mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
         compute_coverage ${NAME}_expression_rpkum_polya.tab.gz
-        gen-checkrc
+        re-checkrc
         expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
-        gen-checkrc
-        gen-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
+        re-checkrc
+        re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
       fi
 
 - name: mergeexpressions
-  version: 1.0.5
+  version: 1.0.6
   label: Merge Expressions
   type: data:expressionset
   category: analyses
@@ -213,23 +213,23 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       EXPSET_TYPE="{{ exps.0.output.exp_type }}"
 
       {% for e in exps %}
         {% if exps.0.output.exp_type != e.output.exp_type %}
-          gen-error "Expressions must be of the same expression type"
+          re-error "Expressions must be of the same expression type"
         {% endif %}
       {% endfor %}
 
       python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
-      gen-checkrc
-      gen-save expset_type "$EXPSET_TYPE"
-      gen-save-file expset sample.tab
+      re-checkrc
+      re-save expset_type "$EXPSET_TYPE"
+      re-save-file expset sample.tab
 
 - name: mergeetc
-  version: 1.0.3
+  version: 1.0.4
   label: Merge Expressions (ETC)
   type: data:expressionset:etc
   category: analyses
@@ -281,16 +281,16 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       mergeetc.py {% for e in exps %}"{{e.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
 
       gzip 'etc.tab'
-      gen-save-file expset 'etc.tab.gz'
-      gen-save expset_type 'ETC'
+      re-save-file expset 'etc.tab.gz'
+      re-save expset_type 'ETC'
 
 - name: etc:bcm-1-0-0
-  version: 1.0.10
+  version: 1.0.11
   label: Expression Time Course
   type: data:etc
   category: analyses
@@ -350,12 +350,12 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
 
       etc.py {% for e in expressions %}"{{e.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
-      gen-checkrc
+      re-checkrc
 
-      gen-save-file etcfile etc.json.gz
+      re-save-file etcfile etc.json.gz
 
 - name: differentialexpression:bcm-1-0-0
   version: 1.0.7
@@ -469,7 +469,7 @@
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"
 
 - name: findsimilar
-  version: 1.0.5
+  version: 1.0.6
   label: Find genes with similar expression
   type: data:similarexpression
   persistence: TEMP
@@ -527,9 +527,9 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
       find_similar.py -g "{{gene}}" -d "{{scoring_function}}" "{{etcx.etcfile.file}}"
-      gen-checkrc
+      re-checkrc
 
 - name: cufflinks:-2-2-1
   version: 1.0.6
@@ -665,7 +665,7 @@
       echo "{\"proc.progress\":1,\"transcripts\":{\"file\":\"${NAME}_transcripts.gtf\"}, \"isoforms_fpkm_tracking\":{\"file\":\"${NAME}_isoforms_fpkm_tracking.txt\"}, \"genes_fpkm_tracking\":{\"file\":\"${NAME}_genes_fpkm_tracking.txt\"}, \"skipped_loci\":{\"file\":\"${NAME}_skipped.gtf\"}}"
 
 - name: cuffmerge:-2-2-1
-  version: 1.0.9
+  version: 1.0.10
   label: Merge Cufflinks assemblies (Cuffmerge 2.2.1)
   type: data:annotation:cuffmerge
   category: analyses
@@ -739,22 +739,22 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require cufflinks-2.2.1
+      re-require common
+      re-require cufflinks-2.2.1
 
       echo "Preparing transcript assembly list!"
 
       {% for exp in expressions %}
         echo '{{ exp.transcripts.file }}' >> transcript_assembly_list.txt
-        gen-checkrc
+        re-checkrc
       {% endfor %}
 
       {% for annotation in gtf %}
         echo '{{ annotation.gtf.file }}' >> transcript_assembly_list.txt
-        gen-checkrc
+        re-checkrc
       {% endfor %}
 
-      gen-progress 0.1
+      re-progress 0.1
 
       {% if genome %}
         GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
@@ -763,18 +763,18 @@
 
       {% if gff.gff.file %}
         gffread '{{gff.gff.file}}' -T -o reference_annotation.gtf
-        gen-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
+        re-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
       {% endif %}
 
       echo "Running Cuffmerge"
 
       {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.output.gtf.file %} --ref-gtf '{{ gff.output.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
 
-      gen-checkrc
-      gen-progress 0.95
+      re-checkrc
+      re-progress 0.95
 
       mv merged.gtf cuffmerge_$(date +'%m-%d-%Y').gtf
-      gen-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
+      re-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
 
 - name: cuffnorm:-2-2-1
   version: 1.0.8
@@ -1098,7 +1098,7 @@
       echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
 
 - name: htseq-count:-0-6-1p1
-  version: 1.0.8
+  version: 1.0.9
   label: Expression (HTSeq-count 0.6.1p1)
   type: data:expression:htseq
   category: analyses
@@ -1215,11 +1215,11 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require samtools-0.1.19
+      re-require common
+      re-require samtools-0.1.19
 
       NAME=`basename '{{ alignments.output.bam.file }}' .bam`
-      gen-progress 0.1
+      re-progress 0.1
 
       {% if name_ordered %}
         if samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
@@ -1227,21 +1227,21 @@
         else
           echo "Name sorting aligned reads:"
           samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
-          gen-checkrc
-          gen-progress 0.5
+          re-checkrc
+          re-progress 0.5
           htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
         fi
       {% else %}
         htseq-count --format=bam --order=pos --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
       {% endif %}
 
-      gen-checkrc
-      gen-progress 0.8
+      re-checkrc
+      re-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
       expression_fpkm_tpm.R  '{{ gff.output.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
-      gen-checkrc
-      gen-progress 0.9
+      re-checkrc
+      re-progress 0.9
 
       add_header.py rc_wo_header.txt rc.txt
       add_header.py fpkm_wo_header.tab fpkm.tab
@@ -1254,13 +1254,13 @@
 
       expression2storage.py ${NAME}_tpm.tab.gz
 
-      gen-checkrc
-      gen-progress 0.95
+      re-checkrc
+      re-progress 0.95
 
-      gen-save-file rc "${NAME}_rc.tab.gz"
-      gen-save-file fpkm "${NAME}_fpkm.tab.gz"
-      gen-save-file exp "${NAME}_tpm.tab.gz"
-      gen-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
+      re-save-file rc "${NAME}_rc.tab.gz"
+      re-save-file fpkm "${NAME}_fpkm.tab.gz"
+      re-save-file exp "${NAME}_tpm.tab.gz"
+      re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
 
 - name: cuffquant:-2-2-1
   version: 1.0.4
@@ -1372,7 +1372,7 @@
       echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
 
 - name: differentialexpression:deseq2
-  version: 1.0.5
+  version: 1.0.6
   label: Differential Expression (DESeq2)
   type: data:differentialexpression:deseq2
   category: analyses
@@ -1436,10 +1436,10 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
+      re-require common
       {% for c in control %}
         {% if not c.output.rc.file %}
-          gen-error "Read counts are required when using DESeq2"
+          re-error "Read counts are required when using DESeq2"
         {% endif %}
         controls=$controls"{{c.rc.file}} "
         sampleConditions=$sampleConditions"control "
@@ -1447,13 +1447,13 @@
 
       {% for t in case %}
         {% if not t.rc.file %}
-          gen-error "Read counts are required when using DESeq2"
+          re-error "Read counts are required when using DESeq2"
         {% endif %}
         {% if t not in control %}
           cases=$cases"{{t.rc.file}} "
           sampleConditions=$sampleConditions"case "
         {% else %}
-          gen-error "DE analysis failed. Case and Control groups must contain unique samples."
+          re-error "DE analysis failed. Case and Control groups must contain unique samples."
         {% endif %}
       {% endfor %}
 
@@ -1461,26 +1461,26 @@
       cases=${cases%?}
       sampleFiles=$controls"$cases"
 
-      gen-progress 0.1
+      re-progress 0.1
 
       expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
-      gen-checkrc "Error merging read counts."
+      re-checkrc "Error merging read counts."
 
       run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
-      gen-checkrc "Error computing differential expression (DESeq2)."
+      re-checkrc "Error computing differential expression (DESeq2)."
 
-      gen-progress 0.95
+      re-progress 0.95
 
       python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_deseq2.tab'
 
       gzip 'diffexp_deseq2.tab'
       mv Rplots.pdf DESeq2_MAplot.pdf
 
-      gen-save-file diffexp diffexp_deseq2.tab.gz
-      gen-save-file ma_plot DESeq2_MAplot.pdf
+      re-save-file diffexp diffexp_deseq2.tab.gz
+      re-save-file ma_plot DESeq2_MAplot.pdf
 
 - name: kallisto:index
-  version: 1.0.1
+  version: 1.0.2
   label: Expression (Kallisto - Index)
   type: data:index:kallisto
   category: analyses
@@ -1534,19 +1534,19 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require kallisto-0.42.1
+      re-require common
+      re-require kallisto-0.42.1
 
       NAME=`basename '{{ fasta.fasta.file }}' .fasta.gz`
 
       kallisto index -i ${NAME} {% if kmer_size %} -k {{kmer_size}} {% endif %} {{fasta.fasta.file}}
-      gen-checkrc
-      gen-progress 0.9
+      re-checkrc
+      re-progress 0.9
 
-      gen-save-file index ${NAME}
+      re-save-file index ${NAME}
 
 - name: kallisto:quant
-  version: 1.0.1
+  version: 1.0.2
   label: Expression (Kallisto - Quant)
   type: data:expression:kallisto
   category: analyses
@@ -1680,56 +1680,56 @@
   run:
     runtime: polyglot
     bash: |
-      gen-require common
-      gen-require kallisto-0.42.1
-      gen-progress 0.1
+      re-require common
+      re-require kallisto-0.42.1
+      re-progress 0.1
 
       {% if reads.type|subtype:'data:reads:fastq:single:' %}
         {% if not options.single %}
-          gen-error "Options 'Single-end reads' and 'Average fragment length' must be supplied for single-end reads"
+          re-error "Options 'Single-end reads' and 'Average fragment length' must be supplied for single-end reads"
         {% endif %}
       {% endif %}
 
       {% if options.single %}
         {% if not options.fragment_length_single %}
-          gen-error "Average fragment length must be supplied for single-end reads"
+          re-error "Average fragment length must be supplied for single-end reads"
         {% endif %}
       {% endif %}
 
       {% if bootstrap.bootstrap_samples < 0 %}
-          gen-error "Number of bootstrap samples must be a non-negative integer"
+          re-error "Number of bootstrap samples must be a non-negative integer"
       {% endif %}
 
       {% if reads.type|subtype:'data:reads:fastq:single:' %}
         kallisto quant -i '{{ transcriptome.index.file }}' -o . --single -l '{{options.fragment_length_single}}' {{reads.fastq.file}} {% if bootstrap.bootstrap %} -b '{{bootstrap.bootstrap_samples}}' -t '{{bootstrap.threads}}' --seed '{{bootstrap.seed}}' {% endif %} '{{reads.fastq.file}}'
-        gen-checkrc
-        gen-progress 0.7
+        re-checkrc
+        re-progress 0.7
       {% else %}
         kallisto quant -i '{{ transcriptome.index.file }}' -o . {% if options.fragment_length_paired %} -l '{{options.fragment_length_paired}}' {% endif %} {% if bootstrap.bootstrap %} -b '{{bootstrap.bootstrap_samples}}' -t '{{bootstrap.threads}}' --seed '{{bootstrap.seed}}' {% endif %} '{{reads.fastq.file}}' '{{reads.fastq2.file}}'
-        gen-checkrc
-        gen-progress 0.7
+        re-checkrc
+        re-progress 0.7
       {% endif %}
 
       kallisto h5dump -o . abundance.h5
-      gen-checkrc
-      gen-progress 0.9
+      re-checkrc
+      re-progress 0.9
 
       parse_kallisto_output.py abundance.txt
-      gen-checkrc
+      re-checkrc
 
       gzip abundance.txt
       gzip abundance_rc.tab
       gzip abundance_tpm.tab
 
       expression2storage.py abundance_tpm.tab.gz
-      gen-checkrc
+      re-checkrc
 
-      gen-save-file abundance_h5 abundance.h5
-      gen-save-file abundance abundance.txt.gz
-      gen-save-file rc abundance_rc.tab.gz
-      gen-save-file exp abundance_tpm.tab.gz
+      re-save-file abundance_h5 abundance.h5
+      re-save-file abundance abundance.txt.gz
+      re-save-file rc abundance_rc.tab.gz
+      re-save-file exp abundance_tpm.tab.gz
 
       {% if bootstrap.bootstrap %}
         tar -zcvf bs_abundances.tar.gz bs_abundance*
-        gen-save-file bs_abundance bs_abundances.tar.gz
+        re-save-file bs_abundance bs_abundances.tar.gz
       {% endif %}
