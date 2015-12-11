@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class PcaProcessorTestCase(ProcessTestCase):
+class PcaProcessorTestCase(BioProcessTestCase):
     def test_pca(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")

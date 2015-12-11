@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class ClusteringProcessorTestCase(ProcessTestCase):
+class ClusteringProcessorTestCase(BioProcessTestCase):
     def test_hc_clustering(self):
         """Cannot use assertJSON - JSON output contains ETC object IDs."""
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")

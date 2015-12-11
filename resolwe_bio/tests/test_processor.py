@@ -1,12 +1,15 @@
 # pylint: disable=missing-docstring
 from django.test import TestCase
 
-from server.models import Processor, iterate_schema
+try:
+    from resolwe.flow.models import Process, itterate_schema
+except ImportError:
+    from server.models import Processor as Process, iterate_schema
 
 
 class ProcessFieldsTestCase(TestCase):
     def test_processor_types(self):
-        procs = list(Processor.objects.all())
+        procs = list(Process.objects.all())
         types = {}
         errors_equals = set()
         errors_subtype = set()
@@ -26,7 +29,7 @@ class ProcessFieldsTestCase(TestCase):
                     errors_equals.add(p.type)
 
         if len(errors_equals) > 0:
-            self.fail('Processors of the same type should have the same output fields:\n\n    {}'.format(
+            self.fail('Processes of the same type should have the same output fields:\n\n    {}'.format(
                 '\n    '.join(', '.join(types[typ]['name']) for typ in errors_equals)))
 
         type_list = sorted(types.iterkeys())

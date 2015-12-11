@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import unittest
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class VariantCallingTestCase(ProcessTestCase):
+class VariantCallingTestCase(BioProcessTestCase):
     @unittest.skip("test data not ready")
     def test_variant_calling(self):
         genome = self.prepare_genome()

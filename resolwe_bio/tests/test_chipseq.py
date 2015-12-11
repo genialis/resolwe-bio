@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class ChipSeqProcessorTestCase(ProcessTestCase):
+class ChipSeqProcessorTestCase(BioProcessTestCase):
     def test_chipseq(self):
         inputs = {"src": "chip_seq_control.bam"}
         control_bam = self.run_processor("import:upload:mapping-bam", inputs)

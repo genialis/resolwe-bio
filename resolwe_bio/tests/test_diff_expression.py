@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class DiffExpProcessorTestCase(ProcessTestCase):
+class DiffExpProcessorTestCase(BioProcessTestCase):
     def test_cuffdiff(self):
         genome = self.prepare_genome()
         reads1 = self.prepare_reads('00Hr.fastq.gz')

@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class JbrowseProcessorTestCase(ProcessTestCase):
+class JbrowseProcessorTestCase(BioProcessTestCase):
     def test_refseq_track(self):
         genome = self.prepare_genome()
         refseq_track = self.run_processor('jbrowse:refseq', {'refseq': genome.pk})

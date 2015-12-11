@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import unittest
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class ExpressionProcessorTestCase(ProcessTestCase):
+class ExpressionProcessorTestCase(BioProcessTestCase):
     def test_cufflinks(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()

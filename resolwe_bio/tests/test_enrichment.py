@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import unittest
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class EnrichmentProcessorTestCase(ProcessTestCase):
+class EnrichmentProcessorTestCase(BioProcessTestCase):
     @unittest.skip("test data not ready")
     def test_go_enrichment_v2(self):
         inputs = {'src': 'ontology.obo.gz'}

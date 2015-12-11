@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class AbyssProcessorTestCase(ProcessTestCase):
+class AbyssProcessorTestCase(BioProcessTestCase):
     def test_abyss(self):
         se_reads = self.prepare_reads('reads.fastq.gz')
 

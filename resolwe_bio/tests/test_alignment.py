@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class AlignmentProcessorTestCase(ProcessTestCase):
+class AlignmentProcessorTestCase(BioProcessTestCase):
 
     def test_bowtie(self):
         genome = self.prepare_genome()

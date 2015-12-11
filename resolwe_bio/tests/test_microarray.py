@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
 import unittest
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class MicroarrayProcessorTestCase(ProcessTestCase):
+class MicroarrayProcessorTestCase(BioProcessTestCase):
     @unittest.skip("test data not ready")
     def test_microarray(self):
         cel_1 = self.run_processor("import:upload:microarray:affy", {"cel": "affy_v3_example.CEL"})

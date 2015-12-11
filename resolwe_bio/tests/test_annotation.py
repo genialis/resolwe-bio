@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class AnnotationProcessorTestCase(ProcessTestCase):
+class AnnotationProcessorTestCase(BioProcessTestCase):
     def test_transdecoder(self):
         inputs = {'src': 'reads_transdecoder.fastq.gz'}
         reads = self.run_processor("import:upload:reads-fastq", inputs)

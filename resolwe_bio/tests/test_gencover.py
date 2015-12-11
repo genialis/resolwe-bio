@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class GencoverProcessorTestCase(ProcessTestCase):
+class GencoverProcessorTestCase(BioProcessTestCase):
     def test_coverage(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()

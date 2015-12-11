@@ -1,8 +1,8 @@
 # pylint: disable=missing-docstring
-from .utils import ProcessTestCase
+from .utils import BioProcessTestCase
 
 
-class CompatibilityProcessorTestCase(ProcessTestCase):
+class CompatibilityProcessorTestCase(BioProcessTestCase):
     def test_reference_compatibility(self):
         mapping = self.prepare_bam()
         genome = self.prepare_genome('sp_test.fasta')
