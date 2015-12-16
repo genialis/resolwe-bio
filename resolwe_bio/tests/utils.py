@@ -1,3 +1,5 @@
+import os
+
 try:
     from resolwe.flow.tests import ProcessTestCase
 except ImportError:
@@ -6,6 +8,10 @@ except ImportError:
 
 
 class BioProcessTestCase(ProcessTestCase):
+    def setUp(self):
+        super(BioProcessTestCase, self).setUp()
+        self.files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files')
+
     def prepare_genome(self, fn='genome.fasta.gz'):
         """Prepare genome FASTA."""
         inputs = {'src': fn}
