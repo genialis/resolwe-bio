@@ -44,8 +44,11 @@ if __name__ == '__main__':
             'Topic :: Software Development :: Libraries :: Python Modules',
         ],
         zip_safe=False,
+        dependency_links=(
+            "git+https://github.com/dblenkus/resolwe.git@5f10f2e7f16f68840de212a9aa1329e5c00fd942#egg=resolwe-0.9.1",
+        ),
         install_requires=(
-            # "resolwe>=0.9.1",
+            "resolwe>=0.9.1",
         ),
         test_suite='resolwe_bio.tests',
     )
