@@ -1,5 +1,4 @@
 # pylint: disable=missing-docstring
-import unittest
 from .utils import BioProcessTestCase
 
 
@@ -57,7 +56,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
         self.assertFiles(cuffnorm, 'expset', 'expression_set.tsv.gz', compression='gzip')
 
-    @unittest.skip("test data does not work with this test")
     def test_expression_bcm(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -85,21 +83,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc:bcm-1-0-0', inputs)
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json.gz')
-
-        reads2 = self.prepare_reads('00Hr.fastq.gz')
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads2.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads2 = self.run_processor('alignment:tophat-2-0-13', inputs)
-
-        inputs = {
-            'alignment': aligned_reads2.pk,
-            'gff': annotation.pk,
-            'mappable': mappa.pk}
-        self.run_processor('expression:bcm-1-0-0', inputs)
 
     def test_expression_htseq(self):
         genome = self.prepare_genome()

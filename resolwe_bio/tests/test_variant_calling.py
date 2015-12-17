@@ -1,24 +1,28 @@
 # pylint: disable=missing-docstring
-import unittest
 from .utils import BioProcessTestCase
 
 
 class VariantCallingTestCase(BioProcessTestCase):
-    @unittest.skip("test data not ready")
-    def test_variant_calling(self):
-        genome = self.prepare_genome()
-        reads = self.prepare_reads('vc_reads.fastq.gz')
+    def test_variant_calling_samtools(self):
+        genome = self.prepare_genome('variant_calling_genome.fasta.gz')
+        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
-        self.assertFiles(aligned_reads, 'stats', 'VC_bt2_mem_reads_report.txt')
 
-        # samtools variant calling test
         inputs = {'genome': genome.pk, 'mapping': aligned_reads.pk}
         samtools_variants = self.run_processor('vc-samtools', inputs)
-        self.assertFiles(samtools_variants, 'vcf', 'VC_reads_align_samtoolscalls.vcf')
+        self.assertFiles(samtools_variants, 'vcf', 'variant_calling_samtools.vcf')
 
-        # GATK variant calling test
+    def test_variant_calling_gatk(self):
+        genome = self.prepare_genome('variant_calling_genome.fasta.gz')
+        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
+        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+
+        samtools_variants = self.run_processor('import:upload:variants-vcf', {'src': 'variant_calling_samtools.vcf'})
+
         inputs = {
             'genome': genome.pk,
             'mapping': aligned_reads.pk,
@@ -35,7 +39,13 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.run_processor('vc-gatk', inputs)
         # NOTE: output can not be tested
 
-        # GATK joint variant calling test
+    def test_variant_calling_gatk_joint(self):
+        genome = self.prepare_genome('variant_calling_genome.fasta.gz')
+        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
+
+        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
+        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+
         inputs = {
             'genome': genome.pk,
             'mapping': [aligned_reads.pk],

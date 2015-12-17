@@ -1,34 +1,23 @@
 # pylint: disable=missing-docstring
-import unittest
 from .utils import BioProcessTestCase
 
 
 class EnrichmentProcessorTestCase(BioProcessTestCase):
-    @unittest.skip("test data not ready")
-    def test_go_enrichment_v2(self):
-        inputs = {'src': 'ontology.obo.gz'}
+    def test_go_enrichment_dicty(self):
+        inputs = {'src': 'ontology_dicty_cropped.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)
 
-        inputs = {'src': 'gene_association.dictyBase.cropped.gz'}
+        inputs = {'src': 'gaf_dicty_cropped.gz'}
         annotation = self.run_processor('import:upload:gaf', inputs)
 
         inputs = {
             'ontology': ontology.pk,
             'gaf': annotation.pk,
-            'genes': ['DDB_G0272813', 'DDB_G0288677', 'DDB_G0285417',
-                      'DDB_G0267442', 'DDB_G0268480', 'DDB_G0283279']}
+            'pval_threshold': 1,
+            'genes': ['DDB_G0277589', 'DDB_G0286855', 'DDB_G0267640']}
 
         enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
-        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms.json.gz')
-
-        inputs = {
-            'ontology': ontology.pk,
-            'gaf': annotation.pk,
-            'genes': ['DDB_G0267640', 'DDB_G0279331', 'DDB_G0289651', 'DDB_G0281087']
-        }
-
-        enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
-        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_2.json.gz')
+        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
         inputs = {'src': 'purpureum_ortholog-10-28-2014.cropped.txt.gz'}
         orthologues = self.run_processor('import:upload:orthologues', inputs)
@@ -37,34 +26,23 @@ class EnrichmentProcessorTestCase(BioProcessTestCase):
             'ontology': ontology.pk,
             'gaf': annotation.pk,
             'orthologues': orthologues.pk,
-            'genes': ['DDB_G0272813', 'DDB_G0288677', 'DDB_G0285417',
-                      'DDB_G0267442', 'DPU_G0053558', 'DPU_G0071398']}
+            'pval_threshold': 1,
+            'genes': ['DPU_G0074602', 'DDB_G0286855', 'DPU_G0074318']}
 
         enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
-        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms.json.gz')
+        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
-        inputs = {
-            'ontology': ontology.pk,
-            'gaf': annotation.pk,
-            'orthologues': orthologues.pk,
-            'genes': ['DDB_G0267640', 'DDB_G0279331', 'DDB_G0289651', 'DDB_G0281087']
-        }
-
-        enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
-        self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_2.json.gz')
-
-    @unittest.skip("test data not ready")
     def test_go_enrichment_mouse(self):
-        inputs = {'src': 'ontology.obo.gz'}
+        inputs = {'src': 'ontology_mus_cropped.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)
 
-        inputs = {'src': 'gene_association.mgi.cropped.gz'}
+        inputs = {'src': 'gaf_mgi_cropped.gz'}
         annotation = self.run_processor('import:upload:gaf', inputs)
 
         inputs = {
             'ontology': ontology.pk,
             'gaf': annotation.pk,
-            'genes': ['MGI:101765', 'MGI:102956', 'MGI:1925584',
-                      'MGI:1933126', 'MGI:109606', 'MGI:109183']}
+            'pval_threshold': 1,
+            'genes': ['MGI:1929646', 'MGI:107486']}
         enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_mouse.json.gz')
