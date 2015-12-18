@@ -1,0 +1,52 @@
+# ===============================
+# Import GO annotation (GAF) file
+# ===============================
+---
+
+- name: import:upload:gaf
+  version: 1.0.8
+  label: Upload GO annotation file (GAF v2.0)
+  type: data:gaf:2:0
+  category: upload
+  persistence: RAW
+  description: >
+        GO annotation file (GAF v2.0) relating gene ID and associated GO terms
+  input:
+    - name: src
+      label: GO annotation file (GAF v2.0)
+      type: basic:file
+      description: >
+        Upload GO annotation file (GAF v2.0) relating gene ID and associated GO terms
+      required: true
+  output:
+    - name: gaf
+      label: GO annotation file (GAF v2.0)
+      type: basic:file
+    - name : gaf_obj
+      label: GAF object
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'GO annotation file ({{ src.file|default:"?" }}) upload'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['genes', 'annotation']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" 0.8
+      {{proc.slugs_path}}/gotea/preprocessor gaf "${NAME}.txt" gaf_obj
+      echo "{\"proc.rc\":$?,\"gaf\":{\"file\":\"$NAME.txt.gz\"},\"gaf_obj\":{\"file\":\"gaf_obj\"}}"

@@ -1,0 +1,123 @@
+# =====================
+# Expression - Cuffnorm
+# =====================
+---
+
+- name: cuffnorm:-2-2-1
+  version: 1.0.8
+  label: Expression (Cuffnorm 2.2.1)
+  type: data:expressionset:cuffnorm
+  category: analyses
+  persistence: CACHED
+  description: >
+    Generate tables of expression values that are properly normalized for library size.
+  input:
+    - name: cuffquant
+      label: Cuffquant expression file
+      type: list:data:cufflinks:cuffquant
+      required: true
+    - name: replicates
+      label: Define Groups/Replicates
+      type: list:basic:string
+      required: true
+      description: >
+        Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
+    - name: labels
+      label: Group labels
+      type: list:basic:string
+      required: true
+      description: >
+        Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2).
+    - name: gff
+      label: Annotation (GTF/GFF3)
+      type: data:annotation:cuffmerge
+      required: true
+      description: >
+        A transcript annotation file produced by cufflinks, cuffcompare, or other source.
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many threads to align reads. The default is 1.
+  output:
+    - name: expset
+      label: Expression set (FPKM)
+      type: basic:file
+    - name: cuffnorm_output
+      label: Cuffnorm output
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+      default: 'Cuffnorm'
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Cuffnorm results'
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the expression analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['Cuffnorm', 'Expression']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of Cuffnorm results.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      export PATH=$PATH:{{ proc.slugs_path }}/cufflinks-2.2.1
+
+      experiment=""
+      labels=""
+      replicates=""
+
+      experiment='{% for experiment in cuffquant %}{{ experiment.output.abundances.file }},{% endfor %}'
+
+      {% for r in replicates %}
+        replicates=$replicates"{{r}},"
+      {% endfor %}
+
+      {% for l in labels %}
+        labels=$labels"{{l}},"
+      {% endfor %}
+
+      labels=${labels%?}
+      experiment=${experiment%?}
+      replicates=${replicates%?}
+
+      experiments=`python -u {{ proc.slugs_path }}/gencloud-20131109/cufflinks_sample_groups.py ${experiment} ${replicates}`
+
+      echo "{\"proc.progress\":0.1}"
+
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.output.merged_gtf.file }}' ${experiments}
+
+      echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/parse_cuffnorm.py "isoforms.fpkm_tracking"
+
+      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+
+      gzip expression_set.tsv
+      zip cuffnorm_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups* read_groups.info run.info
+
+      echo "{\"proc.progress\":1,\"expset\":{\"file\":\"expression_set.tsv.gz\"}, \"cuffnorm_output\":{\"file\":\"cuffnorm_output_$(date +'%m-%d-%Y').zip\"}}"

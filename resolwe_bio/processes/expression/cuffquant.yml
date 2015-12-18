@@ -1,0 +1,113 @@
+# ======================
+# Expression - Cuffquant
+# ======================
+---
+
+- name: cuffquant:-2-2-1
+  version: 1.0.4
+  label: Expression (Cuffquant 2.2.1)
+  type: data:cufflinks:cuffquant
+  category: analyses
+  persistence: CACHED
+  description: >
+    Compute the gene and transcript expression profiles and save these profiles to files that you can analyze later with Cuffdiff or Cuffnorm
+  input:
+    - name: alignment
+      label: Aligned reads
+      type: data:alignment:bam
+      required: true
+    - name: gff
+      label: Annotation (GTF/GFF3)
+      type: data:annotation
+      required: true
+    - name: genome
+      label: Run bias detection and correction algorithm
+      type: data:genome:fasta
+      required: false
+      description: >
+        Provide Cufflinks with a multifasta file (genome file) via this option to instruct it to run a bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates.
+    - name: mask_file
+      label: Mask file
+      type: data:annotation:gtf
+      required: false
+      description: >
+        Ignore all reads that could have come from transcripts in this GTF file. We recommend including any annotated rRNA, mitochondrial transcripts other abundant transcripts you wish to ignore in your analysis in this file. Due to variable efficiency of mRNA enrichment methods and rRNA depletion kits, masking these transcripts often improves the overall robustness of transcript abundance estimates.
+    - name: library_type
+      required: true
+      label: Library type
+      type: basic:string
+      description: >
+        In cases where Cufflinks cannot determine the platform and protocol used to generate input reads, you can supply this information manually, which will allow Cufflinks to infer source strand information with certain protocols. The available options are listed below. For paired-end data, we currently only support protocols where reads are point towards each other: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+      default: fr-unstranded
+      choices:
+        - label: fr-unstranded
+          value: fr-unstranded
+        - label: fr-firststrand
+          value: fr-firststrand
+        - label: fr-secondstrand
+          value: fr-secondstrand
+    - name: multi_read_correct
+      label: Do initial estimation procedure to more accurately weight reads with multiple genome mappings
+      type: basic:boolean
+      default: false
+      description: >
+        Run an initial estimation procedure that weights reads mapping to multiple locations more accurately.
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many threads to align reads. The default is 1.
+  output:
+    - name: abundances
+      label: Abundances
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Cuffquant expression ({{ alignment.output.bam.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression", "Cuffquant"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of the expression analysis."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% if genome %}
+
+        GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+
+      {% endif %}
+
+      NAME=`basename '{{ alignment.output.bam.file }}' .bam`
+
+      echo "{\"proc.progress\":0.1}"
+
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffquant {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} "--multi-read-correct" {% endif %} {% if mask_file %} -M '{{ mask_file.output.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet {% if gff.output.gtf.file %} '{{ gff.output.gtf.file }}' {% elif gff.output.gff.file %} '{{ gff.output.gff.file }}' {% elif gff.output.merged_gtf.file %} '{{ gff.output.merged_gtf.file }}' {% endif %} '{{ alignment.output.bam.file }}'
+
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      mv abundances.cxb ${NAME}_abundances.cxb
+
+      echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"

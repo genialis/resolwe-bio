@@ -1,0 +1,53 @@
+# =======================
+# Import Annotation - BED
+# =======================
+---
+
+- name: import:upload:bed
+  version: 1.0.3
+  label: Upload BED track file
+  type: data:bed
+  category: upload
+  persistence: RAW
+  description: >
+        Upload BED file annotation track.
+  input:
+    - name: src
+      label: BED file
+      type: basic:file
+      description: >
+        Upload BED file annotation track. The first three required BED fields are chrom, chromStart and chromEnd.
+      required: true
+      validate_regex: '\.(bed|narrowPeak)$'
+  output:
+    - name: BED
+      label: BED file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'BED file ({{ src.file|default:"?" }}) upload'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['BED']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require bedops-2.4.14
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
+      bedops --ec --everything "${NAME}.bed" 1> /dev/null
+      re-checkrc "BED file format validation failed. Check file integrity."
+      re-save-file BED "${NAME}.bed"

@@ -1,0 +1,72 @@
+# ==================================
+# Import - Annotation - RepeatMasker
+# ==================================
+---
+
+- name: import:upload:rmsk-annotation
+  version: 1.0.9
+  label: Upload RepeatMasker result file
+  type: "data:annotation:gff3:"
+  category: upload
+  persistence: RAW
+  description: >
+    Upload RepeatMasker result file.
+  input:
+    - name: src
+      label: RepeatMasker result file (.out)
+      type: basic:file
+      description: >
+        RepeatMasker annotation file. Supported extensions: .out.gz, .txt.gz
+      required: true
+      validate_regex: '\.(out|txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: gff
+      label: GFF3 annotations
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['annotation', 'GFF3']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} RepeatMasker annotation upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1
+
+      echo "Generating GFF3 file..."
+
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xrmsk.py --rmsk "${NAME}.out" > "${NAME}.gff"
+      echo "{\"proc.progress\":0.5}"
+
+      echo "Preparing GFF3 for JBrowse..."
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      rm trackList.json tracks.conf
+      echo "{\"proc.progress\":0.9}"
+
+      {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
+      rm "${NAME}.out"
+      echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\", \"refs\": [\"tracks/gff-track\"]}}"
+

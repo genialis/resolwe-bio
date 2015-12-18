@@ -1,0 +1,482 @@
+# =============
+# Aligner - BWA
+# =============
+---
+
+- name: alignment:bwa_mem-0.7.5a
+  version: 1.0.10
+  label: Aligner (BWA MEM 0.7.5a)
+  type: data:alignment:bam:bwamem
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The algorithm works by seeding alignments with maximal exact matches (MEMs) and then extending seeds with the affine-gap Smith-Waterman algorithm (SW).
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: seed_l
+      label: Minimum seed length
+      type: basic:integer
+      default: 19
+      description: >
+        Minimum seed length. Matches shorter than minimum seed length will be missed. The alignment speed is usually insensitive to this value unless it significantly deviates 20.
+    - name: band_w
+      label: Band width
+      type: basic:integer
+      default: 100
+      description: >
+        Gaps longer than this will not be found.
+    - name: re_seeding
+      label: Re-seeding factor
+      type: basic:decimal
+      default: 1.5
+      description: >
+        Trigger re-seeding for a MEM longer than minSeedLen*FACTOR. This is a key heuristic parameter for tuning the performance. Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy.
+    - name: scoring
+      label: Scoring
+      group:
+      - name: match
+        label: Score of a match
+        type: basic:integer
+        default: 1
+      - name: missmatch
+        label: Mismatch penalty
+        type: basic:integer
+        default: 4
+      - name: gap_o
+        label: Gap open penalty
+        type: basic:integer
+        default: 6
+      - name: gap_e
+        label: Gap extension penalty
+        type: basic:integer
+        default: 1
+      - name: clipping
+        label: Clipping penalty
+        type: basic:integer
+        default: 5
+        description: >
+          Clipping is applied if final alignment score is smaller than (best score reaching the end of query) - (Clipping penalty)
+      - name: unpaired_p
+        label: Penalty for an unpaired read pair
+        type: basic:integer
+        default: 9
+        description: >
+          Affinity to force pair. Score: scoreRead1+scoreRead2-Penalty
+    - name: reporting
+      label: Reporting
+      group:
+      - name: report_all
+        label: Report all found alignments
+        type: basic:boolean
+        default: false
+        description: >
+          Output all found alignments for single-end or unpaired paired-end reads. These alignments will be flagged as secondary alignments.
+      - name: report_tr
+        label: Report threshold score
+        type: basic:integer
+        default: 30
+        description: >
+          Don't output alignment with score lower than defined number. This option only affects output.
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA mem"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      echo "ALIGNING with BWA-MEM:"
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+
+      {% else %}
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
+- name: alignment:bwa_sw-0.7.5a
+  version: 1.0.9
+  label: Aligner (BWA SW 0.7.5a)
+  type: data:alignment:bam:bwasw
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The paired-end mode only works for reads Illumina short-insert libraries.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: match
+      label: Score of a match
+      type: basic:integer
+      default: 1
+    - name: missmatch
+      label: Mismatch penalty
+      type: basic:integer
+      default: 3
+    - name: gap_o
+      label: Gap open penalty
+      type: basic:integer
+      default: 5
+    - name: gap_e
+      label: Gap extension penalty
+      type: basic:integer
+      default: 2
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA SW"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      echo "ALIGNING with BWA-SW:"
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+
+      {% else %}
+
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      {% endif %}
+
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
+- name: alignment:bwa_aln-0.7.5a
+  version: 1.0.10
+  label: Aligner (BWA backtrack 0.7.5a)
+  type: data:alignment:bam:bwaaln
+  category: analyses:alignment
+  persistence: CACHED
+  description: >
+    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for Illumina sequence reads up to 100bp.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: fraction
+      label: Fraction of missing alignments
+      type: basic:decimal
+      default: 0.04
+      description: >
+        the fraction of missing alignments given 2% uniform base error rate
+    - name: use_edit
+      label: Use maximum edit distance (excludes fraction of missing alignments)
+      type: basic:boolean
+      default: false
+      description: >
+        the fraction of missing alignments given 2% uniform base error rate
+    - name: edit_value
+      label: Maximum edit distance
+      type: basic:integer
+      default: 5
+    - name: seeds
+      label: Use seeds
+      type: basic:boolean
+      default: false
+    - name: seed_length
+      label: Seed length
+      type: basic:integer
+      default: 35
+      description: >
+        Take the first X subsequence as seed. If X is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for value 2 in seed maximum edit distance.
+    - name: seed_dist
+      label: Seed maximum edit distance
+      type: basic:integer
+      default: 2
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "BWA BT"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "UNCOMPRESSING genome:"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo {{ genome.output.fasta.file }}
+      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.1}"
+
+      if [ {{ genome.output.index_bwa.file }} ]; then
+        echo "Genome index found, uncompressing it:"
+        tar -zxvf {{ genome.output.index_bwa.file }}
+        mv ./BWA_index/* .
+      else
+        echo "index not found, beginning indexing:"
+        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+      fi
+      echo "{\"proc.progress\":0.2}"
+
+      echo "UNCOMPRESSING reads:"
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      echo "{\"proc.progress\":0.3}"
+
+      #quals detection
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      if [ "$encoding_t" = "Illumina_old" ]; then
+        encoding=-I
+      else
+        encoding=
+      fi
+
+      echo "ALIGNING with BWA-ALN:"
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
+
+      {% else %}
+      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      echo "{\"proc.progress\":0.4}"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME2}.fastq" > "${NAME2}_align.sai"
+      {{ proc.slugs_path }}/bwa-0.7.5a/bwa sampe "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME2}_align.sai" "${NAME}.fastq" "${NAME2}.fastq" > "${NAME}_align_unsorted.sam"
+      {% endif %}
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      echo "COMPRESSING sam to sorted bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      echo "{\"proc.progress\":0.6}"
+
+      echo -e "\nINDEXING bam:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
+
+      echo "Calculating statistics"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      echo "{\"proc.progress\":0.75}"
+
+      echo "Creating unmapped fastq file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
+
+      echo "Computing BigWig file:"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      rm chrom.sizes && rm tmp.bedgraph
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"

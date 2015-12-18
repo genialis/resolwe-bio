@@ -1,0 +1,81 @@
+# ==========================================
+# JBrowse tracks - BAM coverage - normalized
+# ==========================================
+#
+---
+
+- name: jbrowse:bam:coverage:normalized
+  version: 1.0.1
+  label: Build normalized coverage track (JBrowse)
+  type: data:jbrowse:bigwig:coverage:normalized
+  category: analyses
+  persistence: CACHED
+  description: >
+    Prepare genome-wide normalized coverage track in BigWig format. The method uses bamCoverage tool from Deeptools software package.
+  input:
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+    - name: normalize
+      label: Normalization method
+      type: basic:string
+      default: --normalizeTo1x
+      choices:
+        - label: normalizeTo1x (RPGC)
+          value: --normalizeTo1x
+        - label: normalizeUsingRPKM
+          value: --normalizeUsingRPKM
+    - name: size
+      label: Mappable genome size
+      type: basic:integer
+      required: false
+      disabled: "normalize != '--normalizeTo1x'"
+      placeholder: '34000000'
+      description: >
+        Used for reporting coverage normalized to 1x sequencing depth (also known as Reads Per Genomic Content (RPGC)). Sequencing depth is defined as: (total number of mapped reads * fragment length) / effective genome size. The effective genome size is the portion of the genome that is mappable. Large fractions of the genome are stretches of NNNN that should be discarded. Also, if repetitive regions were not included in the mapping of reads, the effective genome size needs to be adjusted accordingly. Common values are: mouse/mm9: 2150570000, human/hg19:2451960000, D.melanogaster/dm3:121400000 and C.elegans/ce10:93260000.
+    - name: fragmentLength
+      label: Fragment length
+      type: basic:integer
+      default: 200
+      description: >
+        Length of the average fragment size. Reads will be extended to match this length unless they are paired- end, in which case they will be extended to match the fragment length. If this value is set to the read length or smaller, the read will not be extended. Warning the fragment length affects the normalization to 1x (see --normalizeTo1x). The formula to normalize using the sequencing depth is genomeSize/(number of mapped reads * fragmentLength). NOTE: If the BAM files contain mated and unmated paired-end reads, unmated reads will be extended to match the --fragmentLength. (default: 200)
+    - name: binSize
+      label: Bin size
+      type: basic:integer
+      default: 50
+      description: >
+        Size of the bins in bp for the output of the bigWig file.
+  output:
+    - name: bigwig_track
+      label: Genome coverage (BigWig)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Normalized coverage track ({{bam.bam.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require kentUtils-2.9.1
+
+      {% if normalize == "--normalizeTo1x" and not size %}
+        re-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."
+      {% endif %}
+
+      re-progress 0.1
+
+      NAME=`basename '{{ bam.bam.file }}' .bam`
+
+      bamCoverage --bam '{{bam.bam.file}}' --outFileName ${NAME}.bigWig --outFileFormat bigwig '{{normalize}}' {% if normalize == "--normalizeTo1x" %} '{{size}}' {% endif %} --binSize '{{binSize}}' --fragmentLength '{{fragmentLength}}' --verbose
+      re-checkrc "Normalized coverage track computation failed."
+      re-progress 0.9
+
+      re-save-file bigwig_track ${NAME}.bigWig

@@ -1,0 +1,53 @@
+# =========================
+# Processors for unit tests
+# =========================
+---
+
+- name: test:disabled
+  version: 1.0.3
+  label: Test disabled inputs
+  type: data:test:disabled
+  persistence: CACHED
+  description: >
+    Test disabled input fields.
+  input:
+    - name: broad
+      label: Broad peaks
+      type: basic:boolean
+      default: false
+    - name: broad_width
+      label: Width of peaks
+      type: basic:integer
+      default: 5
+      disabled: "broad === false"
+    - name: width_label
+      label: Width label
+      type: basic:string
+      default: 'FD'
+      disabled: "broad === false"
+    - name: if_and_condition
+      label: If width is 5 and label FDR
+      type: basic:integer
+      default: 5
+      disabled: "broad_width == 5 && width_label == 'FDR'"
+  output:
+    - name: output
+      label: Result
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      echo "Testing dissabled fields"
+      re-save output "Done"

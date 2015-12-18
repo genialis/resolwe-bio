@@ -1,0 +1,65 @@
+# ==================================
+# Import Nucleotide Sequence (FASTA)
+# ==================================
+---
+
+- name: import:upload:import_nucl_seq
+  version: 1.0.8
+  label: Upload nucleotide sequence(s) (FASTA)
+  type: data:seq:nucleotide
+  category: upload
+  persistence: RAW
+  description: >
+    Upload sequence file in FASTA format.
+  input:
+    - name: src
+      label: Sequence file (FASTA)
+      type: basic:file
+      description: >
+        Sequence file (containing single or multiple sequences) in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
+      required: true
+      validate_regex: '\.(fasta|fa|fna)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: fasta
+      label: Uploaded file
+      type: basic:file
+    - name: number
+      label: Number of sequences
+      type: basic:integer
+      default: 'Sequence file ({{ src.file|default:"?" }})'
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['sequence', 'FASTA']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} sequence file.'
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
+      NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
+      re-checkrc
+      re-save number ${NUMBER}
+      re-save-file fasta ${NAME}.fasta.gz

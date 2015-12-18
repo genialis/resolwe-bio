@@ -1,0 +1,127 @@
+# ===================
+# Import - Annotation
+# ===================
+---
+
+- name: import:upload:annotation-gff3
+  version: 1.0.11
+  label: Upload annotation (GFF3)
+  type: data:annotation:gff3
+  category: upload
+  persistence: RAW
+  description: >
+    Upload annotation in GFF3 format.
+  input:
+    - name: src
+      label: Annotation (GFF3)
+      type: basic:file
+      description: >
+        Annotation in GFF3 format. Supported extensions are: .gff, .gff3 and .gtf
+      required: true
+      validate_regex: '\.(gff|gff3|gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: gff
+      label: Uploaded file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['annotation', 'GFF3']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} annotation upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
+
+      {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
+      echo "{\"proc.progress\":0.2,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\"}}"
+
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      echo "{\"proc.progress\":1,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\",\"refs\":[\"tracks/gff-track\"]}}"
+
+      rm -f trackList.json tracks.conf
+
+- name: import:upload:annotation-gtf
+  version: 1.0.13
+  label: Upload annotation (GTF2.2)
+  type: data:annotation:gtf
+  category: upload
+  persistence: RAW
+  description: >
+    Upload annotation in GTF format.
+  input:
+    - name: src
+      label: Annotation (GTF)
+      type: basic:file
+      description: >
+        Annotation in GTF format.
+      required: true
+      validate_regex: '\.(gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: gtf
+      label: Uploaded file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['annotation', 'GTF']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} annotation upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3
+
+      echo "Converting GTF to GFF3:"
+      cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
+
+      echo "{\"proc.progress\":0.7}"
+      echo "Preparing GFF3 file for JBrowse:"
+      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      rm trackList.json tracks.conf "${NAME}.tmp.gtf"
+
+      echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gtf\":{\"file\":\"${NAME}.gtf\", \"refs\": [\"tracks/gff-track\"]}}"

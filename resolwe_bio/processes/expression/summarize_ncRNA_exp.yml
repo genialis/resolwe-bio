@@ -1,0 +1,102 @@
+# =======================================
+# Summarize ncRNA expression results file
+# =======================================
+#
+---
+
+- name: summarizexpressions-ncrna
+  version: 1.0.3
+  label: Summarize ncRNA expressions
+  type: data:expressionset:ncrna
+  category: analyses
+  persistence: CACHED
+  description: >
+    Summarize ncRNA expression data.
+  input:
+    - name: exps
+      label: Gene expressions
+      type: list:data:expression
+      required: true
+    - name: annotation
+      label: Annotation file
+      type: data:annotation:gff3
+      required: true
+    - name: genes
+      label: Filter genes
+      type: list:basic:string
+      required: false
+  output:
+    - name: expset
+      label: Expression set
+      type: basic:file
+    - name: ncrna
+      label: ncRNA transcripts
+      type: basic:file
+    - name: expset_raw_counts
+      label: Expression set (raw counts)
+      type: basic:file
+    - name: ncrna_raw_counts
+      label: ncRNA transcripts (raw counts)
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Summarized ncRNA expressions"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+
+      {% for e in exps %}
+        {% if exps.0.output.exp_type != e.output.exp_type %}
+          re-error "Expressions must be of the same expression type"
+        {% endif %}
+      {% endfor %}
+
+      summarize_expression_ncRNA.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts.tab'
+      re-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
+
+      summarize_expression_ncRNA.py {% for e in exps %}"{{e.rc.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts_rc.tab'
+      re-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
+
+      head -n 1 all_transcripts.tab > ncRNA.tab
+      awk '{ if ($9 == "u") print }' all_transcripts.tab >> ncRNA.tab
+
+      head -n 1 all_transcripts_rc.tab > ncRNA_rc.tab
+      awk '{ if ($9 == "u") print }' all_transcripts_rc.tab >> ncRNA_rc.tab
+
+      gzip all_transcripts.tab
+      gzip ncRNA.tab
+      gzip all_transcripts_rc.tab
+      gzip ncRNA_rc.tab
+
+      re-save expset_type "RPKUM ncRNA"
+      re-save-file expset all_transcripts.tab.gz
+      re-save-file ncrna ncRNA.tab.gz
+      re-save-file expset_raw_counts all_transcripts_rc.tab.gz
+      re-save-file ncrna_raw_counts ncRNA_rc.tab.gz

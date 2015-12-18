@@ -1,0 +1,115 @@
+# ================================
+# Differential Expression - bayseq
+# ================================
+---
+
+- name: differentialexpression:bcm-1-0-0
+  version: 1.0.7
+  label: Differential Expression (baySeq)
+  type: data:differentialexpression:bayseq
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find differentially expressed genes.
+  input:
+    - name: name
+      label: Name
+      type: basic:string
+      required: true
+    - name: case
+      label: Case
+      type: list:data:expression:polya
+      required: true
+    - name: control
+      label: Control
+      type: list:data:expression:polya
+      required: true
+    - name: replicates
+      label: Replicates
+      type: list:basic:string
+      required: true
+    - name: mappability
+      label: Mappability
+      type: data:mappability
+      required: true
+  output:
+    - name: diffexp
+      label: Differential expression
+      type: basic:file
+    - name: volcano_plot
+      label: Volcano plot
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "{{ name }}"
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the DE analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["differential", "expression", "baySeq"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of the differential expression."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% for c in case %}
+        {% if not c.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"
+        {% endif %}
+      {% endfor %}
+
+      {% for c in control %}
+        {% if not c.output.rc.file %}
+          echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"
+        {% endif %}
+      {% endfor %}
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmerge.py {% for c in case %}"{{c.output.rc.file}}" {% endfor %} {% for c in control %}"{{c.output.rc.file}}" {% endfor %} --experiments {% for c in case %}"Case_Counts_{{c.id}}" {% endfor %} {% for c in control %}"Control_Counts_{{c.id}}" {% endfor %} > expressions.tab
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+
+      Rscript {{ proc.slugs_path }}/gencloud-20131109/run_bayseq.R expressions.tab {{mappability.output.mappability.file}} --groups {% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %} --replicates {% if replicates %}{% for r in replicates %}{{r}} {% endfor %}{% else %}{% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %}{% endif %}
+      echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in case %}"{{c.output.exp.file}}" {% endfor %} --name Case_RPKUM_ > rpkum_median_case.tab
+      gzip rpkum_median_case.tab
+      echo "{\"proc.progress\":0.85,\"proc.rc\":$?}"
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmedian.py {% for c in control %}"{{c.output.exp.file}}" {% endfor %} --name Control_RPKUM_ > rpkum_median_control.tab
+      gzip rpkum_median_control.tab
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      gzip diffexp_bayseq_partial.tab
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/expressionmerge.py diffexp_bayseq_partial.tab.gz rpkum_median_case.tab.gz rpkum_median_control.tab.gz --intersection > diffexp_bayseq.tab
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/diffexp_bayseq.tab ]
+      then
+        gzip diffexp_bayseq.tab
+        echo "{\"diffexp\":{\"file\":\"diffexp_bayseq.tab.gz\"}}"
+      fi
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot-bcm.py diffexp_bayseq.tab.gz
+      echo "{\"proc.progress\":1,\"proc.rc\":$?}"

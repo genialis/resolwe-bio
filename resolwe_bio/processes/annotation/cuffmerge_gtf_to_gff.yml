@@ -1,0 +1,81 @@
+# ========================================================
+# GTF/GFF processing - Convert Cuffmerge GTF to GFF format 
+# ========================================================
+---
+
+- name: cuffmerge-gtf-to-gff3
+  version: 1.0.2
+  label: Convert Cuffmerge GTF to GFF3 format
+  type: data:annotation:gff3
+  category: analyses
+  persistence: CACHED
+  description: >
+    Convert Cuffmerge GTF annotation file to valid GFF3 format.
+  input:
+    - name: cuffmerge
+      label: Annotation file
+      type: data:annotation
+      required: true
+  output:
+    - name: gff
+      label: Cuffmerge annotation file (GFF3)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Cuffmerge annotation (GFF3)'
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Description of Cuffmerge annotation file
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['Cuffmerge', 'Annotation']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of Cuffmerge annotation file.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require cufflinks-2.2.1
+      re-require genometools-1.5.3/bin
+
+      {% if cuffmerge.merged_gtf.file %}
+        ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`
+        gffread -E -F -O '{{cuffmerge.merged_gtf.file}}' -o- > temp.gff
+        re-checkrc "GTF to GFF3 conversion failed."
+        re-progress 0.5
+      {% else %}
+        ANNOTATION_NAME=`basename '{{cuffmerge.gtf.file}}' .gtf`
+        gffread -E -F -O '{{cuffmerge.gtf.file}}' -o- > temp.gff
+        re-checkrc "GTF to GFF3 conversion failed."
+        re-progress 0.5
+      {% endif %}
+
+      sed -i 's/class_code==/class_code=asInReference/g' temp.gff
+      re-checkrc
+
+      gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o ${ANNOTATION_NAME}.gff temp.gff
+      re-checkrc
+
+      sed -i '/gffread/d' ${ANNOTATION_NAME}.gff
+
+      re-save-file gff ${ANNOTATION_NAME}.gff

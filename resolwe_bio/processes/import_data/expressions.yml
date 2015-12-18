@@ -1,0 +1,113 @@
+# ==================
+# Import Expressions
+# ==================
+---
+
+- name: import:upload:expression
+  version: 1.0.5
+  label: Upload Expression
+  type: data:expression
+  category: upload
+  persistence: RAW
+  description: >
+        Upload expression data. Please provide raw expression data (read counts) and/or normalized expression data together with the associated data normalization type.
+  input:
+    - name: rc
+      label: Read counts (raw expression)
+      type: basic:file
+      description: >
+        Reads mapped to genomic features (raw count data). Supported extensions: .txt.gz (preferred), .tab.* or .txt.*
+      required: false
+      validate_regex: '\.(txt|tab|gz)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+      description: >
+        Normalized expression data. Supported extensions: .tab.gz (preferred) or .tab.*
+      required: false
+      validate_regex: '\.(tab|gz)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: exp_type
+      label: Normalization type
+      type: basic:string
+      description: >
+        Normalization type
+      required: false
+  output:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+      description: Normalized expression
+    - name: rc
+      label: Read counts
+      type: basic:file
+      description: Reads mapped to genomic features.
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ exp.file|default:"?" }}'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['expression', 'upload']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+
+      {% if not exp and not rc %}
+        re-error "Please provide raw or/and normalized expression files."
+
+      {% elif exp and not exp_type %}
+        re-error "Please provide normalization type together with normalized expressions."
+
+      {% elif not exp and exp_type and rc %}
+        re-error "Please provide raw or/and normalized expression files."
+
+      {% elif rc and not exp and not exp_type %}
+        re-import "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.1 compress
+        EXP_TYPE="RC"
+        re-save exp_type ${EXP_TYPE}
+        re-save-file exp ${NAME}.tab.gz
+        re-save-file rc ${NAME}.tab.gz
+        expression2storage.py "${NAME}.tab.gz"
+        re-checkrc
+
+      {% elif exp and exp_type and not rc %}
+        re-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
+        EXP_NAME=${NAME}
+        EXP_TYPE="{{exp_type}}"
+        re-save exp_type ${EXP_TYPE}
+        re-save-file exp ${EXP_NAME}.tab.gz
+        expression2storage.py "${NAME}.tab.gz"
+        re-checkrc
+
+      {% else %}
+        re-import "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.5 compress
+        RC_NAME=${NAME}
+        re-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.9 compress
+        EXP_NAME=${NAME}
+        EXP_TYPE="{{exp_type}}"
+        re-save exp_type ${EXP_TYPE}
+        re-save-file exp ${EXP_NAME}.tab.gz
+        re-save-file rc ${RC_NAME}.tab.gz
+        expression2storage.py "${EXP_NAME}.tab.gz"
+        re-checkrc
+
+      {% endif %}

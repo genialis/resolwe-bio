@@ -1,0 +1,169 @@
+# ========================
+# Expression - HTSeq-count
+# ========================
+---
+
+- name: htseq-count:-0-6-1p1
+  version: 1.0.9
+  label: Expression (HTSeq-count 0.6.1p1)
+  type: data:expression:htseq
+  category: analyses
+  persistence: CACHED
+  description: >
+    Count the number of reads that map to a genomic feature (e.g. gene)
+  input:
+    - name: alignments
+      label: Aligned reads
+      type: data:alignment:bam
+      required: true
+    - name: gff
+      label: Annotation (GFF)
+      type: data:annotation:gtf
+      required: true
+    - name: mode
+      label: Mode
+      type: basic:string
+      required: true
+      description: >
+        Mode to handle reads overlapping more than one feature. Possible values for <mode> are union, intersection-strict and intersection-nonempty
+      default: union
+      choices:
+        - label: union
+          value: union
+        - label: intersection-strict
+          value: intersection-strict
+        - label: intersection-nonempty
+          value: intersection-nonempty
+    - name: stranded
+      label: Is data from a strand specific assay?
+      type: basic:string
+      required: true
+      description: >
+        For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
+      default: "yes"
+      choices:
+        - label: "yes"
+          value: "yes"
+        - label: "no"
+          value: "no"
+        - label: reverse
+          value: reverse
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      default: exon
+      description: >
+        Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
+    - name: id_attribute
+      label: ID attribute
+      type: basic:string
+      default: gene_id
+      description: >
+        GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
+    - name: name_ordered
+      label: Use name-ordered BAM file for counting reads
+      type: basic:boolean
+      default: false
+      required: false
+      description: >
+        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM files, but requires more computational time.
+  output:
+    - name: htseq_output
+      label: HTseq-count output
+      type: basic:file
+    - name: rc
+      label: Read counts
+      type: basic:file
+    - name: fpkm
+      label: FPKM
+      type: basic:file
+    - name: exp
+      label: TPM (Transcripts Per Million)
+      type: basic:file
+    - name: exp_json
+      label: TPM (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+      default: TPM
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "{{ alignments.output.bam.file|basename|default:'?' }}"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the expression analysis
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['HTSeq-count', 'Expression', 'FPKM', 'TPM']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: HTSeq-count analysis
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require samtools-0.1.19
+
+      NAME=`basename '{{ alignments.output.bam.file }}' .bam`
+      re-progress 0.1
+
+      {% if name_ordered %}
+        if samtools view -H '{{ alignments.output.bam.file }}' | grep SO:queryname; then
+          htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+        else
+          echo "Name sorting aligned reads:"
+          samtools sort -n '{{ alignments.output.bam.file }}' "${NAME}_name_sorted"
+          re-checkrc
+          re-progress 0.5
+          htseq-count --format=bam --order=name --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' ${NAME}_name_sorted.bam "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+        fi
+      {% else %}
+        htseq-count --format=bam --order=pos --stranded='{{ stranded }}' --mode='{{mode}}' --type='{{ feature_type }}' --idattr='{{ id_attribute }}' '{{ alignments.output.bam.file }}' "{{ gff.output.gtf.file }}" > "HTseq_rc.txt"
+      {% endif %}
+
+      re-checkrc
+      re-progress 0.8
+
+      head -n -5 HTseq_rc.txt > rc_wo_header.txt
+      expression_fpkm_tpm.R  '{{ gff.output.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+      re-checkrc
+      re-progress 0.9
+
+      add_header.py rc_wo_header.txt rc.txt
+      add_header.py fpkm_wo_header.tab fpkm.tab
+      add_header.py tpm_wo_header.tab tpm.tab
+
+      gzip -c HTseq_rc.txt > ${NAME}_HTseq_rc.txt.gz
+      gzip -c rc.txt > ${NAME}_rc.tab.gz
+      gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
+      gzip -c tpm.tab > ${NAME}_tpm.tab.gz
+
+      expression2storage.py ${NAME}_tpm.tab.gz
+
+      re-checkrc
+      re-progress 0.95
+
+      re-save-file rc "${NAME}_rc.tab.gz"
+      re-save-file fpkm "${NAME}_fpkm.tab.gz"
+      re-save-file exp "${NAME}_tpm.tab.gz"
+      re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"

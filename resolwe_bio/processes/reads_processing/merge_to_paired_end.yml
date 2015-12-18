@@ -1,0 +1,95 @@
+# ====================================================
+# Processors for reads procesing - Merge to paired-end
+# ====================================================
+---
+
+- name: reads:merge
+  version: 1.0.3
+  label: Build paired-end reads from single-ended
+  type: data:reads:fastq:paired
+  persistence: CACHED
+  description: >
+    Takes in two fastq files and merges them into paired end.
+  input:
+    - name: reads_1
+      label: Upstream Reads
+      type: data:reads:fastq:single
+      required: true
+    - name: reads_2
+      label: Downstream Reads
+      type: data:reads:fastq:single
+      required: true
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: basic:file
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: basic:file
+    - name: number
+      label: Number of reads
+      type: basic:integer
+    - name: bases
+      label: Number of bases
+      type: basic:string
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: basic:url:view
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["Fastq", "reads", "NGS", "paired-end"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      #TODO carry over descriptions
+      #echo "UNCOMPRESSING reads 1:"
+
+
+      cp {{ reads_1.output.fastq.file }} .
+      cp {{ reads_2.output.fastq.file }} .
+      NAME=`basename '{{ reads_1.output.fastq.file }}' .fastq.gz`
+      NAME2=`basename '{{ reads_2.output.fastq.file }}' .fastq.gz`
+
+      mkdir fastqc
+      7z x -o./fastqc -y {{ reads_1.output.fastqc_archive.file }}
+      7z x -o./fastqc -y {{ reads_2.output.fastqc_archive.file }}
+      cp {{ reads_1.output.fastqc_archive.file }} .
+      cp {{ reads_2.output.fastqc_archive.file }} .
+
+      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
+      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
+      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+
+      echo "{\"fastq\":{\"file\":\"${NAME}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"

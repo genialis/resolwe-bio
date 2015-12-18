@@ -12,6 +12,7 @@ Unreleased
 Changed
 -------
 * Renamed assertFileExist to assertFileExists.
+* Restructured processes folder hierarchy
 
 Fixed
 -----

@@ -1,0 +1,82 @@
+# ==========================
+# Microarray Quality Metrics
+# ==========================
+---
+
+- name: microarray:affy:qc
+  version: 1.0.1
+  label: Microarray Quality Metrics
+  type: data:microarray:qc:affy
+  category: analyses
+  persistence: CACHED
+  description: >
+    Compute Array Quality Metrics. Supports Affymetrix platform.
+  input:
+    - name: cel
+      label: CEL files
+      type: list:data:microarray:affy
+    - name: logtransform
+      label: Log-transform the data
+      type: basic:boolean
+      default: false
+      description: >
+        Logarithm transform the data before QC analysis. If data is already log-transformed (e.g. after RMA normalization) this option is not required.
+    - name: library
+      label: Load data using library
+      type: basic:string
+      description: >
+        R library to use when loading CEL files. The selection depends on the Array type.
+      default: affy
+      choices:
+        - label: affy
+          value: affy
+        - label: oligo
+          value: oligo
+  output:
+    - name: qc_report
+      label: QC report
+      type: basic:file
+    - name: qc_report_url
+      label: Quality control with Array Quality Metrics
+      type: basic:url:view
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Array Quality Metrics"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["Microarray", "QC"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+
+      {% for c in cel %}
+        cp "{{c.cel.file}}" .
+      {% endfor %}
+
+      microarrayQC.R '{{ library }}' {% if logtransform %} --logtransform {% endif %}
+      re-checkrc "Array Quality Metrics processing failed. Try loading data using alternative R library."
+
+      re-save qc_report_url "{\"name\":\"View\",\"url\":\"report/index.html\",\"refs\":[\"report\"]}"
+      zip -r report report
+      re-save-file qc_report report.zip

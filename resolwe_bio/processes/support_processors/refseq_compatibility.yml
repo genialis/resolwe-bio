@@ -1,0 +1,80 @@
+# ====================
+# RefSeq Compatibility
+# ====================
+---
+
+- name: reference_compatibility
+  version: 1.0.1
+  label: Coordinate compatibility test
+  type: data:reports:compatibility
+  category: analyses
+  persistence: CACHED
+  description: >
+    Check for Genome compatibility with BAM and/or Annotation.
+  input:
+    - name: reference
+      label: Reference genome
+      type: "data:genome:fasta:"
+      required: true
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+      required: false
+    - name: annot
+      label: Annotation file
+      type: "data:annotation:"
+      required: false
+  output:
+    - name: report_file
+      label: Report file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Compatibility check ({{reference.output.fasta.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["Compatibility test"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of compatibility test ({{reference.output.fasta.file}})"
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      source {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      BAM_HEADER="bam_header.txt"
+
+      GENOME_NAME=`basename '{{ reference.output.fasta.file }}' .fasta.gz`
+      gzip -cd {{ reference.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+
+      {% if bam %}
+      echo "Fetching bam header"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H "{{bam.output.bam.file}}" > "${BAM_HEADER}"
+      echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+      echo "${BAM_HEADER}"
+      {% endif %}
+
+      {% if annot.type == 'data:annotation:gff3:' %}
+        ANOT_FILE="{{annot.output.gff.file}}"
+      {% else %}
+        ANOT_FILE="{{annot.output.gtf.file}}"
+      {% endif %}
+
+      echo "Compatibility check"
+      python -u {{ proc.slugs_path }}/gencloud-20131109/compatibilty_check.py --genome "${GENOME_NAME}.fasta" {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
+      echo "{\"proc.progress\":1,\"proc.rc\":$?, \"report_file\":{\"file\":\"${GENOME_NAME}_compatibility_report.txt\"}}"

@@ -1,0 +1,44 @@
+# ====================
+# JBrowse tracks - GTF
+# ====================
+#
+---
+
+- name: jbrowse:gtf
+  version: 1.0.2
+  label: Build GTF annotation track (JBrowse)
+  type: data:jbrowse:annotation:gtf
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare GTF annotation track for JBrowse.
+  input:
+    - name: gtf
+      label: Annotation file (GTF)
+      type: data:annotation:gtf
+      description: >
+        Annotation file (GTF)
+  output:
+    - name: annotation_track
+      label: Annotation track (GTF)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Annotation track ({{ gtf.gtf.file|default:"?" }})'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require jbrowse-1.11.6/bin
+
+      flatfile-to-json.pl --gff '{{gtf.gtf.file}}' --out . --trackLabel "annotation"
+      re-checkrc "Annotation track processing for JBrowse failed."
+      re-save-file annotation_track trackList.json tracks/annotation

@@ -1,0 +1,191 @@
+# ================
+# Aligner - TopHat
+# ================
+---
+
+- name: alignment:tophat-2-0-13
+  version: 1.0.9
+  label: Aligner (TopHat v2.0.13)
+  type: data:alignment:bam:tophat
+  persistence: CACHED
+  description: >
+    TopHat is a program that aligns RNA-Seq reads to a genome in order to identify exon-exon splice junctions. It is built on the ultrafast short read mapping program Bowtie.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+      required: true
+    - name: gff
+      label: General feature format
+      type: data:annotation
+      required: false
+      description: >
+        Supply TopHat with a set of gene model annotations and/or known transcripts, as a GTF 2.2 or GFF3 formatted file. If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed) and merged with the novel mappings and junctions in the final tophat output. Please note that the values in the first column of the provided GTF/GFF file (column which indicates the chromosome or contig on which the feature is located), must match the name of the reference sequence (exact same chromosome/contig names (case sensitive)) in the Bowtie index you are using with TopHat.
+    - name: threads
+      label: Use this many threads to align reads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many threads to align reads. The default is 1.
+    - name: realign
+      label: Realign reads
+      type: basic:boolean
+      default: false
+      description: >
+        Some of the reads spanning multiple exons may be mapped incorrectly as a contiguous alignment to the genome even though the correct alignment should be a spliced one - this can happen in the presence of processed pseudogenes that are rarely (if at all) transcribed or expressed. This option can direct TopHat to re-align reads for which the edit distance of an alignment obtained in a previous mapping step is above or equal to this option value. If you set this option to 0, TopHat will map every read in all the mapping steps (transcriptome if you provided gene annotations, genome, and finally splice variants detected by TopHat), reporting the best possible alignment found in any of these mapping steps. This may greatly increase the mapping accuracy at the expense of an increase in running time. The default value is set to 0.
+    - name: options
+      label: Options
+      group:
+        - name: max_multihits
+          label: Maximum number of multihits
+          type: basic:integer
+          default: 20
+          description: >
+            Instructs TopHat to allow up to this many alignments to the reference for a given read, and choose the alignments based on their alignment scores if there are more than this number. The default is 20 for read mapping. Unless you use --report-secondary-alignments, TopHat will report the alignments with the best alignment score. If there are more alignments with the same score than this number, TopHat will randomly report only this many alignments. In case of using --report-secondary-alignments, TopHat will try to report alignments up to this option value, and TopHat may randomly output some of the alignments with the same score to meet this number.
+        - name: secondary_alignments
+          label: Report secondary alignments
+          type: basic:boolean
+          default: false
+          description: >
+            By default TopHat reports best or primary alignments based on alignment scores (AS). Use this option if you want to output additional or secondary alignments  (up to 20 alignments will be reported this way, this limit can be changed by using the -g/--max-multihits option above).
+        - name: microexon_search
+          label: Microexon search
+          type: basic:boolean
+          default: false
+          description: >
+            With this option, the pipeline will attempt to find alignments incident to micro-exons. Works only for reads 50bp or longer.
+    - name: PE_options
+      label: Paired end alignment options
+      group:
+        - name: inner_distance
+          label: Expected (mean) inner distance between mate pairs
+          type: basic:integer
+          default: 50
+          description: >
+            This is the expected (mean) inner distance between mate pairs. For, example, for paired end runs with fragments selected at 300bp, where each end is 50bp, you should set -r to be 200. The default is 50bp.
+        - name: mate_std_dev
+          label: Standard deviation of inner distances between mate pairs
+          type: basic:integer
+          default: 20
+          description: >
+            The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.
+        - name: library_type
+          required: true
+          label: Library type
+          type: basic:string
+          description: >
+            The default is unstranded (fr-unstranded). If either fr-firststrand or fr-secondstrand is specified, every read alignment will have an XS attribute tag as explained below. Consider supplying library type options below to select the correct RNA-seq protocol: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+          default: fr-unstranded
+          choices:
+            - label: fr-unstranded
+              value: fr-unstranded
+            - label: fr-firststrand
+              value: fr-firststrand
+            - label: fr-secondstrand
+              value: fr-secondstrand
+  output:
+    - name: bam
+      label: Alignment
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: unmapped
+      label: Unmapped reads
+      type: basic:file
+    - name: junctions
+      label: Junctions track
+      type: basic:file
+    - name: deletions
+      label: Deletions track
+      type: basic:file
+    - name: insertions
+      label: Insertions track
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["alignment", "BAM", "TopHat"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      echo "Searching for index"
+      INDEX_NAME=`basename '{{ genome.output.index_bt2.file }}' .tar.gz`
+      if [ {{ genome.output.index_bt2.file }} ]; then
+        echo "Genome index found, uncompressing it"
+        tar -zxvf {{ genome.output.index_bt2.file }}
+        mv ./bowtie2_index/* .
+      else
+        echo "index not found, UNCOMPRESSING genome:"
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        echo "{\"proc.progress\":0.1}"
+        echo "BUILDING genome index:"
+        {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      fi
+
+      echo "Preparing genome fasta sequence to be used by TopHat"
+      gzip -cd "{{ genome.output.fasta.file }}" > "${GENOME_NAME}_index.fa"
+
+      echo "{\"proc.progress\":0.2}"
+
+      export PATH=$PATH:{{ proc.slugs_path }}/bowtie2-2.2.3
+      echo "ALIGNING with TopHat:"
+
+      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+
+      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
+
+      {% else %}
+
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}' '{{ reads.output.fastq2.file }}'
+
+      {% endif %}
+
+      echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+
+      mv accepted_hits.bam ${NAME}_hits.bam
+      mv unmapped.bam ${NAME}_unmapped.bam
+      mv deletions.bed ${NAME}_deletions.bed
+      mv insertions.bed ${NAME}_insertions.bed
+      mv junctions.bed ${NAME}_junctions.bed
+      mv align_summary.txt ${NAME}_align_summary.txt
+
+      echo "Indexing aligned reads:"
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_hits.bam" "${NAME}_hits.bam.bai"
+
+      echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_hits.bam\"}, \"bai\":{\"file\":\"${NAME}_hits.bam.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.bam\"}, \"stats\":{\"file\":\"${NAME}_align_summary.txt\"}, \"junctions\":{\"file\":\"${NAME}_junctions.bed\"}, \"deletions\":{\"file\":\"${NAME}_deletions.bed\"}, \"insertions\":{\"file\":\"${NAME}_insertions.bed\"}}"

@@ -1,0 +1,61 @@
+# ==========================
+# Import ontology (obo) file
+# ==========================
+---
+
+- name: import:upload:ontology
+  version: 1.0.14
+  label: Upload gene ontology
+  type: data:ontology:obo
+  category: upload
+  persistence: RAW
+  description: >
+    Upload gene ontology in OBO format.
+  input:
+    - name: src
+      label: Gene ontology (OBO)
+      type: basic:file
+      description: >
+        Gene ontology in OBO format.
+      required: true
+      validate_regex: '\.obo(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: obo
+      label: Ontology file
+      type: basic:file
+    - name: obo_obj
+      label: OBO object
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'ontology', 'OBO']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} ontology upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" 0.8
+      {{proc.slugs_path}}/gotea/preprocessor obo "${NAME}.obo" obo_obj
+      echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"

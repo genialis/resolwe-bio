@@ -1,0 +1,155 @@
+# ============
+# Import - BAM
+# ============
+---
+
+- name: import:upload:mapping-bam
+  version: 1.0.11
+  label: Upload BAM file mapping
+  type: data:alignment:bam:upload
+  category: upload
+  persistence: RAW
+  description: >
+    Upload a mapping file in BAM format.
+  input:
+    - name: src
+      label: Mapping (BAM)
+      type: basic:file
+      description: >
+        A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
+      required: true
+      validate_regex: '\.(bam)$'
+  output:
+    - name: bam
+      label: Uploaded file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['mapping', 'BAM']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+
+        {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam" 2> stderr.txt
+        indexrc=$?
+
+        grep -Fq 'fail to index' stderr.txt
+        indexerr=$?
+
+        if [ -f "stderr.txt" ]; then
+            cat stderr.txt
+        fi
+
+        # Position sort and re-index if indexing failed
+        if [ $indexerr -eq 0 ] || [ $indexrc -ne 0 ]; then
+            echo "SORTING input BAM file per coordinate:"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}.bam" "${NAME}_aligned" >&2
+            echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+            mv "${NAME}_aligned.bam" "${NAME}.bam"
+            echo "{\"proc.rc\":$?}"
+            echo "INDEXING input BAM file"
+            {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam"
+            echo "{\"proc.rc\":$?}"
+        fi
+
+        echo "{\"bam\":{\"file\":\"${NAME}.bam\"},\"bai\":{\"file\":\"${NAME}.bam.bai\"}}"
+
+- name: import:upload:mapping-bam-indexed
+  version: 1.0.6
+  label: Upload BAM file and index
+  type: data:alignment:bam:upload
+  category: upload
+  persistence: RAW
+  description: >
+    Upload a mapping file in BAM format with index.
+  input:
+    - name: src
+      label: Mapping (BAM)
+      type: basic:file
+      description: >
+        A mapping file in BAM format.
+      required: true
+      validate_regex: '\.(bam)$'
+    - name: src2
+      label: bam index (*.bam.bai file)
+      type: basic:file
+      description: >
+        An index file of a BAM mapping file (ending with bam.bai).
+      required: true
+      validate_regex: '\.(bam.bai)$'
+  output:
+    - name: bam
+      label: Uploaded file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['mapping', 'BAM']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        BAM_NAME=${NAME}.bam
+
+        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
+        BAI_NAME=${NAME}.bai
+
+        if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then
+            echo "{\"bam\":{\"file\":\"${BAM_NAME}\"},\"bai\":{\"file\":\"${BAI_NAME}\"}}"
+        else
+            echo "{\"proc.error\":\"BAI should have the same name as BAM with .bai extension\"}"
+        fi

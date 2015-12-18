@@ -1,0 +1,50 @@
+# ===============================
+# Import Orthologues Mapping File
+# ===============================
+---
+
+- name: import:upload:orthologues
+  version: 1.0.6
+  label: Upload gene orthologues file
+  type: data:orthologues
+  category: upload
+  persistence: RAW
+  description: >
+        File (tab delimited .txt) containing gene orthologues relations information. Column one - primary organism gene IDs; column two - orthologues gene IDs.
+  input:
+    - name: src
+      label: Gene orthologues file
+      type: basic:file
+      description: >
+        Upload file (tab delimited .txt) containing gene orthologues relations information. Column one - primary organism gene IDs; column two - orthologues gene IDs.
+      required: true
+      validate_regex: '\.(txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: ort
+      label: Gene information
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Gene orthologues file ({{ src.file|default:"?" }}) upload'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['genes', 'orthologues']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0
+      python {{ proc.slugs_path }}/gencloud-20131109/verify_orthologues.py "${NAME}.txt"
+      echo "{\"proc.rc\":$?,\"ort\":{\"file\":\"$NAME.txt.gz\"}}"

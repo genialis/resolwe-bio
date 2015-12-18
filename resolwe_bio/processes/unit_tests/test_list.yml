@@ -1,0 +1,50 @@
+# =========================
+# Processors for unit tests
+# =========================
+---
+
+- name: test:list
+  version: 1.0.1
+  label: Test select controler
+  type: data:test:result
+  persistence: CACHED
+  description: >
+    Test with all basic input fields whose values are printed by the processor and returned unmodified as output fields.
+  input:
+    - name: single
+      label: Single
+      type: data:test:result
+    - name: multiple
+      label: Multiple
+      type: list:data:test:result
+  output:
+    - name: output
+      label: Result
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["test"]
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "Starting..."
+      echo "single={{ single }}"
+      echo "multiple={{ multiple }}"
+      echo "{\"output\":\"test\"}"
+      exit 0

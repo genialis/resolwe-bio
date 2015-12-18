@@ -1,0 +1,44 @@
+# =====================
+# JBrowse tracks - GFF3
+# =====================
+#
+---
+
+- name: jbrowse:gff3
+  version: 1.0.2
+  label: Build GFF3 annotation track (JBrowse)
+  type: data:jbrowse:annotation:gff3
+  category: jbrowse
+  persistence: CACHED
+  description: >
+    Prepare GFF3 annotation track for JBrowse.
+  input:
+    - name: gff
+      label: Annotation file (GFF3)
+      type: data:annotation:gff3
+      description: >
+        Annotation file (GFF3)
+  output:
+    - name: annotation_track
+      label: Annotation track (GFF3)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Annotation track ({{ gff.gff.file|default:"?" }})'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require jbrowse-1.11.6/bin
+
+      flatfile-to-json.pl --gff '{{gff.gff.file}}' --out . --trackLabel "annotation"
+      re-checkrc "Annotation track processing for JBrowse failed."
+      re-save-file annotation_track trackList.json tracks/annotation

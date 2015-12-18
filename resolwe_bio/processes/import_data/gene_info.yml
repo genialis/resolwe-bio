@@ -1,0 +1,61 @@
+# ==================
+# Import - Gene Info
+# ==================
+---
+
+- name: import:upload:geneinfo
+  version: 1.0.10
+  label: Upload gene information
+  type: data:geneinfo
+  category: upload
+  persistence: RAW
+  description: >
+    Upload gene information from text or Excel file.
+  input:
+    - name: src
+      label: Gene information
+      type: basic:file
+      description: >
+        Gene informations in tab-separated text file. Composition: first row is header follow by rows (Gene ID, Gene Name, Synonyms,  Gene products, Entrez ID, Ensembl ID, .. other (i.e. organism specific id)). Supported extensions: .tab, .txt.
+      required: true
+      validate_regex: '\.(tab|txt)$'
+  output:
+    - name: src
+      label: Gene information
+      type: basic:file
+    - name: date
+      label: Upload date
+      type: basic:date
+    - name: info
+      label: Gene information JSON
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Gene information (upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'information']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|tab" "tab" 0.3
+
+      re-save-file src ${NAME}.tab
+      re-save date `date +%Y-%m-%d`
+
+      import_geneinfo.py "${NAME}.tab"
+      re-checkrc

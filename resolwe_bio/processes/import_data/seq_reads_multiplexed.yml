@@ -1,0 +1,212 @@
+# ======================================
+# Import - Sequencing Reads - Muliplexed
+# ======================================
+---
+
+- name: import:upload:multiplexed
+  version: 1.0.13
+  label: Upload multiplexed NGS reads
+  type: data:multiplexed:qseq:single
+  category: upload
+  persistence: RAW
+  description: >
+    Upload multiplexed NGS reds in QSEQ format.
+  input:
+    - name: reads
+      label: Multiplexed NGS reads
+      type: basic:file
+      required: true
+      validate_regex: '(\.(qseq)(|\.txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+      description: >
+        NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
+    - name: barcodes
+      label: NGS barcodes
+      type: basic:file
+      required: true
+      validate_regex: '(\.(qseq)(|\.txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+      description: >
+        Barcodes in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
+    - name: annotation
+      label: Barcode mapping
+      type: basic:file
+      validate_regex: '(\.csv|\.tsv)$'
+      required: true
+      description: >
+        A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
+  output:
+    - name: qseq_reads
+      label: Multiplexed NGS reads
+      type: basic:file
+    - name: qseq_reads2
+      label: Multiplexed NGS reads (pair)
+      type: basic:file
+    - name: qseq_barcodes
+      label: NGS barcodes
+      type: basic:file
+    - name: annotation
+      label: Barcode mapping
+      type: basic:file
+    - name: matched
+      label: Matched
+      type: basic:string
+    - name: notmatched
+      label: Not matched
+      type: basic:string
+    - name: badquality
+      label: Bad quality
+      type: basic:string
+    - name: skipped
+      label: Skipped
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ reads.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['multiplexed', 'qseq']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ reads.file|default:"?" }} multiplexed reads upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+      BARCODES_NAME=$NAME
+
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
+      READS_NAME=$NAME
+
+      TEMP="{{ annotation.file_temp|default:annotation.file }}"
+      mv "$TEMP" {{ annotation.file }}
+      echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
+
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      python -u {{ proc.slugs_path }}/gencloud-20131109/demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
+      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+
+- name: import:upload:multiplexed-paired-end
+  version: 1.0.13
+  label: Upload paired-end multiplexed NGS reads
+  type: data:multiplexed:qseq:paired
+  category: upload
+  persistence: RAW
+  description: >
+    Upload multiplexed NGS reds in QSEQ format.
+  input:
+    - name: reads
+      label: Multiplexed upstream reads
+      type: basic:file
+      required: true
+      validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+      description: >
+        NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
+    - name: reads2
+      label: Multiplexed downstream reads
+      type: basic:file
+      required: true
+      validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+      description: >
+        NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
+    - name: barcodes
+      label: NGS barcodes
+      type: basic:file
+      required: true
+      validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+      description: >
+        Barcodes in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
+    - name: annotation
+      label: Barcode mapping
+      type: basic:file
+      validate_regex: '(\.csv|\.tsv)$'
+      required: true
+      description: >
+        A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
+  output:
+    - name: qseq_reads
+      label: Multiplexed upstream reads
+      type: basic:file
+    - name: qseq_reads2
+      label: Multiplexed downstream reads
+      type: basic:file
+    - name: qseq_barcodes
+      label: NGS barcodes
+      type: basic:file
+    - name: annotation
+      label: Barcode mapping
+      type: basic:file
+    - name: matched
+      label: Matched
+      type: basic:string
+    - name: notmatched
+      label: Not matched
+      type: basic:string
+    - name: badquality
+      label: Bad quality
+      type: basic:string
+    - name: skipped
+      label: Skipped
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ reads.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['multiplexed', 'qseq']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ reads.file|default:"?" }} multiplexed reads upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+      BARCODES_NAME=$NAME
+
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
+      READS_NAME=$NAME
+
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
+      READS_NAME2=$NAME
+
+      TEMP="{{ annotation.file_temp|default:annotation.file }}"
+      mv "$TEMP" {{ annotation.file }}
+      echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
+
+      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
+      python -u {{ proc.slugs_path }}/gencloud-20131109/demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22
+      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"

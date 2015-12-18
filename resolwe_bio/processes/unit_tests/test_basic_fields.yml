@@ -1,0 +1,268 @@
+# =========================
+# Processors for unit tests
+# =========================
+---
+
+- name: test:basic-fields
+  version: 1.0.7
+  label: Test basic fields
+  type: data:test:fields
+  persistence: CACHED
+  description: >
+    Test with all basic input fields whose values are printed by the processor and returned unmodified as output fields.
+  input:
+    - name: boolean
+      label: Boolean
+      type: basic:boolean
+      default: true
+    - name: date
+      label: Date
+      type: basic:date
+      default: "2013-12-31"
+    - name: datetime
+      label: Date and time
+      type: basic:datetime
+      default: "2013-12-31 23:59:59"
+    - name: decimal
+      label: Decimal
+      type: basic:decimal
+      default: -123.456
+    - name: integer
+      label: Integer
+      type: basic:integer
+      default: -123
+    - name: string
+      label: String
+      type: basic:string
+      default: "Foo b-a-r.gz 1.23"
+    - name: text
+      label: Text
+      type: basic:text
+      default: |
+        Foo bar
+        in 3
+        lines.
+    - name: url_download
+      label: URL download
+      type: basic:url:download
+      default:
+        url: "http://www.w3.org/TR/1998/REC-html40-19980424/html40.pdf"
+    - name: url_view
+      label: URL view
+      type: basic:url:view
+      default:
+        name: Something
+        url: "http://www.something.com/"
+    - name: group
+      label: Group
+      group:
+        - name: string2
+          label: String 2 required
+          type: basic:string
+          description: "String 2 description."
+          disabled: "false"
+          hidden: "false"
+          required: true
+          placeholder: "Enter string"
+        - name: string3
+          label: String 3 disabled
+          type: basic:string
+          description: "String 3 description."
+          disabled: "true"
+          default: "disabled"
+        - name: string4
+          label: String 4 hidden
+          type: basic:string
+          description: "String 4 description."
+          hidden: true
+          default: "hidden"
+        - name: string5
+          label: String 5 choices
+          type: basic:string
+          description: "String 5 description."
+          hidden: false
+          default: "choice_2"
+          choices:
+            - label: Choice 1
+              value: choice_1
+            - label: Choice 2
+              value: choice_2
+            - label: Choice 3
+              value: choice_3
+        - name: string6
+          label: String 6 regex only "Aa"
+          type: basic:string
+          default: "AAaAaaa"
+          validate_regex: "^[aA]*$"
+        - name: string7
+          label: String 7 optional choices
+          type: basic:string
+          description: "String 7 description."
+          required: false
+          hidden: false
+          default: "choice_2"
+          choices:
+            - label: Choice 1
+              value: choice_1
+            - label: Choice 2
+              value: choice_2
+            - label: Choice 3
+              value: choice_3
+    - name: tricky
+      label: Tricky
+      group:
+        - name: tricky1
+          label: Tricky 1
+          group:
+            - name: tricky2
+              label: Tricky 2
+              type: basic:string
+              default: "true"
+  output:
+    - name: output
+      label: Result
+      type: basic:url:view
+    - name: out_boolean
+      label: Boolean
+      type: basic:boolean
+    - name: out_date
+      label: Date
+      type: basic:date
+    - name: out_datetime
+      label: Date and time
+      type: basic:datetime
+    - name: out_decimal
+      label: Decimal
+      type: basic:decimal
+    - name: out_integer
+      label: Integer
+      type: basic:integer
+    - name: out_string
+      label: String
+      type: basic:string
+    - name: out_text
+      label: Text
+      type: basic:text
+    - name: out_url_download
+      label: URL download
+      type: basic:url:download
+    - name: out_url_view
+      label: URL view
+      type: basic:url:view
+    - name: out_group
+      label: Group
+      group:
+        - name: string2
+          label: String 2 required
+          type: basic:string
+          description: "String 2 description."
+        - name: string3
+          label: String 3 disabled
+          type: basic:string
+          description: "String 3 description."
+        - name: string4
+          label: String 4 hidden
+          type: basic:string
+          description: "String 4 description."
+        - name: string5
+          label: String 5 choices
+          type: basic:string
+          description: "String 5 description."
+        - name: string6
+          label: String 6 regex only "Aa"
+          type: basic:string
+        - name: string7
+          label: String 7 optional choices
+          type: basic:string
+    - name: out_tricky
+      label: Tricky
+      group:
+        - name: tricky1
+          label: Tricky 1
+          group:
+            - name: tricky2
+              label: Tricky 2
+              type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: url_download
+      label: URL download
+      type: basic:url:download
+      default:
+        url: "http://www.w3.org/TR/1998/REC-html40-19980424/html40.pdf"
+    - name: url_view
+      label: URL view
+      type: basic:url:view
+      default:
+        url: "http://www.something.com/"
+    - name: pmid
+      label: PMID
+      type: basic:url:link
+      default:
+        url: "http://www.ncbi.nlm.nih.gov/pubmed/20860802"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: references
+      label: References
+      type: list:basic:url:link
+      default:
+        - name: NetExplorer
+          url: http://www.jstatsoft.org/v53/i06
+        - url: http://jmlr.org/papers/v14/demsar13a.html
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["test"]
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "Starting..."
+      echo "boolean={{ boolean }}"
+      echo "{\"out_boolean\":{% if boolean %}true{% else %}false{% endif %}}"
+      echo "date={{ date }}"
+      echo "{\"out_date\":\"{{ date }}\"}"
+      echo "datetime={{ datetime }}"
+      echo "{\"out_datetime\":\"{{ datetime }}\"}"
+      echo "decimal={{ decimal }}"
+      echo "{\"out_decimal\":{{ decimal }}}"
+      echo "integer={{ integer }}"
+      echo "{\"out_integer\":{{ integer }}}"
+      echo "string={{ string }}"
+      echo "{\"out_string\":\"{{ string }}\"}"
+      echo "text={{ text|escapejs }}"
+      echo "{\"out_text\":\"{{ text|escapejs }}\"}"
+      echo "url_download={{ url_download }}"
+      echo "{\"out_url_download\": {\"name\": \"{{ url_download.name }}\", \"url\": \"{{ url_download.url }}\"} }"
+      echo "url_view={{ url_view }}"
+      echo "{\"out_url_view\": {\"name\": \"{{ url_view.name }}\", \"url\": \"{{ url_view.url }}\"} }"
+      echo "group.string2={{ group.string2 }}"
+      echo "{\"out_group.string2\":\"{{ group.string2 }}\"}"
+      echo "group.string3={{ group.string3 }}"
+      echo "{\"out_group.string3\":\"{{ group.string3 }}\"}"
+      echo "group.string4={{ group.string4 }}"
+      echo "{\"out_group.string4\":\"{{ group.string4 }}\"}"
+      echo "group.string5={{ group.string5 }}"
+      echo "{\"out_group.string5\":\"{{ group.string5 }}\"}"
+      echo "group.string6={{ group.string6 }}"
+      echo "{\"out_group.string6\":\"{{ group.string6 }}\"}"
+      echo "group.string7={{ group.string7 }}"
+      echo "{\"out_group.string7\":\"{{ group.string7 }}\"}"
+      echo "tricky.tricky1.tricky2={{ tricky.tricky1.tricky2 }}"
+      echo "{\"out_tricky.tricky1.tricky2\":\"{{ tricky.tricky1.tricky2 }}\"}"
+      echo "Done."
+      echo "{\"output\": {\"url\": \"stdout.txt\"} }"
+      exit 0

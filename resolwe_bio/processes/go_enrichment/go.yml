@@ -1,0 +1,76 @@
+# =================================
+# Gene Ontology Enrichment Analysis
+# =================================
+---
+
+- name: goenrichment:bcm-2-0-0
+  version: 2.0.9
+  label: GO Enrichment 2.0
+  type: data:ontologyenrichment
+  category: analyses
+  persistence: TEMP
+  description: >
+    Identify significantly enriched Gene Ontology terms for given genes.
+  input:
+    - name: ontology
+      label: Gene Ontology
+      type: data:ontology:obo
+      required: true
+    - name: gaf
+      label: GO annotation file (GAF v2.0)
+      type: data:gaf
+      required: true
+    - name: orthologues
+      label: Gene orthologues file
+      type: data:orthologues
+      required: false
+    - name: genes
+      label: List of genes
+      type: list:basic:string
+      placeholder: new gene id
+      required: true
+      default: [DDB_G0267640, DDB_G0279331, DDB_G0289651, DDB_G0281087]
+    - name: pval_threshold
+      label: P-value threshold
+      type: basic:decimal
+      default: 0.1
+      required: false
+    - name: min_genes
+      label: Minimum number of genes
+      type: basic:integer
+      default: 1
+      required: false
+      description: Minimum number of genes on a GO term.
+  output:
+    - name: terms
+      label: Enriched terms
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'GO Enrichment for {{genes|join:", "|default:"?"}}'
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['gene', 'ontology', 'enrichment']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      if [[ -n "{{ orthologues }}" ]]; then
+        python {{ proc.slugs_path }}/gencloud-20131109/orthologues.py {{ orthologues.output.ort.file }} {{ genes | join:" " }} > temp.txt
+      else
+        echo {{genes|join:" "}} > temp.txt
+      fi
+      echo -n "{\"terms\":"
+      {{proc.slugs_path}}/gotea/processor {{pval_threshold}} {{min_genes}} {{ontology.output.obo_obj.file}} {{gaf.output.gaf_obj.file}} temp.txt 2> /dev/null
+      RC=$?
+      echo "}"
+      echo "{\"proc.rc\":$RC}"

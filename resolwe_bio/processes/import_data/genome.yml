@@ -1,0 +1,116 @@
+# ===============
+# Import - Genome
+# ===============
+---
+
+- name: import:upload:genome-fasta
+  version: 1.0.19
+  label: Upload genome
+  type: "data:genome:fasta:"
+  category: upload
+  persistence: RAW
+  description: >
+    Upload genome sequence in FASTA format.
+  input:
+    - name: src
+      label: Genome sequence (FASTA)
+      type: basic:file
+      description: >
+        Genome sequence in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
+      required: true
+      validate_regex: '\.(fasta|fa|fna|fsa)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: fasta
+      label: Uploaded file
+      type: basic:file
+    - name: index_bt
+      label: Bowtie index
+      type: basic:file
+    - name: index_bt2
+      label: Bowtie2 index
+      type: basic:file
+    - name: index_bwa
+      label: BWA index
+      type: basic:file
+    - name: twobit
+      label: 2bit genome file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: '{{ src.file|default:"?" }} (Upload)'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['genome', 'FASTA']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file|default:"?" }} genome upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require bowtie-1.0.0
+      re-require bowtie2-2.2.3
+      re-require bwa-0.7.5a
+      re-require jbrowse-1.11.4/bin
+
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna|fsa" "fasta" 0.5
+
+      # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.
+      if [ "$(tail -n 1 "${NAME}.fasta")" == "" ]; then
+        echo "Removing empty line at the end of FASTA file."
+        sed -i '$ d' ${NAME}.fasta
+        rm "${NAME}.fasta.gz"
+        gzip -c "${NAME}.fasta" > "${NAME}.fasta.gz"
+      fi
+
+      re-save-file fasta "${NAME}.fasta.gz"
+
+      mkdir bowtie_index
+      bowtie-build "${NAME}.fasta" "bowtie_index/${NAME}_index"
+      tar cfz "${NAME}_bt_index.tar.gz" ./bowtie_index/*.ebwt
+      re-save proc.rc $?
+      re-save proc.progress 0.6
+      re-save-file index_bt "${NAME}_bt_index.tar.gz"
+
+      mkdir bowtie2_index
+      bowtie2-build "$NAME.fasta" "bowtie2_index/${NAME}_index"
+      tar cfz "${NAME}_bt2_index.tar.gz" ./bowtie2_index/*.bt2
+      re-save proc.rc $?
+      re-save proc.progress 0.7
+      re-save-file index_bt2 "${NAME}_bt2_index.tar.gz"
+
+      mkdir BWA_index
+      bwa index -p "BWA_index/${NAME}.fasta" "$NAME.fasta"
+      tar cfz "${NAME}_bwa_index.tar.gz" ./BWA_index/*
+      re-save proc.rc $?
+      re-save proc.progress 0.9
+      re-save-file index_bwa "${NAME}_bwa_index.tar.gz"
+
+      echo -e "\nPostprocessing JBrowse...\n"
+      prepare-refseqs.pl --fasta "${NAME}.fasta.gz" --out .
+      re-save proc.rc $?
+      re-save-file fasta "${NAME}.fasta.gz" seq seq/refSeqs.json
+
+      # Required for BioDalliance browser
+      # Do not use gzipped fasta as it fails if trailing garbage in gzipped file
+      # {{proc.slugs_path}}/kentUtils-2.9.1/faToTwoBit "${NAME}.fasta" "${NAME}.2bit"
+      # re-save proc.rc $?
+      # re-save-file twobit "${NAME}.2bit"

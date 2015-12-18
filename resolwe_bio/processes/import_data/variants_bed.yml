@@ -1,0 +1,57 @@
+# =======================
+# Import - Variants - BED
+# =======================
+---
+
+- name: import:upload:variants-bed
+  version: 1.0.7
+  label: Upload BED variants
+  type: data:variants:bed
+  category: upload
+  persistence: RAW
+  description: >
+    Upload variants in BED format.
+  input:
+    - name: src
+      label: Variants (BED)
+      type: basic:file
+      description: >
+        Variants in BED format.
+      required: true
+      validate_regex: '\.(bed)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: bed
+      label: Uploaded file
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Upload variants (BED, {{ src.file }})'
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['variants', 'BED']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: 'Description of {{ src.file }} variants upload.'
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0
+      echo "{\"bed\":{\"file\":\"${NAME}.bed\"}}"

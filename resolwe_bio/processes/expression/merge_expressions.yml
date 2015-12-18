@@ -1,0 +1,73 @@
+# =================
+# Merge Expressions
+# =================
+---
+
+- name: mergeexpressions
+  version: 1.0.6
+  label: Merge Expressions
+  type: data:expressionset
+  category: analyses
+  persistence: CACHED
+  description: >
+    Merge expression data and filter genes.
+  input:
+    - name: exps
+      label: Gene expressions
+      type: list:data:expression
+      required: true
+    - name: genes
+      label: Filter genes
+      type: list:basic:string
+      required: false
+      default: ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
+  output:
+    - name: expset
+      label: Expression set
+      type: basic:file
+    - name: expset_type
+      label: Expression set type
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Merged expressions"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+
+      EXPSET_TYPE="{{ exps.0.output.exp_type }}"
+
+      {% for e in exps %}
+        {% if exps.0.output.exp_type != e.output.exp_type %}
+          re-error "Expressions must be of the same expression type"
+        {% endif %}
+      {% endfor %}
+
+      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
+      re-checkrc
+      re-save expset_type "$EXPSET_TYPE"
+      re-save-file expset sample.tab

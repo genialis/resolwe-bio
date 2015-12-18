@@ -1,0 +1,112 @@
+# ===============================
+# Differential Expression - DESeq
+# ===============================
+---
+
+- name: differentialexpression:deseq2
+  version: 1.0.6
+  label: Differential Expression (DESeq2)
+  type: data:differentialexpression:deseq2
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find differentially expressed genes.
+  input:
+    - name: case
+      label: Case
+      type: list:data:expression
+      required: true
+      description: >
+        Case samples (replicates)
+    - name: control
+      label: Control
+      type: list:data:expression
+      required: true
+      description: >
+        Control samples (replicates)
+  output:
+    - name: diffexp
+      label: Differential expression
+      type: basic:file
+    - name: volcano_plot
+      label: Volcano plot
+      type: basic:json
+    - name: ma_plot
+      label: MA plot
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: 'Differential expression (case vs. control)'
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the DE analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["differential", "expression", "DESeq2"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of the differential expression."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      {% for c in control %}
+        {% if not c.output.rc.file %}
+          re-error "Read counts are required when using DESeq2"
+        {% endif %}
+        controls=$controls"{{c.rc.file}} "
+        sampleConditions=$sampleConditions"control "
+      {% endfor %}
+
+      {% for t in case %}
+        {% if not t.rc.file %}
+          re-error "Read counts are required when using DESeq2"
+        {% endif %}
+        {% if t not in control %}
+          cases=$cases"{{t.rc.file}} "
+          sampleConditions=$sampleConditions"case "
+        {% else %}
+          re-error "DE analysis failed. Case and Control groups must contain unique samples."
+        {% endif %}
+      {% endfor %}
+
+      sampleConditions=${sampleConditions%?}
+      cases=${cases%?}
+      sampleFiles=$controls"$cases"
+
+      re-progress 0.1
+
+      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      re-checkrc "Error merging read counts."
+
+      run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
+      re-checkrc "Error computing differential expression (DESeq2)."
+
+      re-progress 0.95
+
+      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_deseq2.tab'
+
+      gzip 'diffexp_deseq2.tab'
+      mv Rplots.pdf DESeq2_MAplot.pdf
+
+      re-save-file diffexp diffexp_deseq2.tab.gz
+      re-save-file ma_plot DESeq2_MAplot.pdf

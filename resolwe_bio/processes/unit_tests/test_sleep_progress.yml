@@ -1,0 +1,57 @@
+# =========================
+# Processors for unit tests
+# =========================
+---
+
+- name: test:sleep-progress
+  version: 1.0.3
+  label: Test sleep progress
+  type: data:test:result
+  persistence: CACHED
+  description: >
+    Test for the progress bar by sleeping 5 times for the specified amount of time.
+  input:
+    - name: t
+      label: Sleep time
+      type: basic:integer
+      default: 5
+  output:
+    - name: output
+      label: Result
+      type: basic:string
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Test"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["test"]
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "Starting..."
+      echo "{\"proc.progress\":0.0}"
+      sleep {{ t }}
+      echo "{\"proc.progress\":0.2}"
+      sleep {{ t }}
+      echo "{\"proc.progress\":0.4}"
+      sleep {{ t }}
+      echo "{\"proc.progress\":0.6}"
+      sleep {{ t }}
+      echo "{\"proc.progress\":0.8}"
+      sleep {{ t }}
+      echo "{\"proc.progress\":1.0}"
+      echo "Done."
+      exit 0

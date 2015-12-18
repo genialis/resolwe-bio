@@ -1,0 +1,75 @@
+# ==========
+# Import ETC
+# ==========
+---
+
+- name: import:upload:ETC
+  version: 1.0.5
+  label: Upload Expression time course
+  type: data:etc
+  category: upload
+  persistence: RAW
+  description: >
+    Upload Expression time course.
+  input:
+    - name: src
+      label: Expression time course file (xls or tab)
+      type: basic:file
+      description: >
+        Expression time course
+      required: true
+      validate_regex: '\.(xls|xlsx|tab)$'
+  output:
+    - name: etcfile
+      label: Expression time course file
+      type: basic:file
+    - name: etc
+      label: Expression time course
+      type: basic:json
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Expression time course"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["gene", "expression", "time", "course"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of gene expression time course."
+    - name: jbrowse_tracks
+      label: Associated JBrowse tracks
+      type: list:data:jbrowse
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      NAME=`basename '{{ src.file }}'`
+      TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
+
+      mv "${TEMP}" "${NAME}"
+      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
+
+      {{ proc.slugs_path }}/venv-gencloud-0.1/bin/python -u {{ proc.slugs_path }}/gencloud-20131109/importETC.py "${NAME}"
+      str="{\"proc.progress\":1.0,\"proc.rc\":$?"
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
+      then
+        str=$str",\"etcfile\":{\"file\":\"etc.json.gz\"}"
+      fi
+      str=$str"}"
+      echo $str

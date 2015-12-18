@@ -1,0 +1,59 @@
+# =============================
+# JBrowse tracks - BAM coverage
+# =============================
+#
+---
+
+- name: jbrowse:bam:coverage
+  version: 1.0.2
+  label: Build coverage track (JBrowse)
+  type: data:jbrowse:bigwig:coverage
+  category: analyses
+  persistence: CACHED
+  description: >
+    Prepare genome-wide coverage track in BigWig format.
+  input:
+    - name: bam
+      label: BAM mapping
+      type: data:alignment:bam
+  output:
+    - name: bigwig_track
+      label: Genome coverage (BigWig)
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Coverage track ({{bam.bam.file}})"
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require samtools-0.1.19
+      re-require bedtools-2.17.0
+      re-require kentUtils-2.9.1
+
+      NAME='{{bam.bam.file}}'
+      BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
+      re-checkrc
+      re-progress 0.1
+
+      samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      re-checkrc
+      re-progress 0.15
+
+      genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
+      re-checkrc
+      re-progress 0.80
+
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
+      re-checkrc
+      re-progress 0.90
+
+      re-save-file bigwig_track ${BIGWIGOUT}.bw

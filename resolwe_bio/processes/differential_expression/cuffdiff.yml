@@ -1,0 +1,206 @@
+# ==================================
+# Differential Expression - CuffDiff
+# ==================================
+---
+
+- name: cuffdiff:-2-2-1
+  version: 1.0.8
+  label: Differential Expression (Cuffdiff 2.2.1)
+  type: data:differentialexpression:cuffdiff
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find significant changes in transcript expression, splicing, and promoter use.
+  input:
+    - name: cuffquant
+      label: Cuffquant expression file
+      type: list:data:cufflinks:cuffquant
+      required: true
+    - name: replicates
+      label: Define Groups/Replicates
+      type: list:basic:string
+      required: true
+      description: >
+        Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
+    - name: labels
+      label: Group labels
+      type: list:basic:string
+      required: true
+      description: >
+        Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2)
+    - name: gff
+      label: Annotation (GTF/GFF3)
+      type: data:annotation:cuffmerge
+      required: true
+      description: >
+        A transcript annotation file produced by cufflinks, cuffcompare, or other source.
+    - name: genome
+      label: Run bias detection and correction algorithm
+      type: data:genome:fasta
+      required: false
+      description: >
+        Provide Cufflinks with a multifasta file (genome file) via this option to instruct it to run a bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates.
+    - name: multi_read_correct
+      label: Do initial estimation procedure to more accurately weight reads with multiple genome mappings
+      type: basic:boolean
+      default: false
+    - name: time_series
+      label: Analyze the provided samples as a time series
+      type: basic:boolean
+      required: false
+      default: false
+      description: >
+        Instructs Cuffdiff to analyze the provided samples as a time series, rather than testing for differences between all pairs of samples. Samples should be provided in increasing time order at the command line (e.g first time point SAM, second timepoint SAM, etc.).
+    - name: fdr
+      label: Allowed FDR
+      type: basic:decimal
+      required: true
+      default: 0.05
+      description: >
+        The allowed false discovery rate. The default is 0.05.
+    - name: library_type
+      required: true
+      label: Library type
+      type: basic:string
+      description: >
+        In cases where Cufflinks cannot determine the platform and protocol used to generate input reads, you can supply this information manually, which will allow Cufflinks to infer source strand information with certain protocols. The available options are listed below. For paired-end data, we currently only support protocols where reads are point towards each other: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+      default: fr-unstranded
+      choices:
+        - label: fr-unstranded
+          value: fr-unstranded
+        - label: fr-firststrand
+          value: fr-firststrand
+        - label: fr-secondstrand
+          value: fr-secondstrand
+    - name: library_normalization
+      required: true
+      label: Library normalization method
+      type: basic:string
+      description: >
+        You can control how library sizes (i.e. sequencing depths) are normalized in Cufflinks and Cuffdiff. Cuffdiff has several methods that require multiple libraries in order to work. Library normalization methods supported by Cufflinks work on one library at a time.
+      default: geometric
+      choices:
+        - label: geometric
+          value: geometric
+        - label: classic-fpkm
+          value: classic-fpkm
+        - label: quartile
+          value: quartile
+    - name: dispersion_method
+      required: true
+      label: Dispersion method
+      type: basic:string
+      description: >
+        Cuffdiff works by modeling the variance in fragment counts across replicates as a function of the mean fragment count across replicates. Strictly speaking, models a quantitity called dispersion - the variance present in a group of samples beyond what is expected from a simple Poisson model of RNA_Seq. You can control how Cuffdiff constructs its model of dispersion in locus fragment counts. Each condition that has replicates can receive its own model, or Cuffdiff can use a global model for all conditions. All of these policies are identical to those used by DESeq (Anders and Huber, Genome Biology, 2010).
+      default: pooled
+      choices:
+        - label: pooled
+          value: pooled
+        - label: per-condition
+          value: per-condition
+        - label: blind
+          value: blind
+        - label: poisson
+          value: poisson
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Use this many threads to align reads. The default is 1.
+  output:
+    - name: diffexp
+      label: Differential expression (transcript level)
+      type: basic:file
+    - name: gene_diff_exp
+      label: Differential expression (gene level)
+      type: basic:file
+    - name: tss_group_diff_exp
+      label: Differential expression (primary transcript)
+      type: basic:file
+    - name: cds_diff_exp
+      label: Differential expression (coding sequence)
+      type: basic:file
+    - name: cuffdiff_output
+      label: Cuffdiff output
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: Cuffdiff results
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the DE analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['Cuffdiff', 'Differential Expression']
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: Description of Cuffdiff differential expression analysis results.
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      export PATH=$PATH:{{ proc.slugs_path }}/cufflinks-2.2.1
+
+      experiment=""
+      labels=""
+      replicates=""
+
+      {% for experiment in cuffquant %}
+        experiment=$experiment"{{ experiment.output.abundances.file }},"
+        echo "{\"proc.rc\":$?}"
+      {% endfor %}
+
+      {% for r in replicates %}
+        replicates=$replicates"{{r}},"
+      {% endfor %}
+
+      {% for l in labels %}
+        labels=$labels"{{l}},"
+      {% endfor %}
+
+      labels=${labels%?}
+      experiment=${experiment%?}
+      replicates=${replicates%?}
+
+      experiments=`python -u {{ proc.slugs_path }}/gencloud-20131109/cufflinks_sample_groups.py ${experiment} ${replicates}`
+
+      {% if genome %}
+
+        GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+
+      {% endif %}
+
+      echo "{\"proc.progress\":0.1}"
+
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.output.merged_gtf.file }}' ${experiments}
+
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      gzip -c cds_exp.diff > cds_exp_$(date +'%m-%d-%Y').diff.gz
+      gzip -c gene_exp.diff > gene_exp_$(date +'%m-%d-%Y').diff.gz
+      gzip -c isoform_exp.diff > isoform_exp_$(date +'%m-%d-%Y').diff.gz
+      gzip -c tss_group_exp.diff > tss_group_exp_$(date +'%m-%d-%Y').diff.gz
+
+      zip cuffdiff_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff gene_exp.diff isoform_exp.diff tss_group_exp.diff
+
+      echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"

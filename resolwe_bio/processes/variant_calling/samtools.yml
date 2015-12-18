@@ -1,0 +1,91 @@
+# ==========================
+# Variant calling - Samtools
+# ==========================
+---
+
+- name: vc-samtools
+  version: 1.0.5
+  label: Variant calling (Samtools)
+  type: data:variants:vcf
+  category: analyses:variants
+  persistence: CACHED
+  description: >
+    Samtools variant calling.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+    - name: mapping
+      label: Mapped reads
+      type: data:alignment:bam
+      required: true
+  output:
+    - name: vcf
+      label: Called variants
+      type: basic:file
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Called variants ({{ mapping.output.bam.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["variants", "VCF"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Samtools called variants from {{ mapping.output.bam.file|basename|default:'?' }}."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      echo "uncompressing genome, indexing"
+      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      cp {{ genome.output.fasta.file }} "${GENOME_NAME}.fasta.gz"
+      echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
+
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta.gz"
+      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
+
+      echo "bam files processing"
+      BAM_FILE=`basename '{{ mapping.output.bam.file }}' .bam`
+      echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
+
+      echo "removing duplicates"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools rmdup "{{ mapping.output.bam.file }}" "${BAM_FILE}_nodupli.bam"
+      echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+
+      echo "creating VCF file"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools mpileup -u -f "${GENOME_NAME}.fasta.gz" "${BAM_FILE}_nodupli.bam" > "${BAM_FILE}_raw.bcf";
+      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+
+      echo "calling variants"
+      {{ proc.slugs_path }}/samtools-0.1.19/bcftools view -bvcg "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf";
+      echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+
+      echo "filtering variants"
+      {{ proc.slugs_path }}/samtools-0.1.19/bcftools view "${BAM_FILE}_calls.bcf" | {{ proc.slugs_path }}/samtools-0.1.19/vcfutils.pl varFilter - > "${BAM_FILE}_samtoolscalls.vcf"
+      echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+
+      {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${BAM_FILE}_samtoolscalls.vcf" > "${BAM_FILE}_samtoolscalls.vcf.bgz"
+      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+
+      {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${BAM_FILE}_samtoolscalls.vcf.bgz"
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_samtoolscalls.vcf\",\"refs\":[\"${BAM_FILE}_samtoolscalls.vcf.bgz\",\"${BAM_FILE}_samtoolscalls.vcf.bgz.tbi\"]}}"

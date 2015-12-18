@@ -1,0 +1,158 @@
+# ================
+# Expression - BCM
+# ================
+---
+
+- name: expression:bcm-1-0-0
+  version: 1.0.11
+  label: Expression (BCM)
+  type: data:expression:polya
+  category: analyses
+  persistence: CACHED
+  description: >
+    Compute gene expression profile. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,
+    University of Ljubljana, Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics, Baylor College of
+    Medicine, Houston, TX, USA.
+  input:
+    - name: alignment
+      label: Aligned sequence
+      type: data:alignment:bam
+      required: true
+    - name: gff
+      label: Features (GFF3)
+      type: data:annotation:gff3
+      required: true
+    - name: mappable
+      label: Mappability
+      type: data:mappability:bcm
+      required: true
+  output:
+    - name: exp
+      label: Expression RPKUM (polyA)
+      type: basic:file
+      description: mRNA reads scaled by uniquely mappable part of exons.
+    - name: rpkmpolya
+      label: Expression RPKM (polyA)
+      type: basic:file
+      description: mRNA reads scaled by exon length.
+    - name: rc
+      label: Read counts (polyA)
+      type: basic:file
+      description: mRNA reads uniquely mapped to gene exons.
+    - name: rpkum
+      label: Expression RPKUM
+      type: basic:file
+      description: Reads scaled by uniquely mappable part of exons.
+    - name: rpkm
+      label: Expression RPKM
+      type: basic:file
+      description: Reads scaled by exon length.
+    - name: rc_raw
+      label: Read counts (raw)
+      type: basic:file
+      description: Reads uniquely mapped to gene exons.
+    - name: exp_json
+      label: Expression RPKUM (polyA) (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+      default: polyA
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Gene expressions ({{ alignment.output.bam.file|basename|default:'?' }})"
+    - name: alias
+      label: Alias
+      type: basic:string
+      description: Short name for the expression analysis
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["expression", "profiles"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of {{ alignment.output.bam.file|basename|default:'?' }} gene expression."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require samtools-0.1.19
+      re-require kentUtils-2.9.1
+
+      NAME=`basename '{{ alignment.bam.file }}' .bam`
+
+      function compute_coverage {
+        xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
+        rm tmp.bedgraph
+      }
+
+      echo "XEXPRESSION..."
+      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}}
+      re-checkrc
+      re-progress 0.5
+
+      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
+      samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc.tab.gz ]
+      then
+        mv expression_rc.tab.gz ${NAME}_expression_rc.tab.gz
+        compute_coverage ${NAME}_expression_rc.tab.gz
+        re-checkrc
+        re-save-file rc_raw ${NAME}_expression_rc.tab.gz ${NAME}_expression_rc.tab.gz.bw
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc_polya.tab.gz ]
+      then
+        mv expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz
+        compute_coverage ${NAME}_expression_rc_polya.tab.gz
+        re-checkrc
+        re-save-file rc ${NAME}_expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz.bw
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
+      then
+        mv expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz
+        compute_coverage ${NAME}_expression_rpkm.tab.gz
+        re-checkrc
+        re-save-file rpkm ${NAME}_expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz.bw
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm_polya.tab.gz ]
+      then
+        mv expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz
+        compute_coverage ${NAME}_expression_rpkm_polya.tab.gz
+        re-checkrc
+        re-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz.bw
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
+      then
+        mv expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz
+        compute_coverage ${NAME}_expression_rpkum.tab.gz
+        re-checkrc
+        re-save-file rpkum ${NAME}_expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz.bw
+      fi
+      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum_polya.tab.gz ]
+      then
+        mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
+        compute_coverage ${NAME}_expression_rpkum_polya.tab.gz
+        re-checkrc
+        expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
+        re-checkrc
+        re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
+      fi
