@@ -6,7 +6,7 @@
 ---
 
 - name: import:web:transmart:expressions
-  version: 0.0.2
+  version: 0.0.3
   label: Import Expressions from tranSMART
   type: "data:expressionset"
   category: import
@@ -68,7 +68,7 @@
       re-import "{{ exps.file_temp|default:exps.file }}" "{{ exps.file }}" "xlsx" "xlsx" 0.1 extract
 
       {% if ann %}
-        re-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "xlsx" "xlsx" 0.2 extract
+        re-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "tab" "tab" 0.2 extract
       {% endif %}
 
       re-save expset_type "Log2"
