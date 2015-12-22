@@ -6,7 +6,7 @@
 ---
 
 - name: import:web:transmart:expressions
-  version: 0.0.3
+  version: 0.0.10
   label: Import Expressions from tranSMART
   type: "data:expressionset"
   category: import
@@ -16,17 +16,16 @@
   input:
     - name: exps
       label: Gene expressions
-      type: basic:file
+      type: basic:string
       required: true
     - name: ann
       label: Sample annotations
-      type: basic:file
-      required: false
-    - name: tpl
-      label: Annotation template
       type: basic:string
       required: false
-      default: '[{"type":"basic:string:","name":"group","label":"Group"},{"choices":[{"value":"M","label":"M"},{"value":"F","label":"F"}],"type":"basic:string:","name":"gender","label":"Gender"},{"type":"basic:integer:","name":"age","label":"Age"},{"type":"basic:integer:","name":"plateid","label":"PlateID"},{"choices":[{"value":"A","label":"A"},{"value":"B","label":"B"},{"value":"C","label":"C"},{"value":"D","label":"D"}],"type":"basic:string:","name":"batch","label":"Batch"},{"choices":[{"value":"Stage I","label":"Stage I"},{"value":"Stage II","label":"Stage II"},{"value":"Stage III","label":"Stage III"},{"value":"Stage IV","label":"Stage IV"}],"type":"basic:string:","name":"gold_stage","label":"Gold Stage"},{"type":"basic:string:","name":"hyb_date","label":"Hyb Date"}]'
+    - name: token
+      label: Authorization token
+      type: basic:string
+      required: true
   output:
     - name: expset
       label: Expression set
@@ -38,7 +37,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: '{{ exps.file|default:"?" }} (tranSMART)'
+      default: 'Import from tranSMART'
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -65,13 +64,17 @@
     bash: |
       re-require common
 
-      re-import "{{ exps.file_temp|default:exps.file }}" "{{ exps.file }}" "xlsx" "xlsx" 0.1 extract
+      transmart_fetch.R --expsConceptLinks {{exps}} --token {{token}} --out expression_data.tab
+      re-checkrc "Error fetching expression data from tranSMART."
+
+      re-progress 0.5
 
       {% if ann %}
-        re-import "{{ ann.file_temp|default:ann.file }}" "{{ ann.file }}" "tab" "tab" 0.2 extract
+        transmart_fetch.R --annConceptLinks {{ann}} --token {{token}} --out annotation_data.tab
+        re-checkrc "Error fetching annotation data from tranSMART."
       {% endif %}
 
       re-save expset_type "Log2"
 
-      transmart_import.py {{ exps.file }} {% if ann %}--annotation {{ ann.file }}{% endif %} {% if tpl %}--template '{{ tpl }}'{% endif %} --progress 0.2
+      transmart_import.py expression_data.tab {% if ann %}--annotation annotation_data.tab{% endif %} --progress 0.5
       re-checkrc "Import from tranSMART failed."
