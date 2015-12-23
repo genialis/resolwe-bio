@@ -23,7 +23,7 @@ class TranSMARTProcessorTestCase(ProcessTestCase):
             'ann': '/studies/GSE22148/concepts/Subjects/Annotations/PlateID',
             # Alternative annotation
             # 'ann': '/studies/GSE22148/concepts/Subjects/Annotations/Batch/B',
-            'token': 'ea0934d6-c667-46b1-81f3-69f205095764'
+            'token': '15f3a910-9c8f-4e12-a2d7-b5d9bef67e75'
         }
         annotation = self.run_processor('import:web:transmart:expressions', inputs)
         self.assertFields(annotation, 'expset_type', 'Log2')

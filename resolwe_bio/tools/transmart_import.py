@@ -4,6 +4,7 @@ import csv
 import gzip
 import json
 import os
+import re
 
 import utils
 import transmart_utils
@@ -29,13 +30,15 @@ if args.annotation:
         var_samples, var_template = transmart_utils.format_annotations(csvfile)
 
 with open(args.expressions, 'rb') as csvfile:
-    ann = csv.reader(csvfile, delimiter='\t', quotechar='"')
-    header = ann.next()
-    ann = zip(*list(ann))
+    exprs = csv.reader(csvfile, delimiter='\t', quotechar='"')
+    header = exprs.next()
+    exprs = zip(*list(exprs))
 
-nsamples = len(ann)
+nsamples = len(exprs)
 progress_current = args.progress
 progress_step = (1. - args.progress) / nsamples
+rartifact = re.compile('^X[0-9]')
+gene_ids = [g[1:] if rartifact.match(g) else g for g in exprs[0]]
 
 for i in range(1, nsamples):
     sample_id = header[i]
@@ -47,7 +50,7 @@ for i in range(1, nsamples):
     with open(fname, 'wb') as tabfile:
         tabwriter = csv.writer(tabfile, delimiter='\t', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         tabwriter.writerow(['Gene', 'Expression'])
-        tabwriter.writerows(zip(ann[0], ann[i]))
+        tabwriter.writerows(zip(gene_ids, exprs[i]))
 
     d = {
         'status': 'resolving',
