@@ -9,7 +9,7 @@ def format_annotations(annfile):
     attrs = annfile.next()[:-1].split('\t')
     annfile.next()
     annfile.next()
-    ann = np.genfromtxt(annfile, dtype=None, delimiter='\t')
+    annp = np.genfromtxt(annfile, dtype=None, delimiter='\t', names=['f{}'.format(i) for i in range(len(attrs))])
 
     def no_subpaths(path, paths):
         for _path in paths:
@@ -28,7 +28,6 @@ def format_annotations(annfile):
     attrg = {k: g for k, g in attrg.iteritems() if len(g) > 1 and no_subpaths(k, attrg_keys.difference([k]))}
 
     # use numpy for smart indexing and column merging
-    annp = np.array(ann)
     attrs_final = set(attrs[1:])
     attrs_merged = set()
 
@@ -93,6 +92,6 @@ def format_annotations(annfile):
     annp_final = annp.astype(dtype_final)
 
     # create final data set
-    var_samples = {key: dict(zip(attrs_final_keys, row)) for key, row in zip(annp['f0'], annp_final)}
+    var_samples = {key: dict(zip(attrs_final_keys, map(np.asscalar, row))) for key, row in zip(annp['f0'], annp_final)}
 
     return var_samples, var_template

@@ -13,33 +13,45 @@ parser$add_argument('--out', help='Output file name')
 
 args = parser$parse_args(commandArgs(trailingOnly=TRUE))
 
-connectToTransmart(args$URL, .access.token = args$token)
-
-# get annotations -----------------------------------------------------
-if (args$annConceptLinks != '') {
-  links_new <- c(unlist(strsplit(args$annConceptLinks, ';')))
-
-  observations <- getObservations(concept.links = links_new, as.data.frame = T)
-  
-  final <- data.frame(cbind(observations$subjectInfo$subject.inTrialId, observations$observations))
-  final <- final[, !names(final) == 'subject.id']
-  colnames(final)[1] <- 'ID'
-  final <- as.data.frame(lapply(final, as.character), stringsAsFactors = FALSE)
-  
-  empty <- rep("", ncol(final))
-  final <- rbind(empty, final)
-  final <- rbind(empty, final)
-  
-  write.table(final, file = args$out, quote = FALSE, sep = "\t", row.names = F, na = "")
+# TODO: Why is total NA and why do current and total have 2 values???
+.downloadcallback <- function() {
+    start <- function(.total) cat("Retrieving data...\n")
+    update <- function(current, total) {
+        if (current[2] > 0 && !is.na(total[2]) && total[2] > 0) {
+            # limit the progress to 0.95 (5 % left for parsing)
+            cat('{"proc.progress":', current[2] / total[2] * 0.95, '}\n')
+        }
+    }
+    end <- function() cat("Download complete.\n")
+    environment()
 }
 
-# get expressions ---------------------------------------------------
+connectToTransmart(args$URL, .access.token = args$token)
 
+# get annotations
+if (args$annConceptLinks != '') {
+    links_new <- c(unlist(strsplit(args$annConceptLinks, ';')))
+    observations <- getObservations(concept.links = links_new, as.data.frame = T)
+
+    final <- data.frame(cbind(observations$subjectInfo$subject.inTrialId, observations$observations))
+    final <- final[, !names(final) == 'subject.id']
+    colnames(final)[1] <- 'ID'
+    final <- as.data.frame(lapply(final, as.character), stringsAsFactors = FALSE)
+
+    empty <- rep("", ncol(final))
+    final <- rbind(empty, final)
+    final <- rbind(empty, final)
+
+    write.table(final, file = args$out, quote = FALSE, sep = "\t", row.names = F, na = "")
+}
+
+# get expressions
 if (args$expsConceptLinks != '') {
-  dataDownloaded <- getHighdimData(concept.link = args$expsConceptLinks, projection=args$projection)
-  data = dataDownloaded[[1]]
-  expression_data = data[,-c(1:7)]
-  rownames(expression_data) = make.names(data$patientId, unique=TRUE)
-  #rownames(expression_data) = data$patientId
-  write.table(t(expression_data), file = args$out, quote = FALSE, sep = "\t", col.names = NA)
+    dataDownloaded <- getHighdimData(concept.link = args$expsConceptLinks, projection=args$projection, progress.download = .downloadcallback())
+
+    data = dataDownloaded[[1]]
+    expression_data = data[,-c(1:7)]
+    rownames(expression_data) = make.names(data$patientId, unique=TRUE)
+    #rownames(expression_data) = data$patientId
+    write.table(t(expression_data), file = args$out, quote = FALSE, sep = "\t", col.names = NA)
 }

@@ -17,9 +17,13 @@ class TranSMARTProcessorTestCase(ProcessTestCase):
     def test_import_with_annotation(self):
         self.keep_all()
         inputs = {
-            'exps': '/studies/GSE22148/concepts/Expression/Affymetrix%20Human%20Genome%20U133%20Plus%202.0%20Array/Lung',
+            'exps': '/studies/GSE22148/concepts/Expression/Affymetrix%20Human%20Genome%20U133%20Plus%202.0%20Array/Small',
+            # Larga data
+            # 'exps': '/studies/GSE22148/concepts/Expression/Affymetrix%20Human%20Genome%20U133%20Plus%202.0%20Array/Lung',
             'ann': '/studies/GSE22148/concepts/Subjects/Annotations/PlateID',
-            'token': '0779d50e-822f-403e-bdf8-1f701199f3f6'
+            # Alternative annotation
+            # 'ann': '/studies/GSE22148/concepts/Subjects/Annotations/Batch/B',
+            'token': 'ea0934d6-c667-46b1-81f3-69f205095764'
         }
         annotation = self.run_processor('import:web:transmart:expressions', inputs)
         self.assertFields(annotation, 'expset_type', 'Log2')

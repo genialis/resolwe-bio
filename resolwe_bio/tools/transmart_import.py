@@ -22,9 +22,6 @@ if not os.path.isfile(args.expressions):
 if args.annotation and not os.path.isfile(args.annotation):
     print '{{"proc.error": "Sample annotation file {} does not exist"}}'.format(args.annotation)
 
-os.makedirs('temp')
-print '{"expset": {"file": "%s", "refs": ["temp"]}}' % args.expressions
-
 var_samples, var_template = None, None
 
 if args.annotation:
@@ -42,7 +39,6 @@ progress_step = (1. - args.progress) / nsamples
 
 for i in range(1, nsamples):
     sample_id = header[i]
-
     if var_samples is not None and sample_id not in var_samples:
         continue
 
