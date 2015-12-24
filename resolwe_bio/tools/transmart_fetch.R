@@ -9,7 +9,8 @@ parser$add_argument('--annConceptLinks', default = "", help='Annotations concept
 parser$add_argument('--expsConceptLinks', default = "", help='Expressions concept links')
 parser$add_argument('--token', default = "", help='Auth token')
 parser$add_argument('--projection', default='default_real_projection', help='Name of the data projection to fetch (log_intensity, all_data, default_real_projection, ...')
-parser$add_argument('--out', help='Output file name')
+parser$add_argument('--outA', help='Output annotation file name')
+parser$add_argument('--outE', help='Output expression file name')
 
 args = parser$parse_args(commandArgs(trailingOnly=TRUE))
 
@@ -42,7 +43,7 @@ if (args$annConceptLinks != '') {
     final <- rbind(empty, final)
     final <- rbind(empty, final)
 
-    write.table(final, file = args$out, quote = FALSE, sep = "\t", row.names = F, na = "")
+    write.table(final, file = args$outA, quote = FALSE, sep = "\t", row.names = F, na = "")
 }
 
 # get expressions
@@ -53,5 +54,5 @@ if (args$expsConceptLinks != '') {
     expression_data = data[,-c(1:7)]
     rownames(expression_data) = make.names(data$patientId, unique=TRUE)
     #rownames(expression_data) = data$patientId
-    write.table(t(expression_data), file = args$out, quote = FALSE, sep = "\t", col.names = NA)
+    write.table(t(expression_data), file = args$outE, quote = FALSE, sep = "\t", col.names = NA)
 }
