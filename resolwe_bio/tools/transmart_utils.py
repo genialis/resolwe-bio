@@ -33,11 +33,37 @@ def format_annotations(annfile):
 
     # merge groupped columns
     for k, g in attrg.iteritems():
-        col_merged = annp['f{}'.format(attri[g[0]])]
+        col_ndx = 'f{}'.format(attri[g[0]])
+        col_merged = annp[col_ndx]
 
+        add_func = None
+        dtype_symbol = None
+
+        if 'S' in str(annp.dtype[col_ndx]):
+            add_func = np.core.defchararray.add
+            dtype_symbol = 'S'
+        elif 'int' in str(annp.dtype[col_ndx]):
+            dtype_symbol = 'int'
+            # TODO: Set add_func - no such example yet
+        else:
+            # TODO: No such example yet
+            raise
+
+        def stringify(col):
+            if 'int' in str(col.dtype):
+                return [str(x) if x > -1 else '' for x in col]
+            return col
+
+        # check if mixed types
+        for col_name in g[1:]:
+            if dtype_symbol not in str(annp.dtype['f{}'.format(attri[col_name])]):
+                # convert mixed columns to string
+                add_func = lambda x, y: np.core.defchararray.add(stringify(x), stringify(y))
+
+        # merge columns
         for col_name in g[1:]:
             col_to_merge = annp['f{}'.format(attri[col_name])]
-            col_merged = np.core.defchararray.add(col_merged, col_to_merge)
+            col_merged = add_func(col_merged, col_to_merge)
 
         annp = merge_arrays((annp, col_merged), flatten=True)
         attri[k] = len(attri)
