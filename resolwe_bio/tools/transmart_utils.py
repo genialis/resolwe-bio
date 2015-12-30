@@ -74,7 +74,7 @@ def format_annotations(annfile):
     # create var template
     var_template = []
     attrs_final = sorted(attrs_final)
-    attrs_final_keys = map(utils.escape_mongokey, attrs_final)
+    attrs_final_keys = map(lambda x: utils.escape_mongokey(x).encode('unicode_escape'), attrs_final)
     dtype = dict(annp.dtype.descr)
     dtype_final = []
 
@@ -92,7 +92,7 @@ def format_annotations(annfile):
 
         field, field_type = None, None
         field = {
-            'name': utils.escape_mongokey(attr_name),
+            'name': utils.escape_mongokey(attr_name).encode('unicode_escape'),
             'label': label,
         }
 
