@@ -34,6 +34,17 @@ if (args$annConceptLinks != '') {
     links_new <- c(unlist(strsplit(args$annConceptLinks, ';')))
     observations <- getObservations(concept.links = links_new, as.data.frame = T)
 
+    # change column names back to "path" version
+    conceptNames <- as.factor(observations$conceptInfo$label)
+    labelComponents <- matrix(nrow = 0, ncol = 0)
+    for (level in strsplit(levels(conceptNames), split = "\\\\")) {
+        labelComponents <- rbind.fill.matrix(labelComponents, t(level))
+    }
+    
+    conceptNames <- apply(labelComponents, 1, function(x) paste(x[!is.na(x)&x!=""], collapse = "_"))
+    conceptNames <- c('subject.id', conceptNames)
+    colnames(observations$observations) <- conceptNames
+
     final <- data.frame(cbind(observations$subjectInfo$subject.inTrialId, observations$observations))
     final <- final[, !names(final) == 'subject.id']
     colnames(final)[1] <- 'ID'
