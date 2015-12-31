@@ -67,25 +67,29 @@ def format_annotations(annfile, treefile):
 
     def long_name(a):
         for name in tree_original_names.keys():
-            if name.endswith(a):
+            if name.endswith('_' + a) or name == a:  # if short or long
                 return name
 
         print '{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a)
         return ''
 
-    attrs = [long_name(a) for a in attrs]
+    attrs = [long_name(a) for a in attrs[1:]]
 
     annfile.next()
     annfile.next()
-    annp = np.genfromtxt(annfile, dtype=None, delimiter='\t', names=['f{}'.format(i) for i in range(len(attrs))])
+    annp = np.genfromtxt(annfile, dtype=None, delimiter='\t', names=['f{}'.format(i) for i in range(len(attrs) + 1)])
     annfile.close()
 
+    annp_ncols = len(annp[0])
+    if annp_ncols != len(attrs) + 1:
+        print '{{"proc.error": "Severe problem with column ID matching"}}'
+
     # set column indexes
-    attri = {a: i for i, a in enumerate(attrs)}
+    attri = {a: i + 1 for i, a in enumerate(attrs)}
     attri.pop('', None)
 
     # use numpy for smart indexing and column merging
-    attrs = set(attrs[1:])
+    attrs = set(attrs)
     if '' in attrs:
         attrs.remove('')
 
@@ -123,7 +127,7 @@ def format_annotations(annfile, treefile):
 
         seqarrays.append(col_merged)
 
-        attri[k] = len(attri)
+        attri[k] = annp_ncols + len(seqarrays) - 2
         attrs = attrs.difference(g)
         attrs.add(k)
         attrs_merged.add(k)
