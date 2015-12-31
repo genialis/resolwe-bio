@@ -11,6 +11,7 @@ parser$add_argument('--token', default = "", help='Auth token')
 parser$add_argument('--projection', default='default_real_projection', help='Name of the data projection to fetch (log_intensity, all_data, default_real_projection, ...')
 parser$add_argument('--outA', help='Output annotation file name')
 parser$add_argument('--outE', help='Output expression file name')
+parser$add_argument('--outT', help='Output tree file name')
 
 args = parser$parse_args(commandArgs(trailingOnly=TRUE))
 
@@ -44,6 +45,22 @@ if (args$annConceptLinks != '') {
     final <- rbind(empty, final)
 
     write.table(final, file = args$outA, quote = FALSE, sep = "\t", row.names = F, na = "")
+
+    # get study tree
+    con <- c()
+    stu <- list()
+    for (study in c(unlist(strsplit(args$annConceptLinks, ';')))) {
+        study <- c(strsplit(as.character(study), '/'))
+        studyId <- study[[1]][3]
+
+        if (!(studyId %in% stu)) {
+            studyConcepts = getConcepts(studyId)
+            con <- c(con, studyConcepts$fullName)
+            stu <- c(stu, studyId)
+        }
+    }
+  
+    write.table(con, file = args$outT, quote = FALSE, sep = "\t", row.names = F, col.names = F)
 }
 
 # get expressions
