@@ -6,7 +6,7 @@ from setuptools import setup
 
 
 NAME = 'Resolwe Bioinformatics'
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 DESCRIPTION = "Bioinformatics pipelines for the Resolwe platform."
 LONG_DESCRIPTION = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 AUTHOR = 'Genialis'
