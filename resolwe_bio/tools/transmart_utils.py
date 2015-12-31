@@ -5,11 +5,54 @@ from numpy.lib.recfunctions import merge_arrays
 import utils
 
 
-def format_annotations(annfile):
-    attrs = annfile.next()[:-1].split('\t')
-    annfile.next()
-    annfile.next()
-    annp = np.genfromtxt(annfile, dtype=None, delimiter='\t', names=['f{}'.format(i) for i in range(len(attrs))])
+def format_annotations(annfile, treefile):
+    # treefile = open('UBIOPRED_tree.txt', 'rb')
+    # annfile = open('UBIOPRED_annotations_short.tab', 'rb')
+
+    tree = [l.strip()[1:-1].replace(' ', '.').replace('\\', '_') for l in treefile if l.strip() != '']
+    treefile.close()
+
+    # R replaces some characters to . when it creates variables
+    escape_chars = {
+        '(': '\uff08',
+        ')': '\uff09',
+        '[': '\uff3b',
+        ']': '\uff3d',
+        ',': '\uff0c',
+        '-': '\uff0d',
+        '<': '\uff1c',
+        '>': '\uff1e',
+        '=': '\uff1d',
+        ':': '\uff1a',
+        '/': '\uff0f',
+        '^': '\uff3e',
+        '?': '\uff1f',
+        '\'': '\uff07'
+    }
+
+    def esc_dot(s):
+        for k in escape_chars.iterkeys():
+            s = s.replace(k, '.')
+        return s
+
+    def esc(s):
+        for k, v in escape_chars.iteritems():
+            s = s.replace(k, v)
+        return s
+
+    tree_original_names = {esc_dot(l): l for l in tree}
+
+    tree = sorted(tree_original_names.iterkeys())
+    tree_attributes = set(tree)
+
+    # some attributes are binarized in tranSMART and should be groupped together to a parent attribute
+    # we detect the parent attributes automatically with 3 rules:
+    #   1. the parent attribute is a node in the attribute tree with at least 2 leaves as childrens
+    #   2. the parent attribute node's childrens should only be just leaves (not nodes)
+    #   3. all children leaves are of string type
+    # group leaves of the attribute tree
+    group_candidates = {k: list(g) for k, g in itertools.groupby(tree, lambda x: x[:x.rfind('_')])}
+    group_keys = set(group_candidates.keys())
 
     def no_subpaths(path, paths):
         for _path in paths:
@@ -17,72 +60,94 @@ def format_annotations(annfile):
                 return False
         return True
 
+    # filter-out attributes: with a single leaf and with sub-attributes
+    group_candidates = {k: g for k, g in group_candidates.iteritems() if len(g) > 1 and no_subpaths(k, group_keys.difference([k]))}
+
+    attrs = annfile.next()[:-1].split('\t')
+
+    def long_name(a):
+        for name in tree_original_names.keys():
+            if name.endswith(a):
+                return name
+
+        print '{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a)
+        return ''
+
+    attrs = [long_name(a) for a in attrs]
+
+    annfile.next()
+    annfile.next()
+    annp = np.genfromtxt(annfile, dtype=None, delimiter='\t', names=['f{}'.format(i) for i in range(len(attrs))])
+    annfile.close()
+
     # set column indexes
     attri = {a: i for i, a in enumerate(attrs)}
-
-    # group leaves of the attribute tree
-    attrg = {k: list(g) for k, g in itertools.groupby(sorted(attrs), lambda x: x[:x.rfind('_')])}
-    attrg_keys = set(attrg.keys())
-
-    # filter-out attributes: with a single leaf and with sub-attributes
-    attrg = {k: g for k, g in attrg.iteritems() if len(g) > 1 and no_subpaths(k, attrg_keys.difference([k]))}
+    attri.pop('', None)
 
     # use numpy for smart indexing and column merging
-    attrs_final = set(attrs[1:])
+    attrs = set(attrs[1:])
+    if '' in attrs:
+        attrs.remove('')
+
+    if len(attrs.difference(tree_attributes)) > 0:
+        print '{{"proc.error": "All attributes should be in the attribute tree at this point"}}'
+
     attrs_merged = set()
 
+    # find final collumns
+    leaf_node_map = {}
+    for k, v in group_candidates.items():
+        for vv in v:
+            leaf_node_map[vv] = k
+
+    attr_group_candidates = attrs.intersection(leaf_node_map.keys())
+    attr_group_candidates = set(leaf_node_map[a] for a in attr_group_candidates)
+
     # merge groupped columns
-    for k, g in attrg.iteritems():
+    seqarrays = [annp]
+    for i, k in enumerate(attr_group_candidates):
+        g = group_candidates[k]
+
         col_ndx = 'f{}'.format(attri[g[0]])
         col_merged = annp[col_ndx]
 
-        add_func = None
-        dtype_symbol = None
-
-        if 'S' in str(annp.dtype[col_ndx]):
-            add_func = np.core.defchararray.add
-            dtype_symbol = 'S'
-        elif 'int' in str(annp.dtype[col_ndx]):
-            dtype_symbol = 'int'
-            # TODO: Set add_func - no such example yet
-        else:
-            # TODO: No such example yet
-            raise
-
-        def stringify(col):
-            if 'int' in str(col.dtype):
-                return [str(x) if x > -1 else '' for x in col]
-            return col
-
-        # check if mixed types
-        for col_name in g[1:]:
-            if dtype_symbol not in str(annp.dtype['f{}'.format(attri[col_name])]):
-                # convert mixed columns to string
-                add_func = lambda x, y: np.core.defchararray.add(stringify(x), stringify(y))
+        # check rule 3 (all should be of string type)
+        if not all('S' in str(annp.dtype['f{}'.format(attri[c])]) for c in g):
+            print "Attribute with mixed types: {}".format(k)
+            continue
 
         # merge columns
         for col_name in g[1:]:
             col_to_merge = annp['f{}'.format(attri[col_name])]
-            col_merged = add_func(col_merged, col_to_merge)
+            col_merged = np.core.defchararray.add(col_merged, col_to_merge)
 
-        annp = merge_arrays((annp, col_merged), flatten=True)
+        seqarrays.append(col_merged)
+
         attri[k] = len(attri)
-        attrs_final = attrs_final.difference(g)
-        attrs_final.add(k)
+        attrs = attrs.difference(g)
+        attrs.add(k)
         attrs_merged.add(k)
+        original_name = tree_original_names[g[0]]
+        original_name_ndx = original_name.rfind('_')
+        if original_name_ndx >= 0:
+            original_name = original_name[:original_name_ndx]
+        tree_original_names[k] = original_name
+
+    annp = merge_arrays(tuple(seqarrays), flatten=True)
 
     # create var template
     var_template = []
-    attrs_final = sorted(attrs_final)
-    attrs_final_keys = map(lambda x: utils.escape_mongokey(x).encode('unicode_escape'), attrs_final)
+    attrs = sorted(attrs)
+    attrs_names = map(lambda x: esc(utils.escape_mongokey(x).encode('unicode_escape')), attrs)
+    attrs_final_keys = []
     dtype = dict(annp.dtype.descr)
     dtype_final = []
 
     # format attribute type and var_template
-    for attr_name in attrs_final:
+    for i, attr_name in enumerate(attrs):
         # format field label
-        label = attr_name
-        label_unsc_ind = attr_name.rfind('_')
+        label = tree_original_names[attr_name]
+        label_unsc_ind = label.rfind('_')
         attr_key = 'f{}'.format(attri[attr_name])
 
         if label_unsc_ind >= 0:
@@ -92,7 +157,7 @@ def format_annotations(annfile):
 
         field, field_type = None, None
         field = {
-            'name': utils.escape_mongokey(attr_name).encode('unicode_escape'),
+            'name': esc(utils.escape_mongokey(attr_name).encode('unicode_escape')),
             'label': label,
         }
 
@@ -110,14 +175,20 @@ def format_annotations(annfile):
         elif 'S' in dtype[attr_key]:
             field['type'] = 'basic:string:'
 
-        if field is not None:
+        if 'type' in field:
             var_template.append(field)
+            attrs_final_keys.append(attrs_names[i])
             dtype_final.append((attr_key, field_type or dtype[attr_key]))
+        else:
+            print 'Unknown type {} of attribute {}'.format(dtype[attr_key], attr_name)
 
     # transform original data to final attributes
     annp_final = annp.astype(dtype_final)
 
     # create final data set
-    var_samples = {key: dict(zip(attrs_final_keys, map(np.asscalar, row))) for key, row in zip(annp['f0'], annp_final)}
+    def not_nan(val):
+        return (type(val) == str and val != '') or (type(val) != str and not np.isnan(val))
+
+    var_samples = {key: dict([(attr, val) for attr, val in zip(attrs_final_keys, map(np.asscalar, row)) if not_nan(val)]) for key, row in zip(annp['f0'], annp_final)}
 
     return var_samples, var_template

@@ -6,7 +6,7 @@
 ---
 
 - name: import:web:transmart:expressions
-  version: 0.0.12
+  version: 0.0.14
   label: Import Expressions from tranSMART
   type: "data:expressionset:transmart"
   category: import
@@ -67,7 +67,8 @@
     bash: |
       re-require common
 
-      transmart_fetch.R --expsConceptLinks {{exps}} --token {{token}} {% if ann %}--annConceptLinks "{{ann}}"{% endif %} --outE expression_data.tab {% if ann %}--outA annotation_data.tab{% endif %}
+      echo "{{ann}}" > ann.txt
+      transmart_fetch.R --expsConceptLinks {{exps}} --token {{token}} {% if ann %}--annConceptLinks ann.txt --outA annotation_data.tab --outT anntree.txt{% endif %} --outE expression_data.tab
       re-checkrc "Error fetching data from tranSMART."
 
       mkdir -p temp
@@ -81,5 +82,5 @@
 
       re-save expset_type "Log2"
 
-      transmart_import.py expression_data.tab {% if ann %}--annotation annotation_data.tab{% endif %} --progress 0.95
+      transmart_import.py expression_data.tab {% if ann %}--ann annotation_data.tab --anntree anntree.txt{% endif %} --progress 0.95
       re-checkrc "Import from tranSMART failed."

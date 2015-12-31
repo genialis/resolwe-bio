@@ -1,5 +1,4 @@
 #!/usr/bin/Rscript
-
 require("transmartRClient")
 require('argparse')
 
@@ -32,7 +31,10 @@ connectToTransmart(args$URL, .access.token = args$token)
 
 # get annotations
 if (args$annConceptLinks != '') {
-    links_new <- c(unlist(strsplit(args$annConceptLinks, ';')))
+    ann <- readChar(args$annConceptLinks, file.info(args$annConceptLinks)$size)
+    ann <- gsub("[\r\n]", "", ann)
+    links_new <- c(unlist(strsplit(ann, ';')))
+
     observations <- getObservations(concept.links = links_new, as.data.frame = T)
 
     final <- data.frame(cbind(observations$subjectInfo$subject.inTrialId, observations$observations))
@@ -49,7 +51,7 @@ if (args$annConceptLinks != '') {
     # get study tree
     con <- c()
     stu <- list()
-    for (study in c(unlist(strsplit(args$annConceptLinks, ';')))) {
+    for (study in c(unlist(strsplit(ann, ';')))) {
         study <- c(strsplit(as.character(study), '/'))
         studyId <- study[[1]][3]
 
@@ -59,7 +61,7 @@ if (args$annConceptLinks != '') {
             stu <- c(stu, studyId)
         }
     }
-  
+
     write.table(con, file = args$outT, quote = FALSE, sep = "\t", row.names = F, col.names = F)
 }
 
