@@ -6,6 +6,11 @@ except ImportError:
     # Backward compatibility to run tests on our old platform
     from server.tests.utils import ProcessTestCase
 
+try:
+    from resolwe.flow.models import Process, iterate_schema
+except ImportError:
+    from server.models import Processor as Process, iterate_schema
+
 
 class BioProcessTestCase(ProcessTestCase):
     def setUp(self):

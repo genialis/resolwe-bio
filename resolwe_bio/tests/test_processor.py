@@ -1,10 +1,7 @@
 # pylint: disable=missing-docstring
 from django.test import TestCase
 
-try:
-    from resolwe.flow.models import Process, itterate_schema
-except ImportError:
-    from server.models import Processor as Process, iterate_schema
+from .utils import Process, iterate_schema
 
 
 class ProcessFieldsTestCase(TestCase):
