@@ -7,7 +7,7 @@ parser$add_argument('--URL', default = "http://52.48.28.218:8080/transmart", hel
 parser$add_argument('--annConceptLinks', default = "", help='Annotations concept links')
 parser$add_argument('--expsConceptLinks', default = "", help='Expressions concept links')
 parser$add_argument('--token', default = "", help='Auth token')
-parser$add_argument('--projection', default='default_real_projection', help='Name of the data projection to fetch (log_intensity, all_data, default_real_projection, ...')
+parser$add_argument('--projection', default='log_intensity', help='Name of the data projection to fetch (log_intensity, all_data, default_real_projection, ...')
 parser$add_argument('--outA', help='Output annotation file name')
 parser$add_argument('--outE', help='Output expression file name')
 parser$add_argument('--outT', help='Output tree file name')
