@@ -43,8 +43,8 @@ with open(args.expressions, 'rb') as csvfile:
     exprs = zip(*list(exprs))
 
 nsamples = len(exprs)
-progress_current = args.progress
-progress_step = (1. - args.progress) / nsamples
+progress_step = nsamples / 10.
+progress_milestone = progress_step
 rartifact = re.compile('^X[0-9]')
 gene_ids = [g[1:] if rartifact.match(g) else g for g in exprs[0]]
 
@@ -78,5 +78,6 @@ for i in range(1, nsamples):
 
     print 'run {}'.format(json.dumps(d, separators=(',', ':')))
 
-    progress_current += progress_step
-    print '{{"proc.progress": {}}}'.format(progress_current)
+    if i >= progress_milestone:
+        print '{{"proc.progress": {}}}'.format(args.progress + (1. - args.progress) * i / nsamples)
+        progress_milestone += progress_step

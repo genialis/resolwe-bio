@@ -14,20 +14,20 @@ def format_annotations(annfile, treefile):
 
     # R replaces some characters to . when it creates variables
     escape_chars = {
-        '(': '\uff08',
-        ')': '\uff09',
-        '[': '\uff3b',
-        ']': '\uff3d',
-        ',': '\uff0c',
-        '-': '\uff0d',
-        '<': '\uff1c',
-        '>': '\uff1e',
-        '=': '\uff1d',
-        ':': '\uff1a',
-        '/': '\uff0f',
-        '^': '\uff3e',
-        '?': '\uff1f',
-        '\'': '\uff07'
+        '(': '\\uff08',
+        ')': '\\uff09',
+        '[': '\\uff3b',
+        ']': '\\uff3d',
+        ',': '\\uff0c',
+        '-': '\\uff0d',
+        '<': '\\uff1c',
+        '>': '\\uff1e',
+        '=': '\\uff1d',
+        ':': '\\uff1a',
+        '/': '\\uff0f',
+        '^': '\\uff3e',
+        '?': '\\uff1f',
+        '\'': '\\uff07'
     }
 
     def esc_dot(s):
@@ -142,10 +142,9 @@ def format_annotations(annfile, treefile):
     # create var template
     var_template = []
     attrs = sorted(attrs)
-    attrs_names = map(lambda x: esc(utils.escape_mongokey(x).encode('unicode_escape')), attrs)
     attrs_final_keys = []
-    dtype = dict(annp.dtype.descr)
     dtype_final = []
+    dtype = dict(annp.dtype.descr)
 
     # format attribute type and var_template
     for i, attr_name in enumerate(attrs):
@@ -161,7 +160,7 @@ def format_annotations(annfile, treefile):
 
         field, field_type = None, None
         field = {
-            'name': esc(utils.escape_mongokey(attr_name).encode('unicode_escape')),
+            'name': esc(utils.escape_mongokey(attr_name).encode('unicode_escape')).replace('\\u', 'U'),
             'label': label,
         }
 
@@ -181,7 +180,7 @@ def format_annotations(annfile, treefile):
 
         if 'type' in field:
             var_template.append(field)
-            attrs_final_keys.append(attrs_names[i])
+            attrs_final_keys.append(field['name'])
             dtype_final.append((attr_key, field_type or dtype[attr_key]))
         else:
             print 'Unknown type {} of attribute {}'.format(dtype[attr_key], attr_name)
