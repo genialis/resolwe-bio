@@ -3,7 +3,7 @@ require("transmartRClient")
 require('argparse')
 
 parser = ArgumentParser(description='Fetch data from tranSMART instance.')
-parser$add_argument('--URL', default = "http://52.48.28.218:8080/transmart", help='tranSMART instance URL')
+parser$add_argument('--URL', default = "http://137.117.169.225:8080/transmart", help='tranSMART instance URL')
 parser$add_argument('--annConceptLinks', default = "", help='Annotations concept links')
 parser$add_argument('--expsConceptLinks', default = "", help='Expressions concept links')
 parser$add_argument('--token', default = "", help='Auth token')
