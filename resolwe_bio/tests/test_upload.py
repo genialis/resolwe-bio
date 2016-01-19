@@ -94,7 +94,6 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(reads, "bases", "101")
         self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
 
-    @unittest.skip("need fastqFormatDetect.pl in the runtime")
     def test_upload_reads_old_encoding(self):
         inputs = {"src": "old_encoding.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
