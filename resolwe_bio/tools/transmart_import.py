@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description='Import gene expressions and the '
                                              'corresponding annotations from tranSMART.')
 parser.add_argument('expressions', type=str, help='gene expressions file')
 parser.add_argument('--ann', type=str, help='sample annotation file')
+parser.add_argument('--ann_ids', type=str, help='annotation ids file')
 parser.add_argument('--anntree', type=str, help='annotation attribute tree')
 parser.add_argument('--progress', type=float, default=0., help='start progress')
 args = parser.parse_args()
@@ -23,6 +24,9 @@ if not os.path.isfile(args.expressions):
 
 if args.ann and not os.path.isfile(args.ann):
     print '{{"proc.error": "Sample annotation file {} does not exist"}}'.format(args.ann)
+
+if args.ann_ids and not os.path.isfile(args.ann_ids):
+    print '{{"proc.error": "Annotation ids file {} does not exist"}}'.format(args.ann_ids)
 
 if args.ann and not args.anntree:
     print '{{"proc.error": "Annotation attribute tree must be given with annotations"'
@@ -35,7 +39,8 @@ var_samples, var_template = None, None
 if args.ann:
     with open(args.ann, 'rb') as annfile:
         with open(args.anntree, 'rb') as treefile:
-            var_samples, var_template = transmart_utils.format_annotations(annfile, treefile)
+            with open(args.ann_ids, 'rb') as ann_ids_file:
+                var_samples, var_template = transmart_utils.format_annotations(annfile, treefile, ann_ids_file)
 
 with open(args.expressions, 'rb') as csvfile:
     exprs = csv.reader(csvfile, delimiter='\t', quotechar='"')

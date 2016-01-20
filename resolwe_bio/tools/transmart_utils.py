@@ -5,12 +5,9 @@ from numpy.lib.recfunctions import merge_arrays
 import utils
 
 
-def format_annotations(annfile, treefile):
+def format_annotations(annfile, treefile, ann_ids_file):
     # treefile = open('UBIOPRED_tree.txt', 'rb')
     # annfile = open('UBIOPRED_annotations_short.tab', 'rb')
-
-    tree = [l.strip()[1:-1].replace(' ', '.').replace('\\', '_') for l in treefile if l.strip() != '']
-    treefile.close()
 
     # R replaces some characters to . when it creates variables
     escape_chars = {
@@ -30,6 +27,9 @@ def format_annotations(annfile, treefile):
         '\'': '\\uff07'
     }
 
+    def esc_tree(l):
+        return l.strip()[1:-1].replace(' ', '.').replace('\\', '_')
+
     def esc_dot(s):
         for k in escape_chars.iterkeys():
             s = s.replace(k, '.')
@@ -40,7 +40,13 @@ def format_annotations(annfile, treefile):
             s = s.replace(k, v)
         return s
 
+
+    tree = [esc_tree(l) for l in treefile if l.strip() != '']
+    treefile.close()
     tree_original_names = {esc_dot(l): l for l in tree}
+
+    ann_ids = [esc_dot(esc_tree(l)) for l in ann_ids_file.next()[:-1].split(';')]
+    ann_ids_file.close()
 
     tree = sorted(tree_original_names.iterkeys())
     tree_attributes = set(tree)
@@ -66,12 +72,14 @@ def format_annotations(annfile, treefile):
     attrs = annfile.next()[:-1].split('\t')
 
     def long_name(a):
-        for name in tree_original_names.keys():
-            if name.endswith('_' + a) or name == a:  # if short or long
-                return name
+        matching_long_names = [name for name in ann_ids if name.endswith('_' + a) or name == a]  # if short or long
 
-        print '{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a)
-        return ''
+        if len(matching_long_names) < 1:
+            print '{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a)
+            return ''
+        if len(matching_long_names) > 1:
+            print '{{"proc.error": "Attribute {} matched with multiple long names {}"}}'.format(a, matching_long_names)
+        return matching_long_names[0]
 
     attrs = [long_name(a) for a in attrs[1:]]
 
@@ -104,8 +112,7 @@ def format_annotations(annfile, treefile):
         for vv in v:
             leaf_node_map[vv] = k
 
-    attr_group_candidates = attrs.intersection(leaf_node_map.keys())
-    attr_group_candidates = set(leaf_node_map[a] for a in attr_group_candidates)
+    attr_group_candidates = set(leaf_node_map[a] for a in attrs if leaf_node_map.has_key(a))
 
     # merge groupped columns
     seqarrays = [annp]
