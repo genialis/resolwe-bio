@@ -82,8 +82,8 @@ transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
-def top_components_with_genes(component):
-    """Returns top 10 absolute components."""
+def component_top_factors(component):
+    """Returns top 10 absolute factors."""
     # 10x faster, but not supported in current numpy:
     #   abs_component = np.abs(component)
     #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
@@ -102,7 +102,9 @@ data = {
     }
 }
 if not any(np.isnan(pca.explained_variance_ratio_)):
-    data['pca']['explained_variance_ratios'] = pca.explained_variance_ratio_.tolist()
-    data['pca']['components'] = [top_components_with_genes(component) for component in pca.components_]
+    data['pca']['all_explained_variance_ratios'] = pca.explained_variance_ratio_.tolist()
+    data['pca']['all_components'] = [component_top_factors(component) for component in pca.components_]
+    data['pca']['explained_variance_ratios'] = data['pca']['all_explained_variance_ratios'][:10]
+    data['pca']['components'] = data['pca']['all_components'][:10]
 
 print json.dumps(data, separators=(',', ':'), allow_nan=False)
