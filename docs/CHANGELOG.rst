@@ -25,3 +25,4 @@ Added
 -----
 * Import expressions from tranSMART.
 * Limma differential expression (tranSMART)
+* Added VC filtering tool (Chemical mutagenesis)

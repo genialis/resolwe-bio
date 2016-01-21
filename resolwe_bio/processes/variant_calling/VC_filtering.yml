@@ -1,0 +1,179 @@
+# ==================================================
+# Variant calling - Filtering - Chemical Mutagenesis
+# ==================================================
+---
+
+- name: vc_filtering_chem_mutagenesis
+  version: 1.0.0
+  label: Variant filtering (Chemical Mutagenesis)
+  type: data:variants:vcf:filtering
+  category: analyses:variants
+  persistence: CACHED
+  description: >
+    Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum  
+  input:
+    - name: variants
+      label: Variants file (VCF)
+      type: data:variants:vcf
+      required: true
+    - name: analysis_type
+      label: Analysis type
+      type: basic:string
+      description: >
+        Choice of the analysis type. Use "SNV" or "INDEL" options for the analysis of VCF files prepared by using GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively. Choose options SNV_CHR2 or INDEL_CHR2 if duplication of CHR2 was considered as diploidy when running GATK analysis (-ploidy 2 -L chr2:2263132-3015703).
+      choices:
+        - label: SNV
+          value: snv
+        - label: INDEL
+          value: indel
+        - label: SNV_CHR2
+          value: snv_chr2
+        - label: INDEL_CHR2
+          value: indel_chr2
+      default: snv
+    - name: parental_strain
+      label: Parental Strain Prefix
+      type: basic:string
+      placeholder: 'AX4'
+    - name: mutant_strain
+      label: Mutant Strain Prefix
+      type: basic:string
+      placeholder: 'mutant'
+    - name: read_depth
+      label: Read Depth Cutoff
+      type: basic:integer
+      default: 5
+  output:
+    - name: summary
+      label: Summary
+      type: basic:file
+      description: >
+        Summarize the input parameters and results.
+    - name: vcf
+      label: Variants
+      type: basic:file
+      description: >
+        A genome VCF file of variants that passed the filters.
+    - name: variants_filtered
+      label: Variants filtered
+      type: basic:file
+      description: >
+        A data frame of variants that passed the filters.
+    - name: variants_filtered_alt
+      label: Variants filtered (multiple alt. alleles)
+      type: basic:file
+      description: >
+        A data frame of variants that contain more than two alternative alleles. These vairants are likely to be false positives.
+    - name: gene_list_all
+      label: Gene list (all)
+      type: basic:file
+      description: >
+        Genes that are mutated at least once.
+    - name: gene_list_top
+      label: Gene list (top)
+      type: basic:file
+      description: >
+        Genes that are mutated at least twice.
+    - name: mut_chr
+      label: Mutations (by chr)
+      type: basic:file
+      description: >
+        List mutations in individual chromosomes.
+    - name: mut_strain
+      label: Mutations (by strain)
+      type: basic:file
+      description: >
+        List mutations in individual strains.
+    - name: strain_by_gene
+      label: Strain (by gene)
+      type: basic:file
+      description: >
+        List mutants that carry mutations in individual genes.
+  static:
+    - name: name
+      label: Name
+      type: basic:string
+      default: "Filtered variants ({{ variants.output.vcf.file|basename|default:'?' }})"
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ["variants", "annotation", "filtering"]
+      placeholder: new tag
+    - name: description
+      label: Description
+      type: basic:text
+      default: "Description of variants filtering ({{ variants.output.vcf.file|basename|default:'?' }})."
+  var:
+    - name: notes
+      label: Notes
+      type: basic:text
+  run:
+    runtime: polyglot
+    bash: |
+      re-require common
+      re-require tabix-0.2.6
+      
+      NAME=`basename '{{ variants.vcf.file }}' .vcf`
+      re-progress 0.05
+
+      cp {{variants.vcf.file}} .
+
+      Rscript -e 'source("{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      re-checkrc "VCF file filtering failed"
+      re-progress 0.9
+      
+      if [ -f ${NAME}.vcf_{{read_depth}}/summary.txt ];
+      then
+        re-save-file summary ${NAME}.vcf_{{read_depth}}/summary.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/variants.vcf ];
+      then
+        bgzip -c "${NAME}.vcf_{{read_depth}}/variants.vcf" > "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
+        tabix -p vcf "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
+        re-save-file vcf ${NAME}.vcf_{{read_depth}}/variants.vcf ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz.tbi
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/variant_filtered.txt ];
+      then
+        re-save-file variants_filtered ${NAME}.vcf_{{read_depth}}/variant_filtered.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/variant_mult_alt.txt ];
+      then
+        re-save-file variants_filtered_alt ${NAME}.vcf_{{read_depth}}/variant_mult_alt.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/gene_list_all.txt ];
+      then
+        re-save-file gene_list_all ${NAME}.vcf_{{read_depth}}/gene_list_all.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/gene_list_top.txt ];
+      then
+        re-save-file gene_list_top ${NAME}.vcf_{{read_depth}}/gene_list_top.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/mutations_by_chr.txt ];
+      then
+        re-save-file mut_chr ${NAME}.vcf_{{read_depth}}/mutations_by_chr.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/mutations_by_strain.txt ];
+      then
+        re-save-file mut_strain ${NAME}.vcf_{{read_depth}}/mutations_by_strain.txt
+      fi
+
+      if [ -f ${NAME}.vcf_{{read_depth}}/strain_by_gene.txt ];
+      then
+        re-save-file strain_by_gene ${NAME}.vcf_{{read_depth}}/strain_by_gene.txt
+      fi
