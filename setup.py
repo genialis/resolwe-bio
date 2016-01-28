@@ -17,38 +17,57 @@ LICENSE = 'Apache License (2.0)'
 if __name__ == '__main__':
     setup(
         name=NAME,
+
         version=VERSION,
+
         description=DESCRIPTION,
         long_description=LONG_DESCRIPTION,
+
+        url=URL,
+
         author=AUTHOR,
         author_email=AUTHOR_EMAIL,
-        url=URL,
+
         license=LICENSE,
+
         packages=['resolwe_bio'],
         include_package_data=True,
-        classifiers=[
-            'Development Status :: 4 - Beta',
-            'Environment :: Web Environment',
-            'Framework :: Django',
-            'Intended Audience :: Developers',
-            'License :: OSI Approved :: Apache Software License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.3',
-            'Programming Language :: Python :: 3.4',
-            'Programming Language :: Python :: 3.5',
-            'Topic :: Scientific/Engineering :: Bio-Informatics',
-            'Topic :: Software Development :: Libraries :: Python Modules',
-        ],
         zip_safe=False,
         dependency_links=(
             "git+https://github.com/genialis/resolwe.git@727b5856e4ab76fd477b247477e69e42ae87fe05#egg=resolwe-0.9.1",
         ),
         install_requires=(
-            "resolwe>=0.9.1",
+            "resolwe>=0.9",
         ),
+        extras_require = {
+            'docs':  ['sphinx>=1.3.2'],
+            'package': [
+                'twine',
+                'wheel',
+            ],
+        },
+
         test_suite='resolwe_bio.tests',
+
+        classifiers=[
+            'Development Status :: 4 - Beta',
+
+            'Environment :: Web Environment',
+            'Framework :: Django',
+            'Intended Audience :: Developers',
+            'Topic :: Scientific/Engineering :: Bio-Informatics',
+            'Topic :: Software Development :: Libraries :: Python Modules',
+
+            'License :: OSI Approved :: Apache Software License',
+
+            'Operating System :: OS Independent',
+
+            'Programming Language :: Python',
+            'Programming Language :: Python :: 2',
+            'Programming Language :: Python :: 2.7',
+            'Programming Language :: Python :: 3',
+            'Programming Language :: Python :: 3.4',
+            'Programming Language :: Python :: 3.5',
+        ],
+        keywords='bioinformatics resolwe bio pipelines dataflow django',
     )
