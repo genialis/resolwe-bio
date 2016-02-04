@@ -84,7 +84,7 @@ STATIC_URL = '/static/'
 
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
-    'CONTAINER_IMAGE': 'centos',
+    'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe',
     'DATA_PATH': os.path.join(PROJECT_ROOT, '.data'),
     'UPLOAD_PATH': os.path.join(PROJECT_ROOT, '.upload'),
 }
@@ -95,10 +95,17 @@ FLOW_EXPRESSION_ENGINES = [
     'resolwe.flow.exprengines.dtlbash'
 ]
 
-FLOW_DOCKER_MAPPING = {
-    FLOW_EXECUTOR['DATA_PATH']: '/home/biolinux/data',
-    FLOW_EXECUTOR['UPLOAD_PATH']: '/home/biolinux/upload',
-}
+FLOW_DOCKER_MAPPINGS = [
+    {'src': os.path.join(FLOW_EXECUTOR['DATA_PATH'], '{data_id}'),
+     'dest': '/home/biolinux/data',
+     'mode': 'rw'},
+    {'src': FLOW_EXECUTOR['DATA_PATH'],
+     'dest': '/home/biolinux/data_all',
+     'mode': 'ro'},
+    {'src': FLOW_EXECUTOR['UPLOAD_PATH'],
+     'dest': '/home/biolinux/upload',
+     'mode': 'rw'},
+]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

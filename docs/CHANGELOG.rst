@@ -20,6 +20,7 @@ Fixed
 * Fail gracefully if the field does not exist assertFileExists.
 * Enabled processor tests (GO, Expression, Variant Calling)
 * Enabled processor test (Upload reads with old Illumina QC encoding)
+* Made Resolwe Bioinformatics work with Resolwe and Docker.
 
 Added
 -----
