@@ -81,7 +81,7 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         mutant_2 = self.run_processor("import:upload:mapping-bam", {"src": "mutant_2.bam"})
         mutant_2_coverage = self.run_processor('jbrowse:bam:coverage', {'bam': mutant_2.pk})
-        
+
         AX4 = self.run_processor("import:upload:mapping-bam", {"src": "AX4.bam"})
         AX4_coverage = self.run_processor('jbrowse:bam:coverage', {'bam': AX4.pk})
 
