@@ -100,7 +100,7 @@
       {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.LongOrfs -t transcripts.fasta
 
       {% if pfam %}
-        DB_PATH={{ proc.data_path }}/{{ pfamDB.id }}/{{ pfamDB.output.database.refs.0 }}/{{ pfamDB.output.hmmerdb }}
+        DB_PATH={{ proc.data_path }}/{{ pfamDB|id }}/{{ pfamDB.output.database.refs.0 }}/{{ pfamDB.output.hmmerdb }}
         {{proc.slugs_path}}/hmmer-3.1b1/binaries/hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
         {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
       {% else %}

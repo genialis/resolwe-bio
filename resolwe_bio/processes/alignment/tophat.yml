@@ -165,7 +165,7 @@
 
       NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
 
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
 
         {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
 

@@ -61,7 +61,7 @@
 
       {% for exp in exps %}
         exp=$exp"{{ exp.output.exp.file }},"
-        obj_id=$obj_id"{{ exp.id }},"
+        obj_id=$obj_id"{{ exp|id }},"
       {% endfor %}
 
       re-save proc.rc $?

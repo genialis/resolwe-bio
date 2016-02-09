@@ -206,7 +206,7 @@
 
       re-progress 0.05
 
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
         STAR --runThreadN '{{threads}}' --genomeDir ${GENOME_PATH} --readFilesIn '{{reads.fastq.file}}' --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
         re-checkrc "Reads alignment failed!"
 
@@ -257,7 +257,7 @@
 
       mv Aligned.sortedByCoord.out.bam ${READS_NAME}.bam
       mv Log.final.out Log.final.txt
-      
+
       re-save-file bam ${READS_NAME}.bam
       re-save-file bai ${READS_NAME}.bam.bai
       re-save-file sj SJ.out.tab

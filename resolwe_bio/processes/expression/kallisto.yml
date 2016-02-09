@@ -142,7 +142,7 @@
       re-require kallisto-0.42.1
       re-progress 0.1
 
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
         {% if not options.single %}
           re-error "Options 'Single-end reads' and 'Average fragment length' must be supplied for single-end reads"
         {% endif %}
@@ -158,7 +158,7 @@
           re-error "Number of bootstrap samples must be a non-negative integer"
       {% endif %}
 
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
         kallisto quant -i '{{ transcriptome.index.file }}' -o . --single -l '{{options.fragment_length_single}}' {{reads.fastq.file}} {% if bootstrap.bootstrap %} -b '{{bootstrap.bootstrap_samples}}' -t '{{bootstrap.threads}}' --seed '{{bootstrap.seed}}' {% endif %} '{{reads.fastq.file}}'
         re-checkrc
         re-progress 0.7

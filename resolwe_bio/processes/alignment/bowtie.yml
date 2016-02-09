@@ -179,8 +179,8 @@
       STATS="0 ${NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
-      {% if reads.type|subtype:'data:reads:fastq:single:' or use_SE %}
-        {% if use_SE and reads.type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' or use_SE %}
+        {% if use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
@@ -481,8 +481,8 @@
       fi
 
       echo "ALIGNING with bowtie2:"
-      {% if reads.type|subtype:'data:reads:fastq:single:' or PE_options.use_SE %}
-        {% if PE_options.use_SE and reads.type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' or PE_options.use_SE %}
+        {% if PE_options.use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
           NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
           gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"

@@ -150,7 +150,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-MEM:"
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -284,7 +284,7 @@
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-SW:"
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
@@ -442,7 +442,7 @@
       fi
 
       echo "ALIGNING with BWA-ALN:"
-      {% if reads.type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
 

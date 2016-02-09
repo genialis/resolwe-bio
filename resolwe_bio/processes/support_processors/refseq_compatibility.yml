@@ -69,7 +69,7 @@
       echo "${BAM_HEADER}"
       {% endif %}
 
-      {% if annot.type == 'data:annotation:gff3:' %}
+      {% if annot|type == 'data:annotation:gff3:' %}
         ANOT_FILE="{{annot.output.gff.file}}"
       {% else %}
         ANOT_FILE="{{annot.output.gtf.file}}"
