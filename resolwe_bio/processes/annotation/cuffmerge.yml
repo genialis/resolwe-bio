@@ -78,8 +78,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require cufflinks-2.2.1
 
       echo "Preparing transcript assembly list!"
 

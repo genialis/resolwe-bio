@@ -62,6 +62,5 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       find_similar.py -g "{{gene}}" -d "{{scoring_function}}" "{{etcx.etcfile.file}}"
       re-checkrc

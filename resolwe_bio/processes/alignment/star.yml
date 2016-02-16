@@ -197,9 +197,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require STAR_2.4.2a
-      re-require samtools-0.1.19
 
       GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
       READS_NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
@@ -351,8 +348,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require STAR_2.4.2a
 
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       gzip -dc {{ genome.fasta.file }} > genome.fasta

@@ -66,8 +66,7 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      
+
       {% for c in control %}
         controls=$controls"{{c.exp.file}} "
         contVec=$contVec"1,"

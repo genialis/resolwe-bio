@@ -64,7 +64,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       etc.py {% for e in expressions %}"{{e.exp.file}}" {% endfor %} --names {% for e in expressions %}"{{e|name}}" {% endfor %} {% if avg %}--mean{% endif %}
       re-checkrc

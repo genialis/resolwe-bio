@@ -135,8 +135,6 @@
     runtime: polyglot
     bash: |
 
-      re-require common
-      re-require fastqc-0.11.3
 
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5 "extract"
 
@@ -316,8 +314,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require fastqc-0.11.3
 
       re-import "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3 "extract"
       NAME1=$NAME

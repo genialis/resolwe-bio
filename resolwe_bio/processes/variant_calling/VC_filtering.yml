@@ -119,8 +119,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require tabix-0.2.6
 
       NAME=`basename '{{ variants.vcf.file }}' .vcf`
       re-progress 0.05

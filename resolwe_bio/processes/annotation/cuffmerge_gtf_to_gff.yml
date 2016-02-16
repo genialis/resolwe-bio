@@ -1,5 +1,5 @@
 # ========================================================
-# GTF/GFF processing - Convert Cuffmerge GTF to GFF format 
+# GTF/GFF processing - Convert Cuffmerge GTF to GFF format
 # ========================================================
 ---
 
@@ -54,9 +54,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require cufflinks-2.2.1
-      re-require genometools-1.5.3/bin
 
       {% if cuffmerge.merged_gtf.file %}
         ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`

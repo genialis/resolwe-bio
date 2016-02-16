@@ -70,6 +70,5 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       re-import "{{ cel.file_temp|default:cel.file }}" "{{ cel.file }}" "cel|CEL" "CEL"
       re-save-file cel "${NAME}.CEL"

@@ -58,6 +58,5 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       echo "Testning hidden fields"
       re-save output "Done"

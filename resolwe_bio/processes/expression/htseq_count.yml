@@ -121,8 +121,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require samtools-0.1.19
 
       NAME=`basename '{{ alignments.bam.file }}' .bam`
       re-progress 0.1

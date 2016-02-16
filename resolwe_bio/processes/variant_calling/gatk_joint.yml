@@ -162,10 +162,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require samtools-0.1.19
-      re-require vcftools_0.1.12a/bin
-      re-require tabix-0.2.6
 
       {% if br_and_ind_ra and not known_sites and not known_indels %}
         re-error "Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files."

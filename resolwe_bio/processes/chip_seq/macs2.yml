@@ -188,8 +188,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require macs2
 
       {% if settings.broad and settings.call_summits %}
         re-error "--broad can't be combined with --call-summits!"

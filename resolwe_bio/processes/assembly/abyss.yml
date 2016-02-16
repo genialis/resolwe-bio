@@ -100,8 +100,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require abyss-1.9.0
 
       {% if not paired_end and not se and not unmapped %}
         re-error "No input files provided. Please use either Paired-end or Single-end input files to run Abyss."
@@ -121,7 +119,7 @@
       {% elif se and not use_unmapped %}
         SE='se={{ se.fastq.file }}'
       {% endif %}
-      
+
       re-progress 0.1
 
       # remove whitespace from a sample name
@@ -132,6 +130,6 @@
       re-progress 0.9
 
       zip ${NAME}_contigs *.fa
-      
+
       re-save-file contigs ${NAME}_contigs.zip
       re-save-file stats ${NAME}-stats.tab

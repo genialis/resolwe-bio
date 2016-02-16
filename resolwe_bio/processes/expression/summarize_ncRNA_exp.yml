@@ -70,7 +70,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       {% for e in exps %}
         {% if exps.0.exp_type != e.exp_type %}

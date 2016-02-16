@@ -57,7 +57,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       re-checkrc

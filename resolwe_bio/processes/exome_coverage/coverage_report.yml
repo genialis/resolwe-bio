@@ -89,8 +89,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require samtools-0.1.19
 
       garvan_coverage.py {{ filter }} '{{ mapping.bam.file }}' '{{ gtf.gtf.file }}' {% if variants %}--variants '{{ variants.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
       re-checkrc

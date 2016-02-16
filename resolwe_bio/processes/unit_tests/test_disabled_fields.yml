@@ -48,6 +48,5 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       echo "Testing dissabled fields"
       re-save output "Done"

@@ -69,7 +69,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       {% if not exp and not rc %}
         re-error "Please provide raw or/and normalized expression files."

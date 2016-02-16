@@ -138,8 +138,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require kallisto-0.42.1
       re-progress 0.1
 
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
@@ -247,8 +245,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require kallisto-0.42.1
 
       NAME=`basename '{{ fasta.fasta.file }}' .fasta.gz`
 

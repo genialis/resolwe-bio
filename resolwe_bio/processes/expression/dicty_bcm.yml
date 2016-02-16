@@ -92,9 +92,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require samtools-0.1.19
-      re-require kentUtils-2.9.1
 
       NAME=`basename '{{ alignment.bam.file }}' .bam`
 

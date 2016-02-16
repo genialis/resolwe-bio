@@ -64,7 +64,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       NAME='{{ src.file }}'
 

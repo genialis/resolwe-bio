@@ -84,9 +84,6 @@
   run:
     runtime: polyglot
     bash: |
-      # re-require common
-      # re-require kentUtils-2.9.1
-      # re-require samtools-0.1.19
 
       function compute_coverage {
         python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph

@@ -49,8 +49,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require bedops-2.4.14
 
       closest-features --dist '{{ peaks.narrow_peaks.file }}' '{{ bed.BED.file }}' > macs2_peakscore
       re-checkrc
@@ -125,7 +123,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       peak2geneScore.R '{{peakscore.peak_score.file}}' {% if fdr %} --fdr '{{fdr}}' {% endif %} {% if pval %} --pval '{{pval}}' {% endif %} {% if logratio %} --logratio '{{logratio}}' {% endif %}
       re-checkrc "GeneScore computing failed."

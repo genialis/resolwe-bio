@@ -69,7 +69,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       echo "{{ann}}" > ann.txt
       echo '{{ann_ids}}' > ann_ids.txt

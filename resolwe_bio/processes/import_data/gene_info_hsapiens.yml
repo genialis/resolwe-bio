@@ -50,7 +50,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       ENSEMBL_RELEASE='{{ensembl_release}}'
 

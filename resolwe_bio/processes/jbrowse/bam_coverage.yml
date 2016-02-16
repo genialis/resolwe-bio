@@ -34,10 +34,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require samtools-0.1.19
-      re-require bedtools-2.17.0
-      re-require kentUtils-2.9.1
 
       NAME='{{bam.bam.file}}'
       BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`

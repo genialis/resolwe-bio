@@ -36,8 +36,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require jbrowse-1.11.6/bin
 
       flatfile-to-json.pl --gff '{{gtf.gtf.file}}' --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."

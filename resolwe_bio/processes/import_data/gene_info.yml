@@ -51,7 +51,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|tab" "tab" 0.3
 
       re-save-file src ${NAME}.tab

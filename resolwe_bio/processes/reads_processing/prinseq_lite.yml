@@ -103,9 +103,6 @@
     runtime: polyglot
     bash: |
 
-      re-require prinseq-lite-0.20.4
-      re-require fastqc-0.11.3
-      re-require common
 
       echo "Reads processing"
       NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
@@ -255,9 +252,6 @@
     runtime: polyglot
     bash: |
 
-      re-require prinseq-lite-0.20.4
-      re-require fastqc-0.11.3
-      re-require common
 
       echo "Reads processing"
 

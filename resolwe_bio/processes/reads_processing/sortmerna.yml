@@ -97,9 +97,6 @@
     runtime: polyglot
     bash: |
 
-      re-require sortmerna-2.0/bin
-      re-require fastqc-0.11.3
-      re-require common
 
       database=""
 
@@ -270,10 +267,6 @@
     bash: |
 
 
-      re-require sortmerna-2.0/bin
-      re-require sortmerna-2.0/scripts
-      re-require common
-      re-require fastqc-0.11.3
 
       database=""
 

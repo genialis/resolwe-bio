@@ -112,9 +112,6 @@
     runtime: polyglot
     bash: |
 
-      re-require ea-utils.1.1.2-537
-      re-require fastqc-0.11.3
-      re-require common
 
       echo "Removing adapters and filtering data..."
 
@@ -272,9 +269,6 @@
     runtime: polyglot
     bash: |
 
-      re-require ea-utils.1.1.2-537
-      re-require fastqc-0.11.3
-      re-require common
 
       echo "Removing adapters and filtering data..."
 

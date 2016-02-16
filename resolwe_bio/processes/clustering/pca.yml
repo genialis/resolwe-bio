@@ -49,7 +49,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
 
       EXPSET_TYPE="{{exps.0.exp_type}}"
 

@@ -36,8 +36,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require jbrowse-1.11.6/bin
 
       prepare-refseqs.pl --fasta '{{refseq.fasta.file}}' --out .
       re-checkrc "Reference sequence processing for JBrowse failed."

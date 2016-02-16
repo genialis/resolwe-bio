@@ -63,8 +63,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require kentUtils-2.9.1
 
       {% if normalize == "--normalizeTo1x" and not size %}
         re-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."

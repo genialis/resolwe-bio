@@ -45,8 +45,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
-      re-require bedops-2.4.14
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       re-checkrc "BED file format validation failed. Check file integrity."

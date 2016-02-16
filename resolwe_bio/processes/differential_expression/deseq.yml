@@ -68,7 +68,6 @@
   run:
     runtime: polyglot
     bash: |
-      re-require common
       {% for c in control %}
         {% if not c.rc.file %}
           re-error "Read counts are required when using DESeq2"
