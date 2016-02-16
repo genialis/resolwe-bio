@@ -10,7 +10,7 @@
   category: analyses:variants
   persistence: CACHED
   description: >
-    Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum  
+    Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum
   input:
     - name: variants
       label: Variants file (VCF)
@@ -93,7 +93,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Filtered variants ({{ variants.output.vcf.file|basename|default:'?' }})"
+      default: "Filtered variants ({{ variants.vcf.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -111,7 +111,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of variants filtering ({{ variants.output.vcf.file|basename|default:'?' }})."
+      default: "Description of variants filtering ({{ variants.vcf.file|basename|default:'?' }})."
   var:
     - name: notes
       label: Notes
@@ -121,7 +121,7 @@
     bash: |
       re-require common
       re-require tabix-0.2.6
-      
+
       NAME=`basename '{{ variants.vcf.file }}' .vcf`
       re-progress 0.05
 
@@ -130,7 +130,7 @@
       Rscript -e 'source("{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
-      
+
       if [ -f ${NAME}.vcf_{{read_depth}}/summary.txt ];
       then
         re-save-file summary ${NAME}.vcf_{{read_depth}}/summary.txt

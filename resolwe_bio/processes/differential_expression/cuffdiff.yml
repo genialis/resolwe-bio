@@ -165,7 +165,7 @@
       replicates=""
 
       {% for experiment in cuffquant %}
-        experiment=$experiment"{{ experiment.output.abundances.file }},"
+        experiment=$experiment"{{ experiment.abundances.file }},"
         echo "{\"proc.rc\":$?}"
       {% endfor %}
 
@@ -185,14 +185,14 @@
 
       {% if genome %}
 
-        GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
 
       {% endif %}
 
       echo "{\"proc.progress\":0.1}"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.output.merged_gtf.file }}' ${experiments}
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.merged_gtf.file }}' ${experiments}
 
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 

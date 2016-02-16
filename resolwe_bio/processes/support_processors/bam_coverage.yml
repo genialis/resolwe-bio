@@ -24,7 +24,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "BigWig ({{bam.output.bam.file}})"
+      default: "BigWig ({{bam.bam.file}})"
     - name: experiment
       label: Experiment
       type: basic:string
@@ -39,7 +39,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of BigWig ({{bam.output.bam.file}})"
+      default: "Description of BigWig ({{bam.bam.file}})"
   var:
     - name: notes
       label: Notes
@@ -47,8 +47,8 @@
   run:
     runtime: polyglot
     bash: |
-      NAME='{{bam.output.bam.file}}'
-      BIGWIGOUT=`basename '{{bam.output.bam.file}}' .bam`
+      NAME='{{bam.bam.file}}'
+      BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
       {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"

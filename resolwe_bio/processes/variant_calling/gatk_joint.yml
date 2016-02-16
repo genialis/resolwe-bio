@@ -212,24 +212,24 @@
         {% for bam in mapping %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
           echo "indel realignment"
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.output.vcf.file }} {% endfor %}{% endif %}\"" > temp.sh
+          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}\"" > temp.sh
           sudo unshare -n bash temp.sh
           re-checkrc
-          
+
           echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T IndelRealigner -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_noncal.bam' -targetIntervals indel_interval.bed -compress 0\"" > temp.sh
           sudo unshare -n bash temp.sh
           re-checkrc
 
           echo "Base recalibration"
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I '${BAM_FILE}_noncal.bam'  -R '${GENOME_NAME}.fasta' -o recal_data.table -knownSites '{{ known_sites.output.vcf.file }}'\"" > temp.sh
+          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I '${BAM_FILE}_noncal.bam'  -R '${GENOME_NAME}.fasta' -o recal_data.table -knownSites '{{ known_sites.vcf.file }}'\"" > temp.sh
           sudo unshare -n bash temp.sh
           re-checkrc
-          
+
           echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T PrintReads -I '${BAM_FILE}_noncal.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_final.bam' -BQSR recal_data.table\"" > temp.sh
           sudo unshare -n bash temp.sh
           re-checkrc
         {% endfor %}
-        re-progress 0.40      
+        re-progress 0.40
       {% else %}
         {% for bam in mapping %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
@@ -244,7 +244,7 @@
       {% endfor %}
 
       echo "variant calling"
-      echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper ${SAMPLES} -R '${GENOME_NAME}.fasta' -o 'GATKvariants_raw.vcf' {% if dbsnp and known_sites %} --dbsnp {{ known_sites.output.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60\"" > temp.sh
+      echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper ${SAMPLES} -R '${GENOME_NAME}.fasta' -o 'GATKvariants_raw.vcf' {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60\"" > temp.sh
       sudo unshare -n bash temp.sh
       re-checkrc
       re-progress 0.8
@@ -252,7 +252,7 @@
       bgzip -c "GATKvariants_raw.vcf" > "GATKvariants_raw.vcf.bgz"
       re-checkrc
       re-progress 0.9
-      
+
       tabix -p vcf "GATKvariants_raw.vcf.bgz"
       re-checkrc
       re-progress 0.95

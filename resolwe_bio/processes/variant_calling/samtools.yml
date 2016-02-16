@@ -28,7 +28,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Called variants ({{ mapping.output.bam.file|basename|default:'?' }})"
+      default: "Called variants ({{ mapping.bam.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -46,7 +46,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Samtools called variants from {{ mapping.output.bam.file|basename|default:'?' }}."
+      default: "Samtools called variants from {{ mapping.bam.file|basename|default:'?' }}."
   var:
     - name: notes
       label: Notes
@@ -55,19 +55,19 @@
     runtime: polyglot
     bash: |
       echo "uncompressing genome, indexing"
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      cp {{ genome.output.fasta.file }} "${GENOME_NAME}.fasta.gz"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      cp {{ genome.fasta.file }} "${GENOME_NAME}.fasta.gz"
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
       {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta.gz"
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       echo "bam files processing"
-      BAM_FILE=`basename '{{ mapping.output.bam.file }}' .bam`
+      BAM_FILE=`basename '{{ mapping.bam.file }}' .bam`
       echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
 
       echo "removing duplicates"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools rmdup "{{ mapping.output.bam.file }}" "${BAM_FILE}_nodupli.bam"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_nodupli.bam"
       echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
 
       echo "creating VCF file"

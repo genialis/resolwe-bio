@@ -51,16 +51,16 @@
     bash: |
       re-require common
 
-      EXPSET_TYPE="{{exps.0.output.exp_type}}"
+      EXPSET_TYPE="{{exps.0.exp_type}}"
 
       {% for e in exps %}
-        {% if exps.0.output.exp_type != e.output.exp_type %}
+        {% if exps.0.exp_type != e.exp_type %}
           re-save proc.error "Expressions must be of the same expression type"
         {% endif %}
       {% endfor %}
 
       {% for exp in exps %}
-        exp=$exp"{{ exp.output.exp.file }},"
+        exp=$exp"{{ exp.exp.file }},"
         obj_id=$obj_id"{{ exp|id }},"
       {% endfor %}
 

@@ -48,7 +48,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+      default: "Reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
     - name: experiment
       label: Experiment
       type: basic:string
@@ -63,7 +63,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of reads ({{ reads_1.output.fastq.file|basename|default:'?' }} and {{ reads_2.output.fastq.file|basename|default:'?' }})"
+      default: "Description of reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
   var:
     - name: notes
       label: Notes
@@ -75,16 +75,16 @@
       #echo "UNCOMPRESSING reads 1:"
 
 
-      cp {{ reads_1.output.fastq.file }} .
-      cp {{ reads_2.output.fastq.file }} .
-      NAME=`basename '{{ reads_1.output.fastq.file }}' .fastq.gz`
-      NAME2=`basename '{{ reads_2.output.fastq.file }}' .fastq.gz`
+      cp {{ reads_1.fastq.file }} .
+      cp {{ reads_2.fastq.file }} .
+      NAME=`basename '{{ reads_1.fastq.file }}' .fastq.gz`
+      NAME2=`basename '{{ reads_2.fastq.file }}' .fastq.gz`
 
       mkdir fastqc
-      7z x -o./fastqc -y {{ reads_1.output.fastqc_archive.file }}
-      7z x -o./fastqc -y {{ reads_2.output.fastqc_archive.file }}
-      cp {{ reads_1.output.fastqc_archive.file }} .
-      cp {{ reads_2.output.fastqc_archive.file }} .
+      7z x -o./fastqc -y {{ reads_1.fastqc_archive.file }}
+      7z x -o./fastqc -y {{ reads_2.fastqc_archive.file }}
+      cp {{ reads_1.fastqc_archive.file }} .
+      cp {{ reads_2.fastqc_archive.file }} .
 
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`

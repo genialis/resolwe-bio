@@ -32,7 +32,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Compatibility check ({{reference.output.fasta.file}})"
+      default: "Compatibility check ({{reference.fasta.file}})"
     - name: experiment
       label: Experiment
       type: basic:string
@@ -47,7 +47,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of compatibility test ({{reference.output.fasta.file}})"
+      default: "Description of compatibility test ({{reference.fasta.file}})"
   var:
     - name: notes
       label: Notes
@@ -58,21 +58,21 @@
       source {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
       BAM_HEADER="bam_header.txt"
 
-      GENOME_NAME=`basename '{{ reference.output.fasta.file }}' .fasta.gz`
-      gzip -cd {{ reference.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ reference.fasta.file }}' .fasta.gz`
+      gzip -cd {{ reference.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
       {% if bam %}
       echo "Fetching bam header"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H "{{bam.output.bam.file}}" > "${BAM_HEADER}"
+      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -H "{{bam.bam.file}}" > "${BAM_HEADER}"
       echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
       echo "${BAM_HEADER}"
       {% endif %}
 
       {% if annot|type == 'data:annotation:gff3:' %}
-        ANOT_FILE="{{annot.output.gff.file}}"
+        ANOT_FILE="{{annot.gff.file}}"
       {% else %}
-        ANOT_FILE="{{annot.output.gtf.file}}"
+        ANOT_FILE="{{annot.gtf.file}}"
       {% endif %}
 
       echo "Compatibility check"

@@ -65,12 +65,12 @@
     runtime: polyglot
     bash: |
       if [[ -n "{{ orthologues }}" ]]; then
-        python {{ proc.slugs_path }}/gencloud-20131109/orthologues.py {{ orthologues.output.ort.file }} {{ genes | join:" " }} > temp.txt
+        python {{ proc.slugs_path }}/gencloud-20131109/orthologues.py {{ orthologues.ort.file }} {{ genes | join:" " }} > temp.txt
       else
         echo {{genes|join:" "}} > temp.txt
       fi
       echo -n "{\"terms\":"
-      {{proc.slugs_path}}/gotea/processor {{pval_threshold}} {{min_genes}} {{ontology.output.obo_obj.file}} {{gaf.output.gaf_obj.file}} temp.txt 2> /dev/null
+      {{proc.slugs_path}}/gotea/processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 2> /dev/null
       RC=$?
       echo "}"
       echo "{\"proc.rc\":$RC}"

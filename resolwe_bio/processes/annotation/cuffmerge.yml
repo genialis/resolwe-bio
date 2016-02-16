@@ -96,8 +96,8 @@
       re-progress 0.1
 
       {% if genome %}
-        GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       {% endif %}
 
       {% if gff.gff.file %}
@@ -107,7 +107,7 @@
 
       echo "Running Cuffmerge"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.output.gtf.file %} --ref-gtf '{{ gff.output.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.gtf.file %} --ref-gtf '{{ gff.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
 
       re-checkrc
       re-progress 0.95

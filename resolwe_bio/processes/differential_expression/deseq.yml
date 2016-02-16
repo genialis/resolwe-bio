@@ -70,7 +70,7 @@
     bash: |
       re-require common
       {% for c in control %}
-        {% if not c.output.rc.file %}
+        {% if not c.rc.file %}
           re-error "Read counts are required when using DESeq2"
         {% endif %}
         controls=$controls"{{c.rc.file}} "

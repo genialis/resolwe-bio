@@ -70,7 +70,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: 'Filtered reads ({{ reads.output.fastq.file|default:"?" }})'
+      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -88,7 +88,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: 'Description of {{ reads.output.fastq.file|default:"?" }}.'
+      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
   var:
     - name: notes
       label: Notes
@@ -120,8 +120,8 @@
       re-checkrc "Failed while indexing rRNA database."
       re-progress 0.1
 
-      NAME=`basename '{{reads.output.fastq.file}}' .fastq.gz`
-      gzip -cd "{{ reads.output.fastq.file }}" > "${NAME}.fastq"
+      NAME=`basename '{{reads.fastq.file}}' .fastq.gz`
+      gzip -cd "{{ reads.fastq.file }}" > "${NAME}.fastq"
 
       echo "RUN SortMeRNA"
       sortmerna --reads "${NAME}.fastq" --ref ${databases_indx} --aligned "${NAME}_rRNA" --other "${NAME}_wo_rRNA" --fastx -v --log -a {{ options.threads }} {% if options.sam %} --sam {% endif %}
@@ -242,7 +242,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: Filtered reads ({{ reads.output.fastq.file|default:"?" }})
+      default: Filtered reads ({{ reads.fastq.file|default:"?" }})
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -260,7 +260,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: Description of {{ reads.output.fastq.file|default:"?" }}
+      default: Description of {{ reads.fastq.file|default:"?" }}
   var:
     - name: notes
       label: Notes
@@ -293,10 +293,10 @@
       re-checkrc "Failed while indexing rRNA database."
       re-progress 0.2
 
-      NAME1=`basename '{{reads.output.fastq.file}}' .fastq.gz`
-      NAME2=`basename '{{reads.output.fastq2.file}}' .fastq.gz`
-      gzip -cd "{{ reads.output.fastq.file }}" > "${NAME1}.fastq"
-      gzip -cd "{{ reads.output.fastq2.file }}" > "${NAME2}.fastq"
+      NAME1=`basename '{{reads.fastq.file}}' .fastq.gz`
+      NAME2=`basename '{{reads.fastq2.file}}' .fastq.gz`
+      gzip -cd "{{ reads.fastq.file }}" > "${NAME1}.fastq"
+      gzip -cd "{{ reads.fastq2.file }}" > "${NAME2}.fastq"
       re-progress 0.3
 
       echo "Merge paired-end sequencing files"

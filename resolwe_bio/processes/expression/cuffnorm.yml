@@ -91,7 +91,7 @@
       labels=""
       replicates=""
 
-      experiment='{% for experiment in cuffquant %}{{ experiment.output.abundances.file }},{% endfor %}'
+      experiment='{% for experiment in cuffquant %}{{ experiment.abundances.file }},{% endfor %}'
 
       {% for r in replicates %}
         replicates=$replicates"{{r}},"
@@ -109,7 +109,7 @@
 
       echo "{\"proc.progress\":0.1}"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.output.merged_gtf.file }}' ${experiments}
+      {{proc.slugs_path}}/cufflinks-2.2.1/cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.merged_gtf.file }}' ${experiments}
 
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 

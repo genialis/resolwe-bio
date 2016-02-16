@@ -37,7 +37,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Mappability ({{genome.output.fasta.file|basename|default:'?'}}, length {{length}})"
+      default: "Mappability ({{genome.fasta.file|basename|default:'?'}}, length {{length}})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -55,14 +55,14 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of genome mappability of {{genome.output.fasta.file|basename|default:'?'}} with read length {{length}}."
+      default: "Description of genome mappability of {{genome.fasta.file|basename|default:'?'}} with read length {{length}}."
   run:
     runtime: polyglot
     bash: |
       echo "MAPPABILITY..."
       echo "UNCOMPRESSING genome..."
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       echo "BUILDING genome index..."
@@ -70,13 +70,13 @@
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
       . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/mappability.py "${GENOME_NAME}.fasta" "{{ gff.output.gff.file }}" {{length}}
+      python -u {{ proc.slugs_path }}/gencloud-20131109/mappability.py "${GENOME_NAME}.fasta" "{{ gff.gff.file }}" {{length}}
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       str="{\"proc.progress\":1"
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab ]
       then
-        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab" --tab-coverage-col 4 --gff3 "{{ gff.output.gff.file }}" > tmp.bedgraph
+        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab" --tab-coverage-col 4 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
         {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta"
         cat "${GENOME_NAME}.fasta.fai" | cut -f -2 > chrom.sizes
         {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${GENOME_NAME}_mappability_{{length}}.tab.bw"

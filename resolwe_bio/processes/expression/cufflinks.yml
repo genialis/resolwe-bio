@@ -87,7 +87,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Cufflinks analysis ({{ alignment.output.bam.file|basename|default:'?' }})"
+      default: "Cufflinks analysis ({{ alignment.bam.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -116,16 +116,16 @@
 
       {% if genome %}
 
-        GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
 
       {% endif %}
 
-      NAME=`basename '{{ alignment.output.bam.file }}' .bam`
+      NAME=`basename '{{ alignment.bam.file }}' .bam`
 
       echo "{\"proc.progress\":0.1}"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cufflinks {% if gff %} '{{ annotation_usage }}' {% if gff.output.gtf.file %} "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} "{{ gff.output.gff.file }}" {% endif %} {% endif %} {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M '{{ mask_file.output.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet '{{ alignment.output.bam.file }}'
+      {{proc.slugs_path}}/cufflinks-2.2.1/cufflinks {% if gff %} '{{ annotation_usage }}' {% if gff.gtf.file %} "{{ gff.gtf.file }}" {% elif gff.gff.file %} "{{ gff.gff.file }}" {% endif %} {% endif %} {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M '{{ mask_file.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet '{{ alignment.bam.file }}'
 
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
 

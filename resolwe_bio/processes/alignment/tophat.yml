@@ -114,7 +114,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -132,7 +132,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes
@@ -140,38 +140,38 @@
   run:
     runtime: polyglot
     bash: |
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       echo "Searching for index"
-      INDEX_NAME=`basename '{{ genome.output.index_bt2.file }}' .tar.gz`
-      if [ {{ genome.output.index_bt2.file }} ]; then
+      INDEX_NAME=`basename '{{ genome.index_bt2.file }}' .tar.gz`
+      if [ {{ genome.index_bt2.file }} ]; then
         echo "Genome index found, uncompressing it"
-        tar -zxvf {{ genome.output.index_bt2.file }}
+        tar -zxvf {{ genome.index_bt2.file }}
         mv ./bowtie2_index/* .
       else
         echo "index not found, UNCOMPRESSING genome:"
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
         echo "{\"proc.progress\":0.1}"
         echo "BUILDING genome index:"
         {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
       fi
 
       echo "Preparing genome fasta sequence to be used by TopHat"
-      gzip -cd "{{ genome.output.fasta.file }}" > "${GENOME_NAME}_index.fa"
+      gzip -cd "{{ genome.fasta.file }}" > "${GENOME_NAME}_index.fa"
 
       echo "{\"proc.progress\":0.2}"
 
       export PATH=$PATH:{{ proc.slugs_path }}/bowtie2-2.2.3
       echo "ALIGNING with TopHat:"
 
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}'
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}'
 
       {% else %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.output.gtf.file %} --GTF "{{ gff.output.gtf.file }}" {% elif gff.output.gff.file %} --GTF "{{ gff.output.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.output.fastq.file }}' '{{ reads.output.fastq2.file }}'
+        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}' '{{ reads.fastq2.file }}'
 
       {% endif %}
 

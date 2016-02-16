@@ -62,7 +62,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Gene expressions ({{ alignment.output.bam.file|basename|default:'?' }})"
+      default: "Gene expressions ({{ alignment.bam.file|basename|default:'?' }})"
     - name: alias
       label: Alias
       type: basic:string
@@ -84,7 +84,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of {{ alignment.output.bam.file|basename|default:'?' }} gene expression."
+      default: "Description of {{ alignment.bam.file|basename|default:'?' }} gene expression."
   var:
     - name: notes
       label: Notes

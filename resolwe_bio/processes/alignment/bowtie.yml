@@ -118,7 +118,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -136,7 +136,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes
@@ -145,18 +145,18 @@
     runtime: polyglot
     bash: |
       echo "UNCOMPRESSING genome:"
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      echo {{ genome.output.fasta.file }}
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      echo {{ genome.fasta.file }}
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1}"
 
-      if [ {{ genome.output.index_bt.file }} ]; then
+      if [ {{ genome.index_bt.file }} ]; then
         echo "Genome index found, uncompressing it"
-        tar -zxvf {{ genome.output.index_bt.file }}
+        tar -zxvf {{ genome.index_bt.file }}
         mv ./bowtie_index/* .
       else
         echo "index not found, UNCOMPRESSING genome:"
-        gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
         echo "{\"proc.progress\":0.1}"
         echo "BUILDING genome index:"
         {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
@@ -164,8 +164,8 @@
       echo "{\"proc.progress\":0.2}"
 
       echo "UNCOMPRESSING reads:"
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
       echo "{\"proc.progress\":0.3}"
 
       #quals detection
@@ -181,8 +181,8 @@
       echo "ALIGNING with bowtie:"
       {% if reads|type|subtype:'data:reads:fastq:single:' or use_SE %}
         {% if use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
-          NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-          gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+          NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+          gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
           cat "${NAME2}.fastq" >> "${NAME}.fastq"
         {% endif %}
         {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam" 2>"${NAME}_align_unsorted.stats"
@@ -199,8 +199,8 @@
           mv "${NAME}_unmapped1.fq" "${NAME}_unmapped.fastq" && gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
         {% endif %}
       {% else %}
-        NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-        gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+        NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+        gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
         echo "{\"proc.progress\":0.4}"
         {{ proc.slugs_path }}/bowtie-1.0.0/bowtie $encoding --un "${NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" -1 "${NAME}.fastq" -2 "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam" 2>"${NAME}_align_unsorted.stats"
 
@@ -401,7 +401,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -419,7 +419,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes

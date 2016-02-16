@@ -74,5 +74,5 @@
     runtime: polyglot
     bash: |
       . {{proc.slugs_path}}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/genehcluster.py {% for e in etcs %}"{{e.output.etcfile.file}}" {% endfor %}-e {% for e in etcs %}"{{e|id}}" {% endfor %}{% if genes %}-g {{genes|join:" "}}{% endif %} -l {{linkage}} -d {{distance}}
+      python -u {{ proc.slugs_path }}/gencloud-20131109/genehcluster.py {% for e in etcs %}"{{e.etcfile.file}}" {% endfor %}-e {% for e in etcs %}"{{e|id}}" {% endfor %}{% if genes %}-g {{genes|join:" "}}{% endif %} -l {{linkage}} -d {{distance}}
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"

@@ -59,15 +59,15 @@
     bash: |
       re-require common
 
-      EXPSET_TYPE="{{ exps.0.output.exp_type }}"
+      EXPSET_TYPE="{{ exps.0.exp_type }}"
 
       {% for e in exps %}
-        {% if exps.0.output.exp_type != e.output.exp_type %}
+        {% if exps.0.exp_type != e.exp_type %}
           re-error "Expressions must be of the same expression type"
         {% endif %}
       {% endfor %}
 
-      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.output.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
+      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
       re-checkrc
       re-save expset_type "$EXPSET_TYPE"
       re-save-file expset sample.tab

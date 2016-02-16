@@ -47,7 +47,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Variants annotation ({{ variants.output.vcf.file|basename|default:'?' }})"
+      default: "Variants annotation ({{ variants.vcf.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -65,7 +65,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of variants annotation ({{ variants.output.vcf.file|basename|default:'?' }})."
+      default: "Description of variants annotation ({{ variants.vcf.file|basename|default:'?' }})."
   var:
     - name: notes
       label: Notes
@@ -73,12 +73,12 @@
   run:
     runtime: polyglot
     bash: |
-      VARIANTS=`basename '{{variants.output.vcf.file}}' .vcf`
+      VARIANTS=`basename '{{variants.vcf.file}}' .vcf`
       SUMMARY="${VARIANTS}_summary_annotation.txt"
       OUTPUT="${VARIANTS}_annotationX.tsv"
 
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
       # indexing
@@ -88,7 +88,7 @@
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
 
       # filtering
-      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T VariantFiltration -V '{{variants.output.vcf.file}}' -o '${VARIANTS}_filtered.vcf' -R '${GENOME_NAME}.fasta' --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'\"" > temp.sh
+      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T VariantFiltration -V '{{variants.vcf.file}}' -o '${VARIANTS}_filtered.vcf' -R '${GENOME_NAME}.fasta' --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'\"" > temp.sh
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
       echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T SelectVariants --variant '${VARIANTS}_filtered.vcf' -o '${VARIANTS}_selected.vcf' -R '${GENOME_NAME}.fasta' -ef\"" > temp.sh
@@ -96,7 +96,7 @@
       echo "{\"proc.progress\":0.25,\"proc.rc\":$?}"
 
       # annotation
-      perl "{{ proc.slugs_path }}/SNPdat-1.0.5/SNPdat_v1.0.5.pl" -i "${VARIANTS}_selected.vcf" -g "{{gtf.output.gtf.file}}" -f "${GENOME_NAME}.fasta" -o "${OUTPUT}" -s "${SUMMARY}"
+      perl "{{ proc.slugs_path }}/SNPdat-1.0.5/SNPdat_v1.0.5.pl" -i "${VARIANTS}_selected.vcf" -g "{{gtf.gtf.file}}" -f "${GENOME_NAME}.fasta" -o "${OUTPUT}" -s "${SUMMARY}"
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
       python -u "{{ proc.slugs_path }}/gencloud-20131109/VCF_ad_extract.py" "${VARIANTS}_selected.vcf" "${OUTPUT}" > "ad_column.txt"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"

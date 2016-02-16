@@ -102,7 +102,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -120,7 +120,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes
@@ -129,14 +129,14 @@
     runtime: polyglot
     bash: |
       echo "UNCOMPRESSING genome:"
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      echo {{ genome.output.fasta.file }}
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      echo {{ genome.fasta.file }}
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1}"
 
-      if [ {{ genome.output.index_bwa.file }} ]; then
+      if [ {{ genome.index_bwa.file }} ]; then
         echo "Genome index found, uncompressing it:"
-        tar -zxvf {{ genome.output.index_bwa.file }}
+        tar -zxvf {{ genome.index_bwa.file }}
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
@@ -145,8 +145,8 @@
       echo "{\"proc.progress\":0.2}"
 
       echo "UNCOMPRESSING reads:"
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-MEM:"
@@ -154,8 +154,8 @@
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
-      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
       {% endif %}
@@ -236,7 +236,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -254,7 +254,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes
@@ -263,14 +263,14 @@
     runtime: polyglot
     bash: |
       echo "UNCOMPRESSING genome:"
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      echo {{ genome.output.fasta.file }}
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      echo {{ genome.fasta.file }}
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1}"
 
-      if [ {{ genome.output.index_bwa.file }} ]; then
+      if [ {{ genome.index_bwa.file }} ]; then
         echo "Genome index found, uncompressing it:"
-        tar -zxvf {{ genome.output.index_bwa.file }}
+        tar -zxvf {{ genome.index_bwa.file }}
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
@@ -279,8 +279,8 @@
       echo "{\"proc.progress\":0.2}"
 
       echo "UNCOMPRESSING reads:"
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
       echo "{\"proc.progress\":0.3}"
 
       echo "ALIGNING with BWA-SW:"
@@ -289,8 +289,8 @@
 
       {% else %}
 
-      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
       {% endif %}
@@ -386,7 +386,7 @@
     - name: name
       label: Name
       type: basic:string
-      default: "Read alignment ({{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }})"
+      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
     - name: cite
       label: Citation
       type: list:basic:url:link
@@ -404,7 +404,7 @@
     - name: description
       label: Description
       type: basic:text
-      default: "Description of aligning reads from {{ reads.output.fastq.file|basename|default:'?' }} to {{ genome.output.fasta.file|basename|default:'?' }} genome."
+      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
   var:
     - name: notes
       label: Notes
@@ -413,14 +413,14 @@
     runtime: polyglot
     bash: |
       echo "UNCOMPRESSING genome:"
-      GENOME_NAME=`basename '{{ genome.output.fasta.file }}' .fasta.gz`
-      echo {{ genome.output.fasta.file }}
-      gzip -cd {{ genome.output.fasta.file }} > "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      echo {{ genome.fasta.file }}
+      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1}"
 
-      if [ {{ genome.output.index_bwa.file }} ]; then
+      if [ {{ genome.index_bwa.file }} ]; then
         echo "Genome index found, uncompressing it:"
-        tar -zxvf {{ genome.output.index_bwa.file }}
+        tar -zxvf {{ genome.index_bwa.file }}
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
@@ -429,8 +429,8 @@
       echo "{\"proc.progress\":0.2}"
 
       echo "UNCOMPRESSING reads:"
-      NAME=`basename '{{ reads.output.fastq.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq.file }} > "${NAME}.fastq"
+      NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq.file }} > "${NAME}.fastq"
       echo "{\"proc.progress\":0.3}"
 
       #quals detection
@@ -447,8 +447,8 @@
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
 
       {% else %}
-      NAME2=`basename '{{ reads.output.fastq2.file }}' .fastq.gz`
-      gzip -cd {{ reads.output.fastq2.file }} > "${NAME2}.fastq"
+      NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
+      gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
       {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME2}.fastq" > "${NAME2}_align.sai"
