@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "DeprecationWarning: This function will be removed in near future. Use gen-import instead!"
+echo "DeprecationWarning: This function will be removed in near future. Use re-import instead!"
 
 ###############################################################################
 #                                                                             #

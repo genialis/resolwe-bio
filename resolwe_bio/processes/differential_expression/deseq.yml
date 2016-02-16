@@ -102,7 +102,7 @@
 
       re-progress 0.95
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_deseq2.tab'
+      volcanoplot.py 'diffexp_deseq2.tab'
 
       gzip 'diffexp_deseq2.tab'
       mv Rplots.pdf DESeq2_MAplot.pdf

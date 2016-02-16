@@ -1,3 +1,4 @@
+#!/usr/bin/Rscript
 #### user inputs
 #1. data
 #2. replicate structure (which experiments in group A and which in group B)

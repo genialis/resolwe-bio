@@ -76,7 +76,7 @@
 
       mkdir db
       mv "${NAME}.hmm" db/
-      {{ proc.slugs_path }}/hmmer-3.1b1/binaries/hmmpress ./db/"${NAME}.hmm"
+      hmmpress ./db/"${NAME}.hmm"
 
       echo "database representation file" > ${NAME}
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?,\"database\":{\"file\":\"${NAME}\",\"refs\":[\"db\"]}, \"hmmerdb\":\"${NAME}.hmm\"}"

@@ -50,11 +50,11 @@
       NAME='{{bam.bam.file}}'
       BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      samtools idxstats "${NAME}" | cut -f -2 | head -n -1 > chrom.sizes
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
-      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
+      genomeCoverageBed -bg -ibam "${NAME}" -g chrom.sizes > tmp.bedgraph
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
-      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${BIGWIGOUT}.bw"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
       rm chrom.sizes && rm tmp.bedgraph
       echo "{\"bigwig\":{\"file\":\"${BIGWIGOUT}.bw\"}}"

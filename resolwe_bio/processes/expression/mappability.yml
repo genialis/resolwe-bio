@@ -66,20 +66,19 @@
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       echo "BUILDING genome index..."
-      {{ proc.slugs_path }}/bowtie-1.0.0/bowtie-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+      bowtie-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/mappability.py "${GENOME_NAME}.fasta" "{{ gff.gff.file }}" {{length}}
+      mappability.py "${GENOME_NAME}.fasta" "{{ gff.gff.file }}" {{length}}
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       str="{\"proc.progress\":1"
       if [ -f {{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab ]
       then
-        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab" --tab-coverage-col 4 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta"
+        xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${GENOME_NAME}_mappability_{{length}}.tab" --tab-coverage-col 4 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        samtools faidx "${GENOME_NAME}.fasta"
         cat "${GENOME_NAME}.fasta.fai" | cut -f -2 > chrom.sizes
-        {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${GENOME_NAME}_mappability_{{length}}.tab.bw"
+        bedGraphToBigWig tmp.bedgraph chrom.sizes "${GENOME_NAME}_mappability_{{length}}.tab.bw"
         rm tmp.bedgraph
 
         str=$str",\"mappability\":{\"file\":\"${GENOME_NAME}_mappability_{{length}}.tab\",\"refs\":[\"${GENOME_NAME}_mappability_{{length}}.tab.bw\"]}"

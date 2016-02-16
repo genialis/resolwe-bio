@@ -56,6 +56,6 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" 0.8
-      {{proc.slugs_path}}/gotea/preprocessor obo "${NAME}.obo" obo_obj
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "obo" "obo" 0.8
+      preprocessor obo "${NAME}.obo" obo_obj
       echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"

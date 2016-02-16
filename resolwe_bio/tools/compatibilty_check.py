@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # pylint: disable=invalid-name
 import argparse
 from Bio import SeqIO

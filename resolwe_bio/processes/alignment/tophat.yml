@@ -152,7 +152,7 @@
         gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
         echo "{\"proc.progress\":0.1}"
         echo "BUILDING genome index:"
-        {{ proc.slugs_path }}/bowtie2-2.2.3/bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
+        bowtie2-build "${GENOME_NAME}.fasta" "${GENOME_NAME}_index"
       fi
 
       echo "Preparing genome fasta sequence to be used by TopHat"
@@ -160,18 +160,17 @@
 
       echo "{\"proc.progress\":0.2}"
 
-      export PATH=$PATH:{{ proc.slugs_path }}/bowtie2-2.2.3
       echo "ALIGNING with TopHat:"
 
       NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}'
+        tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}'
 
       {% else %}
 
-        {{proc.slugs_path}}/tophat-2.0.13/tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}' '{{ reads.fastq2.file }}'
+        tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} "${GENOME_NAME}_index" '{{ reads.fastq.file }}' '{{ reads.fastq2.file }}'
 
       {% endif %}
 
@@ -186,6 +185,6 @@
 
       echo "Indexing aligned reads:"
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_hits.bam" "${NAME}_hits.bam.bai"
+      samtools index "${NAME}_hits.bam" "${NAME}_hits.bam.bai"
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\":\"${NAME}_hits.bam\"}, \"bai\":{\"file\":\"${NAME}_hits.bam.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.bam\"}, \"stats\":{\"file\":\"${NAME}_align_summary.txt\"}, \"junctions\":{\"file\":\"${NAME}_junctions.bed\"}, \"deletions\":{\"file\":\"${NAME}_deletions.bed\"}, \"insertions\":{\"file\":\"${NAME}_insertions.bed\"}}"

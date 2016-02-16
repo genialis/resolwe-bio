@@ -158,8 +158,8 @@
       echo "uncompressing genome, indexing"
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta"
-      java -jar "{{ proc.slugs_path }}/picard-tools-1.118/CreateSequenceDictionary.jar" R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
+      samtools faidx "${GENOME_NAME}.fasta"
+      picard CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
       echo "bam files processing"
@@ -167,53 +167,48 @@
 
 
       echo "sorting, marking duplicates, indexing"
-      java -Xmx4g -jar {{ proc.slugs_path }}/picard-tools-1.118/MarkDuplicates.jar I="{{ mapping.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
+      picard MarkDuplicates I="{{ mapping.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
-      java -Xmx4g -jar {{ proc.slugs_path }}/picard-tools-1.118/AddOrReplaceReadGroups.jar I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID={{reads_info.ID}} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM={{reads_info.SM}} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+      picard AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID={{reads_info.ID}} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM={{reads_info.SM}} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${BAM_FILE}_indh.bam"
+      samtools index "${BAM_FILE}_indh.bam"
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
       {% if collectinsertsizemetrics %}
-        java -Xmx4g -jar {{ proc.slugs_path }}/picard-tools-1.118/CollectInsertSizeMetrics.jar I="${BAM_FILE}_indh.bam" O="${BAM_FILE}".CollectInsertSizeMetrics H="${BAM_FILE}".CollectIsertSizeMetrics.pdf VALIDATION_STRINGENCY=LENIENT
+        picard CollectInsertSizeMetrics I="${BAM_FILE}_indh.bam" O="${BAM_FILE}".CollectInsertSizeMetrics H="${BAM_FILE}".CollectIsertSizeMetrics.pdf VALIDATION_STRINGENCY=LENIENT
         echo "{\"proc.progress\":0.25,\"proc.rc\":$?,\"ism\":{\"file\":\"${BAM_FILE}.CollectIsertSizeMetrics.pdf\"}}"
       {% endif %}
 
       {% if br_and_ind_ra %}
         echo "indel realignment"
-        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}\"" > temp.sh
-        sudo unshare -n bash temp.sh
+        gatk -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
         echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
-        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T IndelRealigner -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_noncal.bam' -targetIntervals indel_interval.bed -compress 0\"" > temp.sh
-        sudo unshare -n bash temp.sh
+        gatk -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
         echo "{\"proc.progress\":0.35,\"proc.rc\":$?}"
 
         echo "Base recalibration"
-        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I '${BAM_FILE}_noncal.bam'  -R '${GENOME_NAME}.fasta' -o recal_data.table -knownSites '{{ known_sites.vcf.file }}'\"" > temp.sh
-        sudo unshare -n bash temp.sh
+        gatk -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "${GENOME_NAME}.fasta" -o recal_data.table -knownSites '{{ known_sites.vcf.file }}'
         echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
-        echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T PrintReads -I '${BAM_FILE}_noncal.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_final.bam' -BQSR recal_data.table\"" > temp.sh
-        sudo unshare -n bash temp.sh
+        gatk -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
         echo "{\"proc.progress\":0.45,\"proc.rc\":$?}"
       {% else %}
         mv "${BAM_FILE}_indh.bam" "${BAM_FILE}_final.bam"
       {% endif %}
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${BAM_FILE}_final.bam"
+      samtools index "${BAM_FILE}_final.bam"
 
       echo "variant calling"
-      echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper -I '${BAM_FILE}_final.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_GATKvariants.vcf' {% if known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60\"" > temp.sh
-      sudo unshare -n bash temp.sh
+      gatk -T UnifiedGenotyper -I "${BAM_FILE}_final.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_GATKvariants.vcf" {% if known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
 
       #echo "hard filtering"
-      #java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -V "${BAM_FILE}_haplotype.vcf" -o "${BAM_FILE}_filtered.vcf" -T VariantFiltration -R "${GENOME_NAME}.fasta" --filterName GATKstandard --filterExpression "QUAL < 30 || QD < 5.0"
-      #{{ proc.slugs_path }}/vcftools_0.1.12a/bin/vcftools --vcf "${BAM_FILE}_filtered.vcr"
+      #gatk -V "${BAM_FILE}_haplotype.vcf" -o "${BAM_FILE}_filtered.vcf" -T VariantFiltration -R "${GENOME_NAME}.fasta" --filterName GATKstandard --filterExpression "QUAL < 30 || QD < 5.0"
+      #vcftools --vcf "${BAM_FILE}_filtered.vcr"
       #mv "${BAM_FILE}_filtered.vcr" "${BAM_FILE}_GATKvariants.vcf"
 
-      {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${BAM_FILE}_GATKvariants.vcf" > "${BAM_FILE}_GATKvariants.vcf.bgz"
+      bgzip -c "${BAM_FILE}_GATKvariants.vcf" > "${BAM_FILE}_GATKvariants.vcf.bgz"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
-      {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${BAM_FILE}_GATKvariants.vcf.bgz"
+      tabix -p vcf "${BAM_FILE}_GATKvariants.vcf.bgz"
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_GATKvariants.vcf\", \"refs\":[\"${BAM_FILE}_GATKvariants.vcf.bgz\",\"${BAM_FILE}_GATKvariants.vcf.bgz.tbi\"] }}"

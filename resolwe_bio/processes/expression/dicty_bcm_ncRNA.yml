@@ -86,19 +86,18 @@
     bash: |
 
       function compute_coverage {
-        python -u {{ proc.slugs_path }}/gencloud-20131109/xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
-        {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
+        xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
         rm tmp.bedgraph
       }
 
       echo "XEXPRESSION..."
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --ncrna {% if stranded %} --stranded {% endif %}
+      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --ncrna {% if stranded %} --stranded {% endif %}
       # re-checkrc "Expression analysis failed"
       # re-progress 0.5
       echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+      samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
       # re-checkrc
       echo "{\"proc.rc\":$?}"
 
@@ -120,7 +119,7 @@
       then
         compute_coverage "expression_rpkum.tab.gz"
         # re-checkrc "Computing coverage failed"
-        python -u {{ proc.slugs_path }}/gencloud-20131109/expression2storage.py "expression_rpkum.tab.gz"
+        expression2storage.py "expression_rpkum.tab.gz"
         # re-checkrc "Saving to JSON storage failed"
         # re-save-file exp expression_rpkum.tab.gz expression_rpkum.tab.gz.bw
         echo "{\"proc.rc\":$?, \"exp\":{\"file\":\"expression_rpkum.tab.gz\", \"refs\":[\"expression_rpkum.tab.gz.bw\"]}}"

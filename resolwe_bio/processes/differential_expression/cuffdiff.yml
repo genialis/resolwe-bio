@@ -158,8 +158,6 @@
   run:
     runtime: polyglot
     bash: |
-      export PATH=$PATH:{{ proc.slugs_path }}/cufflinks-2.2.1
-
       experiment=""
       labels=""
       replicates=""
@@ -181,7 +179,7 @@
       experiment=${experiment%?}
       replicates=${replicates%?}
 
-      experiments=`python -u {{ proc.slugs_path }}/gencloud-20131109/cufflinks_sample_groups.py ${experiment} ${replicates}`
+      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}`
 
       {% if genome %}
 
@@ -192,7 +190,7 @@
 
       echo "{\"proc.progress\":0.1}"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.merged_gtf.file }}' ${experiments}
+      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.merged_gtf.file }}' ${experiments}
 
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 

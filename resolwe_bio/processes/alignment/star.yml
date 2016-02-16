@@ -348,7 +348,6 @@
   run:
     runtime: polyglot
     bash: |
-
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       gzip -dc {{ genome.fasta.file }} > genome.fasta
       re-progress 0.1

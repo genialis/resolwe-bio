@@ -102,8 +102,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
       echo "Reads processing"
       NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
       re-progress 0.1

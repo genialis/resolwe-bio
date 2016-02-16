@@ -53,20 +53,19 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1
 
       echo "Generating GFF3 file..."
 
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/xrmsk.py --rmsk "${NAME}.out" > "${NAME}.gff"
+      xrmsk.py --rmsk "${NAME}.out" > "${NAME}.gff"
       echo "{\"proc.progress\":0.5}"
 
       echo "Preparing GFF3 for JBrowse..."
-      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
       rm trackList.json tracks.conf
       echo "{\"proc.progress\":0.9}"
 
-      {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
+      gt gff3validator ${NAME}.gff
       rm "${NAME}.out"
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\", \"refs\": [\"tracks/gff-track\"]}}"
 

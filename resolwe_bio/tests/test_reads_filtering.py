@@ -66,7 +66,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             'reads': reads.pk,
             'database_selection': ['rfam-5.8s-database-id98.fasta'],
             'options': {'threads': 2, 'sam': True}}
-
         filtered_reads = self.run_processor('filtering:sortmerna-2.0-single-end', inputs)
         self.assertFiles(filtered_reads, 'fastq', 'reads_wo_rRNA_single.fastq.gz', compression='gzip')
         self.assertFiles(filtered_reads, 'fastq_rRNA', 'reads_rRNA_single.fastq.gz', compression='gzip')

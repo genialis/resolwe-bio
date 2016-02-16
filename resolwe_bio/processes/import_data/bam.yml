@@ -56,9 +56,9 @@
   run:
     runtime: polyglot
     bash: |
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
 
-        {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam" 2> stderr.txt
+        samtools index "${NAME}.bam" 2> stderr.txt
         indexrc=$?
 
         grep -Fq 'fail to index' stderr.txt
@@ -71,12 +71,12 @@
         # Position sort and re-index if indexing failed
         if [ $indexerr -eq 0 ] || [ $indexrc -ne 0 ]; then
             echo "SORTING input BAM file per coordinate:"
-            {{ proc.slugs_path }}/samtools-0.1.19/samtools sort "${NAME}.bam" "${NAME}_aligned" >&2
+            samtools sort "${NAME}.bam" "${NAME}_aligned" >&2
             echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
             mv "${NAME}_aligned.bam" "${NAME}.bam"
             echo "{\"proc.rc\":$?}"
             echo "INDEXING input BAM file"
-            {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}.bam"
+            samtools index "${NAME}.bam"
             echo "{\"proc.rc\":$?}"
         fi
 
@@ -142,10 +142,10 @@
   run:
     runtime: polyglot
     bash: |
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
         BAM_NAME=${NAME}.bam
 
-        . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
+        re-import "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
         BAI_NAME=${NAME}.bai
 
         if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then

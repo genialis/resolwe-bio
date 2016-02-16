@@ -180,7 +180,7 @@
       samtools faidx "${GENOME_NAME}.fasta"
       re-checkrc
 
-      java -jar "{{ proc.slugs_path }}/picard-tools-1.118/CreateSequenceDictionary.jar" R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
+      picard CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
       re-checkrc
       re-progress 0.05
 
@@ -191,10 +191,10 @@
         BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
 
         echo "sorting, marking duplicates, indexing"
-        java -Xmx4g -jar {{ proc.slugs_path }}/picard-tools-1.118/MarkDuplicates.jar I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
+        picard MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
         re-checkrc
 
-        java -Xmx4g -jar {{ proc.slugs_path }}/picard-tools-1.118/AddOrReplaceReadGroups.jar I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+        picard AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
         re-checkrc
 
         samtools index "${BAM_FILE}_indh.bam"
@@ -208,21 +208,17 @@
         {% for bam in mapping %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
           echo "indel realignment"
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T RealignerTargetCreator -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}\"" > temp.sh
-          sudo unshare -n bash temp.sh
+          gatk -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
           re-checkrc
 
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T IndelRealigner -I '${BAM_FILE}_indh.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_noncal.bam' -targetIntervals indel_interval.bed -compress 0\"" > temp.sh
-          sudo unshare -n bash temp.sh
+          gatk -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
           re-checkrc
 
           echo "Base recalibration"
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T BaseRecalibrator -I '${BAM_FILE}_noncal.bam'  -R '${GENOME_NAME}.fasta' -o recal_data.table -knownSites '{{ known_sites.vcf.file }}'\"" > temp.sh
-          sudo unshare -n bash temp.sh
+          gatk -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "${GENOME_NAME}.fasta" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
           re-checkrc
 
-          echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T PrintReads -I '${BAM_FILE}_noncal.bam' -R '${GENOME_NAME}.fasta' -o '${BAM_FILE}_final.bam' -BQSR recal_data.table\"" > temp.sh
-          sudo unshare -n bash temp.sh
+          gatk -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
           re-checkrc
         {% endfor %}
         re-progress 0.40
@@ -240,8 +236,7 @@
       {% endfor %}
 
       echo "variant calling"
-      echo "su $(whoami) -s /bin/bash -c \"java -Xmx4g -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T UnifiedGenotyper ${SAMPLES} -R '${GENOME_NAME}.fasta' -o 'GATKvariants_raw.vcf' {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60\"" > temp.sh
-      sudo unshare -n bash temp.sh
+      gatk -T UnifiedGenotyper ${SAMPLES} -R "${GENOME_NAME}.fasta" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60
       re-checkrc
       re-progress 0.8
 

@@ -245,7 +245,6 @@
   run:
     runtime: polyglot
     bash: |
-
       NAME=`basename '{{ fasta.fasta.file }}' .fasta.gz`
 
       kallisto index -i ${NAME} {% if kmer_size %} -k {{kmer_size}} {% endif %} {{fasta.fasta.file}}

@@ -111,8 +111,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}

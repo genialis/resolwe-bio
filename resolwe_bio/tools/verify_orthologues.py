@@ -1,6 +1,6 @@
+#!/usr/bin/env python
 import argparse
 import os
-import sys
 
 parser = argparse.ArgumentParser(description="Orthologues file upload verification")
 parser.add_argument('orthologues', help="Orthologues file")

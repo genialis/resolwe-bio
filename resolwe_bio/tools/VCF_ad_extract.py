@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 import sys
 
 vcf_file = file(sys.argv[1], 'r')

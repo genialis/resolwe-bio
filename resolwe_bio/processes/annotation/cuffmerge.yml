@@ -105,7 +105,7 @@
 
       echo "Running Cuffmerge"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffmerge {% if gff.gtf.file %} --ref-gtf '{{ gff.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
+      cuffmerge {% if gff.gtf.file %} --ref-gtf '{{ gff.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence "${GENOME_NAME}.fasta" {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
 
       re-checkrc
       re-progress 0.95

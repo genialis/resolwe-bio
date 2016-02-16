@@ -59,7 +59,7 @@
       cp {{ genome.fasta.file }} "${GENOME_NAME}.fasta.gz"
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta.gz"
+      samtools faidx "${GENOME_NAME}.fasta.gz"
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       echo "bam files processing"
@@ -67,25 +67,25 @@
       echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
 
       echo "removing duplicates"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_nodupli.bam"
+      samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_nodupli.bam"
       echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
 
       echo "creating VCF file"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools mpileup -u -f "${GENOME_NAME}.fasta.gz" "${BAM_FILE}_nodupli.bam" > "${BAM_FILE}_raw.bcf";
+      samtools mpileup -u -f "${GENOME_NAME}.fasta.gz" "${BAM_FILE}_nodupli.bam" > "${BAM_FILE}_raw.bcf";
       echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
 
       echo "calling variants"
-      {{ proc.slugs_path }}/samtools-0.1.19/bcftools view -bvcg "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf";
+      bcftools view -bvcg "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf";
       echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
 
       echo "filtering variants"
-      {{ proc.slugs_path }}/samtools-0.1.19/bcftools view "${BAM_FILE}_calls.bcf" | {{ proc.slugs_path }}/samtools-0.1.19/vcfutils.pl varFilter - > "${BAM_FILE}_samtoolscalls.vcf"
+      bcftools view "${BAM_FILE}_calls.bcf" | vcfutils.pl varFilter - > "${BAM_FILE}_samtoolscalls.vcf"
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
 
-      {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${BAM_FILE}_samtoolscalls.vcf" > "${BAM_FILE}_samtoolscalls.vcf.bgz"
+      bgzip -c "${BAM_FILE}_samtoolscalls.vcf" > "${BAM_FILE}_samtoolscalls.vcf.bgz"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
 
-      {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${BAM_FILE}_samtoolscalls.vcf.bgz"
+      tabix -p vcf "${BAM_FILE}_samtoolscalls.vcf.bgz"
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_samtoolscalls.vcf\",\"refs\":[\"${BAM_FILE}_samtoolscalls.vcf.bgz\",\"${BAM_FILE}_samtoolscalls.vcf.bgz.tbi\"]}}"

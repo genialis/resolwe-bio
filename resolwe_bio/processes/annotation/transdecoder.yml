@@ -88,43 +88,43 @@
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
       echo "Convert cuffmerge_annotation.gtf file to .gff3 file format"
-      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cufflinks_gtf_to_alignment_gff3.pl cuffmerge_annotation.gtf > cuffmerge_annotation.gff3
+      cufflinks_gtf_to_alignment_gff3.pl cuffmerge_annotation.gtf > cuffmerge_annotation.gff3
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       echo "Prepare transcripts.fasta file"
       gzip -cd {{ genome.fasta.file }} > genome.fasta
 
-      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cufflinks_gtf_genome_to_cdna_fasta.pl cuffmerge_annotation.gtf genome.fasta > transcripts.fasta
+      cufflinks_gtf_genome_to_cdna_fasta.pl cuffmerge_annotation.gtf genome.fasta > transcripts.fasta
       echo "{\"proc.progress\":0.20,\"proc.rc\":$?}"
 
-      {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.LongOrfs -t transcripts.fasta
+      TransDecoder.LongOrfs -t transcripts.fasta
 
       {% if pfam %}
         DB_PATH={{ proc.data_path }}/{{ pfamDB|id }}/{{ pfamDB.database.refs.0 }}/{{ pfamDB.hmmerdb }}
-        {{proc.slugs_path}}/hmmer-3.1b1/binaries/hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
-        {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
+        hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
+        TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
       {% else %}
-        {{proc.slugs_path}}/TransDecoder-2.0.1/TransDecoder.Predict -t transcripts.fasta
+        TransDecoder.Predict -t transcripts.fasta
       {% endif %}
 
       echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
 
       echo "Prepare genome aligned .gff3 annotation file"
       ## Does not procude a valid gff3 file!!
-      {{proc.slugs_path}}/TransDecoder-2.0.1/util/cdna_alignment_orf_to_genome_orf.pl transcripts.fasta.transdecoder.gff3 cuffmerge_annotation.gff3 transcripts.fasta > temp.gff
+      cdna_alignment_orf_to_genome_orf.pl transcripts.fasta.transdecoder.gff3 cuffmerge_annotation.gff3 transcripts.fasta > temp.gff
 
       echo "Prepare and validate .gff and .bed tracks"
-      {{ proc.slugs_path }}//genometools-1.5.3/bin/gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o transdecoder_annotation.gff temp.gff
+      gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o transdecoder_annotation.gff temp.gff
 
-      {{ proc.slugs_path }}//genometools-1.5.3/bin/gt gff3validator transdecoder_annotation.gff
+      gt gff3validator transdecoder_annotation.gff
 
-      {{proc.slugs_path}}/TransDecoder-2.0.1/util/gff3_file_to_bed.pl transdecoder_annotation.gff > transdecoder_annotation.bed
+      gff3_file_to_bed.pl transdecoder_annotation.gff > transdecoder_annotation.bed
 
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       echo "Prepare .gff and .bed tracks for JBrowse"
-      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff transdecoder_annotation.gff --out . --trackLabel "gff-track"
+      flatfile-to-json.pl --gff transdecoder_annotation.gff --out . --trackLabel "gff-track"
 
-      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --bed transdecoder_annotation.bed --out . --trackLabel "bed-track"
+      flatfile-to-json.pl --bed transdecoder_annotation.bed --out . --trackLabel "bed-track"
 
       echo "{\"proc.progress\":1,\"proc.rc\":$?,\"gff\":{\"file\":\"transdecoder_annotation.gff\",\"refs\":[\"tracks/gff-track\"]}, \"bed\":{\"file\":\"transdecoder_annotation.bed\",\"refs\":[\"tracks/bed-track\"]}}"

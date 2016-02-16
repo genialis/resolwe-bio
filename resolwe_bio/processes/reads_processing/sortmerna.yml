@@ -265,9 +265,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
-
       database=""
 
       {% for d in database_selection %}
@@ -326,7 +323,6 @@
 
       BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
       NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
-
 
       re-save-file fastq ${NAME1}.fastq.gz
       re-save-file fastq2 ${NAME2}.fastq.gz

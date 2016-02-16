@@ -140,7 +140,7 @@
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
-        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+        bwa index "${GENOME_NAME}.fasta"
       fi
       echo "{\"proc.progress\":0.2}"
 
@@ -151,36 +151,36 @@
 
       echo "ALIGNING with BWA-MEM:"
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+      bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
       NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
       gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
       {% endif %}
       echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
       echo "COMPRESSING sam to sorted bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}_align"
       echo "{\"proc.progress\":0.6}"
 
       echo -e "\nINDEXING bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
       [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
 
       echo "Calculating statistics"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
       echo "{\"proc.progress\":0.75}"
 
       echo "Creating unmapped fastq file"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
-      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
       echo "Computing BigWig file:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
-      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
-      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
       rm chrom.sizes && rm tmp.bedgraph
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
@@ -274,7 +274,7 @@
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
-        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+        bwa index "${GENOME_NAME}.fasta"
       fi
       echo "{\"proc.progress\":0.2}"
 
@@ -285,38 +285,38 @@
 
       echo "ALIGNING with BWA-SW:"
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
+      bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" 1>"${NAME}_align_unsorted.sam"
 
       {% else %}
 
       NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
       gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
+      bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} "${GENOME_NAME}.fasta" "${NAME}.fastq" "${NAME2}.fastq" 1>"${NAME}_align_unsorted.sam"
       {% endif %}
 
       echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
       echo "COMPRESSING sam to sorted bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}_align"
       echo "{\"proc.progress\":0.6}"
 
       echo -e "\nINDEXING bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
       [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
 
       echo "Calculating statistics"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
       echo "{\"proc.progress\":0.75}"
 
       echo "Creating unmapped fastq file"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
-      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
       echo "Computing BigWig file:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
-      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
-      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
       rm chrom.sizes && rm tmp.bedgraph
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
@@ -424,7 +424,7 @@
         mv ./BWA_index/* .
       else
         echo "index not found, beginning indexing:"
-        {{proc.slugs_path}}/bwa-0.7.5a/bwa index "${GENOME_NAME}.fasta"
+        bwa index "${GENOME_NAME}.fasta"
       fi
       echo "{\"proc.progress\":0.2}"
 
@@ -434,7 +434,7 @@
       echo "{\"proc.progress\":0.3}"
 
       #quals detection
-      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python {{ proc.slugs_path }}/gencloud-20131109/get_encoding_type.py -n 5000)
+      encoding_t=$(awk 'NR % 4 == 0' "${NAME}.fastq" | python get_encoding_type.py -n 5000)
       if [ "$encoding_t" = "Illumina_old" ]; then
         encoding=-I
       else
@@ -443,40 +443,40 @@
 
       echo "ALIGNING with BWA-ALN:"
       {% if reads|type|subtype:'data:reads:fastq:single:' %}
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
+      bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      bwa samse "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME}.fastq" > "${NAME}_align_unsorted.sam"
 
       {% else %}
       NAME2=`basename '{{ reads.fastq2.file }}' .fastq.gz`
       gzip -cd {{ reads.fastq2.file }} > "${NAME2}.fastq"
       echo "{\"proc.progress\":0.4}"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME2}.fastq" > "${NAME2}_align.sai"
-      {{ proc.slugs_path }}/bwa-0.7.5a/bwa sampe "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME2}_align.sai" "${NAME}.fastq" "${NAME2}.fastq" > "${NAME}_align_unsorted.sam"
+      bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME}.fastq" > "${NAME}_align.sai"
+      bwa aln $encoding {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} "${GENOME_NAME}.fasta" "${NAME2}.fastq" > "${NAME2}_align.sai"
+      bwa sampe "${GENOME_NAME}.fasta" "${NAME}_align.sai" "${NAME2}_align.sai" "${NAME}.fastq" "${NAME2}.fastq" > "${NAME}_align_unsorted.sam"
       {% endif %}
       echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
 
       echo "COMPRESSING sam to sorted bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -bS "${NAME}_align_unsorted.sam" | {{ proc.slugs_path }}/samtools-0.1.19/samtools sort - "${NAME}_align"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}_align"
       echo "{\"proc.progress\":0.6}"
 
       echo -e "\nINDEXING bam:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
+      samtools index "${NAME}_align.bam" "${NAME}_align.bam.bai"
       [ -f "${NAME}_align.bam" ] && OUTPUT_NAME="${NAME}_align.bam"
 
       echo "Calculating statistics"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
+      samtools flagstat "${NAME}_align.bam" > "${NAME}_report.txt"
       echo "{\"proc.progress\":0.75}"
 
       echo "Creating unmapped fastq file"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
-      {{ proc.slugs_path }}/bedtools-2.17.0/bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
+      samtools view -u  -f 4 -F 264 "${NAME}_align.bam" > "${NAME}_unmapped.bam"
+      bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
       echo "Computing BigWig file:"
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
-      {{ proc.slugs_path }}/bedtools-2.17.0/genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
-      {{ proc.slugs_path }}/kentUtils-2.9.1/bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
+      samtools idxstats "${OUTPUT_NAME}" | cut -f -2 | head -n -1 > chrom.sizes
+      genomeCoverageBed -bg -ibam "${OUTPUT_NAME}" -g chrom.sizes > tmp.bedgraph
+      bedGraphToBigWig tmp.bedgraph chrom.sizes "${OUTPUT_NAME}.bw"
       rm chrom.sizes && rm tmp.bedgraph
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"}, \"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"

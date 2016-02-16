@@ -99,7 +99,7 @@
 
       re-progress 0.95
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/volcanoplot.py 'diffexp_limma.tab'
+      volcanoplot.py 'diffexp_limma.tab'
       re-checkrc "Error computing Volcano plot."
 
       gzip 'diffexp_limma.tab'

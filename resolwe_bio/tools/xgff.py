@@ -1,3 +1,4 @@
+#!/usr/bin/env python2
 """
 All transcripts of a gene are of the same type ('mRNA' or 'tRNA' etc.)
 Each gene has a 'dictyBase Curator' transcript (among many) or (if no

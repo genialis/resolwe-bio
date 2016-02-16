@@ -47,6 +47,6 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" 0.8
-      {{proc.slugs_path}}/gotea/preprocessor gaf "${NAME}.txt" gaf_obj
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|" "txt" 0.8
+      preprocessor gaf "${NAME}.txt" gaf_obj
       echo "{\"proc.rc\":$?,\"gaf\":{\"file\":\"$NAME.txt.gz\"},\"gaf_obj\":{\"file\":\"gaf_obj\"}}"

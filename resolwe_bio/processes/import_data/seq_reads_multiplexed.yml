@@ -88,18 +88,17 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+      re-import "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
+      re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
       READS_NAME=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
+      demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
 
 - name: import:upload:multiplexed-paired-end
@@ -194,19 +193,18 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+      re-import "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
+      re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
       READS_NAME=$NAME
 
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
+      re-import "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
       READS_NAME2=$NAME
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
-      . {{ proc.slugs_path }}/venv-gencloud-0.1/bin/activate
-      python -u {{ proc.slugs_path }}/gencloud-20131109/demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22
+      demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"

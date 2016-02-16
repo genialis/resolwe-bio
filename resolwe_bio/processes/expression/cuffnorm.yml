@@ -85,8 +85,6 @@
   run:
     runtime: polyglot
     bash: |
-      export PATH=$PATH:{{ proc.slugs_path }}/cufflinks-2.2.1
-
       experiment=""
       labels=""
       replicates=""
@@ -105,15 +103,15 @@
       experiment=${experiment%?}
       replicates=${replicates%?}
 
-      experiments=`python -u {{ proc.slugs_path }}/gencloud-20131109/cufflinks_sample_groups.py ${experiment} ${replicates}`
+      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}`
 
       echo "{\"proc.progress\":0.1}"
 
-      {{proc.slugs_path}}/cufflinks-2.2.1/cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.merged_gtf.file }}' ${experiments}
+      cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.merged_gtf.file }}' ${experiments}
 
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
-      python -u {{ proc.slugs_path }}/gencloud-20131109/parse_cuffnorm.py "isoforms.fpkm_tracking"
+      parse_cuffnorm.py "isoforms.fpkm_tracking"
 
       echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
 

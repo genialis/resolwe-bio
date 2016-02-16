@@ -53,9 +53,9 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3
 
-      {{proc.slugs_path}}/tabix-0.2.6/bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
-      {{proc.slugs_path}}/tabix-0.2.6/tabix -p vcf "${NAME}.vcf.bgz"
+      bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
+      tabix -p vcf "${NAME}.vcf.bgz"
 
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?,\"vcf\":{\"file\":\"${NAME}.vcf\",\"refs\":[\"${NAME}.vcf.bgz\",\"${NAME}.vcf.bgz.tbi\"]}}"

@@ -82,23 +82,22 @@
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
 
       # indexing
-      {{ proc.slugs_path }}/samtools-0.1.19/samtools faidx "${GENOME_NAME}.fasta"
+      samtools faidx "${GENOME_NAME}.fasta"
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
-      java -jar "{{ proc.slugs_path }}/picard-tools-1.118/CreateSequenceDictionary.jar" R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
+      picard CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
       echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
 
       # filtering
-      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T VariantFiltration -V '{{variants.vcf.file}}' -o '${VARIANTS}_filtered.vcf' -R '${GENOME_NAME}.fasta' --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'\"" > temp.sh
-      sudo unshare -n bash temp.sh
+      gatk -T VariantFiltration -V "{{variants.vcf.file}}" -o "${VARIANTS}_filtered.vcf" -R "${GENOME_NAME}.fasta" --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-      echo "su $(whoami) -s /bin/bash -c \"java -jar {{ proc.slugs_path }}/GATK-3.2.2/GenomeAnalysisTK.jar -T SelectVariants --variant '${VARIANTS}_filtered.vcf' -o '${VARIANTS}_selected.vcf' -R '${GENOME_NAME}.fasta' -ef\"" > temp.sh
+      gatk -T SelectVariants --variant "${VARIANTS}_filtered.vcf" -o "${VARIANTS}_selected.vcf" -R "${GENOME_NAME}.fasta" -ef
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.25,\"proc.rc\":$?}"
 
       # annotation
-      perl "{{ proc.slugs_path }}/SNPdat-1.0.5/SNPdat_v1.0.5.pl" -i "${VARIANTS}_selected.vcf" -g "{{gtf.gtf.file}}" -f "${GENOME_NAME}.fasta" -o "${OUTPUT}" -s "${SUMMARY}"
+      SNPdat.pl -i "${VARIANTS}_selected.vcf" -g "{{gtf.gtf.file}}" -f "${GENOME_NAME}.fasta" -o "${OUTPUT}" -s "${SUMMARY}"
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
-      python -u "{{ proc.slugs_path }}/gencloud-20131109/VCF_ad_extract.py" "${VARIANTS}_selected.vcf" "${OUTPUT}" > "ad_column.txt"
+      VCF_ad_extract.py "${VARIANTS}_selected.vcf" "${OUTPUT}" > "ad_column.txt"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
       pr -mts "${OUTPUT}" "ad_column.txt" > "${VARIANTS}_annotation.tsv"
       echo "{\"proc.progress\":1,\"proc.rc\":$?,\"summary\":{\"file\": \"${SUMMARY}\"}, \"annotation\":{\"file\":\"${VARIANTS}_annotation.tsv\"}}"

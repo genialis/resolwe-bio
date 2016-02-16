@@ -53,12 +53,12 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
 
-      {{ proc.slugs_path }}/genometools-1.5.3/bin/gt gff3validator ${NAME}.gff
+      gt gff3validator ${NAME}.gff
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\"}}"
 
-      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
       echo "{\"proc.progress\":1,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\",\"refs\":[\"tracks/gff-track\"]}}"
 
       rm -f trackList.json tracks.conf
@@ -113,15 +113,16 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3
 
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
-      python -u {{ proc.slugs_path }}/gencloud-20131109/xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
+      echo ">>>>>>>>>>>>>>>"
+      xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
 
       echo "{\"proc.progress\":0.7}"
       echo "Preparing GFF3 file for JBrowse:"
-      {{ proc.slugs_path }}/jbrowse-1.11.4/bin/flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
+      flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
       rm trackList.json tracks.conf "${NAME}.tmp.gtf"
 
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gtf\":{\"file\":\"${NAME}.gtf\", \"refs\": [\"tracks/gff-track\"]}}"

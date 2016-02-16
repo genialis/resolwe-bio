@@ -66,7 +66,7 @@
         {% endif %}
       {% endfor %}
 
-      python -u {{proc.slugs_path}}/gencloud-20131109/expressionmerge.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
+      expressionmerge.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --intersection --out 'sample.tab'
       re-checkrc
       re-save expset_type "$EXPSET_TYPE"
       re-save-file expset sample.tab

@@ -45,6 +45,6 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0
-      python {{ proc.slugs_path }}/gencloud-20131109/verify_orthologues.py "${NAME}.txt"
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|gz" "txt" 1.0
+      verify_orthologues.py "${NAME}.txt"
       echo "{\"proc.rc\":$?,\"ort\":{\"file\":\"$NAME.txt.gz\"}}"

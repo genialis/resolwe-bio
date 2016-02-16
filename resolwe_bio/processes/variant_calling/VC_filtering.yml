@@ -125,7 +125,7 @@
 
       cp {{variants.vcf.file}} .
 
-      Rscript -e 'source("{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      Rscript -e 'source("R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
 

@@ -45,5 +45,5 @@
     bash: |
       wget -N -O "gene_information.txt" "http://www.dictybase.org/db/cgi-bin/dictyBase/download/download.pl?area=general&ID=gene_information.txt"
       echo "{\"src\":{\"file\":\"gene_information.txt\"},\"date\":\"`date +%Y-%m-%d`\",\"proc.progress\":0.1,\"proc.rc\":$?}"
-      python -u {{ proc.slugs_path }}/gencloud-20131109/import_geneinfo.py "{{ proc.data_path }}/{{ proc.data_id }}/gene_information.txt"
+      import_geneinfo.py gene_information.txt"
       echo "{\"proc.progress\":1,\"proc.rc\":$?}"

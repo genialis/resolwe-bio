@@ -53,5 +53,5 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab" "tab" 1.0 extract
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab" "tab" 1.0 extract
       echo "{\"mappability\":{\"file\":\"${NAME}.tab\"}}"

@@ -53,5 +53,5 @@
   run:
     runtime: polyglot
     bash: |
-      . {{proc.slugs_path}}/gencloud-20131109/import.sh "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1
       echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"
