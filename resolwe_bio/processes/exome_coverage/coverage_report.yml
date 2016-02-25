@@ -89,7 +89,6 @@
   run:
     runtime: polyglot
     bash: |
-
       garvan_coverage.py {{ filter }} '{{ mapping.bam.file }}' '{{ gtf.gtf.file }}' {% if variants %}--variants '{{ variants.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
       re-checkrc
 

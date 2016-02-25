@@ -92,12 +92,9 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if genome %}
-
         GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
         gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-
       {% endif %}
 
       NAME=`basename '{{ alignment.bam.file }}' .bam`

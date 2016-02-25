@@ -100,7 +100,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if not paired_end and not se and not unmapped %}
         re-error "No input files provided. Please use either Paired-end or Single-end input files to run Abyss."
       {% endif %}

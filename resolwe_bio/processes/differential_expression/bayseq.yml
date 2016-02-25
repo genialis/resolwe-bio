@@ -73,7 +73,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% for c in case %}
         {% if not c.rc.file %}
           echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"

@@ -69,7 +69,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if not exp and not rc %}
         re-error "Please provide raw or/and normalized expression files."
 
@@ -108,5 +107,4 @@
         re-save-file rc ${RC_NAME}.tab.gz
         expression2storage.py "${EXP_NAME}.tab.gz"
         re-checkrc
-
       {% endif %}

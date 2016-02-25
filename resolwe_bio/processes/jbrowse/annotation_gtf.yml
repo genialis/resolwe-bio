@@ -36,7 +36,6 @@
   run:
     runtime: polyglot
     bash: |
-
       flatfile-to-json.pl --gff '{{gtf.gtf.file}}' --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
       re-save-file annotation_track trackList.json tracks/annotation

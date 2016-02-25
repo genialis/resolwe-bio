@@ -185,6 +185,7 @@
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
+
 - name: alignment:bwa_sw-0.7.5a
   version: 1.0.9
   label: Aligner (BWA SW 0.7.5a)
@@ -320,6 +321,7 @@
       rm chrom.sizes && rm tmp.bedgraph
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
+
 
 - name: alignment:bwa_aln-0.7.5a
   version: 1.0.10

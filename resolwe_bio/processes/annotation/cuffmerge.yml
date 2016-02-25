@@ -78,7 +78,6 @@
   run:
     runtime: polyglot
     bash: |
-
       echo "Preparing transcript assembly list!"
 
       {% for exp in expressions %}

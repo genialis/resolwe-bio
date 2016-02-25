@@ -63,6 +63,7 @@
 
       rm -f trackList.json tracks.conf
 
+
 - name: import:upload:annotation-gtf
   version: 1.0.13
   label: Upload annotation (GTF2.2)
@@ -117,7 +118,6 @@
 
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
-      echo ">>>>>>>>>>>>>>>"
       xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
 
       echo "{\"proc.progress\":0.7}"

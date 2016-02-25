@@ -63,7 +63,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if normalize == "--normalizeTo1x" and not size %}
         re-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."
       {% endif %}

@@ -188,7 +188,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if settings.broad and settings.call_summits %}
         re-error "--broad can't be combined with --call-summits!"
       {% endif %}

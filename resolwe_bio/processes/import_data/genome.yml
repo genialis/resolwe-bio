@@ -65,7 +65,6 @@
   run:
     runtime: polyglot
     bash: |
-
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna|fsa" "fasta" 0.5
 
       # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.

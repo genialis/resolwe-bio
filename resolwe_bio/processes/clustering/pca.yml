@@ -49,7 +49,6 @@
   run:
     runtime: polyglot
     bash: |
-
       EXPSET_TYPE="{{exps.0.exp_type}}"
 
       {% for e in exps %}

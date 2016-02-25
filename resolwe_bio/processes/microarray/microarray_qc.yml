@@ -68,7 +68,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% for c in cel %}
         cp "{{c.cel.file}}" .
       {% endfor %}

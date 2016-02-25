@@ -64,7 +64,6 @@
   run:
     runtime: polyglot
     bash: |
-
       NAME='{{ src.file }}'
 
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then

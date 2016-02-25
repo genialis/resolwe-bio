@@ -78,6 +78,5 @@
   run:
     runtime: polyglot
     bash: |
-
       feature_location.py --annotation {% if annotation.gff.file %} '{{annotation.gff.file}}' {% else %} '{{annotation.gtf.file}}' {% endif %} --feature_type '{{feature_type}}' --id_type '{{id_type}}' {% if summarize_exons %} --summarize_exons {% endif %}
       re-checkrc "Parsing of annotation file failed."

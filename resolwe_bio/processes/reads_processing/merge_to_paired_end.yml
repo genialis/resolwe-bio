@@ -74,7 +74,6 @@
       #TODO carry over descriptions
       #echo "UNCOMPRESSING reads 1:"
 
-
       cp {{ reads_1.fastq.file }} .
       cp {{ reads_2.fastq.file }} .
       NAME=`basename '{{ reads_1.fastq.file }}' .fastq.gz`

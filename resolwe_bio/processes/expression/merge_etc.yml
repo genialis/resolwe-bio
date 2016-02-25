@@ -56,7 +56,6 @@
   run:
     runtime: polyglot
     bash: |
-
       mergeetc.py {% for e in exps %}"{{e.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
 
       gzip 'etc.tab'

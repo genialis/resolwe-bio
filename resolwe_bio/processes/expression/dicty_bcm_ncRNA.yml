@@ -84,7 +84,6 @@
   run:
     runtime: polyglot
     bash: |
-
       function compute_coverage {
         xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"

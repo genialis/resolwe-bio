@@ -162,7 +162,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if br_and_ind_ra and not known_sites and not known_indels %}
         re-error "Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files."
       {% endif %}

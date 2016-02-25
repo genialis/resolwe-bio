@@ -49,7 +49,6 @@
   run:
     runtime: polyglot
     bash: |
-
       closest-features --dist '{{ peaks.narrow_peaks.file }}' '{{ bed.BED.file }}' > macs2_peakscore
       re-checkrc
       re-progress 0.3
@@ -59,6 +58,7 @@
       re-progress 0.6
 
       re-save-file peak_score macs2_peakscore_genomicContext
+
 
 - name: chipseq:genescore
   version: 1.0.2
@@ -123,7 +123,6 @@
   run:
     runtime: polyglot
     bash: |
-
       peak2geneScore.R '{{peakscore.peak_score.file}}' {% if fdr %} --fdr '{{fdr}}' {% endif %} {% if pval %} --pval '{{pval}}' {% endif %} {% if logratio %} --logratio '{{logratio}}' {% endif %}
       re-checkrc "GeneScore computing failed."
 

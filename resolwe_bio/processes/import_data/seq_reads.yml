@@ -134,8 +134,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fastq|fq|bz2" "fastq" 0.5 "extract"
 
       #detect and if old Illumina encoding is found transform to new format
@@ -166,6 +164,7 @@
       re-save number $NUMBER
       re-save bases "\"$BASES\""
       re-save fastqc_url $FASTQC_URL
+
 
 - name: import:upload:reads-fastq-paired-end
   version: 1.0.17
@@ -314,7 +313,6 @@
   run:
     runtime: polyglot
     bash: |
-
       re-import "{{ src1.file_temp|default:src1.file }}" "{{ src1.file }}" "fastq|fq|bz2" "fastq" 0.3 "extract"
       NAME1=$NAME
 

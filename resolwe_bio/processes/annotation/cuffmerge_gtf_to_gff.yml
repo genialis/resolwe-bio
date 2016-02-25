@@ -54,7 +54,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if cuffmerge.merged_gtf.file %}
         ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`
         gffread -E -F -O '{{cuffmerge.merged_gtf.file}}' -o- > temp.gff

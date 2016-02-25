@@ -92,7 +92,6 @@
   run:
     runtime: polyglot
     bash: |
-
       NAME=`basename '{{ alignment.bam.file }}' .bam`
 
       function compute_coverage {

@@ -151,6 +151,7 @@
       re-save bases "\"$BASES\""
       re-save fastqc_url $FASTQC_URL
 
+
 - name: filtering:fastq-mcf-1.1.2.537:paired-end
   version: 1.0.8
   label: Filter paired-end NGS reads (Fastq-mcf)
@@ -266,8 +267,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}

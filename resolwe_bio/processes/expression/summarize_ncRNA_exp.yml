@@ -70,7 +70,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% for e in exps %}
         {% if exps.0.exp_type != e.exp_type %}
           re-error "Expressions must be of the same expression type"

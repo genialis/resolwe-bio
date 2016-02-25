@@ -113,7 +113,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if genome %}
 
         GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`

@@ -82,6 +82,7 @@
 
         echo "{\"bam\":{\"file\":\"${NAME}.bam\"},\"bai\":{\"file\":\"${NAME}.bam.bai\"}}"
 
+
 - name: import:upload:mapping-bam-indexed
   version: 1.0.6
   label: Upload BAM file and index

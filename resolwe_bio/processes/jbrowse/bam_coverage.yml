@@ -34,7 +34,6 @@
   run:
     runtime: polyglot
     bash: |
-
       NAME='{{bam.bam.file}}'
       BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
       re-checkrc

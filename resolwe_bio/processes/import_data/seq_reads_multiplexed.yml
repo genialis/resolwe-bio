@@ -101,6 +101,7 @@
       demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
 
+
 - name: import:upload:multiplexed-paired-end
   version: 1.0.13
   label: Upload paired-end multiplexed NGS reads

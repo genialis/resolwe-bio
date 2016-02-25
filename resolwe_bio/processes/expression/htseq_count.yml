@@ -121,7 +121,6 @@
   run:
     runtime: polyglot
     bash: |
-
       NAME=`basename '{{ alignments.bam.file }}' .bam`
       re-progress 0.1
 

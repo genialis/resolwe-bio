@@ -165,7 +165,6 @@
       echo "bam files processing"
       BAM_FILE=`basename '{{ mapping.bam.file }}' .bam`
 
-
       echo "sorting, marking duplicates, indexing"
       picard MarkDuplicates I="{{ mapping.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"

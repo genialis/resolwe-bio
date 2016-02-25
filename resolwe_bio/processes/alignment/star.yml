@@ -197,7 +197,6 @@
   run:
     runtime: polyglot
     bash: |
-
       GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
       READS_NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
@@ -259,6 +258,7 @@
       re-save-file bai ${READS_NAME}.bam.bai
       re-save-file sj SJ.out.tab
       re-save-file stats Log.final.txt
+
 
 - name: alignment:star:index
   version: 1.0.2

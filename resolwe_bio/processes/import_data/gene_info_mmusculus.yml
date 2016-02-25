@@ -50,7 +50,6 @@
   run:
     runtime: polyglot
     bash: |
-
       ENSEMBL_RELEASE='{{ensembl_release}}'
 
       # Download Ensembl annotation file (GTF)
@@ -86,6 +85,7 @@
       re-save-file src mm_gene_info.tab.gz
       re-save date `date +%Y-%m-%d`
       re-save ensembl_release "\"${ENSEMBL_RELEASE}\""
+
 
 - name: import:web:geneinfo:mm10
   version: 1.0.1
@@ -131,7 +131,6 @@
   run:
     runtime: polyglot
     bash: |
-
       # Download NCBI annotation file
       wget -O "ncbi_gene_info.gz" "ftp.ncbi.nlm.nih.gov/gene/DATA/GENE_INFO/Mammalia/Mus_musculus.gene_info.gz"
       re-checkrc "Could not download NCBI gene-info file."

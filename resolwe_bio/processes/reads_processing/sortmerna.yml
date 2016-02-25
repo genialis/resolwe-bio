@@ -96,8 +96,6 @@
   run:
     runtime: polyglot
     bash: |
-
-
       database=""
 
       {% for d in database_selection %}
@@ -151,7 +149,6 @@
       re-save number $NUMBER
       re-save bases "\"$BASES\""
       re-save fastqc_url $FASTQC_URL
-
 
 
 - name: filtering:sortmerna-2.0-paired-end

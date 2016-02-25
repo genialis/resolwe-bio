@@ -43,7 +43,6 @@
   run:
     runtime: polyglot
     bash: |
-
       {% if not bed.BED.file and not macs2.narrow_peaks.file %}
         re-warning "Please select only one file type (BAM file or MACS2 results file) as an input."
         re-error "Missing input files."

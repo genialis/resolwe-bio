@@ -50,7 +50,6 @@
   run:
     runtime: polyglot
     bash: |
-
       ENSEMBL_RELEASE='{{ensembl_release}}'
 
       # Download Ensembl annotation file (GTF)
