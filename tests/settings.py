@@ -122,4 +122,4 @@ FLOW_PROCESSES_FINDERS = (
     'resolwe.apps.finders.AppDirectoriesProcessesFinder',
 )
 
-FLOW_PROCESSES_DIRS = ('resolwe_bio/tests/',)
+FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
