@@ -5,7 +5,11 @@
 Resolwe Bioinformatics
 ======================
 
-Write the abstract.
+Bioinformatics pipelines for the Resolwe_ dataflow package for `Django
+framework`_.
+
+.. _Resolwe: https://github.com/genialis/resolwe
+.. _Django framework: https://www.djangoproject.com/
 
 Contents
 ========
@@ -15,15 +19,16 @@ Contents
 
    intro
    proc
+   contributing
 
 Process Catalog
 ===============
 
-Automatically import a list of processes from the YML files. Organize them in
-categories.
+TODO: Automatically import a list of processes from the YML files. Organize
+them in categories.
 
 
 Pipelines Examples
 ==================
 
-For example, the RNA-seq pipeline.
+TODO: Include pipeline examples.
