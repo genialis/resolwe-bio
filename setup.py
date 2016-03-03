@@ -34,7 +34,7 @@ if __name__ == '__main__':
         include_package_data=True,
         zip_safe=False,
         dependency_links=(
-            "git+https://github.com/genialis/resolwe.git@9d6911e5834b5d959f80ec20906813903a35c084#egg=resolwe-0.9",
+            "git+https://github.com/genialis/resolwe.git@727b5856e4ab76fd477b247477e69e42ae87fe05#egg=resolwe-0.9",
         ),
         install_requires=(
             "resolwe>=0.9",
@@ -44,6 +44,12 @@ if __name__ == '__main__':
             'package': [
                 'twine',
                 'wheel',
+            ],
+            'test': [
+                'django-jenkins>=0.17.0',
+                'coverage>=3.7.1',
+                'pep8>=1.6.2',
+                'pylint>=1.4.3',
             ],
         },
 
