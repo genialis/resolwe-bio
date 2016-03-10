@@ -13,7 +13,10 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         inputs = {'genome': genome.pk, 'mapping': aligned_reads.pk}
         samtools_variants = self.run_processor('vc-samtools', inputs)
-        self.assertFiles(samtools_variants, 'vcf', 'variant_calling_samtools.vcf')
+        # create a filtering function that will remove the samtools version from the output files
+        def filter_version(line):
+            return line.startswith(b"##samtoolsVersion")
+        self.assertFiles(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', filter=filter_version)
 
     def test_variant_calling_gatk(self):
         genome = self.prepare_genome('variant_calling_genome.fasta.gz')
