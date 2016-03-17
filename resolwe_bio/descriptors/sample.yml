@@ -1,0 +1,337 @@
+- name: sample
+  label: GEO sample annotation
+  description: GEO sample annotation template
+  schema:
+    - name: geo
+      label: GEO Annotation
+      group:
+        - name: description
+          label: Description
+          type: basic:string
+          required: false
+          description: >
+            Additional information not provided in the other fields, or paste in broad descriptions that cannot be easily dissected into the other fields.
+        - name: annotator
+          label: Annotator
+          type: basic:string
+        - name: organism
+          label: Organism
+          type: basic:string
+          description: >
+            Identify the organism from which the sequences were derived.
+          choices:
+            - label: Homo sapiens
+              value: Homo sapiens
+            - label: Mus musculus
+              value: Mus musculus
+            - label: Dictyostelium discoideum
+              value: Dictyostelium discoideum
+        - name: source
+          label: Source
+          type: basic:string
+          custom_choice_conditions: ["geo.organism"]
+          description: >
+            Briefly identify the biological material e.g., vastus lateralis muscle.
+        - name: cell_type
+          label: Cell type
+          type: basic:string
+          custom_choice_conditions: ["geo.organism"]
+          hidden: "geo.organism != 'Homo Sapiens' || geo.organism != 'Mus musculus'"
+          description: >
+            Type of cell of the sample or from which the sample was obtained.
+        - name: strain
+          label: Strain
+          type: basic:string
+          custom_choice_conditions: ["geo.organism"]
+          hidden: "geo.organism != 'Dictyostelium discoideum'"
+          description: >
+            Microbial or eukaryotic strain name.
+        - name: genotype
+          label: Genotype
+          type: basic:string
+          allow_custom_choice: true
+          custom_choice_conditions: ["geo.organism"]
+          hidden: "geo.organism != 'Dictyostelium discoideum'"
+          choices:
+            - label: AX2; gtaC-, [act15/nGFP-CSGtaC]
+              value: AX2; gtaC-, [act15/nGFP-CSGtaC]
+            - label: AX2; gtaC-, [act15/GFP]
+              value: AX2; gtaC-, [act15/GFP]
+            - label: AX2; gtaC-, [act15/cGFP-GtaC]
+              value: AX2; gtaC-, [act15/cGFP-GtaC]
+            - label: AX2; gtaC-
+              value: AX2; gtaC-
+            - label: "AX4: DimB-GFP"
+              value: "AX4: DimB-GFP"
+            - label: "dimB-: DimB-FLAG"
+              value: "dimB-: DimB-FLAG"
+            - label: dimB-
+              value: dimB-
+            - label: AX4BCAX4; AX4BCQS4; AX4BCQS31; AX4BCQS38; AX4BCQS45
+              value: AX4BCAX4; AX4BCQS4; AX4BCQS31; AX4BCQS38; AX4BCQS45
+            - label: abcG22-
+              value: abcG22-
+            - label: abcG7-
+              value: abcG7-
+            - label: abcG17-
+              value: abcG17-
+            - label: GtaCoe
+              value: GtaCoe
+            - label: gtaC-
+              value: gtaC-
+            - label: tgrB1-tgrC1-
+              value: tgrB1-tgrC1-
+            - label: tgrB1-
+              value: tgrB1-
+            - label: tgrC1-
+              value: tgrC1-
+            - label: abcC8-
+              value: abcC8-
+            - label: abcF4-
+              value: abcF4-
+            - label: abcD3-
+              value: abcD3-
+            - label: abcA6-
+              value: abcA6-
+            - label: abcG16-
+              value: abcG16-
+            - label: abcG6-
+              value: abcG6-
+            - label: abcG2-
+              value: abcG2-
+            - label: abcE1-
+              value: abcE1-
+            - label: abcG18-
+              value: abcG18-
+            - label: abcG10-
+              value: abcG10-
+            - label: abcB1-
+              value: abcB1-
+            - label: abcH4-
+              value: abcH4-
+            - label: abcH2-
+              value: abcH2-
+            - label: abcH1-
+              value: abcH1-
+            - label: abcC8
+              value: abcC8
+            - label: abcC3-
+              value: abcC3-
+            - label: abcF1-
+              value: abcF1-
+            - label: abcB7-
+              value: abcB7-
+            - label: abcG19-
+              value: abcG19-
+            - label: abcA1-
+              value: abcA1-
+            - label: abcC10-
+              value: abcC10-
+            - label: abcC2-
+              value: abcC2-
+            - label: abcG24-
+              value: abcG24-
+            - label: abcG20-
+              value: abcG20-
+            - label: abcG15-
+              value: abcG15-
+            - label: abcB5-
+              value: abcB5-
+            - label: abcB3-
+              value: abcB3-
+            - label: abcA9-
+              value: abcA9-
+            - label: abcD2-
+              value: abcD2-
+            - label: abcC15-
+              value: abcC15-
+            - label: abcC14-
+              value: abcC14-
+            - label: abcG14-
+              value: abcG14-
+            - label: abcG9-
+              value: abcG9-
+            - label: abcF2-
+              value: abcF2-
+            - label: abcA10-
+              value: abcA10-
+            - label: abcA11-
+              value: abcA11-
+            - label: abcA3-
+              value: abcA3-
+            - label: abcA4-
+              value: abcA4-
+            - label: abcA5-
+              value: abcA5-
+            - label: abcA7-
+              value: abcA7-
+            - label: abcB2-
+              value: abcB2-
+            - label: abcB4-
+              value: abcB4-
+            - label: abcC1-
+              value: abcC1-
+            - label: abcC12-
+              value: abcC12-
+            - label: abcC13-
+              value: abcC13-
+            - label: abcC6-
+              value: abcC6-
+            - label: abcG5-
+              value: abcG5-
+            - label: AX4; tirA-
+              value: AX4; tirA-
+            - label: AX4;bzpF-
+              value: AX4;bzpF-
+            - label: AX4;nagB1-
+              value: AX4;nagB1-
+            - label: tirA-
+              value: tirA-
+            - label: wildtype
+              value: wildtype
+        - name: experiment_type
+          label: Experiment type
+          type: basic:string
+          placeholder: Start typing
+          allow_custom_choice: true
+          choices:
+            - label: RNA-Seq
+              value: RNA-Seq
+            - label: miRNA-Seq
+              value: miRNA-Seq
+            - label: ncRNA-Seq
+              value: ncRNA-Seq
+            - label: ncRNA-Seq
+              value: ncRNA-Seq
+            - label: RNA-Seq (CAGE)
+              value: RNA-Seq (CAGE)
+            - label: RNA-Seq (RACE)
+              value: RNA-Seq (RACE)
+            - label: ChIP-Seq
+              value: ChIP-Seq
+            - label: MNase-Seq
+              value: MNase-Seq
+            - label: MBD-Seq
+              value: MBD-Seq
+            - label: MRE-Seq
+              value: MRE-Seq
+            - label: Bisulfite-Seq
+              value: Bisulfite-Seq
+            - label: Bisulfite-Seq (reduced representation)
+              value: Bisulfite-Seq (reduced representation) 
+            - label: MeDIP-Seq
+              value: MeDIP-Seq
+            - label: DNase-Hypersensitivity
+              value: DNase-Hypersensitivity
+            - label: Tn-Seq
+              value: Tn-Seq
+            - label: FAIRE-seq
+              value: FAIRE-seq
+            - label: SELEX
+              value: SELEX
+            - label: RIP-Seq
+              value: RIP-Seq
+            - label: ChIA-PET
+              value: ChIA-PET
+            - label: OTHER
+              value: OTHER
+        - name: ip_target
+          label: IP target
+          type: basic:string
+          hidden: "geo.experiment_type != ChIP-Seq"
+        - name: antibody_information
+          label: Antibody Information
+          hidden: "geo.experiment_type != ChIP-Seq"
+          group:
+            - name: manufacturer
+              label: Manufacturer
+              type: basic:string
+            - name: catalog
+              label: Catalog
+              type: basic:string
+            - name: lot
+              label: Lot
+              type: basic:string
+        - name: molecule
+          label: Molecule
+          type: basic:string
+          description: >
+            Type of molecule that was extracted from the biological material.
+          choices:
+            - label: total RNA
+              value: total RNA
+            - label: polyA RNA
+              value: polyA RNA
+            - label: cytoplasmic RNA
+              value: cytoplasmic RNA
+            - label: nuclear RNA
+              value: nuclear RNA
+            - label: genomic DNA
+              value: genomic DNA
+            - label: protein
+              value: protein
+            - label: other
+              value: other
+        - name: optional_char
+          label: Optional Characteristics
+          type: list:basic:string
+          required: false
+          description: >
+            Optional annotation of a biosource characteristic (e.g. strain, tissue, developmental stage, tumor stage, etc). For each of the entered characteristics, enter the associated value (e.g. 129SV, brain, embryo, etc).
+    - name: protocols
+      label: Protocols
+      group:
+        - name: fragmentation_method
+          label: Fragmentation method
+          type: basic:string
+        - name: growth_protocol
+          label: Growth protocol
+          type: basic:text
+        - name: treatment_protocol
+          label: Treatment protocol
+          type: basic:text
+          required: false
+        - name: library_prep
+          label: Library construction protocol
+          type: basic:text
+        - name: adapter_type
+          label: Adapter type
+          type: basic:string
+          required: false
+        - name: polya_selection
+          label: PolyA selection
+          type: basic:string
+          required: false
+        - name: primer
+          label: Primer
+          type: basic:string
+          required: false
+        - name: sequencing_center
+          label: Sequencing center
+          type: basic:string
+          required: false
+        - name: ip_tag
+          label: IP Tag
+          type: basic:string
+          required: false
+          hidden: "geo.experiment_type != ChIP-Seq"
+        - name: sample_control
+          label: Sample control
+          type: basic:string
+          required: false
+          hidden: "geo.experiment_type != ChIP-Seq"
+          choices:
+            - label: Sample
+              value: Sample
+            - label: "Control:  with different antibody"
+              value: "Control:  with different antibody"
+            - label: "Control:  without tag-antibody"
+              value: "Control:  without tag-antibody"
+            - label: "Control:  no target protein"
+              value: "Control:  no target protein"
+            - label: "Control:  nuclear extract"
+              value: "Control:  nuclear extract"
+    - name: notes
+      label: Other notes
+      type: basic:text
+      required: false

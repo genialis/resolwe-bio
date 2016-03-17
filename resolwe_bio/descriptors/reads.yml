@@ -1,0 +1,13 @@
+- name: reads
+  label: Reads annotation
+  description: Annotation of raw sequencing data
+  schema:
+    - name: barcode
+      label: Barcode
+      type: basic:string
+    - name: barcode_removed
+      label: Barcode already removed?
+      type: basic:boolean
+    - name: instrument_type
+      label: Instrument type
+      type: basic:string
