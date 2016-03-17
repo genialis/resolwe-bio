@@ -1,7 +1,7 @@
 - name: dictyostelium:bcm
   label: Dictyostelium annotation
   description: Dictyostelium annotation for BCM
-  var:
+  schema:
     - name: experiment
       label: Experiment
       type: basic:string
@@ -381,7 +381,7 @@
 - name: dictyostelium:bcm:etc
   label: Dictyostelium ETC annotation
   description: Dictyostelium expression time course annotation for BCM
-  var:
+  schema:
     - name: treatment
       label: Treatment
       type: basic:string

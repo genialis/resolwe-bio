@@ -1,7 +1,7 @@
 - name: assembler:abyss
   label: ABySS annotation
   description: ABySS assebler annotation template
-  var:
+  schema:
     - name: project
       label: Project
       type: basic:string

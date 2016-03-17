@@ -1,7 +1,7 @@
 - name: mus:bcm:kompexpress
   label: kompExpress data annotation
   description: Mus musculus experiment/sequencing data annotation
-  var:
+  schema:
     - name: project
       label: Project
       type: basic:string

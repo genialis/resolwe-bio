@@ -1,7 +1,7 @@
 - name: microarray:affy:rochester
   label: Microarray annotation (Affymetrix) Rochester
   description: Microarray data annotation (Affymetrix) Rochester
-  var:
+  schema:
     - name: experimenter
       label: Experimenter / Contact
       type: basic:string

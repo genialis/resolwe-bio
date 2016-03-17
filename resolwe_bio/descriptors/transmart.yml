@@ -1,7 +1,7 @@
 - name: transmart
   label: TranSMART Annotation
   description: Annotation for tranSMART import.
-  var:
+  schema:
     - name: group
       label: Group
       type: basic:string
