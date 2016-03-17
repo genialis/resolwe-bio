@@ -127,7 +127,13 @@
 
       cp {{variants.vcf.file}} .
 
-      Rscript -e 'source("{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      # XXX: Ugly hack to make this also work on the legacy platform
+      # TODO: Generalize the concept of auxiliary data
+      if [[ -z "{{ proc.slugs_path }}" ]]; then
+        Rscript -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "/home/biolinux/auxiliary_data/chemical_mutagenesis/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      else
+        Rscript -e 'source("{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "{{ proc.slugs_path }}/Cheng-Lin-chemical_mutagenesis/reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      fi
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
 

@@ -59,7 +59,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.run_processor('vc-gatk-joint', inputs)
         # NOTE: output can not be tested
 
-    @unittest.skip("Missing tools in runtime")
     def test_vc_filtering(self):
         variants = self.run_processor('import:upload:variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
 
