@@ -31,7 +31,6 @@ INSTALLED_APPS = (
     'versionfield',
 
     'resolwe',
-    'resolwe.apps',
     'resolwe.permissions',
     'resolwe.flow',
     'resolwe_bio',
@@ -119,7 +118,7 @@ REST_FRAMEWORK = {
 
 FLOW_PROCESSES_FINDERS = (
     'resolwe.flow.finders.FileSystemProcessesFinder',
-    'resolwe.apps.finders.AppDirectoriesProcessesFinder',
+    'resolwe.flow.finders.AppDirectoriesFinder',
 )
 
 FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
