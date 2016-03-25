@@ -201,8 +201,6 @@
               value: miRNA-Seq
             - label: ncRNA-Seq
               value: ncRNA-Seq
-            - label: ncRNA-Seq
-              value: ncRNA-Seq
             - label: RNA-Seq (CAGE)
               value: RNA-Seq (CAGE)
             - label: RNA-Seq (RACE)
