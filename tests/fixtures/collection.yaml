@@ -1,0 +1,61 @@
+- model: flow.collection
+  pk: 1
+  fields:
+    slug: sample-1
+    version: 0.0.0
+    name: Sample 1
+    created: "2016-03-15 19:18:06.625161+00:00"
+    modified: "2016-03-15 19:18:06.625197+00:00"
+    contributor: 1
+    description: ''
+    settings: {}
+    public_processes: []
+    data: [1]
+    descriptor_schema: 7
+    descriptor:
+      geo:
+        description: My first retina sample
+        annotator: Rhamy Zeid
+        organism: Homo sapiens
+        source: retina
+        cell_type: rod bipolar cell
+        experiment_type: ChIP-Seq
+        ip_target: ASH1L
+        antibody_information:
+            manufacturer: Santa Cruz Biotechnology
+            catalog: sc-98301
+            lot: sc21633
+        molecule: genomic DNA
+      protocols:
+        fragmentation_method: sonification
+        growth_protocol: unknown
+
+- model: flow.collection
+  pk: 2
+  fields:
+    slug: sample-2
+    version: 0.0.0
+    name: Sample 2
+    created: "2016-03-15 19:18:06.625161+00:00"
+    modified: "2016-03-15 19:18:06.625197+00:00"
+    contributor: 1
+    description: ''
+    settings: {}
+    public_processes: []
+    data: [2]
+    descriptor_schema: 7
+
+- model: flow.collection
+  pk: 3
+  fields:
+    slug: sample-3
+    version: 0.0.0
+    name: Sample 3
+    created: "2016-03-15 19:18:06.625161+00:00"
+    modified: "2016-03-15 19:18:06.625197+00:00"
+    contributor: 1
+    description: ''
+    settings: {}
+    public_processes: []
+    data: [3]
+    descriptor_schema: 7

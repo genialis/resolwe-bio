@@ -1,0 +1,77 @@
+- model: flow.data
+  pk: 1
+  fields:
+    name: SHEP21_0HR_TWIST
+    slug: SHEP21_0HR_TWIST
+    version: 0.0.0
+    created: "2016-03-15 19:18:57.244081+00:00"
+    modified: "2016-03-15 19:18:57.244150+00:00"
+    contributor: 1
+    started: null
+    finished: null
+    checksum: null
+    status: OK
+    process: 64
+    process_pid: null
+    process_progress: 0
+    process_rc: null
+    process_info: '[]'
+    process_warning: '[]'
+    process_error: '[]'
+    input: {}
+    output: {}
+    descriptor_schema: 6
+    descriptor:
+        barcode: TGACCA
+        barcode_removed: true
+        instrument_type: NextSeq 500
+
+- model: flow.data
+  pk: 2
+  fields:
+    name: SHEP21_2HR_TWIST
+    slug: SHEP21_2HR_TWIST
+    version: 0.0.0
+    created: "2016-03-15 19:18:57.244081+00:00"
+    modified: "2016-03-15 19:18:57.244150+00:00"
+    contributor: 1
+    started: null
+    finished: null
+    checksum: null
+    status: OK
+    process: 64
+    process_pid: null
+    process_progress: 0
+    process_rc: null
+    process_info: '[]'
+    process_warning: '[]'
+    process_error: '[]'
+    input: {}
+    output: {}
+    descriptor_schema: 6
+    descriptor: {}
+
+- model: flow.data
+  pk: 3
+  fields:
+    name: SHEP21_4HR_TWIST
+    slug: SHEP21_4HR_TWIST
+    version: 0.0.0
+    created: "2016-03-15 19:18:57.244081+00:00"
+    modified: "2016-03-15 19:18:57.244150+00:00"
+    contributor: 1
+    started: null
+    finished: null
+    checksum: null
+    status: OK
+    process: 64
+    process_pid: null
+    process_progress: 0
+    process_rc: null
+    process_info: '[]'
+    process_warning: '[]'
+    process_error: '[]'
+    input: {}
+    output: {}
+    descriptor_schema: 6
+    descriptor: {}
