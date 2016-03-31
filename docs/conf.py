@@ -10,7 +10,7 @@ base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 # Get package metadata from 'setup.py' file
 module_setup = imp.load_source('module_setup', os.path.join(base_dir, 'setup.py'))
 about = {
-    '__title__': module_setup.NAME,
+    '__title__': module_setup.TITLE,
     '__version__': module_setup.VERSION,
     '__author__': module_setup.AUTHOR,
     '__copyright__': '2016, ' + module_setup.AUTHOR,
