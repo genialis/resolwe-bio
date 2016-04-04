@@ -4,9 +4,10 @@
 ---
 
 - name: alignment:tophat-2-0-13
-  version: 1.0.9
+  version: 1.0.10
   label: Aligner (TopHat v2.0.13)
   type: data:alignment:bam:tophat
+  flow_collection: sample
   persistence: CACHED
   description: >
     TopHat is a program that aligns RNA-Seq reads to a genome in order to identify exon-exon splice junctions. It is built on the ultrafast short read mapping program Bowtie.

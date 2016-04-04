@@ -4,10 +4,11 @@
 ---
 
 - name: alignment:star
-  version: 1.0.3
+  version: 1.0.4
   label: Aligner (STAR 2.4.2a)
   type: data:alignment:bam:star
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     Spliced Transcripts Alignment to a Reference

@@ -4,10 +4,11 @@
 ---
 
 - name: vc-samtools
-  version: 1.0.5
+  version: 1.0.6
   label: Variant calling (Samtools)
   type: data:variants:vcf
   category: analyses:variants
+  flow_collection: sample
   persistence: CACHED
   description: >
     Samtools variant calling.

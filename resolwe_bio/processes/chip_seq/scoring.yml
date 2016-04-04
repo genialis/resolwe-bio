@@ -4,11 +4,12 @@
 ---
 
 - name: chipseq:peakscore
-  version: 1.0.3
+  version: 1.0.4
   label: ChIP-Seq (Peak Score)
   type: data:chipseq:peakscore
   category: analyses
-  persistence: TEMP
+  flow_collection: sample
+  persistence: CACHED
   description: Chip-Seq analysis - Peak Score (BCM)
   input:
     - name: peaks

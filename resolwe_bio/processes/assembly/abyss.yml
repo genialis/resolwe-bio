@@ -4,10 +4,11 @@
 ---
 
 - name: assembler:abyss
-  version: 1.0.2
+  version: 1.0.3
   label: Assembler ABySS (1.9.0)
   type: data:abyss
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     ABySS assembler

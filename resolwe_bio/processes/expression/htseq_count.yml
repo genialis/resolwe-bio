@@ -4,10 +4,11 @@
 ---
 
 - name: htseq-count:-0-6-1p1
-  version: 1.0.9
+  version: 1.0.10
   label: Expression (HTSeq-count 0.6.1p1)
   type: data:expression:htseq
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Count the number of reads that map to a genomic feature (e.g. gene)

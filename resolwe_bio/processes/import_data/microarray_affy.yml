@@ -4,10 +4,11 @@
 ---
 
 - name: import:upload:microarray:affy
-  version: 1.0.1
+  version: 1.0.2
   label: Upload microarray data (Affymetrix)
   type: data:microarray:affy
   category: upload
+  flow_collection: sample
   persistence: RAW
   description: >
         Upload microarray data (Affymetrix).

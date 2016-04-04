@@ -4,11 +4,12 @@
 ---
 
 - name: macs2:callpeak
-  version: 1.0.4
+  version: 1.0.5
   label: MACS2 (Call peaks)
   type: data:chipseq:macs2:callpeak
   category: analyses
-  persistence: TEMP
+  flow_collection: sample
+  persistence: CACHED
   description: >
     Tool for Model-based Analysis of ChIP-Seq (MACS) - Callpeak module.
   input:

@@ -6,10 +6,11 @@
 ---
 
 - name: filtering:sortmerna-2.0-single-end
-  version: 1.0.9
+  version: 1.0.10
   label: Filter single-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:single:sortmerna
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     SortMeRNA is a biological sequence analysis tool for filtering, mapping and OTU-picking NGS reads. The main application of SortMeRNA is filtering rRNA from metatranscriptomic data. Additional applications include OTU-picking and taxonomy assignation available through QIIME v1.9+
@@ -152,10 +153,11 @@
 
 
 - name: filtering:sortmerna-2.0-paired-end
-  version: 1.0.9
+  version: 1.0.10
   label: Filter paired-end NGS reads (SortMeRNA-2.0)
   type: data:reads:fastq:paired:sortmerna
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     SortMeRNA is a biological sequence analysis tool for filtering, mapping and OTU-picking NGS reads. The main application of SortMeRNA is filtering rRNA from metatranscriptomic data. Additional applications include OTU-picking and taxonomy assignation available through QIIME v1.9+

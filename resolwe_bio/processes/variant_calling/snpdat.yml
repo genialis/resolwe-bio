@@ -4,10 +4,11 @@
 ---
 
 - name: vcf-annotation
-  version: 1.0.10
+  version: 1.0.11
   label: Variant calling annotation (SNPdat)
   type: data:variants:annotation
   category: analyses:variants
+  flow_collection: sample
   persistence: CACHED
   description: >
     variant calling annotation

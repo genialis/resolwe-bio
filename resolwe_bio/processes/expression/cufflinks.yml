@@ -4,10 +4,11 @@
 ---
 
 - name: cufflinks:-2-2-1
-  version: 1.0.6
+  version: 1.0.7
   label: Expression (Cufflinks 2.2.1)
   type: data:cufflinks:cufflinks
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Assemble transcripts and estimate their abundances.

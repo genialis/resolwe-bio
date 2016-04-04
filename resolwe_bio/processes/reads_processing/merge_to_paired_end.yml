@@ -4,9 +4,10 @@
 ---
 
 - name: reads:merge
-  version: 1.0.3
+  version: 1.0.4
   label: Build paired-end reads from single-ended
   type: data:reads:fastq:paired
+  flow_collection: sample
   persistence: CACHED
   description: >
     Takes in two fastq files and merges them into paired end.

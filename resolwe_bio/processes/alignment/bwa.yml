@@ -4,10 +4,11 @@
 ---
 
 - name: alignment:bwa_mem-0.7.5a
-  version: 1.0.10
+  version: 1.0.11
   label: Aligner (BWA MEM 0.7.5a)
   type: data:alignment:bam:bwamem
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The algorithm works by seeding alignments with maximal exact matches (MEMs) and then extending seeds with the affine-gap Smith-Waterman algorithm (SW).
@@ -187,10 +188,11 @@
 
 
 - name: alignment:bwa_sw-0.7.5a
-  version: 1.0.9
+  version: 1.0.10
   label: Aligner (BWA SW 0.7.5a)
   type: data:alignment:bam:bwasw
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The paired-end mode only works for reads Illumina short-insert libraries.
@@ -324,10 +326,11 @@
 
 
 - name: alignment:bwa_aln-0.7.5a
-  version: 1.0.10
+  version: 1.0.11
   label: Aligner (BWA backtrack 0.7.5a)
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     Read aligner for mapping low-divergent sequences against a large reference genome. Designed for Illumina sequence reads up to 100bp.

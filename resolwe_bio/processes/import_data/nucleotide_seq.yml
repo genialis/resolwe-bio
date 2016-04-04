@@ -4,10 +4,11 @@
 ---
 
 - name: import:upload:import_nucl_seq
-  version: 1.0.8
+  version: 1.0.9
   label: Upload nucleotide sequence(s) (FASTA)
   type: data:seq:nucleotide
   category: upload
+  flow_collection: sample
   persistence: RAW
   description: >
     Upload sequence file in FASTA format.

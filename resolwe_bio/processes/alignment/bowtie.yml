@@ -4,10 +4,11 @@
 ---
 
 - name: alignment:bowtie-1-0-0-trimmx
-  version: 1.0.11
+  version: 1.0.12
   label: Aligner (Bowtie 1.0.0)
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     An ultrafast memory-efficient short read aligner.
@@ -252,10 +253,11 @@
 
 
 - name: alignment:bowtie-2-2-3_trim
-  version: 1.0.16
+  version: 1.0.17
   label: Aligner (Bowtie 2.2.3)
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
+  flow_collection: sample
   persistence: CACHED
   description: >
     An ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences.

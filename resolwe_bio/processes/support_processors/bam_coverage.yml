@@ -4,10 +4,11 @@
 ---
 
 - name: bam:coverage
-  version: 1.0.3
+  version: 1.0.4
   label: Genome coverage
   type: data:reads:coverage
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Calculation of genome-wide coverage output in BigWig format.

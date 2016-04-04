@@ -4,9 +4,10 @@
 ---
 
 - name: kallisto:quant
-  version: 1.0.2
+  version: 1.0.3
   label: Expression (Kallisto - Quant)
   type: data:expression:kallisto
+  flow_collection: sample
   category: analyses
   persistence: CACHED
   description: >

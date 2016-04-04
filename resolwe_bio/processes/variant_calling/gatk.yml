@@ -4,10 +4,11 @@
 ---
 
 - name: vc-gatk
-  version: 1.0.10
+  version: 1.0.11
   label: Variant calling (GATK)
   type: data:variants:vcf:gatk
   category: analyses:variants
+  flow_collection: sample
   persistence: CACHED
   description: >
     GATK varint calling. Note: Usage of Genome Analysis Toolkit requires a licence.

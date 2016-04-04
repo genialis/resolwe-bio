@@ -4,10 +4,11 @@
 ---
 
 - name: cuffquant:-2-2-1
-  version: 1.0.4
+  version: 1.0.5
   label: Expression (Cuffquant 2.2.1)
   type: data:cufflinks:cuffquant
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Compute the gene and transcript expression profiles and save these profiles to files that you can analyze later with Cuffdiff or Cuffnorm

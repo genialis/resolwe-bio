@@ -4,10 +4,11 @@
 ---
 
 - name: expression:bcm:ncrna
-  version: 1.0.2
+  version: 1.0.3
   label: Expression ncRNA (BCM)
   type: data:expression:ncrna
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Compute gene expression profile for ncRNA experiments. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,

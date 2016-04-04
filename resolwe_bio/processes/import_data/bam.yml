@@ -4,9 +4,10 @@
 ---
 
 - name: import:upload:mapping-bam
-  version: 1.0.11
+  version: 1.0.12
   label: Upload BAM file mapping
   type: data:alignment:bam:upload
+  flow_collection: sample
   category: upload
   persistence: RAW
   description: >
@@ -84,10 +85,11 @@
 
 
 - name: import:upload:mapping-bam-indexed
-  version: 1.0.6
+  version: 1.0.7
   label: Upload BAM file and index
   type: data:alignment:bam:upload
   category: upload
+  flow_collection: sample
   persistence: RAW
   description: >
     Upload a mapping file in BAM format with index.

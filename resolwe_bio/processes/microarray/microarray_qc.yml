@@ -4,10 +4,11 @@
 ---
 
 - name: microarray:affy:qc
-  version: 1.0.1
+  version: 1.0.2
   label: Microarray Quality Metrics
   type: data:microarray:qc:affy
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Compute Array Quality Metrics. Supports Affymetrix platform.

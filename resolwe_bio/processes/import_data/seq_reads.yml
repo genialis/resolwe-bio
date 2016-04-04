@@ -4,9 +4,10 @@
 ---
 
 - name: import:upload:reads-fastq
-  version: 1.0.17
+  version: 1.0.18
   label: Upload NGS reads
   type: data:reads:fastq:single
+  flow_collection: sample
   category: upload
   persistence: RAW
   description: >
@@ -167,10 +168,11 @@
 
 
 - name: import:upload:reads-fastq-paired-end
-  version: 1.0.17
+  version: 1.0.18
   label: Upload paired-end NGS reads
   type: data:reads:fastq:paired
   category: upload
+  flow_collection: sample
   persistence: RAW
   description: >
     Upload NGS reads in FASTQ format.

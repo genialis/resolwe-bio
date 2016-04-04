@@ -4,10 +4,11 @@
 ---
 
 - name: expression:bcm-1-0-0
-  version: 1.0.11
+  version: 1.0.12
   label: Expression (BCM)
   type: data:expression:polya
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Compute gene expression profile. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,

@@ -6,10 +6,11 @@
 ---
 
 - name: filtering:fastq-mcf-1.1.2.537:single-end
-  version: 1.0.8
+  version: 1.0.9
   label: Filter single-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:single:fastqmcf
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Remove adapters and filter single-end NGS reads according to data quality metrics (Fastq-mcf - ea-utils 1.1.2-537)
@@ -153,10 +154,11 @@
 
 
 - name: filtering:fastq-mcf-1.1.2.537:paired-end
-  version: 1.0.8
+  version: 1.0.9
   label: Filter paired-end NGS reads (Fastq-mcf)
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Remove adapters and filter single-end NGS reads according to data quality metrics (Fastq-mcf - ea-utils 1.1.2-537)

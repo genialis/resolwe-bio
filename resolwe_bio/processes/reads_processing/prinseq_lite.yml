@@ -6,9 +6,10 @@
 ---
 
 - name: filtering:prinseq-lite-20.4:single-end
-  version: 1.0.8
+  version: 1.0.9
   label: Filter single-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:single:prinseq
+  flow_collection: sample
   category: analyses
   persistence: CACHED
   description: >
@@ -144,10 +145,11 @@
 
 
 - name: filtering:prinseq-lite-20.4:paired-end
-  version: 1.0.8
+  version: 1.0.9
   label: Filter paired-end NGS reads (Prinseq-lite-20.4)
   type: data:reads:fastq:paired:prinseq
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     PRINSEQ is a tool that generates summary statistics of sequence and quality data and that is used to filter, reformat and trim next-generation sequence data.
