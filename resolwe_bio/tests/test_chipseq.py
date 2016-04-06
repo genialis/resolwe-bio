@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+import unittest
 from .utils import BioProcessTestCase
 
 
@@ -33,3 +34,15 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         inputs = {"peakscore": peak_score.pk}
         gene_score = self.run_processor("chipseq:genescore", inputs)
         self.assertFiles(gene_score, "genescore", "chip_seq_geneScore.xls")
+
+    @unittest.skip("Missing tools in Genesis runtime")
+    def test_macs14(self):
+        inputs = {"src": "chip_seq_control.bam"}
+        control_bam = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {"src": "chip_seq_case.bam"}
+        case_bam = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {"t": case_bam.id,
+                  "c": control_bam.id}
+        macs14 = self.run_processor("macs14", inputs)

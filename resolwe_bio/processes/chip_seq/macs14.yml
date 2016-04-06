@@ -1,0 +1,85 @@
+- name: macs14
+  version: 1.0.0
+  label: MACS14 test
+  type: data:chipseq:macs14
+  category: analyses
+  persistence: CACHED
+  description: >
+    Model-based Analysis of ChIP-Seq (MACS 1.4).
+  input:
+    - name: t
+      label: BAM File
+      type: data:alignment:bam
+    - name: c
+      label: BAM Background File
+      type: data:alignment:bam
+      required: false
+    - name: g
+      label: Effective genome size
+      type: basic:string
+      default: hs
+      choices:
+        - label: HS
+          value: hs
+        - label: MM
+          value: mm
+        - label: CE
+          value: ce
+        - label: DM
+          value: dm
+        - label: RN
+          value: '2e9'
+        - label: DA
+          value: '1e9'    
+    - name: pvalue
+      label: P-value
+      type: basic:string
+      default: "1e-9"
+      choices:
+        - label: "1e-9"
+          value: "1e-9"
+        - label: "1e-6"
+          value: "1e-6"
+  output:
+    - name: peaks_bed
+      label: Peaks (BED)
+      type: basic:file
+    - name: peaks_xls
+      label: Peaks (XLS)
+      type: basic:file
+    - name: wiggle
+      label: Wiggle
+      type: basic:file
+    - name: summits_bed
+      label: Summits (BED)
+      type: basic:file
+    - name: model
+      label: Model
+      type: basic:file
+    - name: neg_peaks
+      label: Negative peaks (XLS)
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      NAME=`basename '{{ t.bam.file }}' .bam`
+      macs14 -t {{t.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -f BAM -g {{g}} -n $NAME -p {{pvalue}} -w -S --space=50
+      re-checkrc
+
+      zip -r ${NAME}_MACS_wiggle.zip ${NAME}_MACS_wiggle
+      re-checkrc
+
+      re-save-file peaks_bed ${NAME}_peaks.bed
+      re-save-file peaks_xls ${NAME}_peaks.xls
+      re-save-file wiggle ${NAME}_MACS_wiggle.zip
+      re-save-file summits_bed ${NAME}summits.bed
+
+      if [ -f ${NAME}_model.r ]
+      then
+        re-save-file model ${NAME}_model.r
+      fi
+
+      if [ -f ${NAME}_negative_peaks.xls ]
+      then
+        re-save-file neg_peaks ${NAME}_negative_peaks.xls
+      fi
