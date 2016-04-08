@@ -2,11 +2,23 @@
 Resolwe Bioinformatics
 ======================
 
-|docs|
+|docs| |pypi_version| |pypi_pyversions| |pypi_downloads|
 
 .. |docs| image:: https://readthedocs.org/projects/resolwe-bio/badge/?version=latest
     :target: http://resolwe-bio.readthedocs.org/
     :alt: Documentation Status
+
+.. |pypi_version| image:: https://img.shields.io/pypi/v/resolwe-bio.svg
+    :target: https://pypi.python.org/pypi/resolwe-bio
+    :alt: Version on PyPI
+
+.. |pypi_pyversions| image:: https://img.shields.io/pypi/pyversions/resolwe-bio.svg
+    :target: https://pypi.python.org/pypi/resolwe-bio
+    :alt: Supported Python versions
+
+.. |pypi_downloads| image:: https://img.shields.io/pypi/dm/resolwe-bio.svg
+    :target: https://pypi.python.org/pypi/resolwe-bio
+    :alt: Number of downloads from PyPI
 
 Bioinformatics pipelines for the Resolwe_ dataflow package for `Django
 framework`_.
