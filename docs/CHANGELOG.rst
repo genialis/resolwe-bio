@@ -57,6 +57,7 @@ Added
 * Initial Tox configuration for running the tests
 * Tox tests for ensuring high-quality Python packaging
 * ROSE2 processor
+* django-admin command: ``generate_samples``
 
 
 ================

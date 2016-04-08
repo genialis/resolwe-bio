@@ -8,6 +8,7 @@
 
 *.gz binary
 *.bz2 binary
+*.zip binary
 
 *.bat eol=crlf
 *.tab eol=crlf
