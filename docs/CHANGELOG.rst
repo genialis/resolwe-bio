@@ -4,6 +4,7 @@ Change Log
 
 All notable changes to this project are documented in this file.
 
+
 ==========
 Unreleased
 ==========
@@ -16,6 +17,8 @@ Added
 -----
 * "flow_collection: sample" to processes
 * MACS14 processor
+* Initial Tox configuration for running the tests
+
 
 ================
 1.0.0 2016-03-31
