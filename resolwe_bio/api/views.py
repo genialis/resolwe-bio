@@ -15,7 +15,7 @@ class SampleViewSet(CollectionViewSet):
         """Return list of annotated `Samples`."""
         queryset = self.get_queryset().filter(
             Q(descriptor__has_key='geo') & Q(descriptor__geo__has_key='annotator'))
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
 
         return Response(serializer.data)
 
@@ -24,6 +24,6 @@ class SampleViewSet(CollectionViewSet):
         """Return list of unannotated `Samples`."""
         queryset = self.get_queryset().filter(
             ~Q(descriptor__has_key='geo') | ~Q(descriptor__geo__has_key='annotator'))
-        serializer = self.serializer_class(queryset, many=True)
+        serializer = self.serializer_class(queryset, many=True, context={'request': request})
 
         return Response(serializer.data)
