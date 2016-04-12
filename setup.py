@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 NAME = 'resolwe-bio'
 TITLE = 'Resolwe Bioinformatics'
@@ -30,8 +30,16 @@ if __name__ == '__main__':
 
         license=LICENSE,
 
-        packages=['resolwe_bio'],
-        include_package_data=True,
+        packages=find_packages(),
+        package_data={
+            'resolwe_bio': [
+                'descriptors/*.yml',
+                'processes/**/*.yml',
+                'tests/files/*',
+                'tools/*.py',
+                'tools/*.R',
+            ]
+        },
         zip_safe=False,
         install_requires=(
             "resolwe>=1.0.0",
