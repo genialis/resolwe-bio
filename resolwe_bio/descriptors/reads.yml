@@ -2,6 +2,9 @@
   label: Reads annotation
   description: Annotation of raw sequencing data
   schema:
+    - name: seq_date
+      label: Sequencing date
+      type: basic:date
     - name: barcode
       label: Barcode
       type: basic:string

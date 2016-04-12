@@ -8,6 +8,10 @@ All notable changes to this project are documented in this file.
 Unreleased
 ==========
 
+Fixed
+-----
+* Sample descriptor schema updated
+
 Added
 -----
 * "flow_collection: sample" to processes

@@ -30,13 +30,14 @@
           label: Source
           type: basic:string
           custom_choice_conditions: ["geo.organism"]
+          hidden: "geo.organism == 'Dictyostelium discoideum'"
           description: >
             Briefly identify the biological material e.g., vastus lateralis muscle.
         - name: cell_type
           label: Cell type
           type: basic:string
           custom_choice_conditions: ["geo.organism"]
-          hidden: "geo.organism != 'Homo Sapiens' || geo.organism != 'Mus musculus'"
+          hidden: "geo.organism == 'Homo sapiens' || geo.organism == 'Mus musculus'"
           description: >
             Type of cell of the sample or from which the sample was obtained.
         - name: strain
@@ -236,10 +237,10 @@
         - name: ip_target
           label: IP target
           type: basic:string
-          hidden: "geo.experiment_type != ChIP-Seq"
+          hidden: "geo.experiment_type != 'ChIP-Seq'"
         - name: antibody_information
           label: Antibody Information
-          hidden: "geo.experiment_type != ChIP-Seq"
+          hidden: "geo.experiment_type != 'ChIP-Seq'"
           group:
             - name: manufacturer
               label: Manufacturer
@@ -312,12 +313,12 @@
           label: IP Tag
           type: basic:string
           required: false
-          hidden: "geo.experiment_type != ChIP-Seq"
+          hidden: "geo.experiment_type != 'ChIP-Seq'"
         - name: sample_control
           label: Sample control
           type: basic:string
           required: false
-          hidden: "geo.experiment_type != ChIP-Seq"
+          hidden: "geo.experiment_type != 'ChIP-Seq'"
           choices:
             - label: Sample
               value: Sample
@@ -329,7 +330,10 @@
               value: "Control:  no target protein"
             - label: "Control:  nuclear extract"
               value: "Control:  nuclear extract"
-    - name: notes
-      label: Other notes
-      type: basic:text
-      required: false
+    - name: other
+      label: Other information
+      group:
+        - name: notes
+          label: Notes
+          type: basic:text
+          required: false
