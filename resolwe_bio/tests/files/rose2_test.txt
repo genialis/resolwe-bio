@@ -1,0 +1,37 @@
+[ bamliquidator ] output to stdout
+1. bam file (.bai file has to be at same location)
+2. chromosome
+3. start
+4. stop
+5. strand +/-, use dot (.) for both strands
+6. number of summary points
+7. extension length
+
+Note that each summary point is floor((stop-start)/(number of summary points)) long,
+and if it doesn't divide evenly then the range is truncated.
+/home/biolinux/rose2/rose2
+RUNNING ROSE2_META.py FROM /home/biolinux/rose2/rose2
+/home/biolinux/rose2/scripts/
+hi there
+Usage: rose2 [options] -g [GENOME] -i [INPUT_REGION_GFF] -r [RANKBY_BAM_FILE] -o [OUTPUT_FOLDER] [OPTIONAL_FLAGS]
+
+Options:
+  -h, --help            show this help message and exit
+  -i INPUT, --i=INPUT   Enter a .gff or .bed file of binding sites used to
+                        make enhancers
+  -r RANKBY, --rankby=RANKBY
+                        bamfile to rank enhancer by
+  -o OUT, --out=OUT     Enter an output folder
+  -g GENOME, --genome=GENOME
+                        Enter the genome build (MM9,MM8,HG18,HG19)
+  -b BAMS, --bams=BAMS  Enter a comma separated list of additional bam files
+                        to map to
+  -c CONTROL, --control=CONTROL
+                        bamfile to rank enhancer by
+  -s STITCH, --stitch=STITCH
+                        Enter a max linking distance for stitching. Default
+                        will determine optimal stitching parameter
+  -t TSS, --tss=TSS     Enter a distance from TSS to exclude. 0 = no TSS
+                        exclusion
+  --mask=MASK           Mask a set of regions from analysis.  Provide a .bed
+                        or .gff of masking regions

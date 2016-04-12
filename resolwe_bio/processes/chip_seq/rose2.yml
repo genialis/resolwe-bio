@@ -1,0 +1,130 @@
+# ================
+# ChIP-Seq - ROSE2
+# ================
+---
+
+- name: rose2
+  version: 1.0.0
+  label: ROSE2
+  type: data:chipseq:rose2
+  category: analyses
+  persistence: CACHED
+  data_name: ROSE2 analysis
+  description: >
+    Rank ordering of super-enhancers.
+  input:
+    - name: g
+      label: Genome
+      type: basic:string
+      required: false
+      choices:
+        - label: MM10
+          value: MM10
+        - label: MM9
+          value: MM9
+        - label: HG19
+          value: HG19
+        - label: HG18
+          value: HG18
+    - name: i
+      label: BED file (MACS results)
+      type: data:chipseq:macs14
+      required: false
+    - name: i_upload
+      label: BED file (Upload)
+      type: data:bed
+      required: false
+    - name: r
+      label: BAM File
+      type: data:alignment:bam
+      description: >
+        bamfile to rank enhancer by
+    - name: c
+      label: Control BAM File
+      type: data:alignment:bam
+      required: false
+      description: >
+        bamfile to rank enhancer by
+    - name: t
+      label: TSS exclusion
+      type: basic:integer
+      default: 0
+      description: >
+        Enter a distance from TSS to exclude. 0 = no TSS exclusion
+    - name: test
+      label: Test
+      type: basic:boolean
+      default: false
+      required: false
+      hidden: true
+      description: >
+        Enter test mode
+  output:
+    - name: all_enhancers
+      label: All enhancers table
+      type: basic:file
+    - name: enhancers_with_super
+      label: Super enhancers table
+      type: basic:file
+    - name: plot_points
+      label: Plot points
+      type: basic:file
+    - name: plot_panel
+      label: Plot panel
+      type: basic:file
+    - name: enhancer_gene
+      label: Enhancer to gene
+      type: basic:file
+    - name: enhancer_top_gene
+      label: Enhancer to top gene
+      type: basic:file
+    - name: gene_enhancer
+      label: Gene to Enhancer
+      type: basic:file
+    - name: stich_parameter
+      label: Stich parameter
+      type: basic:file
+    - name: all_output
+      label: All output
+      type: basic:file
+    - name: test_output
+      label: Test
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      {% if test %}
+        bamliquidator >> test.txt
+        rose2 >> test.txt
+        re-save-file test_output test.txt
+        re-error "Done testing."
+      {% endif %}
+
+      {% if not i and not i_upload %}
+        re-error "Peaks file missing. Please provide .bed peaks file as a file upload or MACS14 output."
+      {% endif %}
+
+      {% if i and i_upload %}
+        re-error "Please provide only one .bed peaks file."
+      {% endif %}
+
+      {% if i_upload %}
+        NAME=`basename '{{ i_upload.BED.file }}' .bed`
+      {% else %}
+        NAME=`basename '{{ i.peaks_bed.file }}' .bed`
+      {% endif %}
+      
+      rose2 -g {{g}} {% if i_upload %} -i {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} -o .
+      re-checkrc "Rose2 run failed."
+
+      re-save-file all_enhancers ${NAME}_AllEnhancers.table.txt
+      re-save-file enhancers_with_super ${NAME}_Enhancers_withSuper.bed
+      re-save-file plot_points ${NAME}_Plot_points.png
+      re-save-file plot_panel ${NAME}_Plot_panel.png
+      re-save-file enhancer_gene ${NAME}_SuperEnhancers_ENHANCER_TO_GENE.txt
+      re-save-file enhancer_top_gene ${NAME}_SuperEnhancers_ENHANCER_TO_TOP_GENE.txt
+      re-save-file gene_enhancer ${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt
+      re-save-file stich_parameter ${NAME}_stitch_parameter.pdf
+
+      zip ${NAME}_output_all.zip ${NAME}_*
+      re-save-file all_output ${NAME}_output_all.zip

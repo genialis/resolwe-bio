@@ -46,3 +46,23 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         inputs = {"t": case_bam.id,
                   "c": control_bam.id}
         macs14 = self.run_processor("macs14", inputs)
+
+    @unittest.skip("Missing tools in runtime")
+    def test_rose2(self):
+        inputs = {'src': 'chip_seq_control.bam'}
+        bam = self.run_processor('import:upload:mapping-bam', inputs)
+
+        inputs = {"src": "chip_seq_case.bam"}
+        control = self.run_processor("import:upload:mapping-bam", inputs)
+
+        inputs = {'src': 'peaks.bed'}
+        macs_peaks = self.run_processor('import:upload:bed', inputs)
+
+        inputs = {"g": 'HG19',
+                  "i_upload":  macs_peaks.id,
+                  "r": bam.id,
+                  "c": control.id,
+                  "t": 2500,
+                  "test": True}
+        rose2 = self.run_processor("rose2", inputs, 'ER')
+        self.assertFiles(rose2, 'test_output', 'rose2_test.txt')

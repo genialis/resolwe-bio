@@ -24,7 +24,7 @@ Added
 * MACS14 processor
 * Initial Tox configuration for running the tests
 * Tox tests for ensuring high-quality Python packaging
-
+* ROSE2 processor
 
 ================
 1.0.0 2016-03-31
