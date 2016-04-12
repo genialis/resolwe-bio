@@ -9,6 +9,10 @@ All notable changes to this project are documented in this file.
 Unreleased
 ==========
 
+Changed
+-------
+* Removed obsolete utilities superseded by resolwe-runtime-utils
+
 Fixed
 -----
 * Sample descriptor schema updated
