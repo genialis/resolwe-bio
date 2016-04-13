@@ -1,8 +1,14 @@
+# ===============
+# ChIP-Seq - MACS
+# ===============
+---
+
 - name: macs14
-  version: 1.0.0
-  label: MACS14 test
+  version: 1.0.1
+  label: MACS 1.4
   type: data:chipseq:macs14
   category: analyses
+  data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
   persistence: CACHED
   description: >
     Model-based Analysis of ChIP-Seq (MACS 1.4).

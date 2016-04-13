@@ -37,7 +37,7 @@
           label: Cell type
           type: basic:string
           custom_choice_conditions: ["geo.organism"]
-          hidden: "geo.organism == 'Homo sapiens' || geo.organism == 'Mus musculus'"
+          hidden: "geo.organism == 'Dictyostelium discoideum'"
           description: >
             Type of cell of the sample or from which the sample was obtained.
         - name: strain
