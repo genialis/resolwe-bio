@@ -16,7 +16,6 @@
     - name: g
       label: Genome
       type: basic:string
-      required: false
       choices:
         - label: MM10
           value: MM10
@@ -113,8 +112,8 @@
       {% else %}
         NAME=`basename '{{ i.peaks_bed.file }}' .bed`
       {% endif %}
-      
-      rose2 -g {{g}} {% if i_upload %} -i {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} -o .
+
+      rose2 -g {{g}} -i {% if i_upload %} {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} -o .
       re-checkrc "Rose2 run failed."
 
       re-save-file all_enhancers ${NAME}_AllEnhancers.table.txt
