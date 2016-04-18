@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
         license=LICENSE,
 
-        packages=find_packages(),
+        packages=find_packages(exclude=['tests']),
         package_data={
             'resolwe_bio': [
                 'descriptors/*.yml',
