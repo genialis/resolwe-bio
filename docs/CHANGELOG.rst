@@ -5,26 +5,28 @@ Change Log
 All notable changes to this project are documented in this file.
 
 
-==========
-Unreleased
-==========
+================
+1.1.0 2016-04-18
+================
 
 Changed
 -------
-* Removed obsolete utilities superseded by resolwe-runtime-utils
+* Remove obsolete utilities superseded by resolwe-runtime-utils
+* Require Resolwe 1.1.0
 
 Fixed
 -----
-* Sample descriptor schema updated
-* Included all source files and supplementary package data in sdist
+* Update sample descriptor schema
+* Include all source files and supplementary package data in sdist
 
 Added
 -----
-* "flow_collection: sample" to processes
+* ``flow_collection: sample`` to processes
 * MACS14 processor
 * Initial Tox configuration for running the tests
 * Tox tests for ensuring high-quality Python packaging
 * ROSE2 processor
+
 
 ================
 1.0.0 2016-03-31

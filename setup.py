@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 NAME = 'resolwe-bio'
 TITLE = 'Resolwe Bioinformatics'
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 DESCRIPTION = "Bioinformatics pipelines for the Resolwe platform."
 LONG_DESCRIPTION = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
 AUTHOR = 'Genialis'
@@ -42,7 +42,7 @@ if __name__ == '__main__':
         },
         zip_safe=False,
         install_requires=(
-            "resolwe>=1.0.0",
+            'resolwe>=1.1.0',
         ),
         extras_require = {
             'docs':  [
