@@ -4,7 +4,7 @@
 ---
 
 - name: vc-gatk-joint
-  version: 1.0.1
+  version: 1.0.2
   label: Joint Variant calling (GATK)
   type: data:variants:vcf:jointgatk
   category: analyses:variants
@@ -132,6 +132,12 @@
           required: false
           description: >
             Use this option to perform the analysis over only part of the genome. This argument can be specified multiple times. You can use samtools-style intervals (e.g. -L chr1 or -L chr1:100-200).
+        - name: rf
+          label: ReasignOneMappingQuality Filter
+          type: basic:boolean
+          default: false
+          description: >
+            This read transformer will change a certain read mapping quality to a different value without affecting reads that have other mapping qualities. This is intended primarily for users of RNA-Seq data handling programs such as TopHat, which use MAPQ = 255 to designate uniquely aligned reads. According to convention, 255 normally designates "unknown" quality, and most GATK tools automatically ignore such reads. By reassigning a different mapping quality to those specific reads, users of TopHat and other tools can circumvent this problem without affecting the rest of their dataset.
   output:
     - name: vcf
       label: Called variants file
@@ -190,7 +196,7 @@
         BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
 
         echo "sorting, marking duplicates, indexing"
-        picard MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
+        picard MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT READ_NAME_REGEX=null
         re-checkrc
 
         picard AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
@@ -235,7 +241,7 @@
       {% endfor %}
 
       echo "variant calling"
-      gatk -T UnifiedGenotyper ${SAMPLES} -R "${GENOME_NAME}.fasta" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60
+      gatk -T UnifiedGenotyper ${SAMPLES} -R "${GENOME_NAME}.fasta" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
       re-checkrc
       re-progress 0.8
 
