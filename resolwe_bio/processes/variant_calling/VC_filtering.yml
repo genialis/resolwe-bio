@@ -4,7 +4,7 @@
 ---
 
 - name: vc_filtering_chem_mutagenesis
-  version: 1.0.0
+  version: 1.0.1
   label: Variant filtering (Chemical Mutagenesis)
   type: data:variants:vcf:filtering
   category: analyses:variants
@@ -124,7 +124,7 @@
 
       cp {{variants.vcf.file}} .
 
-      Rscript -e 'source("R/{{analysis_type}}.R")' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", ref_file = "reference_files/", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      Rscript -e 'library(chemut)' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
 
