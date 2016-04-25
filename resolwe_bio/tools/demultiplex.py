@@ -134,7 +134,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
         filenames = list(set(f.name for f in files.values()))
 
         p = subprocess.Popen(
-            'pigz -dc {} | wc -l'.format(barcodes_file),
+            'gzip -dc {} | wc -l'.format(barcodes_file),
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
