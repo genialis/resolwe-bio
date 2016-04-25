@@ -1,9 +1,9 @@
 # pylint: disable=missing-docstring
-import unittest
 from .utils import BioProcessTestCase
 
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):
+
     def test_chipseq(self):
         inputs = {"src": "chip_seq_control.bam"}
         control_bam = self.run_processor("import:upload:mapping-bam", inputs)
@@ -35,7 +35,6 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         gene_score = self.run_processor("chipseq:genescore", inputs)
         self.assertFiles(gene_score, "genescore", "chip_seq_geneScore.xls")
 
-    @unittest.skip("Missing tools in Genesis runtime")
     def test_macs14(self):
         inputs = {"src": "chip_seq_control.bam"}
         control_bam = self.run_processor("import:upload:mapping-bam", inputs)
@@ -47,7 +46,6 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "c": control_bam.id}
         macs14 = self.run_processor("macs14", inputs)
 
-    @unittest.skip("Missing tools in runtime")
     def test_rose2(self):
         inputs = {'src': 'chip_seq_control.bam'}
         bam = self.run_processor('import:upload:mapping-bam', inputs)
@@ -65,4 +63,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "t": 2500,
                   "test": True}
         rose2 = self.run_processor("rose2", inputs, 'ER')
-        self.assertFiles(rose2, 'test_output', 'rose2_test.txt')
+        # create a filtering function that will remove the current path of
+        # of rose2 from the output
+        def filter_path(line):
+            return b"rose2" in line
+        self.assertFiles(rose2, 'test_output', 'rose2_test.txt', filter=filter_path)
