@@ -5,6 +5,15 @@ Change Log
 All notable changes to this project are documented in this file.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+* ``skipDockerFailure`` test decorator
+
+
 ================
 1.1.0 2016-04-18
 ================

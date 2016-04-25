@@ -1,4 +1,7 @@
 import os
+import unittest
+
+from django.conf import settings
 
 try:
     from resolwe.flow.tests import ProcessTestCase
@@ -10,6 +13,16 @@ try:
     from resolwe.flow.models import Process, iterate_schema
 except ImportError:
     from server.models import Processor as Process, iterate_schema
+
+
+def skipDockerFailure(reason):
+    """Skip the decorated test unless ``TESTS_SKIP_DOCKER_FAILURES``
+    Django setting is set to ``False``. ``reason`` should describe why
+    the test is being skipped.
+    """
+    if getattr(settings, 'TESTS_SKIP_DOCKER_FAILURES', True):
+        return unittest.skip(reason)
+    return lambda func: func
 
 
 class BioProcessTestCase(ProcessTestCase):
