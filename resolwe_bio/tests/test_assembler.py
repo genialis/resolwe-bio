@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+from resolwe.flow.models import Data
+
 from .utils import BioProcessTestCase
 
 
@@ -22,4 +24,4 @@ class AbyssProcessorTestCase(BioProcessTestCase):
                   'options': {'k': 25,
                               'name': 'ecoli'}}
 
-        self.run_processor('assembler:abyss', inputs, 'error')
+        self.run_processor('assembler:abyss', inputs, Data.STATUS_ERROR)

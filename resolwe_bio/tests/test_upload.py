@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring
 import unittest
 
+from resolwe.flow.models import Data
+
 from .utils import BioProcessTestCase
 
 
@@ -23,7 +25,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             pass
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bam.bai"}
-        upload_bam = self.run_processor("import:upload:mapping-bam-indexed", inputs, 'error')
+        upload_bam = self.run_processor("import:upload:mapping-bam-indexed", inputs, Data.STATUS_ERROR)
         self.assertFields(upload_bam, 'proc.error', 'BAI should have the same name as BAM with .bai extension')
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_position_sorted.bam.bai"}
@@ -33,10 +35,10 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     def test_upload_expression(self):
         inputs = {"exp_type": "TPM"}
-        self.run_processor("import:upload:expression", inputs, 'error')
+        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
 
         inputs = {"exp": "exp_1_tpm.tab.gz", "rc": "exp_1_rc.tab.gz"}
-        self.run_processor("import:upload:expression", inputs, 'error')
+        self.run_processor("import:upload:expression", inputs, Data.STATUS_ERROR)
 
         inputs = {"rc": "exp_1_rc.tab.gz"}
         exp_3 = self.run_processor("import:upload:expression", inputs)
@@ -69,7 +71,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     def test_upload_paired_end_reads(self):
         inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}
-        self.run_processor("import:upload:reads-fastq-paired-end", inputs, 'error')
+        self.run_processor("import:upload:reads-fastq-paired-end", inputs, Data.STATUS_ERROR)
 
         inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq-paired-end", inputs)
@@ -84,7 +86,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     def test_upload_single_end_reads(self):
         inputs = {"src": "mate1.fastq.gz"}
-        self.run_processor("import:upload:reads-fastq", inputs, 'error')
+        self.run_processor("import:upload:reads-fastq", inputs, Data.STATUS_ERROR)
 
         inputs = {"src": "rRNA_forw.fastq.gz"}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
@@ -120,7 +122,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     def test_upload_bed(self):
         inputs = {"src": "bad.bed"}
-        bed = self.run_processor('import:upload:bed', inputs, 'error')
+        bed = self.run_processor('import:upload:bed', inputs, Data.STATUS_ERROR)
 
         inputs = {"src": "good.bed"}
         bed = self.run_processor('import:upload:bed', inputs)

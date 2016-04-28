@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+from resolwe.flow.models import Data
+
 from .utils import BioProcessTestCase
 
 
@@ -134,7 +136,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067102']
         }
-        self.run_processor('mergeexpressions', inputs, 'error')
+        self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)
 
     def test_etcmerge(self):
         genome = self.prepare_genome()
