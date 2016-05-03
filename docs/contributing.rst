@@ -72,14 +72,48 @@ Add a postgres user::
 Running tests
 =============
 
-To run the tests, use::
+Manually
+--------
+
+Change directory to the Django test project::
 
     cd tests
+
+To run the tests, use::
+
     ./manage.py test resolwe_bio
+
+To run a specific test, use::
+
+    ./manage.py test resolwe_bio.tests.<module-name>.<class-name>.<method-name>
+
+For example, to run the ``test_macs14`` test of the
+``ChipSeqProcessorTestCase`` class in the ``test_chipseq`` module, use::
+
+    ./manage.py test resolwe_bio.tests.test_chipseq.ChipSeqProcessorTestCase.test_macs14
+
+Using Tox
+---------
 
 To run the tests with Tox_, use::
 
+    tox
+
+To re-create the virtual environment before running the tests, use::
+
     tox -r
+
+To only run the tests with a specific Python version, use::
+
+    tox -e py<python-version>
+
+For example, to only run the tests with Python 3.5, use ::
+
+    tox -e py35
+
+.. note::
+
+    To see the list of available Python versions, see ``tox.ini``.
 
 .. _Tox: http://tox.testrun.org/
 

@@ -16,6 +16,7 @@ Fixed
 Added
 -----
 * ``skipDockerFailure`` test decorator
+* Expand documentation on running tests
 
 
 ================
