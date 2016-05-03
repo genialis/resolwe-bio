@@ -42,7 +42,7 @@ if __name__ == '__main__':
         },
         zip_safe=False,
         install_requires=(
-            'resolwe>=1.1.0',
+            'resolwe>=1.2.0',
         ),
         extras_require = {
             'docs':  [
