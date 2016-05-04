@@ -128,6 +128,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(genome, "index_bt")
         self.assertFileExists(genome, "index_bt2")
         self.assertFileExists(genome, "index_bwa")
+        self.assertFileExists(genome, "index_hisat2")
 
     def test_upload_bed(self):
         inputs = {"src": "bad.bed"}
