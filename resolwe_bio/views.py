@@ -2,17 +2,21 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from django.db.models import Max, Q
 
-from resolwe.flow.models import Collection
-from resolwe.flow.views import CollectionViewSet
+from resolwe.flow.views import CollectionViewSet, CollectionFilter
+from .models import Sample
+
+
+class SampleFilter(CollectionFilter):
+    class Meta(CollectionFilter.Meta):
+        model = Sample
 
 
 class SampleViewSet(CollectionViewSet):
+    filter_class = SampleFilter
 
     def get_queryset(self):
-        queryset = Collection.objects.annotate(
+        queryset = Sample.objects.annotate(
             latest_date=Max('data__created')
-        ).filter(
-            descriptor_schema__slug='sample'
         ).prefetch_related('descriptor_schema')
 
         annotated = self.request.query_params.get('annotated', None)

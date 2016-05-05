@@ -23,6 +23,7 @@ Added
 * ``skipDockerFailure`` test decorator
 * Expand documentation on running tests
 * Use Travis CI to run the tests
+* Add ``Sample`` model and corresponding viewset and filter
 
 
 ================
