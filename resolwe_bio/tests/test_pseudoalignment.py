@@ -1,8 +1,10 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from .utils import skipDockerFailure, BioProcessTestCase
 
 
 class PseudoalignmentProcessorTestCase(BioProcessTestCase):
+
+    @skipDockerFailure("Fails with: kallisto: command not found")
     def test_kallisto(self):
         inputs = {"src": "cDNA_reference.fasta.gz"}
         cdna = self.run_processor("import:upload:import_nucl_seq", inputs)

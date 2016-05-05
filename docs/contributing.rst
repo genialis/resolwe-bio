@@ -117,6 +117,22 @@ For example, to only run the tests with Python 3.5, use ::
 
 .. _Tox: http://tox.testrun.org/
 
+Running tests skipped on Docker
+-------------------------------
+
+To run the tests that are skipped on Docker due to failures and errors, set the
+``RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES`` environment variable to ``no``.
+
+For example, to run the skipped tests during a single test run, use::
+
+    RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES=no ./manage.py test resolwe_bio
+
+To run the skipped tests for the whole terminal session, execute::
+
+    export RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES=no
+
+and then run the tests as usual.
+
 Building documentation
 ======================
 

@@ -1,8 +1,10 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from .utils import skipDockerFailure, BioProcessTestCase
 
 
 class EnrichmentProcessorTestCase(BioProcessTestCase):
+
+    @skipDockerFailure("Fails with: preprocessor: command not found")
     def test_go_enrichment_dicty(self):
         inputs = {'src': 'ontology_dicty_cropped.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)
@@ -32,6 +34,7 @@ class EnrichmentProcessorTestCase(BioProcessTestCase):
         enrichment = self.run_processor('goenrichment:bcm-2-0-0', inputs)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
+    @skipDockerFailure("Fails with: preprocessor: command not found")
     def test_go_enrichment_mouse(self):
         inputs = {'src': 'ontology_mus_cropped.obo.gz'}
         ontology = self.run_processor('import:upload:ontology', inputs)

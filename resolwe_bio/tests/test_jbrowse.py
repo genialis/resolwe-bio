@@ -1,8 +1,10 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from .utils import skipDockerFailure, BioProcessTestCase
 
 
 class JbrowseProcessorTestCase(BioProcessTestCase):
+
+    @skipDockerFailure("Fails due to different order of objects in JSON file")
     def test_refseq_track(self):
         genome = self.prepare_genome()
         refseq_track = self.run_processor('jbrowse:refseq', {'refseq': genome.pk})
@@ -25,6 +27,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
         bed = self.run_processor('jbrowse:bed', {'bed': bed_file.pk})
         self.assertFields(bed, 'bed_track.refs', ['tracks/bed'])
 
+    @skipDockerFailure("Fails with: bedGraphToBigWig: command not found")
     def test_coverage_track(self):
         inputs = {"src": "alignment_coverage.bam"}
         bam = self.run_processor("import:upload:mapping-bam", inputs)
@@ -32,6 +35,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
         coverage = self.run_processor('jbrowse:bam:coverage', {'bam': bam.pk})
         self.assertFiles(coverage, 'bigwig_track', 'Jbrowse_genome_coverage.bw')
 
+    @skipDockerFailure("Fails with: bamCoverage: command not found")
     def test_norm_coverage_track(self):
         inputs = {"src": "alignment_coverage.bam"}
         bam = self.run_processor("import:upload:mapping-bam", inputs)

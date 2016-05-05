@@ -1,8 +1,10 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from .utils import skipDockerFailure, BioProcessTestCase
 
 
 class CoverageProcessorTestCase(BioProcessTestCase):
+
+    @skipDockerFailure("Fails with: bedGraphToBigWig: command not found")
     def test_coverage(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()

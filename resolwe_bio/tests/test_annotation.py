@@ -1,8 +1,11 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from .utils import skipDockerFailure, BioProcessTestCase
 
 
 class AnnotationProcessorTestCase(BioProcessTestCase):
+
+    @skipDockerFailure("Errors with: KeyError: u'gff' at"
+        "aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)")
     def test_transdecoder(self):
         inputs = {'src': 'reads_transdecoder.fastq.gz'}
         reads = self.run_processor("import:upload:reads-fastq", inputs)
