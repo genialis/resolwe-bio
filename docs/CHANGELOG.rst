@@ -9,6 +9,10 @@ All notable changes to this project are documented in this file.
 Unreleased
 ==========
 
+Fixed
+-----
+* Make Tox configuration more robust to different developer environments
+
 Added
 -----
 * ``skipDockerFailure`` test decorator
