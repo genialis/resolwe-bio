@@ -1,0 +1,43 @@
+- name: import:upload:cxb
+  version: 1.0.0
+  label: Cuffquant results
+  type: data:cufflinks:cuffquant
+  category: upload
+  data_name: '{{ src.file|default:"?" }}'
+  flow_collection: sample
+  persistence: RAW
+  description: >
+        Upload Cuffquant results file (.cxb)
+  input:
+    - name: src
+      label: Annotation file
+      type: basic:file
+      description: >
+        Upload Cuffquant results file. Supported extention: *.cxb
+      required: true
+      validate_regex: '\.(cxb)$'
+  output:
+    - name: cxb
+      label: Cuffquant results
+      type: basic:file
+  static:
+    - name: cite
+      label: Citation
+      type: list:basic:url:link
+    - name: experiment
+      label: Experiment
+      type: basic:string
+    - name: attachments
+      label: Attachments
+      type: list:basic:file
+    - name: tags
+      label: Tags
+      type: list:basic:string
+      default: ['Cuffquant']
+      placeholder: new tag
+  run:
+    runtime: polyglot
+    bash: |
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "cxb" "cxb" 1.0 extract
+      re-checkrc
+      re-save-file cxb "${NAME}.cxb"

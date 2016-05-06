@@ -17,6 +17,8 @@ Changed
 * Rename DB user in test project
 * Change PostgreSQL port in test project
 * Add ROSE2 results parser
+* Compute index for HISAT2 aligner on genome upload
+* Updated Cuffquant/Cuffnorm tools
 
 Fixed
 -----

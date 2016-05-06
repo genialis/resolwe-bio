@@ -74,6 +74,15 @@ class UploadProcessorTestCase(BioProcessTestCase):
         exp_8 = self.run_processor("import:upload:expression", inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
+    def test_upload_cuffquant_expression(self):
+        inputs = {"src": "cuffquant_1.cxb"}
+        cxb = self.run_processor("import:upload:cxb", inputs)
+
+        inputs = {
+            'exp': 'cuffquant_exp.tab',
+            'cxb': cxb.id}
+        self.run_processor('import:upload:expression:cuffnorm', inputs)
+
     def test_upload_paired_end_reads(self):
         inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}
         self.run_processor("import:upload:reads-fastq-paired-end", inputs, Data.STATUS_ERROR)

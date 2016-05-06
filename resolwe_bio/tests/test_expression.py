@@ -6,8 +6,6 @@ from .utils import skipDockerFailure, BioProcessTestCase
 
 class ExpressionProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Errors with: KeyError: u'mask_file' at "
-        "cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)")
     def test_cufflinks(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -43,23 +41,34 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
         self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
 
+    def test_cuffquant(self):
+        inputs = {"src": "cuffquant_mapping.bam"}
+        bam = self.run_processor("import:upload:mapping-bam", inputs)
+
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
+        
         inputs = {
-            'alignment': aligned_reads.pk,
-            'gff': cuff_merge.pk}
-        cuffquant = self.run_processor('cuffquant:-2-2-1', inputs)
+            'alignment': bam.id,
+            'gff': annotation.id}
+        self.run_processor('cuffquant:-2-2-1', inputs)
+
+    def test_cuffnorm(self):
+        inputs = {"src": "cuffquant_1.cxb"}
+        sample_1 = self.run_processor("import:upload:cxb", inputs)
+
+        inputs = {"src": "cuffquant_2.cxb"}
+        sample_2 = self.run_processor("import:upload:cxb", inputs)
+
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
 
         inputs = {
-            'alignment': aligned_reads.pk,
-            'gff': cuff_merge.pk}
-        cuffquant2 = self.run_processor('cuffquant:-2-2-1', inputs)
-
-        inputs = {
-            'cuffquant': [cuffquant.pk, cuffquant2.pk],
-            'replicates': ['1', '2'],
-            'labels': ['g1', 'g2'],
-            'gff': cuff_merge.pk}
+            'cuffquant': [sample_1.pk, sample_2.pk],
+            'annotation': annotation.id,
+            'labels': ['Group1', 'Group2'],
+            'replicates': ['1', '2']}
         cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
-        self.assertFiles(cuffnorm, 'expset', 'expression_set.tsv.gz', compression='gzip')
+        self.assertFiles(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
+        self.assertFiles(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
 
     @skipDockerFailure("Fails with: ImportError: No module named biox")
     def test_expression_bcm(self):

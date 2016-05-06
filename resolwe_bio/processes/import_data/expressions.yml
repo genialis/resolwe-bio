@@ -109,3 +109,59 @@
         expression2storage.py "${EXP_NAME}.tab.gz"
         re-checkrc
       {% endif %}
+
+
+- name: import:upload:expression:cuffnorm
+  version: 1.0.0
+  label: Expression (Cuffnorm)
+  type: data:expression
+  data_name: '{{ exp.file|default:"?" }}'
+  category: upload
+  persistence: RAW
+  flow_collection: sample
+  description: >
+        Save per-sample expression data from Cuffnorm. 
+  input:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+    - name: cxb
+      label: Cuffquant analysis
+      type: data:cufflinks:cuffquant
+      description: >
+        Cuffquant analysis.
+    - name: exp_type
+      label: Normalization type
+      type: basic:string
+      default: 'Cuffnorm'
+  output:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+      description: Normalized expression
+    - name: rc
+      label: Read counts
+      type: basic:file
+      description: Reads mapped to genomic features.
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      {% if exp and not exp_type %}
+        re-error "Please provide normalization type together with normalized expressions."
+
+      {% elif exp and exp_type and cxb %}
+        re-import "{{ exp.file_temp|default:exp.file }}" "{{ exp.file }}" "tab|gz" "tab" 0.1 compress
+        EXP_NAME=${NAME}
+        EXP_TYPE="{{exp_type}}"
+        re-save exp_type ${EXP_TYPE}
+        re-save-file exp ${EXP_NAME}.tab.gz
+        expression2storage.py "${NAME}.tab.gz"
+        re-checkrc
+      
+      {% endif %}

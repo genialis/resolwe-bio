@@ -4,11 +4,12 @@
 ---
 
 - name: cuffquant:-2-2-1
-  version: 1.0.5
+  version: 1.0.6
   label: Expression (Cuffquant 2.2.1)
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
+  data_name: "{{ alignment.bam.file|basename|default:'?' }}"
   persistence: CACHED
   description: >
     Compute the gene and transcript expression profiles and save these profiles to files that you can analyze later with Cuffdiff or Cuffnorm
@@ -60,8 +61,8 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: abundances
-      label: Abundances
+    - name: cxb
+      label: Abundances (.cxb)
       type: basic:file
   static:
     - name: name
@@ -100,12 +101,10 @@
 
       NAME=`basename '{{ alignment.bam.file }}' .bam`
 
-      echo "{\"proc.progress\":0.1}"
+      re-progress 0.1
 
       cuffquant {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} "--multi-read-correct" {% endif %} {% if mask_file %} -M '{{ mask_file.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet {% if gff.gtf.file %} '{{ gff.gtf.file }}' {% elif gff.gff.file %} '{{ gff.gff.file }}' {% elif gff.merged_gtf.file %} '{{ gff.merged_gtf.file }}' {% endif %} '{{ alignment.bam.file }}'
-
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
-
-      mv abundances.cxb ${NAME}_abundances.cxb
-
-      echo "{\"proc.progress\":1,\"abundances\":{\"file\":\"${NAME}_abundances.cxb\"}}"
+      re-checkrc
+      
+      mv abundances.cxb ${NAME}.cxb
+      re-save-file cxb ${NAME}.cxb

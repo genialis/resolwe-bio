@@ -4,7 +4,7 @@
 ---
 
 - name: cuffnorm:-2-2-1
-  version: 1.0.8
+  version: 1.0.9
   label: Expression (Cuffnorm 2.2.1)
   type: data:expressionset:cuffnorm
   category: analyses
@@ -15,25 +15,27 @@
     - name: cuffquant
       label: Cuffquant expression file
       type: list:data:cufflinks:cuffquant
-      required: true
+    - name: annotation
+      label: Annotation (GTF/GFF3)
+      type: data:annotation
+      description: >
+        A transcript annotation file produced by cufflinks, cuffcompare, or other source.
     - name: replicates
       label: Define Groups/Replicates
       type: list:basic:string
-      required: true
       description: >
         Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
     - name: labels
       label: Group labels
       type: list:basic:string
-      required: true
       description: >
         Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2).
-    - name: gff
-      label: Annotation (GTF/GFF3)
-      type: data:annotation:cuffmerge
-      required: true
+    - name: useERCC
+      label: ERCC spike-in normalization
+      type: basic:boolean
+      default: false
       description: >
-        A transcript annotation file produced by cufflinks, cuffcompare, or other source.
+        Use ERRCC spike-in controls for normalization.
     - name: threads
       label: Use this many processor threads
       type: basic:integer
@@ -41,16 +43,54 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: expset
-      label: Expression set (FPKM)
+    - name: genes_count
+      label: Genes count
       type: basic:file
-    - name: cuffnorm_output
-      label: Cuffnorm output
+    - name: genes_fpkm
+      label: Genes FPKM
       type: basic:file
-    - name: expset_type
-      label: Expression set type
-      type: basic:string
-      default: 'Cuffnorm'
+    - name: genes_attr
+      label: Genes attr table
+      type: basic:file
+    - name: isoform_count
+      label: Isoform count
+      type: basic:file
+    - name: isoform_fpkm
+      label: Isoform FPKM
+      type: basic:file
+    - name: isoform_attr
+      label: Isoform attr table
+      type: basic:file
+    - name: cds_count
+      label: CDS count
+      type: basic:file
+    - name: cds_fpkm
+      label: CDS FPKM
+      type: basic:file
+    - name: cds_attr
+      label: CDS attr table
+      type: basic:file
+    - name: tss_groups_count
+      label: TSS groups count
+      type: basic:file
+    - name: tss_groups_fpkm
+      label: TSS groups FPKM
+      type: basic:file
+    - name: tss_attr
+      label: TSS attr table
+      type: basic:file
+    - name: run_info
+      label: Run info
+      type: basic:file
+    - name: raw_scatter
+      label: FPKM exp scatter plot
+      type: basic:file
+    - name: boxplot
+      label: Boxplot
+      type: basic:file
+    - name: R_data
+      label: All R normalization data
+      type: basic:file
   static:
     - name: name
       label: Name
@@ -84,38 +124,57 @@
       type: basic:text
   run:
     runtime: polyglot
-    bash: |
-      experiment=""
-      labels=""
-      replicates=""
+    bash: | 
+      experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
+      replicates='{% for r in replicates %}{{r}},{% endfor %}'
+      labels='{% for l in labels %}{{l}},{% endfor %}'
 
-      experiment='{% for experiment in cuffquant %}{{ experiment.abundances.file }},{% endfor %}'
-
-      {% for r in replicates %}
-        replicates=$replicates"{{r}},"
-      {% endfor %}
-
-      {% for l in labels %}
-        labels=$labels"{{l}},"
-      {% endfor %}
-
-      labels=${labels%?}
+      labels=${labels%?}      
       experiment=${experiment%?}
       replicates=${replicates%?}
 
       experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}`
 
-      echo "{\"proc.progress\":0.1}"
+      re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads '{{ threads }}' --output-format cuffdiff --labels ${labels} '{{ gff.merged_gtf.file }}' ${experiments}
+      cuffnorm --output-dir ./ --num-threads '{{ threads }}' --labels ${labels} {% if annotation.gtf.file %} '{{ annotation.gtf.file }}' {% elif annotation.gff.file %} '{{ annotation.gff.file }}' {% elif annotation.merged_gtf.file %} '{{ annotation.merged_gtf.file }}' {% endif %} ${experiments}
 
-      echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
+      re-checkrc 'Cuffnorm analysis failed.'
+      re-progress 0.8
 
-      parse_cuffnorm.py "isoforms.fpkm_tracking"
+      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "'{{useERCC|yesno:"TRUE,FALSE"}}'")'
 
-      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+      {% if useERCC %}
+        {% for exp in cuffquant %}
+          EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
+          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{forloop.counter0}} -n
+          mv expression.tab /home/biolinux/upload/${EXP_NAME}
+          echo 'run {"status":"RE","process":"import-upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+        {% endfor %}
+      {% else %}
+        {% for exp in cuffquant %}
+          EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
+          parse_cuffnorm.py genes.fpkm_table {{forloop.counter0}}
+          mv expression.tab /home/biolinux/upload/${EXP_NAME}
+          echo 'run {"status":"RE","process":"import-upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+        {% endfor %}
+      {% endif %}
 
-      gzip expression_set.tsv
-      zip cuffnorm_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups* read_groups.info run.info
-
-      echo "{\"proc.progress\":1,\"expset\":{\"file\":\"expression_set.tsv.gz\"}, \"cuffnorm_output\":{\"file\":\"cuffnorm_output_$(date +'%m-%d-%Y').zip\"}}"
+      zip R_data.zip cuffnorm_*
+      
+      re-save-file genes_count genes.count_table
+      re-save-file genes_fpkm genes.fpkm_table
+      re-save-file genes_attr genes.attr_table
+      re-save-file isoform_count isoforms.count_table
+      re-save-file isoform_fpkm isoforms.fpkm_table
+      re-save-file isoform_attr isoforms.attr_table
+      re-save-file cds_count cds.count_table
+      re-save-file cds_fpkm cds.fpkm_table
+      re-save-file cds_attr cds.attr_table
+      re-save-file tss_groups_count tss_groups.count_table
+      re-save-file tss_groups_fpkm tss_groups.fpkm_table
+      re-save-file tss_attr tss_groups.attr_table
+      re-save-file run_info run.info
+      re-save-file raw_scatter cuffnorm_all_fpkm_exprs_raw_scatter.png
+      re-save-file boxplot cuffnorm_exprs_boxplot.pdf
+      re-save-file R_data R_data.zip
