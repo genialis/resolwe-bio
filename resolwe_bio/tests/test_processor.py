@@ -29,7 +29,7 @@ class ProcessFieldsTestCase(TestCase):
             self.fail('Processes of the same type should have the same output fields:\n\n    {}'.format(
                 '\n    '.join(', '.join(types[typ]['name']) for typ in errors_equals)))
 
-        type_list = sorted(types.iterkeys())
+        type_list = sorted(types)
         for i, typ in enumerate(type_list):
             for prev_typ in type_list[:i]:
                 if typ.startswith(prev_typ):
