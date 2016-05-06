@@ -1,0 +1,21 @@
+sudo: required
+
+addons:
+  postgresql: "9.4"
+
+services:
+  - docker
+  - postgresql
+
+language: python
+
+python: "3.5"
+
+env:
+  - TOX_ENV=py27
+  - TOX_ENV=py34
+  - TOX_ENV=py35
+
+install: pip install tox
+
+script: tox -e $TOX_ENV

@@ -2,7 +2,11 @@
 Resolwe Bioinformatics
 ======================
 
-|docs| |pypi_version| |pypi_pyversions| |pypi_downloads|
+|build| |docs| |pypi_version| |pypi_pyversions| |pypi_downloads|
+
+.. |build| image:: https://travis-ci.org/genialis/resolwe-bio.svg?branch=master
+    :target: https://travis-ci.org/genialis/resolwe-bio
+    :alt: Build Status
 
 .. |docs| image:: https://readthedocs.org/projects/resolwe-bio/badge/?version=latest
     :target: http://resolwe-bio.readthedocs.org/
