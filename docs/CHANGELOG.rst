@@ -14,6 +14,8 @@ Changed
 * Decorate all tests that currently fail on Docker with ``skipDockerFailure``
 * Require Resolwe's ``master`` git branch
 * Put packaging tests in a separate Tox testing environment
+* Rename DB user in test project
+* Change PostgreSQL port in test project
 
 Fixed
 -----
@@ -25,6 +27,7 @@ Added
 * Expand documentation on running tests
 * Use Travis CI to run the tests
 * Add ``Sample`` model and corresponding viewset and filter
+* Add docker-compose command for PostgreSQL
 
 
 ================
