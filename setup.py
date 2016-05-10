@@ -41,6 +41,9 @@ if __name__ == '__main__':
             ]
         },
         zip_safe=False,
+        dependency_links=(
+            "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.2.99",
+        ),
         install_requires=(
             'resolwe>=1.2.0',
         ),
