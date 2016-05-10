@@ -13,6 +13,7 @@ Changed
 -------
 * Decorate all tests that currently fail on Docker with ``skipDockerFailure``
 * Require Resolwe 1.2.0
+* Put packaging tests in a separate Tox testing environment
 
 Fixed
 -----
