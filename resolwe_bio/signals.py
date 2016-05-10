@@ -22,7 +22,7 @@ def add_post_save_handler(sender, instance, **kwargs):
             # collect id's of all `input objects`
             input_objects = []
             for field_schema, fields, path in iterate_schema(instance.input, instance.process.input_schema, ''):
-                if 'name' in field_schema and 'type' in field_schema:
+                if 'name' in field_schema and 'type' in field_schema and field_schema['name'] in fields:
                     field = fields[field_schema['name']]
                     if field_schema['type'].startswith('data:'):
                         input_objects.append(field)
