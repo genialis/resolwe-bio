@@ -17,6 +17,7 @@ Fixed
 -----
 * Sample descriptor schema updated
 * Included all source files and supplementary package data in sdist
+* Update gatk-joint processor
 
 Added
 -----
