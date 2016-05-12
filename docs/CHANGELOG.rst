@@ -43,6 +43,7 @@ Fixed
 -----
 * Update sample descriptor schema
 * Include all source files and supplementary package data in sdist
+* Update vc-gatk-joint processor
 
 Added
 -----
