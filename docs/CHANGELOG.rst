@@ -28,6 +28,7 @@ Added
 * Use Travis CI to run the tests
 * Add ``Sample`` model and corresponding viewset and filter
 * Add docker-compose command for PostgreSQL
+* API endpoint for adding ``Samples`` to ``Collections``
 
 
 ================
