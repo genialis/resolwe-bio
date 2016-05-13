@@ -67,7 +67,7 @@ toxenv = os.environ.get('TOXENV', '')
 pgname = os.environ.get('RESOLWE_POSTGRESQL_NAME', 'resolwe-bio')
 pguser = os.environ.get('RESOLWE_POSTGRESQL_USER', 'resolwe')
 pghost = os.environ.get('RESOLWE_POSTGRESQL_HOST', 'localhost')
-pgport = int(os.environ.get('RESOLWE_POSTGRESQL_PORT', 55432))
+pgport = int(os.environ.get('RESOLWE_POSTGRESQL_PORT', 55433))
 
 DATABASES = {
     'default': {

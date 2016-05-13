@@ -7,4 +7,4 @@ postgresql:
         POSTGRES_USER: resolwe
         POSTGRES_DB: resolwe-bio
     ports:
-        - "55432:5432"
+        - "55433:5432"
