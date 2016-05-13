@@ -16,6 +16,7 @@ Changed
 * Put packaging tests in a separate Tox testing environment
 * Rename DB user in test project
 * Change PostgreSQL port in test project
+* Add ROSE2 results parser
 
 Fixed
 -----

@@ -4,7 +4,7 @@
 ---
 
 - name: rose2
-  version: 1.0.0
+  version: 1.0.1
   label: ROSE2
   type: data:chipseq:rose2
   category: analyses
@@ -50,14 +50,6 @@
       default: 0
       description: >
         Enter a distance from TSS to exclude. 0 = no TSS exclusion
-    - name: test
-      label: Test
-      type: basic:boolean
-      default: false
-      required: false
-      hidden: true
-      description: >
-        Enter test mode
   output:
     - name: all_enhancers
       label: All enhancers table
@@ -89,16 +81,12 @@
     - name: test_output
       label: Test
       type: basic:file
+    - name: scatter_plot
+      label: Super-Enhancer plot
+      type: basic:json
   run:
     runtime: polyglot
     bash: |
-      {% if test %}
-        bamliquidator >> test.txt
-        rose2 >> test.txt
-        re-save-file test_output test.txt
-        re-error "Done testing."
-      {% endif %}
-
       {% if not i and not i_upload %}
         re-error "Peaks file missing. Please provide .bed peaks file as a file upload or MACS14 output."
       {% endif %}
@@ -124,6 +112,9 @@
       re-save-file enhancer_top_gene ${NAME}_SuperEnhancers_ENHANCER_TO_TOP_GENE.txt
       re-save-file gene_enhancer ${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt
       re-save-file stich_parameter ${NAME}_stitch_parameter.pdf
+
+      plot_enhancers.py ${NAME}_AllEnhancers.table.txt {% if c %} -c {% endif %}
+      re-checkrc
 
       zip ${NAME}_output_all.zip ${NAME}_*
       re-save-file all_output ${NAME}_output_all.zip
