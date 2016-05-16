@@ -45,7 +45,7 @@ if __name__ == '__main__':
             "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.2.99",
         ),
         install_requires=(
-            'resolwe>=1.2.0',
+            'resolwe>=1.2.1',
         ),
         extras_require = {
             'docs':  [
