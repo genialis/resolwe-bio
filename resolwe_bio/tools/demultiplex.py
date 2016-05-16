@@ -259,8 +259,8 @@ for name in filenames:
 
         name2 = name.replace('_mate1', '_mate2')
         d = {
-            'status': 'resolving',
-            'processor_name': 'import:upload:reads-fastq-paired-end',
+            'status': 'RE',
+            'process': 'import-upload-reads-fastq-paired-end',
             'input': {
                 'src1': {
                     'file': os.path.basename(name),
@@ -274,8 +274,8 @@ for name in filenames:
         }
     else:
         d = {
-            'status': 'resolving',
-            'processor_name': 'import:upload:reads-fastq',
+            'status': 'RE',
+            'process': 'import-upload-reads-fastq',
             'input': {
                 'src': {
                     'file': os.path.basename(name),

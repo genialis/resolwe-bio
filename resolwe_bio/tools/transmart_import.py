@@ -66,8 +66,8 @@ for i in range(1, nsamples):
         tabwriter.writerows(zip(gene_ids, exprs[i]))
 
     d = {
-        'status': 'resolving',
-        'processor_name': 'import:upload:expression',
+        'status': 'RE',
+        'process': 'import-upload-expression',
         'input': {
             'exp': {
                 'file': os.path.basename(fname),
