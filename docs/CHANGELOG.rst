@@ -32,6 +32,7 @@ Added
 * Add ``Sample`` model and corresponding viewset and filter
 * Add docker-compose command for PostgreSQL
 * API endpoint for adding ``Samples`` to ``Collections``
+* HISAT2 aligner
 
 
 ================

@@ -1,0 +1,76 @@
+# ================
+# Aligner - HISAT2
+# ================
+---
+
+- name: alignment:hisat2
+  version: 1.0.0
+  label: HISAT2
+  type: data:alignment:bam:hisat2
+  category: analyses:alignment
+  flow_collection: sample
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  persistence: CACHED
+  description: >
+    Spliced Transcripts Alignment to a Reference
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 1
+      description: >
+        Number of processor threads to be used when mapping reads to the reference sequence.
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      INDEX_NAME=`basename '{{ genome.index_hisat2.file }}' _hisat2_index.tar.gz`
+
+      tar -zxvf {{ genome.index_hisat2.file }}
+      mv ./hisat2_index/* .
+
+      re-progress 0.1
+
+      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+
+        hisat2 -p {{threads}} --no-unal -x ${INDEX_NAME} -U {{reads.fastq.file}} -S alignment_unsorted.sam 2> stats.txt
+        re-checkrc "HISAT2 alignment failed."
+        re-progress 0.6
+
+      {% else %}
+
+        hisat2 -p {{threads}} --no-unal -x ${INDEX_NAME} -1 {{reads.fastq.file}} -2 {{reads.fastq2.file}} -S alignment_unsorted.sam 2> stats.txt
+        re-checkrc "HISAT2 alignment failed."
+        re-progress 0.6
+
+      {% endif %}
+
+      samtools view -bS alignment_unsorted.sam > alignment_unsorted.bam
+      re-checkrc
+      re-progress 0.7
+      samtools sort alignment_unsorted.bam alignment
+      re-checkrc
+      re-progress 0.8
+      samtools index alignment.bam alignment.bam.bai
+      re-checkrc
+      re-progress 0.9
+
+      re-save-file bam alignment.bam
+      re-save-file bai alignment.bam.bai
+      re-save-file stats stats.txt

@@ -89,3 +89,13 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_processor('alignment:bwa_mem-0.7.5a', inputs)
         self.assertFiles(aligned_reads, 'bam', 'bwa_mem_reads_mapped.bam')
         self.assertFiles(aligned_reads, 'stats', 'bwa_mem_reads_report.txt')
+
+    def test_hisat2(self):
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
+
+        inputs = {
+            'genome': genome.pk,
+            'reads': reads.pk}
+        aligned_reads = self.run_processor('alignment:hisat2', inputs)
+        self.assertFiles(aligned_reads, 'stats', 'hisat2_report.txt')

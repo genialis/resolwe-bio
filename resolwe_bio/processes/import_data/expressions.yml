@@ -120,7 +120,7 @@
   persistence: RAW
   flow_collection: sample
   description: >
-        Save per-sample expression data from Cuffnorm. 
+        Save per-sample expression data from Cuffnorm.
   input:
     - name: exp
       label: Normalized expression
@@ -163,5 +163,5 @@
         re-save-file exp ${EXP_NAME}.tab.gz
         expression2storage.py "${NAME}.tab.gz"
         re-checkrc
-      
+
       {% endif %}

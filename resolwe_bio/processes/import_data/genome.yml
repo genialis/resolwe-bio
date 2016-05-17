@@ -102,7 +102,7 @@
       re-save-file index_bwa "${NAME}_bwa_index.tar.gz"
 
       mkdir hisat2_index
-      hisat2-build "$NAME.fasta" "hisat2_index/${NAME}.fasta" 
+      hisat2-build "$NAME.fasta" "hisat2_index/${NAME}" 
       tar cfz "${NAME}_hisat2_index.tar.gz" ./hisat2_index/*
       re-checkrc
       re-progress 0.9
