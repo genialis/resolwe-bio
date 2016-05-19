@@ -3,9 +3,10 @@
 # =================================
 ---
 
-- name: import:upload:reads-fastq
-  version: 1.0.18
-  label: Upload NGS reads
+- slug: upload-fastq-single
+  name: Reads (single-end)
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.19
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -18,7 +19,6 @@
       type: basic:file
       description: >
         NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
-      required: true
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
     - name: fastq
@@ -36,102 +36,6 @@
     - name: fastqc_archive
       label: Download FastQC archive
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['reads', 'FASTQ']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file|default:"?" }} reads upload.'
-  var:
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: experimenter
-      label: Experimenter
-      type: basic:string
-    - name: notes
-      label: Notes
-      type: basic:text
-    - name: sample
-      label: Biological sample
-      group:
-        - name: genotype
-          label: Genotype
-          type: basic:string
-          default: "wildtype"
-        - name: treatment
-          label: Treatment
-          type: basic:string
-        - name: strain
-          label: Strain
-          type: basic:string
-        - name: growth
-          label: Growth
-          type: basic:string
-        - name: time
-          label: Time point
-          type: basic:integer
-          default: 0
-    - name: replicate
-      label: Biological replicates
-      group:
-        - name: replicate
-          label: Replicate
-          type: basic:integer
-          default: 1
-    - name: seqrun
-      label: Seq-Run information
-      group:
-        - name: adapter
-          label: Adapter type
-          type: basic:string
-        - name: center
-          label: Sequencing center
-          type: basic:string
-        - name: fragmenting
-          label: Fragmenting
-          type: basic:string
-        - name: purified
-          label: Purified band
-          type: basic:string
-    - name: rnaseq
-      label: RNA-seq information
-      group:
-        - name: polya
-          label: PolyA selection
-          type: basic:string
-        - name: primer
-          label: Primer
-          type: basic:string
-    - name: chipseq
-      label: ChIP-seq information
-      group:
-        - name: target
-          label: Target protein
-          type: basic:string
-        - name: antibody
-          label: Antibody
-          type: basic:string
-        - name: control
-          label: Sample control
-          type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -166,30 +70,28 @@
       re-save bases "\"$BASES\""
       re-save fastqc_url $FASTQC_URL
 
-
-- name: import:upload:reads-fastq-paired-end
-  version: 1.0.18
-  label: Upload paired-end NGS reads
+- slug: upload-fastq-paired
+  name: Reads (paired-end)
+  data_name: '{{ src1.file|default:"?" }}'
+  version: 1.0.19
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
   persistence: RAW
   description: >
-    Upload NGS reads in FASTQ format.
+    Upload paired-end reads in FASTQ format.
   input:
     - name: src1
       label: NGS upstream reads (FASTQ)
       type: basic:file
       description: >
         NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
-      required: true
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
     - name: src2
       label: NGS downstream reads (FASTQ)
       type: basic:file
       description: >
         NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
-      required: true
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
     - name: fastq
@@ -216,102 +118,6 @@
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src1.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['reads', 'FASTQ']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src1.file|default:"?" }} reads upload.'
-  var:
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: experimenter
-      label: Experimenter
-      type: basic:string
-    - name: notes
-      label: Notes
-      type: basic:text
-    - name: sample
-      label: Biological sample
-      group:
-        - name: genotype
-          label: Genotype
-          type: basic:string
-          default: "wildtype"
-        - name: treatment
-          label: Treatment
-          type: basic:string
-        - name: strain
-          label: Strain
-          type: basic:string
-        - name: growth
-          label: Growth
-          type: basic:string
-        - name: time
-          label: Time point
-          type: basic:integer
-          default: 0
-    - name: replicate
-      label: Biological replicates
-      group:
-        - name: replicate
-          label: Replicate
-          type: basic:integer
-          default: 1
-    - name: seqrun
-      label: Seq-Run information
-      group:
-        - name: adapter
-          label: Adapter type
-          type: basic:string
-        - name: center
-          label: Sequencing center
-          type: basic:string
-        - name: fragmenting
-          label: Fragmenting
-          type: basic:string
-        - name: purified
-          label: Purified band
-          type: basic:string
-    - name: rnaseq
-      label: RNA-seq information
-      group:
-        - name: polya
-          label: PolyA selection
-          type: basic:string
-        - name: primer
-          label: Primer
-          type: basic:string
-    - name: chipseq
-      label: ChIP-seq information
-      group:
-        - name: target
-          label: Target protein
-          type: basic:string
-        - name: antibody
-          label: Antibody
-          type: basic:string
-        - name: control
-          label: Sample control
-          type: basic:string
   run:
     runtime: polyglot
     bash: |

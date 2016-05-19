@@ -3,9 +3,10 @@
 # ===============================
 ---
 
-- name: import:upload:gaf
-  version: 1.0.8
-  label: Upload GO annotation file (GAF v2.0)
+- slug: upload-gaf
+  name: Upload GO annotation file (GAF v2.0)
+  data_name: 'GO annotation file ({{ src.file|default:"?" }}) upload'
+  version: 1.0.9
   type: data:gaf:2:0
   category: upload
   persistence: RAW
@@ -25,25 +26,6 @@
     - name : gaf_obj
       label: GAF object
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'GO annotation file ({{ src.file|default:"?" }}) upload'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['genes', 'annotation']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

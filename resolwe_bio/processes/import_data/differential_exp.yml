@@ -3,9 +3,10 @@
 # ==============================
 ---
 
-- name: import:upload:diffexp
-  version: 1.0.3
-  label: Upload Differential Expression table
+- slug: upload-diffexp
+  name: Differential Expression (table)
+  data_name: 'Differential expression ({{ src.file }})'
+  version: 1.0.4
   type: data:differentialexpression:upload
   category: upload
   persistence: RAW
@@ -26,41 +27,6 @@
     - name: volcano_plot
       label: Volcano plot
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Upload differential expression ({{ src.file }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['differential expression']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file }} differential expression upload.'
-    - name: vp_x_label
-      label: Volcano plot x-label
-      type: basic:string
-      default: 'log2 FC'
-    - name: vp_y_label
-      label: Volcano plot y-label
-      type: basic:string
-      default: '-log10(FDR)'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -5,9 +5,10 @@
 # Processors for computing gene coverage. Developed within the Garvan project.
 ---
 
-- name: coverage:garvan
-  version: 2.0.3
-  label: Exome Coverage Report
+- slug: coverage-garvan
+  name: Exome Coverage Report
+  data_name: "Coverage report ({{ mapping.bam.file|basename|default:'?' }})"
+  version: 2.0.4
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -19,11 +20,9 @@
     - name: mapping
       label: Mapping file
       type: data:alignment:bam
-      required: true
     - name: gtf
       label: Gene Transfer Format file
       type: data:annotation:gtf
-      required: true
     - name: variants
       label: Variants in VCF format
       type: data:variants:vcf
@@ -34,14 +33,12 @@
       description: >
         A threshold filter to use when reporting exon coverage.
       default: 15
-      required: true
     - name: genes
       label: List of genes
       type: list:basic:string
       description: >
         Names of genes for which to have coverages reported.
       placeholder: input gene ids
-      required: true
       default: [PKD1, TPPP]
   output:
     - name: report
@@ -63,30 +60,6 @@
     - name: variants_coverage
       label: Variants coverage in tsv format
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Coverage report ({{ mapping.bam.file|basename|default:'?' }})"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["coverage", "JSON"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Coverage report of genes in {{ mapping.bam.file|basename|default:'?' }} mapping."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # =============
 ---
 
-- name: alignment:bwa_mem-0.7.5a
-  version: 1.0.11
-  label: Aligner (BWA MEM 0.7.5a)
+- slug: alignment-bwa-mem
+  name: BWA MEM (0.7.5a)
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.12
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -16,11 +17,9 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: seed_l
       label: Minimum seed length
       type: basic:integer
@@ -99,33 +98,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["alignment", "BAM", "BWA mem"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -187,9 +159,10 @@
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"} , \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
 
-- name: alignment:bwa_sw-0.7.5a
-  version: 1.0.10
-  label: Aligner (BWA SW 0.7.5a)
+- slug: alignment-bwa-sw
+  name: BWA SW (0.7.5a)
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.11
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -200,11 +173,9 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: match
       label: Score of a match
       type: basic:integer
@@ -235,33 +206,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["alignment", "BAM", "BWA SW"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -324,10 +268,10 @@
 
       echo "{\"proc.progress\":1,\"bam\":{\"file\": \"$OUTPUT_NAME\",\"refs\":[\"${OUTPUT_NAME}.bw\"]}, \"bai\":{\"file\":\"$OUTPUT_NAME.bai\"},\"unmapped\":{\"file\":\"${NAME}_unmapped.fastq.gz\"}, \"stats\":{\"file\":\"${NAME}_report.txt\"} }"
 
-
-- name: alignment:bwa_aln-0.7.5a
-  version: 1.0.11
-  label: Aligner (BWA backtrack 0.7.5a)
+- slug: alignment-bwa-aln
+  name: BWA ALN (0.7.5a)
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.12
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -338,11 +282,9 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: fraction
       label: Fraction of missing alignments
       type: basic:decimal
@@ -387,33 +329,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["alignment", "BAM", "BWA BT"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

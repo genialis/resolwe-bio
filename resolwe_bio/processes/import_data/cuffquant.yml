@@ -1,9 +1,14 @@
-- name: import:upload:cxb
-  version: 1.0.0
-  label: Cuffquant results
+# =====================================
+# Import - Cuffquant results file (.cxb)
+# =====================================
+---
+
+- slug: upload-cxb
+  name: Cuffquant results
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.1
   type: data:cufflinks:cuffquant
   category: upload
-  data_name: '{{ src.file|default:"?" }}'
   flow_collection: sample
   persistence: RAW
   description: >
@@ -20,21 +25,6 @@
     - name: cxb
       label: Cuffquant results
       type: basic:file
-  static:
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['Cuffquant']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

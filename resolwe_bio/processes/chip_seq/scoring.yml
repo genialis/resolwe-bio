@@ -3,9 +3,10 @@
 # ==================
 ---
 
-- name: chipseq:peakscore
-  version: 1.0.4
-  label: ChIP-Seq (Peak Score)
+- slug: chipseq-peakscore
+  name: ChIP-Seq (Peak Score)
+  data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default:'?' }})"
+  version: 1.0.5
   type: data:chipseq:peakscore
   category: analyses
   flow_collection: sample
@@ -15,38 +16,14 @@
     - name: peaks
       label: MACS2 results
       type: data:chipseq:macs2:callpeak
-      required: true
       description: MACS2 results file (NarrowPeak)
     - name: bed
       label: BED file
       type: data:bed
-      required: true
   output:
     - name: peak_score
       label: Peak Score
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Peak score ({{ peaks.narrow_peaks.file|basename|default:'?' }})"
-    - name: alias
-      label: Alias
-      type: basic:string
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: [Chip-Seq', 'Peak Score']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |
@@ -60,10 +37,10 @@
 
       re-save-file peak_score macs2_peakscore_genomicContext
 
-
-- name: chipseq:genescore
-  version: 1.0.2
-  label: ChIP-Seq (Gene Score)
+- slug: chipseq-genescore
+  name: ChIP-Seq (Gene Score)
+  data_name: "Gene score ({{ peakscore.peak_score.file|basename|default:'?' }})"
+  version: 1.0.3
   type: data:chipseq:genescore
   category: analyses
   persistence: TEMP
@@ -72,26 +49,22 @@
     - name: peakscore
       label: PeakScore file
       type: data:chipseq:peakscore
-      required: true
       description: PeakScore file
     - name: fdr
       label: FDR threshold
       type: basic:decimal
-      required: true
       default: 0.00005
       description: >
         FDR threshold value (default = 0.00005).
     - name: pval
       label: Pval threshold
       type: basic:decimal
-      required: true
       default: 0.00005
       description: >
         Pval threshold value (default = 0.00005).
     - name: logratio
       label: Log-ratio threshold
       type: basic:decimal
-      required: true
       default: 2.0
       description: >
         Log-ratio threshold value (default = 2).
@@ -99,28 +72,6 @@
     - name: genescore
       label: Gene Score
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Gene score ({{ peakscore.peak_score.file|basename|default:'?' }})"
-    - name: alias
-      label: Alias
-      type: basic:string
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: [Chip-Seq', 'Gene Score']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

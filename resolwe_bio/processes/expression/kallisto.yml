@@ -3,9 +3,10 @@
 # =====================
 ---
 
-- name: kallisto:quant
-  version: 1.0.3
-  label: Expression (Kallisto - Quant)
+- slug: kallisto-quant
+  name: Kallisto (Quant)
+  data_name: "{{ reads.fastq.file|basename|default:'?' }}"
+  version: 1.0.4
   type: data:expression:kallisto
   flow_collection: sample
   category: analyses
@@ -16,11 +17,9 @@
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: transcriptome
       label: Reference transcriptome index
       type: data:index:kallisto
-      required: true
       description: >
         Reference transcriptome index produced by Kallisto indexing tool.
     - name: options
@@ -107,35 +106,6 @@
       label: Expression type
       type: basic:string
       default: "TPM"
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: Expression anaysis ({{ reads.fastq.file|basename|default:'?' }})
-    - name: alias
-      label: Alias
-      type: basic:string
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Kallisto"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -191,10 +161,10 @@
         re-save-file bs_abundance bs_abundances.tar.gz
       {% endif %}
 
-
-- name: kallisto:index
-  version: 1.0.2
-  label: Expression (Kallisto - Index)
+- slug: kallisto-index
+  name: Kallisto (Index)
+  data_name: "Kallisto index ({{ fasta.fasta.file|basename|default:'?' }})"
+  version: 1.0.3
   type: data:index:kallisto
   category: analyses
   persistence: CACHED
@@ -204,7 +174,6 @@
     - name: fasta
       label: cDNA sequences
       type: data:seq:nucleotide
-      required: true
     - name: kmer_size
       label: Kmer size
       type: basic:integer
@@ -215,35 +184,6 @@
     - name: index
       label: Kallisto index
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: Kallisto index ({{ fasta.fasta.file|basename|default:'?' }})
-    - name: alias
-      label: Alias
-      type: basic:string
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Kallisto", "index"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

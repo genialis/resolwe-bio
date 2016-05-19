@@ -151,7 +151,7 @@ class Command(BaseCommand):
             descriptor_schema = DescriptorSchema.objects.get(slug='reads'),
             descriptor = self.generate_reads_descriptor(),
             status = 'OK',
-            process = Process.objects.get(slug='import-upload-reads-fastq'),
+            process = Process.objects.get(slug='upload-fastq-single'),
             contributor = self.set_user(),
             input = {'src': {'file': os.path.basename(reads)}},
             output = {
@@ -188,7 +188,7 @@ class Command(BaseCommand):
         # Upload bam file
         bam = Data.objects.create(
             name = 'Mapping',
-            process = Process.objects.get(slug='import-upload-mapping-bam-indexed'),
+            process = Process.objects.get(slug='upload-bam-indexed'),
             contributor = self.set_user(),
             status = 'OK',
             input = {
@@ -212,7 +212,7 @@ class Command(BaseCommand):
         # Create expressios
         exp = Data.objects.create(
             name = 'Expression',
-            process = Process.objects.get(slug='import-upload-expression'),
+            process = Process.objects.get(slug='upload-expression'),
             contributor = self.set_user(),
             status = 'OK',
             input = {'exp': {'file': 'expressions.tab.gz'}, 'exp_type': 'FPKM'})

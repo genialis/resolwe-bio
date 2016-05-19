@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:gff3
-  version: 1.0.2
-  label: Build GFF3 annotation track (JBrowse)
+- slug: jbrowse-gff3
+  name: Build GFF3 annotation track (JBrowse)
+  data_name: 'Annotation track ({{ gff.gff.file|default:"?" }})'
+  version: 1.0.3
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED
@@ -22,17 +23,6 @@
     - name: annotation_track
       label: Annotation track (GFF3)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Annotation track ({{ gff.gff.file|default:"?" }})'
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

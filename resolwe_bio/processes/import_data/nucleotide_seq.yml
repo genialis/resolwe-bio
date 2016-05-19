@@ -3,9 +3,10 @@
 # ==================================
 ---
 
-- name: import:upload:import_nucl_seq
-  version: 1.0.9
-  label: Upload nucleotide sequence(s) (FASTA)
+- slug: upload-fasta-nucl
+  name: Upload nucleotide sequence(s) (FASTA)
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.10
   type: data:seq:nucleotide
   category: upload
   flow_collection: sample
@@ -37,24 +38,6 @@
       label: Description
       type: basic:text
       default: 'Description of {{ src.file|default:"?" }} sequence file.'
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # ============
 ---
 
-- name: import:upload:mapping-bam
-  version: 1.0.12
-  label: Upload BAM file mapping
+- slug: upload-bam
+  name: BAM file
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.13
   type: data:alignment:bam:upload
   flow_collection: sample
   category: upload
@@ -18,7 +19,6 @@
       type: basic:file
       description: >
         A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
-      required: true
       validate_regex: '\.(bam)$'
   output:
     - name: bam
@@ -27,33 +27,6 @@
     - name: bai
       label: Index BAI
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['mapping', 'BAM']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -83,10 +56,10 @@
 
         echo "{\"bam\":{\"file\":\"${NAME}.bam\"},\"bai\":{\"file\":\"${NAME}.bam.bai\"}}"
 
-
-- name: import:upload:mapping-bam-indexed
-  version: 1.0.7
-  label: Upload BAM file and index
+- slug: upload-bam-indexed
+  name: BAM file and index
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.8
   type: data:alignment:bam:upload
   category: upload
   flow_collection: sample
@@ -99,14 +72,12 @@
       type: basic:file
       description: >
         A mapping file in BAM format.
-      required: true
       validate_regex: '\.(bam)$'
     - name: src2
       label: bam index (*.bam.bai file)
       type: basic:file
       description: >
         An index file of a BAM mapping file (ending with bam.bai).
-      required: true
       validate_regex: '\.(bam.bai)$'
   output:
     - name: bam
@@ -115,33 +86,6 @@
     - name: bai
       label: Index BAI
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['mapping', 'BAM']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file|default:"?" }} mapping upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

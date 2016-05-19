@@ -3,9 +3,10 @@
 # ===
 ---
 
-- name: etc:bcm-1-0-0
-  version: 1.0.11
-  label: Expression Time Course
+- slug: etc-bcm
+  name: Expression Time Course
+  data_name: "Expression time course"
+  version: 1.0.12
   type: data:etc
   category: analyses
   persistence: CACHED
@@ -27,40 +28,6 @@
     - name: etc
       label: Expression time course
       type: basic:json
-  static:
-    - name: name
-      label: Experiment name
-      type: basic:string
-      default: "Expression time course"
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the expression time course.
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["gene", "expression", "time", "course"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of gene expression time course."
-    - name: jbrowse_tracks
-      label: Associated JBrowse tracks
-      type: list:data:jbrowse
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

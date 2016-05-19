@@ -3,9 +3,10 @@
 # =================
 ---
 
-- name: mergeexpressions
-  version: 1.0.6
-  label: Merge Expressions
+- slug: mergeexpressions
+  name: Merge Expressions
+  data_name: "Merged expressions"
+  version: 1.0.7
   type: data:expressionset
   category: analyses
   persistence: CACHED
@@ -15,7 +16,6 @@
     - name: exps
       label: Gene expressions
       type: list:data:expression
-      required: true
     - name: genes
       label: Filter genes
       type: list:basic:string
@@ -28,32 +28,6 @@
     - name: expset_type
       label: Expression set type
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Merged expressions"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["expression"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

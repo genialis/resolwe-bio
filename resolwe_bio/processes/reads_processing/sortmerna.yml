@@ -5,9 +5,10 @@
 # Processors for NGS reads filtering/trimming
 ---
 
-- name: filtering:sortmerna-2.0-single-end
-  version: 1.0.10
-  label: Filter single-end NGS reads (SortMeRNA-2.0)
+- slug: sortmerna-single
+  name: SortMeRNA 2.0 (single-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
+  version: 1.0.11
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -18,11 +19,9 @@
     - name: reads
       label: Reads
       type: data:reads:fastq:single
-      required: true
     - name: database_selection
       label: rRNA database(s)
       type: list:basic:string
-      required: true
       placeholder: Database name
       default: ["silva-arc-16s-id95.fasta", "silva-arc-23s-id98.fasta", "silva-bac-16s-id90.fasta", "silva-bac-23s-id98.fasta", "silva-euk-18s-id95.fasta", "silva-euk-28s-id98.fasta", "rfam-5.8s-database-id98.fasta", "rfam-5s-database-id98.fasta"]
       description: >
@@ -38,7 +37,6 @@
       - name: threads
         label: Use this many processor threads
         type: basic:integer
-        required: true
         default: 2
         description: >
           Number of processor threads to use
@@ -67,33 +65,6 @@
     - name: fastqc_archive
       label: Download FastQC archive
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["SortMeRNA", "Filtered NGS reads"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -152,9 +123,10 @@
       re-save fastqc_url $FASTQC_URL
 
 
-- name: filtering:sortmerna-2.0-paired-end
-  version: 1.0.10
-  label: Filter paired-end NGS reads (SortMeRNA-2.0)
+- slug: sortmerna-paired
+  version: 1.0.11
+  name: SortMeRNA 2.0 (paired-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
   type: data:reads:fastq:paired:sortmerna
   category: analyses
   flow_collection: sample
@@ -180,7 +152,6 @@
       - name: sort_paired_end
         label: Data sorting
         type: basic:string
-        required: true
         description: >
           When writing aligned and non-aligned reads to FASTA/Q files, sometimes the situation arises where one of the paired-end reads aligns and the other one doesn't. Since SortMeRNA looks at each read individually, by default the reads will be split into two separate files. That is, the read that aligned will go into the --aligned FASTA/Q file and the pair that didn't align will go into the --other FASTA/Q file. --paired-in will put both reads into the file specified by --aligned (rRNA reads). --paired-out will put both reads into the file specified by --other (non-rRNA reads).
         default: --paired_in
@@ -234,33 +205,6 @@
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: Filtered reads ({{ reads.fastq.file|default:"?" }})
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["SortMeRNA", "Filtered NGS reads"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: Description of {{ reads.fastq.file|default:"?" }}
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

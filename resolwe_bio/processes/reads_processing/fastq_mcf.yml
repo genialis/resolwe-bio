@@ -5,9 +5,10 @@
 # Processors for NGS reads filtering/trimming
 ---
 
-- name: filtering:fastq-mcf-1.1.2.537:single-end
-  version: 1.0.9
-  label: Filter single-end NGS reads (Fastq-mcf)
+- slug: fastq-mcf-single
+  name: Fastq-mcf (single-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
+  version: 1.0.10
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -34,35 +35,30 @@
       - name: occurance_threshold
         label: Occurance threshold before adapter clipping
         type: basic:decimal
-        required: true
         default: 0.25
         description: >
           % occurance threshold before adapter clipping.
       - name: min_clip_length
         label: Minimum clip length
         type: basic:integer
-        required: true
         default: 1
         description: >
           Minimum clip length, overrides scaled auto.
       - name: max_adap_diff_perc
         label: Maximum adapter difference percentage
         type: basic:integer
-        required: true
         default: 10
         description: >
           Maximum adapter difference percentage.
       - name: min_seq_len
         label: Minimum sequence length
         type: basic:integer
-        required: true
         default: 19
         description: >
           Minimum remaining sequence length
       - name: quality_threshold
         label: Quality threshold causing base removal
         type: basic:integer
-        required: true
         default: 10
         description: >
           Quality threshold causing base removal.
@@ -82,33 +78,6 @@
     - name: fastqc_archive
       label: Download FastQC archive
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Filtered NGS reads", "Fastq-mcf"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -153,9 +122,10 @@
       re-save fastqc_url $FASTQC_URL
 
 
-- name: filtering:fastq-mcf-1.1.2.537:paired-end
-  version: 1.0.9
-  label: Filter paired-end NGS reads (Fastq-mcf)
+- slug: fastq-mcf-paired
+  name: Fastq-mcf (paired-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
+  version: 1.0.10
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -182,35 +152,30 @@
       - name: occurance_threshold
         label: Occurance threshold before adapter clipping
         type: basic:decimal
-        required: true
         default: 0.25
         description: >
           % occurance threshold before adapter clipping.
       - name: min_clip_length
         label: Minimum clip length
         type: basic:integer
-        required: true
         default: 1
         description: >
           Minimum clip length, overrides scaled auto.
       - name: max_adap_diff_perc
         label: Maximum adapter difference percentage
         type: basic:integer
-        required: true
         default: 10
         description: >
           Maximum adapter difference percentage.
       - name: min_seq_len
         label: Minimum sequence length
         type: basic:integer
-        required: true
         default: 19
         description: >
           Minimum remaining sequence length
       - name: quality_threshold
         label: Quality threshold causing base removal
         type: basic:integer
-        required: true
         default: 10
         description: >
           Quality threshold causing base removal.
@@ -239,33 +204,6 @@
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Filtered NGS reads", "Fastq-mcf"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

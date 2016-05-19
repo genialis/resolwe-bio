@@ -1,5 +1,5 @@
-- name: dictyostelium:bcm
-  label: Dictyostelium annotation
+- slug: dictyostelium-bcm
+  name: Dictyostelium annotation
   description: Dictyostelium annotation for BCM
   schema:
     - name: experiment

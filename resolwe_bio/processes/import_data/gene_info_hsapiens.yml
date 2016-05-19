@@ -3,9 +3,10 @@
 # ===============================
 ---
 
-- name: import:web:geneinfo:hsapiens
-  version: 1.0.5
-  label: Import gene info (H. sapiens - Ensembl)
+- slug: web-geneinfo-hsapiens
+  name: Import gene info (H. sapiens - Ensembl)
+  data_name: 'Gene information (H. sapiens)'
+  version: 1.0.6
   type: data:geneinfo:hsapiens
   category: import
   persistence: RAW
@@ -28,25 +29,6 @@
     - name: info
       label: Gene information JSON
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Gene information (H. sapiens)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['gene', 'information']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

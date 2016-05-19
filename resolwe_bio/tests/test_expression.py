@@ -11,7 +11,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -19,45 +19,45 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
         inputs = {
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp = self.run_processor('cufflinks:-2-2-1', inputs)
+        cuff_exp = self.run_processor('cufflinks', inputs)
         self.assertFiles(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
 
         inputs = {
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_exp2 = self.run_processor('cufflinks:-2-2-1', inputs)
+        cuff_exp2 = self.run_processor('cufflinks', inputs)
 
         inputs = {
             'expressions': [cuff_exp.pk, cuff_exp2.pk],
             'gff': annotation.pk,
             'genome': genome.pk}
-        cuff_merge = self.run_processor('cuffmerge:-2-2-1', inputs)
+        cuff_merge = self.run_processor('cuffmerge', inputs)
         self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
 
     def test_cuffquant(self):
         inputs = {"src": "cuffquant_mapping.bam"}
-        bam = self.run_processor("import:upload:mapping-bam", inputs)
+        bam = self.run_processor("upload-bam", inputs)
 
         annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
-        
+
         inputs = {
             'alignment': bam.id,
             'gff': annotation.id}
-        self.run_processor('cuffquant:-2-2-1', inputs)
+        self.run_processor('cuffquant', inputs)
 
     def test_cuffnorm(self):
         inputs = {"src": "cuffquant_1.cxb"}
-        sample_1 = self.run_processor("import:upload:cxb", inputs)
+        sample_1 = self.run_processor("upload-cxb", inputs)
 
         inputs = {"src": "cuffquant_2.cxb"}
-        sample_2 = self.run_processor("import:upload:cxb", inputs)
+        sample_2 = self.run_processor("upload-cxb", inputs)
 
         annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
 
@@ -66,7 +66,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'annotation': annotation.id,
             'labels': ['Group1', 'Group2'],
             'replicates': ['1', '2']}
-        cuffnorm = self.run_processor('cuffnorm:-2-2-1', inputs)
+        cuffnorm = self.run_processor('cuffnorm', inputs)
         self.assertFiles(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
         self.assertFiles(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
 
@@ -76,7 +76,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -84,19 +84,19 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
-        mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
+        mappa = self.run_processor("upload-mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
         inputs = {
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'mappable': mappa.pk}
-        expression = self.run_processor('expression:bcm-1-0-0', inputs)
+        expression = self.run_processor('expression:bcm', inputs)
         self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
 
         inputs = {'expressions': [expression.pk, expression.pk]}
-        etc = self.run_processor('etc:bcm-1-0-0', inputs)
+        etc = self.run_processor('etc-bcm', inputs)
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json.gz')
 
     @skipDockerFailure("Fails with: htseq-count: command not found")
@@ -105,21 +105,21 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gtf.gz'}
-        annotation = self.run_processor('import:upload:annotation-gtf', inputs)
+        annotation = self.run_processor('upload-gtf', inputs)
 
         inputs = {
             'genome': genome.pk,
             'reads': reads.pk,
             'gff': annotation.pk,
             'PE_options': {'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
         inputs = {
             'alignments': aligned_reads.pk,
             'gff': annotation.pk,
             'stranded': "no",
             'id_attribute': 'transcript_id'}
-        expression = self.run_processor('htseq-count:-0-6-1p1', inputs)
+        expression = self.run_processor('htseq-count', inputs)
         self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
@@ -161,7 +161,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -169,19 +169,19 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
-        mappa = self.run_processor("import:upload:mappability", {"src": "purpureum_mappability_50.tab.gz"})
+        mappa = self.run_processor("upload-mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
         inputs = {
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'mappable': mappa.pk}
 
-        expression = self.run_processor('expression:bcm-1-0-0', inputs)
+        expression = self.run_processor('expression:bcm', inputs)
 
         inputs = {'expressions': [expression.pk, expression.pk]}
-        etc = self.run_processor('etc:bcm-1-0-0', inputs)
+        etc = self.run_processor('etc-bcm', inputs)
 
         inputs = {
             'exps': [etc.pk],
@@ -192,56 +192,56 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
 
     @skipDockerFailure("Errors with: KeyError: u'genome' at "
-        "cuff_exp_1 = self.run_processor('cufflinks:-2-2-1', inputs)")
+        "cuff_exp_1 = self.run_processor('cufflinks', inputs)")
     def test_ncrna(self):
         inputs = {"src": "ncRNA_sample1.bam"}
-        sample_1 = self.run_processor("import:upload:mapping-bam", inputs)
+        sample_1 = self.run_processor("upload-bam", inputs)
 
         inputs = {"src": "ncRNA_sample2.bam"}
-        sample_2 = self.run_processor("import:upload:mapping-bam", inputs)
+        sample_2 = self.run_processor("upload-bam", inputs)
 
         inputs = {'src': 'ncRNA_annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         inputs = {"src": "ncRNA_genome.fasta.gz"}
-        genome = self.run_processor('import:upload:genome-fasta', inputs)
+        genome = self.run_processor('upload-genome', inputs)
 
         inputs = {
             'alignment': sample_1.pk,
             'gff': annotation.pk,
             'library_type': "fr-firststrand"}
-        cuff_exp_1 = self.run_processor('cufflinks:-2-2-1', inputs)
+        cuff_exp_1 = self.run_processor('cufflinks', inputs)
 
         inputs = {
             'alignment': sample_2.pk,
             'gff': annotation.pk,
             'library_type': "fr-firststrand"}
-        cuff_exp_2 = self.run_processor('cufflinks:-2-2-1', inputs)
+        cuff_exp_2 = self.run_processor('cufflinks', inputs)
 
         inputs = {
             'expressions': [cuff_exp_1.pk, cuff_exp_2.pk],
             'gff': annotation.pk,
             'genome': genome.pk}
-        merged_annotation = self.run_processor('cuffmerge:-2-2-1', inputs)
+        merged_annotation = self.run_processor('cuffmerge', inputs)
 
         annotation_gff3 = self.run_processor('cuffmerge-gtf-to-gff3', {"cuffmerge": merged_annotation.pk})
 
         inputs = {"genome": genome.pk, "gff": annotation_gff3.pk, "length": 100}
-        mappa = self.run_processor("mappability:bcm-1-0-0", inputs)
+        mappa = self.run_processor("mappability-bcm", inputs)
 
         inputs = {
             'alignment': sample_1.pk,
             'gff': annotation_gff3.pk,
             'mappable': mappa.pk,
             'stranded': True}
-        expression_1 = self.run_processor('expression:bcm:ncrna', inputs)
+        expression_1 = self.run_processor('expression-bcm-ncrna', inputs)
 
         inputs = {
             'alignment': sample_2.pk,
             'gff': annotation_gff3.pk,
             'mappable': mappa.pk,
             'stranded': True}
-        expression_2 = self.run_processor('expression:bcm:ncrna', inputs)
+        expression_2 = self.run_processor('expression-bcm-ncrna', inputs)
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],

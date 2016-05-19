@@ -3,9 +3,10 @@
 # ==================
 ---
 
-- name: import:upload:expression
-  version: 1.0.6
-  label: Upload Expression
+- slug: upload-expression
+  name: Expression
+  data_name: '{{ exp.file|default:"?" }}'
+  version: 1.0.7
   type: data:expression
   flow_collection: sample
   category: upload
@@ -48,25 +49,6 @@
     - name: exp_type
       label: Expression type
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ exp.file|default:"?" }}'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['expression', 'upload']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |
@@ -111,16 +93,16 @@
       {% endif %}
 
 
-- name: import:upload:expression:cuffnorm
-  version: 1.0.0
-  label: Expression (Cuffnorm)
-  type: data:expression
+- slug: upload-expression-cuffnorm
+  name: Expression (Cuffnorm)
   data_name: '{{ exp.file|default:"?" }}'
+  version: 1.0.1
+  type: data:expression
   category: upload
   persistence: RAW
   flow_collection: sample
   description: >
-        Save per-sample expression data from Cuffnorm.
+        Save per-sample expression data from Cuffnorm results.
   input:
     - name: exp
       label: Normalized expression

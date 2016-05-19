@@ -3,9 +3,10 @@
 # ====================================================
 ---
 
-- name: reads:merge
-  version: 1.0.4
-  label: Build paired-end reads from single-ended
+- slug: reads-merge
+  name: Build paired-end reads from single-ended
+  data_name: "Reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
+  version: 1.0.5
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
@@ -15,11 +16,9 @@
     - name: reads_1
       label: Upstream Reads
       type: data:reads:fastq:single
-      required: true
     - name: reads_2
       label: Downstream Reads
       type: data:reads:fastq:single
-      required: true
   output:
     - name: fastq
       label: Reads file (mate 1)
@@ -45,30 +44,6 @@
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Fastq", "reads", "NGS", "paired-end"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

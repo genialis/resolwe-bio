@@ -3,9 +3,10 @@
 # ========================================================
 ---
 
-- name: cuffmerge-gtf-to-gff3
-  version: 1.0.2
-  label: Convert Cuffmerge GTF to GFF3 format
+- slug: cuffmerge-gtf-to-gff3
+  name: Convert Cuffmerge GTF to GFF3 format
+  data_name: 'Cuffmerge annotation (GFF3)'
+  version: 1.0.3
   type: data:annotation:gff3
   category: analyses
   persistence: CACHED
@@ -15,42 +16,10 @@
     - name: cuffmerge
       label: Annotation file
       type: data:annotation
-      required: true
   output:
     - name: gff
       label: Cuffmerge annotation file (GFF3)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Cuffmerge annotation (GFF3)'
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Description of Cuffmerge annotation file
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['Cuffmerge', 'Annotation']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of Cuffmerge annotation file.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

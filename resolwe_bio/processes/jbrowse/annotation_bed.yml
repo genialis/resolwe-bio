@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:bed
-  version: 1.0.1
-  label: Build BED annotation track (JBrowse)
+- slug: jbrowse-bed
+  name: Build BED annotation track (JBrowse)
+  data_name: 'BED annotation track (JBrowse)'
+  version: 1.0.2
   type: data:jbrowse:annotation:bed
   category: jbrowse
   persistence: CACHED
@@ -29,17 +30,6 @@
     - name: bed_track
       label: Annotation track (BED)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'BED annotation track (JBrowse)'
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

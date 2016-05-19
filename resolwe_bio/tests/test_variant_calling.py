@@ -10,7 +10,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         reads = self.prepare_reads('variant_calling_reads.fastq.gz')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+        aligned_reads = self.run_processor('alignment-bowtie2', inputs)
 
         inputs = {'genome': genome.pk, 'mapping': aligned_reads.pk}
         samtools_variants = self.run_processor('vc-samtools', inputs)
@@ -27,9 +27,9 @@ class VariantCallingTestCase(BioProcessTestCase):
         reads = self.prepare_reads('variant_calling_reads.fastq.gz')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+        aligned_reads = self.run_processor('alignment-bowtie2', inputs)
 
-        samtools_variants = self.run_processor('import:upload:variants-vcf', {'src': 'variant_calling_samtools.vcf'})
+        samtools_variants = self.run_processor('upload-variants-vcf', {'src': 'variant_calling_samtools.vcf'})
 
         inputs = {
             'genome': genome.pk,
@@ -53,7 +53,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         reads = self.prepare_reads('variant_calling_reads.fastq.gz')
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-        aligned_reads = self.run_processor('alignment:bowtie-2-2-3_trim', inputs)
+        aligned_reads = self.run_processor('alignment-bowtie2', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -69,7 +69,7 @@ class VariantCallingTestCase(BioProcessTestCase):
 
     @unittest.skip("Missing tools in runtime")
     def test_vc_filtering(self):
-        variants = self.run_processor('import:upload:variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
+        variants = self.run_processor('upload-variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
 
         inputs = {
             'variants': variants.pk,
@@ -84,24 +84,24 @@ class VariantCallingTestCase(BioProcessTestCase):
     @unittest.skip("Run to prepare VC test project data")
     def test_vc_prepare_project(self):
         # upload BAM files and prepare JBrowse Coverage tracks
-        mutant_1 = self.run_processor("import:upload:mapping-bam", {"src": "mutant_1.bam"})
-        mutant_1_coverage = self.run_processor('jbrowse:bam:coverage', {'bam': mutant_1.pk})
+        mutant_1 = self.run_processor("upload-bam", {"src": "mutant_1.bam"})
+        mutant_1_coverage = self.run_processor('jbrowse-bam-coverage', {'bam': mutant_1.pk})
 
-        mutant_2 = self.run_processor("import:upload:mapping-bam", {"src": "mutant_2.bam"})
-        mutant_2_coverage = self.run_processor('jbrowse:bam:coverage', {'bam': mutant_2.pk})
+        mutant_2 = self.run_processor("upload-bam", {"src": "mutant_2.bam"})
+        mutant_2_coverage = self.run_processor('jbrowse-bam-coverage', {'bam': mutant_2.pk})
 
-        AX4 = self.run_processor("import:upload:mapping-bam", {"src": "AX4.bam"})
-        AX4_coverage = self.run_processor('jbrowse:bam:coverage', {'bam': AX4.pk})
+        AX4 = self.run_processor("upload-bam", {"src": "AX4.bam"})
+        AX4_coverage = self.run_processor('jbrowse-bam-coverage', {'bam': AX4.pk})
 
         # upload genome file and prepare JBrowse refseq track
         inputs = {"src": "dd_masked_05-13-2009.fasta.gz"}
-        genome = self.run_processor('import:upload:genome-fasta', inputs)
-        genome_track = self.run_processor('jbrowse:refseq', {'refseq': genome.pk})
+        genome = self.run_processor('upload-genome', inputs)
+        genome_track = self.run_processor('jbrowse-refseq', {'refseq': genome.pk})
 
         # upload annotation file and prepare JBrowse annotation track
         inputs = {'src': 'dd_07-15-2014.gff'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
-        gff_track = self.run_processor('jbrowse:gff3', {'gff': annotation.pk})
+        annotation = self.run_processor('upload-gff3', inputs)
+        gff_track = self.run_processor('jbrowse-gff3', {'gff': annotation.pk})
 
         # Variant calling - SNVs
         inputs = {

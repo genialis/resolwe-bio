@@ -67,7 +67,7 @@ for i in range(1, nsamples):
 
     d = {
         'status': 'RE',
-        'process': 'import-upload-expression',
+        'process': 'upload-expression',
         'input': {
             'exp': {
                 'file': os.path.basename(fname),

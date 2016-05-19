@@ -5,9 +5,10 @@
 # Processor for computing the genome mappability.
 ---
 
-- name: mappability:bcm-1-0-0
-  version: 1.0.8
-  label: Mappability
+- slug: mappability-bcm
+  name: Mappability
+  data_name: "Mappability ({{genome.fasta.file|basename|default:'?'}}, length {{length}})"
+  version: 1.0.9
   type: data:mappability:bcm
   category: analyses
   persistence: CACHED
@@ -19,43 +20,17 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: gff
       label: General feature format
       type: data:annotation:gff3
-      required: true
     - name: length
       label: Read length
       type: basic:integer
       default: 50
-      required: true
   output:
     - name: mappability
       label: Mappability
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Mappability ({{genome.fasta.file|basename|default:'?'}}, length {{length}})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["genome", "mappability"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of genome mappability of {{genome.fasta.file|basename|default:'?'}} with read length {{length}}."
   run:
     runtime: polyglot
     bash: |

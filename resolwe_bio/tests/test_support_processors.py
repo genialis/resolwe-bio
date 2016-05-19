@@ -18,7 +18,7 @@ class CompatibilityProcessorTestCase(BioProcessTestCase):
         "features.output['feature_location'], '', 'feature_locations.json.gz')")
     def test_feature_location(self):
         inputs = {'src': 'mm10_small.gtf.gz'}
-        annotation = self.run_processor('import:upload:annotation-gtf', inputs)
+        annotation = self.run_processor('upload-gtf', inputs)
 
         inputs = {'annotation': annotation.pk,
                   'feature_type': 'exon',

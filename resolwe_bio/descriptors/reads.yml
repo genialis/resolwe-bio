@@ -1,5 +1,5 @@
-- name: reads
-  label: Reads annotation
+- slug: reads
+  name: Reads annotation
   description: Annotation of raw sequencing data
   schema:
     - name: seq_date

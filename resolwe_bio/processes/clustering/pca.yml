@@ -3,9 +3,10 @@
 # ===
 ---
 
-- name: pca:1-0-0
-  version: 1.0.9
-  label: PCA
+- slug: pca
+  name: PCA
+  data_name: 'PCA'
+  version: 1.0.10
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -15,7 +16,6 @@
     - name: exps
       label: Expressions
       type: list:data:expression
-      required: true
     - name: genes
       label: Filter genes
       type: list:basic:string
@@ -30,22 +30,6 @@
     - name: pca
       label: PCA
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: PCA
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['PCA', 'plot', 'expressions']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

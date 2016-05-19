@@ -1,5 +1,5 @@
-- name: transmart
-  label: TranSMART Annotation
+- slug: transmart
+  name: TranSMART Annotation
   description: Annotation for tranSMART import.
   schema:
     - name: group

@@ -33,24 +33,24 @@ class BioProcessTestCase(ProcessTestCase):
     def prepare_genome(self, fn='genome.fasta.gz'):
         """Prepare genome FASTA."""
         inputs = {'src': fn}
-        return self.run_processor('import:upload:genome-fasta', inputs)
+        return self.run_processor('upload-genome', inputs)
 
     def prepare_reads(self, fn='reads.fastq.gz'):
         """Prepare NGS reads FASTQ."""
         inputs = {'src': fn}
-        return self.run_processor('import:upload:reads-fastq', inputs)
+        return self.run_processor('upload-fastq-single', inputs)
 
     def prepare_bam(self, fn='sp_test.bam'):
         """Prepare alignment BAM."""
         inputs = {'src': fn}
-        return self.run_processor('import:upload:mapping-bam', inputs)
+        return self.run_processor('upload-bam', inputs)
 
     def prepare_annotation(self, fn='sp_test.gtf'):
         """Prepare annotation GTF."""
         inputs = {'src': fn}
-        return self.run_processor('import:upload:annotation-gtf', inputs)
+        return self.run_processor('upload-gtf', inputs)
 
     def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM"):
         """Prepare expression."""
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type}
-        return self.run_processor('import:upload:expression', inputs)
+        return self.run_processor('upload-expression', inputs)

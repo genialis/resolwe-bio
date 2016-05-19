@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:gtf
-  version: 1.0.2
-  label: Build GTF annotation track (JBrowse)
+- slug: jbrowse-gtf
+  name: Build GTF annotation track (JBrowse)
+  data_name: 'Annotation track ({{ gtf.gtf.file|default:"?" }})'
+  version: 1.0.3
   type: data:jbrowse:annotation:gtf
   category: jbrowse
   persistence: CACHED
@@ -22,17 +23,6 @@
     - name: annotation_track
       label: Annotation track (GTF)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Annotation track ({{ gtf.gtf.file|default:"?" }})'
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

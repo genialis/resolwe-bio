@@ -1,5 +1,5 @@
-- name: sample
-  label: GEO sample annotation
+- slug: sample
+  name: GEO sample annotation
   description: GEO sample annotation template
   schema:
     - name: geo

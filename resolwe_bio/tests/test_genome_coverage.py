@@ -10,7 +10,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -18,7 +18,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
         inputs = {'bam': aligned_reads.pk}
         coverage = self.run_processor('bam:coverage', inputs)

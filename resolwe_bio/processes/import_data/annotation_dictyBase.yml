@@ -3,9 +3,10 @@
 # ===================================
 ---
 
-- name: import:web:gtf:bcm-1-0-0
-  version: 1.0.8
-  label: Import GFF annotation from dictyBase
+- slug: web-gtf-dictybase
+  name: Import GFF annotation from dictyBase
+  data_name: "D. discoideum transcript GFF"
+  version: 1.0.10
   type: data:annotation:gff3
   category: import
   persistence: RAW
@@ -17,20 +18,6 @@
     - name: gff
       label: GFF file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "D. discoideum transcript GFF"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

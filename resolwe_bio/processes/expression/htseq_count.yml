@@ -3,9 +3,10 @@
 # ========================
 ---
 
-- name: htseq-count:-0-6-1p1
-  version: 1.0.10
-  label: Expression (HTSeq-count 0.6.1p1)
+- slug: htseq-count
+  name: HTSeq-count (0.6.1p1)
+  data_name: "{{ alignments.bam.file|basename|default:'?' }}"
+  version: 1.0.11
   type: data:expression:htseq
   category: analyses
   flow_collection: sample
@@ -16,15 +17,12 @@
     - name: alignments
       label: Aligned reads
       type: data:alignment:bam
-      required: true
     - name: gff
       label: Annotation (GFF)
       type: data:annotation:gtf
-      required: true
     - name: mode
       label: Mode
       type: basic:string
-      required: true
       description: >
         Mode to handle reads overlapping more than one feature. Possible values for <mode> are union, intersection-strict and intersection-nonempty
       default: union
@@ -38,7 +36,6 @@
     - name: stranded
       label: Is data from a strand specific assay?
       type: basic:string
-      required: true
       description: >
         For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
       default: "yes"
@@ -88,37 +85,6 @@
       label: Expression Type (default output)
       type: basic:string
       default: TPM
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "{{ alignments.bam.file|basename|default:'?' }}"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the expression analysis
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['HTSeq-count', 'Expression', 'FPKM', 'TPM']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: HTSeq-count analysis
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

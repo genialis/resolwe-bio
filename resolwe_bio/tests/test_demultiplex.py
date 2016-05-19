@@ -10,7 +10,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'barcodes': 'pool24.read2.small.qseq.bz2',
             'annotation': 'pool24.tsv'
         }
-        obj = self.run_processor('import:upload:multiplexed-paired-end', inputs)
+        obj = self.run_processor('upload-multiplexed-paired', inputs)
         self.assertFields(obj, 'matched', '5 reads (7.04 %)')
         self.assertFields(obj, 'notmatched', '51 reads (71.83 %)')
         self.assertFields(obj, 'badquality', '13 reads (18.31 %)')
@@ -22,7 +22,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'barcodes': 'pool24.read2.small.qseq.bz2',
             'annotation': 'pool24.tsv'
         }
-        obj = self.run_processor('import:upload:multiplexed-paired-end', inputs)
+        obj = self.run_processor('upload-multiplexed-paired', inputs)
         self.assertFields(obj, 'matched', '5 reads (7.04 %)')
         self.assertFields(obj, 'notmatched', '51 reads (71.83 %)')
         self.assertFields(obj, 'badquality', '13 reads (18.31 %)')
@@ -34,7 +34,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'barcodes': 'pool24.read2.small.qseq.bz2',
             'annotation': 'pool24.2.tsv'
         }
-        obj = self.run_processor('import:upload:multiplexed-paired-end', inputs)
+        obj = self.run_processor('upload-multiplexed-paired', inputs)
         self.assertFields(obj, 'matched', '5 reads (7.04 %)')
         self.assertFields(obj, 'notmatched', '51 reads (71.83 %)')
         self.assertFields(obj, 'badquality', '13 reads (18.31 %)')
@@ -46,7 +46,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'barcodes': 's_1_2.qseq.small.txt.bz2',
             'annotation': 's_1.tsv'
         }
-        obj = self.run_processor('import:upload:multiplexed-paired-end', inputs)
+        obj = self.run_processor('upload-multiplexed-paired', inputs)
         self.assertFields(obj, 'matched', '12 reads (11.88 %)')
         self.assertFields(obj, 'notmatched', '80 reads (79.21 %)')
         self.assertFields(obj, 'badquality', '8 reads (7.92 %)')

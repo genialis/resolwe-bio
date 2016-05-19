@@ -1,5 +1,5 @@
-- name: mus:bcm:kompexpress
-  label: kompExpress data annotation
+- slug: mus-bcm-kompexpress
+  name: kompExpress data annotation
   description: Mus musculus experiment/sequencing data annotation
   schema:
     - name: project

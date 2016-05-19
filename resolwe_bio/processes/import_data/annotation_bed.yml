@@ -3,9 +3,10 @@
 # =======================
 ---
 
-- name: import:upload:bed
-  version: 1.0.3
-  label: Upload BED track file
+- slug: upload-bed
+  name: BED track file
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.4
   type: data:bed
   category: upload
   persistence: RAW
@@ -23,25 +24,6 @@
     - name: BED
       label: BED file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'BED file ({{ src.file|default:"?" }}) upload'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['BED']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

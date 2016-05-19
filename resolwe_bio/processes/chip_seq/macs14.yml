@@ -3,12 +3,12 @@
 # ===============
 ---
 
-- name: macs14
-  version: 1.0.1
-  label: MACS 1.4
+- slug: macs14
+  name: MACS 1.4
+  data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
+  version: 1.0.2
   type: data:chipseq:macs14
   category: analyses
-  data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
   persistence: CACHED
   description: >
     Model-based Analysis of ChIP-Seq (MACS 1.4).

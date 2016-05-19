@@ -3,9 +3,10 @@
 # ================
 ---
 
-- name: macs2:callpeak
-  version: 1.0.5
-  label: MACS2 (Call peaks)
+- slug: macs2-callpeak
+  name: MACS2 (Call peaks)
+  data_name: "MACS2 analysis ({{ case.bam.file|basename|default:'?' }})"
+  version: 1.0.6
   type: data:chipseq:macs2:callpeak
   category: analyses
   flow_collection: sample
@@ -16,7 +17,6 @@
     - name: case
       label: Case (treatment)
       type: data:alignment:bam
-      required: true
     - name: control
       label: Control
       type: data:alignment:bam
@@ -122,7 +122,6 @@
         - name: call_summits
           label: Call summits
           type: basic:boolean
-          default: true
           description: >
             MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff setting) to deconvolve subpeaks within each peak called from general procedure. It's highly recommended to detect adjacent binding events. While used, the output subpeaks of a big peak region will have the same peak boundaries, and different scores and peak summit positions.
         - name: broad
@@ -164,28 +163,6 @@
     - name: model
       label: Model
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "MACS2 analysis ({{ case.bam.file|basename|default:'?' }})"
-    - name: alias
-      label: Alias
-      type: basic:string
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['MACS2', 'Chip-Seq']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

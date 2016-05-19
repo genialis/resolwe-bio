@@ -3,9 +3,10 @@
 # =====================
 ---
 
-- name: clustering:hierarchical:bcm-1-0-0
-  version: 1.0.2
-  label: Hierarchical clustering
+- slug: clustering-hierarchical-bcm
+  name: Hierarchical clustering
+  data_name: 'Hierarchical clustering of {{genes|join:", "|default:"?"}}'
+  version: 1.0.3
   type: data:clustering:hierarchical:etc
   category: analyses
   persistence: TEMP
@@ -17,18 +18,15 @@
     - name: etcs
       label: Expression time courses
       type: list:data:etc
-      required: true
     - name: genes
       label: Gene subset
       type: list:basic:string
       default: ["DDB_G0267398", "DDB_G0267374", "DDB_G0267378", "DDB_G0267380", "DDB_G0267544", "DDB_G0268100"]
       placeholder: new gene id
-      required: true
     - name: distance
       label: Distance measure
       type: basic:string
       default: spearman
-      required: true
       choices:
         - label: spearman
           value: spearman
@@ -42,7 +40,6 @@
       label: Clustering linkage
       type: basic:string
       default: average
-      required: true
       choices:
         - label: average
           value: average
@@ -54,22 +51,6 @@
     - name: clustering
       label: Hierarchical clustering
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Hierarchical clustering of {{genes|join:", "|default:"?"}}'
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['hierarchical', 'clustering', 'gene', 'expression', 'course']
-      placeholder: new tag
   run:
     runtime: polyglot
     bash: |

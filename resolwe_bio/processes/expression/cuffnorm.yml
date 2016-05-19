@@ -3,9 +3,10 @@
 # =====================
 ---
 
-- name: cuffnorm:-2-2-1
-  version: 1.0.9
-  label: Expression (Cuffnorm 2.2.1)
+- slug: cuffnorm
+  name: Cuffnorm (2.2.1)
+  data_name: 'Cuffnorm results'
+  version: 1.0.11
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -91,45 +92,14 @@
     - name: R_data
       label: All R normalization data
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Cuffnorm results'
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the expression analysis
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['Cuffnorm', 'Expression']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of Cuffnorm results.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
-    bash: | 
+    bash: |
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
       replicates='{% for r in replicates %}{{r}},{% endfor %}'
       labels='{% for l in labels %}{{l}},{% endfor %}'
 
-      labels=${labels%?}      
+      labels=${labels%?}
       experiment=${experiment%?}
       replicates=${replicates%?}
 
@@ -149,19 +119,19 @@
           EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{forloop.counter0}} -n
           mv expression.tab /home/biolinux/upload/${EXP_NAME}
-          echo 'run {"status":"RE","process":"import-upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+          echo 'run {"status":"RE","process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
           EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
           parse_cuffnorm.py genes.fpkm_table {{forloop.counter0}}
           mv expression.tab /home/biolinux/upload/${EXP_NAME}
-          echo 'run {"status":"RE","process":"import-upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+          echo 'run {"status":"RE","process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
         {% endfor %}
       {% endif %}
 
       zip R_data.zip cuffnorm_*
-      
+
       re-save-file genes_count genes.count_table
       re-save-file genes_fpkm genes.fpkm_table
       re-save-file genes_attr genes.attr_table

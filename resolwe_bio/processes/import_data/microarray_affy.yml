@@ -3,9 +3,10 @@
 # ================================
 ---
 
-- name: import:upload:microarray:affy
-  version: 1.0.2
-  label: Upload microarray data (Affymetrix)
+- slug: upload-microarray-affy
+  name: Upload microarray data (Affymetrix)
+  data_name: '{{ cel.file|default:"?" }}'
+  version: 1.0.3
   type: data:microarray:affy
   category: upload
   flow_collection: sample
@@ -23,51 +24,6 @@
     - name: cel
       label: CEL file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ cel.file|default:"?" }}'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: description
-      label: Description
-      type: basic:text
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['expression', 'CEL', 'U133']
-      placeholder: new tag
-    - name: image
-      label: Image file
-      type: basic:file
-    - name: rpt
-      label: RPT file
-      type: basic:file
-      description: >
-        The Report file (.RPT) includes information about noise and internal hybridisation controls within the chip.
-    - name: dat
-      label: DAT file
-      type: basic:file
-      description: >
-        Data file containing raw image data (pixel intensity values).
-    - name: exp
-      label: EXP file
-      type: basic:file
-      description: >
-        Data file containing information about experimental conditions and protocols.
-    - name: chp
-      label: CHP file
-      type: basic:file
-      description: >
-        Data file containing summary information of the probe sets, including intensity values.
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

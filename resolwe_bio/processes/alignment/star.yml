@@ -3,9 +3,10 @@
 # ==============
 ---
 
-- name: alignment:star
-  version: 1.0.4
-  label: Aligner (STAR 2.4.2a)
+- slug: alignment-star
+  name: STAR (2.4.2a)
+  data_name: "Reads alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.5
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -16,17 +17,14 @@
     - name: genome
       label: Indexed reference genome
       type: data:genomeindex:star
-      required: true
       description: >
         Genome index and annotation files prepared by STAR aligner indexing tool.
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: threads
       label: Use this many processor threads
       type: basic:integer
-      required: true
       default: 1
       description: >
         Number of processor threads to be used when mapping reads to the reference sequence.
@@ -86,7 +84,6 @@
           label: Type of filtering
           type: basic:string
           default: Normal
-          required: true
           description: >
             Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
           choices:
@@ -168,33 +165,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Reads alignment ({{ reads.fastq.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["alignment", "BAM", "STAR"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of reads alignment ({{ reads.fastq.file|basename|default:'?' }})"
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -261,9 +231,10 @@
       re-save-file stats Log.final.txt
 
 
-- name: alignment:star:index
-  version: 1.0.2
-  label: Prepare genome index (STAR 2.4.2a)
+- slug: alignment-star-index
+  name: STAR genome index (2.4.2a)
+  data_name: "STAR genome index ({{ genome.fasta.file|basename|default:'?' }})"
+  version: 1.0.3
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -272,11 +243,9 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: annotation
       label: Annotation file (GTF/GFF3)
       type: data:annotation
-      required: true
     - name: sjdbOverhang
       label: Junction length (sjdbOverhang)
       type: basic:integer
@@ -323,29 +292,6 @@
     - name: index
       label: Indexed genome
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "STAR genome index ({{ genome.fasta.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["STAR", "Genome", "Indices"]
-      placeholder: new tag
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

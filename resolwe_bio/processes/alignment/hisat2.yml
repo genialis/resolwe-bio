@@ -3,13 +3,13 @@
 # ================
 ---
 
-- name: alignment:hisat2
-  version: 1.0.0
-  label: HISAT2
+- slug: alignment-hisat2
+  name: HISAT2
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.1
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
-  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
   persistence: CACHED
   description: >
     Spliced Transcripts Alignment to a Reference

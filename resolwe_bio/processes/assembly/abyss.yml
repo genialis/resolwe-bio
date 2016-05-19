@@ -3,9 +3,10 @@
 # =================
 ---
 
-- name: assembler:abyss
-  version: 1.0.3
-  label: Assembler ABySS (1.9.0)
+- slug: assembler-abyss
+  name: ABySS (1.9.0)
+  data_name: "ABySS assembly ({{ options.name }})"
+  version: 1.0.4
   type: data:abyss
   category: analyses
   flow_collection: sample
@@ -71,33 +72,6 @@
     - name: stats
       label: Stats
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "ABySS assembly ({{ options.name }})"
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the annotation track.
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['ABySS', 'assembly']
-      placeholder: new tag
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

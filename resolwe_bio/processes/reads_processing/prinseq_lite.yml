@@ -5,9 +5,10 @@
 # Processors for NGS reads filtering/trimming
 ---
 
-- name: filtering:prinseq-lite-20.4:single-end
-  version: 1.0.9
-  label: Filter single-end NGS reads (Prinseq-lite-20.4)
+- slug: prinseq-lite-single
+  name: Prinseq-lite (single-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
+  version: 1.0.10
   type: data:reads:fastq:single:prinseq
   flow_collection: sample
   category: analyses
@@ -18,7 +19,6 @@
     - name: reads
       label: Reads
       type: data:reads:fastq:single
-      required: true
     - name: trimming
       label: Trimming options
       group:
@@ -73,33 +73,6 @@
     - name: fastqc_archive
       label: Download FastQC archive
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Filtered NGS reads", "Prinseq-lite"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -143,10 +116,10 @@
       re-save bases "\"$BASES\""
       re-save fastqc_url $FASTQC_URL
 
-
-- name: filtering:prinseq-lite-20.4:paired-end
-  version: 1.0.9
-  label: Filter paired-end NGS reads (Prinseq-lite-20.4)
+- slug: prinseq-lite-paired
+  name: Prinseq-lite (paired-end)
+  data_name: '{{ reads.fastq.file|default:"?" }}'
+  version: 1.0.10
   type: data:reads:fastq:paired:prinseq
   category: analyses
   flow_collection: sample
@@ -157,7 +130,6 @@
     - name: reads
       label: Reads
       type: data:reads:fastq:paired
-      required: true
     - name: trimming
       label: Trimming options
       group:
@@ -221,33 +193,6 @@
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Filtered reads ({{ reads.fastq.file|default:"?" }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Filtered NGS reads", "Prinseq-lite"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.fastq.file|default:"?" }}.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

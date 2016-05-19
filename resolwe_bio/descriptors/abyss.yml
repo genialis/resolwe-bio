@@ -1,5 +1,5 @@
-- name: assembler:abyss
-  label: ABySS annotation
+- slug: assembler-abyss
+  name: ABySS annotation
   description: ABySS assebler annotation template
   schema:
     - name: project

@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:refseq
-  version: 1.0.2
-  label: Build reference sequence track (JBrowse)
+- slug: jbrowse-refseq
+  name: Build reference sequence track (JBrowse)
+  data_name: 'RefSeq track ({{ refseq.fasta.file|default:"?" }})'
+  version: 1.0.3
   type: data:jbrowse:refseq:genome
   category: jbrowse
   persistence: CACHED
@@ -22,17 +23,6 @@
     - name: refseq_track
       label: RefSeq file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'RefSeq track ({{ refseq.fasta.file|default:"?" }})'
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

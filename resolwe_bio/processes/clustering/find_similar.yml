@@ -3,9 +3,10 @@
 # ==================================
 ---
 
-- name: findsimilar
-  version: 1.0.6
-  label: Find genes with similar expression
+- slug: findsimilar
+  name: Find genes with similar expression
+  data_name: "Expression of genes similar to {{gene}}"
+  version: 1.0.7
   type: data:similarexpression
   persistence: TEMP
   description: >
@@ -14,13 +15,10 @@
     - name: etcx
       label: Expression time course
       type: data:etc
-      required: true
     - name: gene
       label: query gene
       type: basic:string
-      required: true
     - name: scoring_function
-      required: true
       label: Scoring function
       type: basic:string
       default: pearson
@@ -35,30 +33,6 @@
     - name: simgenes
       label: Genes with similar expression
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Expression of genes similar to {{gene}}"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Similar expression", "JSON"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of similar expression."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # ======================
 ---
 
-- name: cuffquant:-2-2-1
-  version: 1.0.6
-  label: Expression (Cuffquant 2.2.1)
+- slug: cuffquant
+  name: Cuffquant (2.2.1)
+  data_name: "{{ alignment.bam.file|basename|default:'?' }}"
+  version: 1.0.7
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -17,11 +18,9 @@
     - name: alignment
       label: Aligned reads
       type: data:alignment:bam
-      required: true
     - name: gff
       label: Annotation (GTF/GFF3)
       type: data:annotation
-      required: true
     - name: genome
       label: Run bias detection and correction algorithm
       type: data:genome:fasta
@@ -35,7 +34,6 @@
       description: >
         Ignore all reads that could have come from transcripts in this GTF file. We recommend including any annotated rRNA, mitochondrial transcripts other abundant transcripts you wish to ignore in your analysis in this file. Due to variable efficiency of mRNA enrichment methods and rRNA depletion kits, masking these transcripts often improves the overall robustness of transcript abundance estimates.
     - name: library_type
-      required: true
       label: Library type
       type: basic:string
       description: >
@@ -64,33 +62,6 @@
     - name: cxb
       label: Abundances (.cxb)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Cuffquant expression ({{ alignment.bam.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["expression", "Cuffquant"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of the expression analysis."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -105,6 +76,6 @@
 
       cuffquant {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} "--multi-read-correct" {% endif %} {% if mask_file %} -M '{{ mask_file.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet {% if gff.gtf.file %} '{{ gff.gtf.file }}' {% elif gff.gff.file %} '{{ gff.gff.file }}' {% elif gff.merged_gtf.file %} '{{ gff.merged_gtf.file }}' {% endif %} '{{ alignment.bam.file }}'
       re-checkrc
-      
+
       mv abundances.cxb ${NAME}.cxb
       re-save-file cxb ${NAME}.cxb

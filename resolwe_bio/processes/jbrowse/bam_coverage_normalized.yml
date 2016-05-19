@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:bam:coverage:normalized
-  version: 1.0.1
-  label: Build normalized coverage track (JBrowse)
+- slug: jbrowse-bam-coverage-normalized
+  name: Build normalized coverage track (JBrowse)
+  data_name: "Normalized coverage track ({{bam.bam.file}})"
+  version: 1.0.2
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
   persistence: CACHED
@@ -49,17 +50,6 @@
     - name: bigwig_track
       label: Genome coverage (BigWig)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Normalized coverage track ({{bam.bam.file}})"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # ===================
 ---
 
-- name: import:upload:annotation-gff3
-  version: 1.0.11
-  label: Upload annotation (GFF3)
+- slug: upload-gff3
+  name: Annotation (GFF3)
+  data_name: '{{ src.file }}'
+  version: 1.0.12
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -23,33 +24,6 @@
     - name: gff
       label: Uploaded file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['annotation', 'GFF3']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file }} annotation upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -64,9 +38,10 @@
       rm -f trackList.json tracks.conf
 
 
-- name: import:upload:annotation-gtf
-  version: 1.0.13
-  label: Upload annotation (GTF2.2)
+- slug: upload-gtf
+  name: Annotation (GTF2.2)
+  data_name: '{{ src.file }}'
+  version: 1.0.14
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -84,33 +59,6 @@
     - name: gtf
       label: Uploaded file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ src.file }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['annotation', 'GTF']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file }} annotation upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

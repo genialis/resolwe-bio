@@ -3,10 +3,11 @@
 # ==================================
 ---
 
-- name: import:upload:rmsk-annotation
-  version: 1.0.9
-  label: Upload RepeatMasker result file
-  type: "data:annotation:gff3:"
+- slug: upload-rmsk
+  name: RepeatMasker annotation
+  data_name: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
+  version: 1.0.10
+  type: data:annotation:gff3
   category: upload
   persistence: RAW
   description: >
@@ -17,39 +18,11 @@
       type: basic:file
       description: >
         RepeatMasker annotation file. Supported extensions: .out.gz, .txt.gz
-      required: true
       validate_regex: '\.(out|txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: gff
       label: GFF3 annotations
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['annotation', 'GFF3']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file }} RepeatMasker annotation upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -68,4 +41,3 @@
       gt gff3validator ${NAME}.gff
       rm "${NAME}.out"
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\", \"refs\": [\"tracks/gff-track\"]}}"
-

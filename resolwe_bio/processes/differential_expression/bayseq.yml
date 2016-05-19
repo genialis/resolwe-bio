@@ -3,9 +3,10 @@
 # ================================
 ---
 
-- name: differentialexpression:bcm-1-0-0
-  version: 1.0.7
-  label: Differential Expression (baySeq)
+- slug: differentialexpression-bcm
+  name: BaySeq (BCM)
+  data_name: "{{ name }}"
+  version: 1.0.8
   type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED
@@ -15,23 +16,18 @@
     - name: name
       label: Name
       type: basic:string
-      required: true
     - name: case
       label: Case
       type: list:data:expression:polya
-      required: true
     - name: control
       label: Control
       type: list:data:expression:polya
-      required: true
     - name: replicates
       label: Replicates
       type: list:basic:string
-      required: true
     - name: mappability
       label: Mappability
       type: data:mappability
-      required: true
   output:
     - name: diffexp
       label: Differential expression
@@ -39,37 +35,6 @@
     - name: volcano_plot
       label: Volcano plot
       type: basic:json
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "{{ name }}"
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the DE analysis
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["differential", "expression", "baySeq"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of the differential expression."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

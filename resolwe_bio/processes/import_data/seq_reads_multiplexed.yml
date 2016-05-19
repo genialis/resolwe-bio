@@ -3,9 +3,10 @@
 # ======================================
 ---
 
-- name: import:upload:multiplexed
-  version: 1.0.13
-  label: Upload multiplexed NGS reads
+- slug: upload-multiplexed-single
+  name: Reads (multiplexed, single)
+  data_name: '{{ reads.file|default:"?" }}'
+  version: 1.0.14
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -58,33 +59,6 @@
     - name: skipped
       label: Skipped
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ reads.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['multiplexed', 'qseq']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.file|default:"?" }} multiplexed reads upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |
@@ -101,10 +75,10 @@
       demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
 
-
-- name: import:upload:multiplexed-paired-end
-  version: 1.0.13
-  label: Upload paired-end multiplexed NGS reads
+- slug: upload-multiplexed-paired
+  name: Reads (multiplexed, paired)
+  data_name: '{{ reads.file|default:"?" }}'
+  version: 1.0.14
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW
@@ -164,33 +138,6 @@
     - name: skipped
       label: Skipped
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: '{{ reads.file|default:"?" }} (Upload)'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['multiplexed', 'qseq']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ reads.file|default:"?" }} multiplexed reads upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

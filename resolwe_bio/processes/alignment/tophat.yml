@@ -3,10 +3,12 @@
 # ================
 ---
 
-- name: alignment:tophat-2-0-13
-  version: 1.0.10
-  label: Aligner (TopHat v2.0.13)
+- slug: alignment-tophat2
+  name: TopHat (2.0.13)
+  data_name: "Alignment ({{ reads.fastq.file|basename|default:'?' }})"
+  version: 1.0.11
   type: data:alignment:bam:tophat
+  category: analyses:alignment
   flow_collection: sample
   persistence: CACHED
   description: >
@@ -15,11 +17,9 @@
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: reads
       label: Reads
       type: data:reads:fastq
-      required: true
     - name: gff
       label: General feature format
       type: data:annotation
@@ -75,7 +75,6 @@
           description: >
             The standard deviation for the distribution on inner distances between mate pairs. The default is 20bp.
         - name: library_type
-          required: true
           label: Library type
           type: basic:string
           description: >
@@ -111,33 +110,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Read alignment ({{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["alignment", "BAM", "TopHat"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of aligning reads from {{ reads.fastq.file|basename|default:'?' }} to {{ genome.fasta.file|basename|default:'?' }} genome."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

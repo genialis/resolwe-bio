@@ -10,15 +10,15 @@ class GencoverProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('import:upload:annotation-gff3', inputs)
+        annotation = self.run_processor('upload-gff3', inputs)
 
         # GTF inport
         inputs = {'src': 'annotation_ok.gtf.gz'}
-        annotation_gtf = self.run_processor('import:upload:annotation-gtf', inputs)
+        annotation_gtf = self.run_processor('upload-gtf', inputs)
 
         # redundant GTF inport
         inputs = {'src': 'annotation_red.gtf.gz'}
-        annotation_gtf_red = self.run_processor('import:upload:annotation-gtf', inputs)
+        annotation_gtf_red = self.run_processor('upload-gtf', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -26,7 +26,7 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment:tophat-2-0-13', inputs)
+        aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
         # samtools mapping
         inputs = {
@@ -42,7 +42,7 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        self.run_processor('coverage:garvan', inputs)
+        self.run_processor('coverage-garvan', inputs)
 
         # Missing gene in BAM file test
         inputs = {
@@ -52,4 +52,4 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        self.run_processor('coverage:garvan', inputs)
+        self.run_processor('coverage-garvan', inputs)

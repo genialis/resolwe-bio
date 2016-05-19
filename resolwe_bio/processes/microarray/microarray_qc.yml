@@ -3,9 +3,10 @@
 # ==========================
 ---
 
-- name: microarray:affy:qc
-  version: 1.0.2
-  label: Microarray Quality Metrics
+- slug: microarray-affy-qc
+  name: Microarray Quality Metrics
+  data_name: "Array Quality Metrics"
+  version: 1.0.3
   type: data:microarray:qc:affy
   category: analyses
   flow_collection: sample
@@ -40,32 +41,6 @@
     - name: qc_report_url
       label: Quality control with Array Quality Metrics
       type: basic:url:view
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Array Quality Metrics"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Microarray", "QC"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

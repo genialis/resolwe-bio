@@ -3,9 +3,10 @@
 # ==================================
 ---
 
-- name: cuffdiff:-2-2-1
-  version: 1.0.8
-  label: Differential Expression (Cuffdiff 2.2.1)
+- slug: cuffdiff
+  name: Cuffdiff (2.2.1)
+  data_name: 'Cuffdiff results'
+  version: 1.0.9
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -15,23 +16,19 @@
     - name: cuffquant
       label: Cuffquant expression file
       type: list:data:cufflinks:cuffquant
-      required: true
     - name: replicates
       label: Define Groups/Replicates
       type: list:basic:string
-      required: true
       description: >
         Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
     - name: labels
       label: Group labels
       type: list:basic:string
-      required: true
       description: >
         Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2)
     - name: gff
       label: Annotation (GTF/GFF3)
       type: data:annotation:cuffmerge
-      required: true
       description: >
         A transcript annotation file produced by cufflinks, cuffcompare, or other source.
     - name: genome
@@ -54,12 +51,10 @@
     - name: fdr
       label: Allowed FDR
       type: basic:decimal
-      required: true
       default: 0.05
       description: >
         The allowed false discovery rate. The default is 0.05.
     - name: library_type
-      required: true
       label: Library type
       type: basic:string
       description: >
@@ -73,7 +68,6 @@
         - label: fr-secondstrand
           value: fr-secondstrand
     - name: library_normalization
-      required: true
       label: Library normalization method
       type: basic:string
       description: >
@@ -87,7 +81,6 @@
         - label: quartile
           value: quartile
     - name: dispersion_method
-      required: true
       label: Dispersion method
       type: basic:string
       description: >
@@ -124,37 +117,6 @@
     - name: cuffdiff_output
       label: Cuffdiff output
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: Cuffdiff results
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the DE analysis
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['Cuffdiff', 'Differential Expression']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: Description of Cuffdiff differential expression analysis results.
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

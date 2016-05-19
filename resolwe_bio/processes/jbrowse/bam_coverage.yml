@@ -4,9 +4,10 @@
 #
 ---
 
-- name: jbrowse:bam:coverage
-  version: 1.0.2
-  label: Build coverage track (JBrowse)
+- slug: jbrowse-bam-coverage
+  name: Build coverage track (JBrowse)
+  data_name: "Coverage track ({{bam.bam.file}})"
+  version: 1.0.3
   type: data:jbrowse:bigwig:coverage
   category: analyses
   persistence: CACHED
@@ -20,17 +21,6 @@
     - name: bigwig_track
       label: Genome coverage (BigWig)
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Coverage track ({{bam.bam.file}})"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # ====================
 ---
 
-- name: import:upload:mappability-bigwig
-  version: 1.0.9
-  label: Upload mappability coverage (BigWig)
+- slug: upload-mappability-bigwig
+  name: Upload mappability coverage (BigWig)
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.10
   type: data:bigwig:mappability
   category: upload
   persistence: RAW
@@ -17,39 +18,11 @@
       type: basic:file
       description: >
         Mappability coverage in BigWig format. Supported extensions are: .bw, .bigwig, .bigWig
-      required: true
       validate_regex: '\.(bw|bigwig|bigWig)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: bigwig
       label: Uploaded file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Upload mappability coverage (BigWig, {{ src.file }})'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['mappability', 'BigWig']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file }} mappability coverage upload.'
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

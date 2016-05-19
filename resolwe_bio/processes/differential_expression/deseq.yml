@@ -3,9 +3,10 @@
 # ===============================
 ---
 
-- name: differentialexpression:deseq2
-  version: 1.0.6
-  label: Differential Expression (DESeq2)
+- slug: differentialexpression-deseq2
+  name: DESeq2
+  data_name: 'Differential expression (case vs. control)'
+  version: 1.0.7
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -15,13 +16,11 @@
     - name: case
       label: Case
       type: list:data:expression
-      required: true
       description: >
         Case samples (replicates)
     - name: control
       label: Control
       type: list:data:expression
-      required: true
       description: >
         Control samples (replicates)
   output:
@@ -34,37 +33,6 @@
     - name: ma_plot
       label: MA plot
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Differential expression (case vs. control)'
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the DE analysis
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["differential", "expression", "DESeq2"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of the differential expression."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

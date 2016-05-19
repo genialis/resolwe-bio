@@ -3,9 +3,10 @@
 # ======================
 ---
 
-- name: cufflinks:-2-2-1
-  version: 1.0.7
-  label: Expression (Cufflinks 2.2.1)
+- name: cufflinks
+  label: Cufflinks (2.2.1)
+  data_name: "{{ alignment.bam.file|basename|default:'?' }}"
+  version: 1.0.8
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -16,7 +17,6 @@
     - name: alignment
       label: Aligned reads
       type: data:alignment:bam
-      required: true
     - name: gff
       label: Annotation (GTF/GFF3)
       type: data:annotation
@@ -34,7 +34,6 @@
       description: >
         Ignore all reads that could have come from transcripts in this GTF file. We recommend including any annotated rRNA, mitochondrial transcripts other abundant transcripts you wish to ignore in your analysis in this file. Due to variable efficiency of mRNA enrichment methods and rRNA depletion kits, masking these transcripts often improves the overall robustness of transcript abundance estimates.
     - name: library_type
-      required: true
       label: Library type
       type: basic:string
       description: >
@@ -48,7 +47,6 @@
         - label: fr-secondstrand
           value: fr-secondstrand
     - name: annotation_usage
-      required: true
       label: Instruct Cufflinks how to use the provided annotation (GFF/GTF) file
       type: basic:string
       description: >
@@ -84,33 +82,6 @@
     - name: skipped_loci
       label: Skipped loci
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Cufflinks analysis ({{ alignment.bam.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["expression", "Cufflinks"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of the expression analysis."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # ================
 ---
 
-- name: expression:bcm-1-0-0
-  version: 1.0.12
-  label: Expression (BCM)
+- slug: expression-bcm
+  name: Expression (BCM)
+  data_name: "{{ alignment.bam.file|basename|default:'?' }}"
+  version: 1.0.13
   type: data:expression:polya
   category: analyses
   flow_collection: sample
@@ -18,15 +19,12 @@
     - name: alignment
       label: Aligned sequence
       type: data:alignment:bam
-      required: true
     - name: gff
       label: Features (GFF3)
       type: data:annotation:gff3
-      required: true
     - name: mappable
       label: Mappability
       type: data:mappability:bcm
-      required: true
   output:
     - name: exp
       label: Expression RPKUM (polyA)
@@ -59,37 +57,6 @@
       label: Expression Type (default output)
       type: basic:string
       default: polyA
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Gene expressions ({{ alignment.bam.file|basename|default:'?' }})"
-    - name: alias
-      label: Alias
-      type: basic:string
-      description: Short name for the expression analysis
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["expression", "profiles"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of {{ alignment.bam.file|basename|default:'?' }} gene expression."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -1,5 +1,5 @@
-- name: microarray:affy:rochester
-  label: Microarray annotation (Affymetrix) Rochester
+- slug: microarray-affy-rochester
+  name: Microarray annotation (Affymetrix) Rochester
   description: Microarray data annotation (Affymetrix) Rochester
   schema:
     - name: experimenter
