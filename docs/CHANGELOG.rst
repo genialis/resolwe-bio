@@ -19,6 +19,7 @@ Changed
 * Add ROSE2 results parser
 * Compute index for HISAT2 aligner on genome upload
 * Updated Cuffquant/Cuffnorm tools
+* Change ROSE2 enhancer rank plot labels
 
 Fixed
 -----

@@ -11,8 +11,8 @@ parser.add_argument('-c', action='store_true', help='Substract control sample da
 
 args = parser.parse_args()
 
-xlabel = 'Super Enhancer rank'
-ylabel = 'Super Enhancer Score'
+xlabel = 'Enhancers ranked by signal'
+ylabel = 'Total reads per million'
 labels = []
 
 data = pd.read_csv(args.input_data, header=5, sep='\t')
@@ -28,7 +28,6 @@ if args.c:
 else:
     x_axis = data.iloc[:,7][::-1]
     y_axis = data.iloc[:,6]
-
 
 n_sup_enh, rows = data[data.isSuper == 1].shape
 
@@ -57,7 +56,7 @@ data = {
             'x_label': xlabel,
             'y_label': ylabel,
             'chr_pos': list(chr_pos),
-            'text': 'Cutoff used: {}'.format(cutoff)
+            'text': 'Cutoff: {}'.format(cutoff)
         }
     }
 }
