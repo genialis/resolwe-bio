@@ -43,6 +43,7 @@ Changed
 -------
 * Remove obsolete utilities superseded by resolwe-runtime-utils
 * Require Resolwe 1.1.0
+* Use chemut R package in VC filtering
 
 Fixed
 -----
