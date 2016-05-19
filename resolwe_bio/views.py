@@ -6,20 +6,11 @@ from rest_framework import exceptions, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-import rest_framework_filters as filters
-
 from resolwe.flow.models import Collection
-from resolwe.flow.views import CollectionViewSet, CollectionFilter
+from resolwe.flow.views import CollectionViewSet
+from .filters import SampleFilter
 from .models import Sample
 from .serializers import SampleSerializer
-
-
-class SampleFilter(CollectionFilter):
-    collection = filters.ModelChoiceFilter(queryset=Collection.objects.all())
-
-    class Meta(CollectionFilter.Meta):
-        model = Sample
-        fields = CollectionFilter.Meta.fields + ('collections',)
 
 
 class SampleViewSet(CollectionViewSet):
