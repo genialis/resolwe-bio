@@ -24,10 +24,11 @@ class SampleViewSet(CollectionViewSet):
 
         annotated = self.request.query_params.get('annotated', None)
 
-        if annotated == "1":
-            queryset = queryset.filter(Q(descriptor__has_key='geo') & Q(descriptor__geo__has_key='annotator'))
-        elif annotated == "0":
+        # Return annotated samples only by default
+        if annotated == "0":
             queryset = queryset.filter(~Q(descriptor__has_key='geo') | ~Q(descriptor__geo__has_key='annotator'))
+        else:
+            queryset = queryset.filter(Q(descriptor__has_key='geo') & Q(descriptor__geo__has_key='annotator'))
 
         return queryset.order_by('-latest_date')
 
