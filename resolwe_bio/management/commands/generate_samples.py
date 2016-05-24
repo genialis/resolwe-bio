@@ -136,7 +136,8 @@ class Command(BaseCommand):
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
         # get test data paths
         data_path = settings.FLOW_EXECUTOR['DATA_PATH']
-        test_files_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
+        test_files_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
         reads = os.path.join(test_files_path, reads_name + '.fastq.gz')
         fastqc = os.path.join(test_files_path, reads_name + '_fastqc.zip')
         bam_mapping = os.path.join(test_files_path, 'alignment_position_sorted.bam')

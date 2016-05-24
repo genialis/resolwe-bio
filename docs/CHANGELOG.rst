@@ -21,6 +21,7 @@ Changed
 * Updated Cuffquant/Cuffnorm tools
 * Change ROSE2 enhancer rank plot labels
 * Refactor processor syntax
+* Move processes tests into ``processes`` subdirectory
 
 Fixed
 -----

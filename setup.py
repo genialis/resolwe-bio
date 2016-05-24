@@ -35,7 +35,7 @@ if __name__ == '__main__':
             'resolwe_bio': [
                 'descriptors/*.yml',
                 'processes/**/*.yml',
-                'tests/files/*',
+                'tests/processes/files/*',
                 'tools/*.py',
                 'tools/*.R',
             ]
