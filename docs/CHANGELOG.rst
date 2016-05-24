@@ -22,6 +22,8 @@ Changed
 * Change ROSE2 enhancer rank plot labels
 * Refactor processor syntax
 * Move processes tests into ``processes`` subdirectory
+* Split ``sample`` API endpoint to ``sample`` for annotated ``Samples``
+  and ``presample`` for unannotated ``Samples``
 
 Fixed
 -----

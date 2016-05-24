@@ -20,3 +20,6 @@ class Sample(BaseCollection):
 
     #: list of collections to which sample belong
     collections = models.ManyToManyField(Collection)
+
+    #: sample not finalized (missing data, annotations or not yet confirmed)
+    presample = models.BooleanField(default=True)

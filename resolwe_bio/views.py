@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from django.db.models import Max, Q
+from django.db.models import Max
 
 from rest_framework import exceptions, status
 from rest_framework.decorators import detail_route
@@ -10,28 +10,33 @@ from resolwe.flow.models import Collection
 from resolwe.flow.views import CollectionViewSet
 from .filters import SampleFilter
 from .models import Sample
-from .serializers import SampleSerializer
+from .serializers import PresampleSerializer, SampleSerializer
+
+
+class PresampleViewSet(CollectionViewSet):
+    filter_class = SampleFilter
+    serializer_class = PresampleSerializer
+
+    queryset = Sample.objects.annotate(
+        latest_date=Max('data__created')
+    ).prefetch_related(
+        'descriptor_schema'
+    ).filter(
+        presample=True
+    ).order_by('-latest_date')
 
 
 class SampleViewSet(CollectionViewSet):
     filter_class = SampleFilter
     serializer_class = SampleSerializer
 
-    def get_queryset(self):
-        queryset = Sample.objects.annotate(
-            latest_date=Max('data__created')
-        ).prefetch_related('descriptor_schema')
-
-        # Return annotated samples only (default for GET requests)
-        if not self.request.data:
-            annotated = self.request.query_params.get('annotated', None)
-
-            if annotated == "0":
-                queryset = queryset.filter(~Q(descriptor__has_key='geo') | ~Q(descriptor__geo__has_key='annotator'))
-            else:
-                queryset = queryset.filter(Q(descriptor__has_key='geo') & Q(descriptor__geo__has_key='annotator'))
-
-        return queryset.order_by('-latest_date')
+    queryset = Sample.objects.annotate(
+        latest_date=Max('data__modified')
+    ).prefetch_related(
+        'descriptor_schema'
+    ).filter(
+        presample=False
+    ).order_by('-latest_date')
 
     @detail_route(methods=[u'post'])
     def add_to_collection(self, request, pk=None):
