@@ -105,7 +105,10 @@ FLOW_DOCKER_MAPPINGS = [
      'dest': '/home/biolinux/data',
      'mode': 'rw'},
     {'src': FLOW_EXECUTOR['DATA_PATH'],
-     'dest': '/home/biolinux/data_all',
+     # NOTE: Destination directory must not be under /home/biolinux as the
+     # latter has the owner and group recursively changed to match the host
+     # user's and that cannot work with read-only volumes.
+     'dest': '/data_all',
      'mode': 'ro'},
     {'src': FLOW_EXECUTOR['UPLOAD_PATH'],
      'dest': '/home/biolinux/upload',
