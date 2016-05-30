@@ -72,7 +72,7 @@
       TransDecoder.LongOrfs -t transcripts.fasta {% if m %} -m {{m}} {% endif %}
 
       {% if pfam %}
-        DB_PATH={{ proc.data_path }}/{{ pfamDB|id }}/{{ pfamDB.database.refs.0 }}/{{ pfamDB.hmmerdb }}
+        DB_PATH={{ proc.data_dir }}/{{ pfamDB|id }}/{{ pfamDB.database.refs.0 }}/{{ pfamDB.hmmerdb }}
         hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
         TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
       {% else %}

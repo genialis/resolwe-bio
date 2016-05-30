@@ -87,8 +87,8 @@ STATIC_URL = '/static/'
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
     'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe',
-    'DATA_PATH': os.path.join(PROJECT_ROOT, '.data'),
-    'UPLOAD_PATH': os.path.join(PROJECT_ROOT, '.upload'),
+    'DATA_DIR': os.path.join(PROJECT_ROOT, '.test_data'),
+    'UPLOAD_DIR': os.path.join(PROJECT_ROOT, '.test_upload'),
 }
 # Set custom executor command if set via environment variable
 if 'RESOLWE_EXECUTOR_COMMAND' in os.environ:
@@ -101,16 +101,16 @@ FLOW_EXPRESSION_ENGINES = [
 ]
 
 FLOW_DOCKER_MAPPINGS = [
-    {'src': os.path.join(FLOW_EXECUTOR['DATA_PATH'], '{data_id}'),
+    {'src': os.path.join(FLOW_EXECUTOR['DATA_DIR'], '{data_id}'),
      'dest': '/home/biolinux/data',
      'mode': 'rw'},
-    {'src': FLOW_EXECUTOR['DATA_PATH'],
+    {'src': FLOW_EXECUTOR['DATA_DIR'],
      # NOTE: Destination directory must not be under /home/biolinux as the
      # latter has the owner and group recursively changed to match the host
      # user's and that cannot work with read-only volumes.
      'dest': '/data_all',
      'mode': 'ro'},
-    {'src': FLOW_EXECUTOR['UPLOAD_PATH'],
+    {'src': FLOW_EXECUTOR['UPLOAD_DIR'],
      'dest': '/home/biolinux/upload',
      'mode': 'rw'},
 ]

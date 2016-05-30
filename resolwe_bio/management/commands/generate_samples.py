@@ -135,7 +135,7 @@ class Command(BaseCommand):
 
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
         # get test data paths
-        data_path = settings.FLOW_EXECUTOR['DATA_PATH']
+        data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
         reads = os.path.join(test_files_path, reads_name + '.fastq.gz')
@@ -164,23 +164,23 @@ class Command(BaseCommand):
                 'number': 13,
                 'bases': "101"})
 
-        # Create data folder and copy reads files
-        os.mkdir(os.path.join(data_path, str(d.id)))
-        shutil.copy(reads, os.path.join(data_path, str(d.id)))
+        # Create data directory and copy reads files into it
+        os.mkdir(os.path.join(data_dir, str(d.id)))
+        shutil.copy(reads, os.path.join(data_dir, str(d.id)))
 
         # Attach FastQC data to reads file
-        os.mkdir(os.path.join(data_path, str(d.id), 'fastqc'))
-        shutil.copy(fastqc, os.path.join(data_path, str(d.id)))
+        os.mkdir(os.path.join(data_dir, str(d.id), 'fastqc'))
+        shutil.copy(fastqc, os.path.join(data_dir, str(d.id)))
 
         with zipfile.ZipFile(fastqc) as zf:
-            zf.extractall(os.path.join(data_path, str(d.id), 'fastqc'))
+            zf.extractall(os.path.join(data_dir, str(d.id), 'fastqc'))
 
-        old_fastqc_path = os.path.join(data_path, str(d.id), 'fastqc', reads_name + '_fastqc', 'fastqc_report.html')
-        new_fastqc_path = os.path.join(data_path, str(d.id), 'fastqc', reads_name + '_fastqc.html')
+        old_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc', 'fastqc_report.html')
+        new_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc.html')
         shutil.copy(old_fastqc_path, new_fastqc_path)
 
         # Create stdout file
-        with open(os.path.join(data_path, str(d.id), 'stdout.txt'), 'w') as stdout:
+        with open(os.path.join(data_dir, str(d.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload NGS reads. Sample was created with the generate_samples django-admin command.')
 
         # Get sample collection
@@ -199,11 +199,11 @@ class Command(BaseCommand):
                 'bam': {'file': 'alignment_position_sorted.bam'},
                 'bai': {'file': 'alignment_position_sorted.bam.bai'}})
 
-        os.mkdir(os.path.join(data_path, str(bam.id)))
-        shutil.copy(bam_mapping, os.path.join(data_path, str(bam.id)))
-        shutil.copy(bai, os.path.join(data_path, str(bam.id)))
+        os.mkdir(os.path.join(data_dir, str(bam.id)))
+        shutil.copy(bam_mapping, os.path.join(data_dir, str(bam.id)))
+        shutil.copy(bai, os.path.join(data_dir, str(bam.id)))
 
-        with open(os.path.join(data_path, str(bam.id), 'stdout.txt'), 'w') as stdout:
+        with open(os.path.join(data_dir, str(bam.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload BAM and BAM index (BAI) files. Sample '
                          'was created with the generate_samples django-admin command.')
 
@@ -218,17 +218,17 @@ class Command(BaseCommand):
             status = 'OK',
             input = {'exp': {'file': 'expressions.tab.gz'}, 'exp_type': 'FPKM'})
 
-        os.mkdir(os.path.join(data_path, str(exp.id)))
+        os.mkdir(os.path.join(data_dir, str(exp.id)))
 
         if d.name.startswith('Dd'):
-            self.generate_expressions(dicty_genes, os.path.join(data_path, str(exp.id)))
+            self.generate_expressions(dicty_genes, os.path.join(data_dir, str(exp.id))
         if d.name.startswith('Hs'):
-            self.generate_expressions(human_genes, os.path.join(data_path, str(exp.id)))
+            self.generate_expressions(human_genes, os.path.join(data_dir, str(exp.id)))
         if d.name.startswith('Mm'):
-            self.generate_expressions(mouse_genes, os.path.join(data_path, str(exp.id)))
+            self.generate_expressions(mouse_genes, os.path.join(data_dir, str(exp.id)))
 
         json_object = Storage.objects.create(
-            json = json.load(open(os.path.join(data_path, str(exp.id), 'expressions.json'))),
+            json = json.load(open(os.path.join(data_dir, str(exp.id), 'expressions.json'))),
             contributor = self.set_user(),
             data = exp)
 
@@ -242,7 +242,7 @@ class Command(BaseCommand):
         Sample.objects.filter(data=exp).delete()
         sample.data.add(exp)
 
-        with open(os.path.join(data_path, str(exp.id), 'stdout.txt'), 'w') as stdout:
+        with open(os.path.join(data_dir, str(exp.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload gene expressions. Sample was created '
                          'with the generate_samples django-admin command.')
 

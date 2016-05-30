@@ -38,7 +38,7 @@
 
       importETC.py "${NAME}"
       str="{\"proc.progress\":1.0,\"proc.rc\":$?"
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/etc.json.gz ]
+      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/etc.json.gz ]
       then
         str=$str",\"etcfile\":{\"file\":\"etc.json.gz\"}"
       fi

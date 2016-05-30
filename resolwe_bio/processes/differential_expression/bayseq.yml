@@ -69,7 +69,7 @@
       expressionmerge.py diffexp_bayseq_partial.tab.gz rpkum_median_case.tab.gz rpkum_median_control.tab.gz --intersection > diffexp_bayseq.tab
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/diffexp_bayseq.tab ]
+      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/diffexp_bayseq.tab ]
       then
         gzip diffexp_bayseq.tab
         echo "{\"diffexp\":{\"file\":\"diffexp_bayseq.tab.gz\"}}"

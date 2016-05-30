@@ -77,7 +77,7 @@
       re-progress 0.05
 
       database=${database%?}
-      root='{{proc.data_path}}/{{proc.data_id}}'
+      root='{{proc.data_dir}}/{{proc.data_id}}'
       slugs_path='{{ proc.slugs_path }}'
       databases_indx=`sortmerna_database.py ${database} ${root} ${slugs_path}`
 
@@ -215,7 +215,7 @@
       {% endfor %}
 
       database=${database%?}
-      root='{{proc.data_path}}/{{proc.data_id}}'
+      root='{{proc.data_dir}}/{{proc.data_id}}'
       slugs_path='{{ proc.slugs_path }}'
       databases_indx=`sortmerna_database.py ${database} ${root} ${slugs_path}`
       re-progress 0.1

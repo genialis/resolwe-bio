@@ -24,6 +24,8 @@ Changed
 * Move processes tests into ``processes`` subdirectory
 * Split ``sample`` API endpoint to ``sample`` for annotated ``Samples``
   and ``presample`` for unannotated ``Samples``
+* Rename test project's data and upload directories to ``.test_data`` and
+  ``.test_upload``
 
 Fixed
 -----

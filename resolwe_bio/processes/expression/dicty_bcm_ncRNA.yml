@@ -53,7 +53,7 @@
     runtime: polyglot
     bash: |
       function compute_coverage {
-        xtabcoverage.py --tab "{{ proc.data_path }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        xtabcoverage.py --tab "{{ proc.data_dir }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
         rm tmp.bedgraph
       }
@@ -68,21 +68,21 @@
       # re-checkrc
       echo "{\"proc.rc\":$?}"
 
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rc.tab.gz ]
+      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rc.tab.gz ]
       then
         compute_coverage "expression_rc.tab.gz"
         # re-checkrc "Computing coverage failed"
         # re-save-file rc expression_rc.tab.gz expression_rc.tab.gz.bw
         echo "{\"proc.rc\":$?, \"rc\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}}"
       fi
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
+      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
       then
         compute_coverage "expression_rpkm.tab.gz"
         # re-checkrc "Computing coverage failed"
         # re-save-file rpkm expression_rpkm.tab.gz expression_rpkm.tab.gz.bw
         echo "{\"proc.rc\":$?, \"rpkm\":{\"file\":\"expression_rpkm.tab.gz\", \"refs\":[\"expression_rpkm.tab.gz.bw\"]}}"
       fi
-      if [ -f {{ proc.data_path }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
+      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
       then
         compute_coverage "expression_rpkum.tab.gz"
         # re-checkrc "Computing coverage failed"

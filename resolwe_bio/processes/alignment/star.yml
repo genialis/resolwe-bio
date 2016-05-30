@@ -168,7 +168,7 @@
   run:
     runtime: polyglot
     bash: |
-      GENOME_PATH={{ proc.data_path }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
+      GENOME_PATH={{ proc.data_dir }}/{{ genome|id }}/{{ genome.index.refs.0 }}/
       READS_NAME=`basename '{{ reads.fastq.file }}' .fastq.gz`
 
       re-progress 0.05
