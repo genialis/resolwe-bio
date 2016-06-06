@@ -21,5 +21,5 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_processor('alignment-tophat2', inputs)
 
         inputs = {'bam': aligned_reads.pk}
-        coverage = self.run_processor('bam:coverage', inputs)
+        coverage = self.run_processor('bam-coverage', inputs)
         self.assertFiles(coverage, 'bigwig', 'genome_coverage.bw')

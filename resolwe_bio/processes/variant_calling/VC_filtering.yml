@@ -3,9 +3,10 @@
 # ==================================================
 ---
 
-- name: vc_filtering_chem_mutagenesis
-  version: 1.0.0
-  label: Variant filtering (Chemical Mutagenesis)
+- slug: chemut
+  name: Variant filtering (Chemut)
+  data_name: "Filtered variants ({{ variants.vcf.file|basename|default:'?' }})"
+  version: 1.0.1
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -15,7 +16,6 @@
     - name: variants
       label: Variants file (VCF)
       type: data:variants:vcf
-      required: true
     - name: analysis_type
       label: Analysis type
       type: basic:string
@@ -89,33 +89,6 @@
       type: basic:file
       description: >
         List mutants that carry mutations in individual genes.
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Filtered variants ({{ variants.vcf.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["variants", "annotation", "filtering"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of variants filtering ({{ variants.vcf.file|basename|default:'?' }})."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

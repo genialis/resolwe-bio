@@ -3,9 +3,10 @@
 # =====================================
 ---
 
-- name: vcf-annotation
-  version: 1.0.11
-  label: Variant calling annotation (SNPdat)
+- slug: snpdat
+  name: SNPdat
+  data_name: "Variants annotation ({{ variants.vcf.file|basename|default:'?' }})"
+  version: 1.0.12
   type: data:variants:annotation
   category: analyses:variants
   flow_collection: sample
@@ -16,15 +17,12 @@
     - name: variants
       label: Variants
       type: data:variants:vcf
-      required: true
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-      required: true
     - name: gtf
       label: Genome annotation (GTF)
       type: data:annotation:gtf
-      required: true
     - name: filtration
       label: Filtration parameters
       group:
@@ -33,7 +31,6 @@
         type: basic:integer
         default: 10
       - name: af
-        required: true
         label: Filter by allele frequency (less than)
         type: basic:decimal
         default: 0.2
@@ -44,33 +41,6 @@
     - name: annotation
       label: Annotation file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Variants annotation ({{ variants.vcf.file|basename|default:'?' }})"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["variants", "annotation"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of variants annotation ({{ variants.vcf.file|basename|default:'?' }})."
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

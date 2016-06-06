@@ -3,9 +3,10 @@
 # ====================
 ---
 
-- name: reference_compatibility
-  version: 1.0.1
-  label: Coordinate compatibility test
+- slug: reference_compatibility
+  name: Coordinate compatibility test
+  data_name: "Compatibility check ({{reference.fasta.file}})"
+  version: 1.0.2
   type: data:reports:compatibility
   category: analyses
   persistence: CACHED
@@ -28,30 +29,6 @@
     - name: report_file
       label: Report file
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Compatibility check ({{reference.fasta.file}})"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["Compatibility test"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: "Description of compatibility test ({{reference.fasta.file}})"
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

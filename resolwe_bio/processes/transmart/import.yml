@@ -5,10 +5,11 @@
 # Processors for the integration of Genialis and tranSMART platforms.
 ---
 
-- name: import:web:transmart:expressions
-  version: 0.0.15
-  label: Import Expressions from tranSMART
-  type: "data:expressionset:transmart"
+- slug: transmart-expressions
+  name: Import Expressions from tranSMART
+  data_name: 'Import from tranSMART'
+  version: 0.0.16
+  type: data:expressionset:transmart
   category: import
   persistence: RAW
   description: >
@@ -17,7 +18,6 @@
     - name: exps
       label: Gene expressions
       type: basic:string
-      required: true
     - name: ann
       label: Sample annotations
       type: basic:string
@@ -29,7 +29,6 @@
     - name: token
       label: Authorization token
       type: basic:string
-      required: true
   output:
     - name: expset
       label: Expression set
@@ -40,32 +39,6 @@
     - name: ann
       label: Annotation
       type: basic:file
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: 'Import from tranSMART'
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["expression"]
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

@@ -3,9 +3,10 @@
 # =========================
 ---
 
-- name: test:basic-fields
-  version: 1.0.7
-  label: Test basic fields
+- slug: test-basic-fields
+  name: Test basic fields
+  data_name: "Test"
+  version: 1.0.8
   type: data:test:fields
   persistence: CACHED
   description: >
@@ -183,50 +184,6 @@
             - name: tricky2
               label: Tricky 2
               type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Test"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: url_download
-      label: URL download
-      type: basic:url:download
-      default:
-        url: "http://www.w3.org/TR/1998/REC-html40-19980424/html40.pdf"
-    - name: url_view
-      label: URL view
-      type: basic:url:view
-      default:
-        url: "http://www.something.com/"
-    - name: pmid
-      label: PMID
-      type: basic:url:link
-      default:
-        url: "http://www.ncbi.nlm.nih.gov/pubmed/20860802"
-    - name: cite
-      label: Citation
-      type: list:basic:url:link
-    - name: references
-      label: References
-      type: list:basic:url:link
-      default:
-        - name: NetExplorer
-          url: http://www.jstatsoft.org/v53/i06
-        - url: http://jmlr.org/papers/v14/demsar13a.html
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["test"]
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

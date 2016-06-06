@@ -3,9 +3,10 @@
 # =========================
 ---
 
-- name: test:sleep-progress
-  version: 1.0.3
-  label: Test sleep progress
+- slug: test-sleep-progress
+  name: Test sleep progress
+  data_name: "Test"
+  version: 1.0.4
   type: data:test:result
   persistence: CACHED
   description: >
@@ -19,25 +20,6 @@
     - name: output
       label: Result
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Test"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ["test"]
-  var:
-    - name: notes
-      label: Notes
-      type: basic:text
   run:
     runtime: polyglot
     bash: |

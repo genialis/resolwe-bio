@@ -3,9 +3,10 @@
 # =========================
 ---
 
-- name: test:hidden
-  version: 1.0.3
-  label: Test hidden inputs
+- slug: test-hidden
+  name: Test hidden inputs
+  data_name: "Test"
+  version: 1.0.4
   type: data:test:hidden
   persistence: CACHED
   description: >
@@ -44,17 +45,6 @@
     - name: output
       label: Result
       type: basic:string
-  static:
-    - name: name
-      label: Name
-      type: basic:string
-      default: "Test"
-    - name: experiment
-      label: Experiment
-      type: basic:string
-    - name: attachments
-      label: Attachments
-      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
