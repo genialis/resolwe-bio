@@ -30,11 +30,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             'peaks': macs2.pk,
             'bed': bed.pk}
         peak_score = self.run_processor("chipseq-peakscore", inputs)
-        self.assertFiles(peak_score, "peak_score", "chip_seq_peakscore_genomicContext")
+        self.assertFile(peak_score, "peak_score", "chip_seq_peakscore_genomicContext")
 
         inputs = {"peakscore": peak_score.pk}
         gene_score = self.run_processor("chipseq-genescore", inputs)
-        self.assertFiles(gene_score, "genescore", "chip_seq_geneScore.xls")
+        self.assertFile(gene_score, "genescore", "chip_seq_geneScore.xls")
 
     def test_macs14(self):
         inputs = {"src": "chip_seq_control.bam"}
@@ -69,4 +69,4 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         # of rose2 from the output
         def filter_date(line):
             return line.startswith(b'#Created')
-        self.assertFiles(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', filter=filter_date)
+        self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', filter=filter_date)

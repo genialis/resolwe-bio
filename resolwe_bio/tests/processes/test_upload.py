@@ -13,8 +13,8 @@ class UploadProcessorTestCase(BioProcessTestCase):
     def test_bam_upload(self):
         inputs = {"src": "alignment_name_sorted.bam"}
         upload_bam = self.run_processor("upload-bam", inputs)
-        self.assertFiles(upload_bam, 'bam', 'alignment_position_sorted.bam')
-        self.assertFiles(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
+        self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
+        self.assertFile(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bai"}
         try:
@@ -32,8 +32,8 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_position_sorted.bam.bai"}
         upload_bam = self.run_processor("upload-bam-indexed", inputs)
-        self.assertFiles(upload_bam, 'bam', 'alignment_position_sorted.bam')
-        self.assertFiles(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
+        self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
+        self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
 
     @skipDockerFailure("Errors with: AssertionError: slug is defined before "
         "trying to ensure uniqueness at self.run_processor("
@@ -47,19 +47,19 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         inputs = {"rc": "exp_1_rc.tab.gz"}
         exp_3 = self.run_processor("upload-expression", inputs)
-        self.assertFiles(exp_3, "rc", "exp_1_rc.tab.gz")
-        self.assertFiles(exp_3, 'exp', 'exp_1_rc.tab.gz')
+        self.assertFile(exp_3, "rc", "exp_1_rc.tab.gz")
+        self.assertFile(exp_3, 'exp', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_3, exp_3.output['exp_json'], '', 'exp_1.json.gz')
 
         inputs = {"exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
         exp_4 = self.run_processor("upload-expression", inputs)
-        self.assertFiles(exp_4, 'exp', 'exp_1_tpm.tab.gz')
+        self.assertFile(exp_4, 'exp', 'exp_1_tpm.tab.gz')
 
         inputs = {"rc": "exp_1_rc.tab.gz", "exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
         exp_5 = self.run_processor("upload-expression", inputs)
         self.assertFields(exp_5, 'exp_type', 'TPM')
-        self.assertFiles(exp_5, 'exp', 'exp_1_tpm.tab.gz')
-        self.assertFiles(exp_5, 'rc', 'exp_1_rc.tab.gz')
+        self.assertFile(exp_5, 'exp', 'exp_1_tpm.tab.gz')
+        self.assertFile(exp_5, 'rc', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
 
         inputs = {"rc": "exp_mac_line_ending.txt.gz"}
@@ -89,8 +89,8 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
         reads = self.run_processor("upload-fastq-paired", inputs)
-        self.assertFiles(reads, "fastq", "rRNA_forw.fastq.gz", compression='gzip')
-        self.assertFiles(reads, "fastq2", "rRNA_rew.fastq.gz", compression='gzip')
+        self.assertFile(reads, "fastq", "rRNA_forw.fastq.gz", compression='gzip')
+        self.assertFile(reads, "fastq2", "rRNA_rew.fastq.gz", compression='gzip')
         self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
         self.assertFields(reads, "fastqc_archive2.file", "rRNA_rew_fastqc.zip")
         self.assertFields(reads, "number", 13)
@@ -104,7 +104,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         inputs = {"src": "rRNA_forw.fastq.gz"}
         reads = self.run_processor("upload-fastq-single", inputs)
-        self.assertFiles(reads, "fastq", "rRNA_forw_single.fastq.gz", compression='gzip')
+        self.assertFile(reads, "fastq", "rRNA_forw_single.fastq.gz", compression='gzip')
         self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
         self.assertFields(reads, "number", 13)
         self.assertFields(reads, "bases", "101")
@@ -114,7 +114,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
     def test_upload_reads_old_encoding(self):
         inputs = {"src": "old_encoding.fastq.gz"}
         reads = self.run_processor("upload-fastq-single", inputs)
-        self.assertFiles(reads, "fastq", "old_encoding_transformed.fastq.gz", compression='gzip')
+        self.assertFile(reads, "fastq", "old_encoding_transformed.fastq.gz", compression='gzip')
         self.assertFields(reads, "fastqc_archive.file", "old_encoding_fastqc.zip")
         self.assertFields(reads, "number", 25)
         self.assertFields(reads, "bases", "40")
@@ -127,7 +127,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'deseq2_output.tab.gz'}
         diff_exp = self.run_processor("upload-diffexp", inputs)
 
-        self.assertFiles(diff_exp, 'diffexp', 'deseq2_output.tab.gz')
+        self.assertFile(diff_exp, 'diffexp', 'deseq2_output.tab.gz')
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'deseq2_volcano_plot.json.gz')
 
     def test_upload_genome(self):
@@ -145,4 +145,4 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         inputs = {"src": "good.bed"}
         bed = self.run_processor('upload-bed', inputs)
-        self.assertFiles(bed, 'BED', 'good.bed')
+        self.assertFile(bed, 'BED', 'good.bed')

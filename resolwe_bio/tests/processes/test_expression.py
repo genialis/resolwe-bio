@@ -26,7 +26,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'genome': genome.pk}
         cuff_exp = self.run_processor('cufflinks', inputs)
-        self.assertFiles(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
+        self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
 
         inputs = {
             'alignment': aligned_reads.pk,
@@ -39,7 +39,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'genome': genome.pk}
         cuff_merge = self.run_processor('cuffmerge', inputs)
-        self.assertFiles(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
+        self.assertFile(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
 
     def test_cuffquant(self):
         inputs = {"src": "cuffquant_mapping.bam"}
@@ -67,8 +67,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'labels': ['Group1', 'Group2'],
             'replicates': ['1', '2']}
         cuffnorm = self.run_processor('cuffnorm', inputs)
-        self.assertFiles(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
-        self.assertFiles(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
+        self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
+        self.assertFile(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
 
     @skipDockerFailure("Fails with: ImportError: No module named biox")
     def test_expression_bcm(self):
@@ -93,7 +93,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'mappable': mappa.pk}
         expression = self.run_processor('expression:bcm', inputs)
-        self.assertFiles(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_processor('etc-bcm', inputs)
@@ -120,9 +120,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'stranded': "no",
             'id_attribute': 'transcript_id'}
         expression = self.run_processor('htseq-count', inputs)
-        self.assertFiles(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
-        self.assertFiles(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
-        self.assertFiles(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
 
     @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
@@ -139,7 +139,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         }
 
         mergeexpression_1 = self.run_processor('mergeexpressions', inputs)
-        self.assertFiles(mergeexpression_1, "expset", "merged_expset_subset.tab")
+        self.assertFile(mergeexpression_1, "expset", "merged_expset_subset.tab")
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],
@@ -147,7 +147,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         }
 
         mergeexpression_2 = self.run_processor('mergeexpressions', inputs)
-        self.assertFiles(mergeexpression_2, "expset", "merged_expset_all.tab")
+        self.assertFile(mergeexpression_2, "expset", "merged_expset_all.tab")
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
@@ -189,7 +189,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         }
 
         etcmerge = self.run_processor('mergeetc', inputs)
-        self.assertFiles(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
+        self.assertFile(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
 
     @skipDockerFailure("Errors with: KeyError: u'genome' at "
         "cuff_exp_1 = self.run_processor('cufflinks', inputs)")
@@ -247,5 +247,5 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'exps': [expression_1.pk, expression_2.pk],
             'annotation': annotation_gff3.pk}
         ncrna_expressions = self.run_processor('summarizexpressions-ncrna', inputs)
-        self.assertFiles(ncrna_expressions, 'expset', 'ncRNA_exp_all.tab.gz', compression='gzip')
-        self.assertFiles(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')
+        self.assertFile(ncrna_expressions, 'expset', 'ncRNA_exp_all.tab.gz', compression='gzip')
+        self.assertFile(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')

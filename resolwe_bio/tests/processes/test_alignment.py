@@ -22,7 +22,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads.pk,
             'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment-bowtie2', inputs)
-        self.assertFiles(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
+        self.assertFile(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
 
     def test_tophat(self):
         genome = self.prepare_genome()
@@ -38,7 +38,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'PE_options': {
                 'library_type': "fr-unstranded"}}
         aligned_reads = self.run_processor('alignment-tophat2', inputs)
-        self.assertFiles(aligned_reads, 'stats', 'tophat_reads_report.txt')
+        self.assertFile(aligned_reads, 'stats', 'tophat_reads_report.txt')
 
     @skipDockerFailure("Fails with: STAR: command not found")
     def test_star(self):
@@ -59,7 +59,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
                 'quantmode': True,
                 'gene_counts': True}}
         aligned_reads = self.run_processor('alignment-star', inputs)
-        self.assertFiles(aligned_reads, 'gene_counts', 'gene_counts_star.tab.gz', compression='gzip')
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star.tab.gz', compression='gzip')
 
     @skipDockerFailure("File contents mismatch for bwa_bt_reads_mapped.bam")
     def test_bwa_bt(self):
@@ -68,8 +68,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment-bwa-aln', inputs)
-        self.assertFiles(aligned_reads, 'bam', 'bwa_bt_reads_mapped.bam')
-        self.assertFiles(aligned_reads, 'stats', 'bwa_bt_reads_report.txt')
+        self.assertFile(aligned_reads, 'bam', 'bwa_bt_reads_mapped.bam')
+        self.assertFile(aligned_reads, 'stats', 'bwa_bt_reads_report.txt')
 
     def test_bwa_sw(self):
         genome = self.prepare_genome()
@@ -77,8 +77,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment-bwa-sw', inputs)
-        self.assertFiles(aligned_reads, 'bam', 'bwa_sw_reads_mapped.bam')
-        self.assertFiles(aligned_reads, 'stats', 'bwa_sw_reads_report.txt')
+        self.assertFile(aligned_reads, 'bam', 'bwa_sw_reads_mapped.bam')
+        self.assertFile(aligned_reads, 'stats', 'bwa_sw_reads_report.txt')
 
     @skipDockerFailure("File contents mismatch for bwa_mem_reads_mapped.bam")
     def test_bwa_mem(self):
@@ -87,8 +87,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
 
         inputs = {'genome': genome.pk, 'reads': reads.pk}
         aligned_reads = self.run_processor('alignment-bwa-mem', inputs)
-        self.assertFiles(aligned_reads, 'bam', 'bwa_mem_reads_mapped.bam')
-        self.assertFiles(aligned_reads, 'stats', 'bwa_mem_reads_report.txt')
+        self.assertFile(aligned_reads, 'bam', 'bwa_mem_reads_mapped.bam')
+        self.assertFile(aligned_reads, 'stats', 'bwa_mem_reads_report.txt')
 
     def test_hisat2(self):
         genome = self.prepare_genome()
@@ -98,4 +98,4 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'genome': genome.pk,
             'reads': reads.pk}
         aligned_reads = self.run_processor('alignment-hisat2', inputs)
-        self.assertFiles(aligned_reads, 'stats', 'hisat2_report.txt')
+        self.assertFile(aligned_reads, 'stats', 'hisat2_report.txt')

@@ -11,7 +11,7 @@ class CompatibilityProcessorTestCase(BioProcessTestCase):
 
         inputs = {'reference': genome.pk, 'bam': mapping.pk, 'annot': annotation.pk}
         compatibility_test = self.run_processor('reference_compatibility', inputs)
-        self.assertFiles(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
+        self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
 
     @skipDockerFailure("Errors with: int() argument must be a string or a "
         "number, not 'dict' at self.assertJSON(features, "

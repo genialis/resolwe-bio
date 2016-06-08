@@ -22,5 +22,5 @@ class PseudoalignmentProcessorTestCase(BioProcessTestCase):
                 'single': True,
                 'fragment_length_single': 75}}
         kallisto = self.run_processor("kallisto-quant", inputs)
-        self.assertFiles(kallisto, "abundance", "kallisto_abundance.txt.gz", compression='gzip')
-        self.assertFiles(kallisto, "rc", "kallisto_abundance_rc.tab.gz", compression='gzip')
+        self.assertFile(kallisto, "abundance", "kallisto_abundance.txt.gz", compression='gzip')
+        self.assertFile(kallisto, "rc", "kallisto_abundance_rc.tab.gz", compression='gzip')

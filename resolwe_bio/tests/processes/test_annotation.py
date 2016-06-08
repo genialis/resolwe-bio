@@ -39,5 +39,5 @@ class AnnotationProcessorTestCase(BioProcessTestCase):
             'gff': cuff_merge.pk,
             'genome': genome.pk}
         transdecoder = self.run_processor('transdecoder', inputs)
-        self.assertFiles(transdecoder, 'gff', 'transdecoder_transcripts.gff')
-        self.assertFiles(transdecoder, 'bed', 'transdecoder_transcripts.bed')
+        self.assertFile(transdecoder, 'gff', 'transdecoder_transcripts.gff')
+        self.assertFile(transdecoder, 'bed', 'transdecoder_transcripts.bed')

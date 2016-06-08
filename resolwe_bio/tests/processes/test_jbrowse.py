@@ -8,7 +8,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
     def test_refseq_track(self):
         genome = self.prepare_genome()
         refseq_track = self.run_processor('jbrowse-refseq', {'refseq': genome.pk})
-        self.assertFiles(refseq_track, 'refseq_track', 'refseq.json')
+        self.assertFile(refseq_track, 'refseq_track', 'refseq.json')
 
     def test_gff3_track(self):
         inputs = {'src': 'annotation.gff.gz'}
@@ -33,7 +33,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
         bam = self.run_processor("upload-bam", inputs)
 
         coverage = self.run_processor('jbrowse-bam-coverage', {'bam': bam.pk})
-        self.assertFiles(coverage, 'bigwig_track', 'Jbrowse_genome_coverage.bw')
+        self.assertFile(coverage, 'bigwig_track', 'Jbrowse_genome_coverage.bw')
 
     @skipDockerFailure("Fails with: bamCoverage: command not found")
     def test_norm_coverage_track(self):
@@ -42,4 +42,4 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
 
         inputs = {'bam': bam.pk, 'size': 34000000}
         coverage = self.run_processor('jbrowse-bam-coverage-normalized', inputs)
-        self.assertFiles(coverage, 'bigwig_track', 'Jbrowse_norm_genome_coverage.bw')
+        self.assertFile(coverage, 'bigwig_track', 'Jbrowse_norm_genome_coverage.bw')

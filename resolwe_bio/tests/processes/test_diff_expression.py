@@ -64,7 +64,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
             'labels': ['g1', 'g2'],
             'gff': cuff_merge.pk}
         cuffdiff = self.run_processor('cuffdiff', inputs)
-        self.assertFiles(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', compression='gzip')
+        self.assertFile(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', compression='gzip')
 
     @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
         "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
@@ -97,7 +97,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         }
 
         diff_exp = self.run_processor('differentialexpression-deseq2', inputs)
-        self.assertFiles(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')
+        self.assertFile(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')
 
     @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
         "ObjectId but {u'genes': u'236613_at': 7.40..., ...}} at "
@@ -114,4 +114,4 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         }
 
         diff_exp = self.run_processor('differentialexpression-limma', inputs)
-        self.assertFiles(diff_exp, "diffexp", 'diffexp_limma.tab.gz', compression='gzip')
+        self.assertFile(diff_exp, "diffexp", 'diffexp_limma.tab.gz', compression='gzip')
