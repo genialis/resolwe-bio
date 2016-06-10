@@ -16,6 +16,7 @@ class Sample(BaseCollection):
             ("share_sample", "Can share sample"),
             ("download_sample", "Can download files from sample"),
             ("add_sample", "Can add data objects to sample"),
+            ("owner_sample", "Is owner of the sample"),
         )
 
     #: list of collections to which sample belong
