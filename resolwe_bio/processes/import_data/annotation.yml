@@ -6,7 +6,7 @@
 - slug: upload-gff3
   name: Annotation (GFF3)
   data_name: '{{ src.file }}'
-  version: 1.0.12
+  version: 1.0.13
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -30,18 +30,14 @@
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
 
       gt gff3validator ${NAME}.gff
-      echo "{\"proc.progress\":0.2,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\"}}"
-
-      flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
-      echo "{\"proc.progress\":1,\"proc.rc\":$?,\"gff\":{\"file\":\"${NAME}.gff\",\"refs\":[\"tracks/gff-track\"]}}"
-
-      rm -f trackList.json tracks.conf
-
+      re-checkrc
+      re-progress 0.2
+      re-save-file gff ${NAME}.gff
 
 - slug: upload-gtf
   name: Annotation (GTF2.2)
   data_name: '{{ src.file }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -67,10 +63,7 @@
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
       xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
+      re-checkrc
+      re-progress 0.7
 
-      echo "{\"proc.progress\":0.7}"
-      echo "Preparing GFF3 file for JBrowse:"
-      flatfile-to-json.pl --gff "${NAME}.gff" --out . --trackLabel "gff-track"
-      rm trackList.json tracks.conf "${NAME}.tmp.gtf"
-
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?,\"gtf\":{\"file\":\"${NAME}.gtf\", \"refs\": [\"tracks/gff-track\"]}}"
+      re-save-file gtf ${NAME}.gtf

@@ -26,6 +26,9 @@ Changed
   and ``presample`` for unannotated ``Samples``
 * Rename test project's data and upload directories to ``.test_data`` and
   ``.test_upload``
+* Save fastq files to ``lists:basic:file`` field. Refactor related processors.
+* Reference genome-index path when running aligners.
+* Add pre-computed genome-index files when uploading reference fasta file.
 
 Fixed
 -----

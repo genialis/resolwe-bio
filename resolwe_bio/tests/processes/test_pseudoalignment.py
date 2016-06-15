@@ -9,7 +9,7 @@ class PseudoalignmentProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "cDNA_reference.fasta.gz"}
         cdna = self.run_processor("upload-fasta-nucl", inputs)
 
-        inputs = {"src": "reads_pseudoaligner.fastq.gz"}
+        inputs = {"src": ["reads_pseudoaligner.fastq.gz"]}
         reads = self.run_processor("upload-fastq-single", inputs)
 
         inputs = {"fasta": cdna.pk}

@@ -6,8 +6,10 @@ from .utils import skipDockerFailure, BioProcessTestCase
 class VariantCallingTestCase(BioProcessTestCase):
 
     def test_variant_calling_samtools(self):
-        genome = self.prepare_genome('variant_calling_genome.fasta.gz')
-        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
+        inputs = {"src": "variant_calling_genome.fasta.gz"}
+        genome = self.run_processor('upload-genome', inputs)
+
+        reads = self.prepare_reads(['variant_calling_reads.fastq.gz'])
 
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_processor('alignment-bowtie2', inputs)

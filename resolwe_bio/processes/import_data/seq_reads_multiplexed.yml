@@ -6,7 +6,7 @@
 - slug: upload-multiplexed-single
   name: Reads (multiplexed, single)
   data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -70,6 +70,7 @@
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
+      mkdir -p temp
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
@@ -78,7 +79,7 @@
 - slug: upload-multiplexed-paired
   name: Reads (multiplexed, paired)
   data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW
@@ -152,6 +153,7 @@
 
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
+      mkdir -p temp
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22

@@ -6,7 +6,7 @@
 - slug: macs14
   name: MACS 1.4
   data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
-  version: 1.0.2
+  version: 1.0.3
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -36,7 +36,7 @@
         - label: RN
           value: '2e9'
         - label: DA
-          value: '1e9'    
+          value: '1e9'
     - name: pvalue
       label: P-value
       type: basic:string
@@ -78,7 +78,7 @@
       re-save-file peaks_bed ${NAME}_peaks.bed
       re-save-file peaks_xls ${NAME}_peaks.xls
       re-save-file wiggle ${NAME}_MACS_wiggle.zip
-      re-save-file summits_bed ${NAME}summits.bed
+      re-save-file summits_bed ${NAME}_summits.bed
 
       if [ -f ${NAME}_model.r ]
       then

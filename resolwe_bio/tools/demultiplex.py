@@ -262,14 +262,14 @@ for name in filenames:
             'status': 'RE',
             'process': 'upload-fastq-paired',
             'input': {
-                'src1': {
+                'src1': [{
                     'file': os.path.basename(name),
                     'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name))
-                },
-                'src2': {
+                }],
+                'src2': [{
                     'file': os.path.basename(name2),
                     'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name2))
-                }
+                }]
             }
         }
     else:
@@ -277,10 +277,10 @@ for name in filenames:
             'status': 'RE',
             'process': 'upload-fastq-single',
             'input': {
-                'src': {
+                'src': [{
                     'file': os.path.basename(name),
                     'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name))
-                }
+                }]
             }
         }
 

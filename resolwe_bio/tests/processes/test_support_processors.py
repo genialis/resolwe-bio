@@ -5,8 +5,10 @@ from .utils import skipDockerFailure, BioProcessTestCase
 class CompatibilityProcessorTestCase(BioProcessTestCase):
 
     def test_reference_compatibility(self):
+        inputs = {"src": "sp_test.fasta"}
+        genome = self.run_processor('upload-genome', inputs)
+
         mapping = self.prepare_bam()
-        genome = self.prepare_genome('sp_test.fasta')
         annotation = self.prepare_annotation()
 
         inputs = {'reference': genome.pk, 'bam': mapping.pk, 'annot': annotation.pk}

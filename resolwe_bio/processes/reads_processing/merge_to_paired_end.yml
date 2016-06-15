@@ -5,8 +5,8 @@
 
 - slug: reads-merge
   name: Build paired-end reads from single-ended
-  data_name: "Reads ({{ reads_1.fastq.file|basename|default:'?' }} and {{ reads_2.fastq.file|basename|default:'?' }})"
-  version: 1.0.5
+  data_name: "Merged reads"
+  version: 1.0.6
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
@@ -22,49 +22,57 @@
   output:
     - name: fastq
       label: Reads file (mate 1)
-      type: basic:file
+      type: list:basic:file
     - name: fastq2
       label: Reads file (mate 2)
-      type: basic:file
-    - name: number
-      label: Number of reads
-      type: basic:integer
-    - name: bases
-      label: Number of bases
-      type: basic:string
+      type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: basic:url:view
+      type: list:basic:url:view
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: basic:url:view
+      type: list:basic:url:view
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
-      type: basic:file
+      type: list:basic:file
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
-      type: basic:file
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
-      #TODO carry over descriptions
-      #echo "UNCOMPRESSING reads 1:"
-
-      cp {{ reads_1.fastq.file }} .
-      cp {{ reads_2.fastq.file }} .
-      NAME=`basename '{{ reads_1.fastq.file }}' .fastq.gz`
-      NAME2=`basename '{{ reads_2.fastq.file }}' .fastq.gz`
-
+      mkdir fw_reads
+      mkdir rw_reads
       mkdir fastqc
-      7z x -o./fastqc -y {{ reads_1.fastqc_archive.file }}
-      7z x -o./fastqc -y {{ reads_2.fastqc_archive.file }}
-      cp {{ reads_1.fastqc_archive.file }} .
-      cp {{ reads_2.fastqc_archive.file }} .
 
-      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
-      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+      {% for fw_reads in reads_1.fastq %}
+        cp {{fw_reads.file}} ./fw_reads/
+      {% endfor %}
 
-      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
-      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+      {% for rw_reads in reads_2.fastq %}
+        cp {{rw_reads.file}} ./rw_reads/
+      {% endfor %}
 
-      echo "{\"fastq\":{\"file\":\"${NAME}.fastq.gz\"},\"fastq2\":{\"file\":\"${NAME2}.fastq.gz\"}, \"fastqc_archive\": {\"file\":\"${NAME}_fastqc.zip\"}, \"fastqc_archive2\": {\"file\":\"${NAME2}_fastqc.zip\"},\"number\":$NUMBER,\"bases\":\"$BASES\",\"fastqc_url\":$FASTQC_URL,\"fastqc_url2\":$FASTQC_URL2,\"proc.progress\":1,\"proc.rc\":$? }"
+      cat ./fw_reads/*.fastq.gz > fw_reads.fastq.gz
+      cat ./rw_reads/*.fastq.gz > rw_reads.fastq.gz
+
+      re-save-file-list fastq fw_reads.fastq.gz
+      re-save-file-list fastq2 rw_reads.fastq.gz
+
+      fastqc fw_reads.fastq.gz rw_reads.fastq.gz --extract --outdir="fastqc" 2> stderr.txt
+      re-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        re-error "Failed while processing with FastQC."
+      fi
+
+      mv fastqc/*_fastqc.zip .
+
+      FW_FASTQC_URL={\"name\":\"View\",\"url\":\"fastqc/fw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/fw_reads_fastqc\"]}
+
+      RW_FASTQC_URL={\"name\":\"View\",\"url\":\"fastqc/rw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/rw_reads_fastqc\"]}
+
+      re-save-file-list fastqc_archive fw_reads_fastqc.zip
+      re-save-file-list fastqc_archive2 rw_reads_fastqc.zip
+      re-save-list fastqc_url ${FW_FASTQC_URL}
+      re-save-list fastqc_url2 ${RW_FASTQC_URL}

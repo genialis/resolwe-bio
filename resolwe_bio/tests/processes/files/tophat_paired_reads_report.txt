@@ -1,0 +1,10 @@
+Left reads:
+          Input     :       200
+           Mapped   :       183 (91.5% of input)
+Right reads:
+          Input     :       200
+           Mapped   :       182 (91.0% of input)
+91.2% overall read mapping rate.
+
+Aligned pairs:       166
+83.0% concordant pair alignment rate.

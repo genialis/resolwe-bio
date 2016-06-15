@@ -30,15 +30,24 @@ class BioProcessTestCase(ProcessTestCase):
         super(BioProcessTestCase, self).setUp()
         self.files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files')
 
-    def prepare_genome(self, fn='genome.fasta.gz'):
+    def prepare_genome(self):
         """Prepare genome FASTA."""
-        inputs = {'src': fn}
+        inputs = {"src": "genome.fasta.gz",
+                  "bowtie_index": "bt_index.tar.gz",
+                  "bowtie2_index": "bt2_index.tar.gz",
+                  "bwa_index": "bwa_index.tar.gz",
+                  "hisat2_index": "hisat2_index.tar.gz"}
         return self.run_processor('upload-genome', inputs)
 
-    def prepare_reads(self, fn='reads.fastq.gz'):
+    def prepare_reads(self, fn=['reads.fastq.gz']):
         """Prepare NGS reads FASTQ."""
         inputs = {'src': fn}
         return self.run_processor('upload-fastq-single', inputs)
+
+    def prepare_paired_reads(self, fw=['fw_reads.fastq.gz'], rw=['rw_reads.fastq.gz']):
+        """Prepare NGS reads FASTQ."""
+        inputs = {'src1': fw, 'src2': rw}
+        return self.run_processor('upload-fastq-paired', inputs)
 
     def prepare_bam(self, fn='sp_test.bam'):
         """Prepare alignment BAM."""

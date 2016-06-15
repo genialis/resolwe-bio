@@ -84,41 +84,32 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.run_processor('upload-expression-cuffnorm', inputs)
 
     def test_upload_paired_end_reads(self):
-        inputs = {"src1": "mate1.fastq.gz", "src2": "mate2.fastq.gz"}
+        inputs = {"src1": ["mate1.fastq.gz"], "src2": ["mate2.fastq.gz"]}
         self.run_processor("upload-fastq-paired", inputs, Data.STATUS_ERROR)
 
-        inputs = {"src1": "rRNA_forw.fastq.gz", "src2": "rRNA_rew.fastq.gz"}
+        inputs = {"src1": ["rRNA_forw.fastq.gz", "rRNA_rew.fastq.gz"],
+                  "src2": ["00Hr.fastq.gz", "20Hr.fastq.gz"]
+        }
+
         reads = self.run_processor("upload-fastq-paired", inputs)
-        self.assertFile(reads, "fastq", "rRNA_forw.fastq.gz", compression='gzip')
-        self.assertFile(reads, "fastq2", "rRNA_rew.fastq.gz", compression='gzip')
-        self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
-        self.assertFields(reads, "fastqc_archive2.file", "rRNA_rew_fastqc.zip")
-        self.assertFields(reads, "number", 13)
-        self.assertFields(reads, "bases", " 101, 101")
-        self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
-        self.assertFields(reads, "fastqc_url2.url", "fastqc/rRNA_rew_fastqc/fastqc_report.html")
+        self.assertFiles(reads, "fastq", ["rRNA_forw.fastq.gz", "rRNA_rew.fastq.gz"], compression='gzip')
+        self.assertFiles(reads, "fastq2", ["00Hr.fastq.gz", "20Hr.fastq.gz"], compression='gzip')
+        self.assertFields(reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html', 'refs': ['fastqc/rRNA_forw_fastqc'], 'name': 'View'}, {'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html', 'refs': ['fastqc/rRNA_rew_fastqc'], 'name': 'View'}])
+        self.assertFields(reads, "fastqc_url2", [{'url': 'fastqc/00Hr_fastqc/fastqc_report.html', 'refs': ['fastqc/00Hr_fastqc'], 'name': 'View'}, {'url': 'fastqc/20Hr_fastqc/fastqc_report.html', 'refs': ['fastqc/20Hr_fastqc'], 'name': 'View'}])
 
     def test_upload_single_end_reads(self):
-        inputs = {"src": "mate1.fastq.gz"}
+        inputs = {"src": ["mate1.fastq.gz"]}
         self.run_processor("upload-fastq-single", inputs, Data.STATUS_ERROR)
 
-        inputs = {"src": "rRNA_forw.fastq.gz"}
+        inputs = {"src": ["rRNA_forw.fastq.gz", "rRNA_rew.fastq.gz"]}
         reads = self.run_processor("upload-fastq-single", inputs)
-        self.assertFile(reads, "fastq", "rRNA_forw_single.fastq.gz", compression='gzip')
-        self.assertFields(reads, "fastqc_archive.file", "rRNA_forw_fastqc.zip")
-        self.assertFields(reads, "number", 13)
-        self.assertFields(reads, "bases", "101")
-        self.assertFields(reads, "fastqc_url.url", "fastqc/rRNA_forw_fastqc/fastqc_report.html")
 
-    @skipDockerFailure("File contents mismatch for old_encoding_transformed.fastq.gz")
+        self.assertFiles(reads, "fastq", ["rRNA_forw_single.fastq.gz", "rRNA_rew.fastq.gz"], compression='gzip')
+        self.assertFields(reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html', 'refs': ['fastqc/rRNA_forw_fastqc'], 'name': 'View'}, {'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html', 'refs': ['fastqc/rRNA_rew_fastqc'], 'name': 'View'}])
+
     def test_upload_reads_old_encoding(self):
-        inputs = {"src": "old_encoding.fastq.gz"}
-        reads = self.run_processor("upload-fastq-single", inputs)
-        self.assertFile(reads, "fastq", "old_encoding_transformed.fastq.gz", compression='gzip')
-        self.assertFields(reads, "fastqc_archive.file", "old_encoding_fastqc.zip")
-        self.assertFields(reads, "number", 25)
-        self.assertFields(reads, "bases", "40")
-        self.assertFields(reads, "fastqc_url.url", "fastqc/old_encoding_fastqc/fastqc_report.html")
+        inputs = {"src": ["old_encoding.fastq.gz"]}
+        reads = self.run_processor("upload-fastq-single", inputs, Data.STATUS_ERROR)
 
     @skipDockerFailure("Errors with: int() argument must be a string or a "
         "number, not 'dict' at self.assertJSON(diff_exp, "
@@ -134,10 +125,16 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "genome.fasta.gz"}
         genome = self.run_processor('upload-genome', inputs)
 
-        self.assertFileExists(genome, "index_bt")
-        self.assertFileExists(genome, "index_bt2")
-        self.assertFileExists(genome, "index_bwa")
-        self.assertFileExists(genome, "index_hisat2")
+        inputs = {"src": "genome.fasta.gz",
+                  "bowtie_index": "bt_index.tar.gz",
+                  "bowtie2_index": "bt2_index.tar.gz",
+                  "bwa_index": "bwa_index.tar.gz",
+                  "hisat2_index": "hisat2_index.tar.gz"}
+        genome = self.run_processor('upload-genome', inputs)
+        self.assertFields(genome, "index_bt.dir", 'bowtie_index')
+        self.assertFields(genome, "index_bt2.dir", 'bowtie2_index')
+        self.assertFields(genome, "index_bwa.dir", 'BWA_index')
+        self.assertFields(genome, "index_hisat2.dir", 'hisat2_index')
 
     def test_upload_bed(self):
         inputs = {"src": "bad.bed"}

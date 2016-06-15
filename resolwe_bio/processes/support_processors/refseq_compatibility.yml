@@ -53,4 +53,4 @@
 
       echo "Compatibility check"
       compatibilty_check.py --genome "${GENOME_NAME}.fasta" {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
-      echo "{\"proc.progress\":1,\"proc.rc\":$?, \"report_file\":{\"file\":\"${GENOME_NAME}_compatibility_report.txt\"}}"
+      re-save-file report_file ${GENOME_NAME}_compatibility_report.txt

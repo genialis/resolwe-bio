@@ -1,5 +1,5 @@
 ##fileformat=VCFv4.1
-##samtoolsVersion=0.1.19-44428cd
+##samtoolsVersion=0.1.19-96b5f2294a
 ##reference=file://variant_calling_genome.fasta.gz
 ##contig=<ID=20:10030136-10030239,length=104>
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw read depth">
@@ -34,7 +34,7 @@
 ##FORMAT=<ID=SP,Number=1,Type=Integer,Description="Phred-scaled strand bias P-value">
 ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="List of Phred-scaled genotype likelihoods">
 ##INFO=<ID=PR,Number=1,Type=Integer,Description="# permutations yielding a smaller PCHI2.">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	variant_calling_reads_mapped_nodupli.bam
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	variant_calling_reads_nodupli.bam
 20:10030136-10030239	2	.	G	A	95.5	.	DP=5;VDB=1.106034e-02;AF1=1;AC1=2;DP4=0,0,2,2;MQ=42;FQ=-39	GT:PL:GQ	1/1:128,12,0:21
 20:10030136-10030239	3	.	A	G	95.5	.	DP=8;VDB=1.106034e-02;AF1=1;AC1=2;DP4=0,0,2,2;MQ=42;FQ=-39	GT:PL:GQ	1/1:128,12,0:21
 20:10030136-10030239	5	.	C	G	99.5	.	DP=15;VDB=1.106034e-02;AF1=1;AC1=2;DP4=0,0,2,2;MQ=42;FQ=-39	GT:PL:GQ	1/1:132,12,0:21
