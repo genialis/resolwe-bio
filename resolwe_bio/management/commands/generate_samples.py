@@ -1,5 +1,8 @@
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import gzip
 import json
+import logging
 import os
 import random
 import shutil
@@ -14,6 +17,9 @@ from django.utils import timezone
 from resolwe.flow.models import Data, DescriptorSchema, Process, Storage
 from resolwe_bio.models import Sample
 from resolwe_bio.tools.utils import escape_mongokey, gzopen
+
+
+logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class Command(BaseCommand):
@@ -31,7 +37,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_random_word(length):
-        return ''.join(random.choice(string.lowercase) for _ in range(length))
+        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
 
     def set_name(self):
         organism = random.choice(['Dictyostelium discoideum', 'Mus musculus', 'Homo sapiens'])
@@ -58,12 +64,12 @@ class Command(BaseCommand):
         """Generate random expression data"""
         genes = {}
         with gzip.open(os.path.join(path, 'expressions.tab.gz'), 'wb') as f:
-            f.write('{}\t{}\n'.format('Gene', 'Expression'))
+            f.write('{}\t{}\n'.format('Gene', 'Expression').encode('utf-8'))
             with gzopen(gene_ids) as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
                     expression = random.gammavariate(1, 100)
-                    f.write('{}\t{}\n'.format(gene, expression))
+                    f.write('{}\t{}\n'.format(gene, expression).encode('utf-8'))
                     genes[escape_mongokey(gene)] = expression
 
         with open(os.path.join(path, 'expressions.json'), 'w') as json_file:
@@ -158,23 +164,16 @@ class Command(BaseCommand):
         # Create reads data object
         started = timezone.now()
         d = Data.objects.create(
+            slug='gs-reads',
             name=self.set_name(),
             started=started,
             finished=started + datetime.timedelta(minutes=45),
             descriptor_schema=DescriptorSchema.objects.get(slug='reads'),
             descriptor=self.generate_reads_descriptor(),
-            status='OK',
+            status=Data.STATUS_PROCESSING,
             process=Process.objects.get(slug='upload-fastq-single'),
             contributor=self.set_user(),
-            input={'src': {'file': os.path.basename(reads)}},
-            output={
-                'fastq': {'file': os.path.basename(reads)},
-                'fastqc_url': {
-                    'url': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
-                    'refs': ['fastqc/{}_fastqc'.format(reads_name)], 'name': 'View'},
-                'fastqc_archive': {'file': '{}_fastqc.zip'.format(reads_name)},
-                'number': 13,
-                'bases': "101"})
+            input={'src': [{'file': os.path.basename(reads)}]})
 
         # Create data directory and copy reads files into it
         os.mkdir(os.path.join(data_dir, str(d.id)))
@@ -191,6 +190,15 @@ class Command(BaseCommand):
         new_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc.html')
         shutil.copy(old_fastqc_path, new_fastqc_path)
 
+        d.output={
+                'fastq': [{'file': os.path.basename(reads)}],
+                'fastqc_url': [{
+                    'url': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
+                    'refs': ['fastqc/{}_fastqc'.format(reads_name)], 'name': 'View'}],
+                'fastqc_archive': [{'file': '{}_fastqc.zip'.format(reads_name)}]}
+        d.status = Data.STATUS_DONE
+        d.save()
+
         # Create stdout file
         with open(os.path.join(data_dir, str(d.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload NGS reads. Sample was created with the generate_samples django-admin command.')
@@ -201,19 +209,25 @@ class Command(BaseCommand):
         # Upload bam file
         bam = Data.objects.create(
             name='Mapping',
+            started=started,
+            finished=started + datetime.timedelta(minutes=50),
             process=Process.objects.get(slug='upload-bam-indexed'),
             contributor=self.set_user(),
-            status='OK',
+            status=Data.STATUS_PROCESSING,
             input={
                 'src': {'file': 'alignment_position_sorted.bam'},
-                'src2': {'file': 'alignment_position_sorted.bam.bai'}},
-            output={
-                'bam': {'file': 'alignment_position_sorted.bam'},
-                'bai': {'file': 'alignment_position_sorted.bam.bai'}})
+                'src2': {'file': 'alignment_position_sorted.bam.bai'}})
 
         os.mkdir(os.path.join(data_dir, str(bam.id)))
         shutil.copy(bam_mapping, os.path.join(data_dir, str(bam.id)))
         shutil.copy(bai, os.path.join(data_dir, str(bam.id)))
+
+        bam.output={
+                'bam': {'file': 'alignment_position_sorted.bam'},
+                'bai': {'file': 'alignment_position_sorted.bam.bai'}}
+        bam.status = Data.STATUS_DONE
+        bam.save()
+
 
         with open(os.path.join(data_dir, str(bam.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload BAM and BAM index (BAI) files. Sample '
@@ -227,7 +241,9 @@ class Command(BaseCommand):
             name='Expression',
             process=Process.objects.get(slug='upload-expression'),
             contributor=self.set_user(),
-            status='OK',
+            started=started,
+            finished=started + datetime.timedelta(minutes=60),
+            status=Data.STATUS_PROCESSING,
             input={'exp': {'file': 'expressions.tab.gz'}, 'exp_type': 'FPKM'})
 
         os.mkdir(os.path.join(data_dir, str(exp.id)))
@@ -249,7 +265,7 @@ class Command(BaseCommand):
                 'exp_type': 'FPKM',
                 'exp_json': json_object.id
         }
-
+        exp.status = Data.STATUS_DONE
         exp.save()
 
         Sample.objects.filter(data=exp).delete()
@@ -264,9 +280,9 @@ class Command(BaseCommand):
             sample.descriptor = self.generate_sample_desciptor(d.name)
             sample.presample = False
             sample.save()
-            print "Created sample: {} (id={})".format(sample.name, sample.id)
+            logger.info("Created sample: {} (id={})".format(sample.name, sample.id))
         else:
-            print "Created presample: {} (id={})".format(sample.name, sample.id)
+            logger.info("Created presample: {} (id={})".format(sample.name, sample.id))
 
     def handle(self, *args, **options):
         if options['rseed']:

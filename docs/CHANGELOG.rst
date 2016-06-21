@@ -47,6 +47,7 @@ Added
 * API endpoint for adding ``Samples`` to ``Collections``
 * HISAT2 aligner
 * Use Git Large File Storage (LFS) for large test files
+* Test for ``generate_samples`` django-admin command
 
 
 ================
