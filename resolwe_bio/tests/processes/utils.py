@@ -15,6 +15,9 @@ except ImportError:
     from server.models import Processor as Process, iterate_schema
 
 
+TEST_FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files')
+
+
 def skipDockerFailure(reason):
     """Skip the decorated test unless ``TESTS_SKIP_DOCKER_FAILURES``
     Django setting is set to ``False``. ``reason`` should describe why
@@ -22,6 +25,28 @@ def skipDockerFailure(reason):
     """
     if getattr(settings, 'TESTS_SKIP_DOCKER_FAILURES', True):
         return unittest.skip(reason)
+    return lambda func: func
+
+
+def skipUnlessLargeFiles(*files):
+    """Skip the decoreted tests unless the given large files are available.
+
+    :param list *files: variable lenght files list, where each element
+        represents a large file path relative to the ``TEST_FILES_DIR``
+        directory
+
+    """
+    for file_ in files:
+        if not os.path.isfile(os.path.join(TEST_FILES_DIR, file_)):
+            return unittest.skip("File '{}' is not available".format(file_))
+        try:
+            with open(os.path.join(TEST_FILES_DIR, file_)) as f:
+                if f.readline().startswith('version https://git-lfs.github.com/spec/'):
+                    return unittest.skip("Only Git LFS pointer is available "
+                                         "for file '{}'".format(file_))
+        except UnicodeDecodeError:
+            # file_ is a binary file (this is expected)
+            pass
     return lambda func: func
 
 

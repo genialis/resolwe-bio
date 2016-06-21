@@ -45,6 +45,7 @@ Added
 * Add docker-compose command for PostgreSQL
 * API endpoint for adding ``Samples`` to ``Collections``
 * HISAT2 aligner
+* Use Git Large File Storage (LFS) for large test files
 
 
 ================

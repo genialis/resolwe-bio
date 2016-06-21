@@ -15,12 +15,26 @@ env:
   global:
     - RESOLWE_POSTGRESQL_USER=postgres
     - RESOLWE_POSTGRESQL_PORT=5432
+    - GIT_LFS_VERSION=1.2.1
   matrix:
     - TOX_ENV=py27
     - TOX_ENV=py34
     - TOX_ENV=py35
     - TOX_ENV=packaging
 
+before_install:
+  # manually install git-lfs until it is pre-installed by Travis
+  # (https://github.com/travis-ci/travis-ci/issues/3634)
+  - wget -q https://github.com/github/git-lfs/releases/download/v$GIT_LFS_VERSION/git-lfs-linux-amd64-$GIT_LFS_VERSION.tar.gz -O git-lfs.tar.gz
+  - mkdir -p $HOME/bin
+  - tar -xf git-lfs.tar.gz
+  - mv git-lfs-$GIT_LFS_VERSION/git-lfs $HOME/bin/
+  - export PATH=$PATH:$HOME/bin/
+
 install: pip install tox
+
+before_script:
+  # fetch Git LFS files from remote and checkout required working tree files
+  - git lfs pull
 
 script: tox -e $TOX_ENV

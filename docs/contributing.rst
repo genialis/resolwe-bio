@@ -31,9 +31,16 @@ system.
     ``gcc``, ``python-devel``/``python3-devel`` and ``postgresql-devel``
     packages.
 
+Optional prerequisites
+----------------------
+
+If you want to run or develop tests with large input or output files, then
+install the `Git Large File Storage`_ extension.
+
 .. _pip: https://pip.pypa.io/
 .. _PyPi: https://pypi.python.org/
 .. _GCC: https://gcc.gnu.org/
+.. _Git Large File Storage: https://git-lfs.github.com/
 
 Preparing environment
 =====================
@@ -132,6 +139,31 @@ To run the skipped tests for the whole terminal session, execute::
     export RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES=no
 
 and then run the tests as usual.
+
+Running tests with large files
+------------------------------
+
+To run the tests with large input or output files, ensure you have the
+`Git Large File Storage`_ extension installed and run the tests as usual.
+
+Adding tests with large files
+-----------------------------
+
+If a test file is larger than 1 MiB, then put it in the
+``resolwe_bio/tests/processes/files/large/`` directory. Git Large File Storage
+(LFS) extension will automatically pick it up and treat it appropriately.
+
+To ensure contributors without Git LFS or users using the source distribution
+can smoothly run the tests, decorate the tests using large files with the
+following::
+
+    @skipUnlessLargeFiles(<large-file1>, <large-file2>, ...)
+
+where ``<large-file1>``, ``<large-file2>``, ... represent the relatives paths
+to large files used inside a particular test.
+
+The decorator will ensure the test is skipped unless these files are present
+and represent real large files (not just Git LFS pointers).
 
 Building documentation
 ======================
