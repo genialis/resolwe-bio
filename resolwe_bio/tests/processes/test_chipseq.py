@@ -1,6 +1,5 @@
 # pylint: disable=missing-docstring
-import unittest
-from .utils import BioProcessTestCase
+from .utils import BioProcessTestCase, skipUnlessLargeFiles
 
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):
@@ -47,13 +46,12 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "c": control_bam.id}
         macs14 = self.run_processor("macs14", inputs)
 
-    @unittest.skip("test data not ready")
+    @skipUnlessLargeFiles('large/rose2_case.bam', 'large/rose2_control.bam')
     def test_rose2(self):
-        self.keep_all()
-        inputs = {'src': 'rose2_case.bam'}
+        inputs = {'src': 'large/rose2_case.bam'}
         bam = self.run_processor('upload-bam', inputs)
 
-        inputs = {"src": "rose2_control.bam"}
+        inputs = {"src": "large/rose2_control.bam"}
         control = self.run_processor("upload-bam", inputs)
 
         inputs = {'src': 'macs14_chr22.bed'}
@@ -65,8 +63,9 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "c": control.id,
                   "t": 2500}
         rose2 = self.run_processor("rose2", inputs)
-        # create a filtering function that will remove the current path of
-        # of rose2 from the output
-        def filter_date(line):
+
+        # remove changing lines from the rose2 output
+        def filter_created(line):
             return line.startswith(b'#Created')
-        self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', filter=filter_date)
+
+        self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', filter=filter_created)
