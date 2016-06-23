@@ -223,9 +223,9 @@
       fi
 
 - slug: alignment-bowtie2
-  name: Aligner (Bowtie 2.2.3)
+  name: Bowtie 2.2.3
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.19
+  version: 1.0.20
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
