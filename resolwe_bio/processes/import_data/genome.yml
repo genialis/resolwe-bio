@@ -6,7 +6,7 @@
 - slug: upload-genome
   name: Genome
   data_name: '{{ src.file|default:"?" }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -22,24 +22,28 @@
     - name: bowtie_index
       label: Bowtie index files
       type: basic:file
+      required: false
       description: >
         Bowtie index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
     - name: bowtie2_index
       label: Bowtie2 index files
       type: basic:file
+      required: false
       description: >
         Bowtie2 index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
     - name: bwa_index
       label: BWA index files
       type: basic:file
+      required: false
       description: >
         BWA index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
     - name: hisat2_index
       label: HISAT2 index files
       type: basic:file
+      required: false
       description: >
         HISAT2 index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
