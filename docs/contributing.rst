@@ -147,4 +147,5 @@ Follow `Resolwe's documentation on preparing a release`_, just note that
 project's version is not set in ``resolwe_bio/__about__.py`` but directly in
 ``setup.py``.
 
-.. _Resolwe's documentation on preparing a release: http://resolwe.readthedocs.org/en/latest/contributing.html#preparing-release
+.. _Resolwe's documentation on preparing a release:
+  http://resolwe.readthedocs.io/en/latest/contributing.html#preparing-release
