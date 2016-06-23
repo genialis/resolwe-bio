@@ -2,7 +2,7 @@
 Resolwe Bioinformatics
 ======================
 
-|build| |docs| |pypi_version| |pypi_pyversions| |pypi_downloads|
+|build| |docs| |pypi_version| |pypi_pyversions|
 
 .. |build| image:: https://travis-ci.org/genialis/resolwe-bio.svg?branch=master
     :target: https://travis-ci.org/genialis/resolwe-bio
