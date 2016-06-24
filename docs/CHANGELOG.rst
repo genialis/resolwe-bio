@@ -29,6 +29,8 @@ Changed
 * Save fastq files to ``lists:basic:file`` field. Refactor related processors.
 * Reference genome-index path when running aligners.
 * Add pre-computed genome-index files when uploading reference fasta file.
+* Include all necessary files for running the tests in source distribution
+* Exclude tests from built/installed version of the package
 
 Fixed
 -----

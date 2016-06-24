@@ -1,3 +1,11 @@
+# include meta data
 include LICENSE
 include README.rst
-recursive-include docs *
+# include documentation
+recursive-include docs *.py *.rst
+# include tests and files needed by tests (except large files)
+include tox.ini
+recursive-include tests *.py *.yml *.yaml *.rst
+recursive-include resolwe_bio/tests *.py
+recursive-include resolwe_bio/tests/processes/files *
+prune resolwe_bio/tests/processes/files/large

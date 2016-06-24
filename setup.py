@@ -30,12 +30,12 @@ if __name__ == '__main__':
 
         license=LICENSE,
 
-        packages=find_packages(exclude=['tests']),
+        # exclude tests from built/installed package
+        packages=find_packages(exclude=['tests', 'tests.*', '*.tests', '*.tests.*']),
         package_data={
             'resolwe_bio': [
                 'descriptors/*.yml',
                 'processes/**/*.yml',
-                'tests/processes/files/*',
                 'tools/*.py',
                 'tools/*.R',
             ]
