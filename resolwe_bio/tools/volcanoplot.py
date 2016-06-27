@@ -46,7 +46,7 @@ elif 'log2(fold_change)' in header:
     x = np.array(de['log2(fold_change)'])
     xlabel = 'log2(fold_change)'
 
-# get FDR/pval data. For limma use log odds (B statistics)
+# get FDR/pval data.
 if 'ebays.pval' in header:
     y = -np.log10(np.array(de['ebays.pval']))
     ylabel = '-log10(' + 'ebays.pval' + ')'
@@ -62,9 +62,9 @@ elif 'FDR' in header:
 elif 'q_value' in header:
     y = -np.log10(np.array(de['q_value']))
     ylabel = '-log10(' + 'q_value' + ')'
-elif 'B' in header:
-    y = de['B']
-    ylabel = 'Log Odds'
+elif 'adj.P.Val' in header:
+    y = -np.log10(np.array(de['adj.P.Val']))
+    ylabel = '-log10(' + 'adj.P.Val' + ')'
 
 y[y == np.inf] = np.amax(y[np.isfinite(y)])
 

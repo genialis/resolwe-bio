@@ -12,6 +12,7 @@ Unreleased
 Changed
 -------
 * Removed obsolete utilities superseded by resolwe-runtime-utils
+* Use FDR values for Y axis in Limma volcano plot
 
 Fixed
 -----
