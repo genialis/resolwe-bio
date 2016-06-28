@@ -4,7 +4,6 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class GencoverProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Fails with: pypy: No such file or directory")
     def test_coverage(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -52,4 +51,5 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        self.run_processor('coverage-garvan', inputs)
+        exon_cov = self.run_processor('coverage-garvan', inputs)
+        self.assertFile(exon_cov, 'exon_coverage', 'exons_coverage.txt.gz', compression='gzip')

@@ -4,9 +4,6 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class PcaProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
-        "pca = self.run_processor('pca', inputs)")
     def test_pca(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
@@ -31,5 +28,5 @@ class PcaProcessorTestCase(BioProcessTestCase):
         }
         pca = self.run_processor('pca', inputs)
 
-        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_filtered_zeros.json.gz')
-        self.assertTrue(pca.output['proc']['warning'])
+        pca_warn = self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_filtered_zeros.json.gz')
+        self.assertEqual(pca.process_warning[0], "Filtering removed all PCA attributes.")

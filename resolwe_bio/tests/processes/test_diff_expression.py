@@ -21,9 +21,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFile(cuffdiff, 'diffexp', 'cuffdiff.tab.gz', compression='gzip')
         self.assertJSON(cuffdiff, cuffdiff.output['de_data'], '', 'cuffdiff.json.gz')
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
-        "diff_exp = self.run_processor('differentialexpression-bcm', inputs)")
     def test_bayseq_bcm(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
@@ -32,16 +29,13 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'name': "00vs20",
-            'case': [expression_1.pk],
-            'control': [expression_2.pk],
+            'case': [expression_1.id],
+            'control': [expression_2.id],
             'replicates': ['1', '2'],
-            'mappability': mappa.pk}
+            'mappability': mappa.id}
         diff_exp = self.run_processor('differentialexpression-bcm', inputs)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
-        "diff_exp = self.run_processor('differentialexpression-deseq2', inputs)")
     def test_deseq2(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
@@ -54,9 +48,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_processor('differentialexpression-deseq2', inputs)
         self.assertFile(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': u'236613_at': 7.40..., ...}} at "
-        "diff_exp = self.run_processor('differentialexpression-limma', inputs)")
     def test_limma(self):
         expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")
         expression_2 = self.prepare_expression(f_exp='exp_limma_2.tab.gz', f_type="Log2")

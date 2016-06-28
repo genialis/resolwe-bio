@@ -6,7 +6,7 @@
 - slug: differentialexpression-bcm
   name: BaySeq (BCM)
   data_name: "{{ name }}"
-  version: 1.0.8
+  version: 1.0.9
   type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED
@@ -18,10 +18,10 @@
       type: basic:string
     - name: case
       label: Case
-      type: list:data:expression:polya
+      type: list:data:expression
     - name: control
       label: Control
-      type: list:data:expression:polya
+      type: list:data:expression
     - name: replicates
       label: Replicates
       type: list:basic:string

@@ -3,6 +3,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ReadsProcessorTestCase(BioProcessTestCase):
+
     def test_merge_reads(self):
         reads = self.prepare_reads()
         reads2 = self.prepare_reads()

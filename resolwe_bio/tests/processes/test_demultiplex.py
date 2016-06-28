@@ -3,7 +3,9 @@ from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
 
 
+
 class DemultiplexProcessorTestCase(BioProcessTestCase):
+
     def test_demultiplex(self):
         inputs = {
             'reads': 'pool24.read1.small.qseq.bz2',

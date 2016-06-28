@@ -8,7 +8,7 @@
 - slug: coverage-garvan
   name: Exome Coverage Report
   data_name: "Coverage report ({{ mapping.bam.file|basename|default:'?' }})"
-  version: 2.0.4
+  version: 2.0.5
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -51,6 +51,7 @@
     - name: jbrowse
       label: JBrowse XML
       type: basic:json
+      required: false
     - name: exon_coverage
       label: Exon coverage in tsv format
       type: basic:file

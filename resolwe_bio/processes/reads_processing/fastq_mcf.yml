@@ -7,8 +7,8 @@
 
 - slug: fastq-mcf-single
   name: Fastq-mcf (single-end)
-  data_name: '{{ reads.fastq.file|default:"?" }}'
-  version: 1.0.10
+  data_name: '{{ reads.fastq.0.file|default:"?" }}'
+  version: 1.0.11
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -65,19 +65,13 @@
   output:
     - name: fastq
       label: Reads file
-      type: basic:file
-    - name: number
-      label: Number of reads
-      type: basic:integer
-    - name: bases
-      label: Number of bases
-      type: basic:string
+      type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC
-      type: basic:url:view
+      type: list:basic:url:view
     - name: fastqc_archive
       label: Download FastQC archive
-      type: basic:file
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -92,40 +86,44 @@
 
       {% endif %}
 
-      NAME=`basename '{{reads.fastq.file}}' .fastq.gz`
-      gzip -cd "{{ reads.fastq.file }}" > "${NAME}.fastq"
+      NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+
+      {% for r in reads.fastq %}
+        READS=${READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${READS} > ${NAME}.fastq.gz
       re-progress 0.2
 
       echo "Adapter trimming..."
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% endif %}
+      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a ${NAME}.fastq.gz -o "${NAME}_filtered.fastq" {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
-      gzip -c -n "${NAME}_filtered.fastq" > "${NAME}.fastq.gz"
-      re-save-file fastq ${NAME}.fastq.gz
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME}.fastq.gz" --extract --outdir="fastqc" >&2
+      mkdir "fastqc" && fastqc "${NAME}_filtered.fastq" --extract --outdir="fastqc" >&2
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt)
-      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+      mv fastqc/${NAME}_filtered_fastqc fastqc/${NAME}_fastqc
+      mv "fastqc/${NAME}_filtered_fastqc.zip" ${NAME}_fastqc.zip
+
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
-      mv "fastqc/${NAME}_fastqc.zip" .
+
       re-progress 0.95
 
-      re-save-file fastqc_archive ${NAME}_fastqc.zip
-      re-save number $NUMBER
-      re-save bases "\"$BASES\""
-      re-save fastqc_url $FASTQC_URL
+      gzip -c "${NAME}_filtered.fastq" > "${NAME}.fastq.gz"
+      re-save-file-list fastq ${NAME}.fastq.gz
 
+      re-save-file-list fastqc_archive ${NAME}_fastqc.zip
+      re-save-list fastqc_url $FASTQC_URL
 
 - slug: fastq-mcf-paired
   name: Fastq-mcf (paired-end)
-  data_name: '{{ reads.fastq.file|default:"?" }}'
-  version: 1.0.10
+  data_name: '{{ reads.fastq.0.file|default:"?" }}'
+  version: 1.0.11
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -182,28 +180,22 @@
   output:
     - name: fastq
       label: Reads file (mate 1)
-      type: basic:file
+      type: list:basic:file
     - name: fastq2
       label: Reads file (mate 2)
-      type: basic:file
-    - name: number
-      label: Number of reads
-      type: basic:integer
-    - name: bases
-      label: Number of bases
-      type: basic:string
+      type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: basic:url:view
+      type: list:basic:url:view
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: basic:url:view
+      type: list:basic:url:view
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
-      type: basic:file
+      type: list:basic:file
     - name: fastqc_archive2
       label: Download FastQC archive (Downstream)
-      type: basic:file
+      type: list:basic:file
   run:
     runtime: polyglot
     bash: |
@@ -218,38 +210,47 @@
 
       {% endif %}
 
-      NAME1=`basename '{{reads.fastq.file}}' .fastq.gz`
-      NAME2=`basename '{{reads.fastq2.file}}' .fastq.gz`
-      gzip -cd "{{ reads.fastq.file }}" > "${NAME1}.fastq"
-      gzip -cd "{{ reads.fastq2.file }}" > "${NAME2}.fastq"
+      NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+      NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+
+      {% for r in reads.fastq %}
+        FW_READS=${FW_READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${FW_READS} > ${NAME1}.fastq.gz
+
+      {% for r in reads.fastq2 %}
+        RW_READS=${RW_READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${RW_READS} > ${NAME2}.fastq.gz
+
       re-progress 0.2
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
+      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a ${NAME1}.fastq.gz ${NAME2}.fastq.gz -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
 
-      gzip -c -n "${NAME1}_filtered.fastq" > "${NAME1}.fastq.gz"
-      gzip -c -n "${NAME2}_filtered.fastq" > "${NAME2}.fastq.gz"
-      re-save-file fastq ${NAME1}.fastq.gz
-      re-save-file fastq2 ${NAME2}.fastq.gz
-
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --extract --outdir="fastqc" >&2
+      mkdir "fastqc" && fastqc "${NAME1}_filtered.fastq" "${NAME2}_filtered.fastq" --extract --outdir="fastqc" >&2
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
+      mv fastqc/${NAME1}_filtered_fastqc fastqc/${NAME1}_fastqc
+      mv fastqc/${NAME2}_filtered_fastqc fastqc/${NAME2}_fastqc
+      mv "fastqc/${NAME1}_filtered_fastqc.zip" ${NAME1}_fastqc.zip
+      mv "fastqc/${NAME2}_filtered_fastqc.zip" ${NAME2}_fastqc.zip
+
       FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
       FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
-      mv "fastqc/${NAME1}_fastqc.zip" .
-      mv "fastqc/${NAME2}_fastqc.zip" .
 
-      BASES=$(awk '/^Sequence length/ {print $3}' fastqc/*_fastqc/fastqc_data.txt | sed -n -e 'H;${x;s/\n/, /g;s/^,//;p;}')
-      NUMBER=`sed -ne 's/^Total Sequences\s*\([0-9\.]\+\)\s*$/\1/pi' fastqc/*_fastqc/fastqc_data.txt | head -n 1`
+      gzip -c "${NAME1}_filtered.fastq" > "${NAME1}.fastq.gz"
+      gzip -c "${NAME2}_filtered.fastq" > "${NAME2}.fastq.gz"
+      re-save-file-list fastq ${NAME1}.fastq.gz
+      re-save-file-list fastq2 ${NAME2}.fastq.gz
 
-      re-save-file fastqc_archive ${NAME1}_fastqc.zip
-      re-save-file fastqc_archive2 ${NAME2}_fastqc.zip
-      re-save number $NUMBER
-      re-save bases "\"$BASES\""
-      re-save fastqc_url $FASTQC_URL
-      re-save fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
+      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
+      re-save-list fastqc_url $FASTQC_URL
+      re-save-list fastqc_url2 $FASTQC_URL2

@@ -69,7 +69,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.run_processor('vc-gatk-joint', inputs)
         # NOTE: output can not be tested
 
-    @unittest.skip("Refactor processor to utilize Chemut R package")
     def test_vc_filtering(self):
         variants = self.run_processor('upload-variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
 

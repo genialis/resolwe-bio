@@ -6,7 +6,7 @@
 - slug: goenrichment-bcm
   name: GO Enrichment 2.0
   data_name: 'GO Enrichment for {{genes|join:", "|default:"?"}}'
-  version: 2.0.10
+  version: 2.0.11
   type: data:ontologyenrichment
   category: analyses
   persistence: TEMP
@@ -51,8 +51,7 @@
       else
         echo {{genes|join:" "}} > temp.txt
       fi
-      echo -n "{\"terms\":"
-      processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 2> /dev/null
-      RC=$?
-      echo "}"
-      echo "{\"proc.rc\":$RC}"
+
+      processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 1>go_terms.txt 2> /dev/null
+      re-chekcrc
+      re-save terms "$(cat go_terms.txt)"

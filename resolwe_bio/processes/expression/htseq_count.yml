@@ -6,7 +6,7 @@
 - slug: htseq-count
   name: HTSeq-count (0.6.1p1)
   data_name: "{{ alignments.bam.file|basename|default:'?' }}"
-  version: 1.0.11
+  version: 1.0.12
   type: data:expression:htseq
   category: analyses
   flow_collection: sample
@@ -84,7 +84,6 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
-      default: TPM
   run:
     runtime: polyglot
     bash: |
@@ -131,3 +130,4 @@
       re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
+      re-save exp_type 'TPM'

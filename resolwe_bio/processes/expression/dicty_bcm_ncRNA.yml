@@ -6,7 +6,7 @@
 - slug: expression-bcm-ncrna
   name: Expression ncRNA (BCM)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.4
+  version: 1.0.5
   type: data:expression:ncrna
   category: analyses
   flow_collection: sample
@@ -48,7 +48,6 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
-      default: RPKUM ncRNA
   run:
     runtime: polyglot
     bash: |
@@ -57,6 +56,8 @@
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
         rm tmp.bedgraph
       }
+
+      re-save exp_type 'RPKUM ncRNA'
 
       echo "XEXPRESSION..."
       xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --ncrna {% if stranded %} --stranded {% endif %}
