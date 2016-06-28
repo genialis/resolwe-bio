@@ -6,7 +6,7 @@
 - slug: alignment-bwa-mem
   name: BWA MEM (0.7.5a)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.13
+  version: 1.0.14
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -95,6 +95,7 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file
@@ -174,7 +175,7 @@
 - slug: alignment-bwa-sw
   name: BWA SW (0.7.5a)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.12
+  version: 1.0.13
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -215,6 +216,7 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file
@@ -281,7 +283,7 @@
 - slug: alignment-bwa-aln
   name: BWA ALN (0.7.5a)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.13
+  version: 1.0.14
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -336,6 +338,7 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file

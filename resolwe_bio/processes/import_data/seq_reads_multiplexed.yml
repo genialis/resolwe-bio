@@ -6,7 +6,7 @@
 - slug: upload-multiplexed-single
   name: Reads (multiplexed, single)
   data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -38,9 +38,6 @@
     - name: qseq_reads
       label: Multiplexed NGS reads
       type: basic:file
-    - name: qseq_reads2
-      label: Multiplexed NGS reads (pair)
-      type: basic:file
     - name: qseq_barcodes
       label: NGS barcodes
       type: basic:file
@@ -71,15 +68,18 @@
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
       mkdir -p temp
-      echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
+      re-save-file annotation {{ annotation.file }} temp
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+      re-checkrc
+
+      re-save-file qseq_reads ${READS_NAME}.qseq.gz
+      re-save-file qseq_barcodes ${BARCODES_NAME}.qseq.gz
 
 - slug: upload-multiplexed-paired
   name: Reads (multiplexed, paired)
   data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW
@@ -154,7 +154,12 @@
       TEMP="{{ annotation.file_temp|default:annotation.file }}"
       mv "$TEMP" {{ annotation.file }}
       mkdir -p temp
-      echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
+      re-checkrc
+      re-save-file annotation {{ annotation.file }} temp
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+      re-checkrc
+
+      re-save-file qseq_reads ${READS_NAME}.qseq.gz
+      re-save-file qseq_reads2 ${READS_NAME2}.qseq.gz
+      re-save-file qseq_barcodes ${BARCODES_NAME}.qseq.gz

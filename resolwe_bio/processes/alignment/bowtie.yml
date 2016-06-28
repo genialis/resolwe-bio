@@ -6,7 +6,7 @@
 - slug: alignment-bowtie
   name: Bowtie 1.0.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.14
+  version: 1.0.15
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -50,6 +50,7 @@
     - name: use_SE
       label: Map as single-ended (for paired end reads only)
       type: basic:boolean
+      default: false
       description: >
         If this option is selected paired-end reads will be mapped as single-ended.
     - name: start_trimming
@@ -109,6 +110,7 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file
@@ -223,9 +225,9 @@
       fi
 
 - slug: alignment-bowtie2
-  name: Aligner (Bowtie 2.2.3)
+  name: Bowtie 2.2.3
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.19
+  version: 1.0.20
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -362,6 +364,7 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file

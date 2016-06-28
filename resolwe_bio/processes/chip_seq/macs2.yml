@@ -6,7 +6,7 @@
 - slug: macs2-callpeak
   name: MACS2 (Call peaks)
   data_name: "MACS2 analysis ({{ case.bam.file|basename|default:'?' }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:chipseq:macs2:callpeak
   category: analyses
   flow_collection: sample
@@ -145,24 +145,31 @@
     - name: narrow_peaks
       label: Narrow peaks
       type: basic:file
+      required: false
     - name: summits
       label: Peak summits
       type: basic:file
+      required: false
     - name: broad_peaks
       label: Broad peaks
       type: basic:file
+      required: false
     - name: gappedPeak
       label: Broad peaks (bed12/gappedPeak)
       type: basic:file
+      required: false
     - name: treat_pileup
       label: Treatment pileup (bedGraph)
       type: basic:file
+      required: false
     - name: control_lambda
       label: Control lambda (bedGraph)
       type: basic:file
+      required: false
     - name: model
       label: Model
       type: basic:file
+      required: false
   run:
     runtime: polyglot
     bash: |

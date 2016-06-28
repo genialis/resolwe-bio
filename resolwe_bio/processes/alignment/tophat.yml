@@ -6,7 +6,7 @@
 - slug: alignment-tophat2
   name: TopHat (2.0.13)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.12
+  version: 1.0.13
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -98,15 +98,19 @@
     - name: unmapped
       label: Unmapped reads
       type: basic:file
+      required: false
     - name: junctions
       label: Junctions track
       type: basic:file
+      required: false
     - name: deletions
       label: Deletions track
       type: basic:file
+      required: false
     - name: insertions
       label: Insertions track
       type: basic:file
+      required: false
     - name: stats
       label: Statistics
       type: basic:file
@@ -173,7 +177,7 @@
       fi
 
       if [ -f "${NAME}_deletions.bed" ]; then
-        re-save-file junctions ${NAME}_deletions.bed
+        re-save-file deletions ${NAME}_deletions.bed
       fi
 
       if [ -f "${NAME}_insertions.bed" ]; then

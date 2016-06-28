@@ -6,7 +6,7 @@
 - slug: upload-expression
   name: Expression
   data_name: '{{ exp.file|default:"?" }}'
-  version: 1.0.7
+  version: 1.0.8
   type: data:expression
   flow_collection: sample
   category: upload
@@ -42,6 +42,7 @@
     - name: rc
       label: Read counts
       type: basic:file
+      required: false
       description: Reads mapped to genomic features.
     - name: exp_json
       label: Expression (json)
@@ -96,7 +97,7 @@
 - slug: upload-expression-cuffnorm
   name: Expression (Cuffnorm)
   data_name: '{{ exp.file|default:"?" }}'
-  version: 1.0.1
+  version: 1.0.2
   type: data:expression
   category: upload
   persistence: RAW
@@ -125,6 +126,7 @@
       label: Read counts
       type: basic:file
       description: Reads mapped to genomic features.
+      required: false
     - name: exp_json
       label: Expression (json)
       type: basic:json
