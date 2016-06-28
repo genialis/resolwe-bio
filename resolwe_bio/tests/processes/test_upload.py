@@ -8,69 +8,54 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class UploadProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Fails with: KeyError: u'proc' at "
-        "self.assertFields(upload_bam, 'proc.error', ...)")
     def test_bam_upload(self):
         inputs = {"src": "alignment_name_sorted.bam"}
         upload_bam = self.run_processor("upload-bam", inputs)
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
 
-        inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bai"}
-        try:
-            import mongoengine
-            self.assertRaises(
-                mongoengine.ValidationError, self.run_processor, "upload-bam-indexed", inputs)
-        except ImportError:
-            # mongoengine is not used on resolwe
-            # TODO: update test
-            pass
-
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_bam_upload_index.bam.bai"}
         upload_bam = self.run_processor("upload-bam-indexed", inputs, Data.STATUS_ERROR)
-        self.assertFields(upload_bam, 'proc.error', 'BAI should have the same name as BAM with .bai extension')
+        self.assertEqual(upload_bam.process_error[0], 'BAI should have the same name as BAM with .bai extension')
 
         inputs = {"src": "alignment_position_sorted.bam", "src2": "alignment_position_sorted.bam.bai"}
         upload_bam = self.run_processor("upload-bam-indexed", inputs)
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
 
-    @skipDockerFailure("Errors with: AssertionError: slug is defined before "
-        "trying to ensure uniqueness at self.run_processor("
-        "'upload-expression', inputs, resolwe.flow.models.Data.STATUS_ERROR)")
     def test_upload_expression(self):
-        inputs = {"exp_type": "TPM"}
+        inputs = {"exp_type": "TPM", 'exp_name': 'Expression'}
         self.run_processor("upload-expression", inputs, Data.STATUS_ERROR)
 
-        inputs = {"exp": "exp_1_tpm.tab.gz", "rc": "exp_1_rc.tab.gz"}
+        inputs = {"exp": "exp_1_tpm.tab.gz", "rc": "exp_1_rc.tab.gz", 'exp_name': 'Expression'}
         self.run_processor("upload-expression", inputs, Data.STATUS_ERROR)
 
-        inputs = {"rc": "exp_1_rc.tab.gz"}
+        inputs = {"rc": "exp_1_rc.tab.gz", 'exp_name': 'Expression'}
         exp_3 = self.run_processor("upload-expression", inputs)
         self.assertFile(exp_3, "rc", "exp_1_rc.tab.gz")
         self.assertFile(exp_3, 'exp', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_3, exp_3.output['exp_json'], '', 'exp_1.json.gz')
 
-        inputs = {"exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
+        inputs = {"exp": "exp_1_tpm.tab.gz", "exp_type": "TPM", 'exp_name': 'Expression'}
         exp_4 = self.run_processor("upload-expression", inputs)
         self.assertFile(exp_4, 'exp', 'exp_1_tpm.tab.gz')
 
-        inputs = {"rc": "exp_1_rc.tab.gz", "exp": "exp_1_tpm.tab.gz", "exp_type": "TPM"}
+        inputs = {"rc": "exp_1_rc.tab.gz", "exp": "exp_1_tpm.tab.gz", "exp_type": "TPM", 'exp_name': 'Expression'}
         exp_5 = self.run_processor("upload-expression", inputs)
         self.assertFields(exp_5, 'exp_type', 'TPM')
         self.assertFile(exp_5, 'exp', 'exp_1_tpm.tab.gz')
         self.assertFile(exp_5, 'rc', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
 
-        inputs = {"rc": "exp_mac_line_ending.txt.gz"}
+        inputs = {"rc": "exp_mac_line_ending.txt.gz", 'exp_name': 'Expression'}
         exp_6 = self.run_processor("upload-expression", inputs)
         self.assertJSON(exp_6, exp_6.output['exp_json'], '', 'exp.json.gz')
 
-        inputs = {"rc": "exp_unix_line_ending.txt.gz"}
+        inputs = {"rc": "exp_unix_line_ending.txt.gz", 'exp_name': 'Expression'}
         exp_7 = self.run_processor("upload-expression", inputs)
         self.assertJSON(exp_7, exp_7.output['exp_json'], '', 'exp.json.gz')
 
-        inputs = {"rc": "exp_windows_line_ending.txt.gz"}
+        inputs = {"rc": "exp_windows_line_ending.txt.gz", 'exp_name': 'Expression'}
         exp_8 = self.run_processor("upload-expression", inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
@@ -111,9 +96,6 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {"src": ["old_encoding.fastq.gz"]}
         reads = self.run_processor("upload-fastq-single", inputs, Data.STATUS_ERROR)
 
-    @skipDockerFailure("Errors with: int() argument must be a string or a "
-        "number, not 'dict' at self.assertJSON(diff_exp, "
-        "diff_exp.output['volcano_plot'], '', 'deseq2_volcano_plot.json.gz')")
     def test_upload_de(self):
         inputs = {'src': 'deseq2_output.tab.gz'}
         diff_exp = self.run_processor("upload-diffexp", inputs)

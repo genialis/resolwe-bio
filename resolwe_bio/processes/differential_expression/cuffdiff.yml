@@ -6,7 +6,7 @@
 - slug: cuffdiff
   name: Cuffdiff (2.2.1)
   data_name: 'Cuffdiff results'
-  version: 1.0.10
+  version: 1.0.11
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -115,9 +115,6 @@
   run:
     runtime: polyglot
     bash: |
-      case_samples=""
-      control_samples=""
-
       {% for cs_samp in case %}
         cases=$cases"{{ cs_samp.cxb.file }},"
       {% endfor %}

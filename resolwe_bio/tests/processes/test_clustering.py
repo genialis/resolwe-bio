@@ -4,9 +4,6 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class ClusteringProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
-        "etc = self.run_processor('etc-bcm', inputs)")
     def test_hc_clustering(self):
         """Cannot use assertJSON - JSON output contains ETC object IDs."""
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")

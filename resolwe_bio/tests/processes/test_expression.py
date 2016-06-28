@@ -74,7 +74,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')
 
-    @skipDockerFailure("Fails with: ImportError: No module named biox")
     def test_expression_bcm(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -103,7 +102,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         etc = self.run_processor('etc-bcm', inputs)
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json.gz')
 
-    @skipDockerFailure("Fails with: htseq-count: command not found")
     def test_expression_htseq(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -129,9 +127,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
 
-    @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
-        "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "
-        "mergeexpression_1 = self.run_processor('mergeexpressions', inputs)")
     def test_mergeexpression(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
@@ -159,7 +154,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         }
         self.run_processor('mergeexpressions', inputs, Data.STATUS_ERROR)
 
-    @skipDockerFailure("Fails with: ImportError: No module named biox")
     def test_etcmerge(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -195,8 +189,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         etcmerge = self.run_processor('mergeetc', inputs)
         self.assertFile(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
 
-    @skipDockerFailure("Errors with: KeyError: u'genome' at "
-        "cuff_exp_1 = self.run_processor('cufflinks', inputs)")
     def test_ncrna(self):
         inputs = {"src": "ncRNA_sample1.bam"}
         sample_1 = self.run_processor("upload-bam", inputs)

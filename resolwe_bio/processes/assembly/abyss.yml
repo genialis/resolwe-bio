@@ -6,7 +6,7 @@
 - slug: assembler-abyss
   name: ABySS (1.9.0)
   data_name: "ABySS assembly ({{ options.name }})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:abyss
   category: analyses
   flow_collection: sample
@@ -80,8 +80,14 @@
       {% endif %}
 
       {% if paired_end %}
-        ln -s '{{paired_end.fastq.file}}' fw_1.fastq.gz
-        ln -s '{{paired_end.fastq2.file}}' rw_2.fastq.gz
+        {% for r in paired_end.fastq %}
+          FW_READS=${FW_READS}"{{ r.file }} "
+        {% endfor %}
+        cat ${FW_READS} > fw_1.fastq.gz
+        {% for r in paired_end.fastq2 %}
+          RW_READS=${RW_READS}"{{ r.file }} "
+        {% endfor %}
+        cat ${RW_READS} > rw_2.fastq.gz
       {% endif %}
 
       {% if use_unmapped %}
@@ -91,7 +97,11 @@
           SE='se={{ unmapped.unmapped.file }}'
         {% endif %}
       {% elif se and not use_unmapped %}
-        SE='se={{ se.fastq.file }}'
+        {% for r in se.fastq %}
+          READS=${READS}"{{ r.file }} "
+        {% endfor %}
+        cat ${READS} > se_reads.fastq.gz
+        SE='se=se_reads.fastq.gz'
       {% endif %}
 
       re-progress 0.1

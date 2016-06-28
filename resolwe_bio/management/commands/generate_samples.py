@@ -178,7 +178,9 @@ class Command(BaseCommand):
             started=started,
             finished=started + datetime.timedelta(minutes=60),
             status=Data.STATUS_PROCESSING,
-            input={'exp': {'file': 'expressions.tab.gz'}, 'exp_type': 'FPKM'})
+            input={'exp': {'file': 'expressions.tab.gz'},
+                   'exp_type': 'FPKM',
+                   'exp_name': 'Expression'})
 
         os.mkdir(os.path.join(data_dir, str(exp.id)))
 

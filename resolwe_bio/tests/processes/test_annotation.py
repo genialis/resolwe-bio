@@ -4,8 +4,6 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class AnnotationProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Errors with: KeyError: u'gff' at"
-        "aligned_reads = self.run_processor('alignment-tophat2', inputs)")
     def test_transdecoder(self):
         inputs = {'src': ['reads_transdecoder.fastq.gz']}
         reads = self.run_processor("upload-fastq-single", inputs)

@@ -15,9 +15,6 @@ class CompatibilityProcessorTestCase(BioProcessTestCase):
         compatibility_test = self.run_processor('reference_compatibility', inputs)
         self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
 
-    @skipDockerFailure("Errors with: int() argument must be a string or a "
-        "number, not 'dict' at self.assertJSON(features, "
-        "features.output['feature_location'], '', 'feature_locations.json.gz')")
     def test_feature_location(self):
         inputs = {'src': 'mm10_small.gtf.gz'}
         annotation = self.run_processor('upload-gtf', inputs)

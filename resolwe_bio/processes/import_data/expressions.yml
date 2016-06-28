@@ -5,8 +5,8 @@
 
 - slug: upload-expression
   name: Expression
-  data_name: '{{ exp.file|default:"?" }}'
-  version: 1.0.8
+  data_name: '{{ exp_name }}'
+  version: 1.0.9
   type: data:expression
   flow_collection: sample
   category: upload
@@ -34,6 +34,9 @@
       description: >
         Normalization type
       required: false
+    - name: exp_name
+      label: Expression name
+      type: basic:string
   output:
     - name: exp
       label: Normalized expression

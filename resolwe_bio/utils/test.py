@@ -81,7 +81,7 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src': fn}
         return self.run_processor('upload-gtf', inputs)
 
-    def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM"):
+    def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM", name='Expression'):
         """Prepare expression."""
-        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type}
+        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name}
         return self.run_processor('upload-expression', inputs)

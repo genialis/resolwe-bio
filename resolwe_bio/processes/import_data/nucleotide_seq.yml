@@ -6,7 +6,7 @@
 - slug: upload-fasta-nucl
   name: Upload nucleotide sequence(s) (FASTA)
   data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.10
+  version: 1.0.11
   type: data:seq:nucleotide
   category: upload
   flow_collection: sample
@@ -19,7 +19,6 @@
       type: basic:file
       description: >
         Sequence file (containing single or multiple sequences) in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
-      required: true
       validate_regex: '\.(fasta|fa|fna)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: fasta
@@ -29,15 +28,6 @@
       label: Number of sequences
       type: basic:integer
       default: 'Sequence file ({{ src.file|default:"?" }})'
-    - name: tags
-      label: Tags
-      type: list:basic:string
-      default: ['sequence', 'FASTA']
-      placeholder: new tag
-    - name: description
-      label: Description
-      type: basic:text
-      default: 'Description of {{ src.file|default:"?" }} sequence file.'
   run:
     runtime: polyglot
     bash: |

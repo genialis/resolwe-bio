@@ -6,7 +6,7 @@
 - slug: expression-bcm
   name: Expression (BCM)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.13
+  version: 1.0.14
   type: data:expression:polya
   category: analyses
   flow_collection: sample
@@ -56,7 +56,6 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
-      default: polyA
   run:
     runtime: polyglot
     bash: |
@@ -75,6 +74,8 @@
 
       xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
       samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+
+      re-save exp_type polyA
 
       if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rc.tab.gz ]
       then

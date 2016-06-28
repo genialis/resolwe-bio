@@ -7,7 +7,7 @@
 - slug: jbrowse-bam-coverage-normalized
   name: Build normalized coverage track (JBrowse)
   data_name: "Normalized coverage track ({{bam.bam.file}})"
-  version: 1.0.2
+  version: 1.0.3
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
   persistence: CACHED
@@ -34,12 +34,17 @@
       placeholder: '34000000'
       description: >
         Used for reporting coverage normalized to 1x sequencing depth (also known as Reads Per Genomic Content (RPGC)). Sequencing depth is defined as: (total number of mapped reads * fragment length) / effective genome size. The effective genome size is the portion of the genome that is mappable. Large fractions of the genome are stretches of NNNN that should be discarded. Also, if repetitive regions were not included in the mapping of reads, the effective genome size needs to be adjusted accordingly. Common values are: mouse/mm9: 2150570000, human/hg19:2451960000, D.melanogaster/dm3:121400000 and C.elegans/ce10:93260000.
-    - name: fragmentLength
-      label: Fragment length
-      type: basic:integer
-      default: 200
+    - name: extendReads
+      label: Extend Reads
+      type: basic:boolean
+      default: false
       description: >
-        Length of the average fragment size. Reads will be extended to match this length unless they are paired- end, in which case they will be extended to match the fragment length. If this value is set to the read length or smaller, the read will not be extended. Warning the fragment length affects the normalization to 1x (see --normalizeTo1x). The formula to normalize using the sequencing depth is genomeSize/(number of mapped reads * fragmentLength). NOTE: If the BAM files contain mated and unmated paired-end reads, unmated reads will be extended to match the --fragmentLength. (default: 200)
+        This parameter allows the extension of reads to fragment size. If set, each read is extended, without exception. *NOTE*: This feature is generally NOT recommended for spliced-read data, such as RNA-seq, as it would extend reads over skipped regions. *Single-end*: Requires a user specified value for the final fragment length. Reads that already exceed this fragment length will not be extended. *Paired-end*: Reads with mates are always extended to match the fragment size defined by the two read mates. Unmated reads, mate reads that map too far apart (>4x fragment length) or even map to different chromosomes are treated like single-end reads. The input of a fragment length value is optional. If no value is specified, it is estimated from the data (mean of the fragment size of all mate reads).
+    - name: extendReads_value
+      label: Extend Reads value
+      type: basic:integer
+      required: false
+      disabled: "extendReads == false"
     - name: binSize
       label: Bin size
       type: basic:integer
@@ -61,7 +66,7 @@
 
       NAME=`basename '{{ bam.bam.file }}' .bam`
 
-      bamCoverage --bam '{{bam.bam.file}}' --outFileName ${NAME}.bigWig --outFileFormat bigwig '{{normalize}}' {% if normalize == "--normalizeTo1x" %} '{{size}}' {% endif %} --binSize '{{binSize}}' --fragmentLength '{{fragmentLength}}' --verbose
+      bamCoverage --bam '{{bam.bam.file}}' --outFileName ${NAME}.bigWig --outFileFormat bigwig '{{normalize}}' {% if normalize == "--normalizeTo1x" %} '{{size}}' {% endif %} --binSize '{{binSize}}' {% if extendReads %}--extendReads {% if extendReads_value %}'{{extendReads_value}}'{% endif %}{% endif %} --verbose
       re-checkrc "Normalized coverage track computation failed."
       re-progress 0.9
 
