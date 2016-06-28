@@ -33,6 +33,7 @@ Changed
 Fixed
 -----
 * Make Tox configuration more robust to different developer environments
+* Set ``required: false`` in processor input/output fields where necessary
 
 Added
 -----

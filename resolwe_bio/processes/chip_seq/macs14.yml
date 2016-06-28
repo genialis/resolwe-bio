@@ -6,7 +6,7 @@
 - slug: macs14
   name: MACS 1.4
   data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
-  version: 1.0.3
+  version: 1.0.4
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -62,9 +62,11 @@
     - name: model
       label: Model
       type: basic:file
+      required: false
     - name: neg_peaks
       label: Negative peaks (XLS)
       type: basic:file
+      required: false
   run:
     runtime: polyglot
     bash: |
