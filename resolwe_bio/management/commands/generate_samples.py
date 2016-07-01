@@ -11,12 +11,13 @@ import zipfile
 import datetime
 
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
-from resolwe.flow.models import Data, DescriptorSchema, Process, Storage
+
+from resolwe.flow.models import Data, Storage
 from resolwe_bio.models import Sample
 from resolwe_bio.tools.utils import escape_mongokey, gzopen
+from .utils import get_descriptorschema, get_process, get_superuser
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -51,13 +52,6 @@ class Command(BaseCommand):
             return 'Mm_{}_{}_{}'.format(self.get_random_word(3), group, replicate)
         if organism == 'Homo sapiens':
             return 'Hs_{}_{}_{}'.format(self.get_random_word(3), group, replicate)
-
-    def set_user(self):
-        users = User.objects.filter(is_superuser=True).order_by('date_joined')
-        if not users.exists():
-            self.stderr.write("Admin does not exist: create a superuser")
-            exit(1)
-        return users.first()
 
     @staticmethod
     def generate_expressions(gene_ids, path):
@@ -108,16 +102,16 @@ class Command(BaseCommand):
                                   'molecule': 'polyA RNA',
                                   'description': 'Expression profiling'},
                           'protocols': {
-                            'fragmentation_method': 'sonication',
-                            'growth_protocol': ('Cells were grown in nutrient media (HL-5) '
-                                                'to mid-log phase prior to collection for development.'),
-                            'treatment_protocol': 'Development',
-                            'library_prep': ('TriZol (Life Sciences) -- Cells were scraped '
-                                             '(filter) or pelleted (suspension) and disrupted '
-                                             'in TriZol. Total RNA was extracted by phenol/chloroform '
-                                             'as per manufacturer\'s instructions. Ribosomal RNA was '
-                                             'depleted using the InDA-C method (Ovation, Nugen) reagents, '
-                                             'following manufacturer\'s instructions.')}}
+                              'fragmentation_method': 'sonication',
+                              'growth_protocol': ('Cells were grown in nutrient media (HL-5) '
+                                                  'to mid-log phase prior to collection for development.'),
+                              'treatment_protocol': 'Development',
+                              'library_prep': ('TriZol (Life Sciences) -- Cells were scraped '
+                                               '(filter) or pelleted (suspension) and disrupted '
+                                               'in TriZol. Total RNA was extracted by phenol/chloroform '
+                                               'as per manufacturer\'s instructions. Ribosomal RNA was '
+                                               'depleted using the InDA-C method (Ovation, Nugen) reagents, '
+                                               'following manufacturer\'s instructions.')}}
         if organism_name.startswith('Hs'):
             annotation = {'geo': {'organism': 'Homo sapiens',
                                   'annotator': random.choice(annotator),
@@ -129,9 +123,9 @@ class Command(BaseCommand):
                                   'optional_char': ['Cell line: DBTRG-05MG'],
                                   'description': "Human brain study. Expression profiling."},
                           'protocols': {
-                            'fragmentation_method': 'sonication',
-                            'growth_protocol': growth_protocol,
-                            'library_prep': library_prep}}
+                              'fragmentation_method': 'sonication',
+                              'growth_protocol': growth_protocol,
+                              'library_prep': library_prep}}
         if organism_name.startswith('Mm'):
             annotation = {'geo': {'organism': 'Mus musculus',
                                   'annotator': random.choice(annotator),
@@ -143,9 +137,9 @@ class Command(BaseCommand):
                                   'optional_char': ['Cell line: EOC 2'],
                                   'description': "Mouse brain study. Expression profiling."},
                           'protocols': {
-                            'fragmentation_method': 'sonication',
-                            'growth_protocol': growth_protocol,
-                            'library_prep': library_prep}}
+                              'fragmentation_method': 'sonication',
+                              'growth_protocol': growth_protocol,
+                              'library_prep': library_prep}}
         return annotation
 
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
@@ -168,11 +162,11 @@ class Command(BaseCommand):
             name=self.set_name(),
             started=started,
             finished=started + datetime.timedelta(minutes=45),
-            descriptor_schema=DescriptorSchema.objects.get(slug='reads'),
+            descriptor_schema=get_descriptorschema('reads'),
             descriptor=self.generate_reads_descriptor(),
             status=Data.STATUS_PROCESSING,
-            process=Process.objects.get(slug='upload-fastq-single'),
-            contributor=self.set_user(),
+            process=get_process('upload-fastq-single'),
+            contributor=get_superuser(),
             input={'src': [{'file': os.path.basename(reads)}]})
 
         # Create data directory and copy reads files into it
@@ -190,12 +184,12 @@ class Command(BaseCommand):
         new_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc.html')
         shutil.copy(old_fastqc_path, new_fastqc_path)
 
-        d.output={
-                'fastq': [{'file': os.path.basename(reads)}],
-                'fastqc_url': [{
-                    'url': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
-                    'refs': ['fastqc/{}_fastqc'.format(reads_name)], 'name': 'View'}],
-                'fastqc_archive': [{'file': '{}_fastqc.zip'.format(reads_name)}]}
+        d.output = {
+            'fastq': [{'file': os.path.basename(reads)}],
+            'fastqc_url': [{
+                'url': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
+                'refs': ['fastqc/{}_fastqc'.format(reads_name)], 'name': 'View'}],
+            'fastqc_archive': [{'file': '{}_fastqc.zip'.format(reads_name)}]}
         d.status = Data.STATUS_DONE
         d.save()
 
@@ -211,8 +205,8 @@ class Command(BaseCommand):
             name='Mapping',
             started=started,
             finished=started + datetime.timedelta(minutes=50),
-            process=Process.objects.get(slug='upload-bam-indexed'),
-            contributor=self.set_user(),
+            process=get_process('upload-bam-indexed'),
+            contributor=get_superuser(),
             status=Data.STATUS_PROCESSING,
             input={
                 'src': {'file': 'alignment_position_sorted.bam'},
@@ -222,12 +216,11 @@ class Command(BaseCommand):
         shutil.copy(bam_mapping, os.path.join(data_dir, str(bam.id)))
         shutil.copy(bai, os.path.join(data_dir, str(bam.id)))
 
-        bam.output={
-                'bam': {'file': 'alignment_position_sorted.bam'},
-                'bai': {'file': 'alignment_position_sorted.bam.bai'}}
+        bam.output = {
+            'bam': {'file': 'alignment_position_sorted.bam'},
+            'bai': {'file': 'alignment_position_sorted.bam.bai'}}
         bam.status = Data.STATUS_DONE
         bam.save()
-
 
         with open(os.path.join(data_dir, str(bam.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload BAM and BAM index (BAI) files. Sample '
@@ -239,8 +232,8 @@ class Command(BaseCommand):
         # Create expressios
         exp = Data.objects.create(
             name='Expression',
-            process=Process.objects.get(slug='upload-expression'),
-            contributor=self.set_user(),
+            process=get_process(slug='upload-expression'),
+            contributor=get_superuser(),
             started=started,
             finished=started + datetime.timedelta(minutes=60),
             status=Data.STATUS_PROCESSING,
@@ -257,13 +250,14 @@ class Command(BaseCommand):
 
         json_object = Storage.objects.create(
             json=json.load(open(os.path.join(data_dir, str(exp.id), 'expressions.json'))),
-            contributor=self.set_user(),
+            contributor=get_superuser(),
+            name='{}_storage'.format(exp.name),
             data=exp)
 
         exp.output = {
-                'exp': {'file': 'expressions.tab.gz'},
-                'exp_type': 'FPKM',
-                'exp_json': json_object.id
+            'exp': {'file': 'expressions.tab.gz'},
+            'exp_type': 'FPKM',
+            'exp_json': json_object.id
         }
         exp.status = Data.STATUS_DONE
         exp.save()
