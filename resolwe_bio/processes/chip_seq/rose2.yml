@@ -78,9 +78,6 @@
     - name: all_output
       label: All output
       type: basic:file
-    - name: test_output
-      label: Test
-      type: basic:file
     - name: scatter_plot
       label: Super-Enhancer plot
       type: basic:json
