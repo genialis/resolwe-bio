@@ -132,6 +132,8 @@ FLOW_PROCESSES_FINDERS = (
 
 FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
 
+RESOLWE_CUSTOM_TEMPLATE_TAGS = ['sample']
+
 # Do not skip tests that fail on Docker executor if this is set via environment
 # variable
 if os.environ.get('RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES', '').lower() in ["no", "false"]:
