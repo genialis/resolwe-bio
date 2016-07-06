@@ -1,0 +1,31 @@
+# ========================
+# Import - Gene Info - Raw
+# ========================
+---
+
+- slug: upload-geneinfo-raw
+  name: Upload gene information raw
+  data_name: '{{ src.file|default:"?" }}'
+  version: 1.0.0
+  type: data:geneinfo:raw
+  category: upload
+  persistence: RAW
+  description: >
+    Upload gene information from text file.
+  input:
+    - name: src
+      label: Gene information
+      type: basic:file
+      description: >
+        Gene information in tab-separated text file. Composition: first row is a header (ID, Gene Name, Official name, Synonyms, Organism, Description, Entrez ID, OMIM ID, UniprotKB ID, Ensembl ID, MGI ID) followed by rows. Supported extensions: .tab, .txt.
+      validate_regex: '\.(tab|txt)$'
+  output:
+    - name: src
+      label: Gene information
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|tab" "tab" 0.8
+
+      re-save-file src ${NAME}.tab
