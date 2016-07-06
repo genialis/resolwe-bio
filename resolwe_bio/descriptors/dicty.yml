@@ -178,8 +178,8 @@
               value: DIF treatment
             - label: Percoll gradient (Prespore cells - Heavy fraction)
               value: Percoll gradient (Prespore cells - Heavy fraction)
-            - label: Percoll gradient (Prestalk cells - Light fraction) 
-              value: Percoll gradient (Prestalk cells - Light fraction) 
+            - label: Percoll gradient (Prestalk cells - Light fraction)
+              value: Percoll gradient (Prestalk cells - Light fraction)
             - label: Co-development (mixed population)
               value: Co-development (mixed population)
             - label: Co-development (mixed RNA of clonal populations)
