@@ -3,16 +3,8 @@ import unittest
 
 from django.conf import settings
 
-try:
-    from resolwe.flow.tests import ProcessTestCase
-except ImportError:
-    # Backward compatibility to run tests on our old platform
-    from server.tests.utils import ProcessTestCase
-
-try:
-    from resolwe.flow.models import Process, iterate_schema
-except ImportError:
-    from server.models import Processor as Process, iterate_schema
+from resolwe.flow.models import Process, iterate_schema
+from resolwe.flow.utils.test import ProcessTestCase
 
 
 TEST_FILES_DIR = os.path.join(

@@ -1,14 +1,11 @@
 # pylint: disable=missing-docstring
 from django.core.management import call_command
 
-from resolwe.flow.tests import ProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe_bio.models import Sample
 
 
-class GenerateSamplesTest(ProcessTestCase):
-
-    def setUp(self):
-        super(GenerateSamplesTest, self).setUp()
+class GenerateSamplesTest(BioProcessTestCase):
 
     def test_generate_samples(self):
         call_command('generate_samples', '-s=1', '-p=0', '--rseed')
