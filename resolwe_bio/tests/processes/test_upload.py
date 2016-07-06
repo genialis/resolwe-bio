@@ -3,7 +3,7 @@ import unittest
 
 from resolwe.flow.models import Data
 
-from .utils import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 
 class UploadProcessorTestCase(BioProcessTestCase):

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase, skipUnlessLargeFiles
+from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):

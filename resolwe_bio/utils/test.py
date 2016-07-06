@@ -15,7 +15,12 @@ except ImportError:
     from server.models import Processor as Process, iterate_schema
 
 
-TEST_FILES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files')
+TEST_FILES_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    'tests',
+    'processes',
+    'files',
+)
 
 
 def skipDockerFailure(reason):
@@ -53,7 +58,7 @@ def skipUnlessLargeFiles(*files):
 class BioProcessTestCase(ProcessTestCase):
     def setUp(self):
         super(BioProcessTestCase, self).setUp()
-        self.files_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'files')
+        self.files_path = TEST_FILES_DIR
 
     def prepare_genome(self):
         """Prepare genome FASTA."""

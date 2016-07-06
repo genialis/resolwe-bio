@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from .utils import BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class UploadProcessorTestCase(BioProcessTestCase):

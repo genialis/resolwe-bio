@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from .utils import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class AlignmentProcessorTestCase(BioProcessTestCase):
 

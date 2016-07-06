@@ -31,6 +31,8 @@ Changed
 * Add pre-computed genome-index files when uploading reference fasta file.
 * Include all necessary files for running the tests in source distribution
 * Exclude tests from built/installed version of the package
+* Move testing utilities from ``resolwe_bio.tests.processes.utils`` to
+  ``resolwe_bio.utils.test``
 
 Fixed
 -----

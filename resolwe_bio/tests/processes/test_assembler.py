@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
 
-from .utils import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 
 class AbyssProcessorTestCase(BioProcessTestCase):

@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring
 import unittest
-from .utils import BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class MicroarrayProcessorTestCase(BioProcessTestCase):
