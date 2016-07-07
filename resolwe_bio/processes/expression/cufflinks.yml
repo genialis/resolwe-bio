@@ -3,10 +3,10 @@
 # ======================
 ---
 
-- name: cufflinks
-  label: Cufflinks (2.2.1)
+- slug: cufflinks
+  name: Cufflinks (2.2.1)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.8
+  version: 1.0.9
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
