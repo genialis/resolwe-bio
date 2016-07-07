@@ -39,6 +39,7 @@ Fixed
 * Make Tox configuration more robust to different developer environments
 * Set ``required: false`` in processor input/output fields where necessary
 * Add ``Sample``'s ``Data objects`` to ``Collection`` when ``Sample`` is added
+* Add raw Gene Info process
 
 Added
 -----
