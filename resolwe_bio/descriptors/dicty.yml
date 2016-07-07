@@ -377,51 +377,53 @@
             - label: "Control:  nuclear extruct"
               value: "Control:  nuclear extruct"
 
-
-- name: dictyostelium:bcm:etc
-  label: Dictyostelium ETC annotation
-  description: Dictyostelium expression time course annotation for BCM
+- slug: dicty-etc
+  name: Dictyostelium ETC annotation
+  description: Dictyostelium expression time course annotation
   schema:
+    - name: projectNumber
+      label: Project number
+      type: basic:string
+    - name: project
+      label: Project
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: D. discoideum vs. D. purpureum
+          value: D. discoideum vs. D. purpureum
+        - label: Filter Development vs. cAMP Pulsing; Frequent Sampling
+          value: Filter Development vs. cAMP Pulsing; Frequent Sampling
+        - label: "GtaC: WT vs. mutants"
+          value: "GtaC: WT vs. mutants"
+        - label: lncRNA transcriptome
+          value: lncRNA transcriptome
+    - name: citation
+      label: Citation
+      type: basic:url:view
     - name: treatment
       label: Treatment
       type: basic:string
       placeholder: Start typing
       allow_custom_choice: true
       choices:
-        - label: cAMP pulsing
-          value: cAMP pulsing
-        - label: Development
-          value: Development
-        - label: DIF treatment
-          value: DIF treatment
-        - label: Percoll gradient (Prespore cells - Heavy fraction)
-          value: Percoll gradient (Prespore cells - Heavy fraction)
-        - label: Percoll gradient (Prestalk cells - Light fraction) 
-          value: Percoll gradient (Prestalk cells - Light fraction) 
-        - label: Co-development (mixed population)
-          value: Co-development (mixed population)
-        - label: Co-development (mixed RNA of clonal populations)
-          value: Co-development (mixed RNA of clonal populations)
-        - label: Growth on buffered agar plate with K. pneumonia
-          value: Growth on buffered agar plate with K. pneumonia
-        - label: Growth on buffered agar plate with P. aeruginosa
-          value: Growth on buffered agar plate with P. aeruginosa
-        - label: Growth on buffered agar plate with S. aureus
-          value: Growth on buffered agar plate with S. aureus
-        - label: Growth on buffered agar plate with B. subtilis
-          value: Growth on buffered agar plate with B. subtilis
-        - label: Growth on buffered agar plate with B. anthraces
-          value: Growth on buffered agar plate with B. anthraces
-        - label: Growth on nutrient agar plate
-          value: Growth on nutrient agar plate
-        - label: Growth in submerged culture with K. pneumonia
-          value: Growth in submerged culture with K. pneumonia
-        - label: Growth in submerged culture with E. coli
-          value: Growth in submerged culture with E. coli
-        - label: Growth in submerged culture with S. aureus
-          value: Growth in submerged culture with S. aureus
-        - label: Growth in submerged culture with L. grayi
-          value: Growth in submerged culture with L. grayi
+        - label: cAMP Pulses
+          value: cAMP Pulses
+        - label: Filter Development
+          value: Filter Development
+        - label: DIF treatment after dissociation
+          value: DIF treatment after dissociation
+        - label: clonal population, mixed RNA
+          value: clonal population, mixed RNA
+        - label: Light(Prestalk)
+          value: Light(Prestalk)
+        - label: Heavy(Prespore)
+          value: Heavy(Prespore)
+        - label: mixed population
+          value: mixed population
+        - label: clonal population
+          value: clonal population
+        - label: none
+          value: none
     - name: parental_strain
       label: Parental strain
       type: basic:string
@@ -453,22 +455,26 @@
         - label: QS49
           value: QS49
     - name: growth
-      label: Growth/Pretreatment
+      label: Growth
       type: basic:string
       placeholder: Start typing
       allow_custom_choice: true
       choices:
         - label: HL5
           value: HL5
-        - label: HL5 + supplement
-          value: HL5 + supplement
-        - label: Growth on K. pneumonia lawn plate
-          value: Growth on K. pneumonia lawn plate
-        - label: Growth in submerged culture with K. pneumonia
-          value: Growth in submerged culture with K. pneumonia
-        - label: Growth in submerged culture with E. coli
-          value: Growth in submerged culture with E. coli
-        - label: Growth in submerged culture with S. aureus
-          value: Growth in submerged culture with S. aureus
-        - label: Growth in submerged culture with L. grayi
-          value: Growth in submerged culture with L. grayi
+        - label: HL5+uracil
+          value: HL5+uracil
+        - label: K. pneumoniae
+          value: K. pneumoniae
+        - label: B. anthracis
+          value: B. anthracis
+        - label: P. aeruginosa
+          value: P. aeruginosa
+        - label: S. aureus
+          value: S. aureus
+        - label: axenic
+          value: axenic
+        - label: B. subtilis
+          value: B. subtilis
+        - label: Nutrient media
+          value: Nutrient media
