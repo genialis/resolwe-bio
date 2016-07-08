@@ -5,7 +5,8 @@ import sys
 import os
 import shlex
 
-base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
+docs_dir = os.path.abspath(os.path.dirname(__file__))
+base_dir = os.path.join(docs_dir, "..")
 
 # Get package metadata from 'setup.py' file
 module_setup = imp.load_source('module_setup', os.path.join(base_dir, 'setup.py'))
@@ -25,6 +26,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'resolwe.flow.utils.docs.autoprocess'
 ]
 
 # The suffix(es) of source filenames.
@@ -56,6 +58,12 @@ pygments_style = 'sphinx'
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = False
+
+# Parent directory of all process definitions:
+autoprocess_process_dir = os.path.normpath(docs_dir + "./../resolwe_bio/processes/")
+
+# Base of the url to process source code:
+autoprocess_source_base_url = 'https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/processes/'
 
 # -- Options for HTML output ----------------------------------------------
 

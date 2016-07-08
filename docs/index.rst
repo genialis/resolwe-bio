@@ -20,15 +20,4 @@ Contents
    intro
    proc
    contributing
-
-Process Catalog
-===============
-
-TODO: Automatically import a list of processes from the YML files. Organize
-them in categories.
-
-
-Pipelines Examples
-==================
-
-TODO: Include pipeline examples.
+   catalog
