@@ -6,29 +6,28 @@
 - slug: cuffdiff
   name: Cuffdiff (2.2.1)
   data_name: 'Cuffdiff results'
-  version: 1.0.9
+  version: 1.0.10
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
   description: >
     Find significant changes in transcript expression, splicing, and promoter use.
   input:
-    - name: cuffquant
-      label: Cuffquant expression file
+    - name: case
+      label: Case samples
       type: list:data:cufflinks:cuffquant
-    - name: replicates
-      label: Define Groups/Replicates
-      type: list:basic:string
-      description: >
-        Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
+    - name: control
+      label: Control samples
+      type: list:data:cufflinks:cuffquant
     - name: labels
       label: Group labels
       type: list:basic:string
+      default: [control, case]
       description: >
-        Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2)
-    - name: gff
+        Define labels for each sample group.
+    - name: annotation
       label: Annotation (GTF/GFF3)
-      type: data:annotation:cuffmerge
+      type: data:annotation
       description: >
         A transcript annotation file produced by cufflinks, cuffcompare, or other source.
     - name: genome
@@ -41,13 +40,6 @@
       label: Do initial estimation procedure to more accurately weight reads with multiple genome mappings
       type: basic:boolean
       default: false
-    - name: time_series
-      label: Analyze the provided samples as a time series
-      type: basic:boolean
-      required: false
-      default: false
-      description: >
-        Instructs Cuffdiff to analyze the provided samples as a time series, rather than testing for differences between all pairs of samples. Samples should be provided in increasing time order at the command line (e.g first time point SAM, second timepoint SAM, etc.).
     - name: fdr
       label: Allowed FDR
       type: basic:decimal
@@ -103,10 +95,10 @@
         Use this many threads to align reads. The default is 1.
   output:
     - name: diffexp
-      label: Differential expression (transcript level)
-      type: basic:file
-    - name: gene_diff_exp
       label: Differential expression (gene level)
+      type: basic:file
+    - name: transcript_diff_exp
+      label: Differential expression (transcript level)
       type: basic:file
     - name: tss_group_diff_exp
       label: Differential expression (primary transcript)
@@ -117,20 +109,21 @@
     - name: cuffdiff_output
       label: Cuffdiff output
       type: basic:file
+    - name: de_data
+      label: Results table (JSON)
+      type: basic:json
   run:
     runtime: polyglot
     bash: |
-      experiment=""
-      labels=""
-      replicates=""
+      case_samples=""
+      control_samples=""
 
-      {% for experiment in cuffquant %}
-        experiment=$experiment"{{ experiment.abundances.file }},"
-        echo "{\"proc.rc\":$?}"
+      {% for cs_samp in case %}
+        cases=$cases"{{ cs_samp.cxb.file }},"
       {% endfor %}
 
-      {% for r in replicates %}
-        replicates=$replicates"{{r}},"
+      {% for ct_samp in control %}
+        controls=$controls"{{ ct_samp.cxb.file }},"
       {% endfor %}
 
       {% for l in labels %}
@@ -138,29 +131,42 @@
       {% endfor %}
 
       labels=${labels%?}
-      experiment=${experiment%?}
-      replicates=${replicates%?}
+      cases=${cases%?}
+      controls=${controls%?}
 
-      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}`
+      EXPERIMENTS="${controls} ${cases}"
 
       {% if genome %}
-
         GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
         gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-
       {% endif %}
 
-      echo "{\"proc.progress\":0.1}"
+      {% if annotation.merged_gtf.file %}
+        ANNOTATION='{{ annotation.merged_gtf.file }}'
+      {% elif  annotation.gtf.file %}
+        ANNOTATION='{{ annotation.gtf.file }}'
+      {% elif  annotation.gff.file %}
+        ANNOTATION='{{ annotation.gff.file }}'
+      {% else %}
+        re-error "Please provide a suitable annotation (GFF/GTF) file."
+      {% endif %}
 
-      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.merged_gtf.file }}' ${experiments}
+      re-progress 0.1
 
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet ${ANNOTATION} ${EXPERIMENTS}
 
-      gzip -c cds_exp.diff > cds_exp_$(date +'%m-%d-%Y').diff.gz
-      gzip -c gene_exp.diff > gene_exp_$(date +'%m-%d-%Y').diff.gz
-      gzip -c isoform_exp.diff > isoform_exp_$(date +'%m-%d-%Y').diff.gz
-      gzip -c tss_group_exp.diff > tss_group_exp_$(date +'%m-%d-%Y').diff.gz
+      re-checkrc
+      re-progress 0.9
 
-      zip cuffdiff_output_$(date +'%m-%d-%Y').zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff gene_exp.diff isoform_exp.diff tss_group_exp.diff
+      mv gene_exp.diff cuffdiff.tab
 
-      echo "{\"proc.progress\":1,\"cds_diff_exp\":{\"file\":\"cds_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"gene_diff_exp\":{\"file\":\"gene_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"diffexp\":{\"file\":\"isoform_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"tss_group_diff_exp\":{\"file\":\"tss_group_exp_$(date +'%m-%d-%Y').diff.gz\"}, \"cuffdiff_output\":{\"file\":\"cuffdiff_output_$(date +'%m-%d-%Y').zip\"}}"
+      zip cuffdiff_output.zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff cuffdiff.tab isoform_exp.diff tss_group_exp.diff
+
+      parse_diffexp.py cuffdiff.tab
+      gzip cuffdiff.tab
+
+      re-save-file diffexp cuffdiff.tab.gz
+      re-save-file transcript_diff_exp isoform_exp.diff
+      re-save-file cds_diff_exp cds_exp.diff
+      re-save-file tss_group_diff_exp tss_group_exp.diff
+      re-save-file cuffdiff_output cuffdiff_output.zip

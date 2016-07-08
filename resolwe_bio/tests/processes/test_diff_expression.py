@@ -4,67 +4,22 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 class DiffExpProcessorTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Errors with: KeyError: u'mask_file' at "
-        "cuff_exp = self.run_processor('cufflinks', inputs)")
     def test_cuffdiff(self):
-        genome = self.prepare_genome()
-        reads1 = self.prepare_reads('00Hr.fastq.gz')
-        reads2 = self.prepare_reads('20Hr.fastq.gz')
+        inputs = {"src": "cuffquant_1.cxb"}
+        cuffquant = self.run_processor("upload-cxb", inputs)
 
-        inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('upload-gff3', inputs)
+        inputs = {"src": "cuffquant_2.cxb"}
+        cuffquant2 = self.run_processor("upload-cxb", inputs)
 
-        inputs = {
-            'genome': genome.pk,
-            'reads': reads1.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_1 = self.run_processor('alignment-tophat2', inputs)
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
 
         inputs = {
-            'genome': genome.pk,
-            'reads': reads2.pk,
-            'gff': annotation.pk,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads_2 = self.run_processor('alignment-tophat2', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_1.pk,
-            'gff': annotation.pk,
-            'genome': genome.pk}
-        cuff_exp = self.run_processor('cufflinks', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_2.pk,
-            'gff': annotation.pk,
-            'genome': genome.pk}
-        cuff_exp2 = self.run_processor('cufflinks', inputs)
-
-        inputs = {
-            'expressions': [cuff_exp.pk, cuff_exp2.pk],
-            'gff': annotation.pk,
-            'genome': genome.pk}
-        cuff_merge = self.run_processor('cuffmerge', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_1.pk,
-            'gff': cuff_merge.pk}
-        cuffquant = self.run_processor('cuffquant', inputs)
-
-        inputs = {
-            'alignment': aligned_reads_2.pk,
-            'gff': cuff_merge.pk}
-        cuffquant2 = self.run_processor('cuffquant', inputs)
-
-        inputs = {
-            'cuffquant': [cuffquant.pk, cuffquant2.pk],
-            'replicates': ['1', '2'],
-            'labels': ['g1', 'g2'],
-            'gff': cuff_merge.pk}
+            'case': [cuffquant.id],
+            'control': [cuffquant2.id],
+            'annotation': annotation.id}
         cuffdiff = self.run_processor('cuffdiff', inputs)
-        self.assertFile(cuffdiff, 'gene_diff_exp', 'cuffdiff_output.gz', compression='gzip')
+        self.assertFile(cuffdiff, 'diffexp', 'cuffdiff.tab.gz', compression='gzip')
+        self.assertJSON(cuffdiff, cuffdiff.output['de_data'], '', 'cuffdiff.json.gz')
 
     @skipDockerFailure("Errors with: ERROR: basic:json value in exp_json not "
         "ObjectId but {u'genes': {u'DPU_G0067108': 0.0, ...}} at "

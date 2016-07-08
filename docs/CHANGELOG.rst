@@ -33,6 +33,7 @@ Changed
 * Exclude tests from built/installed version of the package
 * Move testing utilities from ``resolwe_bio.tests.processes.utils`` to
   ``resolwe_bio.utils.test``
+* Update Cuffdiff processor inputs and results table parsing
 
 Fixed
 -----
