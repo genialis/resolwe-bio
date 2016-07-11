@@ -53,6 +53,7 @@ Added
 * HISAT2 aligner
 * Use Git Large File Storage (LFS) for large test files
 * Test for ``generate_samples`` django-admin command
+* django-admin command: ``generate_diffexpr``
 
 
 ================

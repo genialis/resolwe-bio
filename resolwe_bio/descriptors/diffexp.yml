@@ -1,0 +1,16 @@
+- slug: diff-exp
+  name: Differential expression details
+  description: Differential expression details template
+  schema:
+    - name: fc_threshold
+      label: FC threshold
+      type: basic:integer
+    - name: fdr_threshold
+      label: FDR threshold
+      type: basic:decimal
+    - name: case_label
+      label: Case label
+      type: basic:text
+    - name: control_label
+      label: Control label
+      type: basic:text

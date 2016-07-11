@@ -17,7 +17,7 @@ from django.utils import timezone
 from resolwe.flow.models import Data, Storage
 from resolwe_bio.models import Sample
 from resolwe_bio.tools.utils import escape_mongokey, gzopen
-from .utils import get_descriptorschema, get_process, get_superuser
+from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_desciptor
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -82,65 +82,6 @@ class Command(BaseCommand):
         descriptor['seq_date'] = seq_date
 
         return descriptor
-
-    @staticmethod
-    def generate_sample_desciptor(organism_name):
-        annotator = ['Billie Joe Armstrong', 'Dexter Holland', 'Mark Hoppus']
-        growth_protocol = ('One vial of cells was thawed out and placed in a T75 '
-                           'flask in DMEM/F12 supplemented with 10% FBS and fed '
-                           'every 2 days. Cells were grown to ~50% confluence '
-                           '(~4-5 days), after which they were trypsinized.')
-        library_prep = ('Total RNAs were extracted using the RNeasy Mini Kit (Qiagen). '
-                        'RNA sequencing libraries were constructed under the standard '
-                        'protocol of Illumina TruSeq RNA Prep Kit.')
-        if organism_name.startswith('Dd'):
-            annotation = {'geo': {'organism': 'Dictyostelium discoideum',
-                                  'annotator': random.choice(annotator),
-                                  'strain': random.choice(['AX2', 'AX4']),
-                                  'genotype': random.choice(['wildtype', 'tirA-']),
-                                  'experiment_type': 'RNA-Seq',
-                                  'molecule': 'polyA RNA',
-                                  'description': 'Expression profiling'},
-                          'protocols': {
-                              'fragmentation_method': 'sonication',
-                              'growth_protocol': ('Cells were grown in nutrient media (HL-5) '
-                                                  'to mid-log phase prior to collection for development.'),
-                              'treatment_protocol': 'Development',
-                              'library_prep': ('TriZol (Life Sciences) -- Cells were scraped '
-                                               '(filter) or pelleted (suspension) and disrupted '
-                                               'in TriZol. Total RNA was extracted by phenol/chloroform '
-                                               'as per manufacturer\'s instructions. Ribosomal RNA was '
-                                               'depleted using the InDA-C method (Ovation, Nugen) reagents, '
-                                               'following manufacturer\'s instructions.')}}
-        if organism_name.startswith('Hs'):
-            annotation = {'geo': {'organism': 'Homo sapiens',
-                                  'annotator': random.choice(annotator),
-                                  'source': 'brain',
-                                  'cell_type': random.choice(['neuron', 'glia']),
-                                  'genotype': random.choice(['wildtype', 'CDK6-/-']),
-                                  'experiment_type': 'RNA-Seq',
-                                  'molecule': 'polyA RNA',
-                                  'optional_char': ['Cell line: DBTRG-05MG'],
-                                  'description': "Human brain study. Expression profiling."},
-                          'protocols': {
-                              'fragmentation_method': 'sonication',
-                              'growth_protocol': growth_protocol,
-                              'library_prep': library_prep}}
-        if organism_name.startswith('Mm'):
-            annotation = {'geo': {'organism': 'Mus musculus',
-                                  'annotator': random.choice(annotator),
-                                  'source': 'brain',
-                                  'genotype': random.choice(['wildtype', 'CDK6-/-']),
-                                  'cell_type': random.choice(['neuron', 'microglia']),
-                                  'experiment_type': 'RNA-Seq',
-                                  'molecule': 'polyA RNA',
-                                  'optional_char': ['Cell line: EOC 2'],
-                                  'description': "Mouse brain study. Expression profiling."},
-                          'protocols': {
-                              'fragmentation_method': 'sonication',
-                              'growth_protocol': growth_protocol,
-                              'library_prep': library_prep}}
-        return annotation
 
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
         # get test data paths
@@ -271,7 +212,7 @@ class Command(BaseCommand):
 
         # Annotate Sample Collection
         if annotated:
-            sample.descriptor = self.generate_sample_desciptor(d.name)
+            sample.descriptor = generate_sample_desciptor(d.name)
             sample.presample = False
             sample.save()
             logger.info("Created sample: {} (id={})".format(sample.name, sample.id))
