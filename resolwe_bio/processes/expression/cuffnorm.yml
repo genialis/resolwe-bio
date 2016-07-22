@@ -6,7 +6,7 @@
 - slug: cuffnorm
   name: Cuffnorm (2.2.1)
   data_name: 'Cuffnorm results'
-  version: 1.0.11
+  version: 1.0.12
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -116,17 +116,17 @@
 
       {% if useERCC %}
         {% for exp in cuffquant %}
-          EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{forloop.counter0}} -n
-          mv expression.tab /home/biolinux/upload/${EXP_NAME}
-          echo 'run {"status":"RE","process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+          mv expression.tab expression_{{forloop.counter0}}.tab
+          re-export "expression_{{forloop.counter0}}.tab"
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":"expression_{{forloop.counter0}}.tab"}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          EXP_NAME=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
           parse_cuffnorm.py genes.fpkm_table {{forloop.counter0}}
-          mv expression.tab /home/biolinux/upload/${EXP_NAME}
-          echo 'run {"status":"RE","process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":{"file_temp":"/home/biolinux/upload/'${EXP_NAME}'","file":"expression_{{forloop.counter0}}.tab"}}}'
+          mv expression.tab expression_{{forloop.counter0}}.tab
+          re-export expression_{{forloop.counter0}}.tab
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":"expression_{{forloop.counter0}}.tab"}}'
         {% endfor %}
       {% endif %}
 

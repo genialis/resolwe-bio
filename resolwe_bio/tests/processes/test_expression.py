@@ -2,6 +2,7 @@
 from resolwe.flow.models import Data
 
 from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe.flow.models import Data
 
 
 class ExpressionProcessorTestCase(BioProcessTestCase):
@@ -69,6 +70,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         cuffnorm = self.run_processor('cuffnorm', inputs)
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
         self.assertFile(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
+
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')
 
     @skipDockerFailure("Fails with: ImportError: No module named biox")
     def test_expression_bcm(self):

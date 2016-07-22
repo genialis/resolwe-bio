@@ -9,6 +9,8 @@ import re
 import utils
 import transmart_utils
 
+from resolwe_runtime_utils import export
+
 
 parser = argparse.ArgumentParser(description='Import gene expressions and the '
                                              'corresponding annotations from tranSMART.')
@@ -66,13 +68,9 @@ for i in range(1, nsamples):
         tabwriter.writerows(zip(gene_ids, exprs[i]))
 
     d = {
-        'status': 'RE',
         'process': 'upload-expression',
         'input': {
-            'exp': {
-                'file': os.path.basename(fname),
-                'file_temp': os.path.join(os.getcwd(), fname)
-            },
+            'exp': os.path.basename(fname),
             'exp_type': 'Log2'
         }
     }
@@ -81,6 +79,7 @@ for i in range(1, nsamples):
         d['var_template'] = var_template
         d['var'] = var_samples[sample_id]
 
+    print(export(fname))
     print 'run {}'.format(json.dumps(d, separators=(',', ':')))
 
     if i >= progress_milestone:

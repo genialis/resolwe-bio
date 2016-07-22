@@ -1,9 +1,10 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe.flow.models import Data
 
 
-class UploadProcessorTestCase(BioProcessTestCase):
-    def test_bam_upload(self):
+class DemultiplexProcessorTestCase(BioProcessTestCase):
+    def test_demultiplex(self):
         inputs = {
             'reads': 'pool24.read1.small.qseq.bz2',
             'reads2': 'pool24.read3.small.qseq.bz2',
@@ -15,6 +16,10 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(obj, 'notmatched', '51 reads (71.83 %)')
         self.assertFields(obj, 'badquality', '13 reads (18.31 %)')
         self.assertFields(obj, 'skipped', '0 reads (0.00 %)')
+
+        reads = Data.objects.last()
+        self.assertFiles(reads, "fastq", ["demultiplexed_reads_fw.fastq.gz"], compression='gzip')
+        self.assertFiles(reads, "fastq2", ["demultiplexed_reads_rw.fastq.gz"], compression='gzip')
 
         inputs = {
             'reads': 'pool24.read3.small.qseq.bz2',

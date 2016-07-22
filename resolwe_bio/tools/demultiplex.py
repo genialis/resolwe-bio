@@ -6,6 +6,8 @@ import os
 import subprocess
 import sys
 
+from resolwe_runtime_utils import export
+
 
 parser = argparse.ArgumentParser(description='NGS reads demultiplexer.')
 
@@ -258,29 +260,21 @@ for name in filenames:
             continue
 
         name2 = name.replace('_mate1', '_mate2')
+        print(export(name))
+        print(export(name2))
         d = {
-            'status': 'RE',
             'process': 'upload-fastq-paired',
             'input': {
-                'src1': [{
-                    'file': os.path.basename(name),
-                    'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name))
-                }],
-                'src2': [{
-                    'file': os.path.basename(name2),
-                    'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name2))
-                }]
+                'src1': [os.path.basename(name)],
+                'src2': [os.path.basename(name2)]
             }
         }
     else:
+        print(export(name))
         d = {
-            'status': 'RE',
             'process': 'upload-fastq-single',
             'input': {
-                'src': [{
-                    'file': os.path.basename(name),
-                    'file_temp': os.path.join(os.getcwd(), 'temp', os.path.basename(name))
-                }]
+                'src': [os.path.basename(name)]
             }
         }
 
