@@ -20,7 +20,8 @@ class PresampleViewSet(CollectionViewSet):
     queryset = Sample.objects.annotate(
         latest_date=Max('data__created')
     ).prefetch_related(
-        'descriptor_schema'
+        'descriptor_schema',
+        'contributor'
     ).filter(
         presample=True
     ).order_by('-latest_date')
@@ -33,7 +34,8 @@ class SampleViewSet(CollectionViewSet):
     queryset = Sample.objects.annotate(
         latest_date=Max('data__modified')
     ).prefetch_related(
-        'descriptor_schema'
+        'descriptor_schema',
+        'contributor'
     ).filter(
         presample=False
     ).order_by('-latest_date')
