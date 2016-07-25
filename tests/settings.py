@@ -86,7 +86,7 @@ STATIC_URL = '/static/'
 
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
-    'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe',
+    'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe-preview',
     'DATA_DIR': os.path.join(PROJECT_ROOT, 'test_data'),
     'UPLOAD_DIR': os.path.join(PROJECT_ROOT, 'test_upload'),
 }
