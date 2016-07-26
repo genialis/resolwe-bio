@@ -93,9 +93,7 @@ for bar, map in pool_maps.iteritems():
     print '{}: {}'.format(bar, map)
 
 
-def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progress_start, prefix='temp'):
-    if not os.path.exists(prefix):
-        os.makedirs(prefix)
+def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progress_start):
 
     pool_name = reads1_file.split('.')[0]
 
@@ -110,28 +108,24 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
         for barcode in barcodes:
             name = nicename(pool_maps[barcode])
             if reads2_file:
-                filename = os.path.join(prefix, '{}_{}_{}_mate1.fq.gz'.format(pool_name, name, barcode))
+                filename = '{}_{}_{}_mate1.fq.gz'.format(pool_name, name, barcode)
                 files[barcode] = gzip.open(filename, 'wb')
 
-                filename = os.path.join(prefix, '{}_{}_{}_mate2.fq.gz'.format(pool_name, name, barcode))
+                filename = '{}_{}_{}_mate2.fq.gz'.format(pool_name, name, barcode)
                 files[barcode + '2'] = gzip.open(filename, 'wb')
 
             else:
-                filename = os.path.join(prefix, '{}_{}_{}.fq.gz'.format(pool_name, name, barcode))
+                filename = '{}_{}_{}.fq.gz'.format(pool_name, name, barcode)
                 files[barcode] = gzip.open(filename, 'wb')
 
         if reads2_file:
-            files['notmatched'] = gzip.open(
-                os.path.join(prefix, 'Not_Matched_{}_mate1.fq.gz'.format(pool_name)), 'wb')
-            files['badquality'] = gzip.open(
-                os.path.join(prefix, 'Bad_Quality_{}_mate1.fq.gz'.format(pool_name)), 'wb')
-            files['notmatched2'] = gzip.open(
-                os.path.join(prefix, 'Not_Matched_{}_mate2.fq.gz'.format(pool_name)), 'wb')
-            files['badquality2'] = gzip.open(
-                os.path.join(prefix, 'Bad_Quality_{}_mate2.fq.gz'.format(pool_name)), 'wb')
+            files['notmatched'] = gzip.open('Not_Matched_{}_mate1.fq.gz'.format(pool_name), 'wb')
+            files['badquality'] = gzip.open('Bad_Quality_{}_mate1.fq.gz'.format(pool_name), 'wb')
+            files['notmatched2'] = gzip.open('Not_Matched_{}_mate2.fq.gz'.format(pool_name), 'wb')
+            files['badquality2'] = gzip.open('Bad_Quality_{}_mate2.fq.gz'.format(pool_name), 'wb')
         else:
-            files['notmatched'] = gzip.open(os.path.join(prefix, 'Not_Matched_{}.fq.gz'.format(pool_name)), 'wb')
-            files['badquality'] = gzip.open(os.path.join(prefix, 'Bad_Quality_{}.fq.gz'.format(pool_name)), 'wb')
+            files['notmatched'] = gzip.open('Not_Matched_{}.fq.gz'.format(pool_name), 'wb')
+            files['badquality'] = gzip.open('Bad_Quality_{}.fq.gz'.format(pool_name), 'wb')
 
         filenames = list(set(f.name for f in files.values()))
 
@@ -265,8 +259,8 @@ for name in filenames:
         d = {
             'process': 'upload-fastq-paired',
             'input': {
-                'src1': [os.path.basename(name)],
-                'src2': [os.path.basename(name2)]
+                'src1': [name],
+                'src2': [name2]
             }
         }
     else:
@@ -274,7 +268,7 @@ for name in filenames:
         d = {
             'process': 'upload-fastq-single',
             'input': {
-                'src': [os.path.basename(name)]
+                'src': [name]
             }
         }
 
