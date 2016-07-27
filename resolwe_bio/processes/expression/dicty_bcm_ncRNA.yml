@@ -6,7 +6,7 @@
 - slug: expression-bcm-ncrna
   name: Expression ncRNA (BCM)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.5
+  version: 1.1.0
   type: data:expression:ncrna
   category: analyses
   flow_collection: sample
