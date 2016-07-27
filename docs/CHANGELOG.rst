@@ -6,6 +6,15 @@ All notable changes to this project are documented in this file.
 
 
 ================
+1.2.1 2016-07-27
+================
+
+Changed
+-------
+* Update ``resolwe`` requirement
+
+
+================
 1.2.0 2016-07-27
 ================
 
