@@ -6,7 +6,7 @@
 - slug: alignment-tophat2
   name: TopHat (2.0.13)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.13
+  version: 1.1.0
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
