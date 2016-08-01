@@ -44,6 +44,7 @@ Changed
   ``resolwe_bio.utils.test``
 * Update Cuffdiff processor inputs and results table parsing
 * Refactor processes to use the updated ``resolwe.flow.executors.run`` command
+* Refactor STAR aligner - export expressions as separate objects
 
 Fixed
 -----
