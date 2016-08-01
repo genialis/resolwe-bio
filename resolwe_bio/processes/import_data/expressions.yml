@@ -152,3 +152,80 @@
         re-checkrc
 
       {% endif %}
+
+
+- slug: upload-expression-star
+  name: Expression (STAR)
+  data_name: STAR expression '({{ rc.file|default:"?" }})'
+  version: 1.0.0
+  type: data:expression:star
+  category: upload
+  persistence: RAW
+  flow_collection: sample
+  description: >
+        Save expression data from STAR aligner.
+  input:
+    - name: rc
+      label: Read counts (raw expression)
+      type: basic:file
+      description: >
+        Reads mapped to genomic features (raw count data). Supported extensions: .txt.gz (preferred), .tab.* or .txt.*
+      validate_regex: '\.(txt|tab|gz)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: stranded
+      label: Is data from a strand specific assay?
+      type: basic:string
+      description: >
+        For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
+      default: "yes"
+      choices:
+        - label: "yes"
+          value: "yes"
+        - label: "no"
+          value: "no"
+        - label: reverse
+          value: reverse
+  output:
+    - name: rc
+      label: Read counts (raw data)
+      type: basic:file
+      description: Reads mapped to genomic features.
+    - name: exp
+      label: Expression data
+      type: basic:file
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      re-import "{{ rc.file_temp|default:rc.file }}" "{{ rc.file }}" "txt|tab|gz" "tab" 0.1
+
+      tail -n+5 ${NAME}.tab > raw_rc.tab
+      parse_star_expressions.py raw_rc.tab ${NAME}
+
+      if [ {{stranded}} = "no" ]; then
+        gzip ${NAME}_rc_unstranded.tab
+        expression2storage.py ${NAME}_rc_unstranded.tab.gz
+        re-save-file rc ${NAME}_rc_unstranded.tab.gz
+        re-save-file exp ${NAME}_rc_unstranded.tab.gz
+        re-save exp_type "RC"
+      fi
+
+      if [ {{stranded}} = "yes" ]; then
+        gzip ${NAME}_rc_stranded.tab
+        expression2storage.py ${NAME}_rc_stranded.tab.gz
+        re-save-file rc ${NAME}_rc_stranded.tab.gz
+        re-save-file exp ${NAME}_rc_stranded.tab.gz
+        re-save exp_type "RC"
+      fi
+
+      if [ {{stranded}} = "reverse" ]; then
+        gzip ${NAME}_rc_stranded_reverse.tab
+        expression2storage.py ${NAME}_rc_stranded_reverse.tab.gz
+        re-save-file rc ${NAME}_rc_stranded_reverse.tab.gz
+        re-save-file exp ${NAME}_rc_stranded_reverse.tab.gz
+        re-save exp_type "RC"
+      fi

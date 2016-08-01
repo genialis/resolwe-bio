@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe.flow.models import Data
 
 class AlignmentProcessorTestCase(BioProcessTestCase):
 
@@ -94,7 +95,6 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_processor('alignment-tophat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'tophat_paired_reads_report.txt')
 
-    @skipDockerFailure("Fails with: STAR: command not found")
     def test_star(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
@@ -102,18 +102,29 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'annotation.gff.gz'}
         annotation = self.run_processor('upload-gff3', inputs)
 
-        inputs = {'genome': genome.pk, 'annotation': annotation.pk}
+        inputs = {'genome': genome.pk,
+                  'annotation': annotation.pk,
+                  'threads': 2,
+                  'advanced': {
+                    'genomeSAindexNbases': 12,
+                    'genomeSAsparseD': 4
+                    }
+                }
+
         genome_index = self.run_processor('alignment-star-index', inputs)
 
         inputs = {
             'genome': genome_index.pk,
             'reads': reads.pk,
-            'threads': 1,
+            'threads': 2,
             't_coordinates': {
                 'quantmode': True,
                 'gene_counts': True}}
         aligned_reads = self.run_processor('alignment-star', inputs)
         self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star.tab.gz', compression='gzip')
+
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression.tab.gz', compression='gzip')
 
     def test_bwa_bt(self):
         genome = self.prepare_genome()
