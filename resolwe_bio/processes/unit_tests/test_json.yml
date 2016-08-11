@@ -1,0 +1,26 @@
+# =========================
+# Processors for unit tests
+# =========================
+---
+
+- slug: test-json
+  name: test
+  data_name: test
+  version: 0.0.0
+  type: data:test
+  persistence: CACHED
+  input:
+    - name: n_genes
+      label: Number of genes
+      type: basic:integer
+  output:
+    - name: de_data
+      label: Differential expression (gene level)
+      type: basic:json
+    - name: size
+      label: JSON size in MB
+      type: basic:decimal
+  run:
+    runtime: polyglot
+    bash: |
+      generate_de_json.py {{n_genes}}
