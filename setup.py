@@ -43,6 +43,9 @@ setup(
         ]
     },
     zip_safe=False,
+    dependency_links=(
+        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.3.99",
+    ),
     install_requires=(
         'resolwe>=1.3.1',
     ),
