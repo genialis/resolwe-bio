@@ -2,7 +2,7 @@
 include LICENSE
 include README.rst
 # include documentation
-recursive-include docs *.py *.rst
+recursive-include docs *.py *.rst *.css *.html
 # include tests and files needed by tests (except large files)
 include tox.ini
 recursive-include tests *.py *.yml *.yaml *.rst

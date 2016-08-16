@@ -1,3 +1,9 @@
+"""
+======
+Models
+======
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.db import models
@@ -8,6 +14,7 @@ from resolwe.flow.models import BaseCollection, Collection
 class Sample(BaseCollection):
 
     """Postgres model for storing sample."""
+
     class Meta(BaseCollection.Meta):
         """Collection Meta options."""
         permissions = (

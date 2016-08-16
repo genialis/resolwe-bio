@@ -5,17 +5,30 @@ import sys
 import os
 import shlex
 
+import django
+from django.conf import settings
+
+
 docs_dir = os.path.abspath(os.path.dirname(__file__))
 base_dir = os.path.join(docs_dir, "..")
 
-# Get package metadata from 'setup.py' file
-module_setup = imp.load_source('module_setup', os.path.join(base_dir, 'setup.py'))
-about = {
-    '__title__': module_setup.TITLE,
-    '__version__': module_setup.VERSION,
-    '__author__': module_setup.AUTHOR,
-    '__copyright__': '2016, ' + module_setup.AUTHOR,
-}
+# Manual setup is required for standalone Django usage
+# NOTE: Since documentation is built using the built/installed package when
+# using Tox, it can't use the 'test.settings' Django settings module.
+settings.configure(
+    INSTALLED_APPS=(
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'resolwe.flow',
+        'resolwe_bio',
+    ),
+)
+django.setup()
+
+# Get package metadata from 'resolwe_bio/__about__.py' file
+about = {}
+with open(os.path.join(base_dir, 'resolwe_bio', '__about__.py')) as f:
+    exec(f.read(), about)
 
 # -- General configuration ------------------------------------------------
 
@@ -65,10 +78,16 @@ autoprocess_process_dir = os.path.normpath(docs_dir + "./../resolwe_bio/processe
 # Base of the url to process source code:
 autoprocess_source_base_url = 'https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/processes/'
 
+# Process definitions url
+autoprocess_definitions_uri = 'catalog-definitions.html'
+
 # -- Options for HTML output ----------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
 html_theme = 'sphinx_rtd_theme'
+
+templates_path = ['_templates']
+html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'Resolwebiodoc'

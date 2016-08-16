@@ -28,9 +28,9 @@ def skipDockerFailure(reason):
 def skipUnlessLargeFiles(*files):
     """Skip the decoreted tests unless the given large files are available.
 
-    :param list *files: variable lenght files list, where each element
-        represents a large file path relative to the ``TEST_FILES_DIR``
-        directory
+    :param list \*files: variable lenght files list, where each element
+                         represents a large file path relative to the
+                         ``TEST_FILES_DIR`` directory
 
     """
     for file_ in files:
