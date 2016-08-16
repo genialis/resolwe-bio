@@ -1,89 +1,91 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
-
+# Use codecs' open for a consistent encoding
+from codecs import open
+from os import path
 from setuptools import find_packages, setup
 
-NAME = 'resolwe-bio'
-TITLE = 'Resolwe Bioinformatics'
-VERSION = '1.2.1'
-DESCRIPTION = "Bioinformatics pipelines for the Resolwe platform."
-LONG_DESCRIPTION = open(os.path.join(os.path.dirname(__file__), 'README.rst')).read()
-AUTHOR = 'Genialis'
-AUTHOR_EMAIL = 'dev-team@genialis.com'
-URL = 'https://github.com/genialis/resolwe-bio/'
-LICENSE = 'Apache License (2.0)'
 
-if __name__ == '__main__':
-    setup(
-        name=NAME,
+base_dir = path.abspath(path.dirname(__file__))
 
-        version=VERSION,
+# Get the long description from the README file
+with open(path.join(base_dir, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
-        description=DESCRIPTION,
-        long_description=LONG_DESCRIPTION,
+# Get package metadata from 'resolwe.__about__.py' file
+about = {}
+with open(path.join(base_dir, 'resolwe_bio', '__about__.py'), encoding='utf-8') as f:
+    exec(f.read(), about)
 
-        url=URL,
+setup(
+    name=about['__title__'],
 
-        author=AUTHOR,
-        author_email=AUTHOR_EMAIL,
+    version=about['__version__'],
 
-        license=LICENSE,
+    description=about['__summary__'],
+    long_description=long_description,
 
-        # exclude tests from built/installed package
-        packages=find_packages(exclude=['tests', 'tests.*', '*.tests', '*.tests.*']),
-        package_data={
-            'resolwe_bio': [
-                'descriptors/*.yml',
-                'processes/**/*.yml',
-                'tools/*.py',
-                'tools/*.R',
-            ]
-        },
-        zip_safe=False,
-        install_requires=(
-            'resolwe>=1.3.1',
-        ),
-        extras_require = {
-            'docs':  [
-                'sphinx>=1.3.2',
-                'sphinx_rtd_theme',
-            ],
-            'package': [
-                'twine',
-                'wheel',
-            ],
-            'test': [
-                'django-jenkins>=0.17.0',
-                'coverage>=3.7.1',
-                'pep8>=1.6.2',
-                'pylint>=1.4.3',
-                'check-manifest',
-                'readme_renderer',
-            ],
-        },
+    url=about['__url__'],
 
-        test_suite='resolwe_bio.tests',
+    author=about['__author__'],
+    author_email=about['__email__'],
 
-        classifiers=[
-            'Development Status :: 4 - Beta',
+    license=about['__license__'],
 
-            'Environment :: Web Environment',
-            'Framework :: Django',
-            'Intended Audience :: Developers',
-            'Topic :: Scientific/Engineering :: Bio-Informatics',
-            'Topic :: Software Development :: Libraries :: Python Modules',
-
-            'License :: OSI Approved :: Apache Software License',
-
-            'Operating System :: OS Independent',
-
-            'Programming Language :: Python',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.4',
-            'Programming Language :: Python :: 3.5',
+    # exclude tests from built/installed package
+    packages=find_packages(exclude=['tests', 'tests.*', '*.tests', '*.tests.*']),
+    package_data={
+        'resolwe_bio': [
+            'descriptors/*.yml',
+            'processes/**/*.yml',
+            'tools/*.py',
+            'tools/*.R',
+        ]
+    },
+    zip_safe=False,
+    install_requires=(
+        'resolwe>=1.3.1',
+    ),
+    extras_require = {
+        'docs':  [
+            'sphinx>=1.3.2',
+            'sphinx_rtd_theme',
         ],
-        keywords='bioinformatics resolwe bio pipelines dataflow django',
-    )
+        'package': [
+            'twine',
+            'wheel',
+        ],
+        'test': [
+            'django-jenkins>=0.17.0',
+            'coverage>=3.7.1',
+            'pep8>=1.6.2',
+            'pylint>=1.4.3',
+            'check-manifest',
+            'readme_renderer',
+        ],
+    },
+
+    test_suite='resolwe_bio.tests',
+
+    classifiers=[
+        'Development Status :: 4 - Beta',
+
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+
+        'License :: OSI Approved :: Apache Software License',
+
+        'Operating System :: OS Independent',
+
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+    ],
+    keywords='bioinformatics resolwe bio pipelines dataflow django',
+)
