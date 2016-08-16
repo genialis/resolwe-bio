@@ -5,6 +5,15 @@ Change Log
 All notable changes to this project are documented in this file.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+* Process definition documentation style and text improvements
+
+
 ================
 1.2.1 2016-07-27
 ================

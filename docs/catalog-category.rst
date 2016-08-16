@@ -1,0 +1,5 @@
+=====================
+Processes by category
+=====================
+
+.. autoprocesscategory::

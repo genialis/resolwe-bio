@@ -1,0 +1,18 @@
+.toggle .header {
+    display: block;
+    clear: both;
+    cursor: pointer;
+    cursor: hand;
+}
+
+.toggle .header:before {
+    content: "▼ ";
+}
+
+.toggle .header.open:before {
+    content: "▲ ";
+}
+
+.process-type {
+    font-weight: lighter;
+}

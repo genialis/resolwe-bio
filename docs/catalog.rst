@@ -2,29 +2,13 @@
 Process catalog
 ===============
 
-Processes are sorted by the following categories:
+Resolwe Bioinformatics includes over 100 processes. They
+are organized in categories. The type tree will help process developers
+with pipeline design. For process details browse process definitions.
 
-    * upload
-    * import
-    * analyses
-    * analyses:alignment
-    * analyses:variants
-    * jbrowse
-    * uncategorized
+.. toctree::
+   :maxdepth: 1
 
-List of processes is quite long, you can navigate or search them in the menu bar on the left.
-
-
-.. autoprocess:: upload
-
-.. autoprocess:: import
-
-.. autoprocess:: analyses
-
-.. autoprocess:: analyses:alignment
-
-.. autoprocess:: analyses:variants
-
-.. autoprocess:: jbrowse
-
-.. autoprocess:: uncategorized
+   catalog-category
+   catalog-types
+   catalog-definitions

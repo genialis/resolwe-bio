@@ -1,9 +1,10 @@
+.. index:: Writing processes
+
 =================
 Writing processes
 =================
 
-TODO: Write about how to write processes.
+A tutorial about writing bioinformatics pipelines (process is a
+step in the pipeline) is in `Resolwe SDK for Python documentation`_.
 
-* Example (my first process and how to run it)
-* Process basics (embed text from Resolwe)
-* Link a complete process reference (Resolwe)
+.. _Resolwe SDK for Python documentation: http://resdk.readthedocs.io/en/latest/tutorial.html
