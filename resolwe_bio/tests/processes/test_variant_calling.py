@@ -19,7 +19,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         # create a filtering function that will remove the samtools version from the output files
         def filter_version(line):
             return line.startswith(b"##samtoolsVersion")
-        self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', filter=filter_version)
+        self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_version)
 
     @skipDockerFailure("Fails with: int() argument must be a string or a "
         "number, not 'list' at "

@@ -68,4 +68,4 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         def filter_created(line):
             return line.startswith(b'#Created')
 
-        self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', filter=filter_created)
+        self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', file_filter=filter_created)
