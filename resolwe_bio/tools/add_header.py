@@ -1,4 +1,7 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Add header row."""
 import csv
 import argparse
 

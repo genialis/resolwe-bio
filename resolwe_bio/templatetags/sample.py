@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+====================
+Sample Template Tags
+====================
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django import template
@@ -9,6 +16,7 @@ register = template.Library()  # pylint: disable=invalid-name
 
 
 def get_sample_attr(data, attr):
+    """Get sample object."""
     if isinstance(data, dict):
         # `Data` object's id is hydrated as `__id` in expression engine
         data = data['__id']
@@ -24,19 +32,16 @@ def get_sample_attr(data, attr):
 @register.filter
 def sample_id(data):
     """Return `pk` of `Sample` that given `Data` object belongs to."""
-
     return get_sample_attr(data, 'pk')
 
 
 @register.filter
 def sample_slug(data):
     """Return `slug` of `Sample` that given `Data` object belongs to."""
-
     return get_sample_attr(data, 'slug')
 
 
 @register.filter
 def sample_name(data):
     """Return `name` of `Sample` that given `Data` object belongs to."""
-
     return get_sample_attr(data, 'name')

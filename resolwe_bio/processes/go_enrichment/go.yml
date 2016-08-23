@@ -53,5 +53,5 @@
       fi
 
       processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 1>go_terms.txt 2> /dev/null
-      re-chekcrc
+      re-checkrc
       re-save terms "$(cat go_terms.txt)"

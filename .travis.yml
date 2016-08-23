@@ -1,5 +1,10 @@
 sudo: required
 
+# NOTE: It is necessary to explicitly set the distribution to "trusty" due to
+# the complex 'matrix: include:' logic below
+# More information: https://github.com/travis-ci/travis-ci/issues/5448
+dist: trusty
+
 addons:
   postgresql: "9.4"
 
@@ -9,18 +14,27 @@ services:
 
 language: python
 
-python: "3.5"
-
 env:
   global:
     - RESOLWE_POSTGRESQL_USER=postgres
     - RESOLWE_POSTGRESQL_PORT=5432
     - GIT_LFS_VERSION=1.2.1
-  matrix:
-    - TOX_ENV=py27
-    - TOX_ENV=py34
-    - TOX_ENV=py35
-    - TOX_ENV=packaging
+
+# NOTE: Explicit Python versions make Travis job description more informative
+matrix:
+  include:
+    - env: TOX_ENV=py27
+      python: "2.7"
+    - env: TOX_ENV=py34
+      python: "3.4"
+    - env: TOX_ENV=py35
+      python: "3.5"
+    - env: TOX_ENV=docs
+      python: "3.5"
+    - env: TOX_ENV=linters
+      python: "3.5"
+    - env: TOX_ENV=packaging
+      python: "3.5"
 
 before_install:
   # manually install git-lfs until it is pre-installed by Travis
@@ -38,3 +52,7 @@ before_script:
   - git lfs pull
 
 script: tox -e $TOX_ENV
+
+after_success:
+ - pip install codecov
+ - codecov -e TOX_ENV

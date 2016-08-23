@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+=================================
+Generate Differential Expressions
+=================================
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import gzip
@@ -8,17 +15,14 @@ import random
 import shutil
 import string
 import datetime
-import json
-import csv
 
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
 
-from resolwe.flow.models import Data, Process, Storage
+from resolwe.flow.models import Data
+from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
-from resolwe_bio.tools.utils import gzopen
 from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_desciptor
 
 
@@ -26,12 +30,20 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class Command(BaseCommand):
-
-    """Generate test differential expression data"""
+    """Generate test differential expression data."""
 
     help = "Generate differential expressions"
 
+    def __init__(self, *args, **kwargs):
+        """Set command defaults."""
+        super(Command, self).__init__(*args, **kwargs)
+
+        self.data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
+        self.test_files_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+
     def add_arguments(self, parser):
+        """Define command arguments."""
         parser.add_argument('-n', '--n-diffexps', type=int, default=4,
                             help="Number of differential expressions to generate (default: %(default)s)")
         parser.add_argument('-g', '--group-size', type=int, default=5,
@@ -39,21 +51,24 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_random_word(length):
+        """Generate a random word."""
         return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
 
     def get_name(self, de_name):
+        """Generate a random name."""
         return 'DE_{}_{}'.format(self.get_random_word(4), de_name)
 
-    def create_expressions(self, n):
+    def create_expressions(self, num):
+        """Generate expressions."""
         expressions = []
         sample_name = self.get_random_word(4)
 
-        for i in range(n):
+        for i in range(num):
             cuffquant_file = 'cuffquant_{}.cxb'.format(random.choice([1, 2]))
 
             # Create expressios
             exp = Data.objects.create(
-                name='Smpl_Ex_{}_rep{}'.format(sample_name, i+1),
+                name='Smpl_Ex_{}_rep{}'.format(sample_name, i + 1),
                 process=get_process('upload-cxb'),
                 contributor=get_superuser(),
                 status=Data.STATUS_PROCESSING,
@@ -77,14 +92,14 @@ class Command(BaseCommand):
                 stdout.write('Upload gene expressions. Sample was created '
                              'with the generate_de django-admin command.')
 
-            logger.info('Created sample: {} (id={})'.format(sample.name, sample.id))
-            logger.info('\tData object: (id={})'.format(exp.id))
+            logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
+            logger.info(__('\tData object: (id={})', exp.id))
             expressions.append(exp)
 
         return expressions
 
     def create_genome_annotation(self, filename):
-        # Create genome annotation
+        """Create a genome annotation."""
         ann = Data.objects.create(
             name='Annotation_{}'.format(filename.split('.')[0]),
             process=get_process('upload-gtf'),
@@ -107,16 +122,13 @@ class Command(BaseCommand):
         with open(os.path.join(self.data_dir, str(ann.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Upload genome annotation with the generate_De django-admin command.')
 
-        logger.info('Genome annotation created: {} (id={})'.format(filename, ann.id))
+        logger.info(__('Genome annotation created: {} (id={})', filename, ann.id))
 
         return ann
 
     def generate_diffexp_data(self, group_size):
-
+        """Generate differential expression data."""
         de_name = 'cuffdiff'
-        self.data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
-        self.test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
         de_file = os.path.join(self.test_files_path, de_name + '.tab.gz')
 
         logger.info('---- case samples ----')
@@ -170,7 +182,6 @@ class Command(BaseCommand):
         de_obj.output = {
             'diffexp': {'file': de_file},
             'de_data': de_data,
-            'diffexp': {'file': de_file},
             'transcript_diff_exp': {'file': de_file},
             'cds_diff_exp': {'file': de_file},
             'tss_group_diff_exp': {'file': de_file},
@@ -181,12 +192,13 @@ class Command(BaseCommand):
         de_obj.save()
 
         logger.info('---- new differential expression ----')
-        logger.info('DE created with id: {}'.format(de_obj.id))
+        logger.info(__('DE created with id: {}', de_obj.id))
 
         # Create stdout file
         with open(os.path.join(self.data_dir, str(de_obj.id), 'stdout.txt'), 'w') as stdout:
             stdout.write('Differential expression was created with the generate_de django-admin command.')
 
     def handle(self, *args, **options):
-        for i in range(options['n_diffexps']):
+        """Command handle."""
+        for _ in range(options['n_diffexps']):
             self.generate_diffexp_data(options['group_size'])

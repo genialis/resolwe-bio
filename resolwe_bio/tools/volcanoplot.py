@@ -1,10 +1,16 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Compute coordinates for volcano plot."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
 import os
 
-import pandas as pd
-import numpy as np
+import pandas as pd  # pylint: disable=import-error
+import numpy as np  # pylint: disable=import-error
+
 
 parser = argparse.ArgumentParser(description='Compute coordinates for volcano plot.')
 parser.add_argument('de_results', help='Differential Expression results')
@@ -12,14 +18,17 @@ parser.add_argument('de_results', help='Differential Expression results')
 args = parser.parse_args()
 
 if not os.path.isfile(args.de_results):
-    print json.dumps({'proc.error': 'Missing DE results file.'}, separators=(',', ':'))
+    print(json.dumps({'proc.error': 'Missing DE results file.'}, separators=(',', ':')))
     exit(1)
 
+
 def is_gzipped(f):
+    """Check if file f is gzipped."""
     with open(f, 'rb') as de_file:
         magic = de_file.read(2)
 
     return magic == '\037\213'
+
 
 if args.de_results.endswith(('.xls', 'xlsx')):
     de = pd.io.excel.read_excel(args.de_results, sheetname=0)
@@ -30,7 +39,7 @@ else:
 
 de = de.dropna()
 header = list(de)
-ids = list(de.ix[:,0])
+ids = list(de.ix[:, 0])
 
 # get FC data
 if 'log2FoldChange' in header:
@@ -69,9 +78,10 @@ elif 'B' in header:
 y[y == np.inf] = np.amax(y[np.isfinite(y)])
 
 try:
-    data = {'volcano_plot': {'flot': {'data': zip(x, y)}, 'xlabel': xlabel,
-        'ylabel': ylabel, 'id': ids}}
-    print json.dumps(data, separators=(',', ':'))
+    data = {'volcano_plot': {'flot': {'data': zip(x, y)},
+                             'xlabel': xlabel,
+                             'ylabel': ylabel, 'id': ids}}
+    print(json.dumps(data, separators=(',', ':')))
 except NameError:
-    print json.dumps({'proc.error': 'FC and/or FDR/pval data is missing.'}, separators=(',', ':'), allow_nan=False)
+    print(json.dumps({'proc.error': 'FC and/or FDR/pval data is missing.'}, separators=(',', ':'), allow_nan=False))
     exit(1)

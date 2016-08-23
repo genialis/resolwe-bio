@@ -1,8 +1,12 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Build gene info (mus)."""
 import argparse
-import build_gene_info_common as build
+from . import build_gene_info_common as build
 
-parser = argparse.ArgumentParser(description='Build gene info (Homo sapiens).')
+
+parser = argparse.ArgumentParser(description='Build gene info (mus).')
 parser.add_argument('--annotation', help='Annotation (GTF) file')
 parser.add_argument('--gene_info', help='NCBI "Gene_Info" file')
 parser.add_argument('--mgi', help='MGI to Ensembl mapping file')
@@ -43,7 +47,7 @@ with open(args.mgi) as mgi:
 
 with open(args.output, "w") as f:
     f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",
-            "MGI ID"]) + '\n')
+                       "MGI ID"]) + '\n')
 
     for gene_id in all_gene_ids:
         if gene_id not in GeneID2EntrezID:
@@ -53,8 +57,8 @@ with open(args.output, "w") as f:
         gene_name = geneId2GeneName[gene_id]
 
         synonyms = GeneID2synonyms[gene_id] if gene_id in GeneID2synonyms else 'N/A'
-        description = GeneID2description[gene_id] if gene_id in GeneID2description else  'N/A'
+        description = GeneID2description[gene_id] if gene_id in GeneID2description else 'N/A'
         mgi_id = GeneID2mgi[gene_id] if gene_id in GeneID2mgi else 'N/A'
 
         f.write('\t'.join([gene_id, gene_name, synonyms, description, entrez_id,
-                mgi_id]) + '\n')
+                           mgi_id]) + '\n')

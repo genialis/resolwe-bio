@@ -1,14 +1,22 @@
 #!/usr/bin/env python2
-import sys
-import xlrd
+# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Import expression time course."""
+from __future__ import absolute_import, division, print_function
+
 import csv
 import gzip
 import json
+import sys
+
+import xlrd  # pylint: disable=import-error
+
 
 file_name = sys.argv[1]
 
 
 def import_excel(file_name):
+    """Import expression time course from Excel."""
     genes = {}
     workbook = xlrd.open_workbook(file_name)
     worksheet = workbook.sheets()[0]
@@ -21,6 +29,7 @@ def import_excel(file_name):
 
 
 def import_table(file_name):
+    """Import expression time course from tab separated file."""
     genes = {}
     with open(file_name, 'rb') as csvfile:
         my_reader = csv.reader(csvfile, delimiter='\t')
@@ -35,5 +44,5 @@ else:
     times, genes = import_table(file_name)
 
 etcjson = '{"etc":%s}' % json.dumps({'genes': genes, 'timePoints': times}, separators=(',', ':'))
-print etcjson
+print(etcjson)
 gzip.open('etc.json.gz', 'wb').write(etcjson)

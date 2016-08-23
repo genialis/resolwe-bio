@@ -1,5 +1,8 @@
 #!/usr/bin/env python2
-"""
+# pylint: disable=invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Create gene expression profiles.
+
 All transcripts of a gene are of the same type ('mRNA' or 'tRNA' etc.)
 Each gene has a 'dictyBase Curator' transcript (among many) or (if no
 curator transcript) it has exactly one non-curated transcript.
@@ -7,11 +10,7 @@ Exons in each transcript do NOT overlap.
 The result of the parse is ONE transcript per gene.
 """
 import argparse
-import copy
-import os
 import sys
-
-import biox
 
 
 gene_types = ['mRNA', 'SRP_RNA', 'snRNA', 'tRNA', 'C_D_box_snoRNA', 'class_I_RNA',
@@ -87,10 +86,10 @@ for gene_id, data in genes.items():
     desc = data['attr'].get('description', '')
     name = data['attr']['Name']
     strand = data['strand']
-    chr = data['chr']
+    _chr = data['chr']
     transcripts = data['transcripts']
     tr_types = set([t_data['type'] for t_data in transcripts.values()])
-    assert(len(tr_types) <= 1)  # all transcripts of a gene need to be of the same type, i.e. mRNA, tRNA etc.
+    assert len(tr_types) <= 1  # all transcripts of a gene need to be of the same type, i.e. mRNA, tRNA etc.
     # sort transcripts by source
     for t_id, t_data in transcripts.items():
         transcripts[t_data['source']] = (t_id, t_data)
@@ -98,7 +97,7 @@ for gene_id, data in genes.items():
     if len(transcripts.keys()) == 0:
         continue
     if 'dictyBase Curator' not in transcripts.keys():
-        assert(len(transcripts.keys()) == 1)
+        assert len(transcripts.keys()) == 1
     # or curated or the single non-curated transcript:
     t_id, t_data = transcripts.get('dictyBase Curator', transcripts[transcripts.keys()[0]])
     t_type = t_data['type']
@@ -128,11 +127,11 @@ for gene_id, data in genes.items():
         if desc:
             attrs += 'Note=%s;' % desc
 
-        row = [chr, 'biox', gene_type, str(exons[0][0]), str(exons[-1][1]), '0', strand, '.', attrs[:-1]]
+        row = [_chr, 'biox', gene_type, str(exons[0][0]), str(exons[-1][1]), '0', strand, '.', attrs[:-1]]
         f_gff3.write('\t'.join(row) + '\n')
         if gene_type not in nocodons:
             for i, (exon_start, exon_stop) in enumerate(exons):
-                row = [chr, 'biox', 'CDS', str(exon_start), str(exon_stop),
+                row = [_chr, 'biox', 'CDS', str(exon_start), str(exon_stop),
                        '0', strand, phases[i], 'ID=cds%s;Parent=%s' % (gene_ID, gene_ID)]
                 f_gff3.write('\t'.join(row) + '\n')
 

@@ -1,11 +1,15 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Merge columns of multiple experiments by gene id."""
 import argparse
 import csv
 import os
 import sys
-import utils
 
 from itertools import chain
+
+import utils
 
 
 parser = argparse.ArgumentParser(description='Merge columns of multiple experiments by gene id.')

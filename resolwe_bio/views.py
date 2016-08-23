@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+=================
+Resolwe Bio Views
+=================
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.db.models import Max
@@ -14,6 +21,8 @@ from .serializers import PresampleSerializer, SampleSerializer
 
 
 class PresampleViewSet(CollectionViewSet):
+    """API view for presamples."""
+
     filter_class = SampleFilter
     serializer_class = PresampleSerializer
 
@@ -28,6 +37,8 @@ class PresampleViewSet(CollectionViewSet):
 
 
 class SampleViewSet(CollectionViewSet):
+    """API view for samples."""
+
     filter_class = SampleFilter
     serializer_class = SampleSerializer
 
@@ -55,6 +66,7 @@ class SampleViewSet(CollectionViewSet):
 
     @detail_route(methods=[u'post'])
     def add_to_collection(self, request, pk=None):
+        """Add samples to a collection."""
         sample = self.get_object()
 
         if 'ids' not in request.data:
@@ -74,6 +86,7 @@ class SampleViewSet(CollectionViewSet):
 
     @detail_route(methods=[u'post'])
     def remove_from_collection(self, request, pk=None):
+        """Remove samples from a collection."""
         sample = self.get_object()
 
         if 'ids' not in request.data:

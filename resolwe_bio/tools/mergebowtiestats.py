@@ -1,18 +1,20 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Merge Bowtie statistics."""
 from __future__ import division
 
 import os
 import sys
 
+
 if len(sys.argv) < 2:
-    sys.stderr.write('No stats file given.')
-    print
+    sys.stderr.write('No stats file given.\n')
     exit(1)
 
 for i in range(2, len(sys.argv), 2):
     if not os.path.isfile(sys.argv[i]):
-        sys.stderr.write('Stats file {} not found.'.format(sys.argv[i]))
-        print
+        sys.stderr.write('Stats file {} not found.\n'.format(sys.argv[i]))
         exit(1)
 
 stats = []
@@ -41,7 +43,7 @@ for i in range(1, len(sys.argv), 2):
         if onevalid > 0:
             tonevalid += onevalid
 
-        mapped = round((onevalid / processed)*100, 1)
+        mapped = round((onevalid / processed) * 100, 1)
 
         stats.append((trimmed, processed, onevalid, failed, suppressed, mapped))
 
@@ -51,6 +53,6 @@ with open('stats.tab', 'w') as f:
     for vals in stats:
         f.write("\t".join(map(str, vals)) + "\n")
 
-    tmapped = round((tonevalid / stats[0][1])*100, 1)
+    tmapped = round((tonevalid / stats[0][1]) * 100, 1)
 
     f.write("\t".join(map(str, ("Total", stats[0][1], tonevalid, stats[-1][3], stats[-1][4], tmapped))) + "\n")

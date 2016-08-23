@@ -1,13 +1,18 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Merge columns of multiple experiments by gene id."""
 import argparse
 import csv
 import os
-import sys
 import re
-import utils
+import sys
 
 from itertools import chain
 from collections import defaultdict
+
+import utils
+
 
 parser = argparse.ArgumentParser(description='Merge columns of multiple experiments by gene id.')
 parser.add_argument('files', nargs='*', help='expression files')
@@ -23,10 +28,10 @@ args = parser.parse_args()
 # if args.experiments and len(args.experiments) != len(args.files):
 #     raise ValueError("Number of experiments must match the number of files")
 
-gene_id_re = re.compile('ID=([\w\-\.]*)')
-gene_name_re = re.compile('oId=([\w\-\.]*)')
-class_code_re = re.compile('class_code=([\w\-\.]*)')
-parent_id_re = re.compile('Parent=([\w\-\.]*)')
+gene_id_re = re.compile(r'ID=([\w\-\.]*)')
+gene_name_re = re.compile(r'oId=([\w\-\.]*)')
+class_code_re = re.compile(r'class_code=([\w\-\.]*)')
+parent_id_re = re.compile(r'Parent=([\w\-\.]*)')
 
 
 def _search(regex, string):
@@ -35,18 +40,22 @@ def _search(regex, string):
 
 
 def get_gene_id(ids):
+    """Get gene id."""
     return _search(gene_id_re, ids)
 
 
 def get_gene_name(ids):
+    """Get gene name."""
     return _search(gene_name_re, ids)
 
 
 def get_class_code(ids):
+    """Get class code."""
     return _search(class_code_re, ids)
 
 
 def get_parent_id(ids):
+    """Get parent id."""
     return _search(parent_id_re, ids)
 
 

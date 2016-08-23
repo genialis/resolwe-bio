@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class GencoverProcessorTestCase(BioProcessTestCase):
@@ -9,15 +9,15 @@ class GencoverProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('upload-gff3', inputs)
+        annotation = self.run_process('upload-gff3', inputs)
 
         # GTF inport
         inputs = {'src': 'annotation_ok.gtf.gz'}
-        annotation_gtf = self.run_processor('upload-gtf', inputs)
+        annotation_gtf = self.run_process('upload-gtf', inputs)
 
         # redundant GTF inport
         inputs = {'src': 'annotation_red.gtf.gz'}
-        annotation_gtf_red = self.run_processor('upload-gtf', inputs)
+        annotation_gtf_red = self.run_process('upload-gtf', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -25,13 +25,13 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment-tophat2', inputs)
+        aligned_reads = self.run_process('alignment-tophat2', inputs)
 
         # samtools mapping
         inputs = {
             'mapping': aligned_reads.pk,
             'genome': genome.pk}
-        variants = self.run_processor('vc-samtools', inputs)
+        variants = self.run_process('vc-samtools', inputs)
 
         # Coverage report
         inputs = {
@@ -41,7 +41,7 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        self.run_processor('coverage-garvan', inputs)
+        self.run_process('coverage-garvan', inputs)
 
         # Missing gene in BAM file test
         inputs = {
@@ -51,5 +51,5 @@ class GencoverProcessorTestCase(BioProcessTestCase):
             'filter': 3,
             'genes': ['geneX']}
 
-        exon_cov = self.run_processor('coverage-garvan', inputs)
+        exon_cov = self.run_process('coverage-garvan', inputs)
         self.assertFile(exon_cov, 'exon_coverage', 'exons_coverage.txt.gz', compression='gzip')

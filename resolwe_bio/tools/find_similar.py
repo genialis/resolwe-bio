@@ -1,12 +1,19 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Finding genes with simmilar expressions."""
+from __future__ import absolute_import, division, print_function
+
+import argparse
 import json
 import math
-import numpy as np
-import argparse
+
+import numpy as np  # pylint: disable=import-error
+from scipy.stats import spearmanr  # pylint: disable=import-error
+from scipy.stats.stats import pearsonr  # pylint: disable=import-error
+
 import utils
 
-from scipy.stats import spearmanr
-from scipy.stats.stats import pearsonr
 
 parser = argparse.ArgumentParser(description='Finding genes with simmilar expressions.')
 
@@ -18,14 +25,17 @@ args = parser.parse_args()
 
 
 def euclidian(x, y):
+    """Compute eucludean distance."""
     return np.linalg.norm(np.array(x) - np.array(y))
 
 
 def pearson(x, y):
+    """Compute Pearson's correlation."""
     return pearsonr(x, y)[0]
 
 
 def spearman(x, y):
+    """Compute Spearman's rank."""
     return spearmanr(x, y)[0]
 
 
@@ -52,6 +62,6 @@ similarity = [{'gene': gene, 'distance': search_f(expressions['etc']['genes'][ge
 
 
 similarity = filter(lambda x: not math.isnan(x['distance']), similarity)
-similarity.sort(reverse=rev_sort, key=lambda x: x['distance'])
+similarity = sorted(similarity, key=lambda x: x['distance'], reverse=rev_sort)
 similarity = {'search gene': search_gene, 'similar genes': similarity}
-print json.dumps({'simgenes': similarity}, separators=(',', ':'))
+print(json.dumps({'simgenes': similarity}, separators=(',', ':')))

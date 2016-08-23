@@ -1,7 +1,8 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Parse STAR expression (ReadsPerGene) file."""
 import argparse
-import json
-import pandas as pd
 import csv
 
 

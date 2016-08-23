@@ -1,19 +1,24 @@
 #!/usr/bin/env python
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Parse encoding type."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 
-parser=argparse.ArgumentParser(description='Parse encoding type.')
+parser = argparse.ArgumentParser(description='Parse encoding type.')
 
 parser.add_argument('report_file', help='FastQC report file')
-args=parser.parse_args()
+args = parser.parse_args()
 
-encoding=''
+encoding = ''
 
 with open(args.report_file) as report:
     for line in report:
         if line.startswith('Encoding'):
-            encoding=line.strip().split('\t')[1]
+            encoding = line.strip().split('\t')[1]
             break
     if encoding != '':
-        print encoding
+        print(encoding)
     else:
-        print 'Unknown'
+        print('Unknown')

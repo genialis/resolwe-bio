@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ClusteringProcessorTestCase(BioProcessTestCase):
@@ -11,9 +11,9 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
 
         inputs = {'expressions': [expression_1.pk, expression_2.pk, expression_3.pk]}
-        etc = self.run_processor('etc-bcm', inputs)
+        etc = self.run_process('etc-bcm', inputs)
 
         inputs = {
             'etcs': [etc.pk],
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067100']}
-        self.run_processor('clustering-hierarchical-bcm', inputs)
+        self.run_process('clustering-hierarchical-bcm', inputs)

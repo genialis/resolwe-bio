@@ -1,11 +1,16 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Create gene expression profiles."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import logging
 import math
 import os
 import gzip
 
-import biox
+import biox  # pylint: disable=import-error
 
 
 parser = argparse.ArgumentParser(description='Create gene expression profiles.')
@@ -72,7 +77,8 @@ if args.mrna:
             genes.add(gene_id)
 
 
-def gene_expression_overlap_stranded(gtf_file, bam_file, quality = 30):
+def gene_expression_overlap_stranded(gtf_file, bam_file, quality=30):
+    """Compute gene expression overlap."""
     gtf = biox.data.Gtf(gtf_file)
     genes_exp = {}
 
@@ -83,26 +89,26 @@ def gene_expression_overlap_stranded(gtf_file, bam_file, quality = 30):
     for gene_id, gene in gtf.genes.items():
         current += 1
         if current % 300 == 0:
-            print "%.2f" % (float(current)/len(gtf.genes)), bam_file
+            print("%.2f" % (float(current) / len(gtf.genes)), bam_file)
         for feature in gene.features:
             if feature.type != "exon":
                 continue
-            assert(feature.start <= feature.stop)
+            assert feature.start <= feature.stop
             if gene.strand == '-':
                 # warning: for std. illumina library prep, this statements would count reads in "plus" strand
                 # alignments of the second in pair if they map to the forward strand
                 command = "{samtools} view -f 128 -F 16 -q {quality} -c {bam_file} {chr}:{start}-{stop}".format(
-                            samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
-                            chr=gene.chr, start=feature.start, stop=feature.stop)
-                output_second_in_pair, error = biox.utils.cmd(command)
-                output_second_in_pair if output_second_in_pair != "" else 0
+                    samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
+                    chr=gene.chr, start=feature.start, stop=feature.stop)
+                output_second_in_pair, _ = biox.utils.cmd(command)
+                output_second_in_pair = output_second_in_pair if output_second_in_pair != "" else 0
 
                 # alignments of the first in pair if they map to the reverse  strand
                 command = "{samtools} view -F 80 -q {quality} -c {bam_file} {chr}:{start}-{stop}".format(
-                            samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
-                            chr=gene.chr, start=feature.start, stop=feature.stop)
-                output_first_in_pair, error = biox.utils.cmd(command)
-                output_first_in_pair if output_first_in_pair != "" else 0
+                    samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
+                    chr=gene.chr, start=feature.start, stop=feature.stop)
+                output_first_in_pair, _ = biox.utils.cmd(command)
+                output_first_in_pair = output_first_in_pair if output_first_in_pair != "" else 0
 
                 output = int(output_second_in_pair) + int(output_first_in_pair)
                 genes_exp[gene_id] = genes_exp.get(gene_id, 0) + int(output)
@@ -110,30 +116,32 @@ def gene_expression_overlap_stranded(gtf_file, bam_file, quality = 30):
                 # warning: for std. illumina library prep, this statements would count reads in "minus" strand
                 # alignments of the second in pair if they map to the reverse strand
                 command = "{samtools} view -f 144 -q {quality} -c {bam_file} {chr}:{start}-{stop}".format(
-                            samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
-                            chr=gene.chr, start=feature.start, stop=feature.stop)
-                output_second_in_pair, error = biox.utils.cmd(command)
-                output_second_in_pair if output_second_in_pair != "" else 0
+                    samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
+                    chr=gene.chr, start=feature.start, stop=feature.stop)
+                output_second_in_pair, _ = biox.utils.cmd(command)
+                output_second_in_pair = output_second_in_pair if output_second_in_pair != "" else 0
 
                 # alignments of the first in pair if they map to the forward strand
                 command = "{samtools} view -f 64 -F 16 -q {quality} -c {bam_file} {chr}:{start}-{stop}".format(
-                            samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
-                            chr=gene.chr, start=feature.start, stop=feature.stop)
-                output_first_in_pair, error = biox.utils.cmd(command)
-                output_first_in_pair if output_first_in_pair != "" else 0
+                    samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30,
+                    chr=gene.chr, start=feature.start, stop=feature.stop)
+                output_first_in_pair, _ = biox.utils.cmd(command)
+                output_first_in_pair = output_first_in_pair if output_first_in_pair != "" else 0
 
                 output = int(output_second_in_pair) + int(output_first_in_pair)
                 genes_exp[gene_id] = genes_exp.get(gene_id, 0) + int(output)
 
     return genes_exp
 
-print "Expression profile overlap..."
+print("Expression profile overlap...")
 if args.stranded:
     results = gene_expression_overlap_stranded(gtf_file, bam_file)
 else:
     results = biox.expression.gene_expression_overlap(gtf_file, bam_file, genes=genes)
 
+
 def save_expression_profile(file_name, exp=results.get):
+    """Save expression profile."""
     with gzip.open(file_name, 'wb') as f:
         f.write('Gene\tExpression\n')
         gene_ids = results.keys()
@@ -144,7 +152,7 @@ def save_expression_profile(file_name, exp=results.get):
 
 
 if args.rc:
-    print "Writing read counts..."
+    print("Writing read counts...")
     save_expression_profile('expression_rc{}.tab.gz'.format(suffix))
 
 if args.rpkm or args.rpkum:
@@ -158,19 +166,19 @@ if args.rpkm or args.rpkum:
             samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30)
         output, error = biox.utils.cmd(command)
         all_reads = int(output)
-        print "Number of all reads: ", all_reads
+        print("Number of all reads: ", all_reads)
         command = "{samtools} view -F 4 -q {quality} -c {bam_file} chrR".format(
             samtools=os.path.join(biox.samtools_folder, "samtools"), bam_file=bam_file, quality=30)
         output, error = biox.utils.cmd(command)
         chrR_reads = int(output)
-        print "Number of reads that map to chrR: ", chrR_reads
+        print("Number of reads that map to chrR: ", chrR_reads)
         N = all_reads - chrR_reads
-        print "Effective library size: ", N
+        print("Effective library size: ", N)
     else:
         N = sum(results.values())
 
 if args.rpkm:
-    print "Writing RPKM..."
+    print("Writing RPKM...")
     gene_exon_lens = {}
     for gene_id, gene in gtf.genes.items():
         exon_len = 0
@@ -181,12 +189,13 @@ if args.rpkm:
         gene_exon_lens[gene_id] = exon_len
 
     def exp(gene_id):
+        """Compute RPKM."""
         return (math.pow(10, 9) * results[gene_id]) / (N * gene_exon_lens[gene_id])
 
     save_expression_profile('expression_rpkm{}.tab.gz'.format(suffix), exp)
 
 if args.rpkum:
-    print "Processing RPKUM..."
+    print("Processing RPKUM...")
 
     # find read length
     mapability_file = args.rpkum
@@ -195,10 +204,11 @@ if args.rpkum:
     while f.readline():
         data_mapability[f.gene_id] = f.coverage
 
-    def exp(gene_id):
+    def exp_rpkum(gene_id):
+        """Compute RPKUM."""
         if data_mapability[gene_id] == 0:
             return 0
         else:
             return (math.pow(10, 9) * results[gene_id]) / (N * data_mapability[gene_id])
 
-    save_expression_profile('expression_rpkum{}.tab.gz'.format(suffix), exp)
+    save_expression_profile('expression_rpkum{}.tab.gz'.format(suffix), exp_rpkum)

@@ -1,4 +1,7 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Decompress and format genome index files."""
 import argparse
 import os
 import shutil

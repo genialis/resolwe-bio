@@ -1,16 +1,24 @@
 #!/usr/bin/env python2
-import sys
-import xlrd
+# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Import gene information."""
+from __future__ import absolute_import, division, print_function
+
 import csv
 import json
 import os
+import sys
+
+import xlrd  # pylint: disable=import-error
+
 
 file_name = sys.argv[1]
 if not os.path.isfile(file_name):
-    raise ValueError("File {} does not exist".format(file_name.gene_information_file))
+    raise ValueError("File {} does not exist".format(file_name))
 
 
 def import_excel(file_name):
+    """Import gene information from Excel."""
     meta = {'data': [], "header": []}
     workbook = xlrd.open_workbook(file_name)
     worksheet = workbook.sheets()[0]
@@ -36,6 +44,7 @@ def import_excel(file_name):
 
 
 def import_table(file_name):
+    """Import gene information from tab separated file."""
     meta = {'data': [], 'header': []}
     with open(file_name, 'rU') as csvfile:
         my_reader = csv.reader(csvfile, delimiter='\t')
@@ -62,4 +71,4 @@ else:
     meta = import_table(file_name)
 
 
-print json.dumps({'info': meta}, separators=(',', ':'))
+print(json.dumps({'info': meta}, separators=(',', ':')))

@@ -1,6 +1,12 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Prepare groups and replicates info."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 from collections import defaultdict
+
 
 parser = argparse.ArgumentParser(description="Prepare groups and replicates info")
 parser.add_argument('samples', help="All samples")
@@ -20,4 +26,4 @@ return_string = ""
 for x in sorted(d):
     return_string = return_string + ",".join(d[x]) + " "
 
-print return_string
+print(return_string)

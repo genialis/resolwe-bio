@@ -1,11 +1,17 @@
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""TranSMAT utility functions."""
+from __future__ import absolute_import, division, print_function
+
 import itertools
-import numpy as np
-from numpy.lib.recfunctions import merge_arrays
+import numpy as np  # pylint: disable=import-error
+from numpy.lib.recfunctions import merge_arrays  # pylint: disable=import-error
 
 import utils
 
 
 def format_annotations(annfile, treefile, ann_ids_file):
+    """Format annotations."""
     # treefile = open('UBIOPRED_tree.txt', 'rb')
     # annfile = open('UBIOPRED_annotations_short.tab', 'rb')
 
@@ -31,15 +37,14 @@ def format_annotations(annfile, treefile, ann_ids_file):
         return l.strip()[1:-1].replace(' ', '.').replace('\\', '_')
 
     def esc_dot(s):
-        for k in escape_chars.iterkeys():
+        for k in escape_chars:
             s = s.replace(k, '.')
         return s
 
     def esc(s):
-        for k, v in escape_chars.iteritems():
+        for k, v in escape_chars.items():
             s = s.replace(k, v)
         return s
-
 
     tree = [esc_tree(l) for l in treefile if l.strip() != '']
     treefile.close()
@@ -67,7 +72,8 @@ def format_annotations(annfile, treefile, ann_ids_file):
         return True
 
     # filter-out attributes: with a single leaf and with sub-attributes
-    group_candidates = {k: g for k, g in group_candidates.iteritems() if len(g) > 1 and no_subpaths(k, group_keys.difference([k]))}
+    group_candidates = {k: g for k, g in group_candidates.iteritems() if
+                        len(g) > 1 and no_subpaths(k, group_keys.difference([k]))}
 
     attrs = annfile.next()[:-1].split('\t')
 
@@ -75,10 +81,11 @@ def format_annotations(annfile, treefile, ann_ids_file):
         matching_long_names = [name for name in ann_ids if name.endswith('_' + a) or name == a]  # if short or long
 
         if len(matching_long_names) < 1:
-            print '{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a)
+            print('{{"proc.warn": "Attribute {} not found in the attribute tree and will be ignored"}}'.format(a))
             return ''
         if len(matching_long_names) > 1:
-            print '{{"proc.error": "Attribute {} matched with multiple long names {}"}}'.format(a, matching_long_names)
+            print('{{"proc.error": "Attribute {} matched with multiple long names {}"}}'.format(
+                a, matching_long_names))
         return matching_long_names[0]
 
     attrs = [long_name(a) for a in attrs[1:]]
@@ -90,7 +97,7 @@ def format_annotations(annfile, treefile, ann_ids_file):
 
     annp_ncols = len(annp[0])
     if annp_ncols != len(attrs) + 1:
-        print '{{"proc.error": "Severe problem with column ID matching"}}'
+        print('{{"proc.error": "Severe problem with column ID matching"}}')
 
     # set column indexes
     attri = {a: i + 1 for i, a in enumerate(attrs)}
@@ -102,7 +109,7 @@ def format_annotations(annfile, treefile, ann_ids_file):
         attrs.remove('')
 
     if len(attrs.difference(tree_attributes)) > 0:
-        print '{{"proc.error": "All attributes should be in the attribute tree at this point"}}'
+        print('{{"proc.error": "All attributes should be in the attribute tree at this point"}}')
 
     attrs_merged = set()
 
@@ -112,11 +119,11 @@ def format_annotations(annfile, treefile, ann_ids_file):
         for vv in v:
             leaf_node_map[vv] = k
 
-    attr_group_candidates = set(leaf_node_map[a] for a in attrs if leaf_node_map.has_key(a))
+    attr_group_candidates = set(leaf_node_map[a] for a in attrs if a in leaf_node_map)
 
     # merge groupped columns
     seqarrays = [annp]
-    for i, k in enumerate(attr_group_candidates):
+    for k in attr_group_candidates:
         g = group_candidates[k]
 
         col_ndx = 'f{}'.format(attri[g[0]])
@@ -124,7 +131,7 @@ def format_annotations(annfile, treefile, ann_ids_file):
 
         # check rule 3 (all should be of string type)
         if not all('S' in str(annp.dtype['f{}'.format(attri[c])]) for c in g):
-            print "Attribute with mixed types: {}".format(k)
+            print("Attribute with mixed types: {}".format(k))
             continue
 
         # merge columns
@@ -154,7 +161,7 @@ def format_annotations(annfile, treefile, ann_ids_file):
     dtype = dict(annp.dtype.descr)
 
     # format attribute type and var_template
-    for i, attr_name in enumerate(attrs):
+    for attr_name in attrs:
         # format field label
         label = tree_original_names[attr_name]
         label_unsc_ind = label.rfind('_')
@@ -190,15 +197,16 @@ def format_annotations(annfile, treefile, ann_ids_file):
             attrs_final_keys.append(field['name'])
             dtype_final.append((attr_key, field_type or dtype[attr_key]))
         else:
-            print 'Unknown type {} of attribute {}'.format(dtype[attr_key], attr_name)
+            print('Unknown type {} of attribute {}'.format(dtype[attr_key], attr_name))
 
     # transform original data to final attributes
     annp_final = annp.astype(dtype_final)
 
     # create final data set
     def not_nan(val):
-        return (type(val) == str and val != '') or (type(val) != str and not np.isnan(val))
+        return (isinstance(val, str) and val != '') or (isinstance(val, str) and not np.isnan(val))
 
-    var_samples = {key: dict([(attr, val) for attr, val in zip(attrs_final_keys, map(np.asscalar, row)) if not_nan(val)]) for key, row in zip(annp['f0'], annp_final)}
+    var_samples = {key: dict([(attr, val) for attr, val in zip(attrs_final_keys, map(np.asscalar, row)) if
+                              not_nan(val)]) for key, row in zip(annp['f0'], annp_final)}
 
     return var_samples, var_template
