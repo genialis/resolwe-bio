@@ -1,15 +1,22 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name,import-error
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Hierarchical clustering of expression time courses."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
-import utils
 
 import numpy as np
-
 from scipy.stats import spearmanr
 from scipy.spatial.distance import pdist, squareform
 
+# Import before Orange to avoid namespace conflicts
+import utils
+
 from Orange.clustering.hierarchical import HierarchicalClustering, AVERAGE, SINGLE, COMPLETE
 from Orange.core import SymMatrix
+
 
 parser = argparse.ArgumentParser(description='Hierarchical clustering of expression time courses.')
 
@@ -52,7 +59,7 @@ for i, fname in enumerate(args.etc_files):
     tps = etcjson['etc']['timePoints']
     expid = args.expids[i]
 
-    if not all(tps[i] <= tps[i + 1] for i in xrange(len(tps) - 1)):
+    if not all(tps[i] <= tps[i + 1] for i in range(len(tps) - 1)):
         raise ValueError("Timepoints should be ordered")
 
     etc = {'genes': {}, 'experiment': expid, 'timePoints': np.array(tps)}
@@ -90,6 +97,7 @@ root = clustering(matrix)
 
 
 def dendrogram(cluster):
+    """Generate dendrogram structure."""
     res = {}
     q = [[cluster, res], ]
 
@@ -111,4 +119,4 @@ def dendrogram(cluster):
 
 
 dend = dendrogram(root)
-print json.dumps({'clustering': {'tree': dend}}, separators=(',', ':'))
+print(json.dumps({'clustering': {'tree': dend}}, separators=(',', ':')))

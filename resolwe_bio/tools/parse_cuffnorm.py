@@ -1,8 +1,11 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Parse Cuffnorm output."""
 import argparse
-import json
-import os
-import pandas as pd
+
+import pandas as pd  # pylint: disable=import-error
+
 
 parser = argparse.ArgumentParser(description="Parse Cuffnorm output")
 parser.add_argument('input_file', help="genes.fpkm_table file to parse")

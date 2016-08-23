@@ -60,9 +60,6 @@ AUTHENTICATION_BACKENDS = (
 
 ANONYMOUS_USER_ID = -1
 
-# This is needed for runing concurrent tests on Jenkins
-toxenv = os.environ.get('TOXENV', '')
-
 # Check if PostgreSQL settings are set via environment variables
 pgname = os.environ.get('RESOLWE_POSTGRESQL_NAME', 'resolwe-bio')
 pguser = os.environ.get('RESOLWE_POSTGRESQL_USER', 'resolwe')
@@ -77,7 +74,7 @@ DATABASES = {
         'HOST': pghost,
         'PORT': pgport,
         'TEST': {
-            'NAME': 'resolwe-bio_test' + toxenv
+            'NAME': 'resolwe-bio_test'
         }
     }
 }
@@ -86,6 +83,7 @@ STATIC_URL = '/static/'
 
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
+    # XXX: Change to a stable resolwe image when it will include all the required tools
     'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe-preview',
     'DATA_DIR': os.path.join(PROJECT_ROOT, 'test_data'),
     'UPLOAD_DIR': os.path.join(PROJECT_ROOT, 'test_upload'),

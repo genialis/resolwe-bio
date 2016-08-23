@@ -1,7 +1,13 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Creates a GFF file from a Repeater Masker tabular file."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import csv
 import sys
+
 
 RMSK_IDX = {
     'bin': 0,
@@ -30,7 +36,7 @@ args = parser.parse_args()
 with open(args.rmsk_file, 'r') as f:
     rdr = csv.reader(f, delimiter='\t')
 
-    print '##gff-version 3'
+    print('##gff-version 3')
 
     for r in rdr:
         entry = (
@@ -44,6 +50,6 @@ with open(args.rmsk_file, 'r') as f:
             '.',
             'Name=%s' % r[RMSK_IDX['repName']]
         )
-        print '\t'.join(map(str, entry))
+        print('\t'.join(map(str, entry)))
 
 sys.exit(0)

@@ -1,7 +1,4 @@
-"""
-Library of utility functions for writing tools.
-"""
-
+"""Library of utility functions for writing tools."""
 import gzip
 import io
 
@@ -12,5 +9,5 @@ def gzopen(fname):
 
 
 def escape_mongokey(key):
-    """Escape keys when serializing database entries"""
+    """Escape keys when serializing database entries."""
     return key.replace('$', u'\uff04').replace('.', u'\uff0e').replace(' ', '_')

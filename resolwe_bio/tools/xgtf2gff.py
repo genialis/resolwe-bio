@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-gtf2gff.py -- A script to convert GTF to GFF files.
-... and a better replacement for gtf2gff.pl
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""gtf2gff.py -- A script to convert GTF to GFF files.
+
+A better replacement for gtf2gff.pl
 
 Version 1.0
 """
-# Python 2.7
 from __future__ import with_statement
 import argparse
 
@@ -16,10 +17,13 @@ __license__ = "Apache v2.0"
 
 
 class GTFException(Exception):
+    """GTFException."""
+
     pass
 
 
 def gtf2gff(infileName, outfileName, program):
+    """Transform gtf to gff."""
     with open(infileName, "r") as infile, open(outfileName, "w") as outfile:
         for line in infile:
             line = line.strip()
@@ -29,7 +33,7 @@ def gtf2gff(infileName, outfileName, program):
             if len(words) != 9:
                 raise GTFException("Found %d columns instead of the expected 9 in line: '%s'" % (len(words), line))
             else:
-                print >>outfile, "\t".join(words)
+                outfile.write("\t".join(words) + '\n')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

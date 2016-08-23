@@ -1,7 +1,11 @@
 #!/usr/bin/env python
-# pylint: disable=invalid-name
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Compatibility check for genome with alignment/annotaion."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
-from Bio import SeqIO
+from Bio import SeqIO  # pylint: disable=import-error
 
 
 parser = argparse.ArgumentParser(description='Compatibility check for genome with alignment/annotaion')
@@ -12,6 +16,7 @@ args = parser.parse_args()
 
 
 def parse_bam_header(mapping):
+    """Parse BAM header."""
     seqs = {}
     with open(mapping, 'r') as handle:
         for line in handle:
@@ -24,6 +29,7 @@ def parse_bam_header(mapping):
 
 
 def parse_genome(genome):
+    """Parse genome."""
     seqs = {}
     with open(genome, "rU") as handle:
         for record in SeqIO.parse(handle, "fasta"):
@@ -32,6 +38,7 @@ def parse_genome(genome):
 
 
 def parse_annotations(annotation):
+    """Parse annotations."""
     seqs = {}
     with open(annotation, 'r') as handle:
         for line in handle:
@@ -43,26 +50,28 @@ def parse_annotations(annotation):
 
 
 def compatibility_g_m(gen_1, gen_2, name_1, name_2):
-    print "Checking compatibility of {} with {}.".format(name_1, name_2)
+    """Check compatibility."""
+    print("Checking compatibility of {} with {}.".format(name_1, name_2))
     r_code = 0
     for seq in gen_1:
         if seq not in gen_2:
-            print "FAIL\t{} sequence not found in {}.".format(seq, name_2)
+            print("FAIL\t{} sequence not found in {}.".format(seq, name_2))
             r_code = 2
         elif gen_1[seq] != gen_2[seq]:
-            print ("FAIL\t{} sequence lengths missmatch"
-                   "(lengths are {} and {}).".format(seq, gen_1[seq], gen_2[seq]))
+            print("FAIL\t{} sequence lengths missmatch"
+                  "(lengths are {} and {}).".format(seq, gen_1[seq], gen_2[seq]))
             r_code = 2
-    print
+    print()
     return r_code
 
 
 def compatibility_g_a(gen, anot):
-    print "Checking compatibility of genome with annotation file"
+    """Check compatibility with annotations."""
+    print("Checking compatibility of genome with annotation file")
     r_code = 0
     for seq in gen:
         if seq not in anot:
-            print "WARN\t{} sequence not found in annotaion file".format(seq)
+            print("WARN\t{} sequence not found in annotaion file".format(seq))
             r_code = 1
     for seq in anot:
         if seq not in gen:
@@ -73,8 +82,9 @@ def compatibility_g_a(gen, anot):
             print("FAIL\tannotation interval on {} sequence is out of "
                   "reference range.".format(seq))
             r_code = 2
-    print
+    print()
     return r_code
+
 
 if __name__ == "__main__":
     glob_r_code = 0
@@ -93,8 +103,8 @@ if __name__ == "__main__":
         glob_r_code = max(r_new, glob_r_code)
 
     if glob_r_code == 0:
-        print "DONE.\tNO problems found."
+        print("DONE.\tNO problems found.")
     if glob_r_code == 1:
-        print "DONE.\tCheck warnings!"
+        print("DONE.\tCheck warnings!")
     if glob_r_code == 2:
-        print "DONE.\tCheck FAILS!"
+        print("DONE.\tCheck FAILS!")

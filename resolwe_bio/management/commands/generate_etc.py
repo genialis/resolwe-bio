@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+================================
+Generate Expression Time Courses
+================================
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import csv
@@ -8,28 +15,27 @@ import random
 import datetime
 
 from django.core.management.base import BaseCommand
-from django.contrib.auth import get_user_model
 from django.conf import settings
 from django.utils import timezone
-from resolwe.flow.models import Data, DescriptorSchema, Process, Storage
+from resolwe.flow.models import Data, Storage
 from resolwe_bio.tools.utils import gzopen
 from .utils import get_descriptorschema, get_process, get_superuser
 
 
 class Command(BaseCommand):
-
-    """Generate ETC objects"""
+    """Generate ETC objects."""
 
     help = "Generate ETC objects"
 
     def add_arguments(self, parser):
+        """Command arguments."""
         parser.add_argument('-e', '--n-etc', type=int, default=3,
                             help="Number of ETC objects to generate (default: %(default)s)")
         parser.add_argument('--rseed', action='store_true', help="Use fixed random seed")
 
-
     @staticmethod
     def create_etc(gene_ids, path, file_name):
+        """Generate an expression time course."""
         genes = {}
         with open(os.path.join(path, file_name), 'w') as f:
             csvwriter = csv.writer(f, delimiter=str('\t'))
@@ -47,18 +53,18 @@ class Command(BaseCommand):
             json_file.write(js_out)
             gzip.open(os.path.join(path, 'etc.json.gz'), 'wb').write(js_out.encode('utf-8'))
 
-
     @staticmethod
     def generate_etc_desciptor():
+        """Generate the expression time course descriptor."""
         project = [('1.', 'D. discoideum vs. D. purpureum'),
                    ('2.', 'Filter Development vs. cAMP Pulsing; Frequent Sampling'),
                    ('3.', 'GtaC: WT vs. mutants'),
                    ('4.', 'lncRNA transcriptome')]
 
-        pn, pr = random.choice(project)
+        projct_number, project_name = random.choice(project)
 
-        annotation = {'projectNumber': pn,
-                      'project': pr,
+        annotation = {'projectNumber': projct_number,
+                      'project': project_name,
                       'citation': {'name': 'Rosengarten et. al.',
                                    'url': 'http://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-015-1491-7'},
                       'treatment': random.choice(['cAMP Pulses', 'Filter Development']),
@@ -67,8 +73,8 @@ class Command(BaseCommand):
 
         return annotation
 
-
     def create_data(self, reads_name='seq_reads', rseed=None):
+        """Generate expression data."""
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
@@ -98,9 +104,9 @@ class Command(BaseCommand):
             contributor=get_superuser(),
             data=etc)
 
-        etc.output={
-                'etcfile': {'file': 'etc.json.gz'},
-                'etc': json_object.id
+        etc.output = {
+            'etcfile': {'file': 'etc.json.gz'},
+            'etc': json_object.id
         }
 
         etc.status = Data.STATUS_DONE
@@ -111,7 +117,8 @@ class Command(BaseCommand):
                          'with the generate_etc django-admin command.')
 
     def handle(self, *args, **options):
+        """Command handle."""
         if options['rseed']:
             random.seed(42)
-        for i in range(options['n_etc']):
+        for _ in range(options['n_etc']):
             self.create_data()

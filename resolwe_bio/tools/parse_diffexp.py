@@ -1,8 +1,14 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Parse Diff Exp output files."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
-import pandas as pd
-import numpy as np
+
+import numpy as np  # pylint: disable=import-error
+import pandas as pd  # pylint: disable=import-error
 
 
 parser = argparse.ArgumentParser(description="Parse Diff Exp output files")
@@ -24,4 +30,4 @@ for column in de_data:
         columns[column] = list(de_data[column])
 
 data = {'de_data': columns}
-print json.dumps(data, separators=(',', ':'), allow_nan=False)
+print(json.dumps(data, separators=(',', ':'), allow_nan=False))

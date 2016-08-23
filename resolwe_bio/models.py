@@ -1,4 +1,5 @@
-"""
+""".. Ignore pydocstyle D400.
+
 ======
 Models
 ======
@@ -12,11 +13,11 @@ from resolwe.flow.models import BaseCollection, Collection
 
 
 class Sample(BaseCollection):
-
     """Postgres model for storing sample."""
 
     class Meta(BaseCollection.Meta):
         """Collection Meta options."""
+
         permissions = (
             ("view_sample", "Can view sample"),
             ("edit_sample", "Can edit sample"),

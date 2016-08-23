@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class CoverageProcessorTestCase(BioProcessTestCase):
@@ -9,7 +9,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         reads = self.prepare_reads()
 
         inputs = {'src': 'annotation.gff.gz'}
-        annotation = self.run_processor('upload-gff3', inputs)
+        annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {
             'genome': genome.pk,
@@ -17,9 +17,9 @@ class CoverageProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_processor('alignment-tophat2', inputs)
+        aligned_reads = self.run_process('alignment-tophat2', inputs)
 
         inputs = {'bam': aligned_reads.pk}
 
-        coverage = self.run_processor('bam-coverage', inputs)
+        coverage = self.run_process('bam-coverage', inputs)
         self.assertFile(coverage, 'bigwig', 'genome_coverage.bw')

@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+===============
+Signal Handlers
+===============
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.db.models.signals import post_save
@@ -26,7 +33,7 @@ def add_post_save_handler(sender, instance, **kwargs):
     """
     if kwargs['created'] and instance.process.flow_collection:
         input_objects = []
-        for field_schema, fields, path in iterate_schema(instance.input, instance.process.input_schema, ''):
+        for field_schema, fields, _ in iterate_schema(instance.input, instance.process.input_schema, ''):
             if 'name' in field_schema and 'type' in field_schema and field_schema['name'] in fields:
                 field = fields[field_schema['name']]
                 if field_schema['type'].startswith('data:'):
@@ -46,7 +53,7 @@ def add_post_save_handler(sender, instance, **kwargs):
                 name=instance.name,
             )
 
-            for permission in list(zip(*sample._meta.permissions))[0]:
+            for permission in list(zip(*sample._meta.permissions))[0]:  # pylint: disable=protected-access
                 shortcuts.assign_perm(permission, sample.contributor, sample)
 
         sample.data.add(instance)

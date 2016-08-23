@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from mock import MagicMock
@@ -15,9 +16,9 @@ from resolwe_bio.views import SampleViewSet
 
 class SampleViewSetTest(TestCase):
     def setUp(self):
-        User = get_user_model()
+        user_model = get_user_model()
 
-        self.user = User.objects.create_user('test_user')
+        self.user = user_model.objects.create_user('test_user')
         self.collection = Collection.objects.create(name="Test Collection", contributor=self.user)
         self.sample = Sample.objects.create(name="Test sample", contributor=self.user)
         process = Process.objects.create(name="Test process", contributor=self.user)

@@ -1,11 +1,18 @@
 #!/usr/bin/env python2
-import sys
+# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Principal components analysis."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
+import sys
+
+import numpy as np  # pylint: disable=import-error
+from sklearn.decomposition import PCA  # pylint: disable=import-error
+
 import utils
 
-import numpy as np
-from sklearn.decomposition import PCA
 
 parser = argparse.ArgumentParser(description="PCA")
 parser.add_argument('samples', help="All samples (comma separated)")
@@ -16,6 +23,7 @@ args = parser.parse_args()
 
 
 def isfloat(value):
+    """Check if value is float."""
     try:
         float(value)
         return True
@@ -24,6 +32,7 @@ def isfloat(value):
 
 
 def isgzipped(f):
+    """Check if file f is gzipped."""
     with open(f, 'rb') as rpkm_file:
         magic = rpkm_file.read(2)
 
@@ -34,7 +43,7 @@ samples = args.samples.split(',')
 sample_ids = args.sample_ids.split(',')
 
 if len(samples) != len(sample_ids):
-    print '{"rc":"1"}'
+    print('{"rc":"1"}')
     exit(1)
 
 exp = []
@@ -45,8 +54,7 @@ for fname in samples:
 
     with myopen(fname) as f:
         exp.append({gene_exp[0]: float(gene_exp[1]) for gene_exp in
-                    (l.split('\t') for l in f) if len(gene_exp) == 2
-                    and isfloat(gene_exp[1])})
+                    (l.split('\t') for l in f) if len(gene_exp) == 2 and isfloat(gene_exp[1])})
 
         allgenes.update(exp[-1].keys())
 
@@ -63,17 +71,14 @@ if args.filter:
     exp = np.transpose(f_exp)
 
 if exp.shape[1] == 0:
-    print json.dumps({
+    print(json.dumps({
         'proc.warning': 'Filtering removed all PCA attributes.',
         'pca': {
             'flot': {
-            'data':  [[0, 0] for i in range(exp.shape[0])],
-            'xlabel': 'PC 1',
-            'ylabel': 'PC 2',
-            'samples': sample_ids
-            }
-        }
-    }, separators=(',', ':'))
+                'data': [[0, 0] for i in range(exp.shape[0])],
+                'xlabel': 'PC 1',
+                'ylabel': 'PC 2',
+                'samples': sample_ids}}}, separators=(',', ':')))
 
     sys.exit(0)
 
@@ -82,14 +87,16 @@ transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
+
 def component_top_factors(component):
-    """Returns top 10 absolute factors."""
+    """Return top 10 absolute factors."""
     # 10x faster, but not supported in current numpy:
     #   abs_component = np.abs(component)
     #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
     #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
     ixs = np.argsort(np.abs(component))[:-11:-1]
     return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
+
 
 data = {
     'pca': {
@@ -107,4 +114,4 @@ if not any(np.isnan(pca.explained_variance_ratio_)):
     data['pca']['explained_variance_ratios'] = data['pca']['all_explained_variance_ratios'][:10]
     data['pca']['components'] = data['pca']['all_components'][:10]
 
-print json.dumps(data, separators=(',', ':'), allow_nan=False)
+print(json.dumps(data, separators=(',', ':'), allow_nan=False))

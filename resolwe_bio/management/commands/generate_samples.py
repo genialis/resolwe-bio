@@ -1,3 +1,10 @@
+""".. Ignore pydocstyle D400.
+
+================
+Generate Samples
+================
+
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import gzip
@@ -15,6 +22,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from resolwe.flow.models import Data, Storage
+from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
 from resolwe_bio.tools.utils import escape_mongokey, gzopen
 from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_desciptor
@@ -24,12 +32,12 @@ logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
 
 class Command(BaseCommand):
-
-    """Generate test data"""
+    """Generate test data."""
 
     help = "Generate test data"
 
     def add_arguments(self, parser):
+        """Command arguments."""
         parser.add_argument('-s', '--n-samples', type=int, default=15,
                             help="Number of samples to generate (default: %(default)s)")
         parser.add_argument('-p', '--n-presamples', type=int, default=5,
@@ -38,9 +46,11 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_random_word(length):
+        """Generate a random word."""
         return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
 
     def set_name(self):
+        """Set sample name."""
         organism = random.choice(['Dictyostelium discoideum', 'Mus musculus', 'Homo sapiens'])
         replicate = random.choice(['rep1', 'rep2', 'rep3', 'rep4', 'rep5'])
         hour = random.choice(range(36))
@@ -55,7 +65,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def generate_expressions(gene_ids, path):
-        """Generate random expression data"""
+        """Generate random expression data."""
         genes = {}
         with gzip.open(os.path.join(path, 'expressions.tab.gz'), 'wb') as f:
             f.write('{}\t{}\n'.format('Gene', 'Expression').encode('utf-8'))
@@ -72,6 +82,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def generate_reads_descriptor():
+        """Generate read data descriptor."""
         barcodes = ['ATGCATGC', 'TACGTACG']
         instruments = ['Illumina HiSeq X', 'Illumina HiSeq 3000', 'Illumina HiSeq 3000']
         descriptor = {'barcode': random.choice(barcodes),
@@ -84,6 +95,7 @@ class Command(BaseCommand):
         return descriptor
 
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
+        """Generate sample data."""
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
@@ -118,8 +130,8 @@ class Command(BaseCommand):
         os.mkdir(os.path.join(data_dir, str(d.id), 'fastqc'))
         shutil.copy(fastqc, os.path.join(data_dir, str(d.id)))
 
-        with zipfile.ZipFile(fastqc) as zf:
-            zf.extractall(os.path.join(data_dir, str(d.id), 'fastqc'))
+        with zipfile.ZipFile(fastqc) as f:
+            f.extractall(os.path.join(data_dir, str(d.id), 'fastqc'))
 
         old_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc', 'fastqc_report.html')
         new_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc.html')
@@ -217,14 +229,15 @@ class Command(BaseCommand):
             sample.descriptor = generate_sample_desciptor(d.name)
             sample.presample = False
             sample.save()
-            logger.info("Created sample: {} (id={})".format(sample.name, sample.id))
+            logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
         else:
-            logger.info("Created presample: {} (id={})".format(sample.name, sample.id))
+            logger.info(__('Created presample: {} (id={})', sample.name, sample.id))
 
     def handle(self, *args, **options):
+        """Command handle."""
         if options['rseed']:
             random.seed(42)
-        for i in range(options['n_samples']):
+        for _ in range(options['n_samples']):
             self.create_data(annotated=True)
-        for i in range(options['n_presamples']):
+        for _ in range(options['n_presamples']):
             self.create_data(annotated=False)

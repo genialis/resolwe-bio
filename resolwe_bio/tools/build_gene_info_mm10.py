@@ -1,8 +1,12 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Build gene info (mm10)."""
 import argparse
-import build_gene_info_common as build
+from . import build_gene_info_common as build
 
-parser = argparse.ArgumentParser(description='Build gene info (Homo sapiens).')
+
+parser = argparse.ArgumentParser(description='Build gene info (mm10).')
 parser.add_argument('--annotation', help='Annotation (GTF) file')
 parser.add_argument('--gene_info', help='NCBI "Gene_Info" file')
 parser.add_argument('--output', help='Output "GeneInfo" file')
@@ -24,8 +28,6 @@ with open(args.annotation) as annotation_file:
             all_gene_ids.add(gene_id)
             geneId2GeneName[gene_id] = build.get_gene_name(line)
 
-print len(all_gene_ids)
-
 with open(args.gene_info) as gene_info:
     gene_info.readline()
 
@@ -44,7 +46,7 @@ with open(args.gene_info) as gene_info:
 
 with open(args.output, "w") as f:
     f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",
-            "MGI ID", "Ensembl ID"]) + '\n')
+                       "MGI ID", "Ensembl ID"]) + '\n')
 
     for gene_id in all_gene_ids:
         if gene_id not in GeneID2EntrezID:
@@ -54,9 +56,9 @@ with open(args.output, "w") as f:
         gene_name = geneId2GeneName[gene_id]
 
         synonyms = GeneID2synonyms[gene_id] if gene_id in GeneID2synonyms else 'N/A'
-        description = GeneID2description[gene_id] if gene_id in GeneID2description else  'N/A'
+        description = GeneID2description[gene_id] if gene_id in GeneID2description else 'N/A'
         mgi_id = GeneID2mgi[gene_id] if gene_id in GeneID2mgi else 'N/A'
         ensembl_id = GeneID2Ensembl[gene_id] if gene_id in GeneID2Ensembl else 'N/A'
 
         f.write('\t'.join([gene_id, gene_name, synonyms, description, entrez_id,
-                mgi_id, ensembl_id]) + '\n')
+                           mgi_id, ensembl_id]) + '\n')

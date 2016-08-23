@@ -1,9 +1,14 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Parse coordinates for the hockey-stick plot."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import json
-import os
 
-import pandas as pd
+import pandas as pd  # pylint: disable=import-error
+
 
 parser = argparse.ArgumentParser(description='Parse coordinates for the hockey-stick plot.')
 parser.add_argument('input_data', help='Input Data')
@@ -23,22 +28,22 @@ for line in open(args.input_data):
         break
 
 if args.c:
-    x_axis = data.iloc[:,8][::-1]
-    y_axis = data.iloc[:,6] - data.iloc[:,7]
+    x_axis = data.iloc[:, 8][::-1]
+    y_axis = data.iloc[:, 6] - data.iloc[:, 7]
 else:
-    x_axis = data.iloc[:,7][::-1]
-    y_axis = data.iloc[:,6]
+    x_axis = data.iloc[:, 7][::-1]
+    y_axis = data.iloc[:, 6]
 
 n_sup_enh, rows = data[data.isSuper == 1].shape
 
 chr_pos = data.CHROM.map(str) + ":" + data.START.map(str) + '-' + data.STOP.map(str)
 
 if len(x_axis) != len(y_axis):
-    print json.dumps({'proc.error': 'Scatter plot error. len(x_axis) != len(y_axis)'}, separators=(',', ':'))
+    print(json.dumps({'proc.error': 'Scatter plot error. len(x_axis) != len(y_axis)'}, separators=(',', ':')))
     exit(1)
 
 if len(labels) > 0 and len(labels) != len(x_axis):
-    print json.dumps({'proc.error': 'Scatter plot error. len(labels) != len(x_axis)'}, separators=(',', ':'))
+    print(json.dumps({'proc.error': 'Scatter plot error. len(labels) != len(x_axis)'}, separators=(',', ':')))
     exit(1)
 
 data = {
@@ -61,4 +66,4 @@ data = {
     }
 }
 
-print json.dumps(data, separators=(',', ':'))
+print(json.dumps(data, separators=(',', ':')))

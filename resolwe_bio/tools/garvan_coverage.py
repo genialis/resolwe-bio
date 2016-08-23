@@ -1,4 +1,9 @@
 #!/usr/bin/env pypy
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Exon Coverage Report (Garvan Institute)."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import bisect
 import gzip
@@ -24,17 +29,19 @@ genes = args.genes
 
 
 def runcmd(command):
+    """Run bash command."""
     p = Popen(args=command, stdout=PIPE, stderr=PIPE, shell=True)
     out, err = p.communicate()
 
     if 'samtools: can\'t load index' in err:
-        print '{"proc.error": "samtools: can\'t load index"}'
+        print('{"proc.error": "samtools: can\'t load index"}')
         exit(1)
 
     return out
 
 
 def median(lst, lst_size=None):
+    """Compute median."""
     lst = sorted(lst)
     if lst_size:
         n = lst_size
@@ -68,7 +75,7 @@ if args.variants:
 if not is_var_sorted:
     for key, val in variant_input.items():
         val = zip(val[0], val[1])
-        val.sort()
+        val = sorted(val)
         pos, names = zip(*val)
         variant_input[key] = (pos, names)
 
@@ -105,10 +112,10 @@ for l in open(args.gtf):
             'transcript_id': t.group(1)
         })
 
-        if '88928799-88929480' == '{}-{}'.format(int(gtf[3]), int(gtf[4])):
-            print exons[-1]
+        if '{}-{}'.format(int(gtf[3]), int(gtf[4])) == '88928799-88929480':
+            print(exons[-1])
 
-print json.dumps({'missing': {'genes': sorted(missing_genes)}}, separators=(',', ':'))
+print(json.dumps({'missing': {'genes': sorted(missing_genes)}}, separators=(',', ':')))
 
 # compute coverage
 try:
@@ -224,7 +231,7 @@ try:
                     str((variants_above_filter / float(variants_all)) if variants_all else 0.) + '\n'
                 )
                 exon_count += 1
-                print exon_count, float(len(exons))
+                print(exon_count, float(len(exons)))
                 trans_coverage_total += coverage_total
                 trans_coverage_max = max(trans_coverage_max, coverage_max)
                 trans_bases_all += exon_coverage_len
@@ -238,7 +245,7 @@ try:
 
                 count += 1
                 if count > count_threshold:
-                    print '{{"proc.progress": {}}}'.format(round(count / nexons, 2))
+                    print('{{"proc.progress": {}}}'.format(round(count / nexons, 2)))
                     count_threshold += count_span
 
             trans_file.write(
@@ -258,7 +265,8 @@ try:
                 str((exons_above_filter / float(exons_all)) if exons_all else 0.) + '\t' +
                 str(trans_variants_all) + '\t' +
                 str(trans_variants_above_filter) + '\t' +
-                str((trans_variants_above_filter / float(trans_variants_all)) if trans_variants_above_filter else 0.) + '\n'
+                str((trans_variants_above_filter / float(trans_variants_all)) if
+                    trans_variants_above_filter else 0.) + '\n'
             )
 finally:
     trans_file.close()

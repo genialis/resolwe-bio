@@ -1,9 +1,9 @@
+"""Test helper functions."""
 import os
 import unittest
 
 from django.conf import settings
 
-from resolwe.flow.models import Process, iterate_schema
 from resolwe.flow.utils.test import ProcessTestCase
 
 
@@ -15,18 +15,19 @@ TEST_FILES_DIR = os.path.join(
 )
 
 
-def skipDockerFailure(reason):
-    """Skip the decorated test unless ``TESTS_SKIP_DOCKER_FAILURES``
-    Django setting is set to ``False``. ``reason`` should describe why
-    the test is being skipped.
+def skipDockerFailure(reason):  # pylint: disable=invalid-name
+    """Skip the decorated tests.
+
+    Unless ``TESTS_SKIP_DOCKER_FAILURES`` Django setting is set to
+    ``False``. ``reason`` should describe why the test is being skipped.
     """
     if getattr(settings, 'TESTS_SKIP_DOCKER_FAILURES', True):
         return unittest.skip(reason)
     return lambda func: func
 
 
-def skipUnlessLargeFiles(*files):
-    """Skip the decoreted tests unless the given large files are available.
+def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
+    r"""Skip the decorated tests unless large files are available.
 
     :param list \*files: variable lenght files list, where each element
                          represents a large file path relative to the
@@ -48,7 +49,10 @@ def skipUnlessLargeFiles(*files):
 
 
 class BioProcessTestCase(ProcessTestCase):
+    """Test class for bioinformatics processes."""
+
     def setUp(self):
+        """Initialize test arguments."""
         super(BioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
 
@@ -59,29 +63,29 @@ class BioProcessTestCase(ProcessTestCase):
                   "bowtie2_index": "bt2_index.tar.gz",
                   "bwa_index": "bwa_index.tar.gz",
                   "hisat2_index": "hisat2_index.tar.gz"}
-        return self.run_processor('upload-genome', inputs)
+        return self.run_process('upload-genome', inputs)
 
     def prepare_reads(self, fn=['reads.fastq.gz']):
         """Prepare NGS reads FASTQ."""
         inputs = {'src': fn}
-        return self.run_processor('upload-fastq-single', inputs)
+        return self.run_process('upload-fastq-single', inputs)
 
-    def prepare_paired_reads(self, fw=['fw_reads.fastq.gz'], rw=['rw_reads.fastq.gz']):
+    def prepare_paired_reads(self, mate1=['fw_reads.fastq.gz'], mate2=['rw_reads.fastq.gz']):
         """Prepare NGS reads FASTQ."""
-        inputs = {'src1': fw, 'src2': rw}
-        return self.run_processor('upload-fastq-paired', inputs)
+        inputs = {'src1': mate1, 'src2': mate2}
+        return self.run_process('upload-fastq-paired', inputs)
 
     def prepare_bam(self, fn='sp_test.bam'):
         """Prepare alignment BAM."""
         inputs = {'src': fn}
-        return self.run_processor('upload-bam', inputs)
+        return self.run_process('upload-bam', inputs)
 
     def prepare_annotation(self, fn='sp_test.gtf'):
         """Prepare annotation GTF."""
         inputs = {'src': fn}
-        return self.run_processor('upload-gtf', inputs)
+        return self.run_process('upload-gtf', inputs)
 
     def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM", name='Expression'):
         """Prepare expression."""
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name}
-        return self.run_processor('upload-expression', inputs)
+        return self.run_process('upload-expression', inputs)

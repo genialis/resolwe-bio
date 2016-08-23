@@ -1,8 +1,17 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Extract feature locations."""
+from __future__ import absolute_import, division, print_function
+
 import json
 import argparse
 import re
+
+from six import iteritems
+
 import utils
+
 
 parser = argparse.ArgumentParser(description='Extract feature locations')
 parser.add_argument('--annotation', help='Annotation file')
@@ -11,10 +20,10 @@ parser.add_argument('--id_type', help='Feature ID')
 parser.add_argument('--summarize_exons', action='store_true', default=False)
 args = parser.parse_args()
 
-gene_id_re = re.compile('gene_id "([\w\-\.\$]*)"')
-transcript_id_re = re.compile('transcript_id "([\w\-\.\$]*)"')
-id_re = re.compile('ID=([\w\-\.\$]*)')
-parent_re = re.compile('Parent=([\w\-\.\$]*)')
+gene_id_re = re.compile(r'gene_id "([\w\-\.\$]*)"')
+transcript_id_re = re.compile(r'transcript_id "([\w\-\.\$]*)"')
+id_re = re.compile(r'ID=([\w\-\.\$]*)')
+parent_re = re.compile(r'Parent=([\w\-\.\$]*)')
 
 
 def _search(regex, string):
@@ -23,18 +32,22 @@ def _search(regex, string):
 
 
 def get_gene_id(ids):
+    """Get gene id."""
     return _search(gene_id_re, ids)
 
 
 def get_transcript_id(ids):
+    """Get transcript id."""
     return _search(transcript_id_re, ids)
 
 
 def get_id(ids):
+    """Get id."""
     return _search(id_re, ids)
 
 
 def get_parent_id(ids):
+    """Get parent id."""
     return _search(id_re, ids)
 
 
@@ -78,7 +91,7 @@ with open(args.annotation) as annotation:
 
         count += 1
         if count > count_threshold:
-            print '{{"proc.progress": {}}}'.format(round(count / nrows, 2))
+            print('{{"proc.progress": {}}}'.format(round(count / nrows, 2)))
             count_threshold += count_span
 
     if args.summarize_exons:
@@ -86,5 +99,5 @@ with open(args.annotation) as annotation:
             feature_locations[feature_id]['str'] = str(min(map(int, feature_locations[feature_id]['str'])))
             feature_locations[feature_id]['end'] = str(max(map(int, feature_locations[feature_id]['end'])))
 
-new_feature_locations = {utils.escape_mongokey(key): val for (key, val) in feature_locations.iteritems()}
-print json.dumps({'feature_location': new_feature_locations}, separators=(',', ':'))
+new_feature_locations = {utils.escape_mongokey(key): val for (key, val) in iteritems(feature_locations)}
+print(json.dumps({'feature_location': new_feature_locations}, separators=(',', ':')))

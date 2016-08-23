@@ -1,12 +1,18 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Build expression time course."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import gzip
 import json
-import numpy as np
-import utils
-
 from collections import Counter
 
+import numpy as np  # pylint: disable=import-error
+from six import iteritems
+
+import utils
 
 parser = argparse.ArgumentParser(description='Build expression time course.')
 parser.add_argument('expression_files', nargs='+', help='gene expression files')
@@ -29,10 +35,10 @@ if args.names:
         if ndx > 0:
             try:
                 times.append(int(name[ndx + 2:ndx + 4]))
-            except:
+            except:  # pylint: disable=bare-except
                 try:
                     times.append(int(name[ndx - 2:ndx]))
-                except:
+                except:  # pylint: disable=bare-except
                     pass
     if len(times) > 0 and len(times) != len(files):
         raise AttributeError("Found some times but not for all time points.")
@@ -42,6 +48,7 @@ if len(times) == 0:
 
 
 def is_gzipped(f):
+    """Check if file gzipped."""
     with open(f, 'rb') as rpkm_file:
         magic = rpkm_file.read(2)
 
@@ -74,7 +81,7 @@ for t, f in sorted(zip(times, files)):
 
     # Print progress
     progress += 1.0 / len(files)
-    print '{{"proc.progress":{0}}}'.format(progress)
+    print('{{"proc.progress":{0}}}'.format(progress))
 
 # Add 0s at the end of genes if values are missing
 for gene in series['genes']:
@@ -82,7 +89,7 @@ for gene in series['genes']:
 
 # Average time points for replicates
 if args.mean:
-    tp, tp_counts = zip(*sorted(Counter(series['timePoints']).iteritems()))
+    tp, tp_counts = zip(*sorted(iteritems(Counter(series['timePoints']))))
     for gene in series['genes']:
         s = 0
         tp_averages = []
@@ -95,5 +102,5 @@ if args.mean:
 
 # Print result in json
 etcjson = '{"etc":%s}' % json.dumps(series, separators=(',', ':'))
-print etcjson
+print(etcjson)
 gzip.open('etc.json.gz', 'wb').write(etcjson)

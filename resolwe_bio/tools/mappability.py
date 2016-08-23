@@ -1,10 +1,15 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Create gene expression profiles."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import logging
 import multiprocessing
 import os
 
-import biox
+import biox  # pylint: disable=import-error
 
 
 parser = argparse.ArgumentParser(description='Create gene expression profiles.')
@@ -36,7 +41,7 @@ if args.verbose:
 
 fasta_file = '{}_mappability_{}.fasta'.format(genome_name, args.length)
 biox.data.prepare_fasta_mapability(args.genome_file, fasta_file, args.length)
-print '{"proc.progress":0.3}'
+print('{"proc.progress":0.3}')
 
 b = biox.map.Bowtie()
 b.set_m(1)
@@ -47,7 +52,7 @@ b.set_processors(min(multiprocessing.cpu_count(), 2))
 b.map(
     '{}_index'.format(genome_name), fasta_file,
     '{}_mappability_{}'.format(genome_name, args.length), verbose=args.verbose)
-print '{"proc.progress":0.7}'
+print('{"proc.progress":0.7}')
 
 f_gtf = open('foo.gtf', 'w')
 parents = {}
@@ -75,7 +80,7 @@ with open(args.gff_file) as f:
             parents[attrs['ID']]['description'] = attrs['Note'] if 'Note' in attrs else ''
 
 f_gtf.close()
-print '{"proc.progress":0.75}'
+print('{"proc.progress":0.75}')
 
 results = biox.expression.gene_expression('foo.gtf', '{}_mappability_{}.bam'.format(genome_name, args.length))
 gtf = biox.data.Gtf('foo.gtf')
@@ -90,7 +95,7 @@ for gene_id, gene in gtf.genes.iteritems():
     coding_len[gene_id] = coding
     gene_len[gene_id] = gene.stop - gene.start + 1
 
-print '{"proc.progress":0.85}'
+print('{"proc.progress":0.85}')
 
 f = open('{}_mappability_{}.tab'.format(genome_name, args.length), "wt")
 header = ['gene_id', 'coverage', 'coding_len', 'gene_len', 'mapability']

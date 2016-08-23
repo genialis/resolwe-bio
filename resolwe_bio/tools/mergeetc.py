@@ -1,11 +1,17 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Save ETC data to output file."""
+from __future__ import absolute_import, division, print_function
+
 import json
 import argparse
 import os
 import itertools
-import utils
 
 from collections import defaultdict
+
+import utils
 
 
 parser = argparse.ArgumentParser(description='Save ETC data to output file.')
@@ -50,7 +56,7 @@ out_file.write("\t".join(header) + '\n')
 
 if len(genes) == 0:
     out_file.write("No common genes in selected ETC experiments.")
-    print '{"proc.warning":"No common genes in selected ETC experiments."}'
+    print('{"proc.warning":"No common genes in selected ETC experiments."}')
 
 for g in genes:
     exps = list(itertools.chain(*exp[g]))

@@ -1,9 +1,16 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Create BEDGRAPH coverage given GFF3 annotations."""
+from __future__ import absolute_import, division, print_function
+
 import argparse
 import csv
 import re
 import sys
+
 import utils
+
 
 parser = argparse.ArgumentParser(
     description='Create BEDGRAPH coverage file for a tab file w.r.t. given GFF3 annotations.')
@@ -33,7 +40,7 @@ with open(args.gff3_file, 'r') as f:
 
         gene_id = gene_id_regex.search(row[8])
         if gene_id is None:
-            print "No gene id found in line %d" % i
+            print("No gene id found in line %d" % i)
             sys.exit(1)
         else:
             gene_id = gene_id.groups()[0]
@@ -49,7 +56,7 @@ with open(args.gff3_file, 'r') as f:
 
 # Create a bedgraph (still with overlapping regions)
 bedgraph = []
-for gid in set(genes.keys()) & set(tab_vals.keys()):
+for gid in set(genes.keys()) & set(tab_vals.keys()):  # pylint: disable=consider-iterating-dictionary
     if tab_vals[gid] == 0.0:
         continue
     expr_level = tab_vals[gid]
@@ -77,11 +84,11 @@ while i <= last_reg_idx:
         j += 1
 
     def which_start(point):
-        # returns indices of regions that have $point as starting point
+        """Return indices of regions with $point as starting point."""
         return filter(lambda idx: bedgraph[idx][1] == point, ws_idxs)
 
     def which_end(point):
-        # returns indices of regions that have $point as ending point
+        """Return indices of regions with $point as ending point."""
         return filter(lambda idx: bedgraph[idx][2] == point, ws_idxs)
 
     if len(ws_idxs) > 1:
@@ -94,6 +101,7 @@ while i <= last_reg_idx:
         active_idxs = []
 
         def active_expr_avg():
+            """Compute average expression."""
             return sum(map(lambda idx: bedgraph[idx][3], active_idxs)) / len(active_idxs)
 
         # Crunch overlapping regions into unique, flat parts.
@@ -165,5 +173,5 @@ while i <= last_reg_idx:
         unique_regions.append((overlap_reg_chr, overlap_reg_start, overlap_reg_end, bedgraph[i][3]))
     i += 1
 
-print '\n'.join('\t'.join(map(str, bg_line[0:4])) for bg_line in unique_regions)
+print('\n'.join('\t'.join(map(str, bg_line[0:4])) for bg_line in unique_regions))
 sys.exit(0)

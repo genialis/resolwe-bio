@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+"""Sphinx configuration file."""
 import imp
 import sys
 import os
@@ -9,8 +9,7 @@ import django
 from django.conf import settings
 
 
-docs_dir = os.path.abspath(os.path.dirname(__file__))
-base_dir = os.path.join(docs_dir, "..")
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 # Manual setup is required for standalone Django usage
 # NOTE: Since documentation is built using the built/installed package when
@@ -73,7 +72,7 @@ pygments_style = 'sphinx'
 todo_include_todos = False
 
 # Parent directory of all process definitions:
-autoprocess_process_dir = os.path.normpath(docs_dir + "./../resolwe_bio/processes/")
+autoprocess_process_dir = os.path.join(base_dir, 'resolwe_bio', 'processes')
 
 # Base of the url to process source code:
 autoprocess_source_base_url = 'https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/processes/'

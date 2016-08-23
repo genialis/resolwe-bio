@@ -2,11 +2,15 @@
 Resolwe Bioinformatics
 ======================
 
-|build| |docs| |pypi_version| |pypi_pyversions|
+|build| |coverage| |docs| |pypi_version| |pypi_pyversions|
 
 .. |build| image:: https://travis-ci.org/genialis/resolwe-bio.svg?branch=master
     :target: https://travis-ci.org/genialis/resolwe-bio
     :alt: Build Status
+
+.. |coverage| image:: https://img.shields.io/codecov/c/github/genialis/resolwe-bio/master.svg
+    :target: http://codecov.io/github/genialis/resolwe-bio?branch=master
+    :alt: Coverage Status
 
 .. |docs| image:: https://readthedocs.org/projects/resolwe-bio/badge/?version=latest
     :target: http://resolwe-bio.readthedocs.io/

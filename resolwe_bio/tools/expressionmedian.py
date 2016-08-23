@@ -1,12 +1,16 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Median gene expressions of multiple experiments."""
 import argparse
 import collections
 import csv
 import os
 import sys
-import utils
 
-import numpy as np
+import numpy as np  # pylint: disable=import-error
+
+import utils
 
 
 parser = argparse.ArgumentParser(description='Median gene expressions of multiple experiments.')

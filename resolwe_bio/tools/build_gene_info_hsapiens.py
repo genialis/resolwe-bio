@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
+# pylint: disable=missing-docstring,invalid-name
+# XXX: Refactor to a comand line tool and remove pylint disable
+"""Build gene info (Homo sapiens)."""
 import argparse
-import build_gene_info_common as build
+from . import build_gene_info_common as build
 
 parser = argparse.ArgumentParser(description='Build gene info (Homo sapiens).')
 parser.add_argument('--annotation', help='Annotation (GTF) file')
@@ -9,7 +12,6 @@ parser.add_argument('--uniprotKB', help='Uniprot mapping file')
 parser.add_argument('--output', help='Output "GeneInfo" file')
 
 args = parser.parse_args()
-
 
 all_gene_ids = set()
 geneId2GeneName = {}
@@ -47,7 +49,7 @@ with open(args.uniprotKB) as uniprot:
 
 with open(args.output, "w") as f:
     f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",
-            "OMIM ID", "UniprotKB ID"]) + '\n')
+                       "OMIM ID", "UniprotKB ID"]) + '\n')
 
     for gene_id in all_gene_ids:
         if gene_id not in GeneID2EntrezID:
@@ -57,7 +59,7 @@ with open(args.output, "w") as f:
         gene_name = geneId2GeneName[gene_id]
 
         synonyms = GeneID2synonyms[gene_id] if gene_id in GeneID2synonyms else 'N/A'
-        description = GeneID2description[gene_id] if gene_id in GeneID2description else  'N/A'
+        description = GeneID2description[gene_id] if gene_id in GeneID2description else 'N/A'
         omim_id = GeneID2Omim[gene_id] if gene_id in GeneID2Omim else 'N/A'
 
         uniprotKB = 'N/A'
@@ -65,4 +67,4 @@ with open(args.output, "w") as f:
             uniprotKB = EntrezID2UniprotKB[GeneID2EntrezID[gene_id]]
 
         f.write('\t'.join([gene_id, gene_name, synonyms, description, entrez_id,
-                omim_id, uniprotKB]) + '\n')
+                           omim_id, uniprotKB]) + '\n')
