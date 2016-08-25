@@ -105,3 +105,34 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                           [{'url': 'fastqc/rRNA_rew_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_rew_filtered_fastqc'],
                             'name': 'View'}])
+
+    def test_trimmomatic_single(self):
+        reads = self.prepare_reads()
+        inputs = {'reads': reads.pk,
+                  'trailing': 3,
+                  'crop': 5}
+        filtered_reads = self.run_processor('trimmomatic-single', inputs)
+
+        self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_single.fastq.gz'], compression='gzip')
+        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/reads_fastqc/fastqc_report.html',
+                                                          'refs': ['fastqc/reads_fastqc'],
+                                                          'name': 'View'}])
+
+    def test_trimmomatic_paired(self):
+        inputs = {
+            'src1': ['rRNA_forw.fastq.gz'],
+            'src2': ['rRNA_rew.fastq.gz']}
+        reads = self.run_processor('upload-fastq-paired', inputs)
+        inputs = {'reads': reads.pk,
+                  'trailing': 3}
+        filtered_reads = self.run_processor('trimmomatic-paired', inputs)
+        self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_paired_fw.fastq.gz'],
+                         compression='gzip')
+        self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_trimmomatic_paired_rw.fastq.gz'],
+                         compression='gzip')
+        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+                                                          'refs': ['fastqc/rRNA_forw_fastqc'],
+                                                          'name': 'View'}])
+        self.assertFields(filtered_reads, "fastqc_url2", [{'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                           'refs': ['fastqc/rRNA_rew_fastqc'],
+                                                           'name': 'View'}])

@@ -1,0 +1,414 @@
+---
+
+- slug: trimmomatic-single
+  name: Trimmomatic (single-end)
+  data_name: '{{ reads.fastq.0.file|default:"?" }}'
+  version: 0.0.1
+  type: data:reads:fastq:single:trimmomatic
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Remove adapters and filter single-end NGS reads according to data quality metrics (Trimmometric)
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:single
+    - name: adapters
+      label: Adapter sequences (FASTA)
+      type: data:seq:nucleotide
+      required: false
+    - name: illuminaclip
+      label: Illumincaclip
+      group:
+        - name: seed_mismatches
+          label: Seed ismatches
+          type: basic:integer
+          required: false
+          description: >
+             Specifies the maximum mismatch count which will still allow a full match to be performed.
+        - name: simple_clip_threshold
+          label: Simple clip threshold
+          type: basic:integer
+          required: false
+          description: >
+            Specifies how accurate the match between any adapter etc. sequence must be against a read.
+    - name: slidingwindow
+      label: Slidingwindow
+      group:
+        - name: window_size
+          label: Window size
+          type: basic:integer
+          required: false
+          description: >
+            Specifies the number of bases to average across.
+        - name: required_quality
+          label: Required quality
+          type: basic:integer
+          required: false
+          description: >
+            Specifies the average quality required.
+    - name: maxinfo
+      label: maxinfo
+      group:
+        - name: target_length
+          label: Targer length
+          type: basic:integer
+          required: false
+          description: >
+            This specifies the read length which is likely to allow the location of the read within the target sequence to be determined.
+        - name: strictness
+          label: Strictness
+          type: basic:integer
+          required: false
+          description: >
+            This value, which should be set between 0 and 1, specifies the balance between preserving as much read length as possible vs. removal of incorrect bases. A low value of this parameter (<0.2) favours longer reads, while a high value (>0.8) favours read correctness. determined.
+    - name: leading
+      label: Leading quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
+    - name: trailing
+      label: Trailing
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.
+    - name: crop
+      label: Crop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the read to a specified length by removing bases from the end
+    - name: headcrop
+      label: Headcrop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the start of the read
+    - name: minlen
+      label: Minlen
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if it is below a specified length
+    - name: average_quality
+      label: Average quality
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if the average quality is below the specified level
+  output:
+    - name: fastq
+      label: Reads file
+      type: list:basic:file
+    - name: stats
+      label: Statistic trimmomotic single
+      type: basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
+        re-error "At least one parammeter required"
+      {% endif %}
+
+      echo "Removing adapters and filtering data..."
+
+      {% if adapters %}
+
+      echo "Preparing adapter file..."
+
+      ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
+      gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
+      re-progress 0.1
+
+      {% endif %}
+
+      NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+
+      {% for r in reads.fastq %}
+        READS=${READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${READS} > ${NAME}.fastq.gz
+      re-progress 0.2
+
+      ILLUMINACLIP_S="{% if adapters %}ILLUMINACLIP:${ADAPTERS}.fasta:{{ illuminaclip.seed_mismatches }}:30:{{ illuminaclip.simple_clip_threshold }}{% endif %}"
+      SLIDINGVINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
+      MAXINFO_S="{% if maxinfo.target_length and maxinfo.strictness %}}MAXINFO:{{maxinfo.target_length}}:{{maxinfo.strictness}}{% endif %}"
+      LEADING_S="{% if leading %}LEADING:{{ leading }}{% endif %}"
+      TRAILING_S="{% if trailing %}TRAILING:{{ trailing }}{% endif %}"
+      CROP_S="{% if crop %}CROP:{{ crop }}{% endif %}"
+      HEADCROP_S="{% if headcrop %}HEADCROP:{{ headcrop }}{% endif %}"
+      MINLEN_S="{% if minlen %}MINLEN:{{minlen}}{% endif %}"
+      AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
+
+
+      TrimmomaticSE -trimlog ${NAME}_stats.txt ${NAME}.fastq.gz ${NAME}_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
+
+
+      re-checkrc "Failed while processing with Trimmomatic."
+      re-progress 0.7
+
+      echo "Postprocessing FastQC..."
+
+      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+      mkdir "fastqc" && fastqc "${NAME}_filtered.fastq.gz" --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv fastqc/${NAME}_filtered_fastqc fastqc/${NAME}_fastqc
+      mv "fastqc/${NAME}_filtered_fastqc.zip" ${NAME}_fastqc.zip
+
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
+
+      re-progress 0.95
+
+      re-save-file-list fastq ${NAME}_filtered.fastq.gz
+      re-save-file stats ${NAME}_stats.txt
+
+      re-save-file-list fastqc_archive ${NAME}_fastqc.zip
+      re-save-list fastqc_url $FASTQC_URL
+
+
+- slug: trimmomatic-paired
+  name: Trimmomatic (paired-end)
+  data_name: '{{ reads.fastq.0.file|default:"?" }}'
+  version: 0.0.1
+  type: data:reads:fastq:paired:trimmomatic
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Remove adapters and filter single-end NGS reads according to data quality metrics (Trimmometric)
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+    - name: adapters
+      label: Adapter sequences (FASTA)
+      type: data:seq:nucleotide
+      required: false
+    - name: illuminaclip
+      label: Illumincaclip
+      group:
+        - name: seed_mismatches
+          label: Seed mismatches
+          type: basic:integer
+          required: false
+          description: >
+             Specifies the maximum mismatch count which will still allow a full match to be performed.
+        - name: simple_clip_threshold
+          label: Simple clip threshold
+          type: basic:integer
+          required: false
+          description: >
+            Specifies how accurate the match between any adapter etc. sequence must be against a read.
+        - name: palindrome_clip_threshold
+          label: Palindrome clip threshold
+          type: basic:integer
+          required: false
+          description: >
+            Specifies how accurate the match between the two 'adapter ligated' reads must be for PE palindrome read alignment.
+        - name: min_adapter_length
+          label: Min adapter length
+          type: basic:integer
+          required: false
+          description: >
+             In addition to the alignment score, palindrome mode can verify that a minimum length of adapter has been detected. If unspecified, this defaults to 8 bases, for historical reasons. However, since palindrome mode has a very low false positive rate, this can be safely reduced, even down to 1, to allow shorter adapter fragments to be removed.
+        - name: keep_both_reads
+          label: Keep both reads
+          type: basic:boolean
+          required: false
+          description: >
+            By specifying „true‟ for this parameter, the reverse read will also be retained, which may be useful e.g. if the downstream tools cannot handle a combination of paired and unpaired reads.
+    - name: slidingwindow
+      label: Slidingwindow
+      group:
+        - name: window_size
+          label: Window size
+          type: basic:integer
+          required: false
+          description: >
+            Specifies the number of bases to average across.
+        - name: required_quality
+          label: Required quality
+          type: basic:integer
+          required: false
+          description: >
+            Specifies the average quality required.
+    - name: maxinfo
+      label: maxinfo
+      group:
+        - name: target_length
+          label: Targer length
+          type: basic:integer
+          required: false
+          description: >
+            This specifies the read length which is likely to allow the location of the read within the target sequence to be determined.
+        - name: strictness
+          label: Strictness
+          type: basic:integer
+          required: false
+          description: >
+            This value, which should be set between 0 and 1, specifies the balance between preserving as much read length as possible vs. removal of incorrect bases. A low value of this parameter (<0.2) favours longer reads, while a high value (>0.8) favours read correctness. determined.
+    - name: leading
+      label: Leading quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
+    - name: trailing
+      label: Trailing
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.
+    - name: crop
+      label: Crop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the read to a specified length by removing bases from the end
+    - name: headcrop
+      label: Headcrop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the start of the read
+    - name: minlen
+      label: Minlen
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if it is below a specified length
+    - name: average_quality
+      label: Average quality
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if the average quality is below the specified level
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: list:basic:file
+    - name: fastq_unpaired
+      label: Reads file
+      type: basic:file
+      required: false
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: list:basic:file
+    - name: fastq2_unpaired
+      label: Reads file
+      type: basic:file
+      required: false
+    - name: stats
+      label: Stats
+      type: basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: list:basic:url:view
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: list:basic:url:view
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
+        re-error "At least one parammeter required"
+      {% endif %}
+
+      {% if iluminaclip.keep_both_reads and not iluminaclip.min_adapter_length %}
+        re-error "'Min adapter length' is required if 'Keep both reads' is given."
+      {% endif %}
+
+      echo "Removing adapters and filtering data..."
+
+      {% if adapters %}
+
+        echo "Preparing adapter file..."
+
+        ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
+        gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
+        re-progress 0.1
+
+      {% endif %}
+
+      NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+      NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+
+      {% for r in reads.fastq %}
+        FW_READS=${FW_READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${FW_READS} > ${NAME1}.fastq.gz
+
+      {% for r in reads.fastq2 %}
+        RW_READS=${RW_READS}"{{ r.file }} "
+      {% endfor %}
+
+      cat ${RW_READS} > ${NAME2}.fastq.gz
+
+      re-progress 0.2
+      ILLUMINACLIP_OPTIONAL="{%if illuminaclip.min_adapter_length %}{{ illuminaclip.min_adapter_length }}{% endif %}{% if illuminaclip.min_adapter_length and illuminaclip.keep_both_reads %}:{% endif %}{%if illuminaclip.keep_both_reads %}{{ illuminaclip.keep_both_reads }}{% endif %}"
+      ILLUMINACLIP_S="{% if adapters %}ILLUMINACLIP:${ADAPTERS}.fasta:{{ illuminaclip.seed_mismatches }}:{{illuminaclip.palindrome_clip_threshold}}:{{ illuminaclip.simple_clip_threshold }}:${ILLUMINACLIP_OPTIONAL}{% endif %}"
+      SLIDINGVINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
+      MAXINFO_S="{% if maxinfo.target_length and maxinfo.strictness %}}MAXINFO:{{maxinfo.target_length}}:{{maxinfo.strictness}}{% endif %}"
+      LEADING_S="{% if leading %}LEADING:{{ leading }}{% endif %}"
+      TRAILING_S="{% if trailing %}TRAILING:{{ trailing }}{% endif %}"
+      CROP_S="{% if crop %}CROP:{{ crop }}{% endif %}"
+      HEADCROP_S="{% if headcrop %}HEADCROP:{{ headcrop }}{% endif %}"
+      MINLEN_S="{% if minlen %}MINLEN:{{minlen}}{% endif %}"
+      AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
+
+      TrimmomaticPE -trimlog stats.txt ${NAME1}.fastq.gz ${NAME2}.fastq.gz ${NAME1}_paired_filtered.fastq.gz ${NAME1}_unpaired_filtered.fastq.gz ${NAME2}_paired_filtered.fastq.gz ${NAME2}_unpaired_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
+
+      re-checkrc "Failed while processing with Trimmomatic."
+      re-progress 0.7
+
+      echo "Postprocessing FastQC..."
+      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+      mkdir "fastqc" && fastqc "${NAME1}_paired_filtered.fastq.gz" "${NAME2}_paired_filtered.fastq.gz" --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv fastqc/${NAME1}_paired_filtered_fastqc fastqc/${NAME1}_fastqc
+      mv fastqc/${NAME2}_paired_filtered_fastqc fastqc/${NAME2}_fastqc
+      mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" ${NAME1}_fastqc.zip
+      mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" ${NAME2}_fastqc.zip
+
+      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
+      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+
+      re-save-file-list fastq ${NAME1}_paired_filtered.fastq.gz
+      re-save-file-list fastq2 ${NAME2}_paired_filtered.fastq.gz
+      re-save-file stats stats.txt
+
+      if [ -f "${NAME1}_unpaired_filtered.fastq.gz" ]; then
+        re-save-file fastq_unpaired ${NAME1}_unpaired_filtered.fastq.gz
+      fi
+
+      if [ "-f ${NAME2}_unpaired_filtered.fastq.gz" ]; then
+        re-save-file fastq2_unpaired ${NAME2}_unpaired_filtered.fastq.gz
+      fi
+
+      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
+      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
+      re-save-list fastqc_url $FASTQC_URL
+      re-save-list fastqc_url2 $FASTQC_URL2
