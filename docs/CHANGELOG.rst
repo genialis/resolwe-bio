@@ -13,6 +13,10 @@ Added
 -----
 * Process definition documentation style and text improvements
 
+Changed
+-------
+* Add option to save expression JSON to file before saving it to Storage
+* Update ``upload-expression`` process
 
 ================
 1.2.1 2016-07-27

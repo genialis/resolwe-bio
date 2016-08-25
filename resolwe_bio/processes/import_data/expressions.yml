@@ -6,7 +6,7 @@
 - slug: upload-expression
   name: Expression
   data_name: '{{ exp_name }}'
-  version: 1.0.9
+  version: 1.0.10
   type: data:expression
   flow_collection: sample
   category: upload
@@ -71,7 +71,8 @@
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${NAME}.tab.gz
         re-save-file rc ${NAME}.tab.gz
-        expression2storage.py "${NAME}.tab.gz"
+        expression2storage.py --output json.txt "${NAME}.tab.gz"
+        re-save exp_json json.txt
         re-checkrc
 
       {% elif exp and exp_type and not rc %}
@@ -80,7 +81,8 @@
         EXP_TYPE="{{exp_type}}"
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${EXP_NAME}.tab.gz
-        expression2storage.py "${NAME}.tab.gz"
+        expression2storage.py --output json.txt "${NAME}.tab.gz"
+        re-save exp_json json.txt
         re-checkrc
 
       {% else %}
@@ -92,7 +94,8 @@
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${EXP_NAME}.tab.gz
         re-save-file rc ${RC_NAME}.tab.gz
-        expression2storage.py "${EXP_NAME}.tab.gz"
+        expression2storage.py --output json.txt "${EXP_NAME}.tab.gz"
+        re-save exp_json json.txt
         re-checkrc
       {% endif %}
 

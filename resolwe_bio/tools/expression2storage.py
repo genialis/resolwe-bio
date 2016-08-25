@@ -6,18 +6,20 @@ from __future__ import absolute_import, division, print_function
 
 import json
 import os
-import sys
+import argparse
 
 import utils
 
+parser = argparse.ArgumentParser(description='Parses expressions for storage.')
+parser.add_argument('input', help='Input expression file')
+parser.add_argument('--output', help='Output JSON file')
+args = parser.parse_args()
 
-if len(sys.argv) != 2:
+if not args.input:
     print('{"rc":"1"}')
     exit(1)
 
-fname = sys.argv[1]
-
-if not os.path.isfile(fname):
+if not (args.input and os.path.isfile(args.input)):
     print('{"rc":"1"}')
     exit(1)
 
@@ -30,7 +32,7 @@ def isfloat(value):
     except ValueError:
         return False
 
-with utils.gzopen(fname) as f:
+with utils.gzopen(args.input) as f:
     # Split lines by tabs
     # Ignore lines without a number in second column
     # Build a dictionary of gene-expression pairs
@@ -38,4 +40,8 @@ with utils.gzopen(fname) as f:
                      gene_exp in (l.split('\t') for l in f) if
                      len(gene_exp) == 2 and isfloat(gene_exp[1])}}
 
-print('{"exp_json":%s}' % json.dumps(exp, separators=(',', ':')))
+if args.output:
+    with open(args.output, 'w') as f:
+        json.dump(exp, f)
+else:
+    print('{"exp_json":%s}' % json.dumps(exp, separators=(',', ':')))
