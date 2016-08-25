@@ -24,15 +24,15 @@ if not os.path.isdir(args.output):
     os.makedirs(args.output)
 
 for root, dirs, files in os.walk('temp_output'):
-    for file in files:
-        if file.startswith('.'):
+    for file_name in files:
+        if file_name.startswith('.'):
             continue
         if args.bwa:
-            fname_extention = [file.split('.')[-1]]
+            fname_extention = [file_name.split('.')[-1]]
         else:
-            fname_extention = file.split('.')[1:]
+            fname_extention = file_name.split('.')[1:]
         new_fname = '.'.join([args.genome_name] + fname_extention)
-        org_file = os.path.join(root, file)
+        org_file = os.path.join(root, file_name)
         new_file = os.path.join(args.output, new_fname)
         shutil.move(org_file, new_file)
 

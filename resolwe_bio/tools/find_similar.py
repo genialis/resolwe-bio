@@ -61,7 +61,7 @@ similarity = [{'gene': gene, 'distance': search_f(expressions['etc']['genes'][ge
               for gene in expressions['etc']['genes'] if gene != search_gene]
 
 
-similarity = filter(lambda x: not math.isnan(x['distance']), similarity)
+similarity = [value for value in similarity if not math.isnan(value['distance'])]
 similarity = sorted(similarity, key=lambda x: x['distance'], reverse=rev_sort)
 similarity = {'search gene': search_gene, 'similar genes': similarity}
 print(json.dumps({'simgenes': similarity}, separators=(',', ':')))
