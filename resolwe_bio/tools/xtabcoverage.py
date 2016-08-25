@@ -85,15 +85,15 @@ while i <= last_reg_idx:
 
     def which_start(point):
         """Return indices of regions with $point as starting point."""
-        return filter(lambda idx: bedgraph[idx][1] == point, ws_idxs)
+        return [_idx for _idx in ws_idxs if bedgraph[_idx][1] == point]
 
     def which_end(point):
         """Return indices of regions with $point as ending point."""
-        return filter(lambda idx: bedgraph[idx][2] == point, ws_idxs)
+        return [_idx for _idx in ws_idxs if bedgraph[_idx][2] == point]
 
     if len(ws_idxs) > 1:
-        starts = map(lambda idx: bedgraph[idx][1], ws_idxs)
-        ends = map(lambda idx: bedgraph[idx][2], ws_idxs)
+        starts = [bedgraph[_idx][1] for _idx in ws_idxs]
+        ends = [bedgraph[_idx][2] for _idx in ws_idxs]
         points = list(set(starts + ends))
 
         # active index set - regions that are active in the current working index set for a given point p
@@ -102,7 +102,7 @@ while i <= last_reg_idx:
 
         def active_expr_avg():
             """Compute average expression."""
-            return sum(map(lambda idx: bedgraph[idx][3], active_idxs)) / len(active_idxs)
+            return sum(bedgraph[_idx][3] for _idx in active_idxs) / len(active_idxs)
 
         # Crunch overlapping regions into unique, flat parts.
         prev_p = None

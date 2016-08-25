@@ -2,6 +2,7 @@
 # pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Median gene expressions of multiple experiments."""
+from __future__ import absolute_import
 import argparse
 import collections
 import csv

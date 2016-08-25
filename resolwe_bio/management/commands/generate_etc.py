@@ -44,7 +44,7 @@ class Command(BaseCommand):
             with gzopen(gene_ids) as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
-                    expression = [str(random.gammavariate(1, 100)) for i in range(7)]
+                    expression = [str(random.gammavariate(1, 100)) for _ in range(7)]
                     genes[gene] = expression
                     csvwriter.writerow([gene] + expression)
 
