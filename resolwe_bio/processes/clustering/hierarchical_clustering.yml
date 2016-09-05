@@ -56,3 +56,65 @@
     bash: |
       genehcluster.py {% for e in etcs %}"{{e.etcfile.file}}" {% endfor %}-e {% for e in etcs %}"{{e|id}}" {% endfor %}{% if genes %}-g {{genes|join:" "}}{% endif %} -l {{linkage}} -d {{distance}}
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+
+
+- slug: clustering-hierarchical-samples
+  name: Hierarchical clustering
+  data_name: 'Hierarchical clustering of samples'
+  version: 0.0.1
+  type: data:sample:clustering:hierarchical
+  category: analyses
+  persistence: TEMP
+  description: >
+    Hierarchical clustering of samples.
+  input:
+    - name: exps
+      label: Expression
+      type: list:data:expression
+    - name: sampleids
+      label: Sample ids
+      type: list:basic:string
+    - name: genes
+      label: Gene subset
+      type: list:basic:string
+      required: false
+      placeholder: new gene id
+    - name: distance
+      label: Distance measure
+      type: basic:string
+      default: euclidean
+      choices:
+        - label: spearman
+          value: spearman
+        - label: pearson
+          value: pearson
+        - label: euclidean
+          value: euclidean
+    - name: linkage
+      label: Clustering linkage
+      type: basic:string
+      default: average
+      choices:
+        - label: average
+          value: average
+        - label: single
+          value: single
+        - label: complete
+          value: complete
+    - name: filter
+      label: Exclude genes with no expression in all samples
+      type: basic:boolean
+      default: true
+      description: >
+        Exclude/filter unexpressed genes and genes with cumulative normalized expression lower than number of samples.
+  output:
+    - name: cluster
+      label: Hierarchical clustering
+      required: false
+      type: basic:json
+  run:
+    runtime: polyglot
+    bash: |
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %}{% if sampleids %}--sampleids {% for s in sampleids %}"{{s}}" {% endfor %}{% endif %}{% if genes %}--genes {{genes|join:" "}}{% endif %}--linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
+      re-checkrc "Sample Hierarhlical clustering failed"
+      re-progress 1.0
