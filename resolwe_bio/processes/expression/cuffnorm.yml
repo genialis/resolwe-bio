@@ -119,14 +119,14 @@
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{forloop.counter0}} -n
           mv expression.tab expression_{{forloop.counter0}}.tab
           re-export "expression_{{forloop.counter0}}.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":"expression_{{forloop.counter0}}.tab"}}'
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{forloop.counter0}}.tab"}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
           parse_cuffnorm.py genes.fpkm_table {{forloop.counter0}}
           mv expression.tab expression_{{forloop.counter0}}.tab
           re-export expression_{{forloop.counter0}}.tab
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":"{{exp|id}}","exp":"expression_{{forloop.counter0}}.tab"}}'
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{forloop.counter0}}.tab"}}'
         {% endfor %}
       {% endif %}
 
