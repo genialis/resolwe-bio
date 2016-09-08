@@ -18,7 +18,6 @@ from django.core.management.base import BaseCommand
 from django.conf import settings
 from django.utils import timezone
 from resolwe.flow.models import Data, Storage
-from resolwe_bio.tools.utils import gzopen
 from .utils import get_descriptorschema, get_process, get_superuser
 
 
@@ -34,24 +33,28 @@ class Command(BaseCommand):
         parser.add_argument('--rseed', action='store_true', help="Use fixed random seed")
 
     @staticmethod
-    def create_etc(gene_ids, path, file_name):
-        """Generate an expression time course."""
-        genes = {}
-        with open(os.path.join(path, file_name), 'w') as f:
-            csvwriter = csv.writer(f, delimiter=str('\t'))
-            times = [0, 4, 8, 12, 16, 20, 24]
-            csvwriter.writerow(['Gene'] + times)
-            with gzopen(gene_ids) as gene_ids:
-                all_genes = [line.strip() for line in gene_ids]
-                for gene in all_genes:
-                    expression = [str(random.gammavariate(1, 100)) for _ in range(7)]
-                    genes[gene] = expression
-                    csvwriter.writerow([gene] + expression)
+    def create_etc(gene_ids, path):
+        """Generate an expression time course (ETC).
+        
+        Besides returning the JSON dump of the generated ETC, store it as a
+        gzipped object to the provided path.
 
-        with open(os.path.join(path, 'etc.json'), 'w') as json_file:
-            js_out = '{{"etc":{}}}'.format(json.dumps({'genes': genes, 'timePoints': times}, separators=(',', ':')))
-            json_file.write(js_out)
-            gzip.open(os.path.join(path, 'etc.json.gz'), 'wb').write(js_out.encode('utf-8'))
+        :return: JSON dump of the generated expression time course
+        :rtype: str
+        
+        """
+        times = (0, 4, 8, 12, 16, 20, 24)
+        gene_etcs = {}
+        with gzip.open(gene_ids, mode='rt') as gene_ids:
+            all_genes = [line.strip() for line in gene_ids]
+            for gene in all_genes:
+                etc = tuple(random.gammavariate(1, 100) for _ in range(len(times)))
+                gene_etcs[gene] = etc
+
+        json_dump = json.dumps({'etc': {'genes': gene_etcs, 'timePoints': times}}, indent=4, sort_keys=True)
+        with gzip.open(os.path.join(path, 'etc.json.gz'), 'wt') as gzip_file:
+            gzip_file.write(json_dump)
+        return json_dump
 
     @staticmethod
     def generate_etc_desciptor():
@@ -97,12 +100,13 @@ class Command(BaseCommand):
 
         os.mkdir(os.path.join(data_dir, str(etc.id)))
 
-        self.create_etc(dicty_genes, os.path.join(data_dir, str(etc.id)), 'etc.tab')
+        etc_json_dump = self.create_etc(dicty_genes, os.path.join(data_dir, str(etc.id)))
 
         json_object = Storage.objects.create(
-            json=json.load(open(os.path.join(data_dir, str(etc.id), 'etc.json'))),
+            json=json.loads(etc_json_dump),
             contributor=get_superuser(),
-            data=etc)
+            data=etc
+        )
 
         etc.output = {
             'etcfile': {'file': 'etc.json.gz'},
