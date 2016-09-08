@@ -17,6 +17,7 @@ Changed
 -------
 * Add option to save expression JSON to file before saving it to Storage
 * Update ``upload-expression`` process
+* No longer treat ``resolwe_bio/tools`` as a Python package
 
 ================
 1.2.1 2016-07-27
