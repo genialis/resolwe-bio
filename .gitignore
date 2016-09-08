@@ -22,6 +22,10 @@ sftp-config.json
 # Ignore built documentation
 _build
 
+# ignore Coverage.py files
+.coverage
+htmlcov/
+
 # Ignore files created by setup.py
 build
 dist
