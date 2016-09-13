@@ -12,12 +12,15 @@ Unreleased
 Added
 -----
 * Process definition documentation style and text improvements
+* Add tests to ensure generators produce the same results
 
 Changed
 -------
 * Add option to save expression JSON to file before saving it to Storage
 * Update ``upload-expression`` process
 * No longer treat ``resolwe_bio/tools`` as a Python package
+* Move processes' test files to the ``resolwe_bio/tests/files`` directory
+  to generalize and simplify handling of tests' files
 
 ================
 1.2.1 2016-07-27

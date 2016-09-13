@@ -7,7 +7,6 @@ Generate Expression Time Courses
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import csv
 import gzip
 import json
 import os
@@ -35,13 +34,13 @@ class Command(BaseCommand):
     @staticmethod
     def create_etc(gene_ids, path):
         """Generate an expression time course (ETC).
-        
+
         Besides returning the JSON dump of the generated ETC, store it as a
         gzipped object to the provided path.
 
         :return: JSON dump of the generated expression time course
         :rtype: str
-        
+
         """
         times = (0, 4, 8, 12, 16, 20, 24)
         gene_etcs = {}
@@ -81,7 +80,7 @@ class Command(BaseCommand):
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
         dicty_genes = os.path.join(test_files_path, 'dicty_genes.tab.gz')
 
         # Create reads data object

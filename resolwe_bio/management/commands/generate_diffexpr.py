@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         self.data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         self.test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
 
     def add_arguments(self, parser):
         """Define command arguments."""
