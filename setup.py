@@ -48,6 +48,9 @@ setup(
     ),
     install_requires=(
         'resolwe>=1.3.1',
+        'django-haystack==2.5.0',
+        'drf-haystack==1.5.6',
+        'Whoosh==2.7.4',
     ),
     extras_require = {
         'docs':  [
