@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+from os.path import join
+
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
@@ -46,12 +48,12 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "c": control_bam.id}
         self.run_process("macs14", inputs)
 
-    @skipUnlessLargeFiles('large/rose2_case.bam', 'large/rose2_control.bam')
+    @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     def test_rose2(self):
-        inputs = {'src': 'large/rose2_case.bam'}
+        inputs = {'src': join('large', 'rose2_case.bam')}
         bam = self.run_process('upload-bam', inputs)
 
-        inputs = {"src": "large/rose2_control.bam"}
+        inputs = {'src': join('large', 'rose2_control.bam')}
         control = self.run_process("upload-bam", inputs)
 
         inputs = {'src': 'macs14_chr22.bed'}

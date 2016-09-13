@@ -80,7 +80,7 @@ class Command(BaseCommand):
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
         dicty_genes = os.path.join(test_files_path, 'dicty_genes.tab.gz')
 
         # Create reads data object

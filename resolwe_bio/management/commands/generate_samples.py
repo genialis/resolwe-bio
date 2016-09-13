@@ -101,7 +101,7 @@ class Command(BaseCommand):
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
         reads = os.path.join(test_files_path, reads_name + '.fastq.gz')
         fastqc = os.path.join(test_files_path, reads_name + '_fastqc.zip')
         bam_mapping = os.path.join(test_files_path, 'alignment_position_sorted.bam')

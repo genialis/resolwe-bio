@@ -150,7 +150,7 @@ Adding tests with large files
 -----------------------------
 
 If a test file is larger than 1 MiB, then put it in the
-``resolwe_bio/tests/processes/files/large/`` directory. Git Large File Storage
+``resolwe_bio/tests/files/large/`` directory. Git Large File Storage
 (LFS) extension will automatically pick it up and treat it appropriately.
 
 To ensure contributors without Git LFS or users using the source distribution
@@ -159,8 +159,8 @@ following::
 
     @skipUnlessLargeFiles(<large-file1>, <large-file2>, ...)
 
-where ``<large-file1>``, ``<large-file2>``, ... represent the relatives paths
-to large files used inside a particular test.
+where ``<large-file1>``, ``<large-file2>``, ... represent the names of large
+files used inside a particular test.
 
 The decorator will ensure the test is skipped unless these files are present
 and represent real large files (not just Git LFS pointers).
