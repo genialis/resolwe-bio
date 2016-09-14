@@ -7,6 +7,7 @@ Generate Samples
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import csv
 import gzip
 import json
 import logging
@@ -24,7 +25,6 @@ from django.utils import timezone
 from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
-from resolwe_bio.tools.utils import escape_mongokey, gzopen
 from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_desciptor
 
 
@@ -67,18 +67,20 @@ class Command(BaseCommand):
     def generate_expressions(gene_ids, path):
         """Generate random expression data."""
         genes = {}
-        with gzip.open(os.path.join(path, 'expressions.tab.gz'), 'wb') as f:
-            f.write('{}\t{}\n'.format('Gene', 'Expression').encode('utf-8'))
-            with gzopen(gene_ids) as gene_ids:
+        with gzip.open(os.path.join(path, 'expressions.tab.gz'), mode='wt') as f:
+            # NOTE: Default line terminator is '\r\n'
+            # NOTE: Python2's csv module doesn't accept a unicode string for delimeter
+            csvwriter = csv.writer(f, delimiter=str('\t'), lineterminator='\n')
+            csvwriter.writerow(('Gene', 'Expression'))
+            with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
                     expression = random.gammavariate(1, 100)
-                    f.write('{}\t{}\n'.format(gene, expression).encode('utf-8'))
-                    genes[escape_mongokey(gene)] = expression
+                    csvwriter.writerow((gene, expression))
+                    genes[gene] = expression
 
         with open(os.path.join(path, 'expressions.json'), 'w') as json_file:
-            js_out = '{{"exp_json":{}}}'.format(json.dumps({'genes': genes}, separators=(',', ':')))
-            json_file.write(js_out)
+            json.dump({'exp_json': {'genes': genes}}, json_file, indent=4, sort_keys=True)
 
     @staticmethod
     def generate_reads_descriptor():
@@ -99,7 +101,7 @@ class Command(BaseCommand):
         # get test data paths
         data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
         reads = os.path.join(test_files_path, reads_name + '.fastq.gz')
         fastqc = os.path.join(test_files_path, reads_name + '_fastqc.zip')
         bam_mapping = os.path.join(test_files_path, 'alignment_position_sorted.bam')

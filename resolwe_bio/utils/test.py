@@ -6,17 +6,12 @@ from django.conf import settings
 
 from resolwe.flow.utils.test import ProcessTestCase
 
-
-TEST_FILES_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'tests',
-    'processes',
-    'files',
-)
+TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
+TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
 
 
 def skipDockerFailure(reason):  # pylint: disable=invalid-name
-    """Skip the decorated tests.
+    """Skip decorated tests due to failures when run in Docker.
 
     Unless ``TESTS_SKIP_DOCKER_FAILURES`` Django setting is set to
     ``False``. ``reason`` should describe why the test is being skipped.
@@ -27,21 +22,22 @@ def skipDockerFailure(reason):  # pylint: disable=invalid-name
 
 
 def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
-    r"""Skip the decorated tests unless large files are available.
+    r"""Skip decorated tests unless large files are available.
 
     :param list \*files: variable lenght files list, where each element
                          represents a large file path relative to the
-                         ``TEST_FILES_DIR`` directory
+                         ``TEST_LARGE_FILES_DIR`` directory
 
     """
     for file_ in files:
-        if not os.path.isfile(os.path.join(TEST_FILES_DIR, file_)):
-            return unittest.skip("File '{}' is not available".format(file_))
+        file_path = os.path.join(TEST_LARGE_FILES_DIR, file_)
+        if not os.path.isfile(file_path):
+            return unittest.skip("File '{}' is not available".format(file_path))
         try:
-            with open(os.path.join(TEST_FILES_DIR, file_)) as f:
+            with open(file_path) as f:
                 if f.readline().startswith('version https://git-lfs.github.com/spec/'):
                     return unittest.skip("Only Git LFS pointer is available "
-                                         "for file '{}'".format(file_))
+                                         "for file '{}'".format(file_path))
         except UnicodeDecodeError:
             # file_ is a binary file (this is expected)
             pass
@@ -52,7 +48,7 @@ class BioProcessTestCase(ProcessTestCase):
     """Test class for bioinformatics processes."""
 
     def setUp(self):
-        """Initialize test arguments."""
+        """Initialize test files path."""
         super(BioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
 

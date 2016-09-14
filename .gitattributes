@@ -20,4 +20,4 @@
 docs/CHANGELOG.rst merge=union
 
 # Use Git Large File Storage (LFS) for large test files
-resolwe_bio/tests/processes/files/large/* filter=lfs diff=lfs merge=lfs -text
+resolwe_bio/tests/files/large/* filter=lfs diff=lfs merge=lfs -text

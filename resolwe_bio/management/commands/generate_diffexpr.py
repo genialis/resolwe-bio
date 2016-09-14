@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         self.data_dir = settings.FLOW_EXECUTOR['DATA_DIR']
         self.test_files_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'processes', 'files'))
+            os.path.join(os.path.dirname(__file__), '..', '..', 'tests', 'files'))
 
     def add_arguments(self, parser):
         """Define command arguments."""
@@ -110,11 +110,11 @@ class Command(BaseCommand):
         os.mkdir(os.path.join(self.data_dir, str(ann.id)))
 
         with gzip.open(os.path.join(self.test_files_path, filename), 'rb') as gzfile:
-            with open(os.path.join(self.data_dir, str(ann.id), filename[:-3:]), 'w') as outfile:
-                outfile.write(gzfile.read().decode('utf-8'))
+            with open(os.path.join(self.data_dir, str(ann.id), filename[:-3]), 'wb') as outfile:
+                shutil.copyfileobj(gzfile, outfile)
 
         ann.output = {
-            'gtf': {'file': filename[:-3:]}
+            'gtf': {'file': filename[:-3]}
         }
         ann.status = Data.STATUS_DONE
         ann.save()
@@ -175,8 +175,8 @@ class Command(BaseCommand):
         shutil.copy(de_file, os.path.join(self.data_dir, str(de_obj.id)))
 
         # Get JSON for volcano plot
-        with gzip.open(os.path.join(self.test_files_path, '{}.json.gz'.format(de_name)), 'r') as f:
-            de_data = json.loads(f.read().decode('utf-8'))
+        with gzip.open(os.path.join(self.test_files_path, '{}.json.gz'.format(de_name)), 'rt') as f:
+            de_data = json.load(f)
 
         # TODO: reference on existing true files
         de_obj.output = {

@@ -8,5 +8,5 @@ include tox.ini
 include .pylintrc
 recursive-include tests *.py *.yml *.yaml *.rst
 recursive-include resolwe_bio/tests *.py
-recursive-include resolwe_bio/tests/processes/files *
-prune resolwe_bio/tests/processes/files/large
+recursive-include resolwe_bio/tests/files *
+prune resolwe_bio/tests/files/large
