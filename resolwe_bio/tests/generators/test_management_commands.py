@@ -56,8 +56,8 @@ class GenerateDiffExprTest(BioProcessTestCase):
 
     @skipUnlessLargeFiles('DE-cuffdiff-py2.json.gz', 'DE-cuffdiff-py3.json.gz',
                           'DE-cuffdiff-py2.tab.gz', 'DE-cuffdiff-py3.tab.gz')
-    def test_generate_diffexpr(self):
-        call_command('generate_diffexpr', '-n=1', '-g=2', '--rseed')
+    def test_generate_diffexpr_cuffdiff(self):
+        call_command('generate_diffexpr_cuffdiff', '-n=1', '-g=2', '--rseed')
         diffexpr = Data.objects.last()
         if diffexpr:
             self.assertEqual(diffexpr.process.type, 'data:differentialexpression:cuffdiff:')
@@ -79,6 +79,34 @@ class GenerateDiffExprTest(BioProcessTestCase):
             for expr_id in expressions:
                 expression = Data.objects.get(id=expr_id)
                 self.assertEqual(expression.process.type, 'data:cufflinks:cuffquant:')
+        else:
+            self.fail("Differential expression not created")
+
+    @skipUnlessLargeFiles('DE-deseq-py2.json.gz', 'DE-deseq-py3.json.gz',
+                          'DE-deseq-py2.tab.gz', 'DE-deseq-py3.tab.gz')
+    def test_generate_diffexpr_deseq(self):
+        call_command('generate_diffexpr_deseq', '-n=1', '-g=2', '--rseed')
+        diffexpr = Data.objects.last()
+        if diffexpr:
+            self.assertEqual(diffexpr.process.type, 'data:differentialexpression:deseq2:')
+            self.assertEqual(len(diffexpr.input['case']), 2)
+            self.assertEqual(len(diffexpr.input['control']), 2)
+            # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the same number
+            if six.PY2:
+                self.assertJSON(diffexpr, diffexpr.output['de_json'], '',
+                                join('large', 'DE-deseq-py2.json.gz'))
+                self.assertFile(diffexpr, 'de_file',
+                                join('large', 'DE-deseq-py2.tab.gz'), compression='gzip')
+            else:
+                self.assertJSON(diffexpr, diffexpr.output['de_json'], '',
+                                join('large', 'DE-deseq-py3.json.gz'))
+                self.assertFile(diffexpr, 'de_file',
+                                join('large', 'DE-deseq-py3.tab.gz'), compression='gzip')
+
+            expressions = diffexpr.input['case'] + diffexpr.input['control']
+            for expr_id in expressions:
+                expression = Data.objects.get(id=expr_id)
+                self.assertEqual(expression.process.type, 'data:expression:')
         else:
             self.fail("Differential expression not created")
 

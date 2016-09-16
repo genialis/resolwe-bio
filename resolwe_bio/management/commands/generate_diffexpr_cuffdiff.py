@@ -63,7 +63,7 @@ class Command(BaseCommand):
     def create_expressions(self, num):
         """Generate expressions."""
         expressions = []
-        sample_name = self.get_random_word(4)
+        sample_name = 'Cuffdiff_{}'.format(self.get_random_word(4))
 
         for i in range(num):
             cuffquant_file = 'cuffquant_{}.cxb'.format(random.choice([1, 2]))
@@ -93,7 +93,7 @@ class Command(BaseCommand):
 
             with open(os.path.join(self.data_dir, str(exp.id), 'stdout.txt'), 'w') as stdout:
                 stdout.write('Upload gene expressions. Sample was created '
-                             'with the generate_de django-admin command.')
+                             'with the generate_diffexr_cuffdiff django-admin command.')
 
             logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
             logger.info(__('\tData object: (id={})', exp.id))
@@ -124,7 +124,8 @@ class Command(BaseCommand):
         ann.save()
 
         with open(os.path.join(self.data_dir, str(ann.id), 'stdout.txt'), 'w') as stdout:
-            stdout.write('Upload genome annotation with the generate_De django-admin command.')
+            stdout.write('Upload genome annotation with the '
+                         'generate_diffexpr_cuffdiff django-admin command.')
 
         logger.info(__('Genome annotation created: {} (id={})', filename, ann.id))
 
@@ -269,7 +270,8 @@ class Command(BaseCommand):
 
         # Create stdout file
         with open(os.path.join(self.data_dir, str(de_obj.id), 'stdout.txt'), 'w') as stdout:
-            stdout.write('Differential expression was created with the generate_de django-admin command.')
+            stdout.write('Differential expression was '
+                         'created with the generate_diffexpr_cuffdiff django-admin command.')
 
     def handle(self, *args, **options):
         """Command handle."""
