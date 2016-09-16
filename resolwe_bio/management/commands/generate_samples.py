@@ -25,7 +25,8 @@ from django.utils import timezone
 from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
-from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_desciptor
+from .utils import (get_descriptorschema, get_process, get_superuser,
+                    generate_sample_desciptor, generate_reads_descriptor)
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -91,20 +92,6 @@ class Command(BaseCommand):
         with open(os.path.join(path, 'expressions.json'), 'w') as json_file:
             json.dump({'genes': genes}, json_file, indent=4, sort_keys=True)
 
-    @staticmethod
-    def generate_reads_descriptor():
-        """Generate read data descriptor."""
-        barcodes = ['ATGCATGC', 'TACGTACG']
-        instruments = ['Illumina HiSeq X', 'Illumina HiSeq 3000', 'Illumina HiSeq 3000']
-        descriptor = {'barcode': random.choice(barcodes),
-                      'instrument_type': random.choice(instruments),
-                      'barcode_removed': True}
-
-        seq_date = datetime.date.today().strftime('%Y-%m-%d')
-        descriptor['seq_date'] = seq_date
-
-        return descriptor
-
     def create_data(self, reads_name='seq_reads', annotated=False, rseed=None):
         """Generate sample data."""
         # get test data paths
@@ -121,13 +108,14 @@ class Command(BaseCommand):
 
         # Create reads data object
         started = timezone.now()
+        data_name = self.set_name()
         d = Data.objects.create(
             slug='gs-reads',
-            name=self.set_name(),
+            name=data_name,
             started=started,
             finished=started + datetime.timedelta(minutes=45),
             descriptor_schema=get_descriptorschema('reads'),
-            descriptor=self.generate_reads_descriptor(),
+            descriptor=generate_reads_descriptor(data_name, presample=True),
             status=Data.STATUS_PROCESSING,
             process=get_process('upload-fastq-single'),
             contributor=get_superuser(),
@@ -242,6 +230,8 @@ class Command(BaseCommand):
             sample.descriptor = generate_sample_desciptor(d.name)
             sample.presample = False
             sample.save()
+            d.descriptor = generate_reads_descriptor(data_name, presample=False)
+            d.save()
             logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
         else:
             logger.info(__('Created presample: {} (id={})', sample.name, sample.id))

@@ -76,7 +76,7 @@ class Command(BaseCommand):
                     genes[gene] = expression
 
         with open(os.path.join(path, 'expressions.json'), 'w') as json_file:
-            json.dump({'exp_json': {'genes': genes}}, json_file, indent=4, sort_keys=True)
+            json.dump({'genes': genes}, json_file, indent=4, sort_keys=True)
 
     def create_expressions(self, num, gene_ids):
         """Generate expressions."""

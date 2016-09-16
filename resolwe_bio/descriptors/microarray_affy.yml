@@ -1,0 +1,92 @@
+- slug: affy
+  name: Array annotation (CEL - Affymetrix)
+  description: Microarray raw data annotation (Affymetrix)
+  schema:
+    - name: protocols
+      label: Protocols
+      group:
+        - name: chip_name
+          label: Chip name or GEO platform ID
+          type: basic:string
+          required: false
+          description: >
+            Provide the name of the Affymetrix chip used (e.g. MoEx-1_0-st), or reference the GEO Platform accession number (GPLxxx), if known.
+        - name: growth_protocol
+          label: Growth protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: treatment_protocol
+          label: Treatment protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: extract_protocol
+          label: Extract protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: library_prep
+          label: Library construction protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: label
+          label: Label
+          type: basic:string
+          required: false
+          description: >
+            Compound used to label the extract e.g., biotin, Cy3, Cy5, 33P.
+        - name: label_protocol
+          label: Label protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: hyb_protocol
+          label: Hybridization protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+          description: >
+            Describe the protocols used for hybridization, blocking and washing, and any post-processing steps such as staining.
+        - name: scan_protocol
+          label: Scan protocol
+          type: basic:text
+          required: false
+          default: 'N/A'
+        - name: data_processing
+          label: Data processing
+          required: false
+          default: 'N/A'
+          type: basic:text
+          description: >
+            Provide details of how the primary data (in the matrix) were generated. Include the name of the software used (e.g. Expression Console, Affymetrix Power Tools, other GeneChip Compatible software) and any normalization/scaling algorithms that were applied to the data (RMA, PLIER, etc). It is also appropriate to describe any secondary or tertiary analyses performed in this section (e.g. using GeneSpring, R, GeneBASE, etc). If the primary analysis was limited to a subset of the array probes (e.g. core probe sets only) please state so in this section.
+        - name: probe_group_file
+          label: Probe-group file
+          type: basic:string
+          required: false
+          default: 'N/A'
+          description: >
+            The name of the probe group file (.pgf) used in the primary analysis [e.g. MoEx-1_0-st-v1.r2.pgf]. We will use this information to determine/verfiy the correct GEO Platform for the submission.
+        - name: meta_probeset_file
+          label: Meta-probeset file
+          type: basic:string
+          required: false
+          default: 'N/A'
+          description: >
+            The name of the meta-probeset (.mps or .csv) file used in the primary analysis [e.g. HuEx-1_0-st-v2.r2.dt1.hg18.core.mps]. This file applies only to transcript/gene-level analyses. The genome build information in the file name is needed to determine/verify the GEO Platform for the submission.
+        - name: value_definition
+          label: Value definition
+          type: basic:string
+          required: false
+          default: 'N/A'
+          description: >
+            Provide a short description for the values in the matrix table, for example "RMA signal estimates from Expression Console Software version 1.1"
+    - name: scan_date
+      label: Scan date
+      type: basic:date
+      required: false
+    - name: facility
+      label: Facility
+      type: basic:string
+      required: false

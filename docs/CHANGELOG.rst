@@ -19,7 +19,8 @@ Changed
 * Update differential expression (DE) processors
 * Update ``generate_diffexpr_cuffdiff`` django-admin command
 * Save gene_id source to ``output.source`` for DE, expression and related objects
-* Refactor ``upload-diffexp``processor
+* Refactor ``upload-diffexp`` processor
+* Update sample descriptor schema
 
 Added
 -----
@@ -36,6 +37,7 @@ Added
 * Add Subread process
 * Add process for hierarchical clusteing of samples
 * Add gff3 to gtf file converter
+* Add microarray data descriptor schema
 
 Fixed
 -----

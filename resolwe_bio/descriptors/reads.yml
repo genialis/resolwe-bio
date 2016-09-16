@@ -2,15 +2,142 @@
   name: Reads annotation
   description: Annotation of raw sequencing data
   schema:
-    - name: seq_date
-      label: Sequencing date
-      type: basic:date
-    - name: barcode
-      label: Barcode
+    - name: experiment_type
+      label: Experiment type
       type: basic:string
-    - name: barcode_removed
-      label: Barcode already removed?
-      type: basic:boolean
-    - name: instrument_type
-      label: Instrument type
-      type: basic:string
+      placeholder: Start typing
+      required: false  # XXX: remove this when fixed
+      allow_custom_choice: true
+      choices:
+        - label: RNA-Seq
+          value: RNA-Seq
+        - label: miRNA-Seq
+          value: miRNA-Seq
+        - label: ncRNA-Seq
+          value: ncRNA-Seq
+        - label: RNA-Seq (CAGE)
+          value: RNA-Seq (CAGE)
+        - label: RNA-Seq (RACE)
+          value: RNA-Seq (RACE)
+        - label: ChIP-Seq
+          value: ChIP-Seq
+        - label: MNase-Seq
+          value: MNase-Seq
+        - label: MBD-Seq
+          value: MBD-Seq
+        - label: MRE-Seq
+          value: MRE-Seq
+        - label: Bisulfite-Seq
+          value: Bisulfite-Seq
+        - label: Bisulfite-Seq (reduced representation)
+          value: Bisulfite-Seq (reduced representation)
+        - label: MeDIP-Seq
+          value: MeDIP-Seq
+        - label: DNase-Hypersensitivity
+          value: DNase-Hypersensitivity
+        - label: Tn-Seq
+          value: Tn-Seq
+        - label: FAIRE-seq
+          value: FAIRE-seq
+        - label: SELEX
+          value: SELEX
+        - label: RIP-Seq
+          value: RIP-Seq
+        - label: ChIA-PET
+          value: ChIA-PET
+        - label: OTHER
+          value: OTHER
+    - name: protocols
+      label: Protocols
+      group:
+        - name: growth_protocol
+          label: Growth protocol
+          type: basic:text
+          default: 'N/A'
+          description: >
+            Describe the conditions that were used to grow or maintain organisms or cells prior to extract preparation.
+          required: false
+        - name: treatment_protocol
+          label: Treatment protocol
+          type: basic:text
+          default: 'N/A'
+          required: false
+          description: >
+            Describe the treatments applied to the biological material prior to extract preparation.
+        - name: extract_protocol
+          label: Extract protocol
+          type: basic:text
+          required: false  # XXX: remove this when fixed
+          description: >
+            Describe the protocols used to extract and prepare the material to be sequenced.
+        - name: library_prep
+          label: Library construction protocol
+          type: basic:text
+          required: false  # XXX: remove this when fixed
+          description: >
+            Describe the library construction protocol.
+        - name: fragmentation_method
+          label: Fragmentation method
+          type: basic:string
+          required: false  # XXX: remove this when fixed
+        - name: ip_tag
+          label: IP Tag
+          type: basic:string
+          required: false  # XXX: remove this when fixed
+          hidden: "experiment_type != 'ChIP-Seq'"
+        - name: sample_type
+          label: Sample type
+          type: basic:string
+          required: false
+          hidden: "experiment_type != 'ChIP-Seq'"
+          choices:
+            - label: Sample
+              value: Sample
+            - label: "Control:  with different antibody"
+              value: "Control:  with different antibody"
+            - label: "Control:  without tag-antibody"
+              value: "Control:  without tag-antibody"
+            - label: "Control:  no target protein"
+              value: "Control:  no target protein"
+            - label: "Control:  nuclear extract"
+              value: "Control:  nuclear extract"
+        - name: ip_target
+          label: IP target
+          type: basic:string
+          required: false
+          hidden: "experiment_type != 'ChIP-Seq'"
+        - name: antibody_information
+          label: Antibody Information
+          hidden: "experiment_type != 'ChIP-Seq'"
+          group:
+            - name: manufacturer
+              label: Manufacturer
+              type: basic:string
+              required: false  # XXX: remove this when fixed
+            - name: catalog
+              label: Catalog
+              type: basic:string
+              required: false  # XXX: remove this when fixed
+            - name: lot
+              label: Lot
+              type: basic:string
+              required: false  # XXX: remove this when fixed
+    - name: reads_info
+      label: Reads Information
+      group:
+        - name: seq_date
+          label: Sequencing date
+          type: basic:date
+          required: false
+        - name: barcode
+          label: Barcode
+          type: basic:string
+          required: false
+        - name: barcode_removed
+          label: Barcode already removed?
+          type: basic:boolean
+          required: false
+        - name: instrument_type
+          label: Instrument type
+          type: basic:string
+          required: false
