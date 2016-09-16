@@ -1,26 +1,24 @@
-# =====================================
-# Import - Cuffquant results file (.cxb)
-# =====================================
+# ================
+# Import - GeneSet
+# ================
 ---
 
-- slug: upload-cxb
-  name: Cuffquant results
+- slug: upload-geneset
+  name: Gene set
   data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.2
-  type: data:cufflinks:cuffquant
+  version: 0.0.1
+  type: data:geneset
   category: upload
-  flow_collection: sample
   persistence: RAW
   description: >
-        Upload Cuffquant results file (.cxb)
+    Upload Gene Set.
   input:
     - name: src
-      label: Annotation file
+      label: Gene set
       type: basic:file
       description: >
-        Upload Cuffquant results file. Supported extention: *.cxb
-      required: true
-      validate_regex: '\.(cxb)$'
+        List of genes (.tab/.txt, one Gene ID per line. Supported extensions: .tab, .tab.gz (preferred), tab.*
+      validate_regex: '(\.(tab|txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
     - name: source
       label: Gene ID source
       type: basic:string
@@ -61,16 +59,19 @@
         - label: mirna30 (Affy)
           value: mirna30
   output:
-    - name: cxb
-      label: Cuffquant results
+    - name: geneset
+      label: Gene set
       type: basic:file
+    - name: geneset_json
+      label: Gene set (JSON)
+      type: basic:json
     - name: source
       label: Gene ID source
       type: basic:string
   run:
     runtime: polyglot
     bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "cxb" "cxb" 1.0 extract
-      re-checkrc
-      re-save-file cxb "${NAME}.cxb"
+      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab|txt" "tab" 0.9
+      re-save-file geneset ${NAME}.tab.gz
       re-save source {{source}}
+      geneset2storage.py ${NAME}.tab

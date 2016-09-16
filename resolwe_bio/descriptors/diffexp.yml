@@ -2,12 +2,30 @@
   name: Differential expression details
   description: Differential expression details template
   schema:
-    - name: fc_threshold
-      label: FC threshold
-      type: basic:integer
-    - name: fdr_threshold
-      label: FDR threshold
-      type: basic:decimal
+    - name: thresholds
+      label: thresholds
+      group:
+        - name: logfc
+          label: Log2 FC
+          type: basic:decimal
+          default: 2
+        - name: prob
+          label: Probability
+          type: basic:decimal
+          default: 0.05
+        - name: prob_field
+          label: Probability field
+          type: basic:string
+          default: fdr
+          choices:
+            - label: fdr
+              value: fdr
+            - label: fwer
+              value: fwer
+            - label: pvalue
+              value: pvalue
+            - label: logodds
+              value: logodds
     - name: case_label
       label: Case label
       type: basic:text

@@ -7,7 +7,7 @@
 - slug: differentialexpression-limma
   name: Limma
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.2
+  version: 1.0.3
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED
@@ -25,12 +25,18 @@
       description: >
         Control samples (replicates)
   output:
-    - name: diffexp
+    - name: raw
       label: Differential expression
       type: basic:file
-    - name: volcano_plot
-      label: Volcano plot
+    - name: de_json
+      label: Results table (JSON)
       type: basic:json
+    - name: de_file
+      label: Results table (file)
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -50,6 +56,14 @@
         {% endif %}
       {% endfor %}
 
+      {% for c in control %}
+        {% for t in case %}
+          {% if control.0.source != c.source or c.source != t.source %}
+            re-error "DE analysis must be crated using the expression data from the same source."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+
       contVec=${contVec%?}
       caseVec=${caseVec%?}
 
@@ -66,8 +80,10 @@
 
       re-progress 0.95
 
-      volcanoplot.py 'diffexp_limma.tab'
-      re-checkrc "Error computing Volcano plot."
+      parse_diffexp.py 'diffexp_limma.tab' --gene_id gene_id --fdr adj.P.Val --pvalue P.Value --logfc logFC --logodds B --stat t
+      re-checkrc
 
       gzip 'diffexp_limma.tab'
-      re-save-file diffexp diffexp_limma.tab.gz
+      re-save-file raw diffexp_limma.tab.gz
+      re-save-file de_file de_file.tab.gz
+      re-save source "{{ case.0.source }}"

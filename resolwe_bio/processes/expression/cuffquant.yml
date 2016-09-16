@@ -6,7 +6,7 @@
 - slug: cuffquant
   name: Cuffquant (2.2.1)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.7
+  version: 1.0.8
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -62,6 +62,9 @@
     - name: cxb
       label: Abundances (.cxb)
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -79,3 +82,4 @@
 
       mv abundances.cxb ${NAME}.cxb
       re-save-file cxb ${NAME}.cxb
+      re-save source {{gff.source}}

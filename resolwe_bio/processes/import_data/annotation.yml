@@ -6,7 +6,7 @@
 - slug: upload-gff3
   name: Annotation (GFF3)
   data_name: '{{ src.file }}'
-  version: 1.0.13
+  version: 1.0.14
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -18,12 +18,53 @@
       type: basic:file
       description: >
         Annotation in GFF3 format. Supported extensions are: .gff, .gff3 and .gtf
-      required: true
       validate_regex: '\.(gff|gff3|gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: GRCh38.85 (ENSEMBL)
+          value: GRCh38.85
+        - label: GRCm38.85 (ENSEMBL)
+          value: GRCm38.85
+        - label: GRCh38.p7 (NCBI)
+          value: GRCh38.p7
+        - label: GRCm38.p4 (NCBI)
+          value: GRCm38.p4
+        - label: hg19 (UCSC)
+          value: hg19
+        - label: hg38 (UCSC)
+          value: hg38
+        - label: mm9 (UCSC)
+          value: mm9
+        - label: mm10 (UCSC)
+          value: mm10
+        - label: dictyBase
+          value: dictyBase
+        - label: hg95av2 (Affy)
+          value: hg95av2
+        - label: hgu133a (Affy)
+          value: hgu133a
+        - label: hgu133a2 (Affy)
+          value: hgu133a2
+        - label: hgu133plus2 (Affy)
+          value: hgu133plus2
+        - label: hugene20st (Affy)
+          value: hugene20st
+        - label: mouse4302 (Affy)
+          value: mouse4302
+        - label: mirna20 (Affy)
+          value: mirna20
+        - label: mirna30 (Affy)
+          value: mirna30
   output:
     - name: gff
       label: Uploaded file
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -33,11 +74,12 @@
       re-checkrc
       re-progress 0.2
       re-save-file gff ${NAME}.gff
+      re-save source {{source}}
 
 - slug: upload-gtf
   name: Annotation (GTF2.2)
   data_name: '{{ src.file }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -49,12 +91,53 @@
       type: basic:file
       description: >
         Annotation in GTF format.
-      required: true
       validate_regex: '\.(gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: GRCh38.85 (ENSEMBL)
+          value: GRCh38.85
+        - label: GRCm38.85 (ENSEMBL)
+          value: GRCm38.85
+        - label: GRCh38.p7 (NCBI)
+          value: GRCh38.p7
+        - label: GRCm38.p4 (NCBI)
+          value: GRCm38.p4
+        - label: hg19 (UCSC)
+          value: hg19
+        - label: hg38 (UCSC)
+          value: hg38
+        - label: mm9 (UCSC)
+          value: mm9
+        - label: mm10 (UCSC)
+          value: mm10
+        - label: dictyBase
+          value: dictyBase
+        - label: hg95av2 (Affy)
+          value: hg95av2
+        - label: hgu133a (Affy)
+          value: hgu133a
+        - label: hgu133a2 (Affy)
+          value: hgu133a2
+        - label: hgu133plus2 (Affy)
+          value: hgu133plus2
+        - label: hugene20st (Affy)
+          value: hugene20st
+        - label: mouse4302 (Affy)
+          value: mouse4302
+        - label: mirna20 (Affy)
+          value: mirna20
+        - label: mirna30 (Affy)
+          value: mirna30
   output:
     - name: gtf
       label: Uploaded file
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -67,3 +150,4 @@
       re-progress 0.7
 
       re-save-file gtf ${NAME}.gtf
+      re-save source {{source}}

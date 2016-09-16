@@ -6,7 +6,7 @@
 - slug: cuffnorm
   name: Cuffnorm (2.2.1)
   data_name: 'Cuffnorm results'
-  version: 1.0.12
+  version: 1.0.13
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -92,6 +92,9 @@
     - name: R_data
       label: All R normalization data
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -148,3 +151,4 @@
       re-save-file raw_scatter cuffnorm_all_fpkm_exprs_raw_scatter.png
       re-save-file boxplot cuffnorm_exprs_boxplot.pdf
       re-save-file R_data R_data.zip
+      re-save source "{{annotation.source}}"

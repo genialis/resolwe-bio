@@ -8,8 +8,10 @@ class MicroarrayProcessorTestCase(BioProcessTestCase):
 
     @skipUnlessLargeFiles('affy_test_1.CEL', 'affy_test_2.CEL')
     def test_microarray(self):
-        cel_1 = self.run_process('upload-microarray-affy', {'cel': join('large', 'affy_test_1.CEL')})
-        cel_2 = self.run_process('upload-microarray-affy', {'cel': join('large', 'affy_test_2.CEL')})
+        inputs = {'cel': join('large', 'affy_test_1.CEL'), 'source': 'hg95av2'}
+        cel_1 = self.run_process('upload-microarray-affy', inputs)
+        inputs = {'cel': join('large', 'affy_test_2.CEL'), 'source': 'hg95av2'}
+        cel_2 = self.run_process('upload-microarray-affy', inputs)
 
         inputs = {'cel': [cel_1.pk, cel_2.pk],
                   'library': 'affy',

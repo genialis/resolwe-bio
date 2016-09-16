@@ -75,7 +75,7 @@ def generate_sample_desciptor(organism_name):
     if organism_name.startswith('Hs'):
         annotation = {'geo': {'organism': 'Homo sapiens',
                               'annotator': random.choice(annotator),
-                              'source': 'brain',
+                              'source': 'Primary tumor',
                               'cell_type': random.choice(['neuron', 'glia']),
                               'genotype': random.choice(['wildtype', 'CDK6-/-']),
                               'experiment_type': 'RNA-Seq',
@@ -90,7 +90,7 @@ def generate_sample_desciptor(organism_name):
     if organism_name.startswith('Mm'):
         annotation = {'geo': {'organism': 'Mus musculus',
                               'annotator': random.choice(annotator),
-                              'source': 'brain',
+                              'source': 'Primary tumor',
                               'genotype': random.choice(['wildtype', 'CDK6-/-']),
                               'cell_type': random.choice(['neuron', 'microglia']),
                               'experiment_type': 'RNA-Seq',

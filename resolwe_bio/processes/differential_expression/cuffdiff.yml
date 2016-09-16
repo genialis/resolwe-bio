@@ -6,7 +6,7 @@
 - slug: cuffdiff
   name: Cuffdiff (2.2.1)
   data_name: 'Cuffdiff results'
-  version: 1.0.11
+  version: 1.0.12
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -94,8 +94,14 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: diffexp
+    - name: raw
       label: Differential expression (gene level)
+      type: basic:file
+    - name: de_json
+      label: Results table (JSON)
+      type: basic:json
+    - name: de_file
+      label: Results table (file)
       type: basic:file
     - name: transcript_diff_exp
       label: Differential expression (transcript level)
@@ -109,9 +115,9 @@
     - name: cuffdiff_output
       label: Cuffdiff output
       type: basic:file
-    - name: de_data
-      label: Results table (JSON)
-      type: basic:json
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -132,6 +138,16 @@
       controls=${controls%?}
 
       EXPERIMENTS="${controls} ${cases}"
+
+      {% for c in control %}
+        {% for t in case %}
+          {% if control.0.source != c.source or c.source != t.source %}
+            re-error "DE analysis must be crated using the expression data from the same source."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+
+      re-save source "{{ case.0.source }}"
 
       {% if genome %}
         GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
@@ -159,10 +175,11 @@
 
       zip cuffdiff_output.zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff cuffdiff.tab isoform_exp.diff tss_group_exp.diff
 
-      parse_diffexp.py cuffdiff.tab
+      parse_diffexp.py cuffdiff.tab --gene_id gene_id --fdr q_value --pvalue p_value --logfc "log2(fold_change)" --stat test_stat
       gzip cuffdiff.tab
 
-      re-save-file diffexp cuffdiff.tab.gz
+      re-save-file raw cuffdiff.tab.gz
+      re-save-file de_file de_file.tab.gz
       re-save-file transcript_diff_exp isoform_exp.diff
       re-save-file cds_diff_exp cds_exp.diff
       re-save-file tss_group_diff_exp tss_group_exp.diff

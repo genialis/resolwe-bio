@@ -37,7 +37,7 @@ class GenerateSamplesTest(BioProcessTestCase):
 class GenerateEtcTest(BioProcessTestCase):
 
     @skipUnlessLargeFiles('etc-py2.json.gz', 'etc-py3.json.gz')
-    def test_generate_samples(self):
+    def test_generate_etc(self):
         call_command('generate_etc', '-e=1', '--rseed')
         data = Data.objects.last()
         self.assertEqual(data.slug, 'etc')
@@ -54,18 +54,55 @@ class GenerateEtcTest(BioProcessTestCase):
 
 class GenerateDiffExprTest(BioProcessTestCase):
 
+    @skipUnlessLargeFiles('DE-cuffdiff-py2.json.gz', 'DE-cuffdiff-py3.json.gz',
+                          'DE-cuffdiff-py2.tab.gz', 'DE-cuffdiff-py3.tab.gz')
     def test_generate_diffexpr(self):
-        call_command('generate_diffexpr', '-n=1', '-g=2')
+        call_command('generate_diffexpr', '-n=1', '-g=2', '--rseed')
         diffexpr = Data.objects.last()
         if diffexpr:
             self.assertEqual(diffexpr.process.type, 'data:differentialexpression:cuffdiff:')
             self.assertEqual(len(diffexpr.input['case']), 2)
             self.assertEqual(len(diffexpr.input['control']), 2)
+            # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the same number
+            if six.PY2:
+                self.assertJSON(diffexpr, diffexpr.output['de_json'], '',
+                                join('large', 'DE-cuffdiff-py2.json.gz'))
+                self.assertFile(diffexpr, 'de_file',
+                                join('large', 'DE-cuffdiff-py2.tab.gz'), compression='gzip')
+            else:
+                self.assertJSON(diffexpr, diffexpr.output['de_json'], '',
+                                join('large', 'DE-cuffdiff-py3.json.gz'))
+                self.assertFile(diffexpr, 'de_file',
+                                join('large', 'DE-cuffdiff-py3.tab.gz'), compression='gzip')
 
             expressions = diffexpr.input['case'] + diffexpr.input['control']
-
             for expr_id in expressions:
                 expression = Data.objects.get(id=expr_id)
                 self.assertEqual(expression.process.type, 'data:cufflinks:cuffquant:')
         else:
             self.fail("Differential expression not created")
+
+
+class GenerateGeneSetTest(BioProcessTestCase):
+
+    @skipUnlessLargeFiles('geneset-py2.json.gz', 'geneset-py3.json.gz',
+                          'geneset-py2.tab.gz', 'geneset-py3.tab.gz')
+    def test_generate_geneset(self):
+        call_command('generate_geneset', '-n=1', '--rseed')
+        geneset = Data.objects.last()
+        if geneset:
+            self.assertEqual(geneset.process.type, 'data:geneset:')
+            self.assertEqual(geneset.output['source'], 'mm10')
+            # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the same number
+            if six.PY2:
+                self.assertJSON(geneset, geneset.output['geneset_json'], '',
+                                join('large', 'geneset-py2.json.gz'))
+                self.assertFile(geneset, 'geneset',
+                                join('large', 'geneset-py2.tab.gz'), compression='gzip')
+            else:
+                self.assertJSON(geneset, geneset.output['geneset_json'], '',
+                                join('large', 'geneset-py3.json.gz'))
+                self.assertFile(geneset, 'geneset',
+                                join('large', 'geneset-py3.tab.gz'), compression='gzip')
+        else:
+            self.fail("Gene set not created")

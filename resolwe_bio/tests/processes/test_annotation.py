@@ -11,7 +11,7 @@ class AnnotationProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "genome_transdecoder.fasta.gz"}
         genome = self.run_process('upload-genome', inputs)
 
-        inputs = {'src': 'annotation_transdecoder.gff.gz'}
+        inputs = {'src': 'annotation_transdecoder.gff.gz', 'source': 'dictyBase'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {

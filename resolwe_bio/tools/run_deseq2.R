@@ -21,7 +21,3 @@ result = result[order(result$padj),]
 head(result)
 
 write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=F, col.names=NA)
-
-plotMA(dds,ylim=c(-2,2),main="DESeq2")
-dev.copy(pdf, 'DESeq2_MAplot.pdf')
-dev.off()

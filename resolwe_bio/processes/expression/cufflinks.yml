@@ -6,7 +6,7 @@
 - slug: cufflinks
   name: Cufflinks (2.2.1)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.9
+  version: 1.0.10
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -82,6 +82,9 @@
     - name: skipped_loci
       label: Skipped loci
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -94,15 +97,20 @@
 
       NAME=`basename '{{ alignment.bam.file }}' .bam`
 
-      echo "{\"proc.progress\":0.1}"
+      re-progress 0.1
 
       cufflinks {% if gff %} '{{ annotation_usage }}' {% if gff.gtf.file %} "{{ gff.gtf.file }}" {% elif gff.gff.file %} "{{ gff.gff.file }}" {% endif %} {% endif %} {% if genome %} --frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M '{{ mask_file.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet '{{ alignment.bam.file }}'
 
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+      re-checkrc
+      re-progress 0.9
 
       mv transcripts.gtf ${NAME}_transcripts.gtf
       mv isoforms.fpkm_tracking ${NAME}_isoforms_fpkm_tracking.txt
       mv genes.fpkm_tracking ${NAME}_genes_fpkm_tracking.txt
       mv skipped.gtf ${NAME}_skipped.gtf
 
-      echo "{\"proc.progress\":1,\"transcripts\":{\"file\":\"${NAME}_transcripts.gtf\"}, \"isoforms_fpkm_tracking\":{\"file\":\"${NAME}_isoforms_fpkm_tracking.txt\"}, \"genes_fpkm_tracking\":{\"file\":\"${NAME}_genes_fpkm_tracking.txt\"}, \"skipped_loci\":{\"file\":\"${NAME}_skipped.gtf\"}}"
+      re-save-file transcripts ${NAME}_transcripts.gtf
+      re-save-file isoforms_fpkm_tracking ${NAME}_isoforms_fpkm_tracking.txt
+      re-save-file genes_fpkm_tracking ${NAME}_genes_fpkm_tracking.txt
+      re-save-file skipped_loci ${NAME}_skipped.gtf
+      re-save source {{gff.source}}

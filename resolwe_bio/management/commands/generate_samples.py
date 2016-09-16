@@ -63,6 +63,15 @@ class Command(BaseCommand):
         if organism == 'Homo sapiens':
             return 'Hs_{}_{}_{}'.format(self.get_random_word(3), group, replicate)
 
+    def set_source(self, species):
+        """Set Gene ID source."""
+        if species.startswith('Dd'):
+            return 'dictyBase'
+        if species.startswith('Mm'):
+            return 'mm10'
+        if species.startswith('Hs'):
+            return 'hg19'
+
     @staticmethod
     def generate_expressions(gene_ids, path):
         """Generate random expression data."""
@@ -194,7 +203,8 @@ class Command(BaseCommand):
             status=Data.STATUS_PROCESSING,
             input={'exp': {'file': 'expressions.tab.gz'},
                    'exp_type': 'FPKM',
-                   'exp_name': 'Expression'})
+                   'exp_name': 'Expression',
+                   'source': self.set_source(d.name)})
 
         os.mkdir(os.path.join(data_dir, str(exp.id)))
 
@@ -214,7 +224,8 @@ class Command(BaseCommand):
         exp.output = {
             'exp': {'file': 'expressions.tab.gz'},
             'exp_type': 'FPKM',
-            'exp_json': json_object.id
+            'exp_json': json_object.id,
+            'source': self.set_source(d.name)
         }
         exp.status = Data.STATUS_DONE
         exp.save()

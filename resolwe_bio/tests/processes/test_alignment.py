@@ -73,7 +73,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
                                                  mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
 
-        inputs = {'src': 'annotation.gff.gz'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {
@@ -98,7 +98,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {'genome': genome.pk,
@@ -123,6 +123,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
 
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'star_expression.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'dictyBase')
 
     def test_bwa_bt(self):
         genome = self.prepare_genome()

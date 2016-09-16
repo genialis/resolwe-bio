@@ -6,7 +6,7 @@
 - slug: upload-microarray-affy
   name: Upload microarray data (Affymetrix)
   data_name: '{{ cel.file|default:"?" }}'
-  version: 1.0.3
+  version: 1.0.4
   type: data:microarray:affy
   category: upload
   flow_collection: sample
@@ -20,12 +20,37 @@
       description: >
         Upload CEL file.
       validate_regex: '\.(cel|CEL)$'
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: hg95av2 (Affy)
+          value: hg95av2
+        - label: hgu133a (Affy)
+          value: hgu133a
+        - label: hgu133a2 (Affy)
+          value: hgu133a2
+        - label: hgu133plus2 (Affy)
+          value: hgu133plus2
+        - label: hugene20st (Affy)
+          value: hugene20st
+        - label: mouse4302 (Affy)
+          value: mouse4302
+        - label: mirna20 (Affy)
+          value: mirna20
+        - label: mirna30 (Affy)
+          value: mirna30
   output:
     - name: cel
       label: CEL file
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
       re-import "{{ cel.file_temp|default:cel.file }}" "{{ cel.file }}" "cel|CEL" "CEL"
       re-save-file cel "${NAME}.CEL"
+      re-save source {{source}}

@@ -10,7 +10,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
         self.assertFields(refseq_track, 'refseq_track.refs', ['seq'])
 
     def test_gff3_track(self):
-        inputs = {'src': 'annotation.gff.gz'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
         annotation = self.run_process('upload-gff3', inputs)
         gff = self.run_process('jbrowse-gff3', {'gff': annotation.pk})
         self.assertFields(gff, 'annotation_track.refs', ['tracks/annotation'])

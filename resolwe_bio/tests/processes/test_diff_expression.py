@@ -1,14 +1,16 @@
 # pylint: disable=missing-docstring
+from resolwe.flow.models import Data
+
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class DiffExpProcessorTestCase(BioProcessTestCase):
 
     def test_cuffdiff(self):
-        inputs = {"src": "cuffquant_1.cxb"}
+        inputs = {'src': 'cuffquant_1.cxb', 'source': 'hg19'}
         cuffquant = self.run_process("upload-cxb", inputs)
 
-        inputs = {"src": "cuffquant_2.cxb"}
+        inputs = {'src': 'cuffquant_2.cxb', 'source': 'hg19'}
         cuffquant2 = self.run_process("upload-cxb", inputs)
 
         annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
@@ -18,8 +20,9 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
             'control': [cuffquant2.id],
             'annotation': annotation.id}
         cuffdiff = self.run_process('cuffdiff', inputs)
-        self.assertFile(cuffdiff, 'diffexp', 'cuffdiff.tab.gz', compression='gzip')
-        self.assertJSON(cuffdiff, cuffdiff.output['de_data'], '', 'cuffdiff.json.gz')
+        self.assertFile(cuffdiff, 'raw', 'raw_cuffdiff.tab.gz', compression='gzip')
+        self.assertFile(cuffdiff, 'de_file', 'de_file_cuffdiff.tab.gz', compression='gzip')
+        self.assertJSON(cuffdiff, cuffdiff.output['de_json'], '', 'cuffdiff.json.gz')
 
     def test_bayseq_bcm(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
@@ -37,8 +40,19 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
     def test_deseq2(self):
-        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
-        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
+        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz',
+                                               f_exp='exp_1_tpm.tab.gz',
+                                               f_type="TPM",
+                                               source="dictyBase")
+        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
+                                               f_exp='exp_2_tpm.tab.gz',
+                                               f_type="TPM",
+                                               source="dictyBase")
+
+        expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
+                                               f_exp='exp_2_tpm.tab.gz',
+                                               f_type="TPM",
+                                               source="mm10")
 
         inputs = {
             'case': [expression_1.pk],
@@ -46,7 +60,17 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         }
 
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)
-        self.assertFile(diff_exp, "diffexp", 'diffexp_deseq2.tab.gz', compression='gzip')
+        self.assertFile(diff_exp, 'raw', 'diffexp_deseq2.tab.gz', compression='gzip')
+        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2.json.gz')
+        self.assertFields(diff_exp, 'source', 'dictyBase')
+
+        # Check if process fails when used with the expression data from different sources.
+        inputs = {
+            'case': [expression_1.pk],
+            'control': [expression_3.pk]
+        }
+
+        diff_exp = self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
 
     def test_limma(self):
         expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")
@@ -60,4 +84,5 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         }
 
         diff_exp = self.run_process('differentialexpression-limma', inputs)
-        self.assertFile(diff_exp, "diffexp", 'diffexp_limma.tab.gz', compression='gzip')
+        self.assertFile(diff_exp, "raw", 'diffexp_limma.tab.gz', compression='gzip')
+        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'limma.json.gz')

@@ -6,7 +6,7 @@
 - slug: differentialexpression-deseq2
   name: DESeq2
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.7
+  version: 1.0.8
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -24,15 +24,18 @@
       description: >
         Control samples (replicates)
   output:
-    - name: diffexp
+    - name: raw
       label: Differential expression
       type: basic:file
-    - name: volcano_plot
-      label: Volcano plot
+    - name: de_json
+      label: Results table (JSON)
       type: basic:json
-    - name: ma_plot
-      label: MA plot
+    - name: de_file
+      label: Results table (file)
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -56,6 +59,14 @@
         {% endif %}
       {% endfor %}
 
+      {% for c in control %}
+        {% for t in case %}
+          {% if control.0.source != c.source or c.source != t.source %}
+            re-error "DE analysis must be crated using the expression data from the same source."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+
       sampleConditions=${sampleConditions%?}
       cases=${cases%?}
       sampleFiles=$controls"$cases"
@@ -70,10 +81,10 @@
 
       re-progress 0.95
 
-      volcanoplot.py 'diffexp_deseq2.tab'
+      parse_diffexp.py 'diffexp_deseq2.tab' --gene_id gene_id --fdr padj --pvalue pvalue --logfc log2FoldChange --stat stat
 
       gzip 'diffexp_deseq2.tab'
-      mv Rplots.pdf DESeq2_MAplot.pdf
 
-      re-save-file diffexp diffexp_deseq2.tab.gz
-      re-save-file ma_plot DESeq2_MAplot.pdf
+      re-save-file raw diffexp_deseq2.tab.gz
+      re-save-file de_file de_file.tab.gz
+      re-save source "{{ case.0.source }}"

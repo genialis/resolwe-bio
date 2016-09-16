@@ -21,6 +21,16 @@ Changed
 * No longer treat ``resolwe_bio/tools`` as a Python package
 * Move processes' test files to the ``resolwe_bio/tests/files`` directory
   to generalize and simplify handling of tests' files
+* Update differential expression (DE) processors
+* Update ``generate_diffexpr`` django-admin command
+* Save gene_id source to ``output.source`` for DE, expression and related objects
+
+Added
+-----
+* Process definition documentation style and text improvements
+* Upload Gene sets (``data:geneset``)
+* Add ``generate_geneset`` django-admin command
+
 
 ================
 1.2.1 2016-07-27

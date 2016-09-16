@@ -16,7 +16,7 @@ class CompatibilityProcessorTestCase(BioProcessTestCase):
         self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
 
     def test_feature_location(self):
-        inputs = {'src': 'mm10_small.gtf.gz'}
+        inputs = {'src': 'mm10_small.gtf.gz', 'source': 'mm10'}
         annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {'annotation': annotation.pk,

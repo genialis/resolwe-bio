@@ -6,7 +6,7 @@
 - slug: cuffmerge
   name: Cuffmerge
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.0.11
+  version: 1.0.12
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -45,10 +45,21 @@
     - name: merged_gtf
       label: Merged GTF file
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
       echo "Preparing transcript assembly list!"
+
+      {% for e in expressions %}
+        {% for annot in gtf %}
+          {% if expressions.0.source != e.source or e.source != annot.source %}
+            re-error "The input data must use Gene IDs from the same source."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
 
       {% for exp in expressions %}
         echo '{{ exp.transcripts.file }}' >> transcript_assembly_list.txt
@@ -81,3 +92,9 @@
 
       mv merged.gtf cuffmerge_$(date +'%m-%d-%Y').gtf
       re-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
+
+      {% if expressions.0.source %}
+        re-save source {{expressions.0.source}}
+      {% else %}
+        re-save source {{gtf.0.source}}
+      {% endif %}

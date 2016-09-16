@@ -8,7 +8,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {

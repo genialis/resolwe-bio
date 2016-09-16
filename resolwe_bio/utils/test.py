@@ -76,12 +76,16 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src': fn}
         return self.run_process('upload-bam', inputs)
 
-    def prepare_annotation(self, fn='sp_test.gtf'):
+    def prepare_annotation(self, fn='sp_test.gtf', source='dictyBase'):
         """Prepare annotation GTF."""
-        inputs = {'src': fn}
+        inputs = {'src': fn, 'source': source}
         return self.run_process('upload-gtf', inputs)
 
-    def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM", name='Expression'):
+    def prepare_expression(self, f_rc='exp_1_rc.tab.gz',
+                           f_exp='exp_1_tpm.tab.gz',
+                           f_type="TPM",
+                           name='Expression',
+                           source='dictyBase'):
         """Prepare expression."""
-        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name}
+        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
         return self.run_process('upload-expression', inputs)

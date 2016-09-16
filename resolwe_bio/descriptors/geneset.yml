@@ -1,0 +1,7 @@
+- slug: geneset
+  name: Gene set details
+  description: Gene set details schema
+  schema:
+    - name: description
+      label: Description
+      type: basic:text

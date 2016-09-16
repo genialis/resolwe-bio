@@ -6,7 +6,7 @@
 - slug: expression-bcm-ncrna
   name: Expression ncRNA (BCM)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.1.0
+  version: 1.1.1
   type: data:expression:ncrna
   category: analyses
   flow_collection: sample
@@ -48,6 +48,9 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -61,34 +64,30 @@
 
       echo "XEXPRESSION..."
       xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --ncrna {% if stranded %} --stranded {% endif %}
-      # re-checkrc "Expression analysis failed"
-      # re-progress 0.5
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      re-checkrc "Expression analysis failed"
+      re-progress 0.5
 
       samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
-      # re-checkrc
-      echo "{\"proc.rc\":$?}"
+      re-checkrc
 
       if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rc.tab.gz ]
       then
         compute_coverage "expression_rc.tab.gz"
-        # re-checkrc "Computing coverage failed"
-        # re-save-file rc expression_rc.tab.gz expression_rc.tab.gz.bw
-        echo "{\"proc.rc\":$?, \"rc\":{\"file\":\"expression_rc.tab.gz\", \"refs\":[\"expression_rc.tab.gz.bw\"]}}"
+        re-checkrc "Computing coverage failed"
+        re-save-file rc expression_rc.tab.gz expression_rc.tab.gz.bw
       fi
       if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
       then
         compute_coverage "expression_rpkm.tab.gz"
-        # re-checkrc "Computing coverage failed"
-        # re-save-file rpkm expression_rpkm.tab.gz expression_rpkm.tab.gz.bw
-        echo "{\"proc.rc\":$?, \"rpkm\":{\"file\":\"expression_rpkm.tab.gz\", \"refs\":[\"expression_rpkm.tab.gz.bw\"]}}"
+        re-checkrc "Computing coverage failed"
+        re-save-file rpkm expression_rpkm.tab.gz expression_rpkm.tab.gz.bw
       fi
       if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
       then
         compute_coverage "expression_rpkum.tab.gz"
-        # re-checkrc "Computing coverage failed"
+        re-checkrc "Computing coverage failed"
         expression2storage.py "expression_rpkum.tab.gz"
-        # re-checkrc "Saving to JSON storage failed"
-        # re-save-file exp expression_rpkum.tab.gz expression_rpkum.tab.gz.bw
-        echo "{\"proc.rc\":$?, \"exp\":{\"file\":\"expression_rpkum.tab.gz\", \"refs\":[\"expression_rpkum.tab.gz.bw\"]}}"
+        re-checkrc "Saving to JSON storage failed"
+        re-save-file exp expression_rpkum.tab.gz expression_rpkum.tab.gz.bw
       fi
+      re-save source {{gff.source}}

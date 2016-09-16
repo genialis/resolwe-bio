@@ -6,7 +6,7 @@
 - slug: alignment-star
   name: STAR (2.4.2a)
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -248,9 +248,9 @@
         re-export ${READS_NAME}_1.tab.gz
         re-export ${READS_NAME}_2.tab.gz
         re-export ${READS_NAME}_3.tab.gz
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no"}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes"}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse"}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no","source":"{{genome.source}}"}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes","source":"{{genome.source}}"}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":"{{genome.source}}"}}'
       {% endif %}
 
       mv Aligned.sortedByCoord.out.bam ${READS_NAME}.bam
@@ -266,7 +266,7 @@
 - slug: alignment-star-index
   name: STAR genome index (2.4.2a)
   data_name: "STAR genome index ({{ genome.fasta.file|basename|default:'?' }})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -324,6 +324,9 @@
     - name: index
       label: Indexed genome
       type: basic:dir
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -334,3 +337,4 @@
       re-checkrc "Genome index build failed."
       re-progress 0.8
       re-save-dir index star_index
+      re-save source {{annotation.source}}

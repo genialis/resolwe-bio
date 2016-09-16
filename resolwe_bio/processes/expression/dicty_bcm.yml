@@ -6,7 +6,7 @@
 - slug: expression-bcm
   name: Expression (BCM)
   data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.0.14
+  version: 1.0.15
   type: data:expression:polya
   category: analyses
   flow_collection: sample
@@ -55,6 +55,9 @@
       type: basic:json
     - name: exp_type
       label: Expression Type (default output)
+      type: basic:string
+    - name: source
+      label: Gene ID source
       type: basic:string
   run:
     runtime: polyglot
@@ -121,3 +124,4 @@
         re-checkrc
         re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
       fi
+      re-save source {{gff.source}}

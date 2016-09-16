@@ -6,7 +6,7 @@
 - slug: cuffmerge-gtf-to-gff3
   name: Convert Cuffmerge GTF to GFF3 format
   data_name: 'Cuffmerge annotation (GFF3)'
-  version: 1.0.3
+  version: 1.0.4
   type: data:annotation:gff3
   category: analyses
   persistence: CACHED
@@ -20,6 +20,9 @@
     - name: gff
       label: Cuffmerge annotation file (GFF3)
       type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
   run:
     runtime: polyglot
     bash: |
@@ -44,3 +47,4 @@
       sed -i '/gffread/d' ${ANNOTATION_NAME}.gff
 
       re-save-file gff ${ANNOTATION_NAME}.gff
+      re-save source {{cuffmerge.source}}
