@@ -6,7 +6,7 @@
 - slug: upload-geneset
   name: Gene set
   data_name: '{{ src.file|default:"?" }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:geneset
   category: upload
   persistence: RAW
@@ -74,4 +74,5 @@
       re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab|txt" "tab" 0.9
       re-save-file geneset ${NAME}.tab.gz
       re-save source {{source}}
-      geneset2storage.py ${NAME}.tab
+      geneset2storage.py "${NAME}.tab" geneset.json
+      re-save geneset_json geneset.json

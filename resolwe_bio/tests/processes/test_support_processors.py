@@ -1,8 +1,10 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import BioProcessTestCase
 
+from resolwe.flow.models import Data
 
-class CompatibilityProcessorTestCase(BioProcessTestCase):
+
+class SupportProcessorTestCase(BioProcessTestCase):
 
     def test_reference_compatibility(self):
         inputs = {"src": "sp_test.fasta"}
@@ -25,3 +27,14 @@ class CompatibilityProcessorTestCase(BioProcessTestCase):
                   'summarize_exons': True}
         features = self.run_process('feature_location', inputs)
         self.assertJSON(features, features.output['feature_location'], '', 'feature_locations.json.gz')
+
+    def test_generate_go_genesets(self):
+        inputs = {'src': 'go_genesets.mgi.gz'}
+        gaf = self.run_process('upload-gaf', inputs)
+
+        inputs = {'gaf': gaf.id, 'source': 'MGI_ID'}
+        go_genesets = self.run_process('go-genesets', inputs)
+        self.assertFields(go_genesets, 'num_genesets', 6)
+
+        last_geneset = Data.objects.last()
+        self.assertFile(last_geneset, 'geneset', 'go_geneset.tab.gz', compression='gzip')

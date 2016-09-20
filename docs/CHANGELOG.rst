@@ -9,11 +9,6 @@ All notable changes to this project are documented in this file.
 Unreleased
 ==========
 
-Added
------
-* Process definition documentation style and text improvements
-* Add tests to ensure generators produce the same results
-
 Changed
 -------
 * Add option to save expression JSON to file before saving it to Storage
@@ -28,9 +23,11 @@ Changed
 Added
 -----
 * Process definition documentation style and text improvements
+* Add tests to ensure generators produce the same results
 * Upload Gene sets (``data:geneset``)
 * Add ``generate_geneset`` django-admin command
 * Add ``generate_diffexpr_deseq`` django-admin command
+* Add 'Generate GO gene sets' processor
 
 
 ================

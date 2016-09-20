@@ -1,0 +1,30 @@
+# =====================
+# Generate GO gene sets
+# =====================
+---
+
+- slug: go-genesets
+  name: Import gene sets (GO terms)
+  data_name: "Import gene sets from {{gaf.gaf.file}}"
+  version: 0.0.1
+  type: data:genesets:go
+  category: analyses
+  persistence: CACHED
+  description: >
+    Generate Gene Ontology (GO) gene sets.
+  input:
+    - name: gaf
+      label: Reference GAF file
+      type: data:gaf:2:0
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  output:
+    - name: num_genesets
+      label: Number of gene sets generated
+      type: basic:integer
+  run:
+    runtime: polyglot
+    bash: |
+        go_genesets.py {{gaf.gaf.file}} {{source}}
+        re-checkrc "Parsing of GAF file failed."
