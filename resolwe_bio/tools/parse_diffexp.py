@@ -20,6 +20,7 @@ def parse_arguments():
     parser.add_argument('--logodds', help="Log Odds column name", type=str)
     parser.add_argument('--logfc', help="logfc column name", type=str)
     parser.add_argument('--stat', help="Statistics column name", type=str)
+    parser.add_argument('--output', help='Output JSON file')
     return parser.parse_args()
 
 
@@ -34,8 +35,12 @@ def main():
     col_order = []
 
     if args.gene_id:
-        columns['gene_id'] = list(de_data[args.gene_id])
-        col_order.append('gene_id')
+        if args.gene_id == 'index':
+            columns['gene_id'] = list(de_data.index)
+            col_order.append('gene_id')
+        else:
+            columns['gene_id'] = list(de_data[args.gene_id])
+            col_order.append('gene_id')
 
     if args.logfc:
         col = np.array(de_data[args.logfc])
@@ -63,8 +68,8 @@ def main():
         columns['stat'] = list(de_data[args.stat])
         col_order.append('stat')
 
-    data = {'de_json': columns}
-    print(json.dumps(data, separators=(',', ':'), allow_nan=False))
+    with open(args.output, 'w') as f:
+        json.dump({'de_json': columns}, f, separators=(',', ':'), allow_nan=False)
 
     outdf = pd.DataFrame(columns)
     outdf = outdf[col_order]

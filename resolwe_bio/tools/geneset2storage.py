@@ -18,7 +18,7 @@ def main():
 
     with open(args.geneset_file) as infile:
         geneset = [gene.strip() for gene in infile]
-        data = {'geneset_json': geneset}
+        data = {'geneset_json': {'geneset_json': geneset}}
         print(json.dumps(data, separators=(',', ':'), allow_nan=False))
 
 
