@@ -177,7 +177,7 @@ class Command(BaseCommand):
                 'fdr': de_data['q_value'],
                 'gene_id': de_data['gene_id']
             }
-            json.dump({'de_json': de_data_std}, json_file, indent=4, sort_keys=True)
+            json.dump(de_data_std, json_file, indent=4, sort_keys=True)
 
             rows = zip(de_data_std['gene_id'], de_data_std['logfc'], de_data_std['fdr'],
                        de_data_std['pvalue'], de_data_std['stat'])

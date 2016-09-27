@@ -65,7 +65,7 @@ class Command(BaseCommand):
                     csvwriter.writerow([gene])
                     geneset.append(gene)
 
-        json_dump = json.dumps({'geneset_json': geneset}, indent=4, sort_keys=True)
+        json_dump = json.dumps({'genes': geneset}, indent=4, sort_keys=True)
         with open(os.path.join(path, 'geneset.json'), 'w') as json_file:
             json_file.write(json_dump)
 
