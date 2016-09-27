@@ -13,6 +13,8 @@ def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Parse Diff Exp output files")
     parser.add_argument('raw_file', help="DE analysis output file (.tab).")
+    parser.add_argument('output_json', help='Output JSON')
+    parser.add_argument('output_file', help='Output file')
     parser.add_argument('--gene_id', help="Gene_IDs column name", type=str)
     parser.add_argument('--fdr', help="FDR column name", type=str)
     parser.add_argument('--pvalue', help="Pvalue column name", type=str)
@@ -34,8 +36,12 @@ def main():
     col_order = []
 
     if args.gene_id:
-        columns['gene_id'] = list(de_data[args.gene_id])
-        col_order.append('gene_id')
+        if args.gene_id == 'index':
+            columns['gene_id'] = list(de_data.index)
+            col_order.append('gene_id')
+        else:
+            columns['gene_id'] = list(de_data[args.gene_id])
+            col_order.append('gene_id')
 
     if args.logfc:
         col = np.array(de_data[args.logfc])
@@ -63,12 +69,12 @@ def main():
         columns['stat'] = list(de_data[args.stat])
         col_order.append('stat')
 
-    data = {'de_json': columns}
-    print(json.dumps(data, separators=(',', ':'), allow_nan=False))
+    with open(args.output_json, 'w') as f:
+        json.dump(columns, f, separators=(',', ':'), allow_nan=False)
 
     outdf = pd.DataFrame(columns)
     outdf = outdf[col_order]
-    outdf.to_csv('de_file.tab.gz', sep='\t', index=False, compression='gzip')
+    outdf.to_csv(args.output_file, sep='\t', index=False, compression='gzip')
 
 
 if __name__ == "__main__":

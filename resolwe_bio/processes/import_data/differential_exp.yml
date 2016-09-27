@@ -6,7 +6,7 @@
 - slug: upload-diffexp
   name: Differential Expression (table)
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.0.5
+  version: 1.0.6
   type: data:differentialexpression:upload
   category: upload
   persistence: RAW
@@ -84,6 +84,18 @@
           value: mirna20
         - label: mirna30 (Affy)
           value: mirna30
+    - name: case
+      label: Case
+      type: list:data:expression
+      required: false
+      description: >
+        Case samples (replicates)
+    - name: control
+      label: Control
+      type: list:data:expression
+      required: false
+      description: >
+        Control samples (replicates)
   output:
     - name: raw
       label: Differential expression
@@ -101,7 +113,10 @@
     runtime: polyglot
     bash: |
       NAME='{{ src.file }}'
-      --pvalue p_value  --stat test_stat
+
+      {% if case and not control or control and not case %}
+        re-error "Both case and control sample groups need to be provided"
+      {% endif %}
 
       GENE_ID='{% if gene_id %} --gene_id {{gene_id}} {% endif %}'
       LOGFC='{% if logfc %} --logfc {{logfc}} {% endif %}'
@@ -114,24 +129,25 @@
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       else
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       fi
       re-save-file raw ${NAME}.tab.gz
       re-save-file de_file de_file.tab.gz
+      re-save de_json de_data.json
       re-save source "{{source}}"

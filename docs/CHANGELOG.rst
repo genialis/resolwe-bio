@@ -19,6 +19,7 @@ Changed
 * Update differential expression (DE) processors
 * Update ``generate_diffexpr_cuffdiff`` django-admin command
 * Save gene_id source to ``output.source`` for DE, expression and related objects
+* Refactor ``upload-diffexp``processor
 
 Added
 -----

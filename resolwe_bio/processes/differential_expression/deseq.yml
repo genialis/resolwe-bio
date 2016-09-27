@@ -6,7 +6,7 @@
 - slug: differentialexpression-deseq2
   name: DESeq2
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.8
+  version: 1.0.9
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -81,10 +81,11 @@
 
       re-progress 0.95
 
-      parse_diffexp.py 'diffexp_deseq2.tab' --gene_id gene_id --fdr padj --pvalue pvalue --logfc log2FoldChange --stat stat
+      parse_diffexp.py 'diffexp_deseq2.tab' de_data.json de_file.tab.gz --gene_id gene_id --fdr padj --pvalue pvalue --logfc log2FoldChange --stat stat
 
       gzip 'diffexp_deseq2.tab'
 
+      re-save de_json de_data.json
       re-save-file raw diffexp_deseq2.tab.gz
       re-save-file de_file de_file.tab.gz
       re-save source "{{ case.0.source }}"

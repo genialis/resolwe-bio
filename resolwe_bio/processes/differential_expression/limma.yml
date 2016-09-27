@@ -7,7 +7,7 @@
 - slug: differentialexpression-limma
   name: Limma
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.3
+  version: 1.0.4
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED
@@ -80,10 +80,11 @@
 
       re-progress 0.95
 
-      parse_diffexp.py 'diffexp_limma.tab' --gene_id gene_id --fdr adj.P.Val --pvalue P.Value --logfc logFC --logodds B --stat t
+      parse_diffexp.py 'diffexp_limma.tab' de_data.json de_file.tab.gz --gene_id gene_id --fdr adj.P.Val --pvalue P.Value --logfc logFC --logodds B --stat t
       re-checkrc
 
       gzip 'diffexp_limma.tab'
+      re-save de_json de_data.json
       re-save-file raw diffexp_limma.tab.gz
       re-save-file de_file de_file.tab.gz
       re-save source "{{ case.0.source }}"
