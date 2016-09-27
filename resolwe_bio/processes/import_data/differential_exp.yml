@@ -6,7 +6,7 @@
 - slug: upload-diffexp
   name: Differential Expression (table)
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.0.5
+  version: 1.0.6
   type: data:differentialexpression:upload
   category: upload
   persistence: RAW
@@ -101,7 +101,6 @@
     runtime: polyglot
     bash: |
       NAME='{{ src.file }}'
-      --pvalue p_value  --stat test_stat
 
       GENE_ID='{% if gene_id %} --gene_id {{gene_id}} {% endif %}'
       LOGFC='{% if logfc %} --logfc {{logfc}} {% endif %}'
@@ -114,24 +113,166 @@
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       else
         re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3
-        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOG_FC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
         re-checkrc
         re-progress 0.7
-        gzip "${NAME}.tab"
       fi
       re-save-file raw ${NAME}.tab.gz
       re-save-file de_file de_file.tab.gz
+      re-save de_json de_data.json
+      re-save source "{{source}}"
+
+- slug: upload-diffexp-inputs
+  name: Differential Expression (input)
+  data_name: '{{ src.file }})'
+  version: 0.0.1
+  type: data:differentialexpression:upload
+  category: upload
+  persistence: RAW
+  description: >
+    Upload Differential Expression table.
+  input:
+    - name: src
+      label: Differential expression file
+      type: basic:file
+      description: >
+        Differential expression file. Supported file types: *.xls, *.xlsx, *.tab (tab-delimited file), *.diff. DE file must include columns with log2(fold change) and FDR or pval information. DE file must contain header row with column names. Accepts DESeq, DESeq2, edgeR and CuffDiff output files.
+      validate_regex: '\.(xls|xlsx|tab|tab.gz|diff|diff.gz)$'
+    - name: case
+      label: Case
+      type: list:data:expression
+      description: >
+        Case samples (replicates)
+    - name: control
+      label: Control
+      type: list:data:expression
+      description: >
+        Control samples (replicates)
+    - name: gene_id
+      label: Gene ID label
+      type: basic:string
+    - name: logfc
+      label: LogFC label
+      type: basic:string
+    - name: fdr
+      label: FDR label
+      type: basic:string
+      required: false
+    - name: logodds
+      label: LogOdds label
+      type: basic:string
+      required: false
+    - name: fwer
+      label: FWER label
+      type: basic:string
+      required: false
+    - name: pvalue
+      label: Pvalue label
+      type: basic:string
+      required: false
+    - name: stat
+      label: Statistics label
+      type: basic:string
+      required: false
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: GRCh38.85 (ENSEMBL)
+          value: GRCh38.85
+        - label: GRCm38.85 (ENSEMBL)
+          value: GRCm38.85
+        - label: GRCh38.p7 (NCBI)
+          value: GRCh38.p7
+        - label: GRCm38.p4 (NCBI)
+          value: GRCm38.p4
+        - label: hg19 (UCSC)
+          value: hg19
+        - label: hg38 (UCSC)
+          value: hg38
+        - label: mm9 (UCSC)
+          value: mm9
+        - label: mm10 (UCSC)
+          value: mm10
+        - label: dictyBase
+          value: dictyBase
+        - label: hg95av2 (Affy)
+          value: hg95av2
+        - label: hgu133a (Affy)
+          value: hgu133a
+        - label: hgu133a2 (Affy)
+          value: hgu133a2
+        - label: hgu133plus2 (Affy)
+          value: hgu133plus2
+        - label: hugene20st (Affy)
+          value: hugene20st
+        - label: mouse4302 (Affy)
+          value: mouse4302
+        - label: mirna20 (Affy)
+          value: mirna20
+        - label: mirna30 (Affy)
+          value: mirna30
+  output:
+    - name: raw
+      label: Differential expression
+      type: basic:file
+    - name: de_json
+      label: Results table (JSON)
+      type: basic:json
+    - name: de_file
+      label: Results table (file)
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      NAME='{{ src.file }}'
+
+      GENE_ID='{% if gene_id %} --gene_id {{gene_id}} {% endif %}'
+      LOGFC='{% if logfc %} --logfc {{logfc}} {% endif %}'
+      FDR='{% if fdr %} --fdr {{fdr}} {% endif %}'
+      LOGODDS='{% if logodds %} --logodds {{logodds}} {% endif %}'
+      FWER='{% if fwer %} --fwer {{fwer}} {% endif %}'
+      PVALUE='{% if pvalue %} --pvalue {{pvalue}} {% endif %}'
+      STAT='{% if stat %} --stat {{stat}} {% endif %}'
+
+      if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
+        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
+        convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
+        re-checkrc
+        re-progress 0.7
+        gzip "${NAME}.tab"
+      elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
+        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
+        convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
+        re-checkrc
+        re-progress 0.7
+        gzip "${NAME}.tab"
+      else
+        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3
+        parse_diffexp.py ${NAME}.tab ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT} --output de_data.json
+        re-checkrc
+        re-progress 0.7
+      fi
+      re-save-file raw ${NAME}.tab.gz
+      re-save-file de_file de_file.tab.gz
+      re-save de_json de_data.json
       re-save source "{{source}}"
