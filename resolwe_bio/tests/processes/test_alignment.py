@@ -186,3 +186,17 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_paired_report.txt')
+
+    def test_subread(self):
+        genome = self.prepare_genome()
+        reads = self.prepare_reads()
+        reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
+                                                 mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+
+        inputs = {'genome': genome.id, 'reads': reads.id}
+        aligned_reads = self.run_process('alignment-subread', inputs)
+        self.assertFile(aligned_reads, 'stats', 'subread_reads_report.txt')
+
+        inputs = {'genome': genome.id, 'reads': reads_paired.id}
+        aligned_reads = self.run_process('alignment-subread', inputs)
+        self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')

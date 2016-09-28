@@ -47,6 +47,13 @@
       description: >
         HISAT2 index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
+    - name: subread_index
+      label: subread index files
+      type: basic:file
+      required: false
+      description: >
+        subread index files. Supported extensions (*.tar.gz).
+      validate_regex: '(\.tar\.gz)$'
   output:
     - name: fasta
       label: Uploaded file
@@ -62,6 +69,9 @@
       type: basic:dir
     - name: index_hisat2
       label: HISAT2 index
+      type: basic:dir
+    - name: index_subread
+      label: subread index
       type: basic:dir
   run:
     runtime: polyglot
@@ -127,3 +137,15 @@
       {% endif %}
 
       re-save-dir index_hisat2 hisat2_index
+
+      {% if subread_index %}
+        re-import "{{ subread_index.file_temp|default:subread_index.file }}" "{{ subread_index.file }}" "tar" "tar" 0.9 compress
+        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index subread_index
+      {% else %}
+        mkdir subread_index
+        subread-buildindex "${FASTA_NAME}.fasta" -o "subread_index/${FASTA_NAME}_index"
+        re-checkrc
+        re-progress 0.9
+      {% endif %}
+
+      re-save-dir index_subread subread_index

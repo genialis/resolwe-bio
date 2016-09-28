@@ -138,17 +138,18 @@ class UploadProcessorTestCase(BioProcessTestCase):
     def test_upload_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
         genome = self.run_process('upload-genome', inputs)
-
-        inputs = {'src': 'genome.fasta.gz',
-                  'bowtie_index': 'bt_index.tar.gz',
-                  'bowtie2_index': 'bt2_index.tar.gz',
-                  'bwa_index': 'bwa_index.tar.gz',
-                  'hisat2_index': 'hisat2_index.tar.gz'}
+        inputs = {"src": "genome.fasta.gz",
+                  "bowtie_index": "bt_index.tar.gz",
+                  "bowtie2_index": "bt2_index.tar.gz",
+                  "bwa_index": "bwa_index.tar.gz",
+                  "hisat2_index": "hisat2_index.tar.gz",
+                  "subread_index": "subread_index.tar.gz"}
         genome = self.run_process('upload-genome', inputs)
-        self.assertFields(genome, 'index_bt.dir', 'bowtie_index')
-        self.assertFields(genome, 'index_bt2.dir', 'bowtie2_index')
-        self.assertFields(genome, 'index_bwa.dir', 'BWA_index')
-        self.assertFields(genome, 'index_hisat2.dir', 'hisat2_index')
+        self.assertFields(genome, "index_bt.dir", 'bowtie_index')
+        self.assertFields(genome, "index_bt2.dir", 'bowtie2_index')
+        self.assertFields(genome, "index_bwa.dir", 'BWA_index')
+        self.assertFields(genome, "index_hisat2.dir", 'hisat2_index')
+        self.assertFields(genome, "index_subread.dir", 'subread_index')
 
     def test_upload_bed(self):
         inputs = {'src': 'bad.bed'}
