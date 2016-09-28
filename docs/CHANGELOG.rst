@@ -29,6 +29,9 @@ Added
 * Add ``generate_geneset`` django-admin command
 * Add ``generate_diffexpr_deseq`` django-admin command
 * Add 'Generate GO gene sets' processor
+* Add generic file upload processors
+* Add upload processor for common image file types (.jpg/.tiff/.png/.gif)
+* Add upload processor for tabular file formats (.tab/.tsv/.csv/.txt/.xls/.xlsx)
 
 
 ================

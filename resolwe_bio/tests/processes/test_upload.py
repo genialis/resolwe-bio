@@ -165,3 +165,35 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(geneset, 'geneset', 'geneset.tab.gz', compression='gzip')
         self.assertFields(geneset, 'source', 'mm10')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
+
+    def test_upload_image(self):
+        inputs = {'src': 'upload image.1.png'}
+        png = self.run_process('upload-image-file', inputs)
+        self.assertFile(png, 'file', 'upload image.1.png')
+
+    def test_upload_file(self):
+        inputs = {'src': 'upload image.1.png'}
+        png = self.run_process('upload-file', inputs)
+        self.assertFile(png, 'file', 'upload image.1.png')
+        self.assertFields(png, 'file', {'file': 'upload image.1.png', 'size': 4799})
+
+    def test_upload_tabular(self):
+        inputs = {'src': 'upload_file.tab.gz'}
+        tab = self.run_process('upload-tab-file', inputs)
+        self.assertFile(tab, 'file', 'tab_file_tabular.tab.gz', compression='gzip')
+        self.assertFile(tab, 'src_file', 'upload_file.tab.gz', compression='gzip')
+
+        inputs = {'src': 'upload_file.csv.gz'}
+        csv = self.run_process('upload-tab-file', inputs)
+        self.assertFile(csv, 'file', 'csv_file_tabular.tab.gz', compression='gzip')
+        self.assertFile(csv, 'src_file', 'upload_file.csv.gz', compression='gzip')
+
+        inputs = {'src': 'upload_file.xls'}
+        xls = self.run_process('upload-tab-file', inputs)
+        self.assertFile(xls, 'file', 'xls_file_tabular.tab.gz', compression='gzip')
+        self.assertFile(xls, 'src_file', 'upload_file.xls')
+
+        inputs = {'src': 'upload file.1.xlsx'}
+        xlsx = self.run_process('upload-tab-file', inputs)
+        self.assertFile(xlsx, 'file', 'xlsx_file_tabular.tab.gz', compression='gzip')
+        self.assertFile(xlsx, 'src_file', 'upload file.1.xlsx')

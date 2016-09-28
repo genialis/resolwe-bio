@@ -1,0 +1,30 @@
+# =================
+# Import image file
+# =================
+---
+
+- slug: upload-image-file
+  name: Image file
+  data_name: '{{ src.file|default:"?" }}'
+  version: 0.0.1
+  type: data:file:image
+  category: upload
+  persistence: RAW
+  description: >
+    Upload image file.
+  input:
+    - name: src
+      label: Image file
+      type: basic:file
+      description: >
+        Image file.
+      validate_regex: '\.(tiff|tif|jpg|jpeg|png|TIFF|TIF|JPG|JPEG|PNG)$'
+  output:
+    - name: file
+      label: Image file
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      mv "{{ src.file_temp|default:src.file }}" "{{ src.file }}"
+      re-save-file file "{{ src.file }}"

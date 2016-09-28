@@ -1,0 +1,27 @@
+# =====================
+# Import file (generic)
+# =====================
+---
+
+- slug: upload-file
+  name: File
+  data_name: '{{ src.file|default:"?" }}'
+  version: 0.0.1
+  type: data:file
+  category: upload
+  persistence: RAW
+  description: >
+    A general processor for importing files.
+  input:
+    - name: src
+      label: Input file
+      type: basic:file
+  output:
+    - name: file
+      label: File
+      type: basic:file
+  run:
+    runtime: polyglot
+    bash: |
+      mv "{{ src.file_temp|default:src.file }}" "{{src.file}}"
+      re-save-file file "{{src.file}}"
