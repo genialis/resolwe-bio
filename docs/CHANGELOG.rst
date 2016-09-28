@@ -32,6 +32,7 @@ Added
 * Add generic file upload processors
 * Add upload processor for common image file types (.jpg/.tiff/.png/.gif)
 * Add upload processor for tabular file formats (.tab/.tsv/.csv/.txt/.xls/.xlsx)
+* Add featureCounts process
 
 
 ================

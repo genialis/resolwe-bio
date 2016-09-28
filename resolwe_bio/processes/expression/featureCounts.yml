@@ -1,0 +1,171 @@
+# ==========================
+# Expression - featureCounts
+# ==========================
+---
+
+- slug: feature_counts
+  name: FeatureCounts
+  data_name: "{{ alignments.bam.file|basename|default:'?' }}"
+  version: 0.0.1
+  type: data:expression:featurecounts
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    A highly efficient and accurate read summarization program.
+  input:
+    - name: alignments
+      label: Aligned reads
+      type: data:alignment:bam
+    - name: annotation
+      label: Annotation (GTF)
+      type: data:annotation:gtf
+    - name: id_attribute
+      label: ID attribute
+      type: basic:string
+      default: gene_id
+      description: >
+        GTF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
+    - name: format_of_annotation
+      label: Format of the annotation file
+      type: basic:string
+      required: false
+      default: GTF
+      description: >
+        Specify the format of the annotation file. GTF file is used by default.
+    - name: count_multi_mapping_reads
+      label: Count multi mapping reads
+      type: basic:boolean
+      required: false
+      default: false
+      description: >
+        If specified, multi-mapping reads/fragments will be counted.
+    - name: min_mqs
+      label: Minimal mapping quality score
+      type: basic:integer
+      required: false
+      default: 0
+      description: >
+        The minimum mapping quality score a read must satisfy in order to be counted. For paired-end reads, at least one end should satisfy this criteria.
+    - name: strand_specific
+      label: Strand specific read counting
+      type: basic:integer
+      required: false
+      default: 0
+      description: >
+        Indicate if strand-specific read counting should be performed.
+      choices:
+        - label: unstranded
+          value: 0
+        - label: stranded
+          value: 1
+        - label: reversely stranded
+          value: 2
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      default: exon
+      description: >
+        Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
+    - name: cpu_number
+      label: Number of threads/CPUs
+      type: basic:integer
+      required: false
+      default: 1
+      description: >
+        Specify the number of threads/CPUs used for mapping
+    - name: PE_options
+      label: Paired end alignment options
+      group:
+        - name: is_paired_end
+          label: Is paired end
+          type: basic:boolean
+          required: false
+          default: false
+          description: >
+            If specified, only fragments that have both ends successfully aligned will be considered for summarization.
+        - name: require_both_ends_mapped
+          label: Require both ends mapped
+          type: basic:boolean
+          required: false
+          description: >
+            If specified, only fragments that have both ends successfully aligned will be considered for summarization.
+        - name: count_chimeric_fragments
+          label: Count chimeric fragments
+          type: basic:boolean
+          required: false
+          description: >
+           If specified, the chimeric fragments (those fragments that have their two ends aligned to different chromosomes) will NOT be counted.
+  output:
+    - name: rc
+      label: Read counts
+      type: basic:file
+    - name: fpkm
+      label: FPKM
+      type: basic:file
+    - name: exp
+      label: TPM (Transcripts Per Million)
+      type: basic:file
+    - name: exp_json
+      label: TPM (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression Type (default output)
+      type: basic:string
+    - name: feature_counts_output
+      label: featureCounts output
+      type: basic:file
+    - name: counts_summary
+      label: Counts summary
+      type: basic:file
+    - name: read_assignments
+      label: Read assignments
+      type: basic:file
+      description: >
+        Read assignment results for each read (or fragment if paired end).
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      NAME=`basename '{{ alignments.bam.file}}' .bam`
+
+      COUNT_MULTI_MAPPING_READS="{% if count_multi_mapping_reads %} -M{% endif %}"
+
+      REQUIRE_BOTH_ENDS_MAPPED="{% if PE_options.require_both_ends_mapped %} -B{% endif %}"
+      COUNT_CHIMERIC_FRAGMENTS="{% if PE_options.count_chimeric_fragments %} -C{% endif %}"
+
+      if [samtools view -c -f 1 '{{ alignments.bam.file }}' ]; then
+        featureCounts -a "{{ annotation.gtf.file }}" -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} ${REQUIRE_BOTH_ENDS_MAPPED} ${COUNT_CHIMERIC_FRAGMENTS} -p -R "{{ alignments.bam.file }}"
+      else
+        featureCounts -a "{{ annotation.gtf.file }}" -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} -R "{{ alignments.bam.file }}"
+      fi
+      re-checkrc "featureCounts failed"
+
+      tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
+      expression_fpkm_tpm.R  '{{ annotation.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+      re-checkrc
+      re-progress 0.9
+
+      add_header.py rc_wo_header.txt rc.txt
+      add_header.py fpkm_wo_header.tab fpkm.tab
+      add_header.py tpm_wo_header.tab tpm.tab
+
+      gzip -c featureCounts_rc.txt > ${NAME}_featureCounts_rc.txt.gz
+      gzip -c rc.txt > ${NAME}_rc.tab.gz
+      gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
+      gzip -c tpm.tab > ${NAME}_tpm.tab.gz
+
+      expression2storage.py ${NAME}_tpm.tab.gz
+      re-checkrc
+      re-progress 0.95
+
+      re-save-file feature_counts_output "${NAME}_featureCounts_rc.txt.gz"
+      re-save-file counts_summary "featureCounts_rc.txt.summary"
+      re-save-file read_assignments "${NAME}.bam.featureCounts"
+      re-save-file rc "${NAME}_rc.tab.gz"
+      re-save-file fpkm "${NAME}_fpkm.tab.gz"
+      re-save-file exp "${NAME}_tpm.tab.gz"
+      re-save exp_type 'TPM'
+      re-save source {{annotation.source}}

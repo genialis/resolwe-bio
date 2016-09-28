@@ -245,3 +245,19 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         ncrna_expressions = self.run_process('summarizexpressions-ncrna', inputs)
         self.assertFile(ncrna_expressions, 'expset', 'ncRNA_exp_all.tab.gz', compression='gzip')
         self.assertFile(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')
+
+    def test_feature_counts(self):
+        inputs = {'src': 'annotation.gtf.gz', 'source': 'dictyBase'}
+        annotation = self.run_process('upload-gtf', inputs)
+
+        inputs = {"src": "reads.bam"}
+        bam = self.run_process("upload-bam", inputs)
+
+        inputs = {
+            'alignments': bam.pk,
+            'annotation': annotation.pk,
+            'id_attribute': 'transcript_id'}
+        expression = self.run_process('feature_counts', inputs)
+        self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
