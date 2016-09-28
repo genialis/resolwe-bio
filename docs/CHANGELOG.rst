@@ -34,6 +34,7 @@ Added
 * Add upload processor for tabular file formats (.tab/.tsv/.csv/.txt/.xls/.xlsx)
 * Add featureCounts process
 * Add Subread process
+* Add process for hierarchical clusteing of samples
 
 
 ================

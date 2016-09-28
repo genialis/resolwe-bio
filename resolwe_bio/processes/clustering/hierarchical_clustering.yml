@@ -3,11 +3,11 @@
 # =====================
 ---
 
-- slug: clustering-hierarchical-bcm
-  name: Hierarchical clustering
+- slug: clustering-hierarchical-genes-etc
+  name: Hierarchical clustering of genes
   data_name: 'Hierarchical clustering of {{genes|join:", "|default:"?"}}'
-  version: 1.0.3
-  type: data:clustering:hierarchical:etc
+  version: 1.0.4
+  type: data:clustering:hierarchical:genes:etc
   category: analyses
   persistence: TEMP
   description: >
@@ -59,10 +59,10 @@
 
 
 - slug: clustering-hierarchical-samples
-  name: Hierarchical clustering
+  name: Hierarchical clustering of samples
   data_name: 'Hierarchical clustering of samples'
-  version: 0.0.1
-  type: data:sample:clustering:hierarchical
+  version: 0.0.2
+  type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
   description: >
@@ -71,9 +71,6 @@
     - name: exps
       label: Expression
       type: list:data:expression
-    - name: sampleids
-      label: Sample ids
-      type: list:basic:string
     - name: genes
       label: Gene subset
       type: list:basic:string
@@ -82,7 +79,7 @@
     - name: distance
       label: Distance measure
       type: basic:string
-      default: euclidean
+      default: spearman
       choices:
         - label: spearman
           value: spearman
@@ -102,11 +99,11 @@
         - label: complete
           value: complete
     - name: filter
-      label: Exclude genes with no expression in all samples
+      label: Exclude not expressed genes.
       type: basic:boolean
       default: true
       description: >
-        Exclude/filter unexpressed genes and genes with cumulative normalized expression lower than number of samples.
+        Exclude genes that were not expressed and genes with cumulative normalized expression lower than the number of samples.
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -115,6 +112,6 @@
   run:
     runtime: polyglot
     bash: |
-      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %}{% if sampleids %}--sampleids {% for s in sampleids %}"{{s}}" {% endfor %}{% endif %}{% if genes %}--genes {{genes|join:" "}}{% endif %}--linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %}--genes {{genes|join:" "}}{% endif %}--linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0

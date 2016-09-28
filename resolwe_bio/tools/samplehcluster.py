@@ -49,18 +49,17 @@ if not args.sampleids or len(args.sampleids) != len(args.sample_files):
 
 # read data
 matrix = []
+gene_subset = set(args.genes) if args.genes else None
 for fname in args.sample_files:
-    matrix.append([])
 
     with gzip.open(fname) as csvfile:
         sample_reader = csv.reader(csvfile, delimiter=b'\t')
         next(sample_reader)  # Skip the header
 
-        for row in sample_reader:
-            gene_name, gene_value = row
-
-            if not args.genes or gene_name in args.genes:
-                matrix[-1].append(float(gene_value))
+        if gene_subset is None:
+            matrix.append([float(gene_value) for gene_name, gene_value in sample_reader])
+        else:
+            matrix.append([float(gene_value) for gene_name, gene_value in sample_reader if gene_name in gene_subset])
 
 matrix = np.array(matrix)
 
@@ -73,8 +72,8 @@ if args.filter:
     if matrix.shape[1] == 0:
         raise ValueError("Expressions of all selected genes are 0")
 
-distance = distance_map[args.dstfunc.lower()]
-cluster = linkage(matrix, method=args.linkage.lower(), metric=distance)
+distance = distance_map[args.dstfunc]
+cluster = linkage(matrix, method=args.linkage, metric=distance)
 
 distance_sum = cluster[:, 2].sum()
 if distance_sum < 0.1:

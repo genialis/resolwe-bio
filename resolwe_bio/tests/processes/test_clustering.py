@@ -16,7 +16,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         inputs = {
             'etcs': [etc.pk],
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067100']}
-        self.run_process('clustering-hierarchical-bcm', inputs)
+        self.run_process('clustering-hierarchical-genes-etc', inputs)
 
     def test_hc_clustering_samples(self):
         inputs = {'exp': 'hs_expressions_1.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'hg19'}
@@ -28,8 +28,6 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         inputs = {'exp': 'hs_expressions_3.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'hg19'}
         expression_3 = self.run_process('upload-expression', inputs)
 
-        inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
-                  'sampleids': ["1", "2", "3"]}
+        inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk]}
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
         self.assertJSON(clustering, clustering.output['cluster'], 'linkage', 'sample_custer_data.json.gz')
-        self.assertJSON(clustering, clustering.output['cluster'], 'samples_names', 'sample_custer_names.json.gz')
