@@ -12,8 +12,6 @@ from resolwe_bio.models import Sample
 
 class GenerateSamplesTest(BioProcessTestCase):
 
-    @skipUnlessLargeFiles('expressions-py2.json.gz', 'expressions-py3.json.gz',
-                          'expressions-py2.tab.gz', 'expressions-py3.tab.gz')
     def test_generate_samples(self):
         call_command('generate_samples', '-s=1', '-p=0', '--rseed')
         sample = Sample.objects.last()
@@ -25,11 +23,11 @@ class GenerateSamplesTest(BioProcessTestCase):
             expr = sample_data[2]
             # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the same number
             if six.PY2:
-                self.assertJSON(expr, expr.output['exp_json'], '', join('large', 'expressions-py2.json.gz'))
-                self.assertFile(expr, 'exp', join('large', 'expressions-py2.tab.gz'), compression='gzip')
+                self.assertJSON(expr, expr.output['exp_json'], '', 'expressions-py2.json.gz')
+                self.assertFile(expr, 'exp', 'expressions-py2.tab.gz', compression='gzip')
             else:
-                self.assertJSON(expr, expr.output['exp_json'], '', join('large', 'expressions-py3.json.gz'))
-                self.assertFile(expr, 'exp', join('large', 'expressions-py3.tab.gz'), compression='gzip')
+                self.assertJSON(expr, expr.output['exp_json'], '', 'expressions-py3.json.gz')
+                self.assertFile(expr, 'exp', 'expressions-py3.tab.gz', compression='gzip')
         else:
             self.fail("Sample not created")
 
@@ -113,8 +111,6 @@ class GenerateDiffExprTest(BioProcessTestCase):
 
 class GenerateGeneSetTest(BioProcessTestCase):
 
-    @skipUnlessLargeFiles('geneset-py2.json.gz', 'geneset-py3.json.gz',
-                          'geneset-py2.tab.gz', 'geneset-py3.tab.gz')
     def test_generate_geneset(self):
         call_command('generate_geneset', '-n=1', '--rseed')
         geneset = Data.objects.last()
@@ -123,14 +119,10 @@ class GenerateGeneSetTest(BioProcessTestCase):
             self.assertEqual(geneset.output['source'], 'mm10')
             # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the same number
             if six.PY2:
-                self.assertJSON(geneset, geneset.output['geneset_json'], '',
-                                join('large', 'geneset-py2.json.gz'))
-                self.assertFile(geneset, 'geneset',
-                                join('large', 'geneset-py2.tab.gz'), compression='gzip')
+                self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset-py2.json.gz')
+                self.assertFile(geneset, 'geneset', 'geneset-py2.tab.gz', compression='gzip')
             else:
-                self.assertJSON(geneset, geneset.output['geneset_json'], '',
-                                join('large', 'geneset-py3.json.gz'))
-                self.assertFile(geneset, 'geneset',
-                                join('large', 'geneset-py3.tab.gz'), compression='gzip')
+                self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset-py3.json.gz')
+                self.assertFile(geneset, 'geneset', 'geneset-py3.tab.gz', compression='gzip')
         else:
             self.fail("Gene set not created")
