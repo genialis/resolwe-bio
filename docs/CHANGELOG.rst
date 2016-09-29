@@ -21,6 +21,7 @@ Changed
 * Save gene_id source to ``output.source`` for DE, expression and related objects
 * Refactor ``upload-diffexp`` processor
 * Update sample descriptor schema
+* Remove obsolete descriptor schemas
 
 Added
 -----

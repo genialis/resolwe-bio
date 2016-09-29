@@ -1,0 +1,101 @@
+- slug: dicty-etc
+  name: Dictyostelium ETC annotation
+  description: Dictyostelium expression time course annotation
+  schema:
+    - name: projectNumber
+      label: Project number
+      type: basic:string
+    - name: project
+      label: Project
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: D. discoideum vs. D. purpureum
+          value: D. discoideum vs. D. purpureum
+        - label: Filter Development vs. cAMP Pulsing; Frequent Sampling
+          value: Filter Development vs. cAMP Pulsing; Frequent Sampling
+        - label: "GtaC: WT vs. mutants"
+          value: "GtaC: WT vs. mutants"
+        - label: lncRNA transcriptome
+          value: lncRNA transcriptome
+    - name: citation
+      label: Citation
+      type: basic:url:view
+    - name: treatment
+      label: Treatment
+      type: basic:string
+      placeholder: Start typing
+      allow_custom_choice: true
+      choices:
+        - label: cAMP Pulses
+          value: cAMP Pulses
+        - label: Filter Development
+          value: Filter Development
+        - label: DIF treatment after dissociation
+          value: DIF treatment after dissociation
+        - label: clonal population, mixed RNA
+          value: clonal population, mixed RNA
+        - label: Light(Prestalk)
+          value: Light(Prestalk)
+        - label: Heavy(Prespore)
+          value: Heavy(Prespore)
+        - label: mixed population
+          value: mixed population
+        - label: clonal population
+          value: clonal population
+        - label: none
+          value: none
+    - name: parental_strain
+      label: Parental strain
+      type: basic:string
+      choices:
+        - label: AX2
+          value: AX2
+        - label: AX4
+          value: AX4
+        - label: DpAX1
+          value: DpAX1
+        - label: NC4
+          value: NC4
+        - label: QS1
+          value: QS1
+        - label: QS1+QS9
+          value: QS1+QS9
+        - label: QS9
+          value: QS9
+        - label: QS17
+          value: QS17
+        - label: QS17+QS18
+          value: QS17+QS18
+        - label: QS18
+          value: QS18
+        - label: QS45
+          value: QS45
+        - label: QS45+QS49
+          value: QS45+QS49
+        - label: QS49
+          value: QS49
+    - name: growth
+      label: Growth
+      type: basic:string
+      placeholder: Start typing
+      allow_custom_choice: true
+      choices:
+        - label: HL5
+          value: HL5
+        - label: HL5+uracil
+          value: HL5+uracil
+        - label: K. pneumoniae
+          value: K. pneumoniae
+        - label: B. anthracis
+          value: B. anthracis
+        - label: P. aeruginosa
+          value: P. aeruginosa
+        - label: S. aureus
+          value: S. aureus
+        - label: axenic
+          value: axenic
+        - label: B. subtilis
+          value: B. subtilis
+        - label: Nutrient media
+          value: Nutrient media
