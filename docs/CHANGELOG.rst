@@ -35,6 +35,7 @@ Added
 * Add featureCounts process
 * Add Subread process
 * Add process for hierarchical clusteing of samples
+* Add gff3 to gtf file converter
 
 
 ================

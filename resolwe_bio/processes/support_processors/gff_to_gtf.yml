@@ -1,0 +1,36 @@
+# ============
+# Gff to gtf
+# ============
+
+---
+
+- slug: gff-to-gtf
+  name: Convert GFF3 to GTF
+  data_name: "Convert to GFF ('{{ src.file }}')"
+  version: 0.0.1
+  type: data:annotation:gtf
+  category: analyses
+  description: >
+    Convert gff3 to gtf format.
+  input:
+    - name: annotation
+      label: Annotation (GFF)
+      type: data:annotation:gff3
+      description: >
+        Annotation in GFF3 format.
+      validate_regex: '\.(gff|gff3)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: gtf
+      label: Converted gtf file
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+      NAME=`basename '{{annotation.gff.file}}' .gff`
+      gff3_to_gtf.py "{{ annotation.gff.file }}" ${NAME}.gtf
+
+      re-save-file gtf ${NAME}.gtf
+      re-save source {{annotation.source}}

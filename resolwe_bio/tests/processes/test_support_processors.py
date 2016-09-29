@@ -38,3 +38,11 @@ class SupportProcessorTestCase(BioProcessTestCase):
 
         last_geneset = Data.objects.last()
         self.assertFile(last_geneset, 'geneset', 'go_geneset.tab.gz', compression='gzip')
+
+    def test_gff_to_gtf(self):
+        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        annotation = self.run_process('upload-gff3', inputs)
+
+        inputs = {'annotation': annotation.pk}
+        gff_to_gtf = self.run_process('gff-to-gtf', inputs)
+        self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gff_annotation.gtf')
