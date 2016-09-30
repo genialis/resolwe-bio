@@ -18,6 +18,12 @@ class SampleSerializer(CollectionSerializer):
 
     collections = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
+    def create(self, validated_data):
+        """Create ``Sample``and set ``presample``to ``False``."""
+        validated_data['presample'] = False
+
+        return super(SampleSerializer, self).create(validated_data)
+
     class Meta(CollectionSerializer.Meta):
         """Serializer configuration."""
 

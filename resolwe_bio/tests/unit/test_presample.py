@@ -21,21 +21,32 @@ class PresampleTestCase(APITestCase):
         presample_viewset = PresampleViewSet()
         self.presample_queryset = presample_viewset.get_queryset()
 
-        url_mapping = {
+        detail_url_mapping = {
             'get': 'retrieve',
             'put': 'update',
             'patch': 'partial_update',
             'delete': 'destroy',
         }
 
-        self.sample_view = SampleViewSet.as_view(url_mapping)
-        self.presample_view = PresampleViewSet.as_view(url_mapping)
+        list_url_mapping = {
+            'get': 'list',
+            'post': 'create',
+        }
+
+        self.detail_sample_view = SampleViewSet.as_view(detail_url_mapping)
+        self.detail_presample_view = PresampleViewSet.as_view(detail_url_mapping)
+        self.list_sample_view = SampleViewSet.as_view(list_url_mapping)
+        self.list_presample_view = PresampleViewSet.as_view(list_url_mapping)
 
         self.factory = APIRequestFactory()
 
     @staticmethod
     def get_detail_url(endpoint, pk):
         return reverse('resolwebio-api:{}-detail'.format(endpoint), kwargs={'pk': pk})
+
+    @staticmethod
+    def get_list_url(endpoint):
+        return reverse('resolwebio-api:{}-list'.format(endpoint))
 
     def test_querysets(self):
         self.assertEqual(self.sample_queryset.count(), 0)
@@ -51,11 +62,35 @@ class PresampleTestCase(APITestCase):
         url = self.get_detail_url('presample', self.sample.pk)
         request = self.factory.patch(url, {'presample': False}, format='json')
         force_authenticate(request, user=self.user)
-        response = self.presample_view(request, pk=self.sample.pk)
+        response = self.detail_presample_view(request, pk=self.sample.pk)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.sample.refresh_from_db()
         self.assertFalse(self.sample.presample)
+
+    def test_create_presample(self):
+        """Test create `Presample`"""
+        url = self.get_list_url('presample')
+        request = self.factory.post(url, {'name': 'New presample'}, format='json')
+        force_authenticate(request, user=self.user)
+        response = self.list_presample_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        presample = Sample.objects.last()
+        self.assertEqual(presample.name, 'New presample')
+        self.assertEqual(presample.presample, True)
+
+    def test_create_sample(self):
+        """Test create `Sample`"""
+        url = self.get_list_url('sample')
+        request = self.factory.post(url, {'name': 'New sample'}, format='json')
+        force_authenticate(request, user=self.user)
+        response = self.list_sample_view(request)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        sample = Sample.objects.last()
+        self.assertEqual(sample.name, 'New sample')
+        self.assertEqual(sample.presample, False)
 
     def test_revert_sample(self):
         """`Sample` cannot be reverted back in to `Presample`"""
@@ -65,7 +100,7 @@ class PresampleTestCase(APITestCase):
         url = self.get_detail_url('sample', self.sample.pk)
         request = self.factory.patch(url, {'presample': False}, format='json')
         force_authenticate(request, user=self.user)
-        response = self.sample_view(request, pk=self.sample.pk)
+        response = self.detail_sample_view(request, pk=self.sample.pk)
 
         # `response.content` is "A server error occurred.", but this is OK,
         # because request is treated as request with no data (after `presample`
@@ -82,7 +117,7 @@ class PresampleTestCase(APITestCase):
         url = self.get_detail_url('presample', self.sample.pk)
         request = self.factory.patch(url, {'presample': False}, format='json')
         force_authenticate(request, user=self.user)
-        response = self.presample_view(request, pk=self.sample.pk)
+        response = self.detail_presample_view(request, pk=self.sample.pk)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.sample.refresh_from_db()

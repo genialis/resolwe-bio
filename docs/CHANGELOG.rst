@@ -37,6 +37,10 @@ Added
 * Add process for hierarchical clusteing of samples
 * Add gff3 to gtf file converter
 
+Fixed
+-----
+* Set ``presample`` to ``False`` for Samples created on Sample endpoint
+
 
 ================
 1.2.1 2016-07-27
