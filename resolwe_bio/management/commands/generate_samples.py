@@ -84,12 +84,12 @@ class Command(BaseCommand):
             with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
-                    expression = random.gammavariate(1, 100)
+                    expression = round(random.gammavariate(1, 100), 2)
                     csvwriter.writerow((gene, expression))
                     genes[gene] = expression
 
         with open(os.path.join(path, 'expressions.json'), 'w') as json_file:
-            json.dump({'exp_json': {'genes': genes}}, json_file, indent=4, sort_keys=True)
+            json.dump({'genes': genes}, json_file, indent=4, sort_keys=True)
 
     @staticmethod
     def generate_reads_descriptor():

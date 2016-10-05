@@ -47,7 +47,7 @@ class Command(BaseCommand):
         with gzip.open(gene_ids, mode='rt') as gene_ids:
             all_genes = [line.strip() for line in gene_ids]
             for gene in all_genes:
-                etc = tuple(random.gammavariate(1, 100) for _ in range(len(times)))
+                etc = tuple(round(random.gammavariate(1, 100), 2) for _ in range(len(times)))
                 gene_etcs[gene] = etc
 
         json_dump = json.dumps({'etc': {'genes': gene_etcs, 'timePoints': times}}, indent=4, sort_keys=True)
