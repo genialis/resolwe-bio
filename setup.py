@@ -47,6 +47,8 @@ setup(
         "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.3.99",
     ),
     install_requires=(
+        'Django~=1.9.11',
+        'djangorestframework>=3.4.0',
         'resolwe>=1.3.1',
         'django-haystack==2.5.0',
         'drf-haystack==1.5.6',
@@ -54,7 +56,7 @@ setup(
     ),
     extras_require = {
         'docs':  [
-            'sphinx>=1.3.2',
+            'Sphinx>=1.3.2',
             'sphinx_rtd_theme',
         ],
         'package': [
