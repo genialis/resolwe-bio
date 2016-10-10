@@ -1,0 +1,104 @@
+# ======
+# edgeR
+# ======
+---
+
+- slug: differentialexpression-edger
+  name: edgeR
+  data_name: 'Differential expression (case vs. control)'
+  version: 0.0.1
+  type: data:differentialexpression:edger
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find differentially expressed genes.
+  input:
+    - name: case
+      label: Case
+      type: list:data:expression
+      description: >
+        Case samples (replicates)
+    - name: control
+      label: Control
+      type: list:data:expression
+      description: >
+        Control samples (replicates)
+    - name: filter
+      label: Filtering of raw counts
+      type: basic:integer
+      default: 10
+      description: >
+        The cut of value for filtering of raw counts
+  output:
+    - name: raw
+      label: Differential expression
+      type: basic:file
+    - name: de_json
+      label: Results table (JSON)
+      type: basic:json
+    - name: de_file
+      label: Results table (file)
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    bash: |
+
+      {% if control|length < 2 or case|length < 2 %}
+        re-error "Error in calculating edgeR dispersion, please provide more samples"
+      {% endif %}
+
+      {% for c in control %}
+        {% if not c.rc.file %}
+          re-error "Read counts are required when using edgeR"
+        {% endif %}
+        controls=$controls"{{c.rc.file}} "
+        sampleConditions=$sampleConditions"control "
+      {% endfor %}
+
+      {% for t in case %}
+        {% if not t.rc.file %}
+          re-error "Read counts are required when using edgeR"
+        {% endif %}
+        {% if t not in control %}
+          cases=$cases"{{t.rc.file}} "
+          sampleConditions=$sampleConditions"case "
+        {% else %}
+          re-error "DE analysis failed. Case and Control groups must contain unique samples."
+        {% endif %}
+      {% endfor %}
+
+      {% for c in control %}
+        {% for t in case %}
+          {% if control.0.source != c.source or c.source != t.source %}
+            re-error "DE analysis must be crated using the expression data from the same source."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+
+      sampleConditions=${sampleConditions%?}
+      cases=${cases%?}
+      sampleFiles=$controls"$cases"
+
+      re-progress 0.1
+
+      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      re-checkrc "Error merging read counts."
+
+      diffexp_filtering.R -counts 'counts.tab' -filter {{filter}} -out counts_filtered.tab
+
+      edger.R counts_filtered.tab --sampleConditions ${sampleConditions}
+      re-checkrc "Error computing differential expression (edgeR)."
+
+      re-progress 0.95
+
+      parse_diffexp.py 'diffexp_edgeR.tab' de_data.json de_file.tab.gz --gene_id gene_id --fdr FDR --pvalue PValue --logfc logFC
+
+      gzip 'diffexp_edgeR.tab'
+
+      re-save de_json de_data.json
+      re-save-file raw diffexp_edgeR.tab.gz
+      re-save-file de_file de_file.tab.gz
+      re-save source "{{ case.0.source }}"

@@ -48,7 +48,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
                                                f_exp='exp_2_tpm.tab.gz',
                                                f_type="TPM",
                                                source="dictyBase")
-
         expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
                                                f_exp='exp_2_tpm.tab.gz',
                                                f_type="TPM",
@@ -86,3 +85,26 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-limma', inputs)
         self.assertFile(diff_exp, "raw", 'diffexp_limma.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'limma.json.gz')
+
+    def test_edger(self):
+        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        expression_1 = self.run_process('upload-expression', inputs)
+
+        inputs = {'rc': 'exp_2_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        expression_2 = self.run_process('upload-expression', inputs)
+
+        inputs = {'rc': 'exp_3_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        expression_3 = self.run_process('upload-expression', inputs)
+
+        inputs = {'rc': 'exp_4_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        expression_4 = self.run_process('upload-expression', inputs)
+
+        inputs = {
+            'case': [expression_1.pk, expression_3.pk],
+            'control': [expression_2.pk, expression_4.pk]
+        }
+
+        diff_exp = self.run_process('differentialexpression-edger', inputs)
+        self.assertFile(diff_exp, 'raw', 'diffexp_edgeR.tab.gz', compression='gzip')
+        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'edgeR.json.gz')
+        self.assertFields(diff_exp, 'source', 'dictyBase')

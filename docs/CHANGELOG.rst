@@ -39,6 +39,7 @@ Added
 * Add process for hierarchical clusteing of samples
 * Add gff3 to gtf file converter
 * Add microarray data descriptor schema
+* Add process for differential expression edgeR
 
 Fixed
 -----
