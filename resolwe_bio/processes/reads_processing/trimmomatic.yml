@@ -3,7 +3,7 @@
 - slug: trimmomatic-single
   name: Trimmomatic (single-end)
   data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -22,7 +22,7 @@
       label: Illumincaclip
       group:
         - name: seed_mismatches
-          label: Seed ismatches
+          label: Seed mismatches
           type: basic:integer
           required: false
           description: >
@@ -49,10 +49,10 @@
           description: >
             Specifies the average quality required.
     - name: maxinfo
-      label: maxinfo
+      label: Maxinfo
       group:
         - name: target_length
-          label: Targer length
+          label: Target length
           type: basic:integer
           required: false
           description: >
@@ -70,7 +70,7 @@
       description: >
         Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
     - name: trailing
-      label: Trailing
+      label: Trailing quality
       type: basic:integer
       required: false
       description: >
@@ -88,7 +88,7 @@
       description: >
        Cut the specified number of bases from the start of the read
     - name: minlen
-      label: Minlen
+      label: Min length
       type: basic:integer
       required: false
       description: >
