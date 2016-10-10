@@ -6,7 +6,7 @@
 - slug: feature_counts
   name: FeatureCounts
   data_name: "{{ alignments.bam.file|basename|default:'?' }}"
-  version: 0.0.1
+  version: 0.0.2
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -24,6 +24,12 @@
       label: ID attribute
       type: basic:string
       default: gene_id
+      allow_custom_choice: true
+      choices:
+        - label: Gene id
+          value: gene_id
+        - label: Transcript id
+          value: transcript_id
       description: >
         GTF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
     - name: format_of_annotation
