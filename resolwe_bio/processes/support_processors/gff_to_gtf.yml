@@ -5,9 +5,9 @@
 ---
 
 - slug: gff-to-gtf
-  name: Convert GFF3 to GTF
-  data_name: "Convert to GFF ('{{ src.file }}')"
-  version: 0.0.1
+  name: Convert GFF3 to GTF format
+  data_name: "Converted GFF3 to GTF file ('{{ src.file }}')"
+  version: 0.0.2
   type: data:annotation:gtf
   category: analyses
   description: >
@@ -32,5 +32,7 @@
       NAME=`basename '{{annotation.gff.file}}' .gff`
       gff3_to_gtf.py "{{ annotation.gff.file }}" ${NAME}.gtf
 
-      re-save-file gtf ${NAME}.gtf
+      gzip ${NAME}.gtf
+
+      re-save-file gtf ${NAME}.gtf.gz
       re-save source {{annotation.source}}

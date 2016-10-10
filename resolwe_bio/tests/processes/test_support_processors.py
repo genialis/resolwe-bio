@@ -45,4 +45,4 @@ class SupportProcessorTestCase(BioProcessTestCase):
 
         inputs = {'annotation': annotation.pk}
         gff_to_gtf = self.run_process('gff-to-gtf', inputs)
-        self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gff_annotation.gtf')
+        self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gtf_annotation.gtf.gz', compression='gzip')

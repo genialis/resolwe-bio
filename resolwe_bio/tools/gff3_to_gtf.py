@@ -36,7 +36,7 @@ def main():
                     ID = data[-1].split('Parent=')[-1].split(';')[0]
 
                 # modify the last column
-                data[-1] = 'gene_id "' + ID + '"; transcript_id "' + ID
+                data[-1] = 'gene_id "{}"; transcript_id "{}";'.format(ID, ID)
 
                 # print out this new GTF line
                 gtf = ('\t'.join(data) + '\n')
