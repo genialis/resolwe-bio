@@ -61,7 +61,7 @@
 - slug: clustering-hierarchical-samples
   name: Hierarchical clustering of samples
   data_name: 'Hierarchical clustering of samples'
-  version: 0.0.2
+  version: 0.0.3
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
