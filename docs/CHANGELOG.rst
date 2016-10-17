@@ -23,6 +23,7 @@ Changed
 * Update sample descriptor schema
 * Remove obsolete descriptor schemas
 * Update processes trimmomatic, gff_to_gtf and featureCount
+* Update hierarchical clustering of samples
 
 Added
 -----

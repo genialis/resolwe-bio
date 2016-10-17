@@ -70,20 +70,23 @@ if args.filter:
     matrix = np.delete(matrix, genes_zero, axis=1)
 
     if matrix.shape[1] == 0:
-        raise ValueError("Expressions of all selected genes are 0")
+        msg = "All selected genes have expression 0 for given samples. Please select a different set of genes."
+        print(error(msg))
+        raise ValueError(msg)
 
 distance = distance_map[args.dstfunc]
 cluster = linkage(matrix, method=args.linkage, metric=distance)
 
 distance_sum = cluster[:, 2].sum()
 if distance_sum < 0.1:
-    print(warning('All sample distances are 0.'))
+    msg = 'All sample distances are 0.'
+    print(warning(msg))
 
 dend = dendrogram(cluster, no_plot=True)
 
 sample_ids = {}
 for i, sample_id in enumerate(args.sampleids):
-    sample_ids[i + 1] = {'id': sample_id}
+    sample_ids[i + 1] = {'id': int(sample_id)}
 
 output = {'cluster': {'linkage': cluster.tolist(),
                       'samples_names': sample_ids,
