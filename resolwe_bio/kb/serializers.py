@@ -19,3 +19,4 @@ class FeatureSerializer(serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Feature
+        fields = '__all__'
