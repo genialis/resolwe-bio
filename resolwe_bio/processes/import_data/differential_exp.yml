@@ -5,8 +5,10 @@
 
 - slug: upload-diffexp
   name: Differential Expression (table)
+  requirements:
+    expression-engine: jinja
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.0.6
+  version: 1.0.7
   type: data:differentialexpression:upload
   category: upload
   persistence: RAW
@@ -111,7 +113,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME='{{ src.file }}'
 
       {% if case and not control or control and not case %}
@@ -127,21 +130,21 @@
       STAT='{% if stat %} --stat {{stat}} {% endif %}'
 
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
-        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xls" "xls" 0.3 extract
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "xls" "xls" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
         parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
-        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "xlsx" "xlsx" 0.3 extract
         convert_DE_excel_table.py '{{ src.file }}' > "${NAME}.tab"
         parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       else
-        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "diff|tab|gz" "tab" 0.3
         parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7

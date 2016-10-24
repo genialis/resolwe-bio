@@ -5,8 +5,10 @@
 
 - slug: microarray-affy-qc
   name: Microarray Quality Metrics
+  requirements:
+    expression-engine: jinja
   data_name: "Array Quality Metrics"
-  version: 1.0.3
+  version: 1.0.4
   type: data:microarray:qc:affy
   category: analyses
   flow_collection: sample
@@ -43,7 +45,8 @@
       type: basic:url:view
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for c in cel %}
         cp "{{c.cel.file}}" .
       {% endfor %}

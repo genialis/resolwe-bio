@@ -5,8 +5,10 @@
 
 - slug: alignment-tophat2
   name: TopHat (2.0.13)
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.1.0
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.1.1
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -116,7 +118,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
 
@@ -124,7 +127,7 @@
         FW_READS=${FW_READS}"{{r.file}},"
       {% endfor %}
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           RW_READS=${RW_READS}"{{r.file}},"
         {% endfor %}
@@ -139,7 +142,7 @@
 
       NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
 
         tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} ${INDEX} ${FW_READS}
 

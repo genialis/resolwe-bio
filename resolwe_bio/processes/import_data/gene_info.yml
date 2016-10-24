@@ -5,8 +5,10 @@
 
 - slug: upload-geneinfo
   name: Upload gene information
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.12
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.13
   type: data:geneinfo
   category: upload
   persistence: RAW
@@ -29,8 +31,9 @@
       required: false
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "txt|tab" "tab" 0.3
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "txt|tab" "tab" 0.3
 
       re-save-file src ${NAME}.tab
 

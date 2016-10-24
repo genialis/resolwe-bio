@@ -6,8 +6,10 @@
 
 - slug: jbrowse-refseq
   name: Build reference sequence track (JBrowse)
-  data_name: 'RefSeq track ({{ refseq.fasta.file|default:"?" }})'
-  version: 1.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: 'RefSeq track ({{ refseq.fasta.file|default("?") }})'
+  version: 1.0.4
   type: data:jbrowse:refseq:genome
   category: jbrowse
   persistence: CACHED
@@ -25,7 +27,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       prepare-refseqs.pl --fasta '{{refseq.fasta.file}}' --out .
       re-checkrc "Reference sequence processing for JBrowse failed."
       re-progress 0.9

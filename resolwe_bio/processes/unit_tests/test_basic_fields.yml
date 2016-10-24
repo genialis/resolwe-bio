@@ -5,8 +5,10 @@
 
 - slug: test-basic-fields
   name: Test basic fields
+  requirements:
+    expression-engine: jinja
   data_name: "Test"
-  version: 1.0.8
+  version: 1.0.9
   type: data:test:fields
   persistence: CACHED
   description: >
@@ -186,7 +188,8 @@
               type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Starting..."
       echo "boolean={{ boolean }}"
       echo "{\"out_boolean\":{% if boolean %}true{% else %}false{% endif %}}"

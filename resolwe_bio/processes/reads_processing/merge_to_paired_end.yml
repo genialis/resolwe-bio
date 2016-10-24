@@ -5,8 +5,10 @@
 
 - slug: reads-merge
   name: Build paired-end reads from single-ended
+  requirements:
+    expression-engine: jinja
   data_name: "Merged reads"
-  version: 1.0.7
+  version: 1.0.8
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
@@ -40,7 +42,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       mkdir fw_reads
       mkdir rw_reads
       mkdir fastqc

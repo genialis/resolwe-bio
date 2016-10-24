@@ -5,8 +5,10 @@
 
 - slug: alignment-bowtie
   name: Bowtie 1.0.0
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.15
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.16
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -116,7 +118,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bt.dir}}/${GENOME_NAME}_index"
 
@@ -126,7 +129,7 @@
         gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
       {% endfor %}
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"${READS_NAME}.fastq,"
@@ -139,7 +142,7 @@
       FW_READS=${FW_READS%?}
       FW_READS_S=${FW_READS//,/ }
 
-      {% if use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
         cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
       {% endif %}
 
@@ -149,8 +152,8 @@
       STATS="0 ${FW_NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' or use_SE %}
-        {% if use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') or use_SE %}
+        {% if use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
           bowtie --un "${FW_NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam ${INDEX} reads.fastq 1>"${FW_NAME}_align_unsorted.sam" 2>"${FW_NAME}_align_unsorted.stats"
           re-checkrc
         {% else %}
@@ -226,8 +229,10 @@
 
 - slug: alignment-bowtie2
   name: Bowtie 2.2.3
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.20
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.21
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -370,7 +375,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
 
@@ -396,7 +402,7 @@
         gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
       {% endfor %}
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"${READS_NAME}.fastq,"
@@ -411,13 +417,13 @@
 
       FW_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
-      {% if PE_options.use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if PE_options.use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
         cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
       {% endif %}
 
       echo "ALIGNING with bowtie2:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' or PE_options.use_SE %}
-        {% if PE_options.use_SE and reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_SE %}
+        {% if PE_options.use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
           bowtie2 {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U reads.fastq -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
           re-checkrc
         {% else %}

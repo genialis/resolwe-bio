@@ -5,8 +5,10 @@
 
 - slug: assembler-abyss
   name: ABySS (1.9.0)
+  requirements:
+    expression-engine: jinja
   data_name: "ABySS assembly ({{ options.name }})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:abyss
   category: analyses
   flow_collection: sample
@@ -74,7 +76,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% if not paired_end and not se and not unmapped %}
         re-error "No input files provided. Please use either Paired-end or Single-end input files to run Abyss."
       {% endif %}

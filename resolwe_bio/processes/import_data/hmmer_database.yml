@@ -5,8 +5,10 @@
 
 - slug: upload-hmmer-db
   name: Upload HMMER database
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.4
   type: data:db:hmmer
   category: upload
   persistence: RAW
@@ -29,9 +31,10 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME='{{ src.file }}'; NAME="${NAME%.*}"; NAME="${NAME%.*}"
-      TEMP='{{ proc.upload_path }}/{{ src.file_temp|default:src.file }}'
+      TEMP='{{ proc.upload_path }}/{{ src.file_temp }}'
 
       echo "Importing and extracting sequences..."
       shopt -s nocasematch >&2

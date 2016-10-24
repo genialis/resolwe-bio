@@ -5,8 +5,10 @@
 
 - slug: transdecoder
   name: TransDecoder (2.0.1)
-  data_name: "TransDecoder analysis ({{ gff.merged_gtf.file|basename|default:'?' }})"
-  version: 1.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: "TransDecoder analysis ({{ gff.merged_gtf.file|basename|default('?') }})"
+  version: 1.0.4
   type: data:annotation:transdecoder
   category: analyses
   persistence: CACHED
@@ -54,7 +56,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Prepare annotation file"
       sed '/_random/d;/chrUn/d' {{gff.merged_gtf.file}} > cuffmerge_annotation.gtf
       echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"

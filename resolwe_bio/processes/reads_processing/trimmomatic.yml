@@ -2,8 +2,10 @@
 
 - slug: trimmomatic-single
   name: Trimmomatic (single-end)
-  data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 0.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
+  version: 0.0.4
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -114,7 +116,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
 
       {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
         re-error "At least one parammeter required"
@@ -181,8 +184,10 @@
 
 - slug: trimmomatic-paired
   name: Trimmomatic (paired-end)
-  data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 0.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
+  version: 0.0.3
   type: data:reads:fastq:paired:trimmomatic
   category: analyses
   flow_collection: sample
@@ -328,7 +333,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
 
       {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
         re-error "At least one parammeter required"

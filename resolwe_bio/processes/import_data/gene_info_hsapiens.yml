@@ -5,8 +5,10 @@
 
 - slug: web-geneinfo-hsapiens
   name: Import gene info (H. sapiens - Ensembl)
+  requirements:
+    expression-engine: jinja
   data_name: 'Gene information (H. sapiens)'
-  version: 1.0.6
+  version: 1.0.7
   type: data:geneinfo:hsapiens
   category: import
   persistence: RAW
@@ -31,7 +33,8 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       ENSEMBL_RELEASE='{{ensembl_release}}'
 
       # Download Ensembl annotation file (GTF)

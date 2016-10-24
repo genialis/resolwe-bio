@@ -5,8 +5,10 @@
 
 - slug: upload-variants-bed
   name: Variants (.bed)
-  data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.8
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.file|default("?") }}'
+  version: 1.0.9
   type: data:variants:bed
   category: upload
   persistence: RAW
@@ -25,6 +27,7 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed" "bed" 1.0
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "bed" "bed" 1.0
       re-save-file bed ${NAME}.bed

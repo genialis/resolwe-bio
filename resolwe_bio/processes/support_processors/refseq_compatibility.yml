@@ -5,8 +5,10 @@
 
 - slug: reference_compatibility
   name: Coordinate compatibility test
+  requirements:
+    expression-engine: jinja
   data_name: "Compatibility check ({{reference.fasta.file}})"
-  version: 1.0.2
+  version: 1.0.3
   type: data:reports:compatibility
   category: analyses
   persistence: CACHED
@@ -31,7 +33,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       BAM_HEADER="bam_header.txt"
 
       GENOME_NAME=`basename '{{ reference.fasta.file }}' .fasta.gz`

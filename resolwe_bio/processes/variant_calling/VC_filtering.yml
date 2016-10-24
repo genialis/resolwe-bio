@@ -5,8 +5,10 @@
 
 - slug: chemut
   name: Variant filtering (Chemut)
-  data_name: "Filtered variants ({{ variants.vcf.file|basename|default:'?' }})"
-  version: 1.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: "Filtered variants ({{ variants.vcf.file|basename|default('?') }})"
+  version: 1.0.3
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -91,7 +93,8 @@
         List mutants that carry mutations in individual genes.
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME=`basename '{{ variants.vcf.file }}' .vcf`
       re-progress 0.05
 

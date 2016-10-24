@@ -5,8 +5,10 @@
 
 - slug: upload-multiplexed-single
   name: Reads (multiplexed, single)
-  data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.16
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.file|default("?") }}'
+  version: 1.0.17
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -58,14 +60,15 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+    language: bash
+    program: |
+      re-import "{{ barcodes.file_temp|default(barcodes.file) }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
+      re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "qseq.*" "qseq" 0.1 compress
       READS_NAME=$NAME
 
-      TEMP="{{ annotation.file_temp|default:annotation.file }}"
+      TEMP="{{ annotation.file_temp|default(annotation.file) }}"
       mv "$TEMP" {{ annotation.file }}
       mkdir -p temp
       re-save-file annotation {{ annotation.file }} temp
@@ -78,8 +81,10 @@
 
 - slug: upload-multiplexed-paired
   name: Reads (multiplexed, paired)
-  data_name: '{{ reads.file|default:"?" }}'
-  version: 1.0.16
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.file|default("?") }}'
+  version: 1.0.17
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW
@@ -141,17 +146,18 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ barcodes.file_temp|default:barcodes.file }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
+    language: bash
+    program: |
+      re-import "{{ barcodes.file_temp|default(barcodes.file) }}" "{{ barcodes.file }}" "qseq.*" "qseq" 0.01 compress
       BARCODES_NAME=$NAME
 
-      re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
+      re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "qseq.*" "qseq" 0.07 compress
       READS_NAME=$NAME
 
-      re-import "{{ reads2.file_temp|default:reads2.file }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
+      re-import "{{ reads2.file_temp|default(reads2.file) }}" "{{ reads2.file }}" "qseq.*" "qseq" 0.14 compress
       READS_NAME2=$NAME
 
-      TEMP="{{ annotation.file_temp|default:annotation.file }}"
+      TEMP="{{ annotation.file_temp|default(annotation.file) }}"
       mv "$TEMP" {{ annotation.file }}
       mkdir -p temp
       re-checkrc

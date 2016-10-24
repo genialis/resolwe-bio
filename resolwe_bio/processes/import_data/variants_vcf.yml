@@ -5,8 +5,10 @@
 
 - slug: upload-variants-vcf
   name: Variants (.vcf)
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.12
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.13
   type: data:variants:vcf
   category: upload
   persistence: RAW
@@ -26,8 +28,9 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "vcf" "vcf" 0.3
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "vcf" "vcf" 0.3
 
       bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
       tabix -p vcf "${NAME}.vcf.bgz"

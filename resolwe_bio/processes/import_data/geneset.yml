@@ -5,8 +5,10 @@
 
 - slug: upload-geneset
   name: Gene set
-  data_name: '{{ src.file|default:"?" }}'
-  version: 0.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.3
   type: data:geneset
   category: upload
   persistence: RAW
@@ -70,8 +72,9 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab|txt" "tab" 0.9
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "tab|txt" "tab" 0.9
       re-save-file geneset ${NAME}.tab.gz
       re-save source {{source}}
       geneset2storage.py "${NAME}.tab" geneset.json

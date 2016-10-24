@@ -6,8 +6,10 @@
 
 - slug: jbrowse-bam-coverage-normalized
   name: Build normalized coverage track (JBrowse)
+  requirements:
+    expression-engine: jinja
   data_name: "Normalized coverage track ({{bam.bam.file}})"
-  version: 1.0.3
+  version: 1.0.4
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
   persistence: CACHED
@@ -57,7 +59,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% if normalize == "--normalizeTo1x" and not size %}
         re-error "Please provide mappable genome size when using 'normalizeTo1x' normalization method."
       {% endif %}

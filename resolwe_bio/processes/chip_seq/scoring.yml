@@ -5,8 +5,10 @@
 
 - slug: chipseq-peakscore
   name: ChIP-Seq (Peak Score)
-  data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default:'?' }})"
-  version: 1.0.5
+  requirements:
+    expression-engine: jinja
+  data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
+  version: 1.0.6
   type: data:chipseq:peakscore
   category: analyses
   flow_collection: sample
@@ -26,7 +28,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       closest-features --dist '{{ peaks.narrow_peaks.file }}' '{{ bed.BED.file }}' > macs2_peakscore
       re-checkrc
       re-progress 0.3
@@ -39,8 +42,10 @@
 
 - slug: chipseq-genescore
   name: ChIP-Seq (Gene Score)
-  data_name: "Gene score ({{ peakscore.peak_score.file|basename|default:'?' }})"
-  version: 1.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: "Gene score ({{ peakscore.peak_score.file|basename|default('?') }})"
+  version: 1.0.4
   type: data:chipseq:genescore
   category: analyses
   persistence: TEMP
@@ -74,7 +79,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       peak2geneScore.R '{{peakscore.peak_score.file}}' {% if fdr %} --fdr '{{fdr}}' {% endif %} {% if pval %} --pval '{{pval}}' {% endif %} {% if logratio %} --logratio '{{logratio}}' {% endif %}
       re-checkrc "GeneScore computing failed."
 

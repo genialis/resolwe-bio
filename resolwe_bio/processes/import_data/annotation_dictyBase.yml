@@ -5,8 +5,10 @@
 
 - slug: web-gtf-dictybase
   name: Import GFF annotation from dictyBase
+  requirements:
+    expression-engine: jinja
   data_name: "D. discoideum transcript GFF"
-  version: 1.0.10
+  version: 1.0.11
   type: data:annotation:gff3
   category: import
   persistence: RAW
@@ -20,7 +22,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "DOWNLOADING GFF..."
       wget -O dicty_gff3.zip "http://dictybase.org/db/cgi-bin/dictyBase/download/download.pl?area=gff3&ID=dicty_gff3.zip"
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"

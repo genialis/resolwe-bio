@@ -5,8 +5,10 @@
 
 - slug: mergeetc
   name: Merge Expressions (ETC)
+  requirements:
+    expression-engine: jinja
   data_name: "Merged ETC"
-  version: 1.0.5
+  version: 1.0.6
   type: data:expressionset:etc
   category: analyses
   persistence: CACHED
@@ -29,7 +31,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       mergeetc.py {% for e in exps %}"{{e.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
 
       gzip 'etc.tab'

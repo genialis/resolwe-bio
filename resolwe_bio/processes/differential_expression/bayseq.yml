@@ -5,8 +5,10 @@
 
 - slug: differentialexpression-bcm
   name: BaySeq (BCM)
+  requirements:
+    expression-engine: jinja
   data_name: "{{ name }}"
-  version: 1.0.9
+  version: 1.0.10
   type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED
@@ -37,7 +39,8 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for c in case %}
         {% if not c.rc.file %}
           echo "{\"proc.error\":\"Read counts (polya) are required when using bayseq\"}"

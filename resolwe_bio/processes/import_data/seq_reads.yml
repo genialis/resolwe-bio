@@ -5,8 +5,10 @@
 
 - slug: upload-fastq-single
   name: Reads (single-end)
-  data_name: '{{ src.0.file|default:"?" }}'
-  version: 1.0.21
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.0.file|default("?") }}'
+  version: 1.0.22
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -32,9 +34,10 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for reads in src %}
-        re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
+        re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
       {% endfor %}
 
       for reads in `ls -v *.fastq.gz`
@@ -79,8 +82,10 @@
 
 - slug: upload-fastq-paired
   name: Reads (paired-end)
-  data_name: '{{ src1.0.file|default:"?" }}'
-  version: 1.0.21
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src1.0.file|default("?") }}'
+  version: 1.0.22
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
@@ -121,16 +126,17 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for reads in src1 %}
-        re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
+        re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
         FW_FASTQGZ=${FW_FASTQGZ}"${NAME}.fastq.gz "
         FW_FASTQC=${FW_FASTQC}"${NAME}_fastqc.zip "
         FW_FASTQC_URL=${FW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       {% endfor %}
 
       {% for reads in src2 %}
-        re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
+        re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
         RW_FASTQGZ=${RW_FASTQGZ}"${NAME}.fastq.gz "
         RW_FASTQC=${RW_FASTQC}"${NAME}_fastqc.zip "
         RW_FASTQC_URL=${RW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "

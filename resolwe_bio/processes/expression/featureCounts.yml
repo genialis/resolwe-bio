@@ -5,8 +5,10 @@
 
 - slug: feature_counts
   name: FeatureCounts
-  data_name: "{{ alignments.bam.file|basename|default:'?' }}"
-  version: 0.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: "{{ alignments.bam.file|basename|default('?') }}"
+  version: 0.0.3
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -134,7 +136,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME=`basename '{{ alignments.bam.file}}' .bam`
 
       COUNT_MULTI_MAPPING_READS="{% if count_multi_mapping_reads %} -M{% endif %}"

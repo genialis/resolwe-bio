@@ -5,8 +5,10 @@
 
 - slug: macs14
   name: MACS 1.4
-  data_name: "MACS results ({{ t.bam.file|basename|default:'?' }})"
-  version: 1.0.4
+  requirements:
+    expression-engine: jinja
+  data_name: "MACS results ({{ t.bam.file|basename|default('?') }})"
+  version: 1.0.5
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -69,7 +71,8 @@
       required: false
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME=`basename '{{ t.bam.file }}' .bam`
       macs14 -t {{t.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -f BAM -g {{g}} -n $NAME -p {{pvalue}} -w -S --space=50
       re-checkrc

@@ -5,8 +5,10 @@
 
 - slug: upload-bam
   name: BAM file
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.13
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.14
   type: data:alignment:bam:upload
   flow_collection: sample
   category: upload
@@ -29,8 +31,9 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+    language: bash
+    program: |
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "bam" "bam" 0.3 extract
 
         samtools index "${NAME}.bam" 2> stderr.txt
         indexrc=$?
@@ -58,8 +61,10 @@
 
 - slug: upload-bam-indexed
   name: BAM file and index
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.8
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.9
   type: data:alignment:bam:upload
   category: upload
   flow_collection: sample
@@ -88,11 +93,12 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-        re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+    language: bash
+    program: |
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "bam" "bam" 0.3 extract
         BAM_NAME=${NAME}.bam
 
-        re-import "{{ src2.file_temp|default:src2.file }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
+        re-import "{{ src2.file_temp|default(src2.file) }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
         BAI_NAME=${NAME}.bai
 
         if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then

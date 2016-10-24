@@ -5,8 +5,10 @@
 
 - slug: htseq-count
   name: HTSeq-count (0.6.1p1)
-  data_name: "{{ alignments.bam.file|basename|default:'?' }}"
-  version: 1.0.13
+  requirements:
+    expression-engine: jinja
+  data_name: "{{ alignments.bam.file|basename|default('?') }}"
+  version: 1.0.14
   type: data:expression:htseq
   category: analyses
   flow_collection: sample
@@ -89,7 +91,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME=`basename '{{ alignments.bam.file }}' .bam`
       re-progress 0.1
 

@@ -5,8 +5,10 @@
 
 - slug: upload-mappability
   name: Upload mappability info
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.3
   type: data:mappability:bcm
   category: upload
   persistence: RAW
@@ -25,6 +27,7 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "tab" "tab" 1.0 extract
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "tab" "tab" 1.0 extract
       re-save-file mappability ${NAME}.tab

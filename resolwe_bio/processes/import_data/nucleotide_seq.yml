@@ -5,8 +5,10 @@
 
 - slug: upload-fasta-nucl
   name: Upload nucleotide sequence(s) (FASTA)
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.11
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.12
   type: data:seq:nucleotide
   category: upload
   flow_collection: sample
@@ -27,11 +29,12 @@
     - name: number
       label: Number of sequences
       type: basic:integer
-      default: 'Sequence file ({{ src.file|default:"?" }})'
+      default: 'Sequence file ({{ src.file|default("?") }})'
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       re-checkrc
       re-save number ${NUMBER}

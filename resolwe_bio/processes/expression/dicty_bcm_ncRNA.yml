@@ -5,8 +5,10 @@
 
 - slug: expression-bcm-ncrna
   name: Expression ncRNA (BCM)
-  data_name: "{{ alignment.bam.file|basename|default:'?' }}"
-  version: 1.1.1
+  requirements:
+    expression-engine: jinja
+  data_name: "{{ alignment.bam.file|basename|default('?') }}"
+  version: 1.1.2
   type: data:expression:ncrna
   category: analyses
   flow_collection: sample
@@ -53,7 +55,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       function compute_coverage {
         xtabcoverage.py --tab "{{ proc.data_dir }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"

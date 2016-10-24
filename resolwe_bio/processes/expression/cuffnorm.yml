@@ -5,8 +5,10 @@
 
 - slug: cuffnorm
   name: Cuffnorm (2.2.1)
+  requirements:
+    expression-engine: jinja
   data_name: 'Cuffnorm results'
-  version: 1.0.13
+  version: 1.0.14
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -97,7 +99,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
       replicates='{% for r in replicates %}{{r}},{% endfor %}'
       labels='{% for l in labels %}{{l}},{% endfor %}'
@@ -115,21 +118,21 @@
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
 
-      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "'{{useERCC|yesno:"TRUE,FALSE"}}'")'
+      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "'{{useERCC|yesno("TRUE", "FALSE")}}'")'
 
       {% if useERCC %}
         {% for exp in cuffquant %}
-          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{forloop.counter0}} -n
-          mv expression.tab expression_{{forloop.counter0}}.tab
-          re-export "expression_{{forloop.counter0}}.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{forloop.counter0}}.tab"}}'
+          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{loop.index0}} -n
+          mv expression.tab expression_{{loop.index0}}.tab
+          re-export "expression_{{loop.index0}}.tab"
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{loop.index0}}.tab"}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          parse_cuffnorm.py genes.fpkm_table {{forloop.counter0}}
-          mv expression.tab expression_{{forloop.counter0}}.tab
-          re-export expression_{{forloop.counter0}}.tab
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{forloop.counter0}}.tab"}}'
+          parse_cuffnorm.py genes.fpkm_table {{loop.index0}}
+          mv expression.tab expression_{{loop.index0}}.tab
+          re-export expression_{{loop.index0}}.tab
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{loop.index0}}.tab"}}'
         {% endfor %}
       {% endif %}
 

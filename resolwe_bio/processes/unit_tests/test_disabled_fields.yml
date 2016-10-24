@@ -5,8 +5,10 @@
 
 - slug: test-disabled
   name: Test disabled inputs
+  requirements:
+    expression-engine: jinja
   data_name: "Test"
-  version: 1.0.4
+  version: 1.0.5
   type: data:test:disabled
   persistence: CACHED
   description: >
@@ -37,6 +39,7 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Testing dissabled fields"
       re-save output "Done"

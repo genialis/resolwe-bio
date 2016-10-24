@@ -7,8 +7,10 @@
 
 - slug: mappability-bcm
   name: Mappability
-  data_name: "Mappability ({{genome.fasta.file|basename|default:'?'}}, length {{length}})"
-  version: 1.0.9
+  requirements:
+    expression-engine: jinja
+  data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
+  version: 1.0.10
   type: data:mappability:bcm
   category: analyses
   persistence: CACHED
@@ -33,7 +35,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "MAPPABILITY..."
       echo "UNCOMPRESSING genome..."
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`

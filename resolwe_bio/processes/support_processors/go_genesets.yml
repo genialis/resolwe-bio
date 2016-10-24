@@ -5,8 +5,10 @@
 
 - slug: go-genesets
   name: Import gene sets (GO terms)
+  requirements:
+    expression-engine: jinja
   data_name: "Import gene sets from {{gaf.gaf.file}}"
-  version: 0.0.1
+  version: 0.0.2
   type: data:genesets:go
   category: analyses
   persistence: CACHED
@@ -25,6 +27,7 @@
       type: basic:integer
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
         go_genesets.py {{gaf.gaf.file}} {{source}}
         re-checkrc "Parsing of GAF file failed."

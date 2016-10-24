@@ -5,8 +5,10 @@
 
 - slug: bam-coverage
   name: Genome coverage
+  requirements:
+    expression-engine: jinja
   data_name: "BigWig ({{bam.bam.file}})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:reads:coverage
   category: analyses
   flow_collection: sample
@@ -24,7 +26,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME='{{bam.bam.file}}'
       BIGWIGOUT=`basename '{{bam.bam.file}}' .bam`
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"

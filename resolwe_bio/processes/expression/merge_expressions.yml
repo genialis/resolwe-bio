@@ -5,8 +5,10 @@
 
 - slug: mergeexpressions
   name: Merge Expressions
+  requirements:
+    expression-engine: jinja
   data_name: "Merged expressions"
-  version: 1.0.7
+  version: 1.0.8
   type: data:expressionset
   category: analyses
   persistence: CACHED
@@ -30,7 +32,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       EXPSET_TYPE="{{ exps.0.exp_type }}"
 
       {% for e in exps %}

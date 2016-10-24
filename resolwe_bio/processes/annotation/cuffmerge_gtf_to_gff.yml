@@ -5,8 +5,10 @@
 
 - slug: cuffmerge-gtf-to-gff3
   name: Convert Cuffmerge GTF to GFF3 format
+  requirements:
+    expression-engine: jinja
   data_name: 'Cuffmerge annotation (GFF3)'
-  version: 1.0.4
+  version: 1.0.5
   type: data:annotation:gff3
   category: analyses
   persistence: CACHED
@@ -25,7 +27,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% if cuffmerge.merged_gtf.file %}
         ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`
         gffread -E -F -O '{{cuffmerge.merged_gtf.file}}' -o- > temp.gff

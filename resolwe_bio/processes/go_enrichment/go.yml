@@ -5,8 +5,10 @@
 
 - slug: goenrichment-bcm
   name: GO Enrichment 2.0
-  data_name: 'GO Enrichment for {{genes|join:", "|default:"?"}}'
-  version: 2.0.11
+  requirements:
+    expression-engine: jinja
+  data_name: 'GO Enrichment for {{genes|join(", ")|default("?")}}'
+  version: 2.0.12
   type: data:ontologyenrichment
   category: analyses
   persistence: TEMP
@@ -45,11 +47,12 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       if [[ -n "{{ orthologues }}" ]]; then
-        orthologues.py {{ orthologues.ort.file }} {{ genes | join:" " }} > temp.txt
+        orthologues.py {{ orthologues.ort.file }} {{ genes | join(" ") }} > temp.txt
       else
-        echo {{genes|join:" "}} > temp.txt
+        echo {{genes|join(" ")}} > temp.txt
       fi
 
       processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 1>go_terms.txt 2> /dev/null

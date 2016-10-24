@@ -5,8 +5,10 @@
 
 - slug: alignment-subread
   name: Subread
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 0.0.1
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 0.0.2
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample
@@ -98,7 +100,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       INDEX="{{genome.index_subread.dir}}/genome_index"
 
       if [ {{ genome.index_subread.dir }} ]; then
@@ -116,7 +119,7 @@
       cat ${FW_READS} > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"{{ r.file }} "
@@ -132,7 +135,7 @@
       UNIQUE_READS="{% if options.unique_reads %}-u {% endif %}"
 
       echo "Align with subread:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
         subread-align -i "${INDEX}" -o "${NAME}_align_unsorted.sam" -r "fw_reads.fastq" -t 0 -I {{ options.indel }} -m {{ options.consensus }} -M {{ options.mis_matched_bp }} -T {{ options.cpu_number }} ${UNIQUE_READS} --SAMoutput
       {% else %}
         subread-align -i "${INDEX}" -o "${NAME}_align_unsorted.sam" -r "fw_reads.fastq" -R "rw_reads.fastq" -t 0 -I {{ options.indel }} -m {{ options.consensus }} -M {{ options.mis_matched_bp }} -T {{ options.cpu_number }} ${UNIQUE_READS} -S {{ PE_options.reads_orientation }} -S {{ PE_options.reads_orientation }} --SAMoutput

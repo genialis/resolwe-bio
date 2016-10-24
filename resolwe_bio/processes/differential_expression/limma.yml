@@ -6,8 +6,10 @@
 
 - slug: differentialexpression-limma
   name: Limma
+  requirements:
+    expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.4
+  version: 1.0.5
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED
@@ -39,7 +41,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for c in control %}
         controls=$controls"{{c.exp.file}} "
         contVec=$contVec"1,"

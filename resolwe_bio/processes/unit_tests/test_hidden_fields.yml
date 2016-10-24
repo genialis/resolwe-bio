@@ -5,8 +5,10 @@
 
 - slug: test-hidden
   name: Test hidden inputs
+  requirements:
+    expression-engine: jinja
   data_name: "Test"
-  version: 1.0.4
+  version: 1.0.5
   type: data:test:hidden
   persistence: CACHED
   description: >
@@ -47,6 +49,7 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Testning hidden fields"
       re-save output "Done"

@@ -7,8 +7,10 @@
 
 - slug: fastq-mcf-single
   name: Fastq-mcf (single-end)
-  data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.12
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
+  version: 1.0.13
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -74,7 +76,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}
@@ -122,8 +125,10 @@
 
 - slug: fastq-mcf-paired
   name: Fastq-mcf (paired-end)
-  data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.12
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
+  version: 1.0.13
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -198,7 +203,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}

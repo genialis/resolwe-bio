@@ -7,8 +7,10 @@
 
 - slug: sortmerna-single
   name: SortMeRNA 2.0 (single-end)
-  data_name: SortMeRNA'{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.13
+  requirements:
+    expression-engine: jinja
+  data_name: SortMeRNA'{{ reads.fastq.0.file|default("?") }}'
+  version: 1.0.14
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -60,7 +62,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
 
       {% for r in reads.fastq %}
@@ -119,7 +122,9 @@
 - slug: sortmerna-paired
   version: 1.0.13
   name: SortMeRNA 2.0 (paired-end)
-  data_name: '{{ reads.fastq.0.file|default:"?" }}'
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
   type: data:reads:fastq:paired:sortmerna
   category: analyses
   flow_collection: sample
@@ -191,7 +196,8 @@
       type: list:basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
       NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 

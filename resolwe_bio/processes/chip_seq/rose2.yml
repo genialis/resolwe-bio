@@ -5,8 +5,10 @@
 
 - slug: rose2
   name: ROSE2
+  requirements:
+    expression-engine: jinja
   data_name: ROSE2 analysis
-  version: 1.0.2
+  version: 1.0.3
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -89,7 +91,8 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% if not i and not i_upload %}
         re-error "Peaks file missing. Please provide .bed peaks file as a file upload or MACS14 output."
       {% endif %}

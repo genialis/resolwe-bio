@@ -5,8 +5,10 @@
 
 - slug: pca
   name: PCA
+  requirements:
+    expression-engine: jinja
   data_name: 'PCA'
-  version: 1.0.10
+  version: 1.0.11
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -32,7 +34,8 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       EXPSET_TYPE="{{exps.0.exp_type}}"
 
       {% for e in exps %}

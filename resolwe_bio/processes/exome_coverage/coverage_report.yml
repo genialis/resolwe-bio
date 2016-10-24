@@ -7,8 +7,10 @@
 
 - slug: coverage-garvan
   name: Exome Coverage Report
-  data_name: "Coverage report ({{ mapping.bam.file|basename|default:'?' }})"
-  version: 2.0.5
+  requirements:
+    expression-engine: jinja
+  data_name: "Coverage report ({{ mapping.bam.file|basename|default('?') }})"
+  version: 2.0.6
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -63,7 +65,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       garvan_coverage.py {{ filter }} '{{ mapping.bam.file }}' '{{ gtf.gtf.file }}' {% if variants %}--variants '{{ variants.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
       re-checkrc
 

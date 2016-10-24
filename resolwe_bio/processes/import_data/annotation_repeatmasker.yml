@@ -5,8 +5,10 @@
 
 - slug: upload-rmsk
   name: RepeatMasker annotation
+  requirements:
+    expression-engine: jinja
   data_name: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
-  version: 1.0.10
+  version: 1.0.11
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -25,8 +27,9 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "out|txt" "out" 0.1
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "out|txt" "out" 0.1
 
       echo "Generating GFF3 file..."
 

@@ -97,7 +97,15 @@ FLOW_API = {
     'PERMISSIONS': 'resolwe.permissions.permissions',
 }
 FLOW_EXPRESSION_ENGINES = [
-    'resolwe.flow.exprengines.dtlbash'
+    {
+        'ENGINE': 'resolwe.flow.expression_engines.jinja',
+        'CUSTOM_FILTERS': [
+            'resolwe_bio.expression_filters.sample',
+        ]
+    },
+]
+FLOW_EXECUTION_ENGINES = [
+    'resolwe.flow.execution_engines.bash',
 ]
 
 FLOW_DOCKER_MAPPINGS = [
@@ -131,8 +139,6 @@ FLOW_PROCESSES_FINDERS = (
 )
 
 FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
-
-RESOLWE_CUSTOM_TEMPLATE_TAGS = ['sample']
 
 # Haystack.
 

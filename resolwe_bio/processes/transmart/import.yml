@@ -7,8 +7,10 @@
 
 - slug: transmart-expressions
   name: Import Expressions from tranSMART
+  requirements:
+    expression-engine: jinja
   data_name: 'Import from tranSMART'
-  version: 0.0.16
+  version: 0.0.17
   type: data:expressionset:transmart
   category: import
   persistence: RAW
@@ -41,7 +43,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "{{ann}}" > ann.txt
       echo '{{ann_ids}}' > ann_ids.txt
       transmart_fetch.R --expsConceptLinks {{exps}} --token {{token}} {% if ann %}--annConceptLinks ann.txt --outA annotation_data.tab --outT anntree.txt{% endif %} --outE expression_data.tab

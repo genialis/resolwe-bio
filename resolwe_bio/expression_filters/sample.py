@@ -7,12 +7,7 @@ Sample Template Tags
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from django import template
-
 from resolwe_bio.models import Sample
-
-
-register = template.Library()  # pylint: disable=invalid-name
 
 
 def get_sample_attr(data, attr):
@@ -29,19 +24,23 @@ def get_sample_attr(data, attr):
     return getattr(sample_qs.first(), attr, None)
 
 
-@register.filter
 def sample_id(data):
     """Return `pk` of `Sample` that given `Data` object belongs to."""
     return get_sample_attr(data, 'pk')
 
 
-@register.filter
 def sample_slug(data):
     """Return `slug` of `Sample` that given `Data` object belongs to."""
     return get_sample_attr(data, 'slug')
 
 
-@register.filter
 def sample_name(data):
     """Return `name` of `Sample` that given `Data` object belongs to."""
     return get_sample_attr(data, 'name')
+
+# A dictionary of filters that will be registered.
+filters = {  # pylint: disable=invalid-name
+    'sample_id': sample_id,
+    'sample_slug': sample_slug,
+    'sample_name': sample_name,
+}

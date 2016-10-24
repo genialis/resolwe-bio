@@ -5,8 +5,10 @@
 
 - slug: upload-bed
   name: BED track file
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.4
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.5
   type: data:bed
   category: upload
   persistence: RAW
@@ -26,8 +28,9 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       re-checkrc "BED file format validation failed. Check file integrity."
       re-save-file BED "${NAME}.bed"

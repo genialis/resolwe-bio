@@ -5,8 +5,10 @@
 
 - slug: upload-microarray-affy
   name: Upload microarray data (Affymetrix)
-  data_name: '{{ cel.file|default:"?" }}'
-  version: 1.0.4
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ cel.file|default("?") }}'
+  version: 1.0.5
   type: data:microarray:affy
   category: upload
   flow_collection: sample
@@ -50,7 +52,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ cel.file_temp|default:cel.file }}" "{{ cel.file }}" "cel|CEL" "CEL"
+    language: bash
+    program: |
+      re-import "{{ cel.file_temp|default(cel.file) }}" "{{ cel.file }}" "cel|CEL" "CEL"
       re-save-file cel "${NAME}.CEL"
       re-save source {{source}}

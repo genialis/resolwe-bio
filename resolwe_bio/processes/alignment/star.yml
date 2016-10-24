@@ -5,8 +5,10 @@
 
 - slug: alignment-star
   name: STAR (2.4.2a)
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.7
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.8
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -172,7 +174,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       READS_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
       INDEX="{{genome.index.dir}}"
 
@@ -182,7 +185,7 @@
 
       cat ${FW_READS} > fw_reads.fastq.gz
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"{{ r.file }} "
@@ -192,7 +195,7 @@
 
       re-progress 0.05
 
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
         STAR --runThreadN '{{threads}}' --genomeDir ${INDEX} --readFilesIn fw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
         re-checkrc "Reads alignment failed!"
 
@@ -265,8 +268,10 @@
 
 - slug: alignment-star-index
   name: STAR genome index (2.4.2a)
-  data_name: "STAR genome index ({{ genome.fasta.file|basename|default:'?' }})"
-  version: 1.0.5
+  requirements:
+    expression-engine: jinja
+  data_name: "STAR genome index ({{ genome.fasta.file|basename|default('?') }})"
+  version: 1.0.6
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -329,7 +334,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       gzip -dc {{ genome.fasta.file }} > genome.fasta
       re-progress 0.1
       mkdir star_index

@@ -5,8 +5,10 @@
 
 - slug: snpdat
   name: SNPdat
-  data_name: "Variants annotation ({{ variants.vcf.file|basename|default:'?' }})"
-  version: 1.0.12
+  requirements:
+    expression-engine: jinja
+  data_name: "Variants annotation ({{ variants.vcf.file|basename|default('?') }})"
+  version: 1.0.13
   type: data:variants:annotation
   category: analyses:variants
   flow_collection: sample
@@ -43,7 +45,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       VARIANTS=`basename '{{variants.vcf.file}}' .vcf`
       SUMMARY="${VARIANTS}_summary_annotation.txt"
       OUTPUT="${VARIANTS}_annotationX.tsv"

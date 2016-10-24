@@ -5,8 +5,10 @@
 
 - slug: cuffdiff
   name: Cuffdiff (2.2.1)
+  requirements:
+    expression-engine: jinja
   data_name: 'Cuffdiff results'
-  version: 1.0.13
+  version: 1.0.14
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -120,7 +122,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for cs_samp in case %}
         cases=$cases"{{ cs_samp.cxb.file }},"
       {% endfor %}

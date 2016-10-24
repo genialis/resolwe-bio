@@ -6,8 +6,10 @@
 
 - slug: jbrowse-gff3
   name: Build GFF3 annotation track (JBrowse)
-  data_name: 'Annotation track ({{ gff.gff.file|default:"?" }})'
-  version: 1.0.3
+  requirements:
+    expression-engine: jinja
+  data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
+  version: 1.0.4
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED
@@ -25,7 +27,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       flatfile-to-json.pl --gff '{{gff.gff.file}}' --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
       re-save-file annotation_track trackList.json tracks/annotation

@@ -5,8 +5,10 @@
 
 - slug: upload-file
   name: File
-  data_name: '{{ src.file|default:"?" }}'
-  version: 0.0.1
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.2
   type: data:file
   category: upload
   persistence: RAW
@@ -22,6 +24,7 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
-      mv "{{ src.file_temp|default:src.file }}" "{{src.file}}"
+    language: bash
+    program: |
+      mv "{{ src.file_temp }}" "{{src.file}}"
       re-save-file file "{{src.file}}"

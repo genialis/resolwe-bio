@@ -5,8 +5,10 @@
 
 - slug: differentialexpression-edger
   name: edgeR
+  requirements:
+    expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 0.0.1
+  version: 0.0.2
   type: data:differentialexpression:edger
   category: analyses
   persistence: CACHED
@@ -44,7 +46,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
 
       {% if control|length < 2 or case|length < 2 %}
         re-error "Error in calculating edgeR dispersion, please provide more samples"

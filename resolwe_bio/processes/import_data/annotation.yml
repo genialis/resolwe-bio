@@ -5,8 +5,10 @@
 
 - slug: upload-gff3
   name: Annotation (GFF3)
+  requirements:
+    expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -67,8 +69,9 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
 
       gt gff3validator ${NAME}.gff
       re-checkrc
@@ -78,8 +81,10 @@
 
 - slug: upload-gtf
   name: Annotation (GTF2.2)
+  requirements:
+    expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.16
+  version: 1.0.17
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -140,8 +145,9 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "gtf" "gtf" 0.3
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "gtf" "gtf" 0.3
 
       echo "Converting GTF to GFF3:"
       cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"

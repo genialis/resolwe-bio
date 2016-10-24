@@ -5,8 +5,10 @@
 
 - slug: alignment-bwa-mem
   name: BWA MEM (0.7.5a)
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.14
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.15
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -101,7 +103,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
 
@@ -123,7 +126,7 @@
       cat ${FW_READS} > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"{{ r.file }} "
@@ -137,7 +140,7 @@
       re-progress 0.3
 
       echo "ALIGNING with BWA-MEM:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
         bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} ${INDEX} fw_reads.fastq 1>"${NAME}_align_unsorted.sam"
       {% else %}
         bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} ${INDEX} fw_reads.fastq rw_reads.fastq 1>"${NAME}_align_unsorted.sam"
@@ -174,8 +177,10 @@
 
 - slug: alignment-bwa-sw
   name: BWA SW (0.7.5a)
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.13
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.14
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -222,7 +227,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
 
@@ -233,7 +239,7 @@
       cat ${FW_READS} > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"{{ r.file }} "
@@ -245,7 +251,7 @@
       NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
       echo "ALIGNING with BWA-SW:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
         bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} ${INDEX} "fw_reads.fastq" 1>"${NAME}_align_unsorted.sam"
       {% else %}
         bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} ${INDEX} "fw_reads.fastq" "rw_reads.fastq" 1>"${NAME}_align_unsorted.sam"
@@ -282,8 +288,10 @@
 
 - slug: alignment-bwa-aln
   name: BWA ALN (0.7.5a)
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default:'?' }})"
-  version: 1.0.14
+  requirements:
+    expression-engine: jinja
+  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
+  version: 1.0.15
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -344,7 +352,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
 
@@ -355,7 +364,7 @@
       cat ${FW_READS} > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
-      {% if reads|type|subtype:'data:reads:fastq:paired:' %}
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
           RW_READS=${RW_READS}"{{ r.file }} "
@@ -367,7 +376,7 @@
       NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
       echo "ALIGNING with BWA-ALN:"
-      {% if reads|type|subtype:'data:reads:fastq:single:' %}
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
         bwa aln {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} ${INDEX} "fw_reads.fastq" > "${NAME}_align.sai"
         bwa samse ${INDEX} "${NAME}_align.sai" "fw_reads.fastq" > "${NAME}_align_unsorted.sam"
       {% else %}

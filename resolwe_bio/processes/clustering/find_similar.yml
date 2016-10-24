@@ -5,8 +5,10 @@
 
 - slug: findsimilar
   name: Find genes with similar expression
+  requirements:
+    expression-engine: jinja
   data_name: "Expression of genes similar to {{gene}}"
-  version: 1.0.7
+  version: 1.0.8
   type: data:similarexpression
   persistence: TEMP
   description: >
@@ -35,6 +37,7 @@
       type: basic:json
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       find_similar.py -g "{{gene}}" -d "{{scoring_function}}" "{{etcx.etcfile.file}}"
       re-checkrc

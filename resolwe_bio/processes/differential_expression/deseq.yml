@@ -5,8 +5,10 @@
 
 - slug: differentialexpression-deseq2
   name: DESeq2
+  requirements:
+    expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.9
+  version: 1.0.10
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -38,7 +40,8 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% for c in control %}
         {% if not c.rc.file %}
           re-error "Read counts are required when using DESeq2"

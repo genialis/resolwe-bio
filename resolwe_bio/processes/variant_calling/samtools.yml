@@ -5,8 +5,10 @@
 
 - slug: vc-samtools
   name: Variant calling (Samtools)
-  data_name: "Called variants ({{ mapping.bam.file|basename|default:'?' }})"
-  version: 1.0.7
+  requirements:
+    expression-engine: jinja
+  data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
+  version: 1.0.8
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -26,7 +28,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       echo "uncompressing genome, indexing"
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       cp {{ genome.fasta.file }} "${GENOME_NAME}.fasta.gz"

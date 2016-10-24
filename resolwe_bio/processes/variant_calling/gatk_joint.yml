@@ -5,8 +5,10 @@
 
 - slug: vc-gatk-joint
   name: Joint Variant calling (GATK)
+  requirements:
+    expression-engine: jinja
   data_name: "GATK called variants"
-  version: 1.0.2
+  version: 1.0.3
   type: data:variants:vcf:jointgatk
   category: analyses:variants
   persistence: CACHED
@@ -136,7 +138,8 @@
       type: basic:file
   run:
     runtime: polyglot
-    bash: |
+    language: bash
+    program: |
       {% if br_and_ind_ra and not known_sites and not known_indels %}
         re-error "Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files."
       {% endif %}

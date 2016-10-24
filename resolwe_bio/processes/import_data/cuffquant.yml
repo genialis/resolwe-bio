@@ -5,8 +5,10 @@
 
 - slug: upload-cxb
   name: Cuffquant results
-  data_name: '{{ src.file|default:"?" }}'
-  version: 1.0.2
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 1.0.3
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample
@@ -69,8 +71,9 @@
       type: basic:string
   run:
     runtime: polyglot
-    bash: |
-      re-import "{{ src.file_temp|default:src.file }}" "{{ src.file }}" "cxb" "cxb" 1.0 extract
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "cxb" "cxb" 1.0 extract
       re-checkrc
       re-save-file cxb "${NAME}.cxb"
       re-save source {{source}}
