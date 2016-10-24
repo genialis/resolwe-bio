@@ -24,6 +24,7 @@ Changed
 * Remove obsolete descriptor schemas
 * Update processes trimmomatic, gff_to_gtf and featureCount
 * Add stitch parameter to rose2 processor
+* Add filtering to DESeq2
 
 Added
 -----

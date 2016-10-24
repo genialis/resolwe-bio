@@ -9,6 +9,6 @@ args = parser$parse_args(commandArgs(trailingOnly=TRUE))
 
 countData = read.delim(args$counts, sep="\t", header=TRUE, check.names=FALSE, row.names=1)
 
-countData <- countData[apply(countData, 1, function(x) all(x > args$filter)), ]
+countData <- countData[apply(countData, 1, function(x) all(x >= args$filter)), ]
 
 write.table(countData, file=args$out, sep='\t', quote=F, col.names=NA)

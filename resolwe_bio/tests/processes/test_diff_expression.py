@@ -55,7 +55,8 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'case': [expression_1.pk],
-            'control': [expression_2.pk]
+            'control': [expression_2.pk],
+            'filter': 0
         }
 
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)

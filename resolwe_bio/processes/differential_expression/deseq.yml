@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.10
+  version: 1.0.11
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -25,6 +25,13 @@
       type: list:data:expression
       description: >
         Control samples (replicates)
+    - name: filter
+      label: Raw counts filtering threshold
+      type: basic:integer
+      default: 10
+      description: >
+        Filter genes in the expression matrix input. Remove genes where the
+        number of counts in all samples is below the threshold.
   output:
     - name: raw
       label: Differential expression
@@ -79,7 +86,9 @@
       expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
       re-checkrc "Error merging read counts."
 
-      run_deseq2.R counts.tab --sampleConditions ${sampleConditions}
+      diffexp_filtering.R -counts 'counts.tab' -filter {{filter}} -out counts_filtered.tab
+
+      run_deseq2.R counts_filtered.tab --sampleConditions ${sampleConditions}
       re-checkrc "Error computing differential expression (DESeq2)."
 
       re-progress 0.95
