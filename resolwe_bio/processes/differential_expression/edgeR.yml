@@ -30,7 +30,7 @@
       type: basic:integer
       default: 10
       description: >
-        The cut of value for filtering of raw counts
+        The threshold value for raw counts filtering.
   output:
     - name: raw
       label: Differential expression
@@ -92,7 +92,7 @@
 
       diffexp_filtering.R -counts 'counts.tab' -filter {{filter}} -out counts_filtered.tab
 
-      edger.R counts_filtered.tab --sampleConditions ${sampleConditions}
+      run_edger.R counts_filtered.tab --sampleConditions ${sampleConditions}
       re-checkrc "Error computing differential expression (edgeR)."
 
       re-progress 0.95
