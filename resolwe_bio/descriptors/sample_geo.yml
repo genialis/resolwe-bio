@@ -1,6 +1,6 @@
 - slug: sample
   name: GEO sample annotation
-  description: GEO sample annotation template
+  description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
   schema:
     - name: sample
       label: Sample annotation
@@ -68,7 +68,7 @@
             - label: other
               value: other
         - name: optional_char
-          label: Optional Characteristics
+          label: Optional characteristics
           type: list:basic:string
           required: false
           description: >

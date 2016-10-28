@@ -1,5 +1,5 @@
-- slug: reads
-  name: Reads annotation
+- slug: reads-detailed
+  name: Reads annotation (detailed)
   description: Annotation of raw sequencing data
   schema:
     - name: experiment_type
@@ -80,6 +80,33 @@
           label: Fragmentation method
           type: basic:string
           required: false  # XXX: remove this when fixed
+        - name: rin
+          label: RIN
+          type: basic:decimal
+          required: false
+        - name: days_in_vitro
+          label: Days in vitro
+          type: basic:integer
+          required: false
+        - name: derivation
+          label: Derivation
+          type: basic:string
+          default: 'N/A'
+          required: false
+        - name: sort_marker
+          label: Sort marker
+          type: basic:string
+          default: 'N/A'
+          required: false
+        - name: sort_percent
+          label: Sort percent (for marker of interest)
+          type: basic:decimal
+          required: false
+        - name: sort_date
+          label: Sort date
+          type: basic:date
+          default: 'N/A'
+          required: false
         - name: ip_tag
           label: IP Tag
           type: basic:string

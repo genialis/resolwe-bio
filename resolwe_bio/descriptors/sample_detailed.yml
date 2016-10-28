@@ -1,0 +1,100 @@
+- slug: sample-detailed
+  name: Sample annotation
+  description: Sample annotation template (detailed)
+  schema:
+    - name: sample
+      label: Sample annotation
+      group:
+        - name: annotator
+          label: Annotator
+          type: basic:string
+        - name: organism
+          label: Organism
+          type: basic:string
+          description: >
+            Identify the organism from which the sequences were derived.
+          choices:
+            - label: Homo sapiens
+              value: Homo sapiens
+            - label: Mus musculus
+              value: Mus musculus
+        - name: source
+          label: Source
+          type: basic:string
+          custom_choice_conditions: ["sample.organism"]
+          description: >
+            Briefly identify the biological material e.g., vastus lateralis muscle.
+        - name: cell_type
+          label: Cell type
+          type: basic:string
+          custom_choice_conditions: ["sample.organism"]
+          required: false
+          default: 'N/A'
+          description: >
+            Type of cell of the sample or from which the sample was obtained.
+        - name: strain
+          label: Strain
+          type: basic:string
+          custom_choice_conditions: ["sample.organism"]
+          hidden: "(sample.organism == 'Homo sapiens' || sample.organism == 'Mus musculus')"
+          description: >
+            Microbial or eukaryotic strain name.
+        - name: cell_line
+          label: Cell line
+          type: basic:string
+          default: 'N/A'
+          required: false
+        - name: molecule
+          label: Molecule
+          type: basic:string
+          description: >
+            Type of molecule that was extracted from the biological material.
+          choices:
+            - label: total RNA
+              value: total RNA
+            - label: polyA RNA
+              value: polyA RNA
+            - label: cytoplasmic RNA
+              value: cytoplasmic RNA
+            - label: nuclear RNA
+              value: nuclear RNA
+            - label: genomic DNA
+              value: genomic DNA
+            - label: protein
+              value: protein
+            - label: other
+              value: other
+        - name: gender
+          label: Gender
+          type: basic:string
+          default: 'N/A'
+          required: false
+        - name: age
+          label: Age
+          type: basic:integer
+          required: false
+        - name: xcag
+          label: xCAG
+          type: basic:integer
+          required: false
+        - name: group
+          label: Control/Experimenal group
+          type: basic:string
+          default: 'N/A'
+          required: false
+        - name: optional_char
+          label: Optional characteristics
+          type: list:basic:string
+          required: false
+          description: >
+            Optional annotation of a biosource characteristic (e.g. strain, tissue, developmental stage, tumor stage, etc).
+            For each of the entered characteristics, enter the associated value (e.g. 129SV, brain, embryo, etc). Enter the
+            optional characteristics in the format <characteristic:value>.
+        - name: description
+          label: Description
+          type: basic:string
+          required: false
+          default: 'N/A'
+          description: >
+            Additional information not provided in the other fields, or paste in broad descriptions that cannot be easily
+            dissected into the other fields.
