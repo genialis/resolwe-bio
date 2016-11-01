@@ -8,7 +8,7 @@
 - slug: sortmerna-single
   name: SortMeRNA 2.0 (single-end)
   data_name: SortMeRNA'{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.12
+  version: 1.0.13
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -54,7 +54,7 @@
       type: basic:file
     - name: fastqc_url
       label: Quality control with FastQC
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive
       type: list:basic:file
@@ -99,7 +99,7 @@
       re-progress 0.9
 
       mv "fastqc/${NAME}_filtered_fastqc.zip" .
-      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_filtered_fastqc\"]}"
+      FASTQC_URL="{\"file\":\"fastqc/${NAME}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_filtered_fastqc\"]}"
 
       gzip ${NAME}_filtered.fastq
 
@@ -117,7 +117,7 @@
 
 
 - slug: sortmerna-paired
-  version: 1.0.12
+  version: 1.0.13
   name: SortMeRNA 2.0 (paired-end)
   data_name: '{{ reads.fastq.0.file|default:"?" }}'
   type: data:reads:fastq:paired:sortmerna
@@ -179,10 +179,10 @@
       type: basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
       type: list:basic:file
@@ -250,8 +250,8 @@
       gzip ${NAME1}_filtered.fastq
       gzip ${NAME2}_filtered.fastq
 
-      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_filtered_fastqc\"]}"
-      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_filtered_fastqc\"]}"
+      FASTQC_URL="{\"file\":\"fastqc/${NAME1}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_filtered_fastqc\"]}"
+      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_filtered_fastqc\"]}"
       mv "fastqc/${NAME1}_filtered_fastqc.zip" .
       mv "fastqc/${NAME2}_filtered_fastqc.zip" .
 

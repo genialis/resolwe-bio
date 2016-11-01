@@ -14,9 +14,9 @@ class ReadsProcessorTestCase(BioProcessTestCase):
         merged_reads = self.run_process('reads-merge', inputs)
         self.assertFiles(merged_reads, 'fastq', ['paired_end_forward.fastq.gz'], compression='gzip')
         self.assertFiles(merged_reads, 'fastq2', ['paired_end_reverse.fastq.gz'], compression='gzip')
-        self.assertFields(merged_reads, "fastqc_url", [{'url': 'fastqc/fw_reads_fastqc/fastqc_report.html',
+        self.assertFields(merged_reads, "fastqc_url", [{'file': 'fastqc/fw_reads_fastqc/fastqc_report.html',
                                                         'refs': ['fastqc/fw_reads_fastqc'],
-                                                        'name': 'View'}])
-        self.assertFields(merged_reads, "fastqc_url2", [{'url': 'fastqc/rw_reads_fastqc/fastqc_report.html',
+                                                        'size': 311414}])
+        self.assertFields(merged_reads, "fastqc_url2", [{'file': 'fastqc/rw_reads_fastqc/fastqc_report.html',
                                                          'refs': ['fastqc/rw_reads_fastqc'],
-                                                         'name': 'View'}])
+                                                         'size': 311414}])

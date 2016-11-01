@@ -46,6 +46,7 @@ Added
 Fixed
 -----
 * Set ``presample`` to ``False`` for Samples created on Sample endpoint
+* Fix FastQC report paths in processors
 
 
 ================

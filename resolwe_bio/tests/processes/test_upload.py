@@ -88,18 +88,18 @@ class UploadProcessorTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-paired', inputs)
         self.assertFiles(reads, 'fastq', ['rRNA_forw.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
         self.assertFiles(reads, 'fastq2', ['00Hr.fastq.gz', '20Hr.fastq.gz'], compression='gzip')
-        self.assertFields(reads, 'fastqc_url', [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                 'name': 'View'},
-                                                {'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                 'size': 343222},
+                                                {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                 'name': 'View'}])
-        self.assertFields(reads, 'fastqc_url2', [{'url': 'fastqc/00Hr_fastqc/fastqc_report.html',
+                                                 'size': 323297}])
+        self.assertFields(reads, 'fastqc_url2', [{'file': 'fastqc/00Hr_fastqc/fastqc_report.html',
                                                   'refs': ['fastqc/00Hr_fastqc'],
-                                                  'name': 'View'},
-                                                 {'url': 'fastqc/20Hr_fastqc/fastqc_report.html',
+                                                  'size': 327878},
+                                                 {'file': 'fastqc/20Hr_fastqc/fastqc_report.html',
                                                   'refs': ['fastqc/20Hr_fastqc'],
-                                                  'name': 'View'}])
+                                                  'size': 287245}])
 
     def test_upload_single_end_reads(self):
         inputs = {'src': ['mate1.fastq.gz']}
@@ -109,12 +109,12 @@ class UploadProcessorTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-single', inputs)
 
         self.assertFiles(reads, 'fastq', ['rRNA_forw_single.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
-        self.assertFields(reads, 'fastqc_url', [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                 'name': 'View'},
-                                                {'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                 'size': 343222},
+                                                {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                 'name': 'View'}])
+                                                 'size': 323297}])
 
     def test_upload_reads_old_encoding(self):
         inputs = {'src': ['old_encoding.fastq.gz']}

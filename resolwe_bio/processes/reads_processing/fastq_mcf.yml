@@ -8,7 +8,7 @@
 - slug: fastq-mcf-single
   name: Fastq-mcf (single-end)
   data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.11
+  version: 1.0.12
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -68,7 +68,7 @@
       type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive
       type: list:basic:file
@@ -110,7 +110,7 @@
       mv fastqc/${NAME}_filtered_fastqc fastqc/${NAME}_fastqc
       mv "fastqc/${NAME}_filtered_fastqc.zip" ${NAME}_fastqc.zip
 
-      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
+      FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
       re-progress 0.95
 
@@ -123,7 +123,7 @@
 - slug: fastq-mcf-paired
   name: Fastq-mcf (paired-end)
   data_name: '{{ reads.fastq.0.file|default:"?" }}'
-  version: 1.0.11
+  version: 1.0.12
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -186,10 +186,10 @@
       type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
       type: list:basic:file
@@ -242,8 +242,8 @@
       mv "fastqc/${NAME1}_filtered_fastqc.zip" ${NAME1}_fastqc.zip
       mv "fastqc/${NAME2}_filtered_fastqc.zip" ${NAME2}_fastqc.zip
 
-      FASTQC_URL="{\"name\":\"View\",\"url\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
-      FASTQC_URL2="{\"name\":\"View\",\"url\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+      FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
+      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
 
       gzip -c "${NAME1}_filtered.fastq" > "${NAME1}.fastq.gz"
       gzip -c "${NAME2}_filtered.fastq" > "${NAME2}.fastq.gz"

@@ -6,7 +6,7 @@
 - slug: reads-merge
   name: Build paired-end reads from single-ended
   data_name: "Merged reads"
-  version: 1.0.6
+  version: 1.0.7
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
@@ -28,10 +28,10 @@
       type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
       type: list:basic:file
@@ -68,9 +68,8 @@
 
       mv fastqc/*_fastqc.zip .
 
-      FW_FASTQC_URL={\"name\":\"View\",\"url\":\"fastqc/fw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/fw_reads_fastqc\"]}
-
-      RW_FASTQC_URL={\"name\":\"View\",\"url\":\"fastqc/rw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/rw_reads_fastqc\"]}
+      FW_FASTQC_URL="{\"file\":\"fastqc/fw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/fw_reads_fastqc\"]}"
+      RW_FASTQC_URL="{\"file\":\"fastqc/rw_reads_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/rw_reads_fastqc\"]}"
 
       re-save-file-list fastqc_archive fw_reads_fastqc.zip
       re-save-file-list fastqc_archive2 rw_reads_fastqc.zip

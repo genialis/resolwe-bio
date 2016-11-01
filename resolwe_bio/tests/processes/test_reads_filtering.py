@@ -10,9 +10,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         filtered_reads = self.run_process('prinseq-lite-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_single.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/reads_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'name': 'View'}])
+                                                          'size': 314749}])
 
     def test_prinseq_paired(self):
         inputs = {
@@ -24,12 +24,12 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('prinseq-lite-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_prinseq_paired_rw.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                          'name': 'View'}])
-        self.assertFields(filtered_reads, "fastqc_url2", [{'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                          'size': 347773}])
+        self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'name': 'View'}])
+                                                           'size': 340697}])
 
     def test_fastqmcf_single(self):
         reads = self.prepare_reads()
@@ -37,9 +37,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('fastq-mcf-single', inputs)
 
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_fastqmcf_single.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/reads_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'name': 'View'}])
+                                                          'size': 305101}])
 
     def test_fastqmcf_paired(self):
         inputs = {
@@ -51,12 +51,12 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('fastq-mcf-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_fastqmcf_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_fastqmcf_paired_rw.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                          'name': 'View'}])
-        self.assertFields(filtered_reads, "fastqc_url2", [{'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                          'size': 347791}])
+        self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'name': 'View'}])
+                                                           'size': 340715}])
 
     def test_sortmerna_single(self):
         reads = self.prepare_reads(['rRNA_forw.fastq.gz'])
@@ -73,9 +73,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(filtered_reads, 'fastq_rRNA_sam.file', 'rRNA_forw_rRNA.sam')
         self.assertFields(filtered_reads, 'stats.file', 'stats.log')
         self.assertFields(filtered_reads, "fastqc_url",
-                          [{'url': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
+                          [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
-                            'name': 'View'}])
+                            'size': 345492}])
 
     def test_sortmerna_paired(self):
         inputs = {
@@ -98,13 +98,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(filtered_reads, 'fastq_rRNA_sam.file', 'rRNA_forw_rRNA.sam')
         self.assertFields(filtered_reads, 'stats.file', 'stats.log')
         self.assertFields(filtered_reads, "fastqc_url",
-                          [{'url': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
+                          [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
-                            'name': 'View'}])
+                            'size': 345492}])
         self.assertFields(filtered_reads, "fastqc_url2",
-                          [{'url': 'fastqc/rRNA_rew_filtered_fastqc/fastqc_report.html',
+                          [{'file': 'fastqc/rRNA_rew_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_rew_filtered_fastqc'],
-                            'name': 'View'}])
+                            'size': 347212}])
 
     def test_trimmomatic_single(self):
         reads = self.prepare_reads()
@@ -114,9 +114,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_processor('trimmomatic-single', inputs)
 
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_single.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/reads_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'name': 'View'}])
+                                                          'size': 206718}])
 
     def test_trimmomatic_paired(self):
         inputs = {
@@ -130,9 +130,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_trimmomatic_paired_rw.fastq.gz'],
                          compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'url': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                          'name': 'View'}])
-        self.assertFields(filtered_reads, "fastqc_url2", [{'url': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                          'size': 352347}])
+        self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'name': 'View'}])
+                                                           'size': 340745}])

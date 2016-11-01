@@ -6,7 +6,7 @@
 - slug: upload-fastq-single
   name: Reads (single-end)
   data_name: '{{ src.0.file|default:"?" }}'
-  version: 1.0.20
+  version: 1.0.21
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -26,7 +26,7 @@
       type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive
       type: list:basic:file
@@ -71,7 +71,7 @@
       do
         FASTQC=${FASTQC}"$fqc "
         NAME=`basename $fqc _fastqc.zip`
-        FASTQC_URL=${FASTQC_URL}"{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
+        FASTQC_URL=${FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       done
 
       re-save-file-list fastqc_archive ${FASTQC}
@@ -80,7 +80,7 @@
 - slug: upload-fastq-paired
   name: Reads (paired-end)
   data_name: '{{ src1.0.file|default:"?" }}'
-  version: 1.0.20
+  version: 1.0.21
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
@@ -109,10 +109,10 @@
       type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_url2
       label: Quality control with FastQC (Downstream)
-      type: list:basic:url:view
+      type: list:basic:file:html
     - name: fastqc_archive
       label: Download FastQC archive (Upstream)
       type: list:basic:file
@@ -126,14 +126,14 @@
         re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
         FW_FASTQGZ=${FW_FASTQGZ}"${NAME}.fastq.gz "
         FW_FASTQC=${FW_FASTQC}"${NAME}_fastqc.zip "
-        FW_FASTQC_URL=${FW_FASTQC_URL}"{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
+        FW_FASTQC_URL=${FW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       {% endfor %}
 
       {% for reads in src2 %}
         re-import "{{ reads.file_temp|default:reads.file }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
         RW_FASTQGZ=${RW_FASTQGZ}"${NAME}.fastq.gz "
         RW_FASTQC=${RW_FASTQC}"${NAME}_fastqc.zip "
-        RW_FASTQC_URL=${RW_FASTQC_URL}"{\"name\":\"View\",\"url\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
+        RW_FASTQC_URL=${RW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       {% endfor %}
 
       re-save-file-list fastq ${FW_FASTQGZ}

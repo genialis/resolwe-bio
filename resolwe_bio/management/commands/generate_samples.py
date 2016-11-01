@@ -132,15 +132,11 @@ class Command(BaseCommand):
         with zipfile.ZipFile(fastqc) as f:
             f.extractall(os.path.join(data_dir, str(d.id), 'fastqc'))
 
-        old_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc', 'fastqc_report.html')
-        new_fastqc_path = os.path.join(data_dir, str(d.id), 'fastqc', reads_name + '_fastqc.html')
-        shutil.copy(old_fastqc_path, new_fastqc_path)
-
         d.output = {
             'fastq': [{'file': os.path.basename(reads)}],
             'fastqc_url': [{
-                'url': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
-                'refs': ['fastqc/{}_fastqc'.format(reads_name)], 'name': 'View'}],
+                'file': 'fastqc/{}_fastqc/fastqc_report.html'.format(reads_name),
+                'refs': ['fastqc/{}_fastqc'.format(reads_name)]}],
             'fastqc_archive': [{'file': '{}_fastqc.zip'.format(reads_name)}]}
         d.status = Data.STATUS_DONE
         d.save()
