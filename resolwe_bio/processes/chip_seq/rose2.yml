@@ -50,6 +50,12 @@
       default: 0
       description: >
         Enter a distance from TSS to exclude. 0 = no TSS exclusion
+    - name: s
+      label: Stitch
+      type: basic:integer
+      required: false
+      description: >
+        Enter a max linking distance for stitching. If not given, optimal stitching parameter will be determined automatically.
   output:
     - name: all_enhancers
       label: All enhancers table
@@ -98,7 +104,7 @@
         NAME=`basename '{{ i.peaks_bed.file }}' .bed`
       {% endif %}
 
-      rose2 -g {{g}} -i {% if i_upload %} {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} -o .
+      rose2 -g {{g}} -i {% if i_upload %} {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} {% if s %} -s {{s}} {% endif %} -o .
       re-checkrc "Rose2 run failed."
 
       re-save-file all_enhancers ${NAME}_AllEnhancers.table.txt
