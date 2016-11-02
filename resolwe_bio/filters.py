@@ -24,3 +24,27 @@ class SampleFilter(CollectionFilter):
 
         model = Sample
         fields = CollectionFilter.Meta.fields.update({'collections': ['exact', ]})
+
+
+class BioCollectionFilter(CollectionFilter):
+    """Filter the collection endpoint.
+
+    Enable filtering collections by the sample.
+
+    .. IMPORTANT::
+
+        :class:`CollectionViewSet` must be patched before using it in
+        urls to enable this feature:
+
+            .. code:: python
+
+                CollectionViewSet.filter_class = BioCollectionFilter
+
+    """
+
+    sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
+
+    class Meta(CollectionFilter.Meta):
+        """Filter configuration."""
+
+        fields = CollectionFilter.Meta.fields.update({'sample': ['exact', ]})
