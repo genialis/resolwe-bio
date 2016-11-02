@@ -42,7 +42,8 @@ Added
 * Add gff3 to gtf file converter
 * Add microarray data descriptor schema
 * Add process for differential expression edgeR
-* ``BioCollectionFilter`` to support filtering collections by samples on API
+* ``BioCollectionFilter`` and ``BidDataFilter`` to support filtering collections 
+  and data by samples on API
 
 Fixed
 -----

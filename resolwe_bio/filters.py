@@ -9,7 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import rest_framework_filters as filters
 
-from resolwe.flow.filters import CollectionFilter
+from resolwe.flow.filters import CollectionFilter, DataFilter
 from resolwe.flow.models import Collection
 from .models import Sample
 
@@ -48,3 +48,27 @@ class BioCollectionFilter(CollectionFilter):
         """Filter configuration."""
 
         fields = CollectionFilter.Meta.fields.update({'sample': ['exact', ]})
+
+
+class BioDataFilter(DataFilter):
+    """Filter the data endpoint.
+
+    Enable filtering data by the sample.
+
+    .. IMPORTANT::
+
+        :class:`DataViewSet` must be patched before using it in urls to
+        enable this feature:
+
+            .. code:: python
+
+                DataViewSet.filter_class = BioDataFilter
+
+    """
+
+    sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
+
+    class Meta(DataFilter.Meta):
+        """Filter configuration."""
+
+        fields = DataFilter.Meta.fields.update({'sample': ['exact', ]})
