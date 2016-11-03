@@ -23,7 +23,6 @@ class SampleFilter(CollectionFilter):
         """Filter configuration."""
 
         model = Sample
-        fields = CollectionFilter.Meta.fields.update({'collections': ['exact', ]})
 
 
 class BioCollectionFilter(CollectionFilter):
@@ -44,11 +43,6 @@ class BioCollectionFilter(CollectionFilter):
 
     sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
 
-    class Meta(CollectionFilter.Meta):
-        """Filter configuration."""
-
-        fields = CollectionFilter.Meta.fields.update({'sample': ['exact', ]})
-
 
 class BioDataFilter(DataFilter):
     """Filter the data endpoint.
@@ -67,8 +61,3 @@ class BioDataFilter(DataFilter):
     """
 
     sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
-
-    class Meta(DataFilter.Meta):
-        """Filter configuration."""
-
-        fields = DataFilter.Meta.fields.update({'sample': ['exact', ]})
