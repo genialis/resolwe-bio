@@ -200,3 +200,10 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')
+
+        inputs = {'src': 'my.strange.genome name$.fasta.gz'}
+        genome_2 = self.run_process('upload-genome', inputs)
+
+        inputs = {'genome': genome_2.id, 'reads': reads_paired.id}
+        aligned_reads = self.run_process('alignment-subread', inputs)
+        self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')

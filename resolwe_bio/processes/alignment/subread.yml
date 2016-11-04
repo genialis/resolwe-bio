@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 0.0.2
+  version: 0.0.3
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample
@@ -102,7 +102,8 @@
     runtime: polyglot
     language: bash
     program: |
-      INDEX="{{genome.index_subread.dir}}/genome_index"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      INDEX="{{genome.index_subread.dir}}/${GENOME_NAME}_index"
 
       if [ {{ genome.index_subread.dir }} ]; then
         echo "Genome index found."
