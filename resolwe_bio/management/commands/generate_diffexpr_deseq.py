@@ -143,12 +143,12 @@ class Command(BaseCommand):
         with gzip.open(gene_ids, mode='rt') as gene_ids:
             all_genes = [line.strip() for line in gene_ids]
             de_data[''] = all_genes
-            de_data['baseMean'] = [random.uniform(5, 500) for gene in all_genes]
-            de_data['log2FoldChange'] = [random.uniform(-10, 10) for gene in all_genes]
-            de_data['lfcSE'] = [random.uniform(0, 1) for gene in all_genes]
-            de_data['stat'] = [random.uniform(-10, 10) for gene in all_genes]
-            de_data['pvalue'] = [random.uniform(0, 1) for gene in all_genes]
-            de_data['padj'] = [random.uniform(0, 1) for gene in all_genes]
+            de_data['baseMean'] = [random.uniform(5, 500) for _ in all_genes]
+            de_data['log2FoldChange'] = [random.uniform(-10, 10) for _ in all_genes]
+            de_data['lfcSE'] = [random.uniform(0, 1) for _ in all_genes]
+            de_data['stat'] = [random.uniform(-10, 10) for _ in all_genes]
+            de_data['pvalue'] = [random.uniform(0, 1) for _ in all_genes]
+            de_data['padj'] = [random.uniform(0, 1) for _ in all_genes]
 
             rows = zip(de_data[''], de_data['baseMean'], de_data['log2FoldChange'],
                        de_data['lfcSE'], de_data['stat'], de_data['pvalue'], de_data['padj'])

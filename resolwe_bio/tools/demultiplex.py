@@ -69,16 +69,17 @@ def isnum(number):
     except ValueError:
         return False
 
+
 barcode_length = 0
 
 if args.mapping:
     with open(args.mapping, 'rU') as fd:
-        for l in fd:
-            l = l.rstrip()
-            if not l:
+        for line in fd:
+            line = line.rstrip()
+            if not line:
                 continue
 
-            t = l.split('\t')
+            t = line.split('\t')
             barcode, filename = '', ''
 
             if len(t) == 2:

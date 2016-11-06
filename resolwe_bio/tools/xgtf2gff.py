@@ -35,6 +35,7 @@ def gtf2gff(infileName, outfileName, program):
             else:
                 outfile.write("\t".join(words) + '\n')
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--program', help='The name of the program which generated the GTF file.', required=True)

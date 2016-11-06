@@ -31,8 +31,8 @@ args = parser.parse_args()
 
 gene_id_re = re.compile(r'ID=([\w\-\.]*)')
 gene_name_re = re.compile(r'oId=([\w\-\.]*)')
-class_code_re = re.compile(r'class_code=([\w\-\.]*)')
 parent_id_re = re.compile(r'Parent=([\w\-\.]*)')
+class_code_re = re.compile(r'class_code=([\w\-\.]*)')
 
 
 def _search(regex, string):

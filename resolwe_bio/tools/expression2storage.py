@@ -32,6 +32,7 @@ def isfloat(value):
     except ValueError:
         return False
 
+
 with utils.gzopen(args.input) as f:
     # Split lines by tabs
     # Ignore lines without a number in second column

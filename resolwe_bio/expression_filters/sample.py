@@ -38,6 +38,7 @@ def sample_name(data):
     """Return `name` of `Sample` that given `Data` object belongs to."""
     return get_sample_attr(data, 'name')
 
+
 # A dictionary of filters that will be registered.
 filters = {  # pylint: disable=invalid-name
     'sample_id': sample_id,

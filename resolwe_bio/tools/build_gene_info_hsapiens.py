@@ -43,9 +43,9 @@ with open(args.gene_info) as gene_info:
 
 with open(args.uniprotKB) as uniprot:
     for line in uniprot:
-        l = line.split('\t')
-        if l[2] != '':
-            EntrezID2UniprotKB[l[2]] = l[0]
+        line = line.split('\t')
+        if line[2] != '':
+            EntrezID2UniprotKB[line[2]] = line[0]
 
 with open(args.output, "w") as f:
     f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",

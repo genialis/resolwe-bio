@@ -133,6 +133,7 @@ def gene_expression_overlap_stranded(gtf_file, bam_file, quality=30):
 
     return genes_exp
 
+
 print("Expression profile overlap...")
 if args.stranded:
     results = gene_expression_overlap_stranded(gtf_file, bam_file)

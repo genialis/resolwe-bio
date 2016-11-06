@@ -142,20 +142,21 @@ class Command(BaseCommand):
 
         with gzip.open(gene_ids, mode='rt') as gene_ids:
             all_genes = [line.strip() for line in gene_ids]
+            n_of_genes = len(all_genes)
             de_data['test_id'] = all_genes
             de_data['gene_id'] = all_genes
             de_data['gene'] = all_genes
-            de_data['locus'] = ['chr20:463337-524482' for gene in all_genes]
-            de_data['sample_1'] = ['control' for gene in all_genes]
-            de_data['sample_2'] = ['case' for gene in all_genes]
-            de_data['status'] = ['OK' for gene in all_genes]
-            de_data['value_1'] = [random.gammavariate(1, 100) for gene in all_genes]
-            de_data['value_2'] = [random.gammavariate(1, 100) for gene in all_genes]
-            de_data['log2(fold_change)'] = [random.uniform(-10, 10) for gene in all_genes]
-            de_data['test_stat'] = [random.uniform(-3, 3) for gene in all_genes]
-            de_data['p_value'] = [random.uniform(0, 1) for gene in all_genes]
-            de_data['q_value'] = [random.uniform(0, 1) for gene in all_genes]
-            de_data['significant'] = [random.choice(['yes', 'no']) for gene in all_genes]
+            de_data['locus'] = ['chr20:463337-524482'] * n_of_genes
+            de_data['sample_1'] = ['control'] * n_of_genes
+            de_data['sample_2'] = ['case'] * n_of_genes
+            de_data['status'] = ['OK'] * n_of_genes
+            de_data['value_1'] = [random.gammavariate(1, 100) for _ in all_genes]
+            de_data['value_2'] = [random.gammavariate(1, 100) for _ in all_genes]
+            de_data['log2(fold_change)'] = [random.uniform(-10, 10) for _ in all_genes]
+            de_data['test_stat'] = [random.uniform(-3, 3) for _ in all_genes]
+            de_data['p_value'] = [random.uniform(0, 1) for _ in all_genes]
+            de_data['q_value'] = [random.uniform(0, 1) for _ in all_genes]
+            de_data['significant'] = [random.choice(['yes', 'no']) for _ in all_genes]
 
             rows = zip(de_data['test_id'], de_data['gene_id'], de_data['gene'],
                        de_data['locus'], de_data['sample_1'], de_data['sample_2'],

@@ -37,6 +37,8 @@ def import_table(file_name):
         for x in my_reader:
             genes[str(x[0])] = x[1:]
     return times, genes
+
+
 if file_name[-4:] == ".xls" or file_name[-5:] == ".xlsx":
     times, genes = import_excel(file_name)
 

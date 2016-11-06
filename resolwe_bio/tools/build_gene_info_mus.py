@@ -42,8 +42,8 @@ with open(args.gene_info) as gene_info:
 
 with open(args.mgi) as mgi:
     for line in mgi:
-        l = line.split('\t')
-        GeneID2mgi[l[5]] = l[0]
+        line = line.split('\t')
+        GeneID2mgi[line[5]] = line[0]
 
 with open(args.output, "w") as f:
     f.write('\t'.join(["Gene ID", "Gene Name", "Synonyms", "Gene Products", "Entrez ID",
