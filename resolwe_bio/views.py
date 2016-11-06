@@ -103,3 +103,27 @@ class SampleViewSet(CollectionViewSet):
                 collection.data.remove(data)
 
         return Response()
+
+    @detail_route(methods=[u'post'])
+    def add_data(self, request, pk=None):
+        """Add data to sample and it's collection."""
+        # add data to sample
+        resp = super(SampleViewSet, self).add_data(request, pk)
+
+        # add data to collections in which sample is
+        sample = self.get_object()
+        for collection in sample.collections.all():
+            collection.data.add(*request.data['ids'])
+
+        return resp
+
+    @detail_route(methods=[u'post'])
+    def remove_data(self, request, pk=None):
+        """Remove Data from Sample and delete it if it is empty."""
+        resp = super(SampleViewSet, self).remove_data(request, pk)
+
+        sample = self.get_object()
+        if sample.data.count() == 0:
+            sample.delete()
+
+        return resp

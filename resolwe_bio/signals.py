@@ -7,7 +7,7 @@ Signal Handlers
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from django.db.models.signals import post_save
+from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 
 from guardian import shortcuts
@@ -56,4 +56,21 @@ def add_post_save_handler(sender, instance, **kwargs):
             for permission in list(zip(*sample._meta.permissions))[0]:  # pylint: disable=protected-access
                 shortcuts.assign_perm(permission, sample.contributor, sample)
 
+            # XXX: This doesn't work, because signal is triggered before Data
+            #      object is added to collections.
+            # for collection in Collection.objects.filter(data=instance.pk):
+            #     sample.collections.add(collection)
+
         sample.data.add(instance)
+
+
+@receiver(pre_delete, sender=Data)
+def add_pre_delete_handler(sender, instance, **kwargs):
+    """Delete Sample when last Data object is deleted."""
+    try:
+        sample = Sample.objects.get(data=instance.pk)
+    except Sample.DoesNotExist:  # pylint: disable=no-member
+        return
+
+    if sample.data.count() == 1:  # last Data object will be just deleted
+        sample.delete()
