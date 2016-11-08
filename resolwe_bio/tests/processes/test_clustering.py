@@ -19,13 +19,13 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         self.run_process('clustering-hierarchical-genes-etc', inputs)
 
     def test_hc_clustering_samples(self):
-        inputs = {'exp': 'hs_expressions_1.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'hg19'}
+        inputs = {'exp': 'hs_expressions_1.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'UCSC'}
         expression_1 = self.run_process('upload-expression', inputs)
 
-        inputs = {'exp': 'hs_expressions_2.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'hg19'}
+        inputs = {'exp': 'hs_expressions_2.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'UCSC'}
         expression_2 = self.run_process('upload-expression', inputs)
 
-        inputs = {'exp': 'hs_expressions_3.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'hg19'}
+        inputs = {'exp': 'hs_expressions_3.tab.gz', 'exp_type': 'Log2', 'exp_name': 'Expression', 'source': 'UCSC'}
         expression_3 = self.run_process('upload-expression', inputs)
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk]}

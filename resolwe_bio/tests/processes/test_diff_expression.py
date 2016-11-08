@@ -7,13 +7,13 @@ from resolwe_bio.utils.test import BioProcessTestCase
 class DiffExpProcessorTestCase(BioProcessTestCase):
 
     def test_cuffdiff(self):
-        inputs = {'src': 'cuffquant_1.cxb', 'source': 'hg19'}
+        inputs = {'src': 'cuffquant_1.cxb', 'source': 'UCSC'}
         cuffquant = self.run_process("upload-cxb", inputs)
 
-        inputs = {'src': 'cuffquant_2.cxb', 'source': 'hg19'}
+        inputs = {'src': 'cuffquant_2.cxb', 'source': 'UCSC'}
         cuffquant2 = self.run_process("upload-cxb", inputs)
 
-        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
 
         inputs = {
             'case': [cuffquant.id],
@@ -43,15 +43,15 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz',
                                                f_exp='exp_1_tpm.tab.gz',
                                                f_type="TPM",
-                                               source="dictyBase")
+                                               source="DICTYBASE")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
                                                f_exp='exp_2_tpm.tab.gz',
                                                f_type="TPM",
-                                               source="dictyBase")
+                                               source="DICTYBASE")
         expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
                                                f_exp='exp_2_tpm.tab.gz',
                                                f_type="TPM",
-                                               source="mm10")
+                                               source="UCSC")
 
         inputs = {
             'case': [expression_1.pk],
@@ -61,7 +61,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)
         self.assertFile(diff_exp, 'raw', 'diffexp_deseq2.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2.json.gz')
-        self.assertFields(diff_exp, 'source', 'dictyBase')
+        self.assertFields(diff_exp, 'source', 'DICTYBASE')
 
         # Check if process fails when used with the expression data from different sources.
         inputs = {
@@ -87,16 +87,16 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'limma.json.gz')
 
     def test_edger(self):
-        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
         expression_1 = self.run_process('upload-expression', inputs)
 
-        inputs = {'rc': 'exp_2_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        inputs = {'rc': 'exp_2_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
         expression_2 = self.run_process('upload-expression', inputs)
 
-        inputs = {'rc': 'exp_3_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        inputs = {'rc': 'exp_3_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
         expression_3 = self.run_process('upload-expression', inputs)
 
-        inputs = {'rc': 'exp_4_rc.tab.gz', 'exp_name': 'Expression', 'source': 'dictyBase'}
+        inputs = {'rc': 'exp_4_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
         expression_4 = self.run_process('upload-expression', inputs)
 
         inputs = {
@@ -107,4 +107,4 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-edger', inputs)
         self.assertFile(diff_exp, 'raw', 'diffexp_edgeR.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'edgeR.json.gz')
-        self.assertFields(diff_exp, 'source', 'dictyBase')
+        self.assertFields(diff_exp, 'source', 'DICTYBASE')

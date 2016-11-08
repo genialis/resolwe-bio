@@ -10,7 +10,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {
@@ -45,7 +45,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "cuffquant_mapping.bam"}
         bam = self.run_process("upload-bam", inputs)
 
-        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz')
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
 
         inputs = {
             'alignment': bam.id,
@@ -53,13 +53,13 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.run_process('cuffquant', inputs)
 
     def test_cuffnorm(self):
-        inputs = {'src': 'cuffquant_1.cxb', 'source': "hg19"}
+        inputs = {'src': 'cuffquant_1.cxb', 'source': "UCSC"}
         sample_1 = self.run_process("upload-cxb", inputs)
 
-        inputs = {'src': 'cuffquant_2.cxb', 'source': "hg19"}
+        inputs = {'src': 'cuffquant_2.cxb', 'source': "UCSC"}
         sample_2 = self.run_process("upload-cxb", inputs)
 
-        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='hg19')
+        annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
 
         inputs = {
             'cuffquant': [sample_1.pk, sample_2.pk],
@@ -77,7 +77,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {
@@ -96,7 +96,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'mappable': mappa.pk}
         expression = self.run_process('expression:bcm', inputs)
         self.assertFile(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
-        self.assertFields(expression, "source", "dictyBase")
+        self.assertFields(expression, "source", "DICTYBASE")
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_process('etc-bcm', inputs)
@@ -106,7 +106,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gtf.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gtf.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {
@@ -158,7 +158,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {
@@ -196,7 +196,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "ncRNA_sample2.bam"}
         sample_2 = self.run_process("upload-bam", inputs)
 
-        inputs = {'src': 'ncRNA_annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'ncRNA_annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {"src": "ncRNA_genome.fasta.gz"}
@@ -247,7 +247,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')
 
     def test_feature_counts(self):
-        inputs = {'src': 'annotation.gtf.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gtf.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {"src": "reads.bam"}

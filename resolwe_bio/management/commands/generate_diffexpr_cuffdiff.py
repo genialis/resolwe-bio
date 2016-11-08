@@ -74,14 +74,14 @@ class Command(BaseCommand):
                 process=get_process('upload-cxb'),
                 contributor=get_superuser(),
                 status=Data.STATUS_PROCESSING,
-                input={'src': {'file': cuffquant_file}, 'source': 'hg19'})
+                input={'src': {'file': cuffquant_file}, 'source': 'UCSC'})
 
             os.mkdir(os.path.join(self.data_dir, str(exp.id)))
             shutil.copy(os.path.join(self.test_files_path, cuffquant_file), os.path.join(self.data_dir, str(exp.id)))
 
             exp.output = {
                 'cxb': {'file': cuffquant_file},
-                'source': 'hg19'
+                'source': 'UCSC'
             }
             exp.status = Data.STATUS_DONE
             exp.save()
@@ -108,7 +108,7 @@ class Command(BaseCommand):
             process=get_process('upload-gtf'),
             contributor=get_superuser(),
             status=Data.STATUS_PROCESSING,
-            input={'src': {'file': filename}, 'source': 'hg19'})
+            input={'src': {'file': filename}, 'source': 'UCSC'})
 
         os.mkdir(os.path.join(self.data_dir, str(ann.id)))
 
@@ -118,7 +118,7 @@ class Command(BaseCommand):
 
         ann.output = {
             'gtf': {'file': filename[:-3]},
-            'source': 'hg19'
+            'source': 'UCSC'
         }
         ann.status = Data.STATUS_DONE
         ann.save()
@@ -260,7 +260,7 @@ class Command(BaseCommand):
             'cds_diff_exp': {'file': 'test.txt'},
             'tss_group_diff_exp': {'file': 'test.txt'},
             'cuffdiff_output': {'file': 'test.txt'},
-            'source': 'hg19'
+            'source': 'UCSC'
         }
 
         de_obj.status = Data.STATUS_DONE

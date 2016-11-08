@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -26,40 +26,16 @@
       type: basic:string
       allow_custom_choice: true
       choices:
-        - label: GRCh38.85 (ENSEMBL)
-          value: GRCh38.85
-        - label: GRCm38.85 (ENSEMBL)
-          value: GRCm38.85
-        - label: GRCh38.p7 (NCBI)
-          value: GRCh38.p7
-        - label: GRCm38.p4 (NCBI)
-          value: GRCm38.p4
-        - label: hg19 (UCSC)
-          value: hg19
-        - label: hg38 (UCSC)
-          value: hg38
-        - label: mm9 (UCSC)
-          value: mm9
-        - label: mm10 (UCSC)
-          value: mm10
-        - label: dictyBase
-          value: dictyBase
-        - label: hg95av2 (Affy)
-          value: hg95av2
-        - label: hgu133a (Affy)
-          value: hgu133a
-        - label: hgu133a2 (Affy)
-          value: hgu133a2
-        - label: hgu133plus2 (Affy)
-          value: hgu133plus2
-        - label: hugene20st (Affy)
-          value: hugene20st
-        - label: mouse4302 (Affy)
-          value: mouse4302
-        - label: mirna20 (Affy)
-          value: mirna20
-        - label: mirna30 (Affy)
-          value: mirna30
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
   output:
     - name: gff
       label: Uploaded file
@@ -84,7 +60,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.17
+  version: 1.0.18
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -102,40 +78,16 @@
       type: basic:string
       allow_custom_choice: true
       choices:
-        - label: GRCh38.85 (ENSEMBL)
-          value: GRCh38.85
-        - label: GRCm38.85 (ENSEMBL)
-          value: GRCm38.85
-        - label: GRCh38.p7 (NCBI)
-          value: GRCh38.p7
-        - label: GRCm38.p4 (NCBI)
-          value: GRCm38.p4
-        - label: hg19 (UCSC)
-          value: hg19
-        - label: hg38 (UCSC)
-          value: hg38
-        - label: mm9 (UCSC)
-          value: mm9
-        - label: mm10 (UCSC)
-          value: mm10
-        - label: dictyBase
-          value: dictyBase
-        - label: hg95av2 (Affy)
-          value: hg95av2
-        - label: hgu133a (Affy)
-          value: hgu133a
-        - label: hgu133a2 (Affy)
-          value: hgu133a2
-        - label: hgu133plus2 (Affy)
-          value: hgu133plus2
-        - label: hugene20st (Affy)
-          value: hugene20st
-        - label: mouse4302 (Affy)
-          value: mouse4302
-        - label: mirna20 (Affy)
-          value: mirna20
-        - label: mirna30 (Affy)
-          value: mirna30
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
   output:
     - name: gtf
       label: Uploaded file

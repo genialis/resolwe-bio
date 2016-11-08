@@ -8,15 +8,15 @@ class GencoverProcessorTestCase(BioProcessTestCase):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 
-        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         # GTF inport
-        inputs = {'src': 'annotation_ok.gtf.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation_ok.gtf.gz', 'source': 'DICTYBASE'}
         annotation_gtf = self.run_process('upload-gtf', inputs)
 
         # redundant GTF inport
-        inputs = {'src': 'annotation_red.gtf.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation_red.gtf.gz', 'source': 'DICTYBASE'}
         annotation_gtf_red = self.run_process('upload-gtf', inputs)
 
         inputs = {

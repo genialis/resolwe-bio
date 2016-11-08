@@ -67,11 +67,11 @@ class Command(BaseCommand):
     def set_source(self, species):
         """Set Gene ID source."""
         if species.startswith('Dd'):
-            return 'dictyBase'
+            return 'DICTYBASE'
         if species.startswith('Mm'):
-            return 'mm10'
+            return 'UCSC'
         if species.startswith('Hs'):
-            return 'hg19'
+            return 'UCSC'
 
     @staticmethod
     def generate_expressions(gene_ids, path):

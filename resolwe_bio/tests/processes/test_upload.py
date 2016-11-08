@@ -22,16 +22,16 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
 
     def test_upload_expression(self):
-        inputs = {'exp_type': 'TPM', 'exp_name': 'Expression', 'source': 'mm10'}
+        inputs = {'exp_type': 'TPM', 'exp_name': 'Expression', 'source': 'UCSC'}
         self.run_process('upload-expression', inputs, Data.STATUS_ERROR)
 
         inputs = {'exp': 'exp_1_tpm.tab.gz',
                   'rc': 'exp_1_rc.tab.gz',
                   'exp_name': 'Expression',
-                  'source': 'mm10'}
+                  'source': 'UCSC'}
         self.run_process('upload-expression', inputs, Data.STATUS_ERROR)
 
-        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'mm10'}
+        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
         exp_3 = self.run_process('upload-expression', inputs)
         self.assertFile(exp_3, 'rc', 'exp_1_rc.tab.gz')
         self.assertFile(exp_3, 'exp', 'exp_1_rc.tab.gz')
@@ -40,7 +40,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {'exp': 'exp_1_tpm.tab.gz',
                   'exp_type': 'TPM',
                   'exp_name': 'Expression',
-                  'source': 'mm10'}
+                  'source': 'UCSC'}
         exp_4 = self.run_process('upload-expression', inputs)
         self.assertFile(exp_4, 'exp', 'exp_1_tpm.tab.gz')
 
@@ -48,29 +48,29 @@ class UploadProcessorTestCase(BioProcessTestCase):
                   'exp': 'exp_1_tpm.tab.gz',
                   'exp_type': 'TPM',
                   'exp_name': 'Expression',
-                  'source': 'mm10'}
+                  'source': 'UCSC'}
         exp_5 = self.run_process('upload-expression', inputs)
         self.assertFields(exp_5, 'exp_type', 'TPM')
         self.assertFile(exp_5, 'exp', 'exp_1_tpm.tab.gz')
         self.assertFile(exp_5, 'rc', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
 
-        inputs = {'rc': 'exp_mac_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'mm10'}
+        inputs = {'rc': 'exp_mac_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
         exp_6 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_6, exp_6.output['exp_json'], '', 'exp.json.gz')
 
-        inputs = {'rc': 'exp_unix_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'mm10'}
+        inputs = {'rc': 'exp_unix_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
         exp_7 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_7, exp_7.output['exp_json'], '', 'exp.json.gz')
 
         inputs = {'rc': 'exp_windows_line_ending.txt.gz',
                   'exp_name': 'Expression',
-                  'source': 'mm10'}
+                  'source': 'UCSC'}
         exp_8 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
     def test_upload_cuffquant_expr(self):
-        inputs = {'src': 'cuffquant_1.cxb', 'source': 'mm10'}
+        inputs = {'src': 'cuffquant_1.cxb', 'source': 'UCSC'}
         cxb = self.run_process('upload-cxb', inputs)
 
         inputs = {
@@ -123,7 +123,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
     def test_upload_de(self):
         inputs = {
             'src': 'deseq2_output.tab.gz',
-            'source': 'dictybase',
+            'source': 'DICTYBASE',
             'gene_id': 'gene_id',
             'logfc': 'log2FoldChange',
             'fdr': 'padj',
@@ -160,11 +160,11 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(bed, 'BED', 'good.bed')
 
     def test_upload_geneset(self):
-        inputs = {'src': 'geneset.tab.gz', 'source': 'mm10'}
+        inputs = {'src': 'geneset.tab.gz', 'source': 'UCSC'}
         geneset = self.run_process('upload-geneset', inputs)
 
         self.assertFile(geneset, 'geneset', 'geneset.tab.gz', compression='gzip')
-        self.assertFields(geneset, 'source', 'mm10')
+        self.assertFields(geneset, 'source', 'UCSC')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
 
     def test_upload_image(self):

@@ -98,7 +98,7 @@ class Command(BaseCommand):
                 input={'exp': {'file': expression_file},
                        'exp_type': 'FPKM',
                        'exp_name': 'Expression',
-                       'source': 'hg19'})
+                       'source': 'UCSC'})
 
             os.mkdir(os.path.join(self.data_dir, str(exp.id)))
             self.generate_expressions(gene_ids, os.path.join(self.data_dir, str(exp.id)),
@@ -114,7 +114,7 @@ class Command(BaseCommand):
                 'exp': {'file': expression_file},
                 'exp_type': 'FPKM',
                 'exp_json': json_object.id,
-                'source': 'hg19'
+                'source': 'UCSC'
             }
             exp.status = Data.STATUS_DONE
             exp.save()
@@ -239,7 +239,7 @@ class Command(BaseCommand):
             'raw': {'file': 'de_raw.tab.gz'},
             'de_json': json_object.id,
             'de_file': {'file': 'de_file.tab.gz'},
-            'source': 'hg19'
+            'source': 'UCSC'
         }
 
         de_obj.status = Data.STATUS_DONE

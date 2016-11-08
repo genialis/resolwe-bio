@@ -18,7 +18,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
 
     def test_feature_location(self):
-        inputs = {'src': 'mm10_small.gtf.gz', 'source': 'mm10'}
+        inputs = {'src': 'mm10_small.gtf.gz', 'source': 'UCSC'}
         annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {'annotation': annotation.pk,
@@ -40,7 +40,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.assertFile(last_geneset, 'geneset', 'go_geneset.tab.gz', compression='gzip')
 
     def test_gff_to_gtf(self):
-        inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation = self.run_process('upload-gff3', inputs)
 
         inputs = {'annotation': annotation.pk}
