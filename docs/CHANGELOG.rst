@@ -49,6 +49,7 @@ Fixed
 -----
 * Set ``presample`` to ``False`` for Samples created on Sample endpoint
 * Fix FastQC report paths in processors
+* Fix ``htseq_count`` and ``featureCounts`` for large files
 
 
 ================

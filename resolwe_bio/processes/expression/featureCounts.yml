@@ -7,8 +7,8 @@
   name: FeatureCounts
   requirements:
     expression-engine: jinja
-  data_name: "{{ alignments.bam.file|basename|default('?') }}"
-  version: 0.0.3
+  data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
+  version: 0.0.4
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -166,8 +166,9 @@
       gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
       gzip -c tpm.tab > ${NAME}_tpm.tab.gz
 
-      expression2storage.py ${NAME}_tpm.tab.gz
+      expression2storage.py --output json.txt ${NAME}_tpm.tab.gz
       re-checkrc
+      re-save exp_json json.txt
       re-progress 0.95
 
       re-save-file feature_counts_output "${NAME}_featureCounts_rc.txt.gz"
