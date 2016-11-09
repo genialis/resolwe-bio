@@ -145,11 +145,11 @@ class UploadProcessorTestCase(BioProcessTestCase):
                   "hisat2_index": "hisat2_index.tar.gz",
                   "subread_index": "subread_index.tar.gz"}
         genome = self.run_process('upload-genome', inputs)
-        self.assertFields(genome, "index_bt.dir", 'bowtie_index')
-        self.assertFields(genome, "index_bt2.dir", 'bowtie2_index')
-        self.assertFields(genome, "index_bwa.dir", 'BWA_index')
-        self.assertFields(genome, "index_hisat2.dir", 'hisat2_index')
-        self.assertFields(genome, "index_subread.dir", 'subread_index')
+        self.assertFields(genome, "index_bt", {'dir': 'bowtie_index'})
+        self.assertFields(genome, "index_bt2", {'dir': 'bowtie2_index'})
+        self.assertFields(genome, "index_bwa", {'dir': 'BWA_index'})
+        self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index'})
+        self.assertFields(genome, "index_subread", {'dir': 'subread_index'})
 
     def test_upload_bed(self):
         inputs = {'src': 'bad.bed'}

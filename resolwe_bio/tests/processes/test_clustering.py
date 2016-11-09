@@ -30,4 +30,8 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk]}
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
-        self.assertJSON(clustering, clustering.output['cluster'], 'linkage', 'sample_custer_data.json.gz')
+
+        saved_json, test_json = self.get_json('sample_custer_data.json.gz', clustering.output['cluster'])
+        self.assertEqual(test_json['linkage'], saved_json['linkage'])
+        self.assertTrue('samples_names' in test_json)
+        self.assertTrue('order' in test_json)

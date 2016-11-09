@@ -70,8 +70,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('sortmerna-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['reads_wo_rRNA_single.fastq.gz'], compression='gzip')
         self.assertFile(filtered_reads, 'fastq_rRNA', 'reads_rRNA_single.fastq.gz', compression='gzip')
-        self.assertFields(filtered_reads, 'fastq_rRNA_sam.file', 'rRNA_forw_rRNA.sam')
-        self.assertFields(filtered_reads, 'stats.file', 'stats.log')
+        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA_forw_rRNA.sam'})
+        self.assertFields(filtered_reads, 'stats', {'file': 'stats.log'})
         self.assertFields(filtered_reads, "fastqc_url",
                           [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
@@ -95,8 +95,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(filtered_reads, 'fastq', ['reads_wo_rRNA_paired_forw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['reads_wo_rRNA_paired_rew.fastq.gz'], compression='gzip')
         self.assertFile(filtered_reads, 'fastq_rRNA', 'reads_rRNA_paired.fastq.gz', compression='gzip')
-        self.assertFields(filtered_reads, 'fastq_rRNA_sam.file', 'rRNA_forw_rRNA.sam')
-        self.assertFields(filtered_reads, 'stats.file', 'stats.log')
+        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA_forw_rRNA.sam'})
+        self.assertFields(filtered_reads, 'stats', {'file': 'stats.log'})
         self.assertFields(filtered_reads, "fastqc_url",
                           [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
                             'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
