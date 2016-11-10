@@ -1,0 +1,44 @@
+# ==========
+# Import-SRA
+# ==========
+---
+
+- slug: import-sra
+  name: SRA import
+  requirements:
+    expression-engine: jinja
+  data_name: "Import SRA ({{ sra_accession }})"
+  version: 0.0.1
+  type: data:sra:reads
+  category: upload
+  persistence: RAW
+  description: >
+    Import single end SRA file from NCBI and convert to single/paired
+    end FASTQ.
+  input:
+    - name: sra_accession
+      label: SRA file
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      fastq-dump --split-files {{ sra_accession }}
+
+      # count number of FASTQ files in SRA file
+      n=$(fastq-dump -I -X 1 -Z --split-spot {{ sra_accession }} 2>/dev/null \
+          | awk '{if(NR % 2 == 1) print substr($1,length($1),1)}' \
+          | uniq \
+          | wc -l)
+
+      if [[ $n == 1 ]]; then
+        re-export {{ sra_accession }}_1.fastq
+        echo 'run {"process":"upload-fastq-single","input":{"src":"{{ sra_accession }}_1.fastq"}}'
+      elif [[ $n == 2 ]]; then
+        re-export {{ sra_accession }}_1.fastq
+        re-export {{ sra_accession }}_2.fastq
+        echo 'run {"process":"upload-fastq-paired","input":{"src1":"{{ sra_accession }}_1.fastq","src2":"{{ sra_accession }}_2.fastq"}}'
+      else
+        re-error "SRA file has been converted to zero or more than 2 FASTQ files. Please upload it manually!"
+      fi
