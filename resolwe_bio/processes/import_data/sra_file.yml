@@ -3,42 +3,140 @@
 # ==========
 ---
 
-- slug: import-sra
-  name: SRA import
+- slug: import-sra-single
+  name: SRA import (single)
   requirements:
     expression-engine: jinja
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.2
-  type: data:sra:reads
+  version: 0.0.1
+  type: data:reads:fastq:single
+  flow_collection: sample
   category: upload
   persistence: RAW
   description: >
-    Import single end SRA file from NCBI and convert to single/paired
-    end FASTQ.
+    Import single end SRA file from NCBI.
   input:
     - name: sra_accession
       label: SRA accession
       type: basic:string
+  output:
+    - name: fastq
+      label: Reads file
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
   run:
     runtime: polyglot
     language: bash
     program: |
 
-      fastq-dump --split-files {{ sra_accession }}
+      fastq-dump {{sra_accession}}
 
-      # count number of FASTQ files in SRA file
-      n=$(fastq-dump -I -X 1 -Z --split-spot {{ sra_accession }} 2>/dev/null \
-          | awk '{if(NR % 2 == 1) print substr($1,length($1),1)}' \
-          | uniq \
-          | wc -l)
+      gzip -c {{sra_accession}}.fastq > {{sra_accession}}.fastq.gz
+      re-save-file-list fastq {{sra_accession}}.fastq.gz
 
-      if [[ $n == 1 ]]; then
-        re-export {{ sra_accession }}_1.fastq
-        echo 'run {"process":"upload-fastq-single","input":{"src":["{{ sra_accession }}_1.fastq"]}}'
-      elif [[ $n == 2 ]]; then
-        re-export {{ sra_accession }}_1.fastq
-        re-export {{ sra_accession }}_2.fastq
-        echo 'run {"process":"upload-fastq-paired","input":{"src1":["{{ sra_accession }}_1.fastq"],"src2":["{{ sra_accession }}_2.fastq"]}}'
-      else
-        re-error "SRA file has been converted to zero or more than 2 FASTQ files. Please upload it manually!"
+      FASTQ="{{sra_accession}}.fastq"
+
+      echo "Postprocessing FastQC..."
+      mkdir "fastqc" && fastqc ${FASTQ} --extract --outdir="fastqc" 2> stderr.txt
+      re-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        re-error "Failed while processing with FastQC."
       fi
+
+      mv fastqc/*_fastqc.zip .
+
+      for report_dir in ./fastqc/*/
+      do
+        ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
+        if [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 encoding in supported."
+        fi
+      done
+
+      for fqc in `ls -v *_fastqc.zip`
+      do
+        FASTQC=${FASTQC}"$fqc "
+        NAME=`basename $fqc _fastqc.zip`
+        FASTQC_URL=${FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
+      done
+
+       re-save-file-list fastqc_archive ${FASTQC}
+       re-save-list fastqc_url ${FASTQC_URL}
+
+- slug: import-sra-paired
+  name: SRA import (paired)
+  requirements:
+    expression-engine: jinja
+  data_name: "Import SRA ({{ sra_accession }})"
+  version: 0.0.1
+  type: data:reads:fastq:paired
+  flow_collection: sample
+  category: upload
+  persistence: RAW
+  description: >
+    Import paired end SRA file from NCBI.
+  input:
+    - name: sra_accession
+      label: SRA accession
+      type: basic:string
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: list:basic:file
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      fastq-dump --split-files {{sra_accession}}
+
+      gzip -c {{sra_accession}}_1.fastq > {{sra_accession}}_1.fastq.gz
+      re-save-file-list fastq {{sra_accession}}_1.fastq.gz
+      gzip -c {{sra_accession}}_2.fastq > {{sra_accession}}_2.fastq.gz
+      re-save-file-list fastq2 {{sra_accession}}_2.fastq.gz
+
+      FASTQ="{{sra_accession}}_1.fastq.gz {{sra_accession}}_2.fastq.gz"
+
+      echo "Postprocessing FastQC..."
+      mkdir "fastqc" && fastqc ${FASTQ} --extract --outdir="fastqc" 2> stderr.txt
+      re-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        re-error "Failed while processing with FastQC."
+      fi
+
+      mv fastqc/*_fastqc.zip .
+
+      for report_dir in ./fastqc/*/
+      do
+        ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
+        if [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 encoding in supported."
+        fi
+      done
+
+      re-save-file-list fastqc_archive ${FW_FASTQC}
+      re-save-file-list fastqc_archive2 ${RW_FASTQC}
+      re-save-list fastqc_url ${FW_FASTQC_URL}
+      re-save-list fastqc_url2 ${RW_FASTQC_URL}
