@@ -60,7 +60,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.18
+  version: 1.0.19
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -100,12 +100,6 @@
     language: bash
     program: |
       re-import "{{ src.file_temp }}" "{{ src.file }}" "gtf" "gtf" 0.3
-
-      echo "Converting GTF to GFF3:"
-      cat ${NAME}.gtf | sed '/^##/d' > "${NAME}.tmp.gtf"
-      xgtf2gff.py -p "UCSC" "${NAME}.tmp.gtf" "${NAME}.gff"
-      re-checkrc
-      re-progress 0.7
 
       re-save-file gtf ${NAME}.gtf
       re-save source {{source}}
