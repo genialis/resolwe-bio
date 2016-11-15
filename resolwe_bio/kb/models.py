@@ -55,10 +55,10 @@ class Feature(models.Model):
     species = models.CharField(max_length=50)
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     sub_type = models.CharField(max_length=20, choices=SUBTYPE_CHOICES)
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=1024)
     full_name = models.CharField(max_length=200, blank=True)
     description = models.TextField(blank=True)
-    aliases = ArrayField(models.CharField(max_length=20), default=[], blank=True)
+    aliases = ArrayField(models.CharField(max_length=256), default=[], blank=True)
 
     class Meta:
         """Feature Meta options."""
