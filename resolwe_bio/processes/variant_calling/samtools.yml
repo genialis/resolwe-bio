@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -22,6 +22,21 @@
     - name: mapping
       label: Mapped reads
       type: data:alignment:bam
+    - name: bed
+      label: BED file
+      type: data:bed
+      required: false
+      description: >
+        BED file containing a list of regions or sites where pileup or BCF should be generated.
+    - name: options
+      label: Options
+      group:
+        - name: rmdup
+          label: Remove duplicates
+          type: basic:boolean
+          default: true
+          description: >
+            Remove duplicates using "samtools rmdup". Not needed if read duplicates have already been removed.
   output:
     - name: vcf
       label: Called variants
@@ -30,38 +45,42 @@
     runtime: polyglot
     language: bash
     program: |
-      echo "uncompressing genome, indexing"
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
-      cp {{ genome.fasta.file }} "${GENOME_NAME}.fasta.gz"
-      echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
-
-      samtools faidx "${GENOME_NAME}.fasta.gz"
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
-
-      echo "bam files processing"
       BAM_FILE=`basename '{{ mapping.bam.file }}' .bam`
-      echo "{\"proc.progress\":0.3,\"proc.rc\":$?}"
 
-      echo "removing duplicates"
-      samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_nodupli.bam"
-      echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+      gzip -d -c "{{ genome.fasta.file }}" > "${GENOME_NAME}.fasta"
+      re-progress 0.05
 
-      echo "creating VCF file"
-      samtools mpileup -u -f "${GENOME_NAME}.fasta.gz" "${BAM_FILE}_nodupli.bam" > "${BAM_FILE}_raw.bcf";
-      echo "{\"proc.progress\":0.5,\"proc.rc\":$?}"
+      samtools faidx "${GENOME_NAME}.fasta"
+      re-checkrc "Indexing of reference sequence file failed."
+      re-progress 0.1
 
-      echo "calling variants"
-      bcftools view -bvcg "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf";
-      echo "{\"proc.progress\":0.7,\"proc.rc\":$?}"
+      BAM_MPILEUP="{{ mapping.bam.file }}"
 
-      echo "filtering variants"
-      bcftools view "${BAM_FILE}_calls.bcf" | vcfutils.pl varFilter - > "${BAM_FILE}_samtoolscalls.vcf"
-      echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
+      {% if options.rmdup %}
+        echo "removing duplicates"
+        samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_dedup.bam"
+        re-checkrc "The process of removing duplicates failed."
+        BAM_MPILEUP="${BAM_FILE}_dedup.bam"
+      {% endif %}
 
-      bgzip -c "${BAM_FILE}_samtoolscalls.vcf" > "${BAM_FILE}_samtoolscalls.vcf.bgz"
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
+      samtools mpileup -Bugf "${GENOME_NAME}.fasta" "${BAM_MPILEUP}" {% if bed %} -l "{{ bed.BED.file }}" {% endif %} > "${BAM_FILE}_raw.bcf"
+      re-checkrc "Samtools mpileup failed."
+      re-progress 0.5
 
-      tabix -p vcf "${BAM_FILE}_samtoolscalls.vcf.bgz"
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      bcftools view -vmu "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf"
+      re-checkrc "bcftools view command failed."
 
-      echo "{\"proc.progress\":1,\"vcf\":{\"file\": \"${BAM_FILE}_samtoolscalls.vcf\",\"refs\":[\"${BAM_FILE}_samtoolscalls.vcf.bgz\",\"${BAM_FILE}_samtoolscalls.vcf.bgz.tbi\"]}}"
+      bcftools view "${BAM_FILE}_calls.bcf" | vcfutils.pl varFilter -d 10 -D 50000 -Q 30 - > "${BAM_FILE}_filtered_variants.vcf"
+      re-checkrc "bcftools filter command failed."
+      re-progress 0.8
+
+      bgzip -c "${BAM_FILE}_filtered_variants.vcf" > "${BAM_FILE}_filtered_variants.vcf.bgz"
+      re-checkrc
+      re-progress 0.9
+
+      tabix -p vcf "${BAM_FILE}_filtered_variants.vcf.bgz"
+      re-checkrc
+      re-progress 0.95
+
+      re-save-file vcf "${BAM_FILE}_filtered_variants.vcf" "${BAM_FILE}_filtered_variants.vcf.bgz" "${BAM_FILE}_filtered_variants.vcf.bgz.tbi"

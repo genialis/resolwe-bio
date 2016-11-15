@@ -82,3 +82,22 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         filtered_variants = self.run_process('chemut', inputs)
         self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf')
+
+    def test_hsqutils_dedup(self):
+        bam = self.run_process('upload-bam', {'src': 'hsqutils_aligment.bam'})
+
+        inputs = {
+            'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
+            'src2': ['hsqutils_reads_mate2_paired_filtered.fastq.gz']}
+        reads = self.run_processor('upload-fastq-paired', inputs)
+
+        probe = self.run_processor('upload-file', {'src': 'hsqutils_probe_info.txt'})
+
+        inputs = {
+            'alignment': bam.id,
+            'reads': reads.id,
+            'probe': probe.id
+        }
+
+        hsqutils_dedup = self.run_process('hsqutils-dedup', inputs)
+        self.assertFile(hsqutils_dedup, 'summary', 'HSQUtils_dedup_summary.txt')

@@ -1,0 +1,80 @@
+---
+- slug: hsqutils-trim
+  name: HSQutils trim
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ reads.fastq.0.file|default("?") }}'
+  version: 0.0.1
+  type: data:reads:fastq:paired:hsqutils
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    The HSQutils trim tool is designed to remove all HEAT-Seq primer bases and UID bases from the reads prior to mapping.
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+    - name: probe
+      label: Probe information file
+      type: data:file
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: list:basic:file
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
+
+      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      cat ${FW_READS} > ${NAME1}.fastq.gz
+      gzip -d ${NAME1}.fastq.gz
+
+      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
+      cat ${RW_READS} > ${NAME2}.fastq.gz
+      gzip -d ${NAME2}.fastq.gz
+
+      hsqutils trim --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe "{{probe.file.file}}"
+      re-checkrc "HSQutils program failed."
+
+      re-progress 0.7
+
+      gzip -c -n "trimmed_${NAME1}.fastq" > "${NAME1}.fastq.gz"
+      gzip -c -n "trimmed_${NAME2}.fastq" > "${NAME2}.fastq.gz"
+      re-save-file-list fastq ${NAME1}.fastq.gz
+      re-save-file-list fastq2 ${NAME2}.fastq.gz
+      re-progress 0.8
+
+      echo "Postprocessing FastQC..."
+      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
+      mkdir "fastqc" && fastqc "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
+      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
+      mv "fastqc/${NAME1}_fastqc.zip" .
+      mv "fastqc/${NAME2}_fastqc.zip" .
+
+      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
+      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
+      re-save-list fastqc_url $FASTQC_URL
+      re-save-list fastqc_url2 $FASTQC_URL2

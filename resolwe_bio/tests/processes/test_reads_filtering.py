@@ -136,3 +136,21 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
                                                            'size': 340745}])
+
+    def test_hsqutils_trimm(self):
+        inputs = {
+            'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
+            'src2': ['hsqutils_reads_mate2_paired_filtered.fastq.gz']}
+        reads = self.run_processor('upload-fastq-paired', inputs)
+
+        probe = self.run_processor('upload-file', {'src': 'hsqutils_probe_info.txt'})
+
+        inputs = {'reads': reads.id,
+                  'probe': probe.id}
+
+        hsqutils_trimm = self.run_processor('hsqutils-trim', inputs)
+
+        self.assertFiles(hsqutils_trimm, 'fastq', ['hsqutils_reads_trimmed_mate1.fastq.gz'],
+                         compression='gzip')
+        self.assertFiles(hsqutils_trimm, 'fastq2', ['hsqutils_reads_trimmed_mate2.fastq.gz'],
+                         compression='gzip')

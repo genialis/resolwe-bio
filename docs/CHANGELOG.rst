@@ -43,10 +43,13 @@ Added
 * Add gff3 to gtf file converter
 * Add microarray data descriptor schema
 * Add process for differential expression edgeR
-* ``BioCollectionFilter`` and ``BidDataFilter`` to support filtering collections 
+* ``BioCollectionFilter`` and ``BidDataFilter`` to support filtering collections
   and data by samples on API
 * Added processes for automatically downloading single and paired end SRA files 
   from NCBI and converting them to FASTQ
+* Added process for automatically downloading SRA files from NCBI and converting
+  them to FASTQ
+* Add HEAT-Seq pipeline tools
 
 Fixed
 -----

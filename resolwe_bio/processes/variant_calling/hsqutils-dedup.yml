@@ -1,0 +1,63 @@
+---
+- slug: hsqutils-dedup
+  name: HSQutils dedup
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ alignment.bam.file|default("?") }}'
+  version: 0.0.1
+  type: data:alignment:bam:hsqutils
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    The HSQutils dedup application is used to identify duplicates (reads which derive from the same capture event)
+    and correct the mapping coordinates to fully match the capture target region of the probes while excluding any HEAT-Seq primer sequences.
+  input:
+    - name: alignment
+      label: BAM file
+      type: data:alignment:bam
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+    - name: probe
+      label: Probe information file
+      type: data:file
+  output:
+    - name: bam
+      label: Deduplicated BAM file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: summary
+      label: Deduplication summary
+      type: basic:file
+    - name: probe_details
+      label: Probe details
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
+      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
+
+      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      cat ${FW_READS} > ${NAME1}.fastq.gz
+      gzip -d ${NAME1}.fastq.gz
+
+      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
+      cat ${RW_READS} > ${NAME2}.fastq.gz
+      gzip -d ${NAME2}.fastq.gz
+
+      hsqutils dedup --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe "{{probe.file.file}}" --inputBam "{{alignment.bam.file}}" --outputBamFileName "${BAM_NAME}_dedup.bam"
+      re-checkrc "HSQutils program failed."
+
+      samtools index "${BAM_NAME}_dedup.bam" "${BAM_NAME}_dedup.bam.bai"
+      re-checkrc
+
+      re-save-file bam "${BAM_NAME}_dedup.bam"
+      re-save-file bai "${BAM_NAME}_dedup.bam.bai"
+      re-save-file summary "HSQUtils_dedup_summary.txt"
+      re-save-file probe_details "probe_details.txt"

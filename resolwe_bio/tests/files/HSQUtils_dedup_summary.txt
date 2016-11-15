@@ -1,0 +1,3 @@
+#software_name=HSQUtils software_version=v1_0
+sample_prefix	input_read_pairs	pairs_with_both_reads_mapped	pairs_with_both_reads_unmapped	pairs_with_only_one_read_mapped	pairs_with_on-target_reads	pct_pairs_with_on-target_reads	pairs_with_off-target_reads	pct_pairs_with_off-target_reads	duplicate_read_pairs_removed	duplicate_rate	probes	probes_with_no_mapped_read_pairs	unique_read_pairs	distinct_uids_found	average_uids_per_probe	average_uids_per_probes_with_reads	max_uids_per_probe	average_read_pairs_per_uid	unpaired_reads	input_reads
+	9264	7057	876	1331	4457	63.1571	2600	36.8429	904	20.3	101	0	3553	3525	35.1980	35.1980	92	1.2513	0	18528

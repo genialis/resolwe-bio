@@ -5,7 +5,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -126,26 +126,20 @@
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}
-
-      echo "Preparing adapter file..."
-
-      ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
-      gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
-      re-progress 0.1
-
+        echo "Preparing adapter file..."
+        ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
+        gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
+        re-progress 0.1
       {% endif %}
 
       NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
 
-      {% for r in reads.fastq %}
-        READS=${READS}"{{ r.file }} "
-      {% endfor %}
-
+      READS="{{ reads.fastq|join(' ', attribute='file') }}"
       cat ${READS} > ${NAME}.fastq.gz
       re-progress 0.2
 
       ILLUMINACLIP_S="{% if adapters %}ILLUMINACLIP:${ADAPTERS}.fasta:{{ illuminaclip.seed_mismatches }}:30:{{ illuminaclip.simple_clip_threshold }}{% endif %}"
-      SLIDINGVINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
+      SLIDINGWINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
       MAXINFO_S="{% if maxinfo.target_length and maxinfo.strictness %}}MAXINFO:{{maxinfo.target_length}}:{{maxinfo.strictness}}{% endif %}"
       LEADING_S="{% if leading %}LEADING:{{ leading }}{% endif %}"
       TRAILING_S="{% if trailing %}TRAILING:{{ trailing }}{% endif %}"
@@ -187,7 +181,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:paired:trimmomatic
   category: analyses
   flow_collection: sample
@@ -347,34 +341,25 @@
       echo "Removing adapters and filtering data..."
 
       {% if adapters %}
-
         echo "Preparing adapter file..."
-
         ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
         gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
         re-progress 0.1
-
       {% endif %}
 
       NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
       NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 
-      {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
-      {% endfor %}
-
+      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
       cat ${FW_READS} > ${NAME1}.fastq.gz
 
-      {% for r in reads.fastq2 %}
-        RW_READS=${RW_READS}"{{ r.file }} "
-      {% endfor %}
-
+      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
       cat ${RW_READS} > ${NAME2}.fastq.gz
 
       re-progress 0.2
       ILLUMINACLIP_OPTIONAL="{%if illuminaclip.min_adapter_length %}{{ illuminaclip.min_adapter_length }}{% endif %}{% if illuminaclip.min_adapter_length and illuminaclip.keep_both_reads %}:{% endif %}{%if illuminaclip.keep_both_reads %}{{ illuminaclip.keep_both_reads }}{% endif %}"
       ILLUMINACLIP_S="{% if adapters %}ILLUMINACLIP:${ADAPTERS}.fasta:{{ illuminaclip.seed_mismatches }}:{{illuminaclip.palindrome_clip_threshold}}:{{ illuminaclip.simple_clip_threshold }}:${ILLUMINACLIP_OPTIONAL}{% endif %}"
-      SLIDINGVINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
+      SLIDINGWINDOW_S="{% if slidingwindow.window_size and slidingwindow.required_quality %}SLIDINGWINDOW:{{ slidingwindow.window_size }}:{{ slidingwindow.required_quality }}{% endif %}"
       MAXINFO_S="{% if maxinfo.target_length and maxinfo.strictness %}}MAXINFO:{{maxinfo.target_length}}:{{maxinfo.strictness}}{% endif %}"
       LEADING_S="{% if leading %}LEADING:{{ leading }}{% endif %}"
       TRAILING_S="{% if trailing %}TRAILING:{{ trailing }}{% endif %}"
