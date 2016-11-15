@@ -20,7 +20,7 @@ y <- estimateGLMTrendedDisp(y, design)
 y <- estimateGLMTagwiseDisp(y, design)
 fit <- glmFit(y, design)
 lrt <- glmLRT(fit)
-result = topTags(lrt)
+result = topTags(lrt, n = nrow(countData))
 result <- result$table
 result <- result[order(result$FDR),]
 

@@ -45,7 +45,7 @@ Added
 * Add process for differential expression edgeR
 * ``BioCollectionFilter`` and ``BidDataFilter`` to support filtering collections
   and data by samples on API
-* Added processes for automatically downloading single and paired end SRA files 
+* Added processes for automatically downloading single and paired end SRA files
   from NCBI and converting them to FASTQ
 * Added process for automatically downloading SRA files from NCBI and converting
   them to FASTQ

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 0.0.2
+  version: 0.0.3
   type: data:differentialexpression:edger
   category: analyses
   persistence: CACHED
@@ -26,11 +26,12 @@
       description: >
         Control samples (replicates)
     - name: filter
-      label: Filtering of raw counts
+      label: Raw counts filtering threshold
       type: basic:integer
       default: 10
       description: >
-        The threshold value for raw counts filtering.
+        Filter genes in the expression matrix input. Remove genes where the
+        number of counts in all samples is below the threshold.
   output:
     - name: raw
       label: Differential expression
