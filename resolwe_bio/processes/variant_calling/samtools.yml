@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.0.9
+  version: 1.0.10
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -37,6 +37,24 @@
           default: true
           description: >
             Remove duplicates using "samtools rmdup". Not needed if read duplicates have already been removed.
+        - name: Q
+          label: Q
+          type: basic:integer
+          default: 10
+          description: >
+            Minimum RMS mapping quality for SNPs (default: 10).
+        - name: d
+          label: d
+          type: basic:integer
+          default: 2
+          description: >
+            Minimum read depth (default: 2)
+        - name: D
+          label: D
+          type: basic:integer
+          default: 10000000
+          description: >
+            Minimum read depth (default: 10000000)
   output:
     - name: vcf
       label: Called variants
@@ -68,12 +86,8 @@
       re-checkrc "Samtools mpileup failed."
       re-progress 0.5
 
-      bcftools view -vmu "${BAM_FILE}_raw.bcf" > "${BAM_FILE}_calls.bcf"
+      bcftools view -vmu "${BAM_FILE}_raw.bcf" | vcfutils.pl varFilter -d "{{options.d}}" -D "{{options.D}}" -Q "{{options.Q}}" - > "${BAM_FILE}_filtered_variants.vcf"
       re-checkrc "bcftools view command failed."
-
-      bcftools view "${BAM_FILE}_calls.bcf" | vcfutils.pl varFilter -d 10 -D 50000 -Q 30 - > "${BAM_FILE}_filtered_variants.vcf"
-      re-checkrc "bcftools filter command failed."
-      re-progress 0.8
 
       bgzip -c "${BAM_FILE}_filtered_variants.vcf" > "${BAM_FILE}_filtered_variants.vcf.bgz"
       re-checkrc

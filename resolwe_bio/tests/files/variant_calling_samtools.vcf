@@ -1,4 +1,7 @@
 ##fileformat=VCFv4.1
+##samtoolsVersion=0.1.19-96b5f2294a
+##reference=file://variant_calling_genome.fasta
+##contig=<ID=20:10030136-10030239,length=104>
 ##INFO=<ID=DP,Number=1,Type=Integer,Description="Raw read depth">
 ##INFO=<ID=DP4,Number=4,Type=Integer,Description="# high-quality ref-forward bases, ref-reverse, alt-forward and alt-reverse bases">
 ##INFO=<ID=MQ,Number=1,Type=Integer,Description="Root-mean-square mapping quality of covering reads">
@@ -30,4 +33,5 @@
 ##FORMAT=<ID=DV,Number=1,Type=Integer,Description="# high-quality non-reference bases">
 ##FORMAT=<ID=SP,Number=1,Type=Integer,Description="Phred-scaled strand bias P-value">
 ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="List of Phred-scaled genotype likelihoods">
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	variant_calling_reads_dedup.bam
+20:10030136-10030239	53	.	T	A	237	.	AN=2;AC=1;DP=31;VDB=5.100729e-04;RPB=-2.201762e-01;PV4=0.45,1,0.41,1;DP4=7,11,3,10;MQ=42;QBD=7.641593e+00;HWE=1.000000e+00	GT:PL:GQ	0/1:240,0,255:99

@@ -13,7 +13,15 @@ class VariantCallingTestCase(BioProcessTestCase):
         inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
 
-        inputs = {'genome': genome.pk, 'mapping': aligned_reads.pk}
+        inputs = {
+            'genome': genome.pk,
+            'mapping': aligned_reads.pk,
+            'options': {
+                'd': 10,
+                'D': 50000,
+                'Q': 30
+            }
+        }
         samtools_variants = self.run_process('vc-samtools', inputs)
         # create a filtering function that will remove the samtools version from the output files
 

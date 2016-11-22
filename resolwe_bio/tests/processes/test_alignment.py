@@ -168,6 +168,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-bwa-mem', inputs)
         self.assertFile(aligned_reads, 'stats', 'bwa_mem_paired_reads_report.txt')
+        self.assertFile(aligned_reads, 'unmapped', 'bwa_mem_unmapped_reads.fastq.gz', compression='gzip')
 
     def test_hisat2(self):
         genome = self.prepare_genome()
