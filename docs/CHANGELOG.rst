@@ -57,6 +57,7 @@ Fixed
 * Fix FastQC report paths in processors
 * Fix ``htseq_count`` and ``featureCounts`` for large files
 * Fix ``upload gtf annotation``
+* Fix gene_id field type for differential expression storage objects
 
 
 ================

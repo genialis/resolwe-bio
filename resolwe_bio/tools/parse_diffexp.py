@@ -37,10 +37,10 @@ def main():
 
     if args.gene_id:
         if args.gene_id == 'index':
-            columns['gene_id'] = list(de_data.index)
+            columns['gene_id'] = list(de_data.index.astype(str))
             col_order.append('gene_id')
         else:
-            columns['gene_id'] = list(de_data[args.gene_id])
+            columns['gene_id'] = list(de_data[args.gene_id].astype(str))
             col_order.append('gene_id')
 
     if args.logfc:

@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+import six
 
+from resolwe.flow.models import Data
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
@@ -134,6 +135,21 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
         self.assertFile(diff_exp, 'raw', 'deseq2_output.tab.gz')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2_volcano_plot.json.gz')
+
+    def test_upload_de_check_field_type(self):
+        inputs = {
+            'src': 'diff_exp_check_geneid_type.tab.gz',
+            'source': 'DICTYBASE',
+            'gene_id': 'index',
+            'logfc': 'log2FoldChange',
+            'fdr': 'padj',
+            'pvalue': 'pvalue',
+            'stat': 'stat',
+        }
+        diff_exp = self.run_process('upload-diffexp', inputs)
+        saved_json, test_json = self.get_json('diff_exp_check_types.json.gz', diff_exp.output['de_json'])
+        self.assertEqual(test_json, saved_json)
+        all(self.assertIsInstance(gene, six.text_type) for gene in test_json['gene_id'])
 
     def test_upload_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
