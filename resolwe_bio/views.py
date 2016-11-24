@@ -8,12 +8,13 @@ Resolwe Bio Views
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from django.db.models import Max
+from django.db.models.query import Prefetch
 
 from rest_framework import exceptions, status
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
-from resolwe.flow.models import Collection
+from resolwe.flow.models import Data, Collection
 from resolwe.flow.views import CollectionViewSet
 from .filters import SampleFilter
 from .models import Sample
@@ -30,7 +31,7 @@ class PresampleViewSet(CollectionViewSet):
         latest_date=Max('data__created')
     ).prefetch_related(
         'descriptor_schema',
-        'contributor'
+        'contributor',
     ).filter(
         presample=True
     ).order_by('-latest_date')
@@ -46,7 +47,8 @@ class SampleViewSet(CollectionViewSet):
         latest_date=Max('data__modified')
     ).prefetch_related(
         'descriptor_schema',
-        'contributor'
+        'contributor',
+        Prefetch('data', queryset=Data.objects.all().order_by('id'))
     ).filter(
         presample=False
     ).order_by('-latest_date')
