@@ -19,6 +19,7 @@ Contents
 
    proc
    catalog
+   descriptor
    ref
    contributing
 
