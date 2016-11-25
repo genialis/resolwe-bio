@@ -25,6 +25,7 @@ Changed
 * Update processes trimmomatic, gff_to_gtf and featureCount
 * Add stitch parameter to rose2 processor
 * Add filtering to DESeq2
+* Set Docker Compose's project name to ``resolwebio`` to avoid name clashes
 
 Added
 -----

@@ -6,6 +6,7 @@ recursive-include docs *.py *.rst *.css *.html
 # include tests and files needed by tests (except large files)
 include tox.ini
 include .pylintrc
+include tests/.env
 recursive-include tests *.py *.yml *.yaml *.rst
 recursive-include resolwe_bio/tests *.py
 recursive-include resolwe_bio/kb/tests *.py

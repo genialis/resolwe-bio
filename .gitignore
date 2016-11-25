@@ -9,6 +9,7 @@ sftp-config.json
 # Ignore dot files
 .*
 !.travis.yml
+!.env
 
 # Ignore backup files
 *.orig
