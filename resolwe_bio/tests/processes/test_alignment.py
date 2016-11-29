@@ -190,6 +190,10 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
 
     def test_subread(self):
         genome = self.prepare_genome()
+
+        inputs = {'src': 'my.strange.genome name$.fasta.gz'}
+        genome_2 = self.run_process('upload-genome', inputs)
+
         reads = self.prepare_reads()
         reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
                                                  mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
@@ -197,13 +201,6 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_reads_report.txt')
-
-        inputs = {'genome': genome.id, 'reads': reads_paired.id}
-        aligned_reads = self.run_process('alignment-subread', inputs)
-        self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')
-
-        inputs = {'src': 'my.strange.genome name$.fasta.gz'}
-        genome_2 = self.run_process('upload-genome', inputs)
 
         inputs = {'genome': genome_2.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
