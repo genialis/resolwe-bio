@@ -91,6 +91,14 @@ class Mapping(models.Model):
     target_db = models.CharField(max_length=20)
     target_id = models.CharField(max_length=50)
 
+    class Meta:
+        """Mapping Meta options."""
+
+        index_together = [
+            ['source_db', 'source_id', 'target_db'],
+            ['target_db', 'target_id']
+        ]
+
     def __unicode__(self):
         """String representation of a mapping instance."""
         return "{src_db}: {src_id} -> {dst_db}: {dst_id}".format(
