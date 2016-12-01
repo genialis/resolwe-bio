@@ -132,7 +132,7 @@ class MappingViewSet(mixins.ListModelMixin,
 
     def list_with_post(self, request):
         """Support search via a POST request in addition to GET."""
-        queryset = self.queryset
+        queryset = self.get_queryset()
         filter_params = request.data
         for key, value in filter_params.items():
             if isinstance(value, list):
