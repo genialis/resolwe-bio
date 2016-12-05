@@ -51,6 +51,7 @@ Added
 * Added process for automatically downloading SRA files from NCBI and converting
   them to FASTQ
 * Add HEAT-Seq pipeline tools
+* Add HEAT-Seq workflow
 
 Fixed
 -----

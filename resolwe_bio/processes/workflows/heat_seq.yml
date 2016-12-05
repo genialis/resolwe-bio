@@ -1,0 +1,60 @@
+- slug: workflow-heat-seq
+  category: workflow:primary
+  name: HEAT-Seq Pipeline
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:vc:heatseq
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq:paired
+    - name: genome
+      label: genome
+      type: data:genome:fasta
+    - name: probe_info
+      label: Probe information
+      type: data:file
+    - name: bed
+      label: Bed file
+      type: data:bed
+  run:
+    language: workflow
+    program:
+      - id: trimmomatic_filtering
+        run: trimmomatic-paired
+        input:
+          reads: '{{input.reads}}'
+          trailing: 20
+          minlen: 50
+          slidingwindow:
+            window_size: 5
+            required_quality: 20
+      - id: hsqutils_trimming
+        run: hsqutils-trim
+        input:
+          reads: '{{steps.trimmomatic_filtering}}'
+          probe: '{{input.probe_info}}'
+      - id: align
+        run: alignment-bwa-mem
+        input:
+          genome: '{{input.genome}}'
+          reads: '{{steps.hsqutils_trimming}}'
+          m: true
+      - id: hsqutils_dedup
+        run: hsqutils-dedup
+        input:
+          alignment: '{{steps.align}}'
+          reads: '{{steps.trimmomatic_filtering}}'
+          probe: '{{input.probe_info}}'
+      - id: variant_calling
+        run: vc-samtools
+        input:
+          genome: '{{input.genome}}'
+          mapping: '{{steps.hsqutils_dedup}}'
+          bed: '{{input.bed}}'
+          options:
+            rmdup: false
+            Q: 30
+            d: 8
+            D: 5000
