@@ -60,6 +60,7 @@ Fixed
 * Fix ``upload gtf annotation``
 * Fix gene_id field type for differential expression storage objects
 * Order data objects in ``SampleViewSet``
+* Fix sample hiererchical clustering
 
 
 ================
