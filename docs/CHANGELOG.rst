@@ -52,6 +52,7 @@ Added
   them to FASTQ
 * Add HEAT-Seq pipeline tools
 * Add HEAT-Seq workflow
+* Add ``create-geneset`` processor
 
 Fixed
 -----

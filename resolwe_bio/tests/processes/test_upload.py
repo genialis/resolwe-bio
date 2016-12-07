@@ -183,6 +183,19 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(geneset, 'source', 'UCSC')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
 
+    def test_create_geneset(self):
+        inputs = {'genes': ['ABC', 'DEF', 'GHI'], 'source': 'UCSC'}
+        geneset = self.run_process('create-geneset', inputs)
+
+        self.assertFile(geneset, 'geneset', 'geneset_2.tab.gz', compression='gzip')
+        self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset_2.json.gz')
+
+        inputs = {'genes': ['1', '2', '3'], 'source': 'NCBI'}
+        geneset_2 = self.run_process('create-geneset', inputs)
+
+        self.assertFile(geneset_2, 'geneset', 'geneset_3.tab.gz', compression='gzip')
+        self.assertJSON(geneset_2, geneset_2.output['geneset_json'], '', 'geneset_3.json.gz')
+
     def test_upload_image(self):
         inputs = {'src': 'upload image.1.png'}
         png = self.run_process('upload-image-file', inputs)

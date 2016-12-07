@@ -4,11 +4,11 @@
 ---
 
 - slug: upload-geneset
-  name: Gene set
+  name: Upload gene set
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:geneset
   category: upload
   persistence: RAW
@@ -55,3 +55,56 @@
       re-save source {{source}}
       geneset2storage.py "${NAME}.tab" geneset.json
       re-save geneset_json geneset.json
+
+- slug: create-geneset
+  name: Create gene set
+  requirements:
+    expression-engine: jinja
+  data_name: Gene set
+  version: 0.0.1
+  type: data:geneset
+  category: upload
+  persistence: RAW
+  description: >
+    Create Gene Set.
+  input:
+    - name: genes
+      label: Genes
+      type: list:basic:string
+      description: >
+        List of genes.
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
+  output:
+    - name: geneset
+      label: Gene set
+      type: basic:file
+    - name: geneset_json
+      label: Gene set (JSON)
+      type: basic:json
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      echo "{{ genes|join('\n') }}" >> geneset.tab
+      geneset2storage.py geneset.tab geneset.json
+      gzip geneset.tab
+      re-save geneset_json geneset.json
+      re-save-file geneset geneset.tab.gz
+      re-save source {{source}}

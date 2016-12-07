@@ -18,8 +18,8 @@ def main():
     """Invoked when run directly as a program."""
     args = parse_arguments()
 
-    with open(args.geneset_file) as infile:
-        geneset = [gene.strip() for gene in infile]
+    with open(args.geneset_file, 'rU') as infile:
+        geneset = [str(gene.strip()) for gene in infile]
 
         with open(args.output_file, 'w') as f:
             json.dump({'genes': geneset}, f, separators=(',', ':'), allow_nan=False)
