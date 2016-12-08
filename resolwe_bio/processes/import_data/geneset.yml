@@ -108,3 +108,67 @@
       re-save geneset_json geneset.json
       re-save-file geneset geneset.tab.gz
       re-save source {{source}}
+
+- slug: create-geneset-venn
+  name: Create Venn gene set
+  requirements:
+    expression-engine: jinja
+  data_name: Gene set (Venn)
+  version: 0.0.1
+  type: data:geneset:venn
+  category: upload
+  persistence: RAW
+  description: >
+    Create Venn gene set.
+  input:
+    - name: genes
+      label: Genes
+      type: list:basic:string
+      description: >
+        List of genes.
+    - name: source
+      label: Gene ID source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
+    - name: venn
+      label: Venn diagram
+      type: basic:file
+      description: >
+        JSON file. Supported extensions: .json.gz
+      validate_regex: '(\.json\.gz)$'
+  output:
+    - name: geneset
+      label: Gene set
+      type: basic:file
+    - name: geneset_json
+      label: Gene set (JSON)
+      type: basic:json
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: venn
+      label: Venn diagram
+      type: basic:json
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      re-import "{{ venn.file_temp }}" "{{ venn.file }}" "json" "json" 0.5
+      echo "{{ genes|join('\n') }}" >> geneset.tab
+      geneset2storage.py geneset.tab geneset.json
+      gzip geneset.tab
+      re-save geneset_json geneset.json
+      re-save-file geneset geneset.tab.gz
+      re-save source {{source}}
+      re-save venn ${NAME}.json
