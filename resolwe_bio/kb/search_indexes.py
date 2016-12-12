@@ -19,6 +19,7 @@ class FeatureIndex(indexes.SearchIndex, indexes.Indexable):
     text = indexes.CharField(document=True)
     genes = indexes.MultiValueField()
     genes_auto = indexes.EdgeNgramField()
+    source = indexes.CharField(model_attr='source')
 
     def get_model(self):
         """Model to index."""

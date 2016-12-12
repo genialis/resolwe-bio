@@ -74,6 +74,21 @@ class FeatureTestCase(APITestCase):
         response = self.client.post(FEATURE_SEARCH_URL, {'query': ['FOO1', 'SHARED', 'FT-7']}, format='json')
         self.assertEqual(len(response.data), len(self.features))
 
+        # Test query by source.
+        response = self.client.get(FEATURE_SEARCH_URL, {'query': 'FOO1', 'source': 'NCBI'}, format='json')
+        self.assertEqual(len(response.data), 1)
+
+        response = self.client.get(FEATURE_SEARCH_URL, {'query': 'FOO1', 'source': 'FOO'}, format='json')
+        self.assertEqual(len(response.data), 0)
+
+        response = self.client.post(FEATURE_SEARCH_URL, {'query': ['FOO1', 'FOO2', 'FT-7'], 'source': 'NCBI'},
+                                    format='json')
+        self.assertEqual(len(response.data), 3)
+
+        response = self.client.post(FEATURE_SEARCH_URL, {'query': ['FOO1', 'FOO2', 'FT-7'], 'source': 'FOO'},
+                                    format='json')
+        self.assertEqual(len(response.data), 0)
+
     def test_feature_autocomplete(self):
         FEATURE_AUTOCOMPLETE_URL = reverse('resolwebio-api:kb_feature_autocomplete-list')
 

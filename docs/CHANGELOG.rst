@@ -53,6 +53,7 @@ Added
 * Add HEAT-Seq pipeline tools
 * Add HEAT-Seq workflow
 * Add ``create-geneset``, ``create-geneset-venn``  processors
+* Add ``source`` filter to feature search endpoint
 
 Fixed
 -----

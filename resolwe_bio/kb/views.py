@@ -25,7 +25,7 @@ class FeatureSearchSerializer(HaystackSerializerMixin, FeatureSerializer):
     class Meta(FeatureSerializer.Meta):
         """Meta configuration for the feature search serializer."""
 
-        search_fields = ('genes',)
+        search_fields = ('genes', 'source')
         field_aliases = {
             'query': 'genes',
         }
@@ -58,6 +58,8 @@ class FeatureSearchViewSet(HaystackViewSet):
         queryset = super(FeatureSearchViewSet, self).filter_queryset(queryset)
         if 'query' in self.request.data:
             queryset = queryset.filter(genes__in=self.request.data['query'])
+        if 'source' in self.request.data:
+            queryset = queryset.filter(source=self.request.data['source'])
 
         return queryset
 
