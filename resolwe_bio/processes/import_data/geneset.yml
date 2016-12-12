@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:geneset
   category: upload
   persistence: RAW
@@ -50,18 +50,18 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "tab|txt" "tab" 0.9
-      re-save-file geneset ${NAME}.tab.gz
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "tab|txt" "tab" 0.9 extract
       re-save source {{source}}
-      geneset2storage.py "${NAME}.tab" geneset.json
+      geneset2storage.py "${NAME}.tab" geneset.json "${NAME}.tab.gz"
       re-save geneset_json geneset.json
+      re-save-file geneset "${NAME}.tab.gz"
 
 - slug: create-geneset
   name: Create gene set
   requirements:
     expression-engine: jinja
   data_name: Gene set
-  version: 0.0.1
+  version: 0.0.2
   type: data:geneset
   category: upload
   persistence: RAW
@@ -103,8 +103,7 @@
     language: bash
     program: |
       echo "{{ genes|join('\n') }}" >> geneset.tab
-      geneset2storage.py geneset.tab geneset.json
-      gzip geneset.tab
+      geneset2storage.py geneset.tab geneset.json geneset.tab.gz
       re-save geneset_json geneset.json
       re-save-file geneset geneset.tab.gz
       re-save source {{source}}
@@ -114,7 +113,7 @@
   requirements:
     expression-engine: jinja
   data_name: Gene set (Venn)
-  version: 0.0.1
+  version: 0.0.2
   type: data:geneset:venn
   category: upload
   persistence: RAW
@@ -166,8 +165,7 @@
     program: |
       re-import "{{ venn.file_temp }}" "{{ venn.file }}" "json" "json" 0.5
       echo "{{ genes|join('\n') }}" >> geneset.tab
-      geneset2storage.py geneset.tab geneset.json
-      gzip geneset.tab
+      geneset2storage.py geneset.tab geneset.json geneset.tab.gz
       re-save geneset_json geneset.json
       re-save-file geneset geneset.tab.gz
       re-save source {{source}}

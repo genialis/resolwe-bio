@@ -179,7 +179,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'geneset.tab.gz', 'source': 'UCSC'}
         geneset = self.run_process('upload-geneset', inputs)
 
-        self.assertFile(geneset, 'geneset', 'geneset.tab.gz', compression='gzip')
+        self.assertFile(geneset, 'geneset', 'geneset_out.tab.gz', compression='gzip')
         self.assertFields(geneset, 'source', 'UCSC')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
 
@@ -190,14 +190,15 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(geneset, 'geneset', 'geneset_2.tab.gz', compression='gzip')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset_2.json.gz')
 
-        inputs = {'genes': ['1', '2', '3'], 'source': 'NCBI'}
+        inputs = {'genes': ['1', '3', '3', '2'], 'source': 'NCBI'}
         geneset_2 = self.run_process('create-geneset', inputs)
 
         self.assertFile(geneset_2, 'geneset', 'geneset_3.tab.gz', compression='gzip')
         self.assertJSON(geneset_2, geneset_2.output['geneset_json'], '', 'geneset_3.json.gz')
+        self.assertEqual(geneset_2.process_warning[0], 'Removed duplicated genes.')
 
     def test_create_venn(self):
-        inputs = {'genes': ['ABC', 'DEF', 'GHI'], 'source': 'UCSC', 'venn': 'venn.json.gz'}
+        inputs = {'genes': ['ABC', 'GHI', 'DEF'], 'source': 'UCSC', 'venn': 'venn.json.gz'}
         venn = self.run_process('create-geneset-venn', inputs)
 
         self.assertFile(venn, 'geneset', 'geneset_venn.tab.gz', compression='gzip')

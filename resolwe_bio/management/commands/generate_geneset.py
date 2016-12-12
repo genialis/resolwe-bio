@@ -59,11 +59,9 @@ class Command(BaseCommand):
             csvwriter = csv.writer(f, delimiter=str('\t'), lineterminator='\n')
             with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
-                geneset = []
-                for _ in range(num):
-                    gene = random.choice(all_genes)
+                geneset = sorted(set([random.choice(all_genes) for _ in range(num)]))
+                for gene in geneset:
                     csvwriter.writerow([gene])
-                    geneset.append(gene)
 
         json_dump = json.dumps({'genes': geneset}, indent=4, sort_keys=True)
         with open(os.path.join(path, 'geneset.json'), 'w') as json_file:
