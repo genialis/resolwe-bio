@@ -53,6 +53,7 @@ setup(
         'django-haystack==2.5.0',
         'drf-haystack==1.5.6',
         'Whoosh==2.7.4',
+        'tqdm>=4.1',
     ),
     extras_require = {
         'docs':  [
