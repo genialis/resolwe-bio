@@ -18,8 +18,10 @@ class FeatureIndex(indexes.SearchIndex, indexes.Indexable):
     # use a CharField and have a separate MultiValueField.
     text = indexes.CharField(document=True)
     genes = indexes.MultiValueField()
-    genes_auto = indexes.EdgeNgramField()
     source = indexes.CharField(model_attr='source')
+
+    name_auto = indexes.EdgeNgramField(boost=10.0)
+    aliases_auto = indexes.EdgeNgramField()
 
     def get_model(self):
         """Model to index."""
@@ -33,6 +35,10 @@ class FeatureIndex(indexes.SearchIndex, indexes.Indexable):
         """Prepare the value for the 'genes' field during indexing."""
         return [obj.name, obj.feature_id] + obj.aliases
 
-    def prepare_genes_auto(self, obj):
-        """Prepare the value for the 'genes_auto' field during indexing."""
-        return ' '.join(self.prepare_genes(obj))
+    def prepare_name_auto(self, obj):
+        """Prepare the value for the 'name_auto' field during indexing."""
+        return ' '.join([obj.name, obj.feature_id])
+
+    def prepare_aliases_auto(self, obj):
+        """Prepare the value for the 'aliases_auto' field during indexing."""
+        return ' '.join(obj.aliases)

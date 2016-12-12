@@ -10,7 +10,8 @@ from django.utils.decorators import classonlymethod
 from rest_framework import viewsets, mixins, permissions, filters
 from rest_framework.response import Response
 
-from drf_haystack.filters import HaystackAutocompleteFilter
+from haystack.query import SQ
+
 from drf_haystack.serializers import HaystackSerializerMixin
 from drf_haystack.viewsets import HaystackViewSet
 
@@ -85,7 +86,15 @@ class FeatureAutocompleteViewSet(HaystackViewSet):
 
     index_models = [Feature]
     serializer_class = FeatureAutocompleteSerializer
-    filter_backend = [HaystackAutocompleteFilter]
+
+    def filter_queryset(self, queryset):
+        """Construct a correct filter query."""
+        query = self.request.query_params.get('query', '')
+        if query:
+            queryset = queryset.filter(SQ(name_auto=query) | SQ(aliases_auto=query))
+        else:
+            queryset = queryset.none()
+        return queryset
 
 
 class FeatureViewSet(mixins.ListModelMixin,
