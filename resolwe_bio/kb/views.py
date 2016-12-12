@@ -87,6 +87,12 @@ class FeatureAutocompleteViewSet(HaystackViewSet):
     serializer_class = FeatureAutocompleteSerializer
     filter_backend = [HaystackAutocompleteFilter]
 
+    def filter_queryset(self, queryset):
+        """Ensure proper result ordering."""
+        queryset = super(FeatureAutocompleteViewSet, self).filter_queryset(queryset)
+        queryset = queryset.order_by('name')
+        return queryset
+
 
 class FeatureViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
