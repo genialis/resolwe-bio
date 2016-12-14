@@ -26,7 +26,7 @@ from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
 from .utils import (get_descriptorschema, get_process, get_superuser,
-                    generate_sample_desciptor, generate_reads_descriptor)
+                    generate_sample_descriptor, generate_reads_descriptor)
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -223,7 +223,7 @@ class Command(BaseCommand):
 
         # Annotate Sample Collection
         if annotated:
-            sample.descriptor = generate_sample_desciptor(d.name)
+            sample.descriptor = generate_sample_descriptor(d.name)
             sample.presample = False
             sample.save()
             d.descriptor = generate_reads_descriptor(data_name, presample=False)

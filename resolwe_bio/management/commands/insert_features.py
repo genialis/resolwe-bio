@@ -7,17 +7,16 @@ Insert Knowledge Base Features
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 import csv
-import gzip
 import logging
-import os
 from tqdm import tqdm
-import zipfile
 
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
 from resolwe.utils import BraceMessage as __
+
 from resolwe_bio.kb.models import Feature
+from .utils import decompress
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -74,50 +73,6 @@ SUBTYPE_MAP = {
     'other': 'other',
     'unknown': 'unknown'
 }
-
-
-def decompress(file_name):
-    """Compression-agnostic iterator.
-
-    Iterate over files on the archive and return a tuple of
-    file name, line count and file descriptor.
-
-    Supported file formats are .tab, .gz and .zip.
-
-    """
-    if not os.path.isfile(file_name):
-        raise ValueError("Can not find file '{}'".format(file_name))
-
-    line_count = -1
-    _, ext = os.path.splitext(file_name)
-
-    _open = None
-    if ext == '.tab':
-        _open = open
-    elif ext == '.gz':
-        _open = gzip.open
-
-    if _open:
-        with _open(file_name) as tsv_file:
-            line_count = sum(1 for row in tsv_file)
-
-        with _open(file_name) as tsv_file:
-            yield (os.path.basename(file_name), line_count, tsv_file)
-
-    elif ext == '.zip':
-        with zipfile.ZipFile(file_name) as archive:
-            for entry in archive.infolist():
-                if not entry.filename.endswith('.tab'):
-                    continue
-
-                with archive.open(entry) as tsv_file:
-                    line_count = sum(1 for row in tsv_file)
-
-                with archive.open(entry) as tsv_file:
-                    yield (entry.filename, line_count, tsv_file)
-
-    else:
-        raise ValueError("Unsupported file format")
 
 
 class Command(BaseCommand):
