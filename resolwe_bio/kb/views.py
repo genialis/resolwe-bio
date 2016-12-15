@@ -8,28 +8,15 @@ Views
 from django.utils.decorators import classonlymethod
 
 from rest_framework import viewsets, mixins, permissions, filters
-from rest_framework.response import Response
 
 from haystack.query import SQ
 
-from drf_haystack.serializers import HaystackSerializerMixin
 from drf_haystack.viewsets import HaystackViewSet
 
 from .models import Feature, Mapping
-from .serializers import FeatureSerializer, MappingSerializer
+from .serializers import (FeatureSerializer, FeatureSearchSerializer, FeatureAutocompleteSerializer,
+                          MappingSerializer, MappingSearchSerializer)
 from .filters import MappingFilter
-
-
-class FeatureSearchSerializer(HaystackSerializerMixin, FeatureSerializer):
-    """Feature search serializer."""
-
-    class Meta(FeatureSerializer.Meta):
-        """Meta configuration for the feature search serializer."""
-
-        search_fields = ('genes', 'source')
-        field_aliases = {
-            'query': 'genes',
-        }
 
 
 class FeatureSearchViewSet(HaystackViewSet):
@@ -37,7 +24,8 @@ class FeatureSearchViewSet(HaystackViewSet):
     Endpoint used for feature search.
 
     Request:
-     - search query
+     - query
+     - source
 
     Response:
      - a list of matching features
@@ -67,18 +55,6 @@ class FeatureSearchViewSet(HaystackViewSet):
     def list_with_post(self, request):
         """Support search via a POST request in addition to GET."""
         return self.list(request)
-
-
-class FeatureAutocompleteSerializer(HaystackSerializerMixin, FeatureSerializer):
-    """Feature autocomplete serializer."""
-
-    class Meta(FeatureSerializer.Meta):
-        """Meta configuration for the feature autocomplete serializer."""
-
-        search_fields = ('genes_auto',)
-        field_aliases = {
-            'query': 'genes_auto',
-        }
 
 
 class FeatureAutocompleteViewSet(HaystackViewSet):
@@ -123,34 +99,77 @@ class FeatureViewSet(mixins.ListModelMixin,
             return super(FeatureViewSet, self).create(request)  # pylint: disable=no-member
 
 
+class MappingSearchViewSet(HaystackViewSet):
+    """
+    Endpoint used for mapping search.
+
+    Request:
+     - source_id
+     - source_db
+     - target_id
+     - target_db
+     - relation_type
+
+    Response:
+     - a list of matching mappings
+    """
+
+    index_models = [Mapping]
+    serializer_class = MappingSearchSerializer
+
+    @classonlymethod
+    def as_view(cls, actions=None, **initkwargs):
+        """Support POST for searching against a list of genes."""
+        if actions.get('get', None) == 'list':
+            actions['post'] = 'list_with_post'
+
+        return super(cls, MappingSearchViewSet).as_view(actions, **initkwargs)
+
+    def filter_queryset(self, queryset):
+        """Support filtering by a list of genes."""
+        queryset = super(MappingSearchViewSet, self).filter_queryset(queryset)
+        if 'source_id' in self.request.data:
+            queryset = queryset.filter(source_id__in=self.request.data['source_id'])
+        if 'source_db' in self.request.data:
+            queryset = queryset.filter(source_db=self.request.data['source_db'])
+        if 'target_id' in self.request.data:
+            queryset = queryset.filter(target_id__in=self.request.data['target_id'])
+        if 'target_db' in self.request.data:
+            queryset = queryset.filter(target_db=self.request.data['target_db'])
+        if 'relation_type' in self.request.data:
+            queryset = queryset.filter(relation_type=self.request.data['relation_type'])
+
+        return queryset
+
+    def list_with_post(self, request):
+        """Support search via a POST request in addition to GET."""
+        return self.list(request)
+
+
 class MappingViewSet(mixins.ListModelMixin,
                      mixins.RetrieveModelMixin,
+                     mixins.CreateModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin,
                      viewsets.GenericViewSet):
     """API view for :class:`Mapping` objects."""
 
     serializer_class = MappingSerializer
+    permission_classes = [permissions.IsAdminUser]
     filter_backends = [filters.DjangoFilterBackend]
     filter_class = MappingFilter
     queryset = Mapping.objects.all()
 
-    @classonlymethod
-    def as_view(cls, actions=None, **initkwargs):
-        """Support POST for searching against a list of feature ids."""
-        if actions.get('get', None) == 'list':
-            actions['post'] = 'list_with_post'
-
-        return super(cls, MappingViewSet).as_view(actions, **initkwargs)
-
-    def list_with_post(self, request):
-        """Support search via a POST request in addition to GET."""
-        queryset = self.get_queryset()
-        filter_params = request.data
-        for key, value in filter_params.items():
-            if isinstance(value, list):
-                filter_params[key] = ','.join(value)
-
-        if filter_params:
-            queryfilter = self.filter_class(filter_params, queryset=queryset)
-            queryset = queryfilter.qs
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+    def create(self, request):
+        """A custom create, which updates existing mappings instead of failing."""
+        try:
+            mapping = Mapping.objects.get(
+                source_db=request.data['source_db'],
+                source_id=request.data['source_id'],
+                target_db=request.data['target_db'],
+                target_id=request.data['target_id']
+            )
+            self.kwargs[self.lookup_field] = mapping.pk
+            return super(MappingViewSet, self).update(request)  # pylint: disable=no-member
+        except (Mapping.DoesNotExist, KeyError):  # pylint: disable=no-member
+            return super(MappingViewSet, self).create(request)  # pylint: disable=no-member

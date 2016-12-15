@@ -94,6 +94,9 @@ class Mapping(models.Model):
     class Meta:
         """Mapping Meta options."""
 
+        unique_together = [
+            ['source_db', 'source_id', 'target_db', 'target_id', 'relation_type'],
+        ]
         index_together = [
             ['source_db', 'source_id', 'target_db'],
             ['target_db', 'target_id']
