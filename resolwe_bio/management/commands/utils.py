@@ -9,6 +9,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import datetime
 import gzip
+import io
 import os
 import random
 import zipfile
@@ -177,23 +178,24 @@ def decompress(file_name):
         _open = gzip.open
 
     if _open:
-        with _open(file_name) as tsv_file:
+        with _open(file_name, 'rt') as tsv_file:
             line_count = sum(1 for row in tsv_file)
 
-        with _open(file_name) as tsv_file:
+        with _open(file_name, 'rt') as tsv_file:
             yield (os.path.basename(file_name), line_count, tsv_file)
-
     elif ext == '.zip':
         with zipfile.ZipFile(file_name) as archive:
             for entry in archive.infolist():
                 if not entry.filename.endswith('.tab'):
                     continue
 
+                if entry.filename.startswith('__MACOSX'):
+                    continue
+
                 with archive.open(entry) as tsv_file:
                     line_count = sum(1 for row in tsv_file)
 
                 with archive.open(entry) as tsv_file:
-                    yield (entry.filename, line_count, tsv_file)
-
+                    yield (entry.filename, line_count, io.TextIOWrapper(tsv_file))
     else:
         raise ValueError("Unsupported file format")

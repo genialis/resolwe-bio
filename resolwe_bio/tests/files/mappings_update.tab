@@ -1,0 +1,7 @@
+relation_type	source_db	source_id	target_db	target_id
+cross-db	MGI	MGI:2447322	NCBI	192161
+cross-db	MGI	MGI:3613551	NCBI	100035938
+cross-db	MGI	MGI:3649580	NCBI	625646
+cross-db	MGI	MGI:5624657	NCBI	105246487
+cross-db	MGI	MGI:3639715	NCBI	100035335
+cross-db	MGI	MGI:3639714	NCBI	100036169

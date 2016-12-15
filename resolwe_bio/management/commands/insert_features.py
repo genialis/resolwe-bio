@@ -11,7 +11,6 @@ import logging
 from tqdm import tqdm
 
 from django.core.management.base import BaseCommand
-from django.db import IntegrityError
 
 from resolwe.utils import BraceMessage as __
 
@@ -86,7 +85,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Command handle."""
-        count_inserted, count_failed = 0, 0
+        count_inserted, count_updated, count_unchanged, count_failed = 0, 0, 0, 0
 
         for tab_file_name, line_count, tab_file in decompress(options['file_name']):
             logger.info(__("Importing features from \"{}\":", tab_file_name))
@@ -102,23 +101,37 @@ class Command(BaseCommand):
 
                 sub_type = SUBTYPE_MAP.get(row['Gene type'], 'other')
 
-                feature = Feature(source=row['Source'],
-                                  feature_id=row['ID'],
-                                  species=row['Species'],
-                                  type=row['Type'],
-                                  sub_type=sub_type,
-                                  name=row['Name'],
-                                  full_name=row['Full name'],
-                                  description=row['Description'],
-                                  aliases=aliases)
+                values = {
+                    'species': row['Species'],
+                    'type': row['Type'],
+                    'sub_type': sub_type,
+                    'name': row['Name'],
+                    'full_name': row['Full name'],
+                    'description': row['Description'],
+                    'aliases': aliases,
+                }
+
                 try:
+                    feature = Feature.objects.get(source=row['Source'], feature_id=row['ID'])
+
+                    is_update = False
+                    for attr, value in values.items():
+                        if getattr(feature, attr) != value:
+                            setattr(feature, attr, value)
+                            is_update = True
+
+                    if is_update:
+                        feature.save()
+                        count_updated += 1
+                    else:
+                        count_unchanged += 1
+
+                except Feature.DoesNotExist:
+                    feature = Feature(source=row['Source'], feature_id=row['ID'], **values)
                     feature.save()
                     count_inserted += 1
-                except IntegrityError as exc:
-                    if 'duplicate key' in exc.message:
-                        count_failed += 1
-                    else:
-                        raise
 
-        logger.info(__("Total features: {}. Inserted {}, failed {}.",
-                       count_inserted + count_failed, count_inserted, count_failed))
+        count_total = count_inserted + count_updated + count_unchanged + count_failed
+        logger.info("Total features: %d. Inserted %d, updated %d, "  # pylint: disable=logging-not-lazy
+                    "unchanged %d, failed %d." %
+                    (count_total, count_inserted, count_updated, count_unchanged, count_failed))

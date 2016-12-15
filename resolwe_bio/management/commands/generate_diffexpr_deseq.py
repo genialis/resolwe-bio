@@ -121,7 +121,7 @@ class Command(BaseCommand):
 
             sample = Sample.objects.filter(data=exp)[0]
             sample.presample = False
-            sample.descriptor = generate_sample_desrciptor('Hs_')
+            sample.descriptor = generate_sample_descriptor('Hs_')
             sample.save()
 
             with open(os.path.join(self.data_dir, str(exp.id), 'stdout.txt'), 'w') as stdout:
