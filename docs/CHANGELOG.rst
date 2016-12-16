@@ -26,6 +26,7 @@ Changed
 * Add stitch parameter to rose2 processor
 * Add filtering to DESeq2
 * Set Docker Compose's project name to ``resolwebio`` to avoid name clashes
+* Add source query parameter to kb autocomplete
 
 Added
 -----

@@ -65,11 +65,17 @@ class FeatureAutocompleteViewSet(HaystackViewSet):
 
     def filter_queryset(self, queryset):
         """Construct a correct filter query."""
-        query = self.request.query_params.get('query', '')
-        if query:
-            queryset = queryset.filter(SQ(name_auto=query) | SQ(aliases_auto=query))
-        else:
-            queryset = queryset.none()
+        query = self.request.query_params.get('query', None)
+
+        if not query:
+            return queryset.none()
+
+        queryset = queryset.filter(SQ(name_auto=query) | SQ(aliases_auto=query))
+
+        source = self.request.query_params.get('source', None)
+        if source:
+            queryset = queryset.filter(source=source)
+
         return queryset
 
 
