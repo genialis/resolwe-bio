@@ -86,6 +86,10 @@ Change directory to the Django test project::
 
     cd tests
 
+Run docker::
+
+    docker-compose up
+
 To run the tests, use::
 
     ./manage.py test resolwe_bio
