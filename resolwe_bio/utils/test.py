@@ -3,6 +3,7 @@ import os
 import unittest
 
 from django.conf import settings
+from django.core.management import call_command
 
 from resolwe.flow.utils.test import ProcessTestCase
 
@@ -90,3 +91,13 @@ class BioProcessTestCase(ProcessTestCase):
         """Prepare expression."""
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
         return self.run_process('upload-expression', inputs)
+
+
+class KBBioProcessTestCase(BioProcessTestCase):
+    """Test class for bioinformatics processes that uses knowledge base."""
+
+    def setUp(self):
+        """Set-up test gene information knowledge base."""
+        super(KBBioProcessTestCase, self).setUp()
+        call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features_gsea.tab.zip'))
+        call_command('insert_mappings', os.path.join(TEST_FILES_DIR, 'mappings_gsea.tab.zip'))
