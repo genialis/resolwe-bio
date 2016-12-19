@@ -27,6 +27,7 @@ Changed
 * Add filtering to DESeq2
 * Set Docker Compose's project name to ``resolwebio`` to avoid name clashes
 * Add source query parameter to kb autocomplete
+* GO enrichment analysis: map features using gene Knowledge base
 
 Added
 -----

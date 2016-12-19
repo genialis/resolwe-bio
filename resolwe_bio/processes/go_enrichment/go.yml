@@ -3,13 +3,13 @@
 # =================================
 ---
 
-- slug: goenrichment-bcm
-  name: GO Enrichment 2.0
+- slug: goenrichment
+  name: GO Enrichment analysis
   requirements:
     expression-engine: jinja
-  data_name: 'GO Enrichment for {{genes|join(", ")|default("?")}}'
-  version: 2.0.12
-  type: data:ontologyenrichment
+  data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
+  version: 3.0.0
+  type: data:goea
   category: analyses
   persistence: TEMP
   description: >
@@ -21,15 +21,13 @@
     - name: gaf
       label: GO annotation file (GAF v2.0)
       type: data:gaf
-    - name: orthologues
-      label: Gene orthologues file
-      type: data:orthologues
-      required: false
     - name: genes
       label: List of genes
       type: list:basic:string
       placeholder: new gene id
-      default: [DDB_G0267640, DDB_G0279331, DDB_G0289651, DDB_G0281087]
+    - name: source
+      label: Source
+      type: basic:string
     - name: pval_threshold
       label: P-value threshold
       type: basic:decimal
@@ -45,16 +43,17 @@
     - name: terms
       label: Enriched terms
       type: basic:json
+    - name: source
+      label: Source
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
-      if [[ -n "{{ orthologues }}" ]]; then
-        orthologues.py {{ orthologues.ort.file }} {{ genes | join(" ") }} > temp.txt
-      else
-        echo {{genes|join(" ")}} > temp.txt
-      fi
+      {% for gene in genes %}
+        echo {{ gene }} >> genes.txt
+      {% endfor %}
 
-      processor {{pval_threshold}} {{min_genes}} {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} temp.txt 1>go_terms.txt 2> /dev/null
+      goea.py "https://qa.genialis.com" "{{source}}" "{{gaf.source}}" "{{gaf.species}}" genes.txt {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} --pval {{pval_threshold}} --min_genes {{min_genes}}
       re-checkrc
-      re-save terms "$(cat go_terms.txt)"
+      re-save source "{{gaf.source}}"

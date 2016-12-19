@@ -29,7 +29,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.assertJSON(features, features.output['feature_location'], '', 'feature_locations.json.gz')
 
     def test_generate_go_genesets(self):
-        inputs = {'src': 'go_genesets.mgi.gz'}
+        inputs = {'src': 'go_genesets.mgi.gz', 'source': 'MGI', 'species': 'Mus musculus'}
         gaf = self.run_process('upload-gaf', inputs)
 
         inputs = {'gaf': gaf.id, 'source': 'MGI_ID'}
