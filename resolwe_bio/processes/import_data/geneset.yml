@@ -113,7 +113,7 @@
   requirements:
     expression-engine: jinja
   data_name: Gene set (Venn)
-  version: 0.0.2
+  version: 0.0.3
   type: data:geneset:venn
   category: upload
   persistence: RAW
@@ -145,7 +145,7 @@
       type: basic:file
       description: >
         JSON file. Supported extensions: .json.gz
-      validate_regex: '(\.json\.gz)$'
+      validate_regex: '(\.json)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: geneset
       label: Gene set
