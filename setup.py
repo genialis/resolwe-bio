@@ -44,12 +44,12 @@ setup(
     },
     zip_safe=False,
     dependency_links=(
-        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.3.99",
+        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-master",
     ),
     install_requires=(
         'Django~=1.9.11',
         'djangorestframework>=3.4.0',
-        'resolwe>=1.3.1',
+        'resolwe==master',
         'django-haystack==2.5.0',
         'drf-haystack==1.5.6',
         'Whoosh==2.7.4',
