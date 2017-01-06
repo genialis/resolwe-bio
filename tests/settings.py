@@ -36,6 +36,7 @@ INSTALLED_APPS = (
 
     'resolwe',
     'resolwe.permissions',
+    'resolwe.elastic',
     'resolwe.flow',
     'resolwe_bio',
     'resolwe_bio.kb',
@@ -157,3 +158,8 @@ HAYSTACK_CONNECTIONS = {
 # variable
 if os.environ.get('RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES', '').lower() in ["no", "false"]:
     TESTS_SKIP_DOCKER_FAILURES = False
+
+# Elastic Search.
+
+ELASTICSEARCH_HOST = os.environ.get('RESOLWE_ES_HOST', 'localhost')
+ELASTICSEARCH_PORT = int(os.environ.get('RESOLWE_ES_PORT', '59201'))

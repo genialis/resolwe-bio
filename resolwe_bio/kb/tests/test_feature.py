@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.core.management import call_command
@@ -8,10 +10,12 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from resolwe.elastic.utils.tests import ElasticSearchTestCase
+
 from ..models import Feature
 
 
-class FeatureTestCase(APITestCase):
+class FeatureTestCase(APITestCase, ElasticSearchTestCase):
 
     @staticmethod
     def create_feature(index, source):
@@ -27,6 +31,8 @@ class FeatureTestCase(APITestCase):
         )
 
     def setUp(self):
+        super(FeatureTestCase, self).setUp()
+
         self.features = []
 
         for i in range(7):
@@ -35,7 +41,13 @@ class FeatureTestCase(APITestCase):
         for i in range(7, 10):
             self.features.append(FeatureTestCase.create_feature(i, 'XSRC'))
 
+        # TODO: Remove after Haystack is not needed anymore.
         call_command('rebuild_index', interactive=False, verbosity=0)
+
+        # TODO: Better solution for ES5:
+        #       https://github.com/elastic/elasticsearch/pull/17986
+        # wait for ElasticSearch to index the data
+        time.sleep(2)
 
     def assertFeatureEqual(self, data, feature):
         self.assertEqual(data['source'], feature.source)
@@ -47,7 +59,7 @@ class FeatureTestCase(APITestCase):
         self.assertEqual(data['aliases'], feature.aliases)
 
     def test_feature_search(self):
-        FEATURE_SEARCH_URL = reverse('resolwebio-api:kb_feature_search-list')
+        FEATURE_SEARCH_URL = reverse('resolwebio-api:kb_feature_search')
 
         # Test without any query.
         response = self.client.get(FEATURE_SEARCH_URL, format='json')

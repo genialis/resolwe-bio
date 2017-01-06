@@ -7,19 +7,24 @@ Views
 """
 from django.utils.decorators import classonlymethod
 
+from elasticsearch_dsl.query import Q
+
 from rest_framework import viewsets, mixins, permissions, filters
 
 from haystack.query import SQ
 
 from drf_haystack.viewsets import HaystackViewSet
 
+from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
+
 from .models import Feature, Mapping
-from .serializers import (FeatureSerializer, FeatureSearchSerializer, FeatureAutocompleteSerializer,
+from .serializers import (FeatureSerializer, FeatureAutocompleteSerializer,
                           MappingSerializer, MappingSearchSerializer)
 from .filters import MappingFilter
+from .elastic_indexes import FeatureSearchDocument
 
 
-class FeatureSearchViewSet(HaystackViewSet):
+class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     """
     Endpoint used for feature search.
 
@@ -31,30 +36,35 @@ class FeatureSearchViewSet(HaystackViewSet):
      - a list of matching features
     """
 
-    index_models = [Feature]
-    serializer_class = FeatureSearchSerializer
+    document_class = FeatureSearchDocument
+    serializer_class = FeatureSerializer
 
-    @classonlymethod
-    def as_view(cls, actions=None, **initkwargs):
-        """Support POST for searching against a list of genes."""
-        if actions.get('get', None) == 'list':
-            actions['post'] = 'list_with_post'
+    filtering_fields = ('name', 'source')
+    ordering_fields = ('name',)
+    ordering = 'name'
 
-        return super(cls, FeatureSearchViewSet).as_view(actions, **initkwargs)
+    def custom_filter(self, search):
+        """Support general query using the 'query' attribute."""
+        query = self.get_query_param('query', None)
+        if query:
+            if not isinstance(query, list):
+                query = [query]
 
-    def filter_queryset(self, queryset):
-        """Support filtering by a list of genes."""
-        queryset = super(FeatureSearchViewSet, self).filter_queryset(queryset)
-        if 'query' in self.request.data:
-            queryset = queryset.filter(genes__in=self.request.data['query'])
-        if 'source' in self.request.data:
-            queryset = queryset.filter(source=self.request.data['source'])
+            should = []
+            for item in query:
+                should += [
+                    Q('match', feature_id=item),
+                    Q('match', name=item),
+                    Q('match', aliases=item),
+                ]
 
-        return queryset
+            search = search.query('bool', should=should)
 
-    def list_with_post(self, request):
-        """Support search via a POST request in addition to GET."""
-        return self.list(request)
+        return search
+
+    def filter_permissions(self, search):
+        """Feature objects have no permissions."""
+        return search
 
 
 class FeatureAutocompleteViewSet(HaystackViewSet):

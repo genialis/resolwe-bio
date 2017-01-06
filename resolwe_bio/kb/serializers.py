@@ -23,18 +23,6 @@ class FeatureSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FeatureSearchSerializer(HaystackSerializerMixin, FeatureSerializer):
-    """Feature search serializer."""
-
-    class Meta(FeatureSerializer.Meta):
-        """Meta configuration for the feature search serializer."""
-
-        search_fields = ('genes', 'source')
-        field_aliases = {
-            'query': 'genes',
-        }
-
-
 class FeatureAutocompleteSerializer(HaystackSerializerMixin, FeatureSerializer):
     """Feature autocomplete serializer."""
 

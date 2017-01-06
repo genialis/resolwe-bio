@@ -8,3 +8,8 @@ postgresql:
         POSTGRES_DB: resolwe-bio
     ports:
         - "55433:5432"
+elasticsearch:
+    image: elasticsearch:2.4
+    ports:
+        - "59201:9200"
+
