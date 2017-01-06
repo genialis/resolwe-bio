@@ -28,6 +28,7 @@ Changed
 * Set Docker Compose's project name to ``resolwebio`` to avoid name clashes
 * Add source query parameter to kb autocomplete
 * GO enrichment analysis: map features using gene Knowledge base
+* Add option to upload .gff v2 files with upload-gtf processor
 
 Added
 -----
@@ -56,6 +57,7 @@ Added
 * Add HEAT-Seq workflow
 * Add ``create-geneset``, ``create-geneset-venn``  processors
 * Add ``source`` filter to feature search endpoint
+* Add bamplot process
 
 Fixed
 -----

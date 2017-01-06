@@ -1,0 +1,214 @@
+# ========
+# Bamplot
+# ========
+---
+
+- slug: bamplot
+  name: bamplot
+  requirements:
+    expression-engine: jinja
+  data_name: "bamplot"
+  version: 0.0.1
+  type: data:bam:plot
+  category: plotting
+  persistence: CACHED
+  description: >
+    Plotting a single locus from a bam.
+  input:
+    - name: genome
+      label: Genome
+      type: basic:string
+      choices:
+        - label: HG19
+          value: HG19
+        - label: HG18
+          value: HG18
+        - label: MM8
+          value: MM8
+        - label: MM9
+          value: MM9
+        - label: MM10
+          value: MM10
+    - name: input_gff
+      label: Region string
+      type: data:annotation:gtf
+      required: false
+      description: >
+         Enter .gff file.
+    - name: input_region
+      label: Region string
+      type: basic:string
+      required: false
+      description: >
+         Enter genomic region e.g. chr1:+:1-1000.
+    - name: bam
+      label: Bam
+      type: list:data:alignment:bam
+      required: false
+      description: >
+         bam to plot from
+    - name: stretch_input
+      label: Stretch-input
+      required: false
+      type: basic:integer
+      description: >
+         Stretch the input regions to a minimum length in bp, e.g. 10000 (for 10kb).
+    - name: color
+      label: Color
+      type: basic:string
+      default: '255,0,0:255,125,0'
+      description: >
+         Enter a colon separated list of colors e.g. 255,0,0:255,125,0, default samples the rainbow.
+    - name: sense
+      label: Sense
+      type: basic:string
+      default: both
+      choices:
+        - label: Forward
+          value: forward
+        - label: Reverse
+          value: reverse
+        - label: Both
+          value: both
+      description: >
+         Map to forward, reverse or'both strands. Default maps to both.
+    - name: extension
+      label: Extension
+      type: basic:integer
+      default: 200
+      description: >
+         Extends reads by n bp. Default value is 200bp.
+    - name: rpm
+      label: rpm
+      type: basic:boolean
+      required: false
+      description: >
+         Normalizes density to reads per million (rpm) Default is False.
+    - name: yscale
+      label: y scale
+      type: basic:string
+      default: relative
+      choices:
+        - label: relative
+          value: relative
+        - label: uniform
+          value: uniform
+      description: >
+        Choose either relative or uniform y axis scaling. Default is relative scaling.
+    - name: names
+      label: Names
+      type: basic:string
+      required: false
+      description: >
+         Enter a comma separated list of names for your bams.
+    - name: plot
+      label: Single or multiple polt
+      type: basic:string
+      default: merge
+      choices:
+        - label: single
+          value: single
+        - label: multiple
+          value: multiple
+        - label: merge
+          value: merge
+      description: >
+        Choose either all lines on a single plot or multiple plots.
+    - name: title
+      label: Title
+      type: basic:string
+      default: output
+      description: >
+         Specify a title for the output plot(s), default will be the coordinate region.
+    - name: scale
+      label: Scale
+      type: basic:string
+      required: false
+      description: >
+         Enter a comma separated list of multiplicative scaling factors for your bams. Default is none.
+    - name: bed
+      label: Bed
+      type: list:data:bed
+      required: false
+      description: >
+         Add a space-delimited list of bed files to plot.
+    - name: multi_page
+      label: Multi page
+      type: basic:boolean
+      default: false
+      description: >
+         If flagged will create a new pdf for each region.
+  output:
+    - name: plot
+      label: region plot
+      type: basic:file
+
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      mkdir output_plot
+      BAM_PARAMS='--bam {% for bam_file in bam %}{{bam_file.bam.file}} {% endfor %}'
+      SCALE_PARAM='{% if scale %}--scale {{scale}}{% endif %}'
+      BED_PARAM='{% if bed %}--bed {{bed|join(',', attribute='BED.file')}}{% endif %}'
+      STRETCH_PARAM='{% if stretch_input %}--stretch-input {{stretch_input}}{% endif %}'
+      MULTI_PAGE_PARAM='{% if multi_page %}--multi_page {{multi_page}}{% endif %}'
+      OTHER_PARAMS='--genome {{genome}} --color {{color}} --extension {{extension}} --sense {{sense}} --yScale {{yscale}} {% if rpm %}--rpm{% endif %} {% if names %}--names {{names}}{% endif %} --plot {{plot}} --output output_plot --title {{title}}'
+
+      BAMPLOT_PARAMS="${BAM_PARAMS} ${SCALE_PARAM} ${BED_PARAM} ${STRETCH_PARAM} ${MULTI_PAGE_PARAM} ${OTHER_PARAMS}"
+
+      {% if input_region %}
+        bamplot --input {{input_region}} ${BAMPLOT_PARAMS}
+
+        re-checkrc "bamplot failed."
+
+        {% if multi_page %}
+          {% if title != "output" %}
+            re-save-file plot output_plot/{{title}}_plots_NA.pdf
+
+          {% else %}
+            mv output_plot/{{title}}_plots_NA.pdf output_plot/{{input_region}}_plots_NA.pdf
+            re-save-file plot output_plot/{{input_region}}_plots_NA.pdf
+          {% endif %}
+
+        {% else %}
+          {% if title != "output" %}
+            re-save-file plot output_plot/{{title}}_plots.pdf
+
+          {% else %}
+            mv output_plot/{{title}}_plots.pdf output_plot/{{input_region}}_plots.pdf
+            re-save-file plot output_plot/{{input_region}}_plots.pdf
+          {% endif %}
+        {% endif %}
+
+      {% elif input_gff %}
+        ln -s {{input_gff.gtf.file}} annotation.gff
+        bamplot --input annotation.gff ${BAMPLOT_PARAMS}
+
+        re-checkrc "bamplot failed."
+
+        NAME=`basename '{{input_gff.gff.file}}' .gff`
+
+        {% if multi_page %}
+          {% if title != "output" %}
+            re-save-file plot output_plot/{{title}}_plots_NA.pdf
+
+          {% else %}
+            mv output_plot/{{title}}_plots_NA.pdf output_plot/${NAME}_plots_NA.pdf
+            re-save-file plot output_plot/${NAME}_plots_NA.pdf
+          {% endif %}
+
+        {% else %}
+          {% if title != "output" %}
+            re-save-file plot output_plot/{{title}}_plots.pdf
+
+          {% else %}
+            mv output_plot/{{title}}_plots.pdf output_plot/${NAME}_plots.pdf
+            re-save-file plot output_plot/${NAME}_plots.pdf
+          {% endif %}
+        {% endif %}
+
+      {% else %}
+        re-error "Please provide either a gff or a genomic file location only."
+      {% endif %}

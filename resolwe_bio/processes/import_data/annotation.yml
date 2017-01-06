@@ -65,14 +65,16 @@
   category: upload
   persistence: RAW
   description: >
-    Upload annotation in GTF format.
+    Upload annotation in GTF format. The GTF format is identical to GFF
+    version 2 so this process accepts both. However, the .gff exstension
+    will be renamed to .gtf.
   input:
     - name: src
       label: Annotation (GTF)
       type: basic:file
       description: >
         Annotation in GTF format.
-      validate_regex: '\.(gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+      validate_regex: '\.(gtf|gff)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: source
       label: Gene ID source
       type: basic:string
@@ -99,7 +101,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "gtf" "gtf" 0.3
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "gtf|gff" "gtf" 0.3
 
       re-save-file gtf ${NAME}.gtf
       re-save source {{source}}
