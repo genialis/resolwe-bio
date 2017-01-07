@@ -8,15 +8,15 @@
   requirements:
     expression-engine: jinja
   data_name: ROSE2 analysis
-  version: 1.0.3
+  version: 2.0.0
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
   description: >
     Rank ordering of super-enhancers.
   input:
-    - name: g
-      label: Genome
+    - name: genome
+      label: Genome build
       type: basic:string
       choices:
         - label: MM10
@@ -27,32 +27,32 @@
           value: HG19
         - label: HG18
           value: HG18
-    - name: i
+    - name: input
       label: BED file (MACS results)
       type: data:chipseq:macs14
       required: false
-    - name: i_upload
+    - name: input_upload
       label: BED file (Upload)
       type: data:bed
       required: false
-    - name: r
+    - name: rankby
       label: BAM File
       type: data:alignment:bam
       description: >
         bamfile to rank enhancer by
-    - name: c
+    - name: control
       label: Control BAM File
       type: data:alignment:bam
       required: false
       description: >
         bamfile to rank enhancer by
-    - name: t
+    - name: tss
       label: TSS exclusion
       type: basic:integer
       default: 0
       description: >
         Enter a distance from TSS to exclude. 0 = no TSS exclusion
-    - name: s
+    - name: stitch
       label: Stitch
       type: basic:integer
       required: false
@@ -93,21 +93,24 @@
     runtime: polyglot
     language: bash
     program: |
-      {% if not i and not i_upload %}
+      {% if not input and not input_upload %}
         re-error "Peaks file missing. Please provide .bed peaks file as a file upload or MACS14 output."
       {% endif %}
 
-      {% if i and i_upload %}
+      {% if input and input_upload %}
         re-error "Please provide only one .bed peaks file."
       {% endif %}
 
-      {% if i_upload %}
-        NAME=`basename '{{ i_upload.BED.file }}' .bed`
+      {% if input_upload %}
+        NAME=`basename '{{ input_upload.BED.file }}' .bed`
       {% else %}
-        NAME=`basename '{{ i.peaks_bed.file }}' .bed`
+        NAME=`basename '{{ input.peaks_bed.file }}' .bed`
       {% endif %}
 
-      rose2 -g {{g}} -i {% if i_upload %} {{i_upload.BED.file}} {% else %} {{i.peaks_bed.file}} {% endif %} -r {{r.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -t {{t}} {% if s %} -s {{s}} {% endif %} -o .
+      INPUT='-i {% if input_upload %}{{ input_upload.BED.file }}{% else %}{{ input.peaks_bed.file }}{% endif%}'
+      CONTROL='{% if control %}--control {{ control.bam.file }}{% endif %}'
+      STITCH='{% if stitch %}--stitch {{ stitch }} {% endif %}'
+      rose2 --genome {{ genome }} ${INPUT} --rankby {{ rankby.bam.file }} ${CONTROL} --tss {{ tss }} ${STITCH} --out .
       re-checkrc "Rose2 run failed."
 
       re-save-file all_enhancers ${NAME}_AllEnhancers.table.txt
@@ -119,7 +122,7 @@
       re-save-file gene_enhancer ${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt
       re-save-file stich_parameter ${NAME}_stitch_parameter.pdf
 
-      plot_enhancers.py ${NAME}_AllEnhancers.table.txt {% if c %} -c {% endif %}
+      plot_enhancers.py ${NAME}_AllEnhancers.table.txt {% if control %} -c {% endif %}
       re-checkrc
 
       zip ${NAME}_output_all.zip ${NAME}_*

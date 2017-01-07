@@ -44,8 +44,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         inputs = {"src": "chip_seq_case.bam"}
         case_bam = self.run_process("upload-bam", inputs)
 
-        inputs = {"t": case_bam.id,
-                  "c": control_bam.id}
+        inputs = {"treatment": case_bam.id,
+                  "control": control_bam.id}
         self.run_process("macs14", inputs)
 
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
@@ -59,11 +59,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'macs14_chr22.bed'}
         macs_peaks = self.run_process('upload-bed', inputs)
 
-        inputs = {"g": 'HG19',
-                  "i_upload": macs_peaks.id,
-                  "r": bam.id,
-                  "c": control.id,
-                  "t": 2500}
+        inputs = {"genome": 'HG19',
+                  "input_upload": macs_peaks.id,
+                  "rankby": bam.id,
+                  "control": control.id,
+                  "tss": 2500}
         rose2 = self.run_process("rose2", inputs)
 
         # remove changing lines from the rose2 output

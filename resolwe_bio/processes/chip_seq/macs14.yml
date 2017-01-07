@@ -8,21 +8,21 @@
   requirements:
     expression-engine: jinja
   data_name: "MACS results ({{ t.bam.file|basename|default('?') }})"
-  version: 1.0.5
+  version: 2.0.0
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
   description: >
     Model-based Analysis of ChIP-Seq (MACS 1.4).
   input:
-    - name: t
+    - name: treatment
       label: BAM File
       type: data:alignment:bam
-    - name: c
+    - name: control
       label: BAM Background File
       type: data:alignment:bam
       required: false
-    - name: g
+    - name: gsize
       label: Effective genome size
       type: basic:string
       default: hs
@@ -73,8 +73,10 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ t.bam.file }}' .bam`
-      macs14 -t {{t.bam.file}} {% if c %} -c {{c.bam.file}} {% endif %} -f BAM -g {{g}} -n $NAME -p {{pvalue}} -w -S --space=50
+      NAME=`basename '{{ treatment.bam.file }}' .bam`
+
+      CONTROL='{% if control %}--control {{ control.bam.file }} {% endif %}'
+      macs14 --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50
       re-checkrc
 
       zip -r ${NAME}_MACS_wiggle.zip ${NAME}_MACS_wiggle
