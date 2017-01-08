@@ -55,7 +55,7 @@ def main():
 
         target_ids = [str(feature.target_id) for feature in features]
 
-        if len(args.feature_ids) > len(target_ids):
+        if len(genes) > len(target_ids):
             print('{"proc.warning":"Not all features could be mapped."}')
 
     with tempfile.NamedTemporaryFile() as input_genes:
@@ -66,7 +66,9 @@ def main():
                         stderr=DEVNULL
                         )
         out, err = process.communicate()
-        print('{{"terms":{}}}'.format(out.decode("UTF-8")))
+
+        with open('terms.json', 'w') as f:
+            f.write(out.decode("UTF-8"))
 
 
 if __name__ == "__main__":

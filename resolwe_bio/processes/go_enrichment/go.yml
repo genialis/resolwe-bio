@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.0.0
+  version: 3.0.1
   type: data:goea
   category: analyses
   persistence: TEMP
@@ -57,3 +57,4 @@
       goea.py "{{source}}" "{{gaf.source}}" "{{gaf.species}}" genes.txt {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} --pval {{pval_threshold}} --min_genes {{min_genes}}
       re-checkrc
       re-save source "{{gaf.source}}"
+      re-save terms terms.json
