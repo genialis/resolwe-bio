@@ -28,7 +28,7 @@ def main():
     res = resdk.Resolwe()
 
     with open(args.feature_ids) as gene_file:
-        genes = [gene for gene in gene_file]
+        genes = [gene.strip() for gene in gene_file]
 
     org_features = res.feature.filter(source=args.source_db, query=genes)
 
