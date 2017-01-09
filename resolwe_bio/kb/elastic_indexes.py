@@ -34,3 +34,23 @@ class FeatureSearchIndex(BaseIndex):
     queryset = Feature.objects.all()
     object_type = Feature
     document_class = FeatureSearchDocument
+
+    def process_object(self, obj, push=True):
+        """Process object, but don't push it to the ElasticSearch.
+
+        ``Feature`` objects are inserted only through management command
+        in bulks, so it is much faster if they are not pushed to ES
+        individualy.
+
+        .. important::
+
+            To work properly, push has to be manualy called after
+            inserting features with the following command:
+
+            .. code-block:: python
+
+                from resolwe.elastic.builder import index_builder
+                index_builder.push(index=FeatureSearchIndex)
+
+        """
+        return super(FeatureSearchIndex, self).process_object(obj, push=False)

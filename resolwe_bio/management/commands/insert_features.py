@@ -12,8 +12,10 @@ from tqdm import tqdm
 
 from django.core.management.base import BaseCommand
 
+from resolwe.elastic.builder import index_builder
 from resolwe.utils import BraceMessage as __
 
+from resolwe_bio.kb.elastic_indexes import FeatureSearchIndex
 from resolwe_bio.kb.models import Feature
 from .utils import decompress
 
@@ -130,6 +132,8 @@ class Command(BaseCommand):
                     feature = Feature(source=row['Source'], feature_id=row['ID'], **values)
                     feature.save()
                     count_inserted += 1
+
+        index_builder.push(index=FeatureSearchIndex)
 
         count_total = count_inserted + count_updated + count_unchanged + count_failed
         logger.info("Total features: %d. Inserted %d, updated %d, "  # pylint: disable=logging-not-lazy
