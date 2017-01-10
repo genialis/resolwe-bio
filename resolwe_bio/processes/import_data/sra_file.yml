@@ -136,7 +136,7 @@
         fi
       done
 
-      re-save-file-list fastqc_archive ${FW_FASTQC}
-      re-save-file-list fastqc_archive2 ${RW_FASTQC}
-      re-save-list fastqc_url ${FW_FASTQC_URL}
-      re-save-list fastqc_url2 ${RW_FASTQC_URL}
+      re-save-file-list fastqc_archive {{sra_accession}}_1_fastqc.zip
+      re-save-file-list fastqc_archive2 {{sra_accession}}_2_fastqc.zip
+      re-save-list fastqc_url "{\"file\":\"fastqc/{{sra_accession}}_1_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/{{sra_accession}}_1_fastqc\"]}"
+      re-save-list fastqc_url2 "{\"file\":\"fastqc/{{sra_accession}}_2_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/{{sra_accession}}_2_fastqc\"]}"
