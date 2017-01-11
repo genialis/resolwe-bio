@@ -7,8 +7,8 @@
   name: Cuffnorm (2.2.1)
   requirements:
     expression-engine: jinja
-  data_name: 'Cuffnorm results'
-  version: 1.0.14
+  data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
+  version: 1.0.15
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -122,17 +122,19 @@
 
       {% if useERCC %}
         {% for exp in cuffquant %}
+          S_NAME="{{exp|sample_name}}"
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{loop.index0}} -n
-          mv expression.tab expression_{{loop.index0}}.tab
-          re-export "expression_{{loop.index0}}.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{loop.index0}}.tab"}}'
+          mv expression.tab ${S_NAME}_expression.tab
+          re-export "${S_NAME}_expression.tab"
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{exp|id}},"exp":'\"${S_NAME}_expression.tab\"'}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          parse_cuffnorm.py genes.fpkm_table {{loop.index0}}
-          mv expression.tab expression_{{loop.index0}}.tab
-          re-export expression_{{loop.index0}}.tab
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"Cuffnorm","cxb":{{exp|id}},"exp":"expression_{{loop.index0}}.tab"}}'
+          S_NAME="{{exp|sample_name}}"
+          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_raw.txt {{loop.index0}} -n
+          mv expression.tab ${S_NAME}_expression.tab
+          re-export "${S_NAME}_expression.tab"
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{exp|id}},"exp":'\"${S_NAME}_expression.tab\"'}}'
         {% endfor %}
       {% endif %}
 

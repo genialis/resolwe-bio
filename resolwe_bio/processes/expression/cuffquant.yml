@@ -7,12 +7,11 @@
   name: Cuffquant (2.2.1)
   requirements:
     expression-engine: jinja
-  data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.9
+  data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
+  version: 1.0.10
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
-  data_name: "{{ alignment.bam.file|basename|default('?') }}"
   persistence: CACHED
   description: >
     Compute the gene and transcript expression profiles and save these profiles to files that you can analyze later with Cuffdiff or Cuffnorm

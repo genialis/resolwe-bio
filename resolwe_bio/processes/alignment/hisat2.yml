@@ -7,8 +7,8 @@
   name: HISAT2
   requirements:
     expression-engine: jinja
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.3
+  data_name: "Alignment ({{ reads|sample_name|default('?') }})"
+  version: 1.0.4
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -45,6 +45,8 @@
     program: |
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
+
+      NAME='{{ reads|sample_name }}'
 
       re-progress 0.1
 
@@ -87,6 +89,10 @@
       re-checkrc
       re-progress 0.9
 
-      re-save-file bam alignment.bam
-      re-save-file bai alignment.bam.bai
-      re-save-file stats stats.txt
+      mv alignment.bam ${NAME}.bam
+      mv alignment.bam.bai ${NAME}.bam.bai
+      mv stats.txt ${NAME}_stats.txt
+
+      re-save-file bam ${NAME}.bam
+      re-save-file bai ${NAME}.bam.bai
+      re-save-file stats ${NAME}_stats.txt
