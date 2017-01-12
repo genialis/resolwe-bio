@@ -7,8 +7,8 @@
   name: MACS 1.4
   requirements:
     expression-engine: jinja
-  data_name: "MACS results ({{ t.bam.file|basename|default('?') }})"
-  version: 2.0.0
+  data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
+  version: 2.0.1
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
