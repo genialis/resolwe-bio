@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of {{genes|join(", ")|default("?")}}'
-  version: 1.0.5
+  version: 1.0.6
   type: data:clustering:hierarchical:genes:etc
   category: analyses
   persistence: TEMP
@@ -57,7 +57,7 @@
     runtime: polyglot
     language: bash
     program: |
-      genehcluster.py {% for e in etcs %}"{{e.etcfile.file}}" {% endfor %}-e {% for e in etcs %}"{{e|id}}" {% endfor %}{% if genes %}-g {{genes|join(" ")}}{% endif %} -l {{linkage}} -d {{distance}}
+      genehcluster_etc.py {% for e in etcs %}"{{e.etcfile.file}}" {% endfor %}-e {% for e in etcs %}"{{e|id}}" {% endfor %}{% if genes %}-g {{genes|join(" ")}}{% endif %} -l {{linkage}} -d {{distance}}
       echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
 
 
@@ -66,7 +66,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of samples'
-  version: 0.0.4
+  version: 1.0.5
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -118,6 +118,7 @@
     runtime: polyglot
     language: bash
     program: |
-      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %}--genes {{genes|join(" ")}}{% endif %}--linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
+
