@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of {{genes|join(", ")|default("?")}}'
-  version: 1.0.5
+  version: 1.0.6
   type: data:clustering:hierarchical:genes:etc
   category: analyses
   persistence: TEMP
@@ -118,6 +118,6 @@
     runtime: polyglot
     language: bash
     program: |
-      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %}--genes {{genes|join(" ")}}{% endif %}--linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %}--genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
