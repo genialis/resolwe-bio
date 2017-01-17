@@ -1,0 +1,6 @@
+scaffold_418	JGI	mRNA	10	100	.	+	.	gene_id "ID=DPU_G0067096"; transcript_id "ID=DPU_G0067096";
+scaffold_418	.	exon	10	30	.	+	.	gene_id "DPU_G0067096"; transcript_id "DPU_G0067096";
+scaffold_418	.	exon	40	70	.	+	.	gene_id "DPU_G0067096"; transcript_id "DPU_G0067096";
+scaffold_418	.	exon	82	100	.	+	.	gene_id "DPU_G0067096"; transcript_id "DPU_G0067096";
+scaffold_418	JGI	mRNA	180	270	.	-	.	gene_id "ID=DPU_G0067098"; transcript_id "ID=DPU_G0067098";
+scaffold_418	.	exon	180	270	.	-	.	gene_id "DPU_G0067098"; transcript_id "DPU_G0067098";
