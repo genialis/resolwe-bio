@@ -88,7 +88,7 @@ def generate_sample_descriptor(organism_name):
     return descriptor
 
 
-def generate_reads_descriptor(organism_name, presample=True):
+def generate_reads_descriptor(organism_name, annotated=False):
     """Generate read data descriptor."""
     growth_protocol = ('One vial of cells was thawed out and placed in a T75 '
                        'flask in DMEM/F12 supplemented with 10% FBS and fed '
@@ -104,6 +104,9 @@ def generate_reads_descriptor(organism_name, presample=True):
         'barcode_removed': True,
         'seq_date': datetime.date.today().strftime('%Y-%m-%d')
     }
+
+    if not annotated:
+        return {'reads_info': reads_info}
 
     if organism_name.startswith('Dd'):
         sample_descriptor = {
@@ -145,8 +148,5 @@ def generate_reads_descriptor(organism_name, presample=True):
             }
         }
 
-    if presample:
-        return {'reads_info': reads_info}
-    else:
-        sample_descriptor['reads_info'] = reads_info
-        return sample_descriptor
+    sample_descriptor['reads_info'] = reads_info
+    return sample_descriptor

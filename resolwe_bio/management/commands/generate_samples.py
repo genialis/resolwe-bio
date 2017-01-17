@@ -25,6 +25,7 @@ from django.utils import timezone
 from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
+
 from .utils import (get_descriptorschema, get_process, get_superuser,
                     generate_sample_descriptor, generate_reads_descriptor)
 
@@ -115,7 +116,7 @@ class Command(BaseCommand):
             started=started,
             finished=started + datetime.timedelta(minutes=45),
             descriptor_schema=get_descriptorschema('reads'),
-            descriptor=generate_reads_descriptor(data_name, presample=True),
+            descriptor=generate_reads_descriptor(data_name, annotated=False),
             status=Data.STATUS_PROCESSING,
             process=get_process('upload-fastq-single'),
             contributor=get_superuser(),
@@ -224,9 +225,8 @@ class Command(BaseCommand):
         # Annotate Sample Collection
         if annotated:
             sample.descriptor = generate_sample_descriptor(d.name)
-            sample.presample = False
             sample.save()
-            d.descriptor = generate_reads_descriptor(data_name, presample=False)
+            d.descriptor = generate_reads_descriptor(data_name, annotated=True)
             d.save()
             logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
         else:

@@ -7,8 +7,8 @@ import six
 from django.core.management import call_command
 
 from resolwe.flow.models import Data
-from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 from resolwe_bio.models import Sample
+from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
 class GeneratorBioProcessTestCase(BioProcessTestCase):

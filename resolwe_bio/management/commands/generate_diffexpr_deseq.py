@@ -23,6 +23,7 @@ from django.utils import timezone
 from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
+
 from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_descriptor
 
 
@@ -120,8 +121,8 @@ class Command(BaseCommand):
             exp.save()
 
             sample = Sample.objects.filter(data=exp)[0]
-            sample.presample = False
             sample.descriptor = generate_sample_descriptor('Hs_')
+            sample.annotated = True
             sample.save()
 
             with open(os.path.join(self.data_dir, str(exp.id), 'stdout.txt'), 'w') as stdout:

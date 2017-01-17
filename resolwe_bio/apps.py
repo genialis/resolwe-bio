@@ -7,8 +7,3 @@ class BaseConfig(AppConfig):
 
     name = 'resolwe_bio'
     verbose_name = 'Resolwe Bioinformatics'
-
-    def ready(self):
-        """Perform application initialization."""
-        # Register signals handlers
-        from . import signals  # pylint: disable=unused-variable
