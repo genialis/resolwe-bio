@@ -50,15 +50,14 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
             if not isinstance(query, list):
                 query = [query]
 
-            should = []
-            for item in query:
-                should += [
-                    Q('match', feature_id=item),
-                    Q('match', name=item),
-                    Q('match', aliases=item),
+            search = search.filter(
+                'bool',
+                should=[
+                    Q('terms', feature_id=query),
+                    Q('terms', name=query),
+                    Q('terms', aliases=query),
                 ]
-
-            search = search.query('bool', should=should)
+            )
 
         return search
 
