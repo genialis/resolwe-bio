@@ -66,7 +66,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.5
+  version: 1.0.7
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -81,6 +81,10 @@
       type: list:basic:string
       required: false
       placeholder: new gene id
+    - name: genes_source
+      label: Source of selected genes
+      type: basic:string
+      required: false
     - name: distance
       label: Distance measure
       type: basic:string
@@ -103,12 +107,6 @@
           value: single
         - label: complete
           value: complete
-    - name: filter
-      label: Exclude not expressed genes.
-      type: basic:boolean
-      default: true
-      description: >
-        Exclude genes that were not expressed and genes with cumulative normalized expression lower than the number of samples.
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -118,7 +116,84 @@
     runtime: polyglot
     language: bash
     program: |
-      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}} {% if filter %}--filter{% endif %}
+
+      if [{{genes}} == '' ]; then
+        {% for e in exps %}
+          if [ "{{e.source}}" != "{{genes_source}}" ]; then
+            re-error "Source of selected genes should be the same as the source of all expression files."
+          fi
+        {% endfor %}
+      fi
+
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}}
+      re-checkrc "Sample Hierarhlical clustering failed"
+      re-progress 1.0
+
+- slug: clustering-hierarchical-genes
+  name: Hierarchical clustering of genes
+  requirements:
+    expression-engine: jinja
+  data_name: 'Hierarchical clustering of genes'
+  version: 0.0.2
+  type: data:clustering:hierarchical:gene
+  category: analyses
+  persistence: TEMP
+  description: >
+    Hierarchical clustering of genes.
+  input:
+    - name: exps
+      label: Expression
+      type: list:data:expression
+    - name: genes
+      label: Gene subset
+      type: list:basic:string
+      required: false
+      placeholder: new gene id
+    - name: genes_source
+      label: Source of selected genes
+      type: basic:string
+      required: false
+    - name: distance
+      label: Distance measure
+      type: basic:string
+      default: spearman
+      choices:
+        - label: spearman
+          value: spearman
+        - label: pearson
+          value: pearson
+        - label: euclidean
+          value: euclidean
+    - name: linkage
+      label: Clustering linkage
+      type: basic:string
+      default: average
+      choices:
+        - label: average
+          value: average
+        - label: single
+          value: single
+        - label: complete
+          value: complete
+  output:
+    - name: cluster
+      label: Hierarchical clustering
+      required: false
+      type: basic:json
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      if [{{genes}} == '' ]; then
+        {% for e in exps %}
+          if [ "{{e.source}}" != "{{genes_source}}" ]; then
+            re-error "Source of selected genes should be the same as the source of all expression files."
+          fi
+        {% endfor %}
+      fi
+
+      genehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}}
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
 

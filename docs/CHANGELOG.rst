@@ -59,6 +59,7 @@ Added
 * Add ``create-geneset``, ``create-geneset-venn``  processors
 * Add ``source`` filter to feature search endpoint
 * Add bamplot process
+* Add gene hiererhical clustering
 
 Fixed
 -----
@@ -68,6 +69,7 @@ Fixed
 * Fix ``upload gtf annotation``
 * Fix gene_id field type for differential expression storage objects
 * Order data objects in ``SampleViewSet``
+* Fix sample hiererhical clustering
 
 
 ================

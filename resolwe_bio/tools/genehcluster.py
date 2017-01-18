@@ -1,6 +1,6 @@
 #!/usr/bin/env python2
 # pylint: disable=missing-docstring,invalid-name,import-error
-"""Hierarchical clustering of samples."""
+"""Hierarchical clustering of genes."""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import argparse
@@ -21,8 +21,8 @@ parser = argparse.ArgumentParser(description='Hierarchical clustering.')
 parser.add_argument('sample_files', nargs='+', help='sample files')
 parser.add_argument('-s', '--sampleids', nargs='+', default=[], help='sample ids')
 parser.add_argument('-g', '--genes', nargs='+', default=[], help='subset of gene ids')
-parser.add_argument('-d', '--dstfunc', help='distance function')
-parser.add_argument('-l', '--linkage', help='clustering linkage function')
+parser.add_argument('-d', '--dstfunc', default='euclidean', help='distance function')
+parser.add_argument('-l', '--linkage', default='average', help='clustering linkage function')
 
 args = parser.parse_args()
 
@@ -72,51 +72,50 @@ all_genes = list(frame.index.values)
 
 matrix = frame.fillna(value=0)
 matrix = np.array(matrix)
-# samples are in rows
-matrix = np.transpose(matrix)
 
-# sum of  all expressions per sample to find samples without any exprerssed genes
-sample_sum = np.sum(matrix, axis=1)
+# sum of expressions for each sample
+sample_sum = np.sum(matrix, axis=0)
 sample_zero = np.where(sample_sum < 0.1)[0]
 
-# list of samples with zero expressions
-list_zero_samples = [args.sampleids[index] for index in sample_zero]
-
 # sum of  all expressions per gene to find genes that are not exprerssed in any sample
-genes_sum = np.sum(matrix, axis=0)
+genes_sum = np.sum(matrix, axis=1)
 genes_zero = np.where(genes_sum < 0.1)[0]
+# list of genes that are not exprerssed in any sample
+list_zero_genes = [all_genes[index] for index in genes_zero]
 
-# delete samples where none of the genes are expressed
-matrix = np.delete(matrix, sample_zero, axis=0)
+# delete genes that have zero expression in all samples
+matrix = np.delete(matrix, genes_zero, axis=0)
 if matrix.shape[0] == 0:
-    msg = "Expressions of selected genes are 0. Please select different samples or genes."
+    msg = "Expressions of selected genes are 0. Please selectdifferent samples or genes."
     print(error(msg))
     raise ValueError(msg)
 
+# calculation of hierarhical clustering
 distance = distance_map[args.dstfunc]
 cluster = linkage(matrix, method=args.linkage, metric=distance)
 
+# print warning if all distances are 0
 distance_sum = cluster[:, 2].sum()
 if distance_sum < 0.1:
-    msg = 'All sample distances are 0.'
+    msg = 'All genes distances are 0.'
     print(warning(msg))
 
 dend = dendrogram(cluster, no_plot=True)
 
-# create list of samples without deleted samples (with zero expression for all genes)
-calculated_samples = [sample for sample in args.sampleids if sample not in list_zero_samples]
+# create list of genes without deleted genes (with zero expression in all samples)
+calculated_genes = [gene for gene in all_genes if gene not in list_zero_genes]
 
-calculated_sample_ids = {}
-for i, sample_id in enumerate(calculated_samples):
-    calculated_sample_ids[i] = {'id': int(sample_id)}
+calculated_genes_dict = {}
+for i, gene in enumerate(calculated_genes):
+    calculated_genes_dict[i] = {'gene': (gene)}
 
 output = {
     'cluster': {
         'linkage': cluster.tolist(),
-        'sample_ids': calculated_sample_ids,
+        'gene_symbols': calculated_genes_dict,
         'order': dend['leaves'],
-        'zero_gene_symbols': [all_genes[index] for index in genes_zero],
-        'zero_sample_ids': list_zero_samples
+        'zero_gene_symbols': list_zero_genes,
+        'zero_sample_ids': [args.sampleids[index] for index in sample_zero]
     }
 }
 
