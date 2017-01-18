@@ -113,9 +113,12 @@ class Command(BaseCommand):
                     'aliases': aliases,
                 }
 
-                try:
-                    feature = Feature.objects.get(source=row['Source'], feature_id=row['ID'])
-
+                feature, created = Feature.objects.get_or_create(source=row['Source'],
+                                                                 feature_id=row['ID'],
+                                                                 defaults=values)
+                if created:
+                    count_inserted += 1
+                else:
                     is_update = False
                     for attr, value in values.items():
                         if getattr(feature, attr) != value:
@@ -127,11 +130,6 @@ class Command(BaseCommand):
                         count_updated += 1
                     else:
                         count_unchanged += 1
-
-                except Feature.DoesNotExist:
-                    feature = Feature(source=row['Source'], feature_id=row['ID'], **values)
-                    feature.save()
-                    count_inserted += 1
 
         index_builder.push(index=FeatureSearchIndex)
 
