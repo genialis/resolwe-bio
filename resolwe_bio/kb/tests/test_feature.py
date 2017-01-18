@@ -10,8 +10,10 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from resolwe.elastic.builder import index_builder
 from resolwe.elastic.utils.tests import ElasticSearchTestCase
 
+from ..elastic_indexes import FeatureSearchIndex
 from ..models import Feature
 
 
@@ -43,6 +45,9 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
 
         # TODO: Remove after Haystack is not needed anymore.
         call_command('rebuild_index', interactive=False, verbosity=0)
+
+        # Features are not pushed automatically
+        index_builder.push(index=FeatureSearchIndex)
 
         # TODO: Better solution for ES5:
         #       https://github.com/elastic/elasticsearch/pull/17986
