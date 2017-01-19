@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.0.4
+  version: 0.0.5
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -20,8 +20,8 @@
       label: Aligned reads
       type: data:alignment:bam
     - name: annotation
-      label: Annotation (GTF)
-      type: data:annotation:gtf
+      label: Annotation (GTF/GFF3)
+      type: data:annotation
     - name: id_attribute
       label: ID attribute
       type: basic:string
@@ -32,8 +32,10 @@
           value: gene_id
         - label: Transcript id
           value: transcript_id
+        - label: Gene id (gff3)
+          value: ID
       description: >
-        GTF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
+        GTF or GFF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
     - name: format_of_annotation
       label: Format of the annotation file
       type: basic:string
@@ -144,16 +146,17 @@
 
       REQUIRE_BOTH_ENDS_MAPPED="{% if PE_options.require_both_ends_mapped %} -B{% endif %}"
       COUNT_CHIMERIC_FRAGMENTS="{% if PE_options.count_chimeric_fragments %} -C{% endif %}"
+      ANNOTATION="{% if annotation.gtf.file %}{{ annotation.gtf.file }}{% elif annotation.gff.file %}{{ annotation.gff.file }}{% elif annotation.merged_gtf.file %}{{ annotation.merged_gtf.file }}{% endif %}"
 
       if [samtools view -c -f 1 '{{ alignments.bam.file }}' ]; then
-        featureCounts -a "{{ annotation.gtf.file }}" -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} ${REQUIRE_BOTH_ENDS_MAPPED} ${COUNT_CHIMERIC_FRAGMENTS} -p -R "{{ alignments.bam.file }}"
+        featureCounts -a ${ANNOTATION} -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} ${REQUIRE_BOTH_ENDS_MAPPED} ${COUNT_CHIMERIC_FRAGMENTS} -p -R "{{ alignments.bam.file }}"
       else
-        featureCounts -a "{{ annotation.gtf.file }}" -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} -R "{{ alignments.bam.file }}"
+        featureCounts -a ${ANNOTATION} -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} -R "{{ alignments.bam.file }}"
       fi
       re-checkrc "featureCounts failed"
 
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
-      expression_fpkm_tpm.R  '{{ annotation.gtf.file }}' '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+      expression_fpkm_tpm.R  ${ANNOTATION} '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 
