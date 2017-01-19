@@ -1,0 +1,12 @@
+1	.	gene	10	100	.	+	.	gene_biotype "A"; gene_id "1"; transcript_id ".";
+1	.	transcript	10	90	.	+	.	transcript_biotype "A"; gene_id "1"; transcript_id "1";
+1	.	exon	10	30	.	+	.	transcript_biotype "A"; gene_id "1"; transcript_id "1"; exon_number "1";
+1	.	exon	40	60	.	+	.	transcript_biotype "A"; gene_id "1"; transcript_id "1"; exon_number "2";
+1	.	exon	80	90	.	-	.	transcript_biotype "A"; gene_id "1"; transcript_id "1"; exon_number "3";
+1	.	transcript	20	100	.	+	.	transcript_biotype "B"; gene_id "1"; transcript_id "2";
+1	.	exon	20	30	.	+	.	transcript_biotype "B"; gene_id "1"; transcript_id "2"; exon_number "1";
+1	.	CDS	20	30	.	+	.	transcript_biotype "B"; gene_id "1"; transcript_id "2";
+1	.	exon	40	60	.	+	.	transcript_biotype "A"; gene_id "1"; transcript_id "2"; exon_number "2";
+1	.	CDS	40	60	.	+	.	transcript_biotype "B"; gene_id "1"; transcript_id "2";
+1	.	exon	80	100	.	-	.	transcript_biotype "B"; gene_id "1"; transcript_id "2"; exon_number "3";
+1	.	CDS	80	100	.	-	.	transcript_biotype "B"; gene_id "1"; transcript_id "2";

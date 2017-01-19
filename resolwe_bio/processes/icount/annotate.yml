@@ -1,0 +1,45 @@
+- slug: icount-annotate
+  name: iCount annotate
+  description: Annotate each cross link site with types of regions that intersect with it.
+  category: analyses:icount
+  version: 1.0.0
+  type: data:bed:icount
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:icount"
+  data_name: "iCount-annotate ({{sites.BED.file|basename|default('?')}})"
+  persistence: CACHED
+  input:
+  - name: segmentation
+    label: GTF annotation file (should include `subtype` attribute).
+    type: data:annotation:gtf:icount
+  - name: sites
+    label: BED6 file listing all cross-linked sites.
+    type: data:bed:icount
+  - name: subtype
+    label: Subtype
+    type: basic:string
+    default: biotype
+  - name: excluded_types
+    label: Exclud entries in BED of such types
+    type: list:basic:string
+    required: false
+  output:
+  - name: sites_annotated
+    label: Output BED6 file listing annotated cross-linked sites.
+    type: basic:file
+  run:
+    language: bash
+    runtime: polyglot
+    program: |
+      # Make a nice output name:
+      OUTNAME=$(extend_name.py -f {{sites.BED.file}} -a _annotated -e bed)
+
+      iCount annotate {{ segmentation.gtf.file }} {{ sites.BED.file }} $OUTNAME \
+      --subtype {{ subtype }} {% if excluded_types %} \
+      --excluded_types {{excluded_types|join(" ")}}{% endif %}
+
+      re-checkrc
+      re-save-file sites_annotated $OUTNAME

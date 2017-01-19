@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase, skipDockerFailure
 
 
 class ReadsFilteringProcessorTestCase(BioProcessTestCase):
@@ -58,6 +58,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
                                                            'size': 340715}])
 
+    @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
     def test_sortmerna_single(self):
         reads = self.prepare_reads(['rRNA_forw.fastq.gz'])
         rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
@@ -77,6 +78,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                             'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
                             'size': 345492}])
 
+    @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
     def test_sortmerna_paired(self):
         inputs = {
             'src1': ['rRNA_forw.fastq.gz'],

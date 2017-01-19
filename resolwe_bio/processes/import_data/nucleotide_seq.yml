@@ -7,6 +7,9 @@
   name: Upload nucleotide sequence(s) (FASTA)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:icount"
   data_name: '{{ src.file|default("?") }}'
   version: 1.0.13
   type: data:seq:nucleotide
@@ -29,6 +32,9 @@
       label: Number of sequences
       type: basic:integer
       default: 'Sequence file ({{ src.file|default("?") }})'
+    - name: fai
+      label: File with chromosome lengths
+      type: basic:file
   run:
     runtime: polyglot
     language: bash
@@ -36,5 +42,12 @@
       re-import "{{ src.file_temp }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       re-checkrc
+
+      gzip -dk ${NAME}.fasta.gz
+      samtools faidx ${NAME}.fasta
+      FAI=$(ls *.fai)
+      re-checkrc
+
       re-save number ${NUMBER}
       re-save-file fasta ${NAME}.fasta.gz
+      re-save-file fai $FAI

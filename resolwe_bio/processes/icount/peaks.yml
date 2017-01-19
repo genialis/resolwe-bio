@@ -1,0 +1,82 @@
+- slug: icount-peaks
+  name: iCount peaks
+  description: "Find positions with high density of cross-linked sites."
+  category: analyses:icount
+  version: 1.0.0
+  type: data:icount:peaks
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:icount"
+  data_name: "iCount-peaks ({{sites.BED.file|basename|default('?')}})"
+  persistence: CACHED
+  input:
+  - name: segmentation
+    label: GTF snnotation file, obtained from "iCount segment".
+    type: data:annotation:gtf:icount
+  - name: sites
+    label: Crosslinks in BED6 format
+    type: data:bed:icount
+  - name: features
+    label: Features from segmentation to consider. If None, 'gene' is used
+    type: list:basic:string
+    required: false
+  - name: group_by
+    label: Attribute by which cross-link positions are grouped
+    type: basic:string
+    default: gene_id
+  - name: merge_features
+    label: Treat all features as one when grouping.
+    type: basic:boolean
+    default: false
+  - name: half_window
+    label: Half-window size.
+    type: basic:integer
+    default: 3
+  - name: fdr
+    label: FDR threshold
+    type: basic:decimal
+    default: 0.05
+  - name: perms
+    label: Number of permutations when calculating random distribution
+    type: basic:integer
+    default: 100
+  - name: rnd_seed
+    label: Seed for random generator.
+    type: basic:integer
+    default: 42
+  - name: report_progress
+    label: Report analysis progress.
+    type: basic:boolean
+    default: false
+  output:
+  - name: peaks
+    label: BED file for positions with significant number of cross-link events.
+    type: basic:file
+  - name: scores
+    label: All cross-link events, independent of their FDR score.
+    type: basic:file
+  run:
+    language: bash
+    runtime: polyglot
+    program: |
+      export ICOUNT_TMP_ROOT=$(pwd)
+      # Make a nice output name:
+      PEAKSNAME=$(extend_name.py -f {{sites.BED.file}} -r -a _peaks.bed.gz -e bed)
+      SCORESNAME=$(extend_name.py -f {{sites.BED.file}} -r -a _scores.tsv.gz -e bed)
+
+      iCount peaks {{segmentation.gtf.file}} {{sites.BED.file}} $PEAKSNAME \
+      --scores $SCORESNAME \
+      {% if features %} --features {{features|join(" ")}}{% endif %} \
+      --group_by {{group_by}} \
+      {% if merge_features %} --merge_features {% endif %} \
+      --half_window {{half_window}} \
+      --fdr {{fdr}} \
+      --perms {{perms}} \
+      --rnd_seed {{rnd_seed}} \
+      {% if report_progress %} --report_progress {% endif %} \
+
+      re-checkrc
+      re-save-file peaks $PEAKSNAME
+      re-save-file scores $SCORESNAME

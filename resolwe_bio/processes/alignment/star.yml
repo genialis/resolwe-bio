@@ -270,19 +270,24 @@
   name: STAR genome index (2.4.2a)
   requirements:
     expression-engine: jinja
-  data_name: "STAR genome index ({{ genome.fasta.file|basename|default('?') }})"
+  data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
   version: 1.0.7
   type: data:genomeindex:star
   persistence: CACHED
   description: >
     Generate genome indices files from the supplied reference genome sequence and annotation (GTF) files.
   input:
-    - name: genome
-      label: Reference genome
-      type: data:genome:fasta
     - name: annotation
       label: Annotation file (GTF/GFF3)
       type: data:annotation
+    - name: genome
+      label: Reference genome (of type data:genome:fasta)
+      type: data:genome:fasta
+      required: false
+    - name: genome2
+      label: Reference genome (of type data:seq:nucleotide)
+      type: data:seq:nucleotide
+      required: false
     - name: sjdbOverhang
       label: Junction length (sjdbOverhang)
       type: basic:integer
@@ -336,8 +341,37 @@
     runtime: polyglot
     language: bash
     program: |
+      {% if genome %}
+        FILE=$(file {{ genome.fasta.file }})
+        if [[ $FILE =~ "gzip" ]]; then
+          gzip -dc {{ genome.fasta.file }} > genome.fasta
+        else
+          cp {{ genome.fasta.file }} genome.fasta
+        fi
+      {% elif genome2 %}
+        FILE=$(file {{ genome2.fasta.file }})
+        if [[ $FILE =~ "gzip" ]]; then
+          gzip -dc {{ genome2.fasta.file }} > genome.fasta
+        else
+          cp {{ genome2.fasta.file }} genome.fasta
+        fi
+      {% else %}
+        exit 1
+      {% endif %}
+      re-checkrc "At least one of genome/genome2 inputs must be given!"
+
+      re-progress 0.1
       mkdir star_index
-      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} --genomeDir ./star_index/ --genomeFastaFiles {{ genome.fasta.file }} --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }} --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
+      STAR \
+      --runThreadN {{ threads }} \
+      --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} \
+      {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} \
+      {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} \
+      --genomeDir ./star_index/ \
+      --genomeFastaFiles genome.fasta \
+      --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% else %} {{annotation.seg.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} \
+      --sjdbOverhang {{ sjdbOverhang }} \
+      --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       re-checkrc "Genome index build failed."
       re-progress 0.8
       re-save-dir index star_index

@@ -1,0 +1,61 @@
+- slug: icount-genome
+  name: iCount genome
+  description: >
+    Download genome for a given release/species from ENSEMBL in FASTA format.
+  category: import
+  version: 1.0.0
+  type: data:seq:nucleotide
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:icount"
+  data_name: 'ENSEMBL genome ({{ species ~ "." ~ release | default("?")}})'
+  persistence: RAW
+  input:
+  - name: species
+    label: Species latin name.
+    type: basic:string
+    allow_custom_choice: true
+    choices:
+    - label: Homo Sapiens
+      value: homo_sapiens
+    - label: Mus Musculus
+      value: mus_musculus
+  - name: release
+    label: ENSEMBL release number.
+    type: basic:integer
+    default: 84
+  - name: chromosomes
+    label: Download only these chromosomes.
+    type: list:basic:string
+    required: false
+  output:
+  - name: fasta
+    label: FASTA file with genome.
+    type: basic:file
+  - name: number
+    label: Number of sequences
+    type: basic:integer
+  - name: fai
+    label: File with chromosome lengths
+    type: basic:file
+  run:
+    language: bash
+    runtime: polyglot
+    program: |
+      export ICOUNT_TMP_ROOT=$(pwd)
+      iCount genome {{species}} \
+        --release {{release}} \
+        {% if chromosomes %} --chromosomes {{chromosomes|join(" ")}} {% endif %}
+      re-checkrc
+
+      GENOME=$(ls {{species}}*fa.gz)
+      re-checkrc
+      FAI=$(ls {{species}}*fa.gz.fai)
+      re-checkrc
+      NUMBER=$(wc -l $FAI | cut -f1 -d" ")
+
+      re-save-file fasta $GENOME
+      re-save number $NUMBER
+      re-save-file fai $FAI

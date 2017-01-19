@@ -1,0 +1,37 @@
+- slug: icount-clusters
+  name: iCount clusters
+  description: '>
+    Cluster together sites that are apart at most a specified number of
+    nucleotides. Return BED file with clusters'' coordinates.'
+  version: 1.0.0
+  category: analyses:icount
+  type: data:bed
+  persistence: CACHED
+  requirements:
+      expression-engine: jinja
+      executor:
+        docker:
+          image: "resolwe/bio-linux8-resolwe-preview:icount"
+  data_name: "iCount-clustering ({{sites.BED.file|basename|default('?')}})"
+  input:
+  - name: sites
+    label: Input BED6 file with sites
+    type: data:bed:icount
+  - name: dist
+    label: Max distance between two crosslinks to still merge them
+    type: basic:integer
+    default: 20
+  output:
+  - name: clusters
+    label: BED6 file with resulting clusters.
+    type: basic:file
+  run:
+    language: bash
+    runtime: polyglot
+    program: |
+      # Make a nice output name:
+      OUTNAME=$(extend_name.py -f {{sites.BED.file}} -a _clustered -e bed)
+
+      iCount clusters {{ sites.BED.file }} $OUTNAME --dist {{ dist }}
+      re-checkrc
+      re-save-file clusters $OUTNAME

@@ -1,0 +1,72 @@
+- slug: icount-demultiplex
+  name: iCount demultiplex
+  description: >
+    Split FASTQ to separate files, one for each sample barcode.
+
+    Saved FASTQ files contain sequences where sample barcode, random barcode,
+    and adapter sequences were removed. Random barcode is moved into the header
+    line, since it is needed in later steps (removing PCR duplicates, counting
+    number of crosslinks)
+  category: analyses:icount
+  version: 1.0.0
+  type: data:multiplexed:icount
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:icount"
+  data_name: "iCount-demultiplex ({{reads.fastq.0.file|basename|default('?')}})"
+  persistence: CACHED
+  input:
+  - name: reads
+    label: Sequencing reads
+    type: data:reads:fastq:single
+  - name: adapter
+    label: Adapter sequence to remove from ends of reads
+    type: basic:string
+  - name: barcodes
+    label: List of barcodes used for library.
+    type: list:basic:string
+  - name: mismatches
+    label: Number of tolerated mismatches when comparing barcodes
+    type: basic:integer
+    default: 1
+  - name: minimum_length
+    label: Minimum length of trimmed sequence to keep
+    type: basic:integer
+    default: 15
+  - name: prefix
+    label: Prefix of generated FASTQ files
+    type: basic:string
+    default: demux
+  output:
+  - name: fastq
+    label: Reads files
+    type: list:basic:file
+  run:
+    language: bash
+    runtime: polyglot
+    program: |
+      {% for read in reads.fastq %}
+        FASTQS=$FASTQS"{{read.file}} "
+      {% endfor %}
+      # Assert one file only:
+      if [ "$(echo $FASTQS | wc -w)" -ne "1" ]; then exit; fi
+      re-checkrc "Sorry, input cannot contain more than one file."
+
+      iCount demultiplex $FASTQS {{adapter}} {{barcodes|join(" ")}}
+      re-checkrc "iCount demultiplex command failed."
+
+      mkdir keep_files
+      for reads in `ls *{{prefix}}*.fastq.gz`; do
+        # Create data object/sample with "virtual upload" from here:
+        cp ${reads} ./keep_files
+        re-export ${reads}
+        echo 'run {"process":"upload-fastq-single","input":{"src":'[\"${reads}\"]'}}'
+        re-checkrc
+        FILELIST=$FILELIST"$reads "
+      done
+
+      cp ./keep_files/* .
+
+      re-save-file-list fastq $FILELIST
