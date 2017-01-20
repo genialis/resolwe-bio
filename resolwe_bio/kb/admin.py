@@ -7,12 +7,10 @@ Admin
 """
 from django.contrib import admin
 
-from haystack.admin import SearchModelAdmin
-
 from .models import Feature, Mapping
 
 
-class FeatureAdmin(SearchModelAdmin):
+class FeatureAdmin(admin.ModelAdmin):
     """Admin configuration for Feature model."""
 
     model = Feature

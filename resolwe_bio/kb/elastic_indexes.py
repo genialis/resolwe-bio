@@ -5,7 +5,7 @@ import elasticsearch_dsl as dsl
 
 from resolwe.elastic.indices import BaseDocument, BaseIndex
 
-from .models import Feature
+from .models import Feature, Mapping
 
 
 class FeatureSearchDocument(BaseDocument):
@@ -21,6 +21,33 @@ class FeatureSearchDocument(BaseDocument):
     full_name = dsl.String()
     description = dsl.String()
     aliases = dsl.String(multi=True, index='not_analyzed')
+
+    # Autocomplete.
+    autocomplete = dsl.String(
+        multi=True,
+        # During indexing, we lowercase terms and tokenize using edge_ngram.
+        analyzer=dsl.analyzer(
+            'autocomplete_index',
+            tokenizer='keyword',
+            filter=[
+                'lowercase',
+                dsl.token_filter(
+                    'autocomplete_filter',
+                    type='edgeNGram',
+                    min_gram=1,
+                    max_gram=15
+                )
+            ],
+        ),
+        # During search, we only lowercase terms.
+        search_analyzer=dsl.analyzer(
+            'autocomplete_search',
+            tokenizer='keyword',
+            filter=[
+                'lowercase'
+            ],
+        ),
+    )
 
     class Meta:
         """Meta class for feature search document."""
@@ -54,3 +81,55 @@ class FeatureSearchIndex(BaseIndex):
 
         """
         return super(FeatureSearchIndex, self).process_object(obj, push=False)
+
+    def get_autocomplete_value(self, obj):
+        """Return autocomplete value."""
+        return [
+            obj.feature_id,
+            obj.name
+        ] + obj.aliases
+
+
+class MappingSearchDocument(BaseDocument):
+    """Index for mapping search."""
+
+    # pylint: disable=no-member
+    relation_type = dsl.String(index='not_analyzed')
+    source_db = dsl.String(index='not_analyzed')
+    source_id = dsl.String(index='not_analyzed')
+    target_db = dsl.String(index='not_analyzed')
+    target_id = dsl.String(index='not_analyzed')
+    relation_type = dsl.String(index='not_analyzed')
+
+    class Meta:
+        """Meta class for mapping search document."""
+
+        index = 'mapping_search'
+
+
+class MappingSearchIndex(BaseIndex):
+    """Index for mapping objects used in ``MappingSearchDocument``."""
+
+    queryset = Mapping.objects.all()
+    object_type = Mapping
+    document_class = MappingSearchDocument
+
+    def process_object(self, obj, push=True):
+        """Process object, but don't push it to the ElasticSearch.
+
+        ``Mapping`` objects are inserted only through management command
+        in bulks, so it is much faster if they are not pushed to ES
+        individualy.
+
+        .. important::
+
+            To work properly, push has to be manualy called after
+            inserting mappings with the following command:
+
+            .. code-block:: python
+
+                from resolwe.elastic.builder import index_builder
+                index_builder.push(index=MappingSearchIndex)
+
+        """
+        return super(MappingSearchIndex, self).process_object(obj, push=False)

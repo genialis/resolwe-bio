@@ -13,12 +13,12 @@ api_router = routers.DefaultRouter(trailing_slash=False)  # pylint: disable=inva
 api_router.register(r'sample', SampleViewSet)
 api_router.register(r'presample', PresampleViewSet, 'presample')
 api_router.register(r'kb/feature/admin', FeatureViewSet)
-api_router.register(r'kb/feature/autocomplete', FeatureAutocompleteViewSet, 'kb_feature_autocomplete')
 api_router.register(r'kb/mapping/admin', MappingViewSet)
-api_router.register(r'kb/mapping/search', MappingSearchViewSet, 'kb_mapping_search')
 
 search_router = search_routers.SearchRouter(trailing_slash=False)  # pylint: disable=invalid-name
-search_router.register('kb/feature/search', FeatureSearchViewSet, 'kb_feature_search')
+search_router.register(r'kb/feature/search', FeatureSearchViewSet, 'kb_feature_search')
+search_router.register(r'kb/feature/autocomplete', FeatureAutocompleteViewSet, 'kb_feature_autocomplete')
+search_router.register(r'kb/mapping/search', MappingSearchViewSet, 'kb_mapping_search')
 
 urlpatterns = [  # pylint: disable=invalid-name
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),

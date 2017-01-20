@@ -5,23 +5,16 @@ Views
 =====
 
 """
-from django.utils.decorators import classonlymethod
-
 from elasticsearch_dsl.query import Q
 
 from rest_framework import viewsets, mixins, permissions, filters
 
-from haystack.query import SQ
-
-from drf_haystack.viewsets import HaystackViewSet
-
 from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
 
 from .models import Feature, Mapping
-from .serializers import (FeatureSerializer, FeatureAutocompleteSerializer,
-                          MappingSerializer, MappingSearchSerializer)
+from .serializers import FeatureSerializer, MappingSerializer
 from .filters import MappingFilter
-from .elastic_indexes import FeatureSearchDocument
+from .elastic_indexes import FeatureSearchDocument, MappingSearchDocument
 
 
 class FeatureSearchViewSet(ElasticSearchBaseViewSet):
@@ -66,26 +59,21 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
         return search
 
 
-class FeatureAutocompleteViewSet(HaystackViewSet):
+class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
     """Endpoint used for feature autocompletion."""
 
-    index_models = [Feature]
-    serializer_class = FeatureAutocompleteSerializer
+    document_class = FeatureSearchDocument
+    serializer_class = FeatureSerializer
 
-    def filter_queryset(self, queryset):
-        """Construct a correct filter query."""
-        query = self.request.query_params.get('query', None)
+    filtering_fields = ('source',)
 
-        if not query:
-            return queryset.none()
+    def custom_filter(self, search):
+        """Support autocomplete query using the 'query' attribute."""
+        return search.query('match', autocomplete=self.get_query_param('query', ''))
 
-        queryset = queryset.filter(SQ(name_auto=query) | SQ(aliases_auto=query))
-
-        source = self.request.query_params.get('source', None)
-        if source:
-            queryset = queryset.filter(source=source)
-
-        return queryset
+    def filter_permissions(self, search):
+        """Feature objects have no permissions."""
+        return search
 
 
 class FeatureViewSet(mixins.ListModelMixin,
@@ -114,7 +102,7 @@ class FeatureViewSet(mixins.ListModelMixin,
             return super(FeatureViewSet, self).create(request)  # pylint: disable=no-member
 
 
-class MappingSearchViewSet(HaystackViewSet):
+class MappingSearchViewSet(ElasticSearchBaseViewSet):
     """
     Endpoint used for mapping search.
 
@@ -129,36 +117,16 @@ class MappingSearchViewSet(HaystackViewSet):
      - a list of matching mappings
     """
 
-    index_models = [Mapping]
-    serializer_class = MappingSearchSerializer
+    document_class = MappingSearchDocument
+    serializer_class = MappingSerializer
 
-    @classonlymethod
-    def as_view(cls, actions=None, **initkwargs):
-        """Support POST for searching against a list of genes."""
-        if actions.get('get', None) == 'list':
-            actions['post'] = 'list_with_post'
+    filtering_fields = ('source_id', 'source_db', 'target_id', 'target_db', 'relation_type')
+    ordering_fields = ('source_id',)
+    ordering = 'source_id'
 
-        return super(cls, MappingSearchViewSet).as_view(actions, **initkwargs)
-
-    def filter_queryset(self, queryset):
-        """Support filtering by a list of genes."""
-        queryset = super(MappingSearchViewSet, self).filter_queryset(queryset)
-        if 'source_id' in self.request.data:
-            queryset = queryset.filter(source_id__in=self.request.data['source_id'])
-        if 'source_db' in self.request.data:
-            queryset = queryset.filter(source_db=self.request.data['source_db'])
-        if 'target_id' in self.request.data:
-            queryset = queryset.filter(target_id__in=self.request.data['target_id'])
-        if 'target_db' in self.request.data:
-            queryset = queryset.filter(target_db=self.request.data['target_db'])
-        if 'relation_type' in self.request.data:
-            queryset = queryset.filter(relation_type=self.request.data['relation_type'])
-
-        return queryset
-
-    def list_with_post(self, request):
-        """Support search via a POST request in addition to GET."""
-        return self.list(request)
+    def filter_permissions(self, search):
+        """Mapping objects have no permissions."""
+        return search
 
 
 class MappingViewSet(mixins.ListModelMixin,

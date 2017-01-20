@@ -5,7 +5,6 @@ import time
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.management import call_command
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -42,9 +41,6 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
 
         for i in range(7, 10):
             self.features.append(FeatureTestCase.create_feature(i, 'XSRC'))
-
-        # TODO: Remove after Haystack is not needed anymore.
-        call_command('rebuild_index', interactive=False, verbosity=0)
 
         # Features are not pushed automatically
         index_builder.push(index=FeatureSearchIndex)
@@ -131,7 +127,7 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_feature_autocomplete(self):
-        FEATURE_AUTOCOMPLETE_URL = reverse('resolwebio-api:kb_feature_autocomplete-list')
+        FEATURE_AUTOCOMPLETE_URL = reverse('resolwebio-api:kb_feature_autocomplete')
 
         # Test empty query.
         response = self.client.get(FEATURE_AUTOCOMPLETE_URL, {'query': ''}, format='json')

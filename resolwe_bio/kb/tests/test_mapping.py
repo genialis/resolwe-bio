@@ -1,18 +1,25 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import time
+
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.core.management import call_command
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from resolwe.elastic.builder import index_builder
+from resolwe.elastic.utils.tests import ElasticSearchTestCase
+
+from ..elastic_indexes import MappingSearchIndex
 from ..models import Mapping
 
 
-class MappingTestCase(APITestCase):
+class MappingTestCase(APITestCase, ElasticSearchTestCase):
     def setUp(self):
+        super(MappingTestCase, self).setUp()
+
         self.mappings = []
         for i in range(10):
             self.mappings.append(Mapping.objects.create(
@@ -23,7 +30,13 @@ class MappingTestCase(APITestCase):
                 target_id='ANOTHER{}'.format(i),
             ))
 
-        call_command('rebuild_index', interactive=False, verbosity=0)
+        # Mappings are not pushed automatically
+        index_builder.push(index=MappingSearchIndex)
+
+        # TODO: Better solution for ES5:
+        #       https://github.com/elastic/elasticsearch/pull/17986
+        # wait for ElasticSearch to index the data
+        time.sleep(2)
 
     def assertMappingEqual(self, data, mapping):
         self.assertEqual(data['relation_type'], mapping.relation_type)
@@ -33,7 +46,7 @@ class MappingTestCase(APITestCase):
         self.assertEqual(data['target_id'], mapping.target_id)
 
     def test_lookup(self):
-        MAPPING_URL = reverse('resolwebio-api:kb_mapping_search-list')
+        MAPPING_URL = reverse('resolwebio-api:kb_mapping_search')
 
         # Test without any query.
         response = self.client.get(MAPPING_URL, format='json')

@@ -12,8 +12,10 @@ from tqdm import tqdm
 
 from django.core.management.base import BaseCommand
 
+from resolwe.elastic.builder import index_builder
 from resolwe.utils import BraceMessage as __
 
+from resolwe_bio.kb.elastic_indexes import MappingSearchIndex
 from resolwe_bio.kb.models import Mapping
 from .utils import decompress
 
@@ -50,6 +52,8 @@ class Command(BaseCommand):
                     count_inserted += 1
                 else:
                     count_unchanged += 1
+
+        index_builder.push(index=MappingSearchIndex)
 
         logger.info("Total mappings: %d. Inserted %d, unchanged %d." %  # pylint: disable=logging-not-lazy
                     (count_inserted + count_unchanged, count_inserted, count_unchanged))

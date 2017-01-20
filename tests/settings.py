@@ -32,7 +32,6 @@ INSTALLED_APPS = (
     'guardian',
     'mathfilters',
     'versionfield',
-    'haystack',
 
     'resolwe',
     'resolwe.permissions',
@@ -144,15 +143,6 @@ FLOW_PROCESSES_FINDERS = (
 )
 
 FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
-
-# Haystack.
-
-HAYSTACK_CONNECTIONS = {
-    'default': {
-        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
-        'STORAGE': 'ram',
-    },
-}
 
 # Do not skip tests that fail on Docker executor if this is set via environment
 # variable

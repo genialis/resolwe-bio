@@ -50,9 +50,6 @@ setup(
         'Django~=1.9.11',
         'djangorestframework>=3.4.0',
         'resolwe==master',
-        'django-haystack==2.5.0',
-        'drf-haystack==1.5.6',
-        'Whoosh==2.7.4',
         'tqdm>=4.1',
     ),
     extras_require = {
