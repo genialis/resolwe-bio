@@ -248,15 +248,27 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     def test_feature_counts(self):
         inputs = {'src': 'annotation.gtf.gz', 'source': 'DICTYBASE'}
-        annotation = self.run_process('upload-gtf', inputs)
+        annotation_gtf = self.run_process('upload-gtf', inputs)
 
         inputs = {"src": "reads.bam"}
         bam = self.run_process("upload-bam", inputs)
 
         inputs = {
             'alignments': bam.pk,
-            'annotation': annotation.pk,
+            'annotation': annotation_gtf.pk,
             'id_attribute': 'transcript_id'}
+        expression = self.run_process('feature_counts', inputs)
+        self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
+
+        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
+        annotation_gff3 = self.run_process('upload-gff3', inputs)
+
+        inputs = {
+            'alignments': bam.pk,
+            'annotation': annotation_gff3.pk,
+            'id_attribute': 'Parent'}
         expression = self.run_process('feature_counts', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')

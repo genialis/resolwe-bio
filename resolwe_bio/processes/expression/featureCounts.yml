@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.0.5
+  version: 0.1.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -34,6 +34,8 @@
           value: transcript_id
         - label: Gene id (gff3)
           value: ID
+        - label: geneid
+          value: geneid
       description: >
         GTF or GFF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
     - name: format_of_annotation
@@ -156,7 +158,8 @@
       re-checkrc "featureCounts failed"
 
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
-      expression_fpkm_tpm.R  ${ANNOTATION} '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+      ANNOTATION_FORMAT="{% if annotation.gtf.file %}"gtf"{% elif annotation.gff.file %}"gff3"{% elif annotation.merged_gtf.file %}"gtf"{% endif %}"
+      expression_fpkm_tpm.R  ${ANNOTATION} ${ANNOTATION_FORMAT} '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 
