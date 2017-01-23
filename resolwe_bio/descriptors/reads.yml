@@ -11,6 +11,8 @@
       choices:
         - label: RNA-Seq
           value: RNA-Seq
+        - label: Chemical mutagenesis
+          value: Chemical mutagenesis
         - label: miRNA-Seq
           value: miRNA-Seq
         - label: ncRNA-Seq

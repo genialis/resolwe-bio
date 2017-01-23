@@ -3,23 +3,29 @@
 # ============================================
 ---
 
-- slug: vc-gatk-joint
-  name: Joint Variant calling (GATK)
+- slug: vc-chemut
+  name: Variant calling (CheMut)
   requirements:
     expression-engine: jinja
-  data_name: "GATK called variants"
-  version: 1.0.4
-  type: data:variants:vcf:jointgatk
+    executor:
+      docker:
+        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+  data_name: "Called variants (CheMut)"
+  version: 1.0.5
+  type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
   description: >
-    GATK varint calling using multiple BAM input files. Note: Usage of Genome Analysis Toolkit requires a licence.
+    "CheMut varint calling using multiple BAM input files. Note: Usage of Genome Analysis Toolkit requires a licence."
   input:
     - name: genome
       label: Reference genome
       type: data:genome:fasta
-    - name: mapping
-      label: Mapped reads
+    - name: parental_strains
+      label: Parental strains
+      type: list:data:alignment:bam
+    - name: mutant_strains
+      label: Mutant strains
       type: list:data:alignment:bam
     - name: br_and_ind_ra
       label: Do variant base recalibration and indel realignment
@@ -84,6 +90,7 @@
       - name: DT
         label: Date
         type: basic:date
+        default: '2017-01-01'
         description: >
           Date the run was produced.
     - name: Varc_param
@@ -141,86 +148,84 @@
     language: bash
     program: |
       {% if br_and_ind_ra and not known_sites and not known_indels %}
-        re-error "Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files."
+        echo "{\"proc.error\":\"Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files.\"}"
       {% endif %}
 
-      {% for bam in mapping %}
+      {% for bam in parental_strains + mutant_strains %}
         BAM_FILE=`basename '{{ bam.bam.file }}'`
         NAMES=$NAMES"${BAM_FILE},"
       {% endfor %}
 
       unique_sample_names.py ${NAMES}
 
-      echo "uncompressing genome, indexing"
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      re-checkrc
-
-      picard-tools CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
-      re-checkrc
-      re-progress 0.05
 
       COUNTER=1
 
-      {% for bam in mapping %}
+      {% for bam in parental_strains + mutant_strains %}
         echo "bam files processing"
         BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
 
         echo "sorting, marking duplicates, indexing"
-        picard-tools MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
-        re-checkrc
+        java -jar /usr/gitc/picard.jar MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
+        echo "{\"proc.rc\":$?}"
 
-        picard-tools AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
-        re-checkrc
+        {% if bam in parental_strains %}
+          java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=parental_${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+          echo "{\"proc.rc\":$?}"
+        {% else %}
+          java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=mut_${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+          echo "{\"proc.rc\":$?}"
+        {% endif %}
 
         samtools index "${BAM_FILE}_indh.bam"
-        re-checkrc
+        echo "{\"proc.rc\":$?}"
         COUNTER=COUNTER+1
       {% endfor %}
 
-      re-progress 0.2
+      echo "{\"proc.progress\":0.40}"
 
       {% if br_and_ind_ra %}
-        {% for bam in mapping %}
+        {% for bam in parental_strains + mutant_strains %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
           echo "indel realignment"
-          gatk -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
-          re-checkrc
+          java -jar /usr/gitc/GATK36.jar -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
+          echo "{\"proc.rc\":$?}"
 
-          gatk -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
-          re-checkrc
+          java -jar /usr/gitc/GATK36.jar -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
+          echo "{\"proc.rc\":$?}"
 
           echo "Base recalibration"
-          gatk -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "{{ genome.fasta.file }}" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
-          re-checkrc
+          java -jar /usr/gitc/GATK36.jar -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "{{ genome.fasta.file }}" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
+          echo "{\"proc.rc\":$?}"
 
-          gatk -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
-          re-checkrc
+          java -jar /usr/gitc/GATK36.jar -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
+          echo "{\"proc.rc\":$?}"
         {% endfor %}
-        re-progress 0.40
+        echo "{\"proc.progress\":0.40}"
       {% else %}
-        {% for bam in mapping %}
+        {% for bam in parental_strains + mutant_strains %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
           mv "${BAM_FILE}_indh.bam" "${BAM_FILE}_final.bam"
         {% endfor %}
       {% endif %}
 
-      {% for bam in mapping %}
+      {% for bam in parental_strains + mutant_strains %}
         BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
-        samtools index "${BAM_FILE}_final.bam"
+        samtools index ${BAM_FILE}_final.bam
         SAMPLES=$SAMPLES"-I ${BAM_FILE}_final.bam "
       {% endfor %}
 
       echo "variant calling"
-      gatk -T UnifiedGenotyper ${SAMPLES} -R "{{ genome.fasta.file }}" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
-      re-checkrc
-      re-progress 0.8
+      java -jar /usr/gitc/GATK36.jar -T UnifiedGenotyper ${SAMPLES} -R "{{ genome.fasta.file }}" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} {{"-L" if l != ""}} {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
+      echo "{\"proc.rc\":$?}"
+      echo "{\"proc.progress\":0.80}"
 
-      bgzip -c "GATKvariants_raw.vcf" > "GATKvariants_raw.vcf.bgz"
-      re-checkrc
-      re-progress 0.9
-
-      tabix -p vcf "GATKvariants_raw.vcf.bgz"
-      re-checkrc
-      re-progress 0.95
-
-      re-save-file vcf GATKvariants_raw.vcf GATKvariants_raw.vcf.bgz GATKvariants_raw.vcf.bgz.tbi
+      if [ -f GATKvariants_raw.vcf ];
+      then
+        /usr/gitc/bgzip -c GATKvariants_raw.vcf > GATKvariants_raw.vcf.bgz
+        echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+        /usr/gitc/tabix -p vcf GATKvariants_raw.vcf.bgz
+        echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+        echo "{\"vcf\":{\"file\":\"GATKvariants_raw.vcf\",\"refs\":[\"GATKvariants_raw.vcf.bgz\", \"GATKvariants_raw.vcf.bgz.tbi\"]}}"
+      fi

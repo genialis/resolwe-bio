@@ -1,0 +1,51 @@
+- slug: workflow-chemut
+  category: workflow:primary
+  name: Chemical Mutagenesis
+  data_name: 'CheMut'
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:rnaseq:cuffquant
+  input:
+    - name: analysis_type
+      label: Analysis type
+      type: basic:string
+      description: >
+        Choice of the analysis type. Choose options SNV_CHR2 or INDEL_CHR2 if duplication of CHR2 is to be considered as diploidy when running GATK analysis (-ploidy 2 -L chr2:2263132-3015703).
+      choices:
+        - label: SNV
+          value: snv
+        - label: INDEL
+          value: indel
+        - label: SNV_CHR2
+          value: snv_chr2
+        - label: INDEL_CHR2
+          value: indel_chr2
+      default: snv
+    - name: parental_strains
+      label: Parental strains
+      type: list:data:alignment:bam
+    - name: mutant_strains
+      label: Mutant strains
+      type: list:data:alignment:bam
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+  run:
+    language: workflow
+    program:
+      - id: variant_calling
+        run: vc-chemut
+        input:
+          genome: '{{input.genome}}'
+          parental_strains: '{{input.parental_strains}}'
+          mutant_strains: '{{input.mutant_strains}}'
+          Varc_param:
+            ploidy: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2")|yesno(2, 1) }}'
+            glm: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "snv")|yesno("SNP", "INDEL") }}'
+            intervals: '{{ ["chr2:2263132-3015703"] if (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2") else [""]}}'
+      - id: variant_filtering
+        run: filtering-chemut
+        input:
+          variants: '{{steps.variant_calling}}'
+          analysis_type: '{{input.analysis_type}}'

@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 
@@ -23,35 +24,43 @@ class VariantCallingTestCase(BioProcessTestCase):
             }
         }
         samtools_variants = self.run_process('vc-samtools', inputs)
-        # create a filtering function that will remove the samtools version from the output files
+        self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_vcf_variable)
 
-        def filter_version(line):
-            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##reference") or b"/data_all/" in line:
-                return True
+    @skipDockerFailure("Processor requires a custom Docker image.")
+    def test_variant_calling_chemut(self):
+        inputs = {'src': 'chemut_genome.fasta.gz'}
+        genome = self.run_process('upload-genome', inputs)
 
-        self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_version)
+        inputs = {'src1': ['AX4_mate1.fq.gz'],
+                  'src2': ['AX4_mate2.fq.gz']}
 
-    @skipDockerFailure("Fails with: picard: command not found")
-    def test_variant_calling_gatk_joint(self):
-        genome = self.prepare_genome()  # 'variant_calling_genome.fasta.gz'
-        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
+        parental_reads = self.run_process('upload-fastq-paired', inputs)
 
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-        aligned_reads = self.run_process('alignment-bowtie2', inputs)
+        inputs = {'src1': ['CM_mate1.fq.gz'],
+                  'src2': ['CM_mate2.fq.gz']}
+
+        mut_reads = self.run_process('upload-fastq-paired', inputs)
+
+        inputs = {'genome': genome.id, 'reads': parental_reads.id}
+        align_parental = self.run_process('alignment-bwa-mem', inputs)
+
+        inputs = {'genome': genome.id, 'reads': mut_reads.id}
+        align_mut = self.run_process('alignment-bwa-mem', inputs)
 
         inputs = {
             'genome': genome.pk,
-            'mapping': [aligned_reads.pk],
+            'parental_strains': [align_parental.id],
+            'mutant_strains': [align_mut.id],
             'reads_info': {
                 'PL': "Illumina",
                 'LB': "x",
                 'CN': "def",
                 'DT': "2014-08-05"},
             'Varc_param': {'stand_emit_conf': 10, 'stand_call_conf': 30}}
-        self.run_process('vc-gatk-joint', inputs)
-        # NOTE: output can not be tested
 
-    def test_vc_filtering(self):
+        self.run_process('vc-chemut', inputs)
+
+    def test_filtering_chemut(self):
         variants = self.run_process('upload-variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
 
         inputs = {
@@ -61,7 +70,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             'mutant_strain': 'mutant',
             'read_depth': 5}
 
-        filtered_variants = self.run_process('chemut', inputs)
+        filtered_variants = self.run_process('filtering-chemut', inputs)
         self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf')
 
     def test_hsqutils_dedup(self):
@@ -131,12 +140,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         }
 
         gatk_vars = self.run_process('vc-gatk-hc', inputs)
-
-        def filter_version(line):
-            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##fileDate") or b"/data_all/" in line:
-                return True
-
-        self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_version)
+        self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_vcf_variable)
 
     def test_lofreq(self):
         alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
@@ -150,12 +154,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         }
 
         lofreq_vars = self.run_process('lofreq', inputs)
-
-        def filter_version(line):
-            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##fileDate") or b"/data_all/" in line:
-                return True
-
-        self.assertFile(lofreq_vars, 'vcf', '56GSID_10k.lf.vcf', file_filter=filter_version)
+        self.assertFile(lofreq_vars, 'vcf', '56GSID_10k.lf.vcf', file_filter=filter_vcf_variable)
 
     def test_snpeff(self):
         variants_lf = self.run_process('upload-variants-vcf', {'src': '56GSID_10k.lf.vcf'})

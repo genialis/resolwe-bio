@@ -25,6 +25,7 @@ Added
 * Add RN4 and RN6 options to bamplot process
 * Archive-samples process
 * Add bamliquidator
+* CheMut workflow
 
 Fixed
 -----

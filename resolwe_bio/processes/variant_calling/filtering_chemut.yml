@@ -3,12 +3,12 @@
 # ==================================================
 ---
 
-- slug: chemut
-  name: Variant filtering (Chemut)
+- slug: filtering-chemut
+  name: Variant filtering (CheMut)
   requirements:
     expression-engine: jinja
-  data_name: "Filtered variants ({{ variants.vcf.file|basename|default('?') }})"
-  version: 1.0.3
+  data_name: "Filtered variants ({{ analysis_type }})"
+  version: 1.0.4
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -36,11 +36,11 @@
     - name: parental_strain
       label: Parental Strain Prefix
       type: basic:string
-      placeholder: 'AX4'
+      default: 'parental'
     - name: mutant_strain
       label: Mutant Strain Prefix
       type: basic:string
-      placeholder: 'mutant'
+      default: 'mut'
     - name: read_depth
       label: Read Depth Cutoff
       type: basic:integer
@@ -59,36 +59,43 @@
     - name: variants_filtered
       label: Variants filtered
       type: basic:file
+      required: false
       description: >
         A data frame of variants that passed the filters.
     - name: variants_filtered_alt
       label: Variants filtered (multiple alt. alleles)
       type: basic:file
+      required: false
       description: >
         A data frame of variants that contain more than two alternative alleles. These vairants are likely to be false positives.
     - name: gene_list_all
       label: Gene list (all)
       type: basic:file
+      required: false
       description: >
         Genes that are mutated at least once.
     - name: gene_list_top
       label: Gene list (top)
       type: basic:file
+      required: false
       description: >
         Genes that are mutated at least twice.
     - name: mut_chr
       label: Mutations (by chr)
       type: basic:file
+      required: false
       description: >
         List mutations in individual chromosomes.
     - name: mut_strain
       label: Mutations (by strain)
       type: basic:file
+      required: false
       description: >
         List mutations in individual strains.
     - name: strain_by_gene
       label: Strain (by gene)
       type: basic:file
+      required: false
       description: >
         List mutants that carry mutations in individual genes.
   run:
@@ -104,16 +111,15 @@
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/summary.txt ];
-      then
-        re-save-file summary ${NAME}.vcf_{{read_depth}}/summary.txt
-      fi
+      re-save-file summary ${NAME}.vcf_{{read_depth}}/summary.txt
 
       if [ -f ${NAME}.vcf_{{read_depth}}/variants.vcf ];
       then
         bgzip -c "${NAME}.vcf_{{read_depth}}/variants.vcf" > "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
         tabix -p vcf "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
         re-save-file vcf ${NAME}.vcf_{{read_depth}}/variants.vcf ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz.tbi
+      else
+        re-error "No variants have passed the filters. VCF file was not created."
       fi
 
       if [ -f ${NAME}.vcf_{{read_depth}}/variant_filtered.txt ];
