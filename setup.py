@@ -47,7 +47,7 @@ setup(
         "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-master",
     ),
     install_requires=(
-        'Django~=1.9.11',
+        'Django~=1.10.5',
         'djangorestframework>=3.4.0',
         'resolwe==master',
         'tqdm>=4.1',

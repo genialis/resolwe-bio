@@ -60,6 +60,7 @@ Added
 * Add ``source`` filter to feature search endpoint
 * Add bamplot process
 * Add gene hiererhical clustering
+* Support Django 1.10 and versionfield 0.5.0
 
 Fixed
 -----
