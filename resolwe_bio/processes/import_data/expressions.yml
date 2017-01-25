@@ -135,7 +135,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ exp.file|default("?") }}'
-  version: 1.0.4
+  version: 1.0.5
   type: data:expression
   category: upload
   persistence: RAW
@@ -187,8 +187,9 @@
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${EXP_NAME}.tab.gz
         re-save source "{{cxb.source}}"
-        expression2storage.py "${NAME}.tab.gz"
+        expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
+        re-save exp_json json.txt
       {% endif %}
 
 
