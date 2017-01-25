@@ -8,7 +8,7 @@
   name: Convert GFF3 to GTF format
   requirements:
     expression-engine: jinja
-  data_name: "Converted GFF3 to GTF file ('{{ src.file }}')"
+  data_name: "Converted GFF3 to GTF file"
   version: 0.0.4
   type: data:annotation:gtf
   category: analyses

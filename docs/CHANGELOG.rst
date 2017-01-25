@@ -71,6 +71,7 @@ Fixed
 * Fix gene_id field type for differential expression storage objects
 * Order data objects in ``SampleViewSet``
 * Fix sample hiererhical clustering
+* Fix name in gff to gtf process
 
 
 ================
