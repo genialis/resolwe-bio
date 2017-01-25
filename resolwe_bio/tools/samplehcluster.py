@@ -80,7 +80,7 @@ sample_sum = np.sum(matrix, axis=1)
 sample_zero = np.where(sample_sum < 0.1)[0]
 
 # list of samples with zero expressions
-list_zero_samples = [args.sampleids[index] for index in sample_zero]
+list_zero_samples = [int(args.sampleids[index]) for index in sample_zero]
 
 # sum of  all expressions per gene to find genes that are not exprerssed in any sample
 genes_sum = np.sum(matrix, axis=0)

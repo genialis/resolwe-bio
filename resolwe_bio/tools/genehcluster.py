@@ -115,7 +115,7 @@ output = {
         'gene_symbols': calculated_genes_dict,
         'order': dend['leaves'],
         'zero_gene_symbols': list_zero_genes,
-        'zero_sample_ids': [args.sampleids[index] for index in sample_zero]
+        'zero_sample_ids': [int(args.sampleids[index]) for index in sample_zero]
     }
 }
 
