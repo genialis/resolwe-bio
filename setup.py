@@ -54,7 +54,7 @@ setup(
     ),
     extras_require = {
         'docs':  [
-            'Sphinx>=1.3.2',
+            'Sphinx>=1.5.0',
             'sphinx_rtd_theme',
         ],
         'package': [
