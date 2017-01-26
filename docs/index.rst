@@ -21,6 +21,7 @@ Contents
    catalog
    descriptor
    ref
+   CHANGELOG
    contributing
 
 Indices and tables
