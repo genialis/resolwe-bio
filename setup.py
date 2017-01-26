@@ -43,13 +43,10 @@ setup(
         ]
     },
     zip_safe=False,
-    dependency_links=(
-        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-master",
-    ),
     install_requires=(
         'Django~=1.10.5',
         'djangorestframework>=3.4.0',
-        'resolwe==master',
+        'resolwe~=1.4.1',
         'tqdm>=4.1',
     ),
     extras_require = {

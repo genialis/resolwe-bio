@@ -30,6 +30,7 @@ Changed
 * GO enrichment analysis: map features using gene Knowledge base
 * Add option to upload .gff v2 files with upload-gtf processor
 * Replace Haystack with Resolwe Elastic Search API
+* Require Resolwe 1.4.1+
 
 Added
 -----
