@@ -1,0 +1,138 @@
+- slug: sample-iclip
+  name: ICLIP sample annotation
+  version: 0.0.1
+  description: ICLIP sample annotation
+  schema:
+    - name: sample
+      label: Sample annotation
+      group:
+        - name: annotator
+          label: Annotator/Scientist
+          type: basic:string
+          description: >
+            The name of the person that prepared the library.
+        - name: pi
+          label: PI
+          type: basic:string
+          description: >
+            The name of the principal investigator.
+        - name: organism
+          label: Organism
+          type: basic:string
+          description: >
+            Identify the organism from which the sequences were derived.
+        - name: source
+          label: Source
+          type: basic:string
+          allow_custom_choice: true
+          description: >
+            Briefly identify the biological material e.g., vastus lateralis muscle.
+          choices:
+            - label: 293Flp
+              value: 293Flp
+            - label: 3T3
+              value: 3T3
+            - label: Bcells
+              value: Bcells
+            - label: BJAB
+              value: BJAB
+            - label: brain
+              value: brain
+            - label: brain:adult
+              value: brain:adult
+            - label: brain:E18
+              value: brain:E18
+            - label: brain:embryo
+              value: brain:embryo
+            - label: brain:P0
+              value: brain:P0
+            - label: brain:P1
+              value: brain:P1
+            - label: brain:P7
+              value: brain:P7
+            - label: DoHH2
+              value: DoHH2
+            - label: Embryonic_body
+              value: Embryonic_body
+            - label: H1299
+              value: H1299
+            - label: Head
+              value: Head
+            - label: Hela
+              value: Hela
+            - label: HEK293_HR1
+              value: HEK293_HR1
+            - label: Cal51
+              value: Cal51
+            - label: CEM_SS
+              value: CEM_SS
+            - label: Dermal_fibroblasts
+              value: Dermal_fibroblasts
+            - label: ESC
+              value: ESC
+            - label: fission_yeast
+              value: fission_yeast
+            - label: frontal_cortex:E14
+              value: frontal_cortex:E14
+            - label: H1
+              value: H1
+            - label: HAP1
+              value: HAP1
+            - label: HEK293
+              value: HEK293
+            - label: HEK293T
+              value: HEK293T
+            - label: Hela_nuclear_extract
+              value: Hela_nuclear_extract
+            - label: HelaFlp
+              value: HelaFlp
+            - label: HIV_IIIB
+              value: HIV_IIIB
+            - label: HUVEC
+              value: HUVEC
+            - label: iPSC_motor neurons:D35
+              value: iPSC_motor neurons:D35
+            - label: K562
+              value: K562
+            - label: MCF7
+              value: MCF7
+            - label: MEF
+              value: MEF
+            - label: Motor_Neurons
+              value: Motor_Neurons
+            - label: Mutu
+              value: Mutu
+            - label: NSC
+              value: NSC
+            - label: NSC34
+              value: NSC34
+            - label: P19
+              value: P19
+            - label: Primary_neurons
+              value: Primary_neurons
+            - label: Raji
+              value: Raji
+            - label: SHSY5Y
+              value: SHSY5Y
+            - label: Spinal_cord
+              value: Spinal_cord
+            - label: TCMK
+              value: TCMK
+            - label: temporal_cortex
+              value: temporal_cortex
+            - label: temporal_cortex:Alzheimer
+              value: temporal_cortex:Alzheimer
+            - label: temporal_cortex:FTLD
+              value: temporal_cortex:FTLD
+            - label: U251
+              value: U251
+            - label: U2932
+              value: U2932
+            - label: Usti_filaments
+              value: Usti_filaments
+            - label: yeast
+              value: yeast
+        - name: protocol_document
+          label: Protocol document(s)
+          type: list:basic:file
+          required: false

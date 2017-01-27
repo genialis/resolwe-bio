@@ -19,7 +19,7 @@ Added
 * Transforming form Phred 64 to Phred 33 when uploading fastq reads
 * Add primertrim process
 * RNA-Seq experiment descriptor schema
-
+* iCount sample and reads descriptor schemas
 
 Fixed
 -----

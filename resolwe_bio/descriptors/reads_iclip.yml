@@ -1,0 +1,270 @@
+- slug: reads-iclip
+  name: ICLIP reads annotation
+  version: 0.0.1
+  description: Annotation of ICLIP sequencing data
+  schema:
+    - name: protocols
+      label: Protocols
+      group:
+        - name: method
+          label: Method
+          type: basic:string
+          default: iCLIP
+          choices:
+            - label: CLIP
+              value: CLIP
+            - label: eCLIP
+              value: eCLIP
+            - label: iCLIP
+              value: iCLIP
+            - label: irCLIP
+              value: irCLIP
+            - label: hiCLIP
+              value: hiCLIP
+            - label: miCLIP
+              value: miCLIP
+            - label: 4SU-CLIP
+              value: 4SU-CLIP
+            - label: 4SU-iCLIP
+              value: 4SU-iCLIP
+        - name: protein
+          label: Protein
+          type: basic:string
+          allow_custom_choice: true
+          description: >
+            Protein names should be according to the accepted gene symbol, e.g. TARDBP, HNRNPC, SNRPB, MATR3, PTBP1, ELAVL1, U2AF65
+          choices:
+            - label: AGO2
+              value: AGO2
+            - label: AGO4
+              value: AGO4
+            - label: AICDA
+              value: AICDA
+            - label: AP0BEC3G
+              value: AP0BEC3G
+            - label: APOBEC3F
+              value: APOBEC3F
+            - label: APOBEC3G
+              value: APOBEC3G
+            - label: b_isox_prep
+              value: b_isox_prep
+            - label: beads
+              value: beads
+            - label: C14orf166
+              value: C14orf166
+            - label: CELF2
+              value: CELF2
+            - label: CELF4
+              value: CELF4
+            - label: CPEB1
+              value: CPEB1
+            - label: CPSF1
+              value: CPSF1
+            - label: Cstf2t
+              value: Cstf2t
+            - label: CSTF64
+              value: CSTF64
+            - label: EIF4A3
+              value: EIF4A3
+            - label: EIF4A4
+              value: EIF4A4
+            - label: EIF4E
+              value: EIF4E
+            - label: EIF4E2
+              value: EIF4E2
+            - label: ELAVL1
+              value: ELAVL1
+            - label: FUS
+              value: FUS
+            - label: GFP
+              value: GFP
+            - label: HMGB2
+              value: HMGB2
+            - label: HNRNPA1
+              value: HNRNPA1
+            - label: HNRNPA2B1
+              value: HNRNPA2B1
+            - label: HNRNPC
+              value: HNRNPC
+            - label: HNRNPK
+              value: HNRNPK
+            - label: HNRNPL
+              value: HNRNPL
+            - label: HNRNPLL
+              value: HNRNPLL
+            - label: HNRNPR
+              value: HNRNPR
+            - label: IGF2BP1
+              value: IGF2BP1
+            - label: IGF2BP2
+              value: IGF2BP2
+            - label: IGF2BP3
+              value: IGF2BP3
+            - label: IgG
+              value: IgG
+            - label: JMJD6
+              value: JMJD6
+            - label: KHSRP
+              value: KHSRP
+            - label: LIN28A
+              value: LIN28A
+            - label: MATR3
+              value: MATR3
+            - label: MBNL1
+              value: MBNL1
+            - label: MEU5
+              value: MEU5
+            - label: MEX3C
+              value: MEX3C
+            - label: Mpe1
+              value: Mpe1
+            - label: MSI1
+              value: MSI1
+            - label: NOVA1
+              value: NOVA1
+            - label: OdTcapture
+              value: OdTcapture
+            - label: ORB
+              value: ORB
+            - label: ORF1
+              value: ORF1
+            - label: PABPC4
+              value: PABPC4
+            - label: PABPN1
+              value: PABPN1
+            - label: PTBP1
+              value: PTBP1
+            - label: PUM1
+              value: PUM1
+            - label: PURA
+              value: PURA
+            - label: RBM14
+              value: RBM14
+            - label: RBM38
+              value: RBM38
+            - label: RBM7
+              value: RBM7
+            - label: Ref2
+              value: Ref2
+            - label: RRM4
+              value: RRM4
+            - label: SF1
+              value: SF1
+            - label: SNRPA
+              value: SNRPA
+            - label: SNRPB
+              value: SNRPB
+            - label: SNRPC
+              value: SNRPC
+            - label: SRSF3
+              value: SRSF3
+            - label: STAU1
+              value: STAU1
+            - label: STAU2
+              value: STAU2
+            - label: Syc1
+              value: Syc1
+            - label: SYNCRIP
+              value: SYNCRIP
+            - label: T7
+              value: T7
+            - label: TARDBP
+              value: TARDBP
+            - label: TIA1
+              value: TIA1
+            - label: TIAL1
+              value: TIAL1
+            - label: U2AF2
+              value: U2AF2
+            - label: YBX1
+              value: YBX1
+            - label: Yth1
+              value: Yth1
+            - label: bisox
+              value: bisox
+            - label: ctrl
+              value: ctrl
+            - label: input
+              value: input
+            - label: M6A
+              value: M6A
+            - label: noIgG
+              value: noIgG
+            - label: noUV
+              value: noUV
+            - label: pA
+              value: pA
+            - label: pG
+              value: pG
+        - name: mapto
+          label: Genome used for mapping
+          type: basic:string
+          description: >
+           The version of the genome used for mapping.
+    - name: reads_info
+      label: Reads Information
+      group:
+        - name: 5_barcode
+          label: 5' barcode
+          type: basic:string
+        - name: 3_adapter
+          label: 3' adapter
+          type: basic:string
+        - name: sequencer_type
+          label: Sequencer type
+          type: basic:string
+        - name: sequencing_length
+          label: Sequencing length (cycles)
+          type: basic:string
+        - name: linker
+          label: Linker used
+          type: basic:string
+        - name: rt_primer
+          label: RT primer used
+          type: basic:string
+        - name: antibody
+          label: Antibody used
+          type: basic:string
+    - name: other
+      label: Other Information
+      group:
+        - name: resequencing_id
+          label: Resequencing ID
+          type: basic:string
+          required: false
+          description: >
+            Slug of the previously sequenced sample
+        - name: experiment_name
+          label: Experiment name
+          type: basic:string
+          required: false
+        - name: condition
+          label: Condition
+          type: basic:text
+          required: false
+          description: >
+            If the cells/tissue underwent some treatment before collection, then make sure to make short explanation of the condition. Keep the nomenclature consistent.
+        - name: replicate
+          label: Replicate
+          type: basic:string
+          required: false
+        - name: pmid
+          label: PMID of published data
+          type: basic:string
+          required: false
+        - name: mw_band_cut
+          label: MW band cut (kDa)
+          type: basic:string
+          required: false
+        - name: gel_image_date
+          label: Gel image date
+          type: basic:date
+          required: false
+        - name: notebook_page
+          label: Lab notebook page
+          type: basic:string
+          required: false
+        - name: comments
+          label: Comments
+          type: basic:text
+          required: false
