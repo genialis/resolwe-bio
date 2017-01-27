@@ -3,11 +3,12 @@ Change Log
 ##########
 
 All notable changes to this project are documented in this file.
+This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+================
+1.3.0 2017-01-28
+================
 
 Changed
 -------
@@ -22,19 +23,19 @@ Changed
 * Refactor ``upload-diffexp`` processor
 * Update sample descriptor schema
 * Remove obsolete descriptor schemas
-* Update processes trimmomatic, gff_to_gtf and featureCount
 * Add stitch parameter to rose2 processor
 * Add filtering to DESeq2
 * Set Docker Compose's project name to ``resolwebio`` to avoid name clashes
-* Add source query parameter to kb autocomplete
 * GO enrichment analysis: map features using gene Knowledge base
 * Add option to upload .gff v2 files with upload-gtf processor
 * Replace Haystack with Resolwe Elastic Search API
 * Require Resolwe 1.4.1+
+* Update processes to be compatible with Resolwe 1.4.0
 
 Added
 -----
 * Process definition documentation style and text improvements
+* Add ``resolwe_bio.kb`` app, Resolwe Bioinformatics Knowledge Base
 * Add tests to ensure generators produce the same results
 * Upload Gene sets (``data:geneset``)
 * Add ``generate_geneset`` django-admin command
@@ -43,6 +44,7 @@ Added
 * Add generic file upload processors
 * Add upload processor for common image file types (.jpg/.tiff/.png/.gif)
 * Add upload processor for tabular file formats (.tab/.tsv/.csv/.txt/.xls/.xlsx)
+* Add Trimmomatic process
 * Add featureCounts process
 * Add Subread process
 * Add process for hierarchical clusteing of samples
@@ -61,7 +63,10 @@ Added
 * Add ``source`` filter to feature search endpoint
 * Add bamplot process
 * Add gene hiererhical clustering
+* Add cuffquant workflow
 * Support Django 1.10 and versionfield 0.5.0
+* django-admin commands ``insert_features`` and ``insert_mappings`` for
+  importing features and mappings to the Knowledge Base
 
 Fixed
 -----
