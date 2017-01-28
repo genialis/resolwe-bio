@@ -43,10 +43,13 @@ setup(
         ]
     },
     zip_safe=False,
+    dependency_links=(
+        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-master",
+    ),
     install_requires=(
         'Django~=1.10.5',
         'djangorestframework>=3.4.0',
-        'resolwe~=1.4.1',
+        'resolwe==master',
         'tqdm>=4.1',
     ),
     extras_require = {
@@ -68,6 +71,7 @@ setup(
             'pydocstyle>=1.0.0',
             'pylint>=1.6.4',
             'readme_renderer',
+            'tblib>=1.3.0',
         ],
     },
 

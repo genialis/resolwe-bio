@@ -90,6 +90,7 @@ FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
     # XXX: Change to a stable resolwe image when it will include all the required tools
     'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe-preview',
+    'CONTAINER_NAME_PREFIX': 'resolwebio',
     'DATA_DIR': os.path.join(PROJECT_ROOT, 'test_data'),
     'UPLOAD_DIR': os.path.join(PROJECT_ROOT, 'test_upload'),
 }

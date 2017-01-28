@@ -14,6 +14,7 @@ from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
 from .models import Feature, Mapping
 from .serializers import FeatureSerializer, MappingSerializer
 from .filters import MappingFilter
+
 from .elastic_indexes import FeatureSearchDocument, MappingSearchDocument
 
 

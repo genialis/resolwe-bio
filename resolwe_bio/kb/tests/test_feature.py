@@ -9,10 +9,8 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from resolwe.elastic.builder import index_builder
-from resolwe.elastic.utils.tests import ElasticSearchTestCase
+from resolwe.test import ElasticSearchTestCase
 
-from ..elastic_indexes import FeatureSearchIndex
 from ..models import Feature
 
 
@@ -43,7 +41,7 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
             self.features.append(FeatureTestCase.create_feature(i, 'XSRC'))
 
         # Features are not pushed automatically
-        index_builder.push(index=FeatureSearchIndex)
+        self.push_indexes()
 
         # TODO: Better solution for ES5:
         #       https://github.com/elastic/elasticsearch/pull/17986

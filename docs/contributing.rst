@@ -92,7 +92,7 @@ Run docker::
 
 To run the tests, use::
 
-    ./manage.py test resolwe_bio
+    ./manage.py test resolwe_bio --parallel=2
 
 To run a specific test, use::
 

@@ -5,7 +5,7 @@ import unittest
 from django.conf import settings
 from django.core.management import call_command
 
-from resolwe.flow.utils.test import ProcessTestCase
+from resolwe.test import ProcessTestCase
 
 TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
 TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
