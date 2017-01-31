@@ -6,6 +6,15 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+* Use new import paths in ``resolwe.flow``
+
+
 ================
 1.3.0 2017-01-28
 ================

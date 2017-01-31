@@ -1,7 +1,8 @@
 # pylint: disable=missing-docstring
 from django.test import TestCase
 
-from resolwe.flow.models import Process, iterate_schema
+from resolwe.flow.models import Process
+from resolwe.flow.utils import iterate_schema
 
 
 class ProcessFieldsTestCase(TestCase):
