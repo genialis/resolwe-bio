@@ -12,7 +12,8 @@ from django.dispatch import receiver
 
 from guardian import shortcuts
 
-from resolwe.flow.models import Data, DescriptorSchema, iterate_schema
+from resolwe.flow.models import Data, DescriptorSchema
+from resolwe.flow.utils import iterate_schema
 from .models import Sample
 
 
