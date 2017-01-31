@@ -10,23 +10,15 @@ class PcaProcessorTestCase(BioProcessTestCase):
 
         inputs = {'exps': [expression_1.pk, expression_2.pk]}
         pca = self.run_process('pca', inputs)
-        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_plot.json.gz')
-        self.assertJSON(pca, pca.output['pca'], 'explained_variance_ratios', 'pca_ratios.json.gz')
-        self.assertJSON(pca, pca.output['pca'], 'components', 'pca_components.json.gz')
-
-        inputs = {
-            'exps': [expression_1.pk, expression_2.pk],
-            'genes': ['DPU_G0067096', 'DPU_G0067102', 'DPU_G0067098']
-        }
-
-        pca = self.run_process('pca', inputs)
-        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_plot_w_genes.json.gz')
+        saved_json, test_json = self.get_json('pca_plot.json.gz', pca.output['pca'])
+        self.assertEqual(test_json['flot']['data'], saved_json['flot']['data'])
+        self.assertEqual(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
+        self.assertEqual(test_json['components'], saved_json['components'])
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],
             'genes': ['DPU_G0067098', 'DPU_G0067100', 'DPU_G0067104']  # all zero
         }
-        pca = self.run_process('pca', inputs)
 
-        self.assertJSON(pca, pca.output['pca'], 'flot.data', 'pca_filtered_zeros.json.gz')
+        pca = self.run_process('pca', inputs)
         self.assertEqual(pca.process_warning[0], "Filtering removed all PCA attributes.")
