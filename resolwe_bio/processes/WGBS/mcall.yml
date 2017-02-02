@@ -1,0 +1,138 @@
+# =====================================
+# The methylation ratio calling module
+# =====================================
+---
+
+- slug: mcall
+  name: The methylation ratio calling module
+  requirements:
+    expression-engine: jinja
+  data_name: "mcall"
+  version: 1.0.1
+  type: data:wgbs:mcall
+  category: analyses:wgbs
+  persistence: CACHED
+  description: >
+    The methylation ratio calling module accepts alignment from BSMAP,
+    and then performs methylation ratio calling on every covered
+    cytosine for both WATSON and CRICK genomes.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: genome_identifier
+      label: The UCSC Genome Browser identifier
+      type: basic:string
+      choices:
+        - label: hg19
+          value: hg19
+        - label: hg18
+          value: hg18
+        - label: mm8
+          value: mm8
+        - label: mm9
+          value: mm9
+        - label: mm10
+          value: mm10
+    - name: bam
+      label: Bam
+      type: list:data:alignment:bam
+      description: >
+         RRBS/WGBS alignment files for methylation calling. Multiple files can be provided to
+         combine them into a single track.
+    - name: sample_name
+      label: Sample name
+      type: basic:string
+      required: False
+      description: >
+        If two or more bam files are specifed, this option generates a merged result. Ignored for
+        one input file.
+    - name: full_mode
+      label: Full mode
+      type: basic:integer
+      default: 0
+      choices:
+        - label: turned off
+          value: 0
+        - label: turned on
+          value: 1
+    - name: stats_only
+      label: Stats only
+      type: basic:integer
+      default: 0
+      choices:
+        - label: turned off
+          value: 0
+        - label: turned on
+          value: 1
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 8
+      description: >
+        Number of processor threads to be used when mapping reads to the reference sequence.
+  output:
+    - name: gbed
+      label: .G.bed
+      type: basic:file
+      required: False
+    - name: hgbed
+      label: .HG.bed
+      type: basic:file
+      required: False
+    - name: bed
+      label: bed
+      type: basic:file
+      required: False
+    - name: stats
+      label: Stats file
+      type: basic:file
+    - name: skip_bed
+      label: _skip.bed
+      type: basic:file
+      required: False
+    - name: strand_bed
+      label: _strand.bed
+      type: basic:file
+      required: False
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+
+      gzip -dc "{{genome.fasta.file}}" > genome.fasta
+
+      {% for bam_file in bam %}
+        ln -s {{bam_file.bam.file}} {{bam_file.bam.file|basename}} # bam_{{loop.index}}.bam
+      {% endfor %}
+
+      echo "Calculating mcall"
+      mcall -m {% for bam_file in bam %}{{bam_file.bam.file|basename}} {% endfor %} -r genome.fasta -g {{genome_identifier}} -p {{threads}} --fullMode {{full_mode}} --statsOnly {{stats_only}}{% if sample_name %} --sampleName {{sample_name}}{% endif %}
+      re-checkrc "Mcall failed"
+      re-progress 0.8
+
+      {% if bam|length > 1 %}
+
+        {% if sample_name %}
+          NAME='{{sample_name}}'
+        {% else %}
+          NAME=mSuite
+        {% endif %}
+      {% else %}
+        NAME="{{bam[0].bam.file|basename}}"
+      {% endif %}
+
+      re-save-file stats "${NAME}_stat.txt"
+
+      {% if stats_only==0 %}
+        re-save-file gbed "${NAME}.G.bed"
+        re-save-file hgbed "${NAME}.HG.bed"
+
+        {% if full_mode==1 %}
+          re-save-file bed "${NAME}.bed"
+          re-save-file skip_bed "${NAME}_skip.bed"
+          re-save-file strand_bed "${NAME}_strand.bed"
+        {% endif %}
+
+      {% endif %}

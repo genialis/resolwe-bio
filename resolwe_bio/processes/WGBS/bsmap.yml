@@ -1,0 +1,132 @@
+# ================
+# Aligner - bsmap
+# ================
+---
+
+- slug: bsmap
+  name: BSMAP
+  requirements:
+    expression-engine: jinja
+  data_name: "bsmap ({{ reads|sample_name|default('?') }})"
+  version: 1.0.1
+  type: data:alignment:bam:bsmap
+  category: analyses:wgbs
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    BSMAP is a short reads mapping program for bisulfite sequencing in DNA methylation study.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+    - name: mismatch_rate
+      label: Mismatch rate
+      type: basic:decimal
+      default: 0.08
+      description: >
+        If this value is between 0 and 1, it's interpreted as the mismatch rate w.r.t to the read
+        length. Otherwise it's interpreted as the maximum number of mismatches allowed on a read,
+        <=15.
+    - name: threads
+      label: Use this many processor threads
+      type: basic:integer
+      default: 8
+      description: >
+        Number of processor threads to be used when mapping reads to the reference sequence.
+    - name: rrbs
+      label: RRBS mapping mod
+      type: basic:string
+      required: False
+      description: >
+        Activating RRBS mapping mode and set restriction enzyme digestion sites.
+        Digestion position marked by '-', example: -D C-CGG for MspI digestion.
+    - name: mapping_strand
+      label: Mapping strand
+      type: basic:integer
+      default: 0
+      choices:
+        - label: Map to 2 forward strands
+          value: 0
+        - label: Map SE or PE reads to all 4 strands
+          value: 1
+      description: >
+        Set mapping strand information.
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      NAME=`basename '{{ reads|sample_name }}' .fastq.gz`
+
+      re-progress 0.1
+
+      {% for r in reads.fastq %}
+        FW_READS=${FW_READS}"{{r.file}},"
+      {% endfor %}
+
+      FW_READS=${FW_READS%?}
+
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
+        {% for r in reads.fastq2 %}
+          RW_READS=${RW_READS}"{{r.file}},"
+        {% endfor %}
+        RW_READS=${RW_READS%?}
+      {% endif %}
+
+
+      BSMAP_CODE='-p {{threads}} -d {{genome.fasta.file}} -v {{mismatch_rate}} -n {{mapping_strand}} {% if rrbs %}-D {{rrbs}}{% endif %}'
+
+      echo "Calculating bsmap"
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+
+        bsmap -a ${FW_READS} ${BSMAP_CODE} > alignment_unsorted.sam
+        re-checkrc "BSMAP alignment failed."
+        re-progress 0.6
+
+      {% else %}
+
+        bsmap -a ${FW_READS} -b ${RW_READS} ${BSMAP_CODE} > alignment_unsorted.sam
+        re-checkrc "BSMAP alignment failed."
+        re-progress 0.6
+
+      {% endif %}
+
+      echo "COMPRESSING sam to sorted bam:"
+      samtools view -bSh alignment_unsorted.sam > alignment_unsorted.bam
+      re-checkrc
+      re-progress 0.7
+      samtools sort -@ {{threads}} alignment_unsorted.bam alignment
+      re-checkrc
+      re-progress 0.8
+
+      echo "\nINDEXING bam:"
+      samtools index alignment.bam alignment.bam.bai
+      re-checkrc
+      re-progress 0.9
+
+      mv alignment.bam "${NAME}.bam"
+      mv alignment.bam.bai "${NAME}.bam.bai"
+
+      echo "Calculating statistics"
+      samtools flagstat "${NAME}.bam" > "${NAME}_report.txt"
+      re-checkrc
+      re-progress 0.9
+
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
+      re-save-file stats "${NAME}_report.txt"
+

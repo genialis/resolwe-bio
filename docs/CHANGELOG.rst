@@ -81,6 +81,7 @@ Added
 * Support Django 1.10 and versionfield 0.5.0
 * django-admin commands ``insert_features`` and ``insert_mappings`` for
   importing features and mappings to the Knowledge Base
+* Add bsmap and mcall to analyse WGBS data
 
 Fixed
 -----
