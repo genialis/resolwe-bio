@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "GATK called variants"
-  version: 1.0.3
+  version: 1.0.4
   type: data:variants:vcf:jointgatk
   category: analyses:variants
   persistence: CACHED
@@ -152,9 +152,7 @@
       unique_sample_names.py ${NAMES}
 
       echo "uncompressing genome, indexing"
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
-      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-      samtools faidx "${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       re-checkrc
 
       picard-tools CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
@@ -185,17 +183,17 @@
         {% for bam in mapping %}
           BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
           echo "indel realignment"
-          gatk -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
+          gatk -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
           re-checkrc
 
-          gatk -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
+          gatk -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
           re-checkrc
 
           echo "Base recalibration"
-          gatk -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "${GENOME_NAME}.fasta" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
+          gatk -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "{{ genome.fasta.file }}" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
           re-checkrc
 
-          gatk -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "${GENOME_NAME}.fasta" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
+          gatk -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
           re-checkrc
         {% endfor %}
         re-progress 0.40
@@ -213,7 +211,7 @@
       {% endfor %}
 
       echo "variant calling"
-      gatk -T UnifiedGenotyper ${SAMPLES} -R "${GENOME_NAME}.fasta" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
+      gatk -T UnifiedGenotyper ${SAMPLES} -R "{{ genome.fasta.file }}" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} -L {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
       re-checkrc
       re-progress 0.8
 

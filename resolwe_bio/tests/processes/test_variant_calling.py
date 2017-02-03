@@ -26,37 +26,10 @@ class VariantCallingTestCase(BioProcessTestCase):
         # create a filtering function that will remove the samtools version from the output files
 
         def filter_version(line):
-            return line.startswith(b"##samtoolsVersion")
+            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##reference") or b"/data_all/" in line:
+                return True
 
         self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_version)
-
-    @skipDockerFailure("Fails with: int() argument must be a string or a "
-                       "number, not 'list' at "
-                       "self.run_process('vc-gatk', inputs)")
-    def test_variant_calling_gatk(self):
-        genome = self.prepare_genome()  # 'variant_calling_genome.fasta.gz'
-        reads = self.prepare_reads('variant_calling_reads.fastq.gz')
-
-        inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-        aligned_reads = self.run_process('alignment-bowtie2', inputs)
-
-        samtools_variants = self.run_process('upload-variants-vcf', {'src': 'variant_calling_samtools.vcf'})
-
-        inputs = {
-            'genome': genome.pk,
-            'mapping': aligned_reads.pk,
-            'known_sites': samtools_variants.pk,
-            'known_indels': [samtools_variants.pk],
-            'reads_info': {
-                'ID': "x",
-                'SM': "x",
-                'PL': "Illumina",
-                'LB': "x",
-                'CN': "def",
-                'DT': "2014-08-05"},
-            'Varc_param': {'stand_emit_conf': 10, 'stand_call_conf': 30}}
-        self.run_process('vc-gatk', inputs)
-        # NOTE: output can not be tested
 
     @skipDockerFailure("Fails with: picard: command not found")
     def test_variant_calling_gatk_joint(self):
@@ -109,3 +82,81 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         hsqutils_dedup = self.run_process('hsqutils-dedup', inputs)
         self.assertFile(hsqutils_dedup, 'summary', 'HSQUtils_dedup_summary.txt')
+
+    @skipDockerFailure("Processor requires a custom Docker image.")
+    def test_vc_preprocess_bam(self):
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_trimmed.bam'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
+        bed = self.run_process('upload-bed', {'src': '56g_targets_picard_small.bed'})
+
+        inputs = {'src': 'Mills_and_1000G_gold_standard.indels.b37.chr22_small.vcf.gz'}
+        indels_1 = self.run_process('upload-variants-vcf', inputs)
+
+        inputs = {'src': '1000G_phase1.indels.b37.chr22_small.vcf.gz'}
+        indels_2 = self.run_process('upload-variants-vcf', inputs)
+
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+
+        inputs = {
+            'alignment': bam.id,
+            'bed': bed.id,
+            'genome': genome.id,
+            'known_indels': [indels_1.id, indels_2.id],
+            'known_vars': [dbsnp.id]
+        }
+
+        self.run_process('vc-preprocess-bam', inputs)
+
+    @skipDockerFailure("Processor requires a custom Docker image.")
+    def test_gatk_haplotypecaller(self):
+        alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
+        intervals = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+
+        inputs = {
+            'alignment': alignment.id,
+            'intervals': intervals.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        }
+
+        gatk_vars = self.run_process('vc-gatk-hc', inputs)
+
+        def filter_version(line):
+            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##fileDate") or b"/data_all/" in line:
+                return True
+
+        self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_version)
+
+    def test_lofreq(self):
+        alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
+        intervals = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
+
+        inputs = {
+            'alignment': alignment.id,
+            'intervals': intervals.id,
+            'genome': genome.id,
+        }
+
+        lofreq_vars = self.run_process('lofreq', inputs)
+
+        def filter_version(line):
+            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##fileDate") or b"/data_all/" in line:
+                return True
+
+        self.assertFile(lofreq_vars, 'vcf', '56GSID_10k.lf.vcf', file_filter=filter_version)
+
+    def test_snpeff(self):
+        variants_lf = self.run_process('upload-variants-vcf', {'src': '56GSID_10k.lf.vcf'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+
+        inputs = {
+            'variants': variants_lf.id,
+            'known_vars_annot': [dbsnp.id],
+            'var_source': 'lofreq'
+        }
+
+        final_var_lf = self.run_process('snpeff', inputs)
+        self.assertFile(final_var_lf, 'annotation', '56GSID.lf.finalvars.txt')

@@ -1,0 +1,136 @@
+- slug: workflow-accel
+  category: workflow:primary
+  name: Accel Amplicon Pipeline
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:amplicon
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq:paired
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: primers
+      label: Adapters and primers
+      group:
+        - name: adapters
+          label: Adapters
+          type: data:seq:nucleotide
+          description: >
+            Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
+        - name: up_primers
+          label: '5 prime primers'
+          type: data:seq:nucleotide
+          description: >
+            Provide a list of 5' primers in fasta format.
+        - name: down_primers
+          label: '3 prime primers'
+          type: data:seq:nucleotide
+          description: >
+            Provide a list of 3' primers in fasta format.
+    - name: target_intervals
+      label: Target interval files (BED)
+      group:
+        - name: intervals
+          label: Target intervals (BED)
+          type: data:bed
+        - name: intervals_picard
+          label: Target intervals (Picard formatted)
+          type: data:bed
+    - name: preprocess_bam
+      label: Indel realignment and base recalibration options
+      group:
+        - name: known_indels
+          label: Known indels
+          type: list:data:variants:vcf
+        - name: known_vars
+          label: Known variants
+          type: list:data:variants:vcf
+    - name: gatk
+      label: GATK HaplotypeCaller options
+      group:
+        - name: dbsnp
+          label: dbSNP
+          type: data:variants:vcf
+    - name: var_annot
+      label: Variant annotation options
+      group:
+        - name: known_vars_db
+          label: Known variants
+          type: list:data:variants:vcf
+    - name: threads
+      label: CPU threads
+      type: basic:integer
+      default: 4
+  run:
+    language: workflow
+    program:
+      - id: trimmomatic_filtering
+        run: trimmomatic-paired
+        input:
+          reads: '{{input.reads}}'
+          adapters: '{{input.primers.adapters}}'
+          illuminaclip:
+            seed_mismatches: 2
+            palindrome_clip_threshold: 30
+            simple_clip_threshold: 10
+          trailing: 3
+          minlen: 40
+      - id: cutadapt
+        run: cutadapt-amplicon
+        input:
+          reads: '{{steps.trimmomatic_filtering}}'
+          up_primers: '{{input.primers.up_primers}}'
+          down_primers: '{{input.primers.down_primers}}'
+          cputhreads: '{{input.threads}}'
+      - id: bwa
+        run: alignment-bwa-mem
+        input:
+          genome: '{{input.genome}}'
+          reads: '{{steps.cutadapt}}'
+          m: true
+          threads: '{{input.threads}}'
+          scoring:
+            unpaired_p: 17
+      - id: coveragebed
+        run: coveragebed
+        input:
+          alignment: '{{steps.bwa}}'
+          bed: '{{input.target_intervals.intervals}}'
+      - id: preprocess_bam
+        run: vc-preprocess-bam
+        input:
+          alignment: '{{steps.bwa}}'
+          bed: '{{input.target_intervals.intervals_picard}}'
+          genome: '{{input.genome}}'
+          known_vars: '{{input.preprocess_bam.known_vars}}'
+          known_indels: '{{input.preprocess_bam.known_indels}}'
+          threads: '{{input.threads}}'
+      - id: gatk_hc
+        run: vc-gatk-hc
+        input:
+          alignment: '{{steps.preprocess_bam}}'
+          genome: '{{input.genome}}'
+          intervals: '{{input.target_intervals.intervals}}'
+          dbsnp: '{{input.gatk.dbsnp}}'
+      - id: lofreq
+        run: lofreq
+        input:
+          alignment: '{{steps.preprocess_bam}}'
+          genome: '{{input.genome}}'
+          intervals: '{{input.target_intervals.intervals}}'
+      - id: annotate_gatk
+        run: snpeff
+        input:
+          variants: '{{steps.gatk_hc}}'
+          known_vars_annot: '{{input.var_annot.known_vars_db}}'
+          var_source: 'gatk_hc'
+      - id: annotate_lofreq
+        run: snpeff
+        input:
+          variants: '{{steps.lofreq}}'
+          known_vars_annot: '{{input.var_annot.known_vars_db}}'
+          var_source: 'lofreq'

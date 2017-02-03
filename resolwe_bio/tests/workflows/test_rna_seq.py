@@ -3,7 +3,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class RNASeqWorkflowTestCase(BioProcessTestCase):
-    def test_heatseq_workflow(self):
+    def test_cuffquant_workflow(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 

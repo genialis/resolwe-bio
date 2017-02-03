@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.1
+  version: 1.1.2
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -120,7 +120,7 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
 
       {% for r in reads.fastq %}

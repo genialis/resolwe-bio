@@ -11,7 +11,6 @@
   version: 1.0.12
   type: data:seq:nucleotide
   category: upload
-  flow_collection: sample
   persistence: RAW
   description: >
     Upload sequence file in FASTA format.

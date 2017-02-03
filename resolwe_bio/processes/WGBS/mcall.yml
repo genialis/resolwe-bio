@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "mcall"
-  version: 1.0.1
+  version: 1.0.2
   type: data:wgbs:mcall
   category: analyses:wgbs
   persistence: CACHED
@@ -100,15 +100,12 @@
     language: bash
     program: |
 
-
-      gzip -dc "{{genome.fasta.file}}" > genome.fasta
-
       {% for bam_file in bam %}
         ln -s {{bam_file.bam.file}} {{bam_file.bam.file|basename}} # bam_{{loop.index}}.bam
       {% endfor %}
 
       echo "Calculating mcall"
-      mcall -m {% for bam_file in bam %}{{bam_file.bam.file|basename}} {% endfor %} -r genome.fasta -g {{genome_identifier}} -p {{threads}} --fullMode {{full_mode}} --statsOnly {{stats_only}}{% if sample_name %} --sampleName {{sample_name}}{% endif %}
+      mcall -m {% for bam_file in bam %}{{bam_file.bam.file|basename}} {% endfor %} -r "{{genome.fasta.file}}" -g {{genome_identifier}} -p {{threads}} --fullMode {{full_mode}} --statsOnly {{stats_only}}{% if sample_name %} --sampleName {{sample_name}}{% endif %}
       re-checkrc "Mcall failed"
       re-progress 0.8
 

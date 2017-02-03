@@ -53,3 +53,11 @@ class GencoverProcessorTestCase(BioProcessTestCase):
 
         exon_cov = self.run_process('coverage-garvan', inputs)
         self.assertFile(exon_cov, 'exon_coverage', 'exons_coverage.txt.gz', compression='gzip')
+
+    def test_amplicon_coverage(self):
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_trimmed.bam'})
+        bed = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
+
+        coverage = self.run_process('coveragebed', {'alignment': bam.id, 'bed': bed.id})
+        self.assertFile(coverage, 'cov', '56GSID_10k_trimmed.cov')
+        self.assertFile(coverage, 'covd', '56GSID_10k_trimmed.covd')

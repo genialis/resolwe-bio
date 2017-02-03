@@ -1,9 +1,10 @@
 - slug: workflow-rnaseq-cuffquant
   category: workflow:primary
   name: RNA-Seq (Cuffquant)
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:cuffquant
   input:
     - name: reads

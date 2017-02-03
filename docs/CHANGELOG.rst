@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Amplicon workflow
+
 Fixed
 -----
 * Use new import paths in ``resolwe.flow``
@@ -18,6 +22,7 @@ Changed
 -------
 * Support Resolwe test framework
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
+* Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 
 
 ================
