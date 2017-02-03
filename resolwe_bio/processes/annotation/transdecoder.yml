@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "TransDecoder analysis ({{ gff.merged_gtf.file|basename|default('?') }})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:annotation:transdecoder
   category: analyses
   persistence: CACHED
@@ -66,10 +66,7 @@
       cufflinks_gtf_to_alignment_gff3.pl cuffmerge_annotation.gtf > cuffmerge_annotation.gff3
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
-      echo "Prepare transcripts.fasta file"
-      gzip -cd {{ genome.fasta.file }} > genome.fasta
-
-      cufflinks_gtf_genome_to_cdna_fasta.pl cuffmerge_annotation.gtf genome.fasta > transcripts.fasta
+      cufflinks_gtf_genome_to_cdna_fasta.pl cuffmerge_annotation.gtf {{ genome.fasta.file }} > transcripts.fasta
       echo "{\"proc.progress\":0.20,\"proc.rc\":$?}"
 
       TransDecoder.LongOrfs -t transcripts.fasta {% if m %} -m {{m}} {% endif %}

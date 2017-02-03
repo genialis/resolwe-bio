@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.16
+  version: 1.0.17
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -120,7 +120,7 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_bt.dir}}/${GENOME_NAME}_index"
 
       {% for r in reads.fastq %}
@@ -232,7 +232,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.21
+  version: 1.0.22
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -377,7 +377,7 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
 
       # mode selection

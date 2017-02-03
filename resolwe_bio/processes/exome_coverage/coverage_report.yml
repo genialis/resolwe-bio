@@ -1,8 +1,6 @@
 # ============================
 # Processors for Gene Coverage
 # ============================
-#
-# Processors for computing gene coverage. Developed within the Garvan project.
 ---
 
 - slug: coverage-garvan
@@ -73,3 +71,51 @@
       re-save-file exon_coverage exons.txt.gz
       re-save-file transcript_coverage transcripts.txt.gz
       re-save-file variants_coverage variants.txt.gz
+
+
+- slug: coveragebed
+  name: coverageBed
+  requirements:
+    expression-engine: jinja
+  data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
+  version: 2.0.6
+  type: data:coverage
+  category: analyses
+  flow_collection: sample
+  persistence: TEMP
+  description: >
+    An exome coverage report tool developed for the Garvan Institute, Sydney, Australia. The tool reports coverage
+    of exons and their potential variants in JSON format.
+  input:
+    - name: alignment
+      label: Alignment (BAM)
+      type: data:alignment:bam
+    - name: bed
+      label: BED file
+      type: data:bed
+  output:
+    - name: cov
+      label: Coverage
+      type: basic:file
+    - name: covd
+      label: Coverage (depth at each position)
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
+      SAMPLE_NAME='{{ alignment|sample_name }}'
+
+      picard-tools AddOrReplaceReadGroups I={{alignment.bam.file}} O="${BAM_NAME}.RG.bam" SO=coordinate RGID=amplicons RGLB=swift RGSM=${BAM_NAME} RGPL=illumina RGPU=miseq
+      re-checkrc
+
+      coverageBed -abam "${BAM_NAME}.RG.bam" -b {{bed.BED.file}} -d > "${SAMPLE_NAME}.covd"
+      re-checkrc
+      re-progress 0.5
+
+      coverageBed -abam "${BAM_NAME}.RG.bam" -b {{bed.BED.file}} > "${SAMPLE_NAME}.cov"
+      re-checkrc
+
+      re-save-file covd "${SAMPLE_NAME}.covd"
+      re-save-file cov "${SAMPLE_NAME}.cov"

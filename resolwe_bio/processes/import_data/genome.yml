@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 2.1.1
+  version: 2.1.2
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -57,8 +57,11 @@
         subread index files. Supported extensions (*.tar.gz).
       validate_regex: '(\.tar\.gz)$'
   output:
+    - name: fastagz
+      label: Genome FASTA file (compressed)
+      type: basic:file
     - name: fasta
-      label: Uploaded file
+      label: Genome FASTA file
       type: basic:file
     - name: index_bt
       label: Bowtie index
@@ -75,6 +78,12 @@
     - name: index_subread
       label: subread index
       type: basic:dir
+    - name: fai
+      label: Fasta index
+      type: basic:file
+    - name: dict
+      label: Fasta dict
+      type: basic:file
   run:
     runtime: polyglot
     language: bash
@@ -90,7 +99,18 @@
         gzip -c -k "${FASTA_NAME}.fasta" > "${FASTA_NAME}.fasta.gz"
       fi
 
-      re-save-file fasta "${FASTA_NAME}.fasta.gz"
+      # Create fasta index
+      samtools faidx "${FASTA_NAME}.fasta"
+      re-checkrc
+
+      # Create fasta dictionary file
+      picard-tools CreateSequenceDictionary R="${FASTA_NAME}.fasta" O="${FASTA_NAME}.dict"
+      re-checkrc
+
+      re-save-file fastagz "${FASTA_NAME}.fasta.gz"
+      re-save-file fasta "${FASTA_NAME}.fasta"
+      re-save-file fai "${FASTA_NAME}.fasta.fai"
+      re-save-file dict "${FASTA_NAME}.dict"
 
       {% if bowtie_index %}
         re-import "{{ bowtie_index.file_temp|default(bowtie_index.file) }}" "{{ bowtie_index.file }}" "tar" "tar" compress 0.6

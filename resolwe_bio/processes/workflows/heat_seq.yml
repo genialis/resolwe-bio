@@ -1,9 +1,10 @@
 - slug: workflow-heat-seq
   category: workflow:primary
   name: HEAT-Seq Pipeline
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:vc:heatseq
   input:
     - name: reads

@@ -1,0 +1,11 @@
+- slug: amplicon-panel
+  name: Amplicon panel selection
+  description: Amplicon panel selection template
+  schema:
+    - name: panel
+      label: Select Accel-amplicon panel
+      type: basic:string
+      default: 56G_Oncology_Panel_v2
+      choices:
+        - label: 56G Oncology Panel v2
+          value: 56G_Oncology_Panel_v2

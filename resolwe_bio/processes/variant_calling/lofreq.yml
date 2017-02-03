@@ -1,0 +1,52 @@
+# ========================
+# Variant calling - lofreq
+# ========================
+---
+
+- slug: lofreq
+  name: LoFreq (call)
+  requirements:
+    expression-engine: jinja
+  data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:variants:vcf:lofreq
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Lofreq (call) Variant Calling.
+  input:
+    - name: alignment
+      label: Alignment file (BAM)
+      type: data:alignment:bam
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: intervals
+      label: Intervals
+      type: data:bed
+      description: >
+        Use this option to perform the analysis over only part of the genome.
+  output:
+    - name: vcf
+      label: Alignment file
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      SAMPLE_NAME='{{ alignment|sample_name }}'
+
+      lofreq call -q 20 -Q 20 --call-indels -f '{{genome.fasta.file}}' '{{alignment.bam.file}}' -l {{intervals.BED.file}} -o "${SAMPLE_NAME}.lf.vcf"
+      re-checkrc
+      re-progress 0.8
+
+      bgzip -c "${SAMPLE_NAME}.lf.vcf" > "${SAMPLE_NAME}.lf.vcf.bgz"
+      re-checkrc
+      re-progress 0.8
+
+      tabix -p vcf "${SAMPLE_NAME}.lf.vcf.bgz"
+      re-checkrc
+      re-progress 0.8
+
+      re-save-file vcf "${SAMPLE_NAME}.lf.vcf" "${SAMPLE_NAME}.lf.vcf.bgz" "${SAMPLE_NAME}.lf.vcf.bgz.tbi"

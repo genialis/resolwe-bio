@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.0.10
+  version: 1.0.11
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -63,16 +63,7 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
       BAM_FILE=`basename '{{ mapping.bam.file }}' .bam`
-
-      gzip -d -c "{{ genome.fasta.file }}" > "${GENOME_NAME}.fasta"
-      re-progress 0.05
-
-      samtools faidx "${GENOME_NAME}.fasta"
-      re-checkrc "Indexing of reference sequence file failed."
-      re-progress 0.1
-
       BAM_MPILEUP="{{ mapping.bam.file }}"
 
       {% if options.rmdup %}
@@ -82,7 +73,7 @@
         BAM_MPILEUP="${BAM_FILE}_dedup.bam"
       {% endif %}
 
-      samtools mpileup -Bugf "${GENOME_NAME}.fasta" "${BAM_MPILEUP}" {% if bed %} -l "{{ bed.BED.file }}" {% endif %} > "${BAM_FILE}_raw.bcf"
+      samtools mpileup -Bugf "{{ genome.fasta.file }}" "${BAM_MPILEUP}" {% if bed %} -l "{{ bed.BED.file }}" {% endif %} > "${BAM_FILE}_raw.bcf"
       re-checkrc "Samtools mpileup failed."
       re-progress 0.5
 

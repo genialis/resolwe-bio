@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Cuffdiff results'
-  version: 1.0.14
+  version: 1.0.15
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -152,11 +152,6 @@
 
       re-save source "{{ case.0.source }}"
 
-      {% if genome %}
-        GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
-        gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-      {% endif %}
-
       {% if annotation.merged_gtf.file %}
         ANNOTATION='{{ annotation.merged_gtf.file }}'
       {% elif  annotation.gtf.file %}
@@ -169,7 +164,7 @@
 
       re-progress 0.1
 
-      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet ${ANNOTATION} ${EXPERIMENTS}
+      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet ${ANNOTATION} ${EXPERIMENTS}
 
       re-checkrc
       re-progress 0.9

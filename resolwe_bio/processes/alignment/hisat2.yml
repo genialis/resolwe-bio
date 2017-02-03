@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -43,7 +43,7 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
+      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
 
       NAME='{{ reads|sample_name }}'

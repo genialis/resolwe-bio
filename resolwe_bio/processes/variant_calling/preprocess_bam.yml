@@ -1,0 +1,92 @@
+# =====================================
+# Variant calling - Preprocess BAM file
+# =====================================
+---
+
+- slug: vc-preprocess-bam
+  name: Preprocess BAM (Amplicon)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+  data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:alignment:bam:vc
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Preprocess BAM file and prepare for Variant Calling.
+  input:
+    - name: alignment
+      label: Alignment file (BAM)
+      type: data:alignment:bam
+    - name: bed
+      label: BED file
+      type: data:bed
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: known_vars
+      label: Known sites (dbSNP)
+      type: list:data:variants:vcf
+    - name: known_indels
+      label: Known indels
+      type: list:data:variants:vcf
+    - name: threads
+      label: CPU threads
+      type: basic:integer
+      default: 1
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      SAMPLE_NAME='{{ alignment|sample_name }}'
+      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
+
+      # Add RG
+      java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I={{alignment.bam.file}} O=alignment.RG.bam SO=coordinate RGID=amplicons RGLB=swift RGSM=${BAM_NAME} RGPL=illumina RGPU=miseq
+      echo "{\"proc.progress\":0.10,\"proc.rc\":$?}"
+
+      # Index BAM file
+      samtools index alignment.RG.bam
+      echo "{\"proc.progress\":0.20,\"proc.rc\":$?}"
+
+      #picard
+      java -jar /usr/gitc/picard.jar CollectTargetedPcrMetrics I=alignment.RG.bam O="${SAMPLE_NAME}.targetPCRmetrics.txt" AI={{bed.BED.file}} TI={{bed.BED.file}} R='{{genome.fasta.file}}' PER_TARGET_COVERAGE=${SAMPLE_NAME}.perTargetCov.txt
+      echo "{\"proc.progress\":0.30,\"proc.rc\":$?}"
+
+      #Create target interval for Indelrealigner
+      java -jar /usr/gitc/GATK36.jar -T RealignerTargetCreator -R '{{genome.fasta.file}}' -I alignment.RG.bam {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} -o forIndelRealigner.intervals
+      echo "{\"proc.progress\":0.40,\"proc.rc\":$?}"
+
+      #GATK Indel Realignment
+      java -jar /usr/gitc/GATK36.jar -T IndelRealigner -R '{{genome.fasta.file}}' -I alignment.RG.bam {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} --targetIntervals forIndelRealigner.intervals -o realigned.bam
+      echo "{\"proc.progress\":0.60,\"proc.rc\":$?}"
+
+      #GATK Base Recalibration
+      java -jar /usr/gitc/GATK36.jar -T BaseRecalibrator -R '{{genome.fasta.file}}' -I realigned.bam {% for known_var in known_indels + known_vars %} --knownSites {{ known_var.vcf.file }} {% endfor %} -nct {{threads}} -o recal_data.table
+      echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
+
+      #generate Recalibrated bam
+      java -jar /usr/gitc/GATK36.jar -T PrintReads -R '{{genome.fasta.file}}' -I realigned.bam -BQSR recal_data.table -o "${SAMPLE_NAME}.realigned.bqsrCal.bam"
+      echo "{\"proc.rc\":$?}"
+
+      echo "{\"bam\":{\"file\":\"${SAMPLE_NAME}.realigned.bqsrCal.bam\"}}"
+      echo "{\"bai\":{\"file\":\"${SAMPLE_NAME}.realigned.bqsrCal.bai\"}}"
+      echo "{\"target_pcr_metrics\":{\"file\":\"${SAMPLE_NAME}.targetPCRmetrics.txt\"}}"
+      echo "{\"target_coverage\":{\"file\":\"${SAMPLE_NAME}.perTargetCov.txt\"}}"

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Variants annotation ({{ variants.vcf.file|basename|default('?') }})"
-  version: 1.0.13
+  version: 1.0.14
   type: data:variants:annotation
   category: analyses:variants
   flow_collection: sample
@@ -51,25 +51,15 @@
       SUMMARY="${VARIANTS}_summary_annotation.txt"
       OUTPUT="${VARIANTS}_annotationX.tsv"
 
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta.gz`
-      gzip -cd {{ genome.fasta.file }} > "${GENOME_NAME}.fasta"
-      echo "{\"proc.progress\":0.05,\"proc.rc\":$?}"
-
-      # indexing
-      samtools faidx "${GENOME_NAME}.fasta"
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
-      picard CreateSequenceDictionary R="${GENOME_NAME}.fasta" O="${GENOME_NAME}.dict"
-      echo "{\"proc.progress\":0.15,\"proc.rc\":$?}"
-
       # filtering
-      gatk -T VariantFiltration -V "{{variants.vcf.file}}" -o "${VARIANTS}_filtered.vcf" -R "${GENOME_NAME}.fasta" --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'
+      gatk -T VariantFiltration -V "{{variants.vcf.file}}" -o "${VARIANTS}_filtered.vcf" -R "{{ genome.fasta.file }}" --filterName DepthFilter --filterExpression 'DP < {{filtration.rd}} || AF < {{filtration.af}}'
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-      gatk -T SelectVariants --variant "${VARIANTS}_filtered.vcf" -o "${VARIANTS}_selected.vcf" -R "${GENOME_NAME}.fasta" -ef
+      gatk -T SelectVariants --variant "${VARIANTS}_filtered.vcf" -o "${VARIANTS}_selected.vcf" -R "{{ genome.fasta.file }}" -ef
       sudo unshare -n bash temp.sh
       echo "{\"proc.progress\":0.25,\"proc.rc\":$?}"
 
       # annotation
-      SNPdat.pl -i "${VARIANTS}_selected.vcf" -g "{{gtf.gtf.file}}" -f "${GENOME_NAME}.fasta" -o "${OUTPUT}" -s "${SUMMARY}"
+      SNPdat.pl -i "${VARIANTS}_selected.vcf" -g "{{gtf.gtf.file}}" -f "{{ genome.fasta.file }}" -o "${OUTPUT}" -s "${SUMMARY}"
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
       VCF_ad_extract.py "${VARIANTS}_selected.vcf" "${OUTPUT}" > "ad_column.txt"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"

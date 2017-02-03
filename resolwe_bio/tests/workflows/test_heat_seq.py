@@ -26,7 +26,7 @@ class HeatSeqWorkflowTestCase(BioProcessTestCase):
         variants = Data.objects.last()
 
         def filter_version(line):
-            if line.startswith(b"##samtoolsVersion") or b"/data_all/" in line:
+            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##reference") or b"/data_all/" in line:
                 return True
 
         self.assertFile(variants, 'vcf', 'heat-seq.vcf', file_filter=filter_version)

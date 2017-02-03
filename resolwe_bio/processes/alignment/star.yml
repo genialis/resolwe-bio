@@ -271,7 +271,7 @@
   requirements:
     expression-engine: jinja
   data_name: "STAR genome index ({{ genome.fasta.file|basename|default('?') }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -336,10 +336,8 @@
     runtime: polyglot
     language: bash
     program: |
-      gzip -dc {{ genome.fasta.file }} > genome.fasta
-      re-progress 0.1
       mkdir star_index
-      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} --genomeDir ./star_index/ --genomeFastaFiles genome.fasta --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }} --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
+      STAR --runThreadN {{ threads }} --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} --genomeDir ./star_index/ --genomeFastaFiles {{ genome.fasta.file }} --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% else %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} --sjdbOverhang {{ sjdbOverhang }} --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       re-checkrc "Genome index build failed."
       re-progress 0.8
       re-save-dir index star_index
