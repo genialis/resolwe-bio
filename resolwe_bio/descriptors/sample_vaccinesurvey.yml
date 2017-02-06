@@ -1,0 +1,134 @@
+- slug: sample-vaccinesurvey
+  name: Vaccinesurvey sample annotation
+  description: Vaccinesurvey sample annotation
+  schema:
+    - name: sample
+      label: Sample annotation
+      group:
+        - name: annotator
+          label: Annotator/Scientist
+          type: basic:string
+          description: >
+            The name of the person that prepared the data.
+        - name: study_code
+          label: Study code identifying patient
+          type: basic:string
+        - name: sex
+          label: Sex
+          type: basic:string
+          choices:
+            - label: Man
+              value: man
+            - label: Woman
+              value: woman
+        - name: entry_date
+          label: Entry date
+          type: basic:date
+        - name: birth_date
+          label: Birth date
+          type: basic:date
+          required: false
+        - name: village_code
+          label: Village code
+          type: basic:integer
+          required: false
+        - name: location
+          label: Location
+          group:
+            - name: latitude
+              label: Latitude
+              type: basic:decimal
+              required: false
+            - name: longitude
+              label: Longitude
+              type: basic:decimal
+              required: false
+        - name: ethnicity
+          label: Ethnicity of the patient
+          type: basic:string
+          allow_custom_choice: true
+          choices:
+            - label: peluh
+              value: Peluh
+            - label: mossi
+              value: Mossi
+            - label: rimaibe
+              value: Rimaibe
+            - label: samo
+              value: Samo
+            - label: bissa
+              value: Bissa
+            - label: unknown
+              value: Unknown
+        - name: fever
+          label: Fever during last 24 hours
+          type: basic:boolean
+          required: false
+        - name: antimalaria_treatment
+          label: Anti-malarial treatment during last 7 days
+          type: basic:boolean
+          required: false
+        - name: hospital_visit
+          label: Anti-malarial treatment during last 7 days
+          type: basic:boolean
+          required: false
+        - name: vomit
+          label: Vomit
+          type: basic:boolean
+          required: false
+        - name: cough
+          label: Cough
+          type: basic:boolean
+          required: false
+        - name: diarrhoea
+          label: Diarrhoea
+          type: basic:boolean
+          required: false
+        - name: bednet
+          label: Use of impregnated bednet/curtain
+          type: basic:boolean
+          required: false
+        - name: body_temp
+          label: Body temperature
+          type: basic:decimal
+          required: false
+        - name: immunological_data
+          label: Immunological data
+          group:
+            - name: ama1
+              label: AMA1 (apical membrane antigen 1) [units - normalised OD]
+              type: basic:decimal
+              required: false
+            - name: msp1
+              label: MSP1 (Merozoite surface protein 1) [units - normalised OD]
+              type: basic:decimal
+              required: false
+            - name: msp2
+              label: MSP2 (Merozoite surface protein 2) [units - normalised OD]
+              type: basic:decimal
+              required: false
+            - name: nanp
+              label: NANP [units - normalised OD]
+              type: basic:decimal
+              required: false
+            - name: total_ige
+              label: total IgE [units - normalised OD]
+              type: basic:decimal
+              required: false
+            - name: tetanus
+              label: Tetanus [units - IU/ml]
+              type: basic:decimal
+              required: false
+            - name: measles
+              label: Measles [units - IU/ml]
+              type: basic:decimal
+              required: false
+            - name: polio
+              label: Polio [units - IU/ml]
+              type: basic:decimal
+              required: false
+            - name: haemoglobin
+              label: Haemoglobin level [g/dL]
+              type: basic:decimal
+              required: false
+

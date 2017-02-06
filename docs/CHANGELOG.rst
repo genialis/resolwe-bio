@@ -82,6 +82,7 @@ Added
 * django-admin commands ``insert_features`` and ``insert_mappings`` for
   importing features and mappings to the Knowledge Base
 * Add bsmap and mcall to analyse WGBS data
+* Vaccinesurvey sample descriptor schema
 
 Fixed
 -----
