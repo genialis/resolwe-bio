@@ -73,6 +73,14 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         self.assertMappingEqual(response.data[1], self.mappings[1])
         self.assertMappingEqual(response.data[2], self.mappings[5])
 
+        # Test query with a lot of source ids.
+        response = self.client.post(MAPPING_URL, {
+            'source_db': 'SRC',
+            'target_db': 'TGT',
+            'source_id': [str(x) for x in range(2048)]
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_admin(self):
         # Test that only an admin can access the endpoint.
         response = self.client.get(reverse('resolwebio-api:mapping-list'), format='json')

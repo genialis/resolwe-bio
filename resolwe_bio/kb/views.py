@@ -121,9 +121,27 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     document_class = MappingSearchDocument
     serializer_class = MappingSerializer
 
-    filtering_fields = ('source_id', 'source_db', 'target_id', 'target_db', 'relation_type')
+    filtering_fields = ('source_db', 'target_db', 'relation_type')
     ordering_fields = ('source_id',)
     ordering = 'source_id'
+
+    def custom_filter(self, search):
+        """Support correct searching by ``source_id`` and ``target_id``."""
+        for field in ('source_id', 'target_id'):
+            query = self.get_query_param(field, None)
+            if not query:
+                continue
+            if not isinstance(query, list):
+                query = [query]
+
+            search = search.filter(
+                'bool',
+                should=[
+                    Q('terms', **{field: query}),
+                ]
+            )
+
+        return search
 
     def filter_permissions(self, search):
         """Mapping objects have no permissions."""
