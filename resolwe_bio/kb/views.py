@@ -33,7 +33,7 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('name', 'source')
+    filtering_fields = ('name', 'source', 'species')
     ordering_fields = ('name',)
     ordering = 'name'
 
@@ -66,7 +66,7 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('source',)
+    filtering_fields = ('source', 'species')
 
     def custom_filter(self, search):
         """Support autocomplete query using the 'query' attribute."""
