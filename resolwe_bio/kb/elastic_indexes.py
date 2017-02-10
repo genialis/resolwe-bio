@@ -7,20 +7,38 @@ from resolwe.elastic.indices import BaseDocument, BaseIndex
 
 from .models import Feature, Mapping
 
+# Analyzer for feature identifiers and names, used during boosting.
+# pylint: disable=invalid-name
+identifier_analyzer = dsl.analyzer('identifier_analyzer', tokenizer='keyword', filter=['lowercase'])
+# pylint: enable=invalid-name
+
 
 class FeatureSearchDocument(BaseDocument):
     """Index for feature search."""
 
     # pylint: disable=no-member
     source = dsl.String(index='not_analyzed')
-    feature_id = dsl.String(index='not_analyzed')
+    feature_id = dsl.String(
+        index='not_analyzed',
+        # Additional subfield used for boosting during autocomplete.
+        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+    )
     species = dsl.String()
     type = dsl.String()  # pylint: disable=invalid-name
     sub_type = dsl.String()
-    name = dsl.String(index='not_analyzed')
+    name = dsl.String(
+        index='not_analyzed',
+        # Additional subfield used for boosting during autocomplete.
+        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+    )
     full_name = dsl.String()
     description = dsl.String()
-    aliases = dsl.String(multi=True, index='not_analyzed')
+    aliases = dsl.String(
+        multi=True,
+        index='not_analyzed',
+        # Additional subfield used for boosting during autocomplete.
+        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+    )
 
     # Autocomplete.
     autocomplete = dsl.String(

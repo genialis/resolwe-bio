@@ -70,7 +70,16 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
 
     def custom_filter(self, search):
         """Support autocomplete query using the 'query' attribute."""
-        return search.query('match', autocomplete=self.get_query_param('query', ''))
+        return search.query(
+            'bool',
+            should=[
+                Q('match', autocomplete=self.get_query_param('query', '')),
+                # Boost exact name and feature_id matches. Use the 'lower' subfield in order
+                # to compare against lowercased terms.
+                Q('match', **{'feature_id.lower': {'query': self.get_query_param('query', ''), 'boost': 2}}),
+                Q('match', **{'name.lower': {'query': self.get_query_param('query', ''), 'boost': 2}}),
+            ]
+        )
 
     def filter_permissions(self, search):
         """Feature objects have no permissions."""
