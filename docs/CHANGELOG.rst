@@ -17,6 +17,7 @@ Fixed
 Changed
 -------
 * Support Resolwe test framework
+* Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
 
 
 ================
