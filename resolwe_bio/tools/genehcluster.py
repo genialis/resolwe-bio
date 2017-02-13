@@ -54,6 +54,7 @@ for fname in args.sample_files:
     df = pd.read_csv(fname, sep='\t', header=0, index_col=0, compression='gzip')
     matrix.append(df)
 frame = pd.concat(matrix, axis=1)
+frame.index = frame.index.map(str)
 
 # list of genes from files
 genes_from_files = list(frame.index.values)
@@ -85,8 +86,9 @@ list_zero_genes = [all_genes[index] for index in genes_zero]
 
 # delete genes that have zero expression in all samples
 matrix = np.delete(matrix, genes_zero, axis=0)
+
 if matrix.shape[0] == 0:
-    msg = "Expressions of selected genes are 0. Please selectdifferent samples or genes."
+    msg = "Expressions of selected genes are 0. Please select different samples or genes."
     print(error(msg))
     raise ValueError(msg)
 

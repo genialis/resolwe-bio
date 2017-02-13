@@ -18,7 +18,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
             'genes': ['DPU_G0067096', 'DPU_G0067098', 'DPU_G0067100']}
         self.run_process('clustering-hierarchical-genes-etc', inputs)
 
-    def test_hc_clustering_samples(self):
+    def test_hc_clustering_samples_ucsc(self):
         inputs = {'exp': 'clustering_expressions_1.tab.gz',
                   'exp_type': 'Log2',
                   'exp_name': 'Expression',
@@ -47,7 +47,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         self.assertEqual(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)
 
-    def test_hc_clustering_genes(self):
+    def test_hc_clustering_genes_ucsc(self):
         inputs = {'exp': 'clustering_expressions_1.tab.gz',
                   'exp_type': 'Log2',
                   'exp_name': 'Expression',
@@ -73,5 +73,61 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         clustering = self.run_process('clustering-hierarchical-genes', inputs)
 
         saved_json, test_json = self.get_json('gene_cluster_data.json.gz', clustering.output['cluster'])
+        self.assertEqual(test_json['linkage'], saved_json['linkage'])
+        self.assertTrue('order' in test_json)
+
+    def test_hc_clustering_genes_ncbi(self):
+        inputs = {'exp': 'clustering_NCBI.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_1 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_1.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_2 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_2.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_3 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
+                  'genes': ["1", "503538", "56934", "29974", "2", "144571", "3"],
+                  'genes_source': 'NCBI'}
+
+        clustering = self.run_process('clustering-hierarchical-genes', inputs)
+        saved_json, test_json = self.get_json('gene_cluster_data_NCBI.json.gz', clustering.output['cluster'])
+        self.assertEqual(test_json['linkage'], saved_json['linkage'])
+        self.assertTrue('order' in test_json)
+
+    def test_hc_clustering_samples_ncbi(self):
+        inputs = {'exp': 'clustering_NCBI.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_1 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_1.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_2 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_2.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_3 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
+                  'genes': ["1", "503538", "56934", "29974", "2", "144571", "3"],
+                  'genes_source': 'NCBI'}
+
+        clustering = self.run_process('clustering-hierarchical-samples', inputs)
+        saved_json, test_json = self.get_json('sample_cluster_data_NCBI.json.gz', clustering.output['cluster'])
         self.assertEqual(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)

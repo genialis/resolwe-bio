@@ -54,6 +54,7 @@ for fname in args.sample_files:
     df = pd.read_csv(fname, sep='\t', header=0, index_col=0, compression='gzip')
     matrix.append(df)
 frame = pd.concat(matrix, axis=1)
+frame.index = frame.index.map(str)
 
 # list of genes from files
 genes_from_files = list(frame.index.values)

@@ -93,6 +93,7 @@ Fixed
 * Order data objects in ``SampleViewSet``
 * Fix sample hiererhical clustering
 * Fix name in gff to gtf process
+* Fix clustering to read expressed genes as strings
 
 
 ================
