@@ -92,6 +92,7 @@ Fixed
 * Order data objects in ``SampleViewSet``
 * Fix sample hiererhical clustering
 * Fix name in gff to gtf process
+* Fix parse_diffexp.py to handle adjusted p-value or p-value when 0
 
 
 ================

@@ -74,6 +74,14 @@ def main():
 
     outdf = pd.DataFrame(columns)
     outdf = outdf[col_order]
+
+    # replace 0 with lowest adjusted p-value
+    min_p_adjust = min(i for i in outdf['fdr'] if i > 0)
+    outdf['fdr'] = outdf.fdr.mask(outdf.fdr == 0, min_p_adjust)
+    # replace 0 with lowest p-value
+    min_p = min(i for i in outdf['pvalue'] if i > 0)
+    outdf['pvalue'] = outdf.pvalue.mask(outdf.pvalue == 0, min_p)
+
     outdf.to_csv(args.output_file, sep='\t', index=False, compression='gzip')
 
 
