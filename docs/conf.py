@@ -93,7 +93,10 @@ html_static_path = ['_static']
 htmlhelp_basename = 'Resolwebiodoc'
 
 # Configuration for intersphinx
+_django_major_version = "{}.{}".format(*django.VERSION[:2])
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
+    'django': ('https://docs.djangoproject.com/en/{}/'.format(_django_major_version),
+               'https://docs.djangoproject.com/en/{}/_objects/'.format(_django_major_version)),
     'resolwe': ('https://resolwe.readthedocs.io/en/latest', None),
 }

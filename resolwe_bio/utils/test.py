@@ -47,7 +47,16 @@ def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
 
 
 class TransactionBioProcessTestCase(TransactionProcessTestCase):
-    """Test class for bioinformatics processes."""
+    """Base class for writing bioinformatics process tests not enclosed in a transaction.
+
+    It is a subclass of Resolwe's
+    :class:`~resolwe.test.TransactionProcessTestCase` with some specific
+    functions used for testing bioinformatics processes.
+
+    It is useful when one needs access to the process test's database
+    from another thread/process.
+
+    """
 
     def setUp(self):
         """Initialize test files path."""
@@ -99,7 +108,7 @@ class TransactionBioProcessTestCase(TransactionProcessTestCase):
 
 
 class BioProcessTestCase(TransactionBioProcessTestCase, DjangoTestCase):
-    """Base class for writing process tests.
+    """Base class for writing bioinformatics process tests.
 
     It is based on :class:`~.TransactionBioProcessTestCase` and
     Django's :class:`~django.test.TestCase`.
