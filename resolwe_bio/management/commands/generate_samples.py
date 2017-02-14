@@ -225,12 +225,13 @@ class Command(BaseCommand):
         # Annotate Sample Collection
         if annotated:
             sample.descriptor = generate_sample_descriptor(d.name)
+            sample.descriptor_completed = True
             sample.save()
             d.descriptor = generate_reads_descriptor(data_name, annotated=True)
             d.save()
-            logger.info(__('Created sample: {} (id={})', sample.name, sample.id))
+            logger.info(__('Created annotated sample: {} (id={})', sample.name, sample.id))
         else:
-            logger.info(__('Created presample: {} (id={})', sample.name, sample.id))
+            logger.info(__('Created unannotated sample: {} (id={})', sample.name, sample.id))
 
     def handle(self, *args, **options):
         """Command handle."""
