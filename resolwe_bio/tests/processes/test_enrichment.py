@@ -1,10 +1,11 @@
 # pylint: disable=missing-docstring
 from resolwe.test import tag_process
-from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
 class EnrichmentProcessorTestCase(KBBioProcessTestCase):
 
+    @with_resolwe_host
     @tag_process('goenrichment')
     def test_go_enrichment_dicty(self):
         with self.preparation_stage():
@@ -25,6 +26,7 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(len(enrichment.process_warning), 0)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
+    @with_resolwe_host
     @tag_process('goenrichment')
     def test_go_enrichment(self):
         with self.preparation_stage():

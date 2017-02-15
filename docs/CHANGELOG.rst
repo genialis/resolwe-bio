@@ -43,6 +43,7 @@ Changed
   of the docker image should also have their python scripts updated to Python 3.
 * Use ``resolwebio/dnaseq`` docker image in ``align-bwa-trim`` process
 * Refactor ``resolwebio/chipseq`` docker image
+* Make tests use the live Resolwe API host instead of external server
 
 Fixed
 -----

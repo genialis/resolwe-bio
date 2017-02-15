@@ -7,6 +7,7 @@ import wrapt
 
 from django.conf import settings
 from django.core.management import call_command
+from django.test import LiveServerTestCase
 
 from resolwe.test import with_resolwe_host as resolwe_with_resolwe_host, ProcessTestCase
 
@@ -132,11 +133,19 @@ class BioProcessTestCase(ProcessTestCase):
         return self.run_process('upload-master-file', {'src': mfile, 'panel_name': pname})
 
 
-class KBBioProcessTestCase(BioProcessTestCase):
-    """Test class for bioinformatics processes that uses knowledge base."""
+class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
+    """Class for bioinformatics process tests that use knowledge base.
 
-    def setUp(self):
+    It is based on :class:`~.BioProcessTestCase` and Django's
+    :class:`~django.test.LiveServerTestCase`.
+    The latter launches a live Django server in a separate thread so
+    that the tests may use it to query the knowledge base.
+
+    """
+
+    @classmethod
+    def setUpClass(cls):
         """Set-up test gene information knowledge base."""
-        super(KBBioProcessTestCase, self).setUp()
+        super(KBBioProcessTestCase, cls).setUpClass()
         call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features_gsea.tab.zip'))
         call_command('insert_mappings', os.path.join(TEST_FILES_DIR, 'mappings_gsea.tab.zip'))
