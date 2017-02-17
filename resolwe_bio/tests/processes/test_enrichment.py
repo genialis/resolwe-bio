@@ -19,6 +19,7 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
             'genes': ['DDB_G0277589', 'DDB_G0286855', 'DDB_G0267640']}
 
         enrichment = self.run_process('goenrichment', inputs)
+        self.assertEqual(len(enrichment.process_warning), 0)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
     def test_go_enrichment(self):
@@ -37,4 +38,6 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
         }
 
         enrichment = self.run_process('goenrichment', inputs)
+        self.assertEqual(len(enrichment.process_warning), 1)
+        self.assertEqual(enrichment.process_warning[0], "Not all features could be mapped.")
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_mouse.json.gz')
