@@ -37,6 +37,7 @@ setup(
     package_data={
         'resolwe_bio': [
             'descriptors/*.yml',
+            'fixtures/*.yaml',
             'processes/**/*.yml',
             'tools/*.py',
             'tools/*.R',
