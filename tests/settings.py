@@ -11,7 +11,7 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 SECRET_KEY = 'secret'
 
 # TODO: Support local Resolwe server in tests
-RESOLWE_API_HOST = 'https://qa.genialis.com'
+RESOLWE_HOST_URL = 'https://qa.genialis.com'
 
 DEBUG = True
 
