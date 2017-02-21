@@ -48,6 +48,7 @@ if len(samples) != len(sample_ids):
 
 exp = []
 allgenes = set()
+zero_genes = set()
 
 for fname in samples:
     myopen = utils.gzopen if isgzipped(fname) else open
@@ -59,6 +60,8 @@ for fname in samples:
         allgenes.update(exp[-1].keys())
 
 if args.genes:
+    genes = set(args.genes)
+    zero_genes = genes.difference(allgenes)
     allgenes = allgenes.intersection(args.genes)
 
 # Default expression value is 0.
@@ -72,13 +75,16 @@ if args.filter:
 
 if exp.shape[1] == 0:
     print(json.dumps({
-        'proc.warning': 'Filtering removed all PCA attributes.',
+        'proc.warning': 'Expressions of all selected genes are 0. Please select different samples or genes.',
         'pca': {
             'flot': {
                 'data': [[0, 0] for i in range(exp.shape[0])],
                 'xlabel': 'PC 1',
                 'ylabel': 'PC 2',
-                'samples': sample_ids}}}, separators=(',', ':')))
+                'samples': sample_ids},
+            'zero_gene_symbols': list(zero_genes),
+        }
+    }, separators=(',', ':')))
 
     sys.exit(0)
 
@@ -105,7 +111,8 @@ data = {
             'xlabel': 'PC 1',
             'ylabel': 'PC 2',
             'samples': sample_ids
-        }
+        },
+        'zero_gene_symbols': list(zero_genes),
     }
 }
 if not any(np.isnan(pca.explained_variance_ratio_)):

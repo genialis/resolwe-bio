@@ -22,3 +22,28 @@ class PcaProcessorTestCase(BioProcessTestCase):
 
         pca = self.run_process('pca', inputs)
         self.assertEqual(pca.process_warning[0], "Filtering removed all PCA attributes.")
+
+    def test_pca_ncbi(self):
+        inputs = {'exp': 'clustering_NCBI.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_1 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_1.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_2 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exp': 'clustering_NCBI_2.gz',
+                  'exp_type': 'rc',
+                  'exp_name': 'Expression',
+                  'source': 'NCBI'}
+        expression_3 = self.run_process('upload-expression', inputs)
+
+        inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk, ],
+                  'genes': ["1", "503538", "56934", "29974", "2", "144571", "3", "abc", "lll"]}
+        pca = self.run_process('pca', inputs)
+        saved_json, test_json = self.get_json('pca_plot_ncbi.json.gz', pca.output['pca'])
+        self.assertEqual(test_json['zero_gene_symbols'], saved_json['zero_gene_symbols'])
