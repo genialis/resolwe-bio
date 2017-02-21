@@ -113,19 +113,23 @@ FLOW_EXECUTION_ENGINES = [
     'resolwe.flow.execution_engines.workflow',
 ]
 
+# NOTE: Since FLOW_EXECUTOR['DATA_DIR'] and FLOW_EXECUTOR['UPLOAD_DIR'] are
+# shared among all containers they must use the shared SELinux label (z
+# option). Each Data object's subdirectory under FLOW_EXECUTOR['DATA_DIR'] can
+# use its unique SELinux label (Z option).
 FLOW_DOCKER_MAPPINGS = [
     {'src': os.path.join(FLOW_EXECUTOR['DATA_DIR'], '{data_id}'),
      'dest': '/home/biolinux/data',
-     'mode': 'rw'},
+     'mode': 'rw,Z'},
     {'src': FLOW_EXECUTOR['DATA_DIR'],
      # NOTE: Destination directory must not be under /home/biolinux as the
      # latter has the owner and group recursively changed to match the host
      # user's and that cannot work with read-only volumes.
      'dest': '/data_all',
-     'mode': 'ro'},
+     'mode': 'ro,z'},
     {'src': FLOW_EXECUTOR['UPLOAD_DIR'],
      'dest': '/home/biolinux/upload',
-     'mode': 'rw'},
+     'mode': 'rw,z'},
 ]
 
 REST_FRAMEWORK = {
