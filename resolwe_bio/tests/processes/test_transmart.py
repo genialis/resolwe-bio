@@ -15,7 +15,7 @@ class TranSMARTProcessorTestCase(ProcessTestCase):
 
     @unittest.skip("processor connects to remote tranSMART server")
     def test_import_with_annotation(self):
-        self.keep_all()
+        self.keep_data()
         ann = ('/studies/UBIOPRED/concepts/Sample%20Identifiers/Virology%20Sample%20ID/18_or_more;'
                '/studies/UBIOPRED/concepts/Sample%20Identifiers/Virology%20Sample%20ID/2to17;'
                '/studies/UBIOPRED/concepts/Sample%20Identifiers/Virology%20Sample%20ID/less_than_2;'

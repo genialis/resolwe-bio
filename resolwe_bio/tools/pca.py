@@ -39,6 +39,40 @@ def isgzipped(f):
     return magic == '\037\213'
 
 
+def component_top_factors(component):
+    """Return top 10 absolute factors."""
+    # 10x faster, but not supported in current numpy:
+    #   abs_component = np.abs(component)
+    #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
+    #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
+    ixs = np.argsort(np.abs(component))[:-11:-1]
+    if len(ixs) == 0:
+        return []
+    return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
+
+
+def save_pca(coordinates, explained_variance_ratios=[0, 0], components=[[], []], warning=None):
+    """Save json."""
+    data = {
+        'pca': {
+            'flot': {
+                'data': coordinates,
+                'xlabel': 'PC 1',
+                'ylabel': 'PC 2',
+                'samples': sample_ids,
+            },
+            'zero_gene_symbols': list(zero_genes),
+        }
+    }
+    data['pca']['all_components'] = [component_top_factors(component) for component in components]
+    data['pca']['all_explained_variance_ratios'] = explained_variance_ratios
+    data['pca']['components'] = data['pca']['all_components'][:10]
+    data['pca']['explained_variance_ratios'] = data['pca']['all_explained_variance_ratios'][:10]
+    if warning:
+        data['proc.warning'] = warning
+    print(json.dumps(data, separators=(',', ':'), allow_nan=False))
+
+
 samples = args.samples.split(',')
 sample_ids = args.sample_ids.split(',')
 
@@ -74,18 +108,10 @@ if args.filter:
     exp = np.transpose(f_exp)
 
 if exp.shape[1] == 0:
-    print(json.dumps({
-        'proc.warning': 'Expressions of all selected genes are 0. Please select different samples or genes.',
-        'pca': {
-            'flot': {
-                'data': [[0, 0] for i in range(exp.shape[0])],
-                'xlabel': 'PC 1',
-                'ylabel': 'PC 2',
-                'samples': sample_ids},
-            'zero_gene_symbols': list(zero_genes),
-        }
-    }, separators=(',', ':')))
-
+    save_pca(
+        coordinates=[[0, 0] for i in range(exp.shape[0])],
+        warning='Expressions of all selected genes are 0. Please select different samples or genes.',
+    )
     sys.exit(0)
 
 pca = PCA(n_components=0.99, whiten=True)
@@ -93,32 +119,12 @@ transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
+if any(np.isnan(pca.explained_variance_ratio_)):
+    save_pca(coordinates=coordinates)
+    sys.exit(0)
 
-def component_top_factors(component):
-    """Return top 10 absolute factors."""
-    # 10x faster, but not supported in current numpy:
-    #   abs_component = np.abs(component)
-    #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
-    #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
-    ixs = np.argsort(np.abs(component))[:-11:-1]
-    return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
-
-
-data = {
-    'pca': {
-        'flot': {
-            'data': coordinates,
-            'xlabel': 'PC 1',
-            'ylabel': 'PC 2',
-            'samples': sample_ids
-        },
-        'zero_gene_symbols': list(zero_genes),
-    }
-}
-if not any(np.isnan(pca.explained_variance_ratio_)):
-    data['pca']['all_explained_variance_ratios'] = pca.explained_variance_ratio_.tolist()
-    data['pca']['all_components'] = [component_top_factors(component) for component in pca.components_]
-    data['pca']['explained_variance_ratios'] = data['pca']['all_explained_variance_ratios'][:10]
-    data['pca']['components'] = data['pca']['all_components'][:10]
-
-print(json.dumps(data, separators=(',', ':'), allow_nan=False))
+save_pca(
+    coordinates=coordinates,
+    explained_variance_ratios=pca.explained_variance_ratio_.tolist(),
+    components=pca.components_,
+)
