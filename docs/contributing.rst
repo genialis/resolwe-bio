@@ -176,6 +176,11 @@ Building documentation
 
     python setup.py build_sphinx
 
+.. note::
+
+    To build the documentation, you must use Python 3 (Python 2 is not
+    supported).
+
 Preparing release
 =================
 

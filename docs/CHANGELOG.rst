@@ -22,6 +22,8 @@ Changed
 -------
 * Support Resolwe test framework
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
+* Always run Tox's ``docs``, ``linters`` and ``packaging`` environments with
+  Python 3
 * Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 
 
