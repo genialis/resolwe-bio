@@ -78,9 +78,6 @@ DATABASES = {
         'USER': pguser,
         'HOST': pghost,
         'PORT': pgport,
-        'TEST': {
-            'NAME': 'resolwe-bio_test'
-        }
     }
 }
 
