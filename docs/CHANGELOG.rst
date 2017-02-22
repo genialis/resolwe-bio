@@ -21,6 +21,7 @@ Fixed
 Changed
 -------
 * Support Resolwe test framework
+* Run tests in parallel with Tox
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
 * Always run Tox's ``docs``, ``linters`` and ``packaging`` environments with
   Python 3

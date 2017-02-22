@@ -92,7 +92,20 @@ Run docker::
 
 To run the tests, use::
 
-    ./manage.py test resolwe_bio --parallel=2
+    ./manage.py test resolwe_bio --parallel 2
+
+.. note::
+
+    If you don't specify the number of parallel test processes (i.e. you just
+    use ``--parallel``), Django will run one test process per each core
+    available on the machine.
+
+.. warning::
+
+    If you run Docker in a virtual machine (i.e. if you use MacOS or Windows)
+    rather that directly on your machine, the virtual machine can become
+    totally unresponsive if you set the number of parallel test processes too
+    high. We recommend using at most ``--parallel 2`` in such cases.
 
 To run a specific test, use::
 
@@ -126,7 +139,14 @@ For example, to only run the tests with Python 3.5, use ::
 
     To see the list of available Python versions, see ``tox.ini``.
 
+.. note::
+
+    To control the number of test processes `Django will run in parallel`_, set
+    the ``DJANGO_TEST_PROCESSES`` environment variable.
+
 .. _Tox: http://tox.testrun.org/
+.. _Django will run in parallel:
+    https://docs.djangoproject.com/en/1.10/ref/django-admin/#cmdoption-test-parallel
 
 Running tests skipped on Docker
 -------------------------------
