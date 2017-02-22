@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.12
+  version: 1.0.13
   type: data:seq:nucleotide
   category: upload
   persistence: RAW

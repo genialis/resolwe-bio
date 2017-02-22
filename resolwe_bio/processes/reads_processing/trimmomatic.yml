@@ -181,7 +181,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:paired:trimmomatic
   category: analyses
   flow_collection: sample
@@ -329,9 +329,6 @@
     runtime: polyglot
     language: bash
     program: |
-
-      # get sample name
-      SAMPLE_NAME='{{ reads|sample_name }}'
 
       {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
         re-error "At least one parammeter required"
