@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+import six
+
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
@@ -21,7 +23,10 @@ class PcaProcessorTestCase(BioProcessTestCase):
         }
 
         pca = self.run_process('pca', inputs)
-        self.assertEqual(pca.process_warning[0], "Filtering removed all PCA attributes.")
+        self.assertEqual(
+            pca.process_warning[0],
+            "Expressions of all selected genes are 0. Please select different samples or genes."
+        )
 
     def test_pca_ncbi(self):
         inputs = {'exp': 'clustering_NCBI.gz',
@@ -46,4 +51,4 @@ class PcaProcessorTestCase(BioProcessTestCase):
                   'genes': ["1", "503538", "56934", "29974", "2", "144571", "3", "abc", "lll"]}
         pca = self.run_process('pca', inputs)
         saved_json, test_json = self.get_json('pca_plot_ncbi.json.gz', pca.output['pca'])
-        self.assertEqual(test_json['zero_gene_symbols'], saved_json['zero_gene_symbols'])
+        six.assertCountEqual(self, test_json['zero_gene_symbols'], saved_json['zero_gene_symbols'])
