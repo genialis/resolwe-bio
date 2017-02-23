@@ -330,6 +330,9 @@
     language: bash
     program: |
 
+      # get sample name
+      SAMPLE_NAME='{{ reads|sample_name }}'
+
       {% if not average_quality and not minlen and not headcrop and not crop and not trailing and not leading and not maxinfo and not slidingwindow and not adapters %}
         re-error "At least one parammeter required"
       {% endif %}
