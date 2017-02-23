@@ -25,6 +25,7 @@ Changed
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
 * Always run Tox's ``docs``, ``linters`` and ``packaging`` environments with
   Python 3
+* Replace Travis CI with Genialis' Jenkins for running the tests
 * Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 
 
