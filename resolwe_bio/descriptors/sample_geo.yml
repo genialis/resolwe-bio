@@ -1,6 +1,7 @@
 - slug: sample
   name: GEO sample annotation
   description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
+  version: 0.0.1
   schema:
     - name: sample
       label: Sample annotation
@@ -20,6 +21,8 @@
               value: Mus musculus
             - label: Dictyostelium discoideum
               value: Dictyostelium discoideum
+            - label: Rattus norvegicus
+              value: Rattus norvegicus
         - name: source
           label: Source
           type: basic:string

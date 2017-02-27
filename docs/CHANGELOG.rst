@@ -15,6 +15,7 @@ Added
 * Amplicon workflow
 * Amplicon descriptor schemas
 * Amplicon report generator
+* Add Rattus norvegicus organism choice to sample schema
 
 Fixed
 -----
