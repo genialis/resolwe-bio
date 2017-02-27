@@ -1,5 +1,6 @@
 - slug: amplicon-panel
   name: Amplicon panel selection
+  version: 0.0.1
   description: Amplicon panel selection template
   schema:
     - name: panel
@@ -12,6 +13,7 @@
 
 - slug: amplicon-panel-advanced
   name: Amplicon panel selection
+  version: 0.0.1
   description: Amplicon panel selection template
   schema:
     - name: panel

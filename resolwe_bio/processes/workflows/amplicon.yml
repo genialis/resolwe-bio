@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -55,6 +55,31 @@
         - name: dbsnp
           label: dbSNP
           type: data:variants:vcf
+        - name: mbq
+          label: Min Base Quality
+          type: basic:integer
+          default: 20
+          description: >
+            Minimum base quality required to consider a base for calling.
+        - name: stand_emit_conf
+          label: Emission confidence threshold
+          type: basic:integer
+          default: 20
+          description: >
+            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+    - name: lofreq
+      label: LoFreq options
+      group:
+        - name: min_bq
+          label: Min baseQ
+          type: basic:integer
+          description: Skip any base with baseQ smaller than the default value.
+          default: 20
+        - name: min_alt_bq
+          label: Min alternate baseQ
+          type: basic:integer
+          description: Skip alternate bases with baseQ smaller than the default value.
+          default: 20
     - name: var_annot
       label: Variant annotation options
       group:
@@ -79,6 +104,7 @@
             simple_clip_threshold: 10
           trailing: 3
           minlen: 40
+          threads: '{{input.threads}}'
       - id: cutadapt
         run: cutadapt-amplicon
         input:
@@ -116,12 +142,16 @@
           genome: '{{input.genome}}'
           intervals: '{{input.target_intervals.intervals}}'
           dbsnp: '{{input.gatk.dbsnp}}'
+          mbq: '{{input.gatk.mbq}}'
+          stand_emit_conf: '{{input.gatk.stand_emit_conf}}'
       - id: lofreq
         run: lofreq
         input:
           alignment: '{{steps.preprocess_bam}}'
           genome: '{{input.genome}}'
           intervals: '{{input.target_intervals.intervals}}'
+          min_bq: '{{input.lofreq.min_bq}}'
+          min_alt_bq: '{{input.lofreq.min_alt_bq}}'
       - id: annotate_gatk
         run: snpeff
         input:

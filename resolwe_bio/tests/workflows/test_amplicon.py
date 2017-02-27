@@ -48,7 +48,13 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                     'known_indels': [indels_1.id, indels_2.id]
                 },
                 'gatk': {
-                    'dbsnp': dbsnp.id
+                    'dbsnp': dbsnp.id,
+                    'mbq': 20,
+                    'stand_emit_conf': 20
+                },
+                'lofreq': {
+                    'min_bq': 20,
+                    'min_alt_bq': 20
                 },
                 'var_annot': {
                     'known_vars_db': [dbsnp.id]

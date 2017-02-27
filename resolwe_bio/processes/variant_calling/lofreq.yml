@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:variants:vcf:lofreq
   category: analyses:variants
   flow_collection: sample
@@ -27,6 +27,16 @@
       type: data:bed
       description: >
         Use this option to perform the analysis over only part of the genome.
+    - name: min_bq
+      label: Min baseQ
+      type: basic:integer
+      default: 6
+      description: Skip any base with baseQ smaller than the default value.
+    - name: min_alt_bq
+      label: Min alternate baseQ
+      type: basic:integer
+      default: 6
+      description: Skip alternate bases with baseQ smaller than the default value.
   output:
     - name: vcf
       label: Alignment file
@@ -37,7 +47,7 @@
     program: |
       SAMPLE_NAME='{{ alignment|sample_name }}'
 
-      lofreq call -q 20 -Q 20 --call-indels -f '{{genome.fasta.file}}' '{{alignment.bam.file}}' -l {{intervals.BED.file}} -o "${SAMPLE_NAME}.lf.vcf"
+      lofreq call -q '{{min_bq}}' -Q '{{min_alt_bq}}' --call-indels -f '{{genome.fasta.file}}' '{{alignment.bam.file}}' -l {{intervals.BED.file}} -o "${SAMPLE_NAME}.lf.vcf"
       re-checkrc
       re-progress 0.8
 

@@ -5,7 +5,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -101,6 +101,10 @@
       required: false
       description: >
         Drop the read if the average quality is below the specified level
+    - name: threads
+      label: Number of threads
+      type: basic:integer
+      default: 1
   output:
     - name: fastq
       label: Reads file
@@ -149,7 +153,7 @@
       AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
 
 
-      TrimmomaticSE -trimlog ${NAME}_stats.txt ${NAME}.fastq.gz ${NAME}_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
+      TrimmomaticSE -threads {{threads}} -trimlog ${NAME}_stats.txt ${NAME}.fastq.gz ${NAME}_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
 
 
       re-checkrc "Failed while processing with Trimmomatic."
@@ -181,7 +185,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:reads:fastq:paired:trimmomatic
   category: analyses
   flow_collection: sample
@@ -295,6 +299,10 @@
       required: false
       description: >
         Drop the read if the average quality is below the specified level
+    - name: threads
+      label: Number of threads
+      type: basic:integer
+      default: 1
   output:
     - name: fastq
       label: Reads file (mate 1)
@@ -368,7 +376,7 @@
       MINLEN_S="{% if minlen %}MINLEN:{{minlen}}{% endif %}"
       AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
 
-      TrimmomaticPE -trimlog stats.txt ${NAME1}.fastq.gz ${NAME2}.fastq.gz ${NAME1}_paired_filtered.fastq.gz ${NAME1}_unpaired_filtered.fastq.gz ${NAME2}_paired_filtered.fastq.gz ${NAME2}_unpaired_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
+      TrimmomaticPE -threads {{threads}} -trimlog stats.txt ${NAME1}.fastq.gz ${NAME2}.fastq.gz ${NAME1}_paired_filtered.fastq.gz ${NAME1}_unpaired_filtered.fastq.gz ${NAME2}_paired_filtered.fastq.gz ${NAME2}_unpaired_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
 
       re-checkrc "Failed while processing with Trimmomatic."
       re-progress 0.7
