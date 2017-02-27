@@ -9,3 +9,43 @@
       choices:
         - label: 56G Oncology Panel v2
           value: 56G_Oncology_Panel_v2
+
+- slug: amplicon-panel-advanced
+  name: Amplicon panel selection
+  description: Amplicon panel selection template
+  schema:
+    - name: panel
+      label: Select Accel-amplicon panel
+      type: basic:string
+      default: 56G_Oncology_Panel_v2
+      choices:
+        - label: 56G Oncology Panel v2
+          value: 56G_Oncology_Panel_v2
+    - name: gatk
+      label: GATK (HaplotypeCaller) options
+      group:
+        - name: stand_emit_conf
+          label: Emission confidence threshold
+          type: basic:integer
+          default: 20
+          description: >
+            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+        - name: mbq
+          label: Min Base Quality
+          type: basic:integer
+          default: 20
+          description: >
+            Minimum base quality required to consider a base for calling.
+    - name: lofreq
+      label: Lofreq options
+      group:
+        - name: min_bq
+          label: Min baseQ
+          type: basic:integer
+          default: 20
+          description: Skip any base with baseQ smaller than the default value.
+        - name: min_alt_bq
+          label: Min alternate baseQ
+          type: basic:integer
+          default: 20
+          description: Skip alternate bases with baseQ smaller than the default value.

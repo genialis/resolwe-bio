@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 * Amplicon workflow
+* Amplicon descriptor schemas
 
 Fixed
 -----
