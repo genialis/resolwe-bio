@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.0.file|default("?") }}'
-  version: 1.0.22
+  version: 1.0.23
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -40,13 +40,6 @@
         re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
       {% endfor %}
 
-      for reads in `ls -v *.fastq.gz`
-      do
-        FASTQGZ=${FASTQGZ}"$reads "
-      done
-
-      re-save-file-list fastq ${FASTQGZ}
-
       for reads in `ls -v *.fastq`
       do
         FASTQ=${FASTQ}"$reads "
@@ -64,11 +57,24 @@
 
       for report_dir in ./fastqc/*/
       do
+        READS_NAME=`basename ${report_dir} _fastqc`
         ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
-        if [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
-          re-error "Only Sanger / Illumina 1.9 encoding in supported."
+
+        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+          TrimmomaticSE ${READS_NAME}.fastq ${READS_NAME}_reformated.fastq.gz TOPHRED33
+          mv ${READS_NAME}_reformated.fastq.gz ${READS_NAME}.fastq.gz
+
+        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
         fi
+
+        FASTQGZ=$FASTQGZ"${READS_NAME}.fastq.gz "
+
       done
+
+      re-save-file-list fastq ${FASTQGZ}
 
       for fqc in `ls -v *_fastqc.zip`
       do
@@ -85,7 +91,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 1.0.22
+  version: 1.0.23
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
@@ -130,20 +136,15 @@
     program: |
       {% for reads in src1 %}
         re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
-        FW_FASTQGZ=${FW_FASTQGZ}"${NAME}.fastq.gz "
         FW_FASTQC=${FW_FASTQC}"${NAME}_fastqc.zip "
         FW_FASTQC_URL=${FW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       {% endfor %}
 
       {% for reads in src2 %}
         re-import "{{ reads.file_temp|default(reads.file) }}" "{{ reads.file }}" "fastq|fq|bz2" "fastq" 0.5
-        RW_FASTQGZ=${RW_FASTQGZ}"${NAME}.fastq.gz "
         RW_FASTQC=${RW_FASTQC}"${NAME}_fastqc.zip "
         RW_FASTQC_URL=${RW_FASTQC_URL}"{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]} "
       {% endfor %}
-
-      re-save-file-list fastq ${FW_FASTQGZ}
-      re-save-file-list fastq2 ${RW_FASTQGZ}
 
       for reads in `ls -v *.fastq`
       do
@@ -160,13 +161,52 @@
 
       mv fastqc/*_fastqc.zip .
 
-      for report_dir in ./fastqc/*/
-      do
-        ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
-        if [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
-          re-error "Only Sanger / Illumina 1.9 encoding in supported."
-        fi
+      NAMES_FW=($FW_FASTQC)
+
+      for name in ${NAMES_FW[@]}; do
+        READS_NAME_FW=`basename $name _fastqc.zip`
+
+        for report_dir in ./fastqc/"${READS_NAME_FW}_fastqc"/; do
+          ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
+
+          if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+            echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+            TrimmomaticSE ${READS_NAME_FW}.fastq ${READS_NAME_FW}_reformated.fastq.gz TOPHRED33
+            mv ${READS_NAME_FW}_reformated.fastq.gz ${READS_NAME_FW}.fastq.gz
+
+          elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+            re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
+          fi
+        done
+        echo $FW_FASTQGZ
+        FW_FASTQGZ=$FW_FASTQGZ"${READS_NAME_FW}.fastq.gz "
+
       done
+
+      NAMES_RW=($RW_FASTQC)
+
+      for name in ${NAMES_RW[@]}; do
+        READS_NAME_RW=`basename $name _fastqc.zip`
+
+        for report_dir in ./fastqc/"${READS_NAME_RW}_fastqc"/; do
+          ENCODING=`parse_encoding_type.py ${report_dir}fastqc_data.txt`
+
+          if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+            echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+            TrimmomaticSE ${READS_NAME_RW}.fastq ${READS_NAME_RW}_reformated.fastq.gz TOPHRED33
+            mv ${READS_NAME_RW}_reformated.fastq.gz ${READS_NAME_RW}.fastq.gz
+
+          elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+            re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
+          fi
+        done
+        RW_FASTQGZ=$RW_FASTQGZ"${READS_NAME_RW}.fastq.gz "
+      done
+
+      re-save-file-list fastq ${FW_FASTQGZ}
+      re-save-file-list fastq2 ${RW_FASTQGZ}
 
       re-save-file-list fastqc_archive ${FW_FASTQC}
       re-save-file-list fastqc_archive2 ${RW_FASTQC}

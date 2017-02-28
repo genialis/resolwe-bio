@@ -80,6 +80,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.run_process('upload-expression-cuffnorm', inputs)
 
     def test_upload_paired_end_reads(self):
+        self.keep_data()
         inputs = {'src1': ['mate1.fastq.gz'], 'src2': ['mate2.fastq.gz']}
         self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
 
@@ -116,10 +117,6 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
                                                  'size': 323297}])
-
-    def test_upload_reads_old_encoding(self):
-        inputs = {'src': ['old_encoding.fastq.gz']}
-        self.run_process('upload-fastq-single', inputs, Data.STATUS_ERROR)
 
     def test_upload_de(self):
         inputs = {
@@ -236,3 +233,17 @@ class UploadProcessorTestCase(BioProcessTestCase):
         xlsx = self.run_process('upload-tab-file', inputs)
         self.assertFile(xlsx, 'file', 'xlsx_file_tabular.tab.gz', compression='gzip')
         self.assertFile(xlsx, 'src_file', 'upload file.1.xlsx')
+
+    def test_upload_reformating_single(self):
+        inputs = {'src': ['old_encoding.fastq.gz']}
+        reads = self.run_process('upload-fastq-single', inputs)
+        self.assertFiles(reads, 'fastq', ['old_encoding_transformed.fastq.gz'], compression='gzip')
+
+    def test_upload_reformating_paired(self):
+        inputs = {'src1': ['old_encoding.fastq.gz', 'old_encoding1.fastq.gz'],
+                  'src2': ['old_encoding_R2.fastq.gz', 'old_encoding1_R2.fastq.gz']}
+        reads = self.run_process('upload-fastq-paired', inputs)
+        self.assertFiles(reads, 'fastq', ['old_encoding_transformed.fastq.gz',
+                                          'old_encoding1_transformed.fastq.gz'], compression='gzip')
+        self.assertFiles(reads, 'fastq2', ['old_encoding_transformed_R2.fastq.gz',
+                                           'old_encoding1_transformed_R2.fastq.gz'], compression='gzip')
