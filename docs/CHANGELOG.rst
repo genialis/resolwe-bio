@@ -14,6 +14,7 @@ Added
 -----
 * Amplicon workflow
 * Amplicon descriptor schemas
+* Amplicon report generator
 
 Fixed
 -----

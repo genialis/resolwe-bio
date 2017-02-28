@@ -1,0 +1,51 @@
+\documentclass[11pt]{article}
+
+% Graphics, plotting, images:
+\usepackage{graphicx}
+
+% Tweaking text borders:
+\usepackage[top=3cm, bottom=3cm, left=2cm, right=2cm]{geometry}
+
+% Making hyperlinks:
+\usepackage{hyperref}
+
+% Making headers/footers:
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{\includegraphics[width=35mm]{{#LOGO#}}}
+
+
+\begin{document}
+
+\section*{Sample: {#SAMPLE_NAME#}}
+
+\subsection*{Amplicon performance \& QC table}
+Aligned reads: {#ALIGNED_READS#} \\
+Bases on target (aligned): {#BASES_ALIGNED#} \% \\
+Bases on target (total): {#BASES_TARGET#} \\
+Mean coverage: {#COV_MEAN#} \\
+Coverage (20 \% of mean): {#COV_20#} \\
+Coverage uniformity at $>$ 20 \% of mean: {#COV_UNI#} \%  \\
+
+
+\subsection*{Per amplicon coverage graph}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{{#IMAGE1#}}
+    \caption{Amplicon fractions (0--100 \%) that are covered by the sequencing
+    reads are plotted as bars.}
+\end{figure}
+
+
+\subsection*{Per amplicon average coverage}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.99\textwidth]{{#IMAGE2#}}
+    \caption{Average amplicon coverage (average number of sequencing reads
+    covering amplicon bases) is plotted as log-transformed total coverage for
+    each of the tested amplicons. Coverage at the 20 \% of mean sample coverage
+    is marked with the horizontal line.}
+\end{figure}
+
+
+\end{document}

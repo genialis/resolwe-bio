@@ -1,0 +1,49 @@
+# ===================
+# Generate PDF report
+# ===================
+
+- slug: amplicon-report
+  name: Amplicon report
+  requirements:
+    expression-engine: jinja
+  data_name: "Report ({{ bam|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:report:amplicon
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Create amplicon report.
+  input:
+    - name: bam
+      label: Preprocessed BAM
+      type: data:alignment:bam:vc
+    - name: coverage
+      label: Coverage
+      type: data:coverage
+    - name: template
+      label: Report template
+      type: data:file
+    - name: logo
+      label: Logo
+      type: data:file
+  output:
+    - name: report
+      label: Report
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      SAMPLE_NAME='{{ bam|sample_name }}'
+
+      make_report.py --sample "${SAMPLE_NAME}" \
+      --cov "{{coverage.cov.file}}" \
+      --covd "{{coverage.covd.file}}" \
+      --metrics "{{bam.target_pcr_metrics.file}}" \
+      --template "{{template.file.file}}" \
+      --logo "{{logo.file.file}}"
+
+      mv report.pdf ${SAMPLE_NAME}_report.pdf
+
+      re-save-file report ${SAMPLE_NAME}_report.pdf

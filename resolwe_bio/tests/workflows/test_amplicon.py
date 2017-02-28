@@ -30,6 +30,9 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
 
         dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
 
+        template = self.run_process('upload-file', {'src': 'report_template.tex'})
+        logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
+
         self.run_process(
             'workflow-accel', {
                 'reads': reads.id,
@@ -58,6 +61,11 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 },
                 'var_annot': {
                     'known_vars_db': [dbsnp.id]
-                }
+                },
+                'report': {
+                    'template': template.id,
+                    'logo': logo.id
+                },
+                'threads': 2
             }
         )
