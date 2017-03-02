@@ -3,6 +3,8 @@ node {
     stage('Checkout') {
         // check out the same revision as this script is loaded from
         checkout scm
+        // fetch git LFS files from remote and checkout required working tree files
+        sh 'git lfs pull'
     }
 
     stage('Test') {
