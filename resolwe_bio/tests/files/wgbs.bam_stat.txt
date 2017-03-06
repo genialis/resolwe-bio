@@ -1,33 +1,33 @@
 
-All reads = 54; Mapped reads = 54
+All reads = 1; Mapped reads = 1
 
 Strand specific stats where CGs on two strands are regarded as two Cytosines.
 next	strand	sites	mean	totalC	methC	global	depth
-C	+	96	0.0104167	96	1	0.0104167	1
-C	-	86	0	89	0	0	1.03488
-C	B	182	0.00549451	185	1	0.00540541	1.01648
-G	+	17	0.764706	17	13	0.764706	1
-G	-	24	0.854167	25	21	0.84	1.04167
-G	B	41	0.817073	42	34	0.809524	1.02439
-A	+	121	0.0165289	121	2	0.0165289	1
-A	-	105	0.0285714	109	3	0.0275229	1.0381
-A	B	226	0.0221239	230	5	0.0217391	1.0177
-T	+	87	0.0114943	87	1	0.0114943	1
-T	-	101	0	103	0	0	1.0198
-T	B	188	0.00531915	190	1	0.00526316	1.01064
-bisulfiteConversionFail: 0.0115702, or bisulfite conversion ratio = 0.98843
+C	+	0	-nan	0	0	-nan	-nan
+C	-	2	0	2	0	0	1
+C	B	2	0	2	0	0	1
+G	+	0	-nan	0	0	-nan	-nan
+G	-	1	1	1	1	1	1
+G	B	1	1	1	1	1	1
+A	+	0	-nan	0	0	-nan	-nan
+A	-	8	0	8	0	0	1
+A	B	8	0	8	0	0	1
+T	+	0	-nan	0	0	-nan	-nan
+T	-	3	0	3	0	0	1
+T	B	3	0	3	0	0	1
+bisulfiteConversionFail: 0, or bisulfite conversion ratio = 1
 
 Strand combined stats where CGs on two strands are regarded as one Cytosine.
 next	strand	sites	mean	totalC	methC	global	depth
-C	B	182	0.00549451	185	1	0.00540541	1.01648
-G	B	41	0.817073	42	34	0.809524	1.02439
-A	B	226	0.0221239	230	5	0.0217391	1.0177
-T	B	188	0.00531915	190	1	0.00526316	1.01064
-bisulfiteConversionFail: 0.0115702, or bisulfite conversion ratio = 0.98843
+C	B	2	0	2	0	0	1
+G	B	1	1	1	1	1	1
+A	B	8	0	8	0	0	1
+T	B	3	0	3	0	0	1
+bisulfiteConversionFail: 0, or bisulfite conversion ratio = 1
 depth	NumC	NumCG	NumCH	NumCHG	NumCHH	MeanRatioC	MeanRatioCG	MeanRatioCH	MeanRatioCHG	MeanRatioCHH
 0(genome)	77235	4006	73229	16775	56454	NA	NA	NA	NA	NA
-1	637	41	596	146	450	0.0635793	0.817073	0.011745	0.00684932	0.0133333
-2	10	1	9	2	7	0.05	0.5	0	0	0
+1	14	1	13	3	10	0.0714286	1	0	0	0
+2	0	0	0	0	0	-nan	-nan	-nan	-nan	-nan
 3	0	0	0	0	0	-nan	-nan	-nan	-nan	-nan
 4	0	0	0	0	0	-nan	-nan	-nan	-nan	-nan
 5	0	0	0	0	0	-nan	-nan	-nan	-nan	-nan

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "mcall"
-  version: 1.0.2
+  version: 1.0.3
   type: data:wgbs:mcall
   category: analyses:wgbs
   persistence: CACHED
@@ -23,6 +23,7 @@
     - name: genome_identifier
       label: The UCSC Genome Browser identifier
       type: basic:string
+      allow_custom_choice: true
       choices:
         - label: hg19
           value: hg19

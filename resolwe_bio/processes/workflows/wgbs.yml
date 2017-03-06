@@ -1,0 +1,50 @@
+- slug: workflow-wgbs
+  category: workflow:primary
+  name: Whole genome bisulfite sequencing
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:wgbs
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq
+    - name: genome
+      label: genome
+      type: data:genome:fasta
+    - name: genome_identifier
+      label: The UCSC Genome Browser identifier
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: hg19
+          value: hg19
+        - label: hg18
+          value: hg18
+        - label: mm8
+          value: mm8
+        - label: mm9
+          value: mm9
+        - label: mm10
+          value: mm10
+    - name: threads
+      label: Threads
+      type: basic:integer
+      default: 1
+  run:
+    language: workflow
+    program:
+      - id: bsmap
+        run: bsmap
+        input:
+          genome: '{{input.genome}}'
+          reads: '{{input.reads}}'
+          threads: '{{input.threads}}'
+      - id: mcall
+        run: mcall
+        input:
+          genome: '{{input.genome}}'
+          genome_identifier: '{{input.genome_identifier}}'
+          bam: '{{[steps.bsmap]}}'
+          threads: '{{input.threads}}'
