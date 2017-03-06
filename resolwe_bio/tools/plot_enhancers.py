@@ -12,6 +12,7 @@ import pandas as pd  # pylint: disable=import-error
 
 parser = argparse.ArgumentParser(description='Parse coordinates for the hockey-stick plot.')
 parser.add_argument('input_data', help='Input Data')
+parser.add_argument('output', help='Output JSON file')
 parser.add_argument('-c', action='store_true', help='Substract control sample data')
 
 args = parser.parse_args()
@@ -47,23 +48,22 @@ if len(labels) > 0 and len(labels) != len(x_axis):
     exit(1)
 
 data = {
-    'scatter_plot': {
-        'points': {
-            'x_axis': list(x_axis),
-            'y_axis': list(y_axis),
-            'items': labels
-        },
-        'annotations': [
-            {'type': 'line', 'x1': 0, 'y1': float(cutoff), 'x2': max(x_axis), 'y2': float(cutoff)},
-            {'type': 'line', 'x1': len(x_axis) - n_sup_enh, 'y1': 0, 'x2': len(x_axis) - n_sup_enh, 'y2': max(y_axis)}
-        ],
-        'meta': {
-            'x_label': xlabel,
-            'y_label': ylabel,
-            'chr_pos': list(chr_pos),
-            'text': 'Cutoff: {}'.format(cutoff)
-        }
+    'points': {
+        'x_axis': list(x_axis),
+        'y_axis': list(y_axis),
+        'items': labels
+    },
+    'annotations': [
+        {'type': 'line', 'x1': 0, 'y1': float(cutoff), 'x2': max(x_axis), 'y2': float(cutoff)},
+        {'type': 'line', 'x1': len(x_axis) - n_sup_enh, 'y1': 0, 'x2': len(x_axis) - n_sup_enh, 'y2': max(y_axis)}
+    ],
+    'meta': {
+        'x_label': xlabel,
+        'y_label': ylabel,
+        'chr_pos': list(chr_pos),
+        'text': 'Cutoff: {}'.format(cutoff)
     }
 }
 
-print(json.dumps(data, separators=(',', ':')))
+with open(args.output, 'w') as f:
+    json.dump(data, f)

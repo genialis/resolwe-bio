@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: ROSE2 analysis
-  version: 2.0.0
+  version: 2.0.1
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -122,8 +122,9 @@
       re-save-file gene_enhancer ${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt
       re-save-file stich_parameter ${NAME}_stitch_parameter.pdf
 
-      plot_enhancers.py ${NAME}_AllEnhancers.table.txt {% if control %} -c {% endif %}
+      plot_enhancers.py ${NAME}_AllEnhancers.table.txt scatter_plot.json {% if control %} -c {% endif %}
       re-checkrc
 
       zip ${NAME}_output_all.zip ${NAME}_*
       re-save-file all_output ${NAME}_output_all.zip
+      re-save scatter_plot scatter_plot.json
