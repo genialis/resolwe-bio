@@ -14,38 +14,61 @@
 \pagestyle{fancy}
 \lhead{\includegraphics[width=35mm]{{#LOGO#}}}
 
+\usepackage{caption}
+
+% tables spanning multiple pages
+\usepackage{longtable}
+
+\usepackage{array}
+\newcolumntype{L}{>{\centering\arraybackslash}m{3cm}}
 
 \begin{document}
 
-\section*{Sample: {#SAMPLE_NAME#}}
+\section*{{#SAMPLE_NAME#}}
 
-\subsection*{Amplicon performance \& QC table}
-Aligned reads: {#ALIGNED_READS#} \\
-Bases on target (aligned): {#BASES_ALIGNED#} \% \\
-Bases on target (total): {#BASES_TARGET#} \\
-Mean coverage: {#COV_MEAN#} \\
-Coverage (20 \% of mean): {#COV_20#} \\
-Coverage uniformity at $>$ 20 \% of mean: {#COV_UNI#} \%  \\
+\noindent
+{\Large {#PANEL#}} \\
+
+\noindent
+{\large Sample analysis report} \\
+\noindent \today
+
+\section{QC information}
+
+\subsection*{Amplicon performance}
+
+Total reads: \textbf{{#TOTAL_READS#}} \\
+Aligned reads: \textbf{{#ALIGNED_READS#}} \\
+Bases on target (aligned): \textbf{{#BASES_ALIGNED#}} \% \\
+Bases on target (total): \textbf{{#BASES_TARGET#}} \% \\
+Mean coverage: \textbf{{#COV_MEAN#}} \\
+Mean coverage (20 \% of Mean) : \textbf{{#COV_20#}} \\
+Coverage uniformity (\% bases covered above 20 \% of Mean): \textbf{{#COV_UNI#}} \%  \\
 
 
-\subsection*{Per amplicon coverage graph}
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.99\textwidth]{{#IMAGE1#}}
-    \caption{Amplicon fractions (0--100 \%) that are covered by the sequencing
-    reads are plotted as bars.}
-\end{figure}
+\subsection*{Per amplicon coverage}
+Number of amplicons: \textbf{{{#ALL_AMPLICONS#}}} \\
+Number of amplicons with 100 \% coverage: \textbf{{#COVERED_AMPLICONS#} ({#PCT_COV#} \%)} \\
 
+{#BAD_AMPLICON_TABLE#}
+
+\newpage
 
 \subsection*{Per amplicon average coverage}
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{{#IMAGE2#}}
-    \caption{Average amplicon coverage (average number of sequencing reads
-    covering amplicon bases) is plotted as log-transformed total coverage for
+    \caption{Average coverage (average number of sequencing reads
+    covering amplicon bases) is plotted for
     each of the tested amplicons. Coverage at the 20 \% of mean sample coverage
     is marked with the horizontal line.}
 \end{figure}
+
+\newpage
+
+{#VCF_TABLE1#}
+
+\href{www.genialis.com}{Genialis}
 
 
 \end{document}

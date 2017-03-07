@@ -64,7 +64,8 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 },
                 'report': {
                     'template': template.id,
-                    'logo': logo.id
+                    'logo': logo.id,
+                    'panel_name': '56G Oncology Panel v2'
                 },
                 'threads': 2
             }
