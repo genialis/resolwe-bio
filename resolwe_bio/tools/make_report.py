@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 """Generate amplicon report."""
+import os
 import argparse
 import subprocess
 
@@ -27,7 +28,7 @@ parser.add_argument('--panel', help="Panel name")
 parser.add_argument('--cov', help="coverageBed report file (*.cov extension).")
 parser.add_argument('--covd', help="coverageBed report file (*.covd extension).")
 parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.")
-parser.add_argument('--vcf', help="File with VCF data.")
+parser.add_argument('--vcf', help="File with VCF data.", nargs='+')
 parser.add_argument('--template', help="Report template file.")
 parser.add_argument('--logo', help="Logo.")
 
@@ -47,15 +48,16 @@ def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None
         if has_header:
             header = next(tfile).strip().split(delimiter)
             if pick_columns:
-                # Select only specific columns and order them as in pick_columns:
-                temp_header = {i: col for i, col in enumerate(header)}
-                header = [temp_header[i] for i in pick_columns]
+                # Find indexes of selected columns
+                temp_header = {col: i for i, col in enumerate(header)}
+                pick_indexes = [temp_header[col] for col in pick_columns]
+                header = pick_columns
         for line in tfile:
             line_content = line.strip().split(delimiter)
             if pick_columns:
                 # Select only specific columns and order them as in pick_columns:
                 temp_line_content = {i: col for i, col in enumerate(line_content)}
-                line_content = [temp_line_content[i] for i in pick_columns]
+                line_content = [temp_line_content[i] for i in pick_indexes]
             table_data.append(line_content)
     return table_data, header
 
@@ -87,7 +89,7 @@ def meanCoverage(covd):
             cov = cov + int(line.strip().split('\t')[6])
             lines = lines + 1
 
-    return float(cov)/lines
+    return float(cov) / lines
 
 
 def perAmpliconMeanCoverge(covd):
@@ -181,12 +183,12 @@ if __name__ == '__main__':
         bases_aligned = (float(metrics['ON_AMPLICON_BASES']) + float(metrics['NEAR_AMPLICON_BASES'])) / pf_bases
         mean_coverage = meanCoverage(args.covd)
         mean20 = round(0.2 * mean_coverage, DECIMALS)
-        cov_unif = round(coverage_uniformity(args.covd, mean_coverage, 0.2)*100, DECIMALS)
+        cov_unif = round(coverage_uniformity(args.covd, mean_coverage, 0.2) * 100, DECIMALS)
 
         template = template.replace('{#TOTAL_READS#}', metrics['TOTAL_READS'])
         template = template.replace('{#ALIGNED_READS#}', metrics['PF_UQ_READS_ALIGNED'])
         template = template.replace('{#BASES_ALIGNED#}',
-                                    str(round(float(metrics['PCT_AMPLIFIED_BASES'])*100, DECIMALS)))
+                                    str(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS)))
         template = template.replace('{#BASES_TARGET#}', str(round(bases_aligned * 100, DECIMALS)))
         template = template.replace('{#COV_MEAN#}', str(round(mean_coverage, DECIMALS)))
         template = template.replace('{#COV_20#}', str(mean20))
@@ -206,7 +208,8 @@ if __name__ == '__main__':
 
         template = template.replace('{#ALL_AMPLICONS#}', str(len(cov_list)))
         template = template.replace('{#COVERED_AMPLICONS#}', str(covered_amplicons))
-        template = template.replace('{#PCT_COV#}', str(round(float(covered_amplicons) / len(cov_list)*100, DECIMALS)))
+        template = template.replace(
+            '{#PCT_COV#}', str(round(float(covered_amplicons) / len(cov_list) * 100, DECIMALS)))
         template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
 
         # Scatterplot:
@@ -215,17 +218,23 @@ if __name__ == '__main__':
         make_scatterplot(x, cov2, hline=mean20, savefile='scatter.png')
         template = template.replace('{#IMAGE2#}', 'scatter.png')
 
-        # VCF table:
-        vcf_table, header = _tsv_to_list(args.vcf, has_header=True, pick_columns=[0, 1, 3, 4, 10, 2])
-        # Insert space, between SNP ID's:
-        vcf_table = [line[:-1] + [', '.join(line[-1].split(';'))] for line in vcf_table]
-        table_text = list_to_tex_table(vcf_table, header=header, caption='ToDo!', long_columns=[5])
-        template = template.replace('{#VCF_TABLE1#}', table_text)
+        # VCF tables:
+        table_text = ''
+        for vcf_file in args.vcf:
+            header = ['CHROM', 'POS', 'REF', 'ALT', 'EFF[*].GENE', 'ID']
+            vcf_table, _ = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
+            # Insert space, between SNP ID's:
+            vcf_table = [line[:-1] + [', '.join(line[-1].split(';'))] for line in vcf_table]
+            table_text += list_to_tex_table(
+                vcf_table, header=header, caption=os.path.basename(vcf_file), long_columns=[5])
+            table_text += '\n\\newpage\n'
+        template = template.replace('{#VCF_TABLES#}', table_text)
 
         # Write template to 'report.tex'
         template_out.write(template)
 
-        # link = 'http://www.ncbi.nlm.nih.gov/snp/?term=(rs1410592[Reference SNP ID]) AND homo sapiens[Organism]'.format(snp)
+        # Hyperlinks:
+        # http://www.ncbi.nlm.nih.gov/snp/?term=(rs1410592[Reference SNP ID]) AND homo sapiens[Organism]'.format(snp)
         # http://grch37-cancer.sanger.ac.uk/cosmic
         # http://grch37-cancer.sanger.ac.uk/cosmic/mutation/overview?id=3602229
 
