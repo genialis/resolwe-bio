@@ -1,0 +1,66 @@
+# =================================================
+# Import base-recalibrated and indel-realigned BAM
+# =================================================
+---
+
+- slug: upload-bam-vc
+  name: BAM file
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.1
+  type: data:alignment:bam:vc:upload
+  flow_collection: sample
+  category: upload
+  persistence: RAW
+  description: >
+    Upload a base-recalibrated and indel-realigned BAM.
+  input:
+    - name: src
+      label: Mapping (BAM)
+      type: basic:file
+      description: >
+        A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
+      validate_regex: '\.(bam)$'
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+      validate_regex: '\.(txt)$'
+      description: >
+       Picard's CollectTargetedPcrMetrics file.
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+      validate_regex: '\.(txt)$'
+      description: >
+       Picard's CollectTargetedPcrMetrics perTargetCov file.
+  output:
+    - name: bam
+      label: Alignment file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+        re-import "{{ src.file_temp }}" "{{ src.file }}" "bam" "bam" 0.1 extract
+
+        samtools index "${NAME}.bam"
+        re-checkrc
+
+        re-save-file bam "${NAME}.bam"
+        re-save-file bai "${NAME}.bam.bai"
+
+        re-import "{{ target_pcr_metrics.file_temp }}" "{{ target_pcr_metrics.file }}" "txt" "txt" 0.8 extract
+        re-save-file target_pcr_metrics "${NAME}.txt"
+
+        re-import "{{ target_coverage.file_temp }}" "{{ target_coverage.file }}" "txt" "txt" 0.9 extract
+        re-save-file target_coverage "${NAME}.txt"
