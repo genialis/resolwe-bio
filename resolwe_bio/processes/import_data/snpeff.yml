@@ -1,0 +1,48 @@
+# ============================
+# Import snpEff analysis files
+# ============================
+---
+
+- slug: upload-snpeff
+  name: snpEff
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.1
+  type: data:snpeff:upload
+  category: upload
+  persistence: RAW
+  description: >
+    Upload snpEff result files.
+  input:
+    - name: annotation
+      label: Annotation file
+      type: basic:file
+    - name: summary
+      label: Summary
+      type: basic:file
+    - name: snpeff_genes
+      label: SnpEff genes
+      type: basic:file
+  output:
+    - name: annotation
+      label: Annotation file
+      type: basic:file
+    - name: summary
+      label: Summary
+      type: basic:file:html
+    - name: snpeff_genes
+      label: SnpEff genes
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+        re-import "{{ annotation.file_temp }}" "{{ annotation.file }}" "txt" "txt" 0.3 extract
+        re-save-file annotation "${NAME}.txt"
+
+        re-import "{{ summary.file_temp }}" "{{ summary.file }}" "html" "html" 0.6 extract
+        re-save-file summary "${NAME}.html"
+
+        re-import "{{ snpeff_genes.file_temp }}" "{{ snpeff_genes.file }}" "txt" "txt" 0.9 extract
+        re-save-file snpeff_genes "${NAME}.txt"
