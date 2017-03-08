@@ -2,9 +2,9 @@
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class GencoverProcessorTestCase(BioProcessTestCase):
+class CoverageProcessorTestCase(BioProcessTestCase):
 
-    def test_coverage(self):
+    def test_gencover(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
 

@@ -7,7 +7,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Report ({{ bam|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -21,12 +21,18 @@
     - name: coverage
       label: Coverage
       type: data:coverage
+    - name: panel_name
+      label: Amplicon panel name
+      type: basic:string
     - name: template
       label: Report template
       type: data:file
     - name: logo
       label: Logo
       type: data:file
+    - name: annot_vars
+      label: Annotated variants (snpEff)
+      type: list:data:snpeff
   output:
     - name: report
       label: Report
@@ -42,7 +48,11 @@
       --covd "{{coverage.covd.file}}" \
       --metrics "{{bam.target_pcr_metrics.file}}" \
       --template "{{template.file.file}}" \
-      --logo "{{logo.file.file}}"
+      --logo "{{logo.file.file}}" \
+      --vcf {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %} \
+      --panel "{{panel_name}}"
+
+      re-checkrc
 
       mv report.pdf ${SAMPLE_NAME}_report.pdf
 
