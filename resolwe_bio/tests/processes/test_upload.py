@@ -83,14 +83,14 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {'src1': ['mate1.fastq.gz'], 'src2': ['mate2.fastq.gz']}
         self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
 
-        inputs = {'src1': ['rRNA_forw.fastq.gz', 'rRNA_rew.fastq.gz'],
+        inputs = {'src1': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'],
                   'src2': ['00Hr.fastq.gz', '20Hr.fastq.gz']}
 
         reads = self.run_process('upload-fastq-paired', inputs)
-        self.assertFiles(reads, 'fastq', ['rRNA_forw.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
+        self.assertFiles(reads, 'fastq', ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
         self.assertFiles(reads, 'fastq2', ['00Hr.fastq.gz', '20Hr.fastq.gz'], compression='gzip')
-        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
-                                                 'refs': ['fastqc/rRNA_forw_fastqc'],
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/rRNA forw_fastqc'],
                                                  'size': 343222},
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
@@ -106,12 +106,12 @@ class UploadProcessorTestCase(BioProcessTestCase):
         inputs = {'src': ['mate1.fastq.gz']}
         self.run_process('upload-fastq-single', inputs, Data.STATUS_ERROR)
 
-        inputs = {'src': ['rRNA_forw.fastq.gz', 'rRNA_rew.fastq.gz']}
+        inputs = {'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-single', inputs)
 
         self.assertFiles(reads, 'fastq', ['rRNA_forw_single.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
-        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
-                                                 'refs': ['fastqc/rRNA_forw_fastqc'],
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/rRNA forw_fastqc'],
                                                  'size': 343222},
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
