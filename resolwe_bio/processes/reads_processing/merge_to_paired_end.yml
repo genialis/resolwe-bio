@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Merged reads"
-  version: 1.0.8
+  version: 1.0.9
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
@@ -76,5 +76,5 @@
 
       re-save-file-list fastqc_archive fw_reads_fastqc.zip
       re-save-file-list fastqc_archive2 rw_reads_fastqc.zip
-      re-save-list fastqc_url ${FW_FASTQC_URL}
-      re-save-list fastqc_url2 ${RW_FASTQC_URL}
+      re-save-list fastqc_url "${FW_FASTQC_URL}"
+      re-save-list fastqc_url2 "${RW_FASTQC_URL}"

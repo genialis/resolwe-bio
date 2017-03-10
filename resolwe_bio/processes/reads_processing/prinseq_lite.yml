@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.0.13
+  version: 1.1.0
   type: data:reads:fastq:single:prinseq
   flow_collection: sample
   category: analyses
@@ -77,19 +77,20 @@
       NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
       re-progress 0.1
 
+      READS=()
       {% for r in reads.fastq %}
-        READS=${READS}"{{ r.file }} "
+        READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${READS} > ${NAME}.fastq.gz
-      gzip -d ${NAME}.fastq.gz
+      cat "${READS[@]}" > "${NAME}.fastq.gz"
+      gzip -c -d "${NAME}.fastq.gz" > prinseq_input.fastq
 
-      prinseq-lite.pl -fastq "${NAME}.fastq" -out_good "${NAME}_prinseq" -out_bad "${NAME}_bad" -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
+      prinseq-lite.pl -fastq prinseq_input.fastq -out_good out_good -out_bad out_bad -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
       re-checkrc "Failed while processing with PRINSEQ."
       re-progress 0.6
 
-      gzip -c -n "${NAME}_prinseq.fastq" > "${NAME}.fastq.gz"
-      re-save-file-list fastq $NAME.fastq.gz
+      gzip -c -n out_good.fastq > "${NAME}.fastq.gz"
+      re-save-file-list fastq "${NAME}.fastq.gz"
       re-progress 0.8
 
       echo "Postprocessing FastQC..."
@@ -103,15 +104,15 @@
       mv "fastqc/${NAME}_fastqc.zip" .
       re-progress 0.95
 
-      re-save-file-list fastqc_archive ${NAME}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
+      re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
 
 - slug: prinseq-lite-paired
   name: Prinseq-lite (paired-end)
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.0.13
+  version: 1.1.0
   type: data:reads:fastq:paired:prinseq
   category: analyses
   flow_collection: sample
@@ -188,33 +189,35 @@
       NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
       NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
 
+      FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${FW_READS} > ${NAME1}.fastq.gz
-      gzip -d ${NAME1}.fastq.gz
+      cat "${FW_READS[@]}" > "${NAME1}.fastq.gz"
+      gzip -c -d "${NAME1}.fastq.gz" > prinseq_input_mate_1.fastq
 
+      RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS=${RW_READS}"{{ r.file }} "
+        RW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${RW_READS} > ${NAME2}.fastq.gz
-      gzip -d ${NAME2}.fastq.gz
+      cat "${RW_READS[@]}" > "${NAME2}.fastq.gz"
+      gzip -c -d "${NAME2}.fastq.gz" > prinseq_input_mate_2.fastq
 
       ## sort paired-end data
-      paste - - - - < "${NAME1}.fastq" | sort -k1,1 -t " " | tr "\t" "\n" > "${NAME1}"_sorted_1.fastq
-      paste - - - - < "${NAME2}.fastq" | sort -k1,1 -t " " | tr "\t" "\n" > "${NAME2}"_sorted_2.fastq
+      paste - - - - < "prinseq_input_mate_1.fastq" | sort -k1,1 -t " " | tr "\t" "\n" > prinseq_input_mate_1_sorted.fastq
+      paste - - - - < "prinseq_input_mate_2.fastq" | sort -k1,1 -t " " | tr "\t" "\n" > prinseq_input_mate_2_sorted.fastq
       re-progress 0.4
 
-      prinseq-lite.pl -fastq "${NAME1}"_sorted_1.fastq -fastq2 "${NAME2}"_sorted_2.fastq -out_good "${NAME1}_prinseq" -out_bad "${NAME1}_bad" -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
+      prinseq-lite.pl -fastq prinseq_input_mate_1_sorted.fastq -fastq2 prinseq_input_mate_2_sorted.fastq -out_good out_good -out_bad out_bad -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
       re-checkrc "Failed while processing with PRINSEQ."
       re-progress 0.7
 
-      gzip -c -n "${NAME1}_prinseq_1.fastq" > "${NAME1}.fastq.gz"
-      gzip -c -n "${NAME1}_prinseq_2.fastq" > "${NAME2}.fastq.gz"
-      re-save-file-list fastq ${NAME1}.fastq.gz
-      re-save-file-list fastq2 ${NAME2}.fastq.gz
+      gzip -c -n out_good_1.fastq > "${NAME1}.fastq.gz"
+      gzip -c -n out_good_2.fastq > "${NAME2}.fastq.gz"
+      re-save-file-list fastq "${NAME1}.fastq.gz"
+      re-save-file-list fastq2 "${NAME2}.fastq.gz"
       re-progress 0.8
 
       echo "Postprocessing FastQC..."
@@ -228,7 +231,7 @@
       mv "fastqc/${NAME1}_fastqc.zip" .
       mv "fastqc/${NAME2}_fastqc.zip" .
 
-      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
-      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
-      re-save-list fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"

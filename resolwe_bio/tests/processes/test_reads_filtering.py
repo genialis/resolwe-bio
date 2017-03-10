@@ -16,7 +16,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
     def test_prinseq_paired(self):
         inputs = {
-            'src1': ['rRNA_forw.fastq.gz'],
+            'src1': ['rRNA forw.fastq.gz'],
             'src2': ['rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-paired', inputs)
 
@@ -24,8 +24,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('prinseq-lite-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_prinseq_paired_rw.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
-                                                          'refs': ['fastqc/rRNA_forw_fastqc'],
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
+                                                          'refs': ['fastqc/rRNA forw_fastqc'],
                                                           'size': 347773}])
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
@@ -43,7 +43,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
     def test_fastqmcf_paired(self):
         inputs = {
-            'src1': ['rRNA_forw.fastq.gz'],
+            'src1': ['rRNA forw.fastq.gz'],
             'src2': ['rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-paired', inputs)
 
@@ -51,8 +51,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('fastq-mcf-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_fastqmcf_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_fastqmcf_paired_rw.fastq.gz'], compression='gzip')
-        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
-                                                          'refs': ['fastqc/rRNA_forw_fastqc'],
+        self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
+                                                          'refs': ['fastqc/rRNA forw_fastqc'],
                                                           'size': 347791}])
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
@@ -60,7 +60,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
     @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
     def test_sortmerna_single(self):
-        reads = self.prepare_reads(['rRNA_forw.fastq.gz'])
+        reads = self.prepare_reads(['rRNA forw.fastq.gz'])
         rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
         rrnadb_2 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-23s-id98.fasta.gz'})
 
@@ -71,17 +71,17 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('sortmerna-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['reads_wo_rRNA_single.fastq.gz'], compression='gzip')
         self.assertFile(filtered_reads, 'fastq_rRNA', 'reads_rRNA_single.fastq.gz', compression='gzip')
-        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA_forw_rRNA.sam'})
+        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA forw_rRNA.sam'})
         self.assertFields(filtered_reads, 'stats', {'file': 'stats.log'})
         self.assertFields(filtered_reads, "fastqc_url",
-                          [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
-                            'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
+                          [{'file': 'fastqc/rRNA forw_filtered_fastqc/fastqc_report.html',
+                            'refs': ['fastqc/rRNA forw_filtered_fastqc'],
                             'size': 345492}])
 
     @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
     def test_sortmerna_paired(self):
         inputs = {
-            'src1': ['rRNA_forw.fastq.gz'],
+            'src1': ['rRNA forw.fastq.gz'],
             'src2': ['rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-paired', inputs)
 
@@ -97,11 +97,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(filtered_reads, 'fastq', ['reads_wo_rRNA_paired_forw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['reads_wo_rRNA_paired_rew.fastq.gz'], compression='gzip')
         self.assertFile(filtered_reads, 'fastq_rRNA', 'reads_rRNA_paired.fastq.gz', compression='gzip')
-        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA_forw_rRNA.sam'})
+        self.assertFields(filtered_reads, 'fastq_rRNA_sam', {'file': 'rRNA forw_rRNA.sam'})
         self.assertFields(filtered_reads, 'stats', {'file': 'stats.log'})
         self.assertFields(filtered_reads, "fastqc_url",
-                          [{'file': 'fastqc/rRNA_forw_filtered_fastqc/fastqc_report.html',
-                            'refs': ['fastqc/rRNA_forw_filtered_fastqc'],
+                          [{'file': 'fastqc/rRNA forw_filtered_fastqc/fastqc_report.html',
+                            'refs': ['fastqc/rRNA forw_filtered_fastqc'],
                             'size': 345492}])
         self.assertFields(filtered_reads, "fastqc_url2",
                           [{'file': 'fastqc/rRNA_rew_filtered_fastqc/fastqc_report.html',

@@ -21,6 +21,8 @@ Added
 Fixed
 -----
 * Use new import paths in ``resolwe.flow``
+* Upload reads (paired/single) containing whitespace in the file name
+* Fix reads filtering processes for cases where input read file names contain whitespace
 
 Changed
 -------

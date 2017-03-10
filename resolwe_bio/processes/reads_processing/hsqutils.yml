@@ -4,7 +4,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.1
+  version: 0.1.0
   type: data:reads:fastq:paired:hsqutils
   category: analyses
   flow_collection: sample
@@ -74,7 +74,7 @@
       mv "fastqc/${NAME1}_fastqc.zip" .
       mv "fastqc/${NAME2}_fastqc.zip" .
 
-      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
-      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
-      re-save-list fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"

@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: SortMeRNA'{{ reads.fastq.0.file|default("?") }}'
-  version: 1.0.14
+  version: 1.1.0
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -66,11 +66,12 @@
     program: |
       NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
 
+      READS=()
       {% for r in reads.fastq %}
-        READS=${READS}"{{ r.file }} "
+        READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${READS} > reads.fastq.gz
+      cat "${READS[@]}" > reads.fastq.gz
       gzip -d reads.fastq.gz
 
       {% for d in database_selection %}
@@ -83,7 +84,7 @@
       re-progress 0.05
 
       echo "Index rRNA databases"
-      indexdb_rna --ref ${rRNAdb} -v
+      indexdb_rna --ref "${rRNAdb}" -v
       re-checkrc "Failed while indexing rRNA database."
       re-progress 0.1
 
@@ -92,8 +93,8 @@
       re-checkrc "Failed while processing with SortMeRNA."
       re-progress 0.9
 
-      gzip ${NAME}_rRNA.fastq
-      mv ${NAME}_rRNA.log stats.log
+      gzip "${NAME}_rRNA.fastq"
+      mv "${NAME}_rRNA.log" stats.log
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -104,23 +105,23 @@
       mv "fastqc/${NAME}_filtered_fastqc.zip" .
       FASTQC_URL="{\"file\":\"fastqc/${NAME}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_filtered_fastqc\"]}"
 
-      gzip ${NAME}_filtered.fastq
+      gzip "${NAME}_filtered.fastq"
 
       re-progress 0.95
 
       {% if options.sam %}
-        re-save-file fastq_rRNA_sam ${NAME}_rRNA.sam
+        re-save-file fastq_rRNA_sam "${NAME}_rRNA.sam"
       {% endif %}
 
-      re-save-file-list fastq ${NAME}_filtered.fastq.gz
-      re-save-file fastq_rRNA ${NAME}_rRNA.fastq.gz
+      re-save-file-list fastq "${NAME}_filtered.fastq.gz"
+      re-save-file fastq_rRNA "${NAME}_rRNA.fastq.gz"
       re-save-file stats stats.log
-      re-save-file-list fastqc_archive ${NAME}_filtered_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
+      re-save-file-list fastqc_archive "${NAME}_filtered_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
 
 
 - slug: sortmerna-paired
-  version: 1.0.13
+  version: 1.1.0
   name: SortMeRNA 2.0 (paired-end)
   requirements:
     expression-engine: jinja
@@ -201,15 +202,17 @@
       NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
       NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 
+      FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${FW_READS} > reads_fw.fastq.gz
+      cat "${FW_READS[@]}" > reads_fw.fastq.gz
       gzip -d reads_fw.fastq.gz
 
+      RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS=${RW_READS}"{{ r.file }} "
+        RW_READS+=("{{ r.file }}")
       {% endfor %}
 
       cat ${RW_READS} > reads_rw.fastq.gz
@@ -217,7 +220,7 @@
 
       {% for d in database_selection %}
         DB_NAME=`basename '{{d.fasta.file}}' .fasta.gz`
-        gzip -cd '{{d.fasta.file}}' > ${DB_NAME}.fasta
+        gzip -cd '{{d.fasta.file}}' > "${DB_NAME}.fasta"
         rRNAdb=$rRNAdb"${DB_NAME}.fasta,${DB_NAME}-db:"
       {% endfor %}
 
@@ -244,8 +247,8 @@
       re-checkrc "Error while unmerging interlieved sequencing file"
       re-progress 0.9
 
-      gzip ${NAME1}_rRNA.fastq
-      mv ${NAME1}_rRNA.log stats.log
+      gzip "${NAME1}_rRNA.fastq"
+      mv "${NAME1}_rRNA.log" stats.log
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -253,8 +256,8 @@
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      gzip ${NAME1}_filtered.fastq
-      gzip ${NAME2}_filtered.fastq
+      gzip "${NAME1}_filtered.fastq"
+      gzip "${NAME2}_filtered.fastq"
 
       FASTQC_URL="{\"file\":\"fastqc/${NAME1}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_filtered_fastqc\"]}"
       FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_filtered_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_filtered_fastqc\"]}"
@@ -262,14 +265,14 @@
       mv "fastqc/${NAME2}_filtered_fastqc.zip" .
 
       {% if options.sam %}
-        re-save-file fastq_rRNA_sam ${NAME1}_rRNA.sam
+        re-save-file fastq_rRNA_sam "${NAME1}_rRNA.sam"
       {% endif %}
 
-      re-save-file-list fastq ${NAME1}_filtered.fastq.gz
-      re-save-file-list fastq2 ${NAME2}_filtered.fastq.gz
-      re-save-file fastq_rRNA ${NAME1}_rRNA.fastq.gz
+      re-save-file-list fastq "${NAME1}_filtered.fastq.gz"
+      re-save-file-list fastq2 "${NAME2}_filtered.fastq.gz"
+      re-save-file fastq_rRNA "${NAME1}_rRNA.fastq.gz"
       re-save-file stats stats.log
-      re-save-file-list fastqc_archive ${NAME1}_filtered_fastqc.zip
-      re-save-file-list fastqc_archive2 ${NAME2}_filtered_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
-      re-save-list fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive "${NAME1}_filtered_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_filtered_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"

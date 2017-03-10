@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.0.13
+  version: 1.1.0
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -91,16 +91,18 @@
 
       NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
 
+      READS=()
       {% for r in reads.fastq %}
-        READS=${READS}"{{ r.file }} "
+        READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${READS} > ${NAME}.fastq.gz
+      cat "${READS[@]}" > "${NAME}.fastq.gz"
+      gzip -c -d "${NAME}.fastq.gz" > "${NAME}.fastq"
       re-progress 0.2
 
       echo "Adapter trimming..."
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a ${NAME}.fastq.gz -o "${NAME}_filtered.fastq" {% endif %}
+      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "${NAME}.fastq.gz" -o "${NAME}_filtered.fastq" {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
 
@@ -110,25 +112,25 @@
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      mv fastqc/${NAME}_filtered_fastqc fastqc/${NAME}_fastqc
-      mv "fastqc/${NAME}_filtered_fastqc.zip" ${NAME}_fastqc.zip
+      mv "fastqc/${NAME}_filtered_fastqc" "fastqc/${NAME}_fastqc"
+      mv "fastqc/${NAME}_filtered_fastqc.zip" "${NAME}_fastqc.zip"
 
       FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
       re-progress 0.95
 
       gzip -c "${NAME}_filtered.fastq" > "${NAME}.fastq.gz"
-      re-save-file-list fastq ${NAME}.fastq.gz
+      re-save-file-list fastq "${NAME}.fastq.gz"
 
-      re-save-file-list fastqc_archive ${NAME}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
+      re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
 
 - slug: fastq-mcf-paired
   name: Fastq-mcf (paired-end)
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.0.13
+  version: 1.1.0
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -219,21 +221,23 @@
       NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
       NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 
+      FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${FW_READS} > ${NAME1}.fastq.gz
+      cat "${FW_READS[@]}" > "${NAME1}.fastq.gz"
 
+      RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS=${RW_READS}"{{ r.file }} "
+        RW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${RW_READS} > ${NAME2}.fastq.gz
+      cat "${RW_READS}" > "${NAME2}.fastq.gz"
 
       re-progress 0.2
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a ${NAME1}.fastq.gz ${NAME2}.fastq.gz -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
+      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
 
@@ -243,20 +247,20 @@
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      mv fastqc/${NAME1}_filtered_fastqc fastqc/${NAME1}_fastqc
-      mv fastqc/${NAME2}_filtered_fastqc fastqc/${NAME2}_fastqc
-      mv "fastqc/${NAME1}_filtered_fastqc.zip" ${NAME1}_fastqc.zip
-      mv "fastqc/${NAME2}_filtered_fastqc.zip" ${NAME2}_fastqc.zip
+      mv "fastqc/${NAME1}_filtered_fastqc" "fastqc/${NAME1}_fastqc"
+      mv "fastqc/${NAME2}_filtered_fastqc" "fastqc/${NAME2}_fastqc"
+      mv "fastqc/${NAME1}_filtered_fastqc.zip" "${NAME1}_fastqc.zip"
+      mv "fastqc/${NAME2}_filtered_fastqc.zip" "${NAME2}_fastqc.zip"
 
       FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
       FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
 
       gzip -c "${NAME1}_filtered.fastq" > "${NAME1}.fastq.gz"
       gzip -c "${NAME2}_filtered.fastq" > "${NAME2}.fastq.gz"
-      re-save-file-list fastq ${NAME1}.fastq.gz
-      re-save-file-list fastq2 ${NAME2}.fastq.gz
+      re-save-file-list fastq "${NAME1}.fastq.gz"
+      re-save-file-list fastq2 "${NAME2}.fastq.gz"
 
-      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
-      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
-      re-save-list fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"
