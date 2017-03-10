@@ -1,0 +1,57 @@
+# ============
+# IGV Session
+# ============
+---
+
+- slug: igv
+  name: Session for IGV 2.3.91
+  requirements:
+    expression-engine: jinja
+  data_name: "IGV {{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
+  version: 1.0.1
+  type: data:igv:bam
+  category: analyses
+  persistence: CACHED
+  description: >
+    Process creates a session for Integrative Genomics Viewer (IGV).
+  input:
+    - name: genomeid
+      label: Genome id
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: mm9
+          value: mm9
+        - label: mm10
+          value: mm10
+        - label: hg18
+          value: hg18
+        - label: hg19
+          value: hg19
+        - label: hg38
+          value: hg38
+    - name: bam
+      label: path to BAM File
+      type: list:data:alignment:bam
+      description: >
+        List of paths to bam files.
+    - name: locus
+      label: Locus where to open IGV
+      type: basic:string
+      default: All
+      description: >
+        Specify the locus where to open IGV. By default the whole genome is opened.
+  output:
+    - name: igv_file
+      label: IGV session file
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      make_igv_session.py --bam_files {% for bam_file in bam %}{{ bam_file.bam | get_url }} {% endfor %} --genomeid {{genomeid}} --bam_locus {{locus}}
+      re-checkrc "Creating IGV session failed"
+      re-progress 0.9
+
+      re-save-file igv_file xmltree.xml
