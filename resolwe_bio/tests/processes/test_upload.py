@@ -80,7 +80,6 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.run_process('upload-expression-cuffnorm', inputs)
 
     def test_upload_paired_end_reads(self):
-        self.keep_data()
         inputs = {'src1': ['mate1.fastq.gz'], 'src2': ['mate2.fastq.gz']}
         self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
 
