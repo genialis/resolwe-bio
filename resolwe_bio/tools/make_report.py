@@ -49,11 +49,12 @@ def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None
     with open(table_file, 'r') as tfile:
         if has_header:
             header = next(tfile).strip().split(delimiter)
+            common_columns = [x for x in pick_columns if x in header]
             if pick_columns:
                 # Find indexes of selected columns
                 temp_header = {col: i for i, col in enumerate(header)}
-                pick_indexes = [temp_header[col] for col in pick_columns]
-                header = pick_columns
+                pick_indexes = [temp_header[col] for col in common_columns]
+                header = common_columns
         for line in tfile:
             line_content = line.strip().split(delimiter)
             if pick_columns:
@@ -83,7 +84,7 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     for line in data:
         if long_columns:
             for col_index in long_columns:
-                line[col_index] = '\\multicolumn{{1}}{{m{{4cm}}|}}{{{}}}'.format(line[col_index])
+                line[col_index] = '\\multicolumn{{1}}{{m{{2.5cm}}|}}{{{}}}'.format(line[col_index])
 
         lines.append(' & '.join(map(_format_latex, line)) + ' \\\\')
         lines.append('\\hline')
@@ -242,14 +243,14 @@ if __name__ == '__main__':
         # Make VCF tables:
         table_text = ''
         for vcf_file in args.vcf:
-            header = ['CHROM', 'POS', 'REF', 'ALT', 'EFF[*].GENE', 'ID']
-            vcf_table, _ = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
+            header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP4', 'SB', 'EFF[*].GENE', 'ID']
+            vcf_table, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
             # Insert space between SNP ID's and create hypelinks:
             vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]
             # Create gene hypelinks:
             vcf_table = [line[:-2] + [gene_href(line[-2])] + [line[-1]] for line in vcf_table]
             table_text += list_to_tex_table(
-                vcf_table, header=header, caption=os.path.basename(vcf_file), long_columns=[5])
+                vcf_table, header=common_columns, caption=os.path.basename(vcf_file), long_columns=[-1])
             table_text += '\n\\newpage\n'
         template = template.replace('{#VCF_TABLES#}', table_text)
 
