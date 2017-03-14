@@ -3,7 +3,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
@@ -85,25 +85,25 @@
         NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 
         FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
-        cat ${FW_READS} > ${NAME1}.fastq.gz
+        cat "${FW_READS}" > "${NAME1}.fastq.gz"
 
         RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
-        cat ${RW_READS} > ${NAME2}.fastq.gz
+        cat "${RW_READS}" > "${NAME2}.fastq.gz"
 
-        gzip -cd ${NAME1}.fastq.gz > ${NAME1}.fastq
-        gzip -cd ${NAME2}.fastq.gz > ${NAME2}.fastq
+        gzip -cd "${NAME1}.fastq.gz" > fw.fastq
+        gzip -cd "${NAME2}.fastq.gz" > rw.fastq
 
         # convert fastq format to one line per record for splitting
-        paste - - - - < ${NAME1}.fastq | tr '\t' '~' > ${NAME1}.tmp
-        paste - - - - < ${NAME2}.fastq | tr '\t' '~' > ${NAME2}.tmp
+        paste - - - - < fw.fastq | tr '\t' '~' > fw.tmp
+        paste - - - - < rw.fastq | tr '\t' '~' > rw.tmp
 
         # get number of fastq records in sample before converting back to fastq format
-        l=$(wc -l ${NAME1}.tmp | awk '{print $1}')
+        l=$(wc -l fw.tmp | awk '{print $1}')
         chunklinecnt=$(( $l / {{cputhreads}} ))
 
         # split re-formatted fastq files into chunks
-        split -d -l $chunklinecnt ${NAME1}.tmp r1split
-        split -d -l $chunklinecnt ${NAME2}.tmp r2split
+        split -d -l $chunklinecnt fw.tmp r1split
+        split -d -l $chunklinecnt rw.tmp r2split
 
         # convert each chunk back to fastq format
         parallel r1reformat ::: r1split*
@@ -139,5 +139,5 @@
 
         re-save-file-list fastqc_archive "${SAMPLE_NAME}_mate1_trimmed_fastqc.zip"
         re-save-file-list fastqc_archive2 "${SAMPLE_NAME}_mate2_trimmed_fastqc.zip"
-        re-save-list fastqc_url $FASTQC_URL
-        re-save-list fastqc_url2 $FASTQC_URL2
+        re-save-list fastqc_url "${FASTQC_URL}"
+        re-save-list fastqc_url2 "${FASTQC_URL2}"

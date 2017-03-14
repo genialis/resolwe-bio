@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.1.0
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample
@@ -53,7 +53,7 @@
     program: |
       VAR_NAME=`basename '{{variants.vcf.file}}' .vcf`
 
-      snpEff {{database}} {{variants.vcf.file}} > tmp_0.vcf
+      snpEff "{{database}}" "{{variants.vcf.file}}" > tmp_0.vcf
       re-checkrc
 
       {% for kv in known_vars_annot %}
@@ -76,11 +76,11 @@
 
       cut -f 1-11 annoFields.vcf > temp1
       awk '{ for(i=1;i<=NF;i++) { if($i~/p\./){printf "%s\t", $i} } printf "\n"}' OFS="\t" annoFields.vcf  > temp2
-      paste temp1 temp2 > ${VAR_NAME}.finalvars.txt
+      paste temp1 temp2 > "${VAR_NAME}.finalvars.txt"
 
-      mv snpEff_genes.txt ${VAR_NAME}_snpEff_genes.txt
-      mv snpEff_summary.html ${VAR_NAME}_snpEff_summary.html
+      mv snpEff_genes.txt "${VAR_NAME}_snpEff_genes.txt"
+      mv snpEff_summary.html "${VAR_NAME}_snpEff_summary.html"
 
-      re-save-file annotation ${VAR_NAME}.finalvars.txt
-      re-save-file snpeff_genes ${VAR_NAME}_snpEff_genes.txt
-      re-save-file summary ${VAR_NAME}_snpEff_summary.html
+      re-save-file annotation "${VAR_NAME}.finalvars.txt"
+      re-save-file snpeff_genes "${VAR_NAME}_snpEff_genes.txt"
+      re-save-file summary "${VAR_NAME}_snpEff_summary.html"

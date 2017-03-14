@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.1.0
   type: data:variants:vcf:gatk:hc
   category: analyses:variants
   flow_collection: sample
@@ -61,7 +61,7 @@
     program: |
       SAMPLE_NAME='{{ alignment|sample_name }}'
 
-      java -jar /usr/gitc/GATK36.jar -T HaplotypeCaller -R '{{genome.fasta.file}}' -I {{alignment.bam.file}} -stand_call_conf {{stand_call_conf}} -stand_emit_conf {{stand_emit_conf}} -mbq {{mbq}} --dbsnp {{ dbsnp.vcf.file }} -L {{intervals.BED.file}} -o "${SAMPLE_NAME}.gatkHC.vcf"
+      java -jar /usr/gitc/GATK36.jar -T HaplotypeCaller -R "{{genome.fasta.file}}" -I "{{alignment.bam.file}}" -stand_call_conf "{{stand_call_conf}}" -stand_emit_conf "{{stand_emit_conf}}" -mbq "{{mbq}}" --dbsnp "{{ dbsnp.vcf.file }}" -L "{{intervals.BED.file}}" -o "${SAMPLE_NAME}.gatkHC.vcf"
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
       /usr/gitc/bgzip -c "${SAMPLE_NAME}.gatkHC.vcf" > "${SAMPLE_NAME}.gatkHC.vcf.bgz"

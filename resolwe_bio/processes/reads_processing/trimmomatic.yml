@@ -5,7 +5,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.6
+  version: 0.1.0
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -139,7 +139,7 @@
       NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
 
       READS="{{ reads.fastq|join(' ', attribute='file') }}"
-      cat ${READS} > ${NAME}.fastq.gz
+      cat "${READS}" > in_reads.fastq.gz
       re-progress 0.2
 
       ILLUMINACLIP_S="{% if adapters %}ILLUMINACLIP:${ADAPTERS}.fasta:{{ illuminaclip.seed_mismatches }}:30:{{ illuminaclip.simple_clip_threshold }}{% endif %}"
@@ -152,12 +152,12 @@
       MINLEN_S="{% if minlen %}MINLEN:{{minlen}}{% endif %}"
       AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
 
-
-      TrimmomaticSE -threads {{threads}} -trimlog ${NAME}_stats.txt ${NAME}.fastq.gz ${NAME}_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
-
+      TrimmomaticSE -threads {{threads}} -trimlog stats.txt in_reads.fastq.gz out_reads_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
 
       re-checkrc "Failed while processing with Trimmomatic."
       re-progress 0.7
+
+      mv out_reads_filtered.fastq.gz "${NAME}_filtered.fastq.gz"
 
       echo "Postprocessing FastQC..."
 
@@ -166,18 +166,18 @@
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      mv fastqc/${NAME}_filtered_fastqc fastqc/${NAME}_fastqc
-      mv "fastqc/${NAME}_filtered_fastqc.zip" ${NAME}_fastqc.zip
+      mv "fastqc/${NAME}_filtered_fastqc" "fastqc/${NAME}_fastqc"
+      mv "fastqc/${NAME}_filtered_fastqc.zip" "${NAME}_fastqc.zip"
 
       FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
       re-progress 0.95
 
-      re-save-file-list fastq ${NAME}_filtered.fastq.gz
-      re-save-file stats ${NAME}_stats.txt
+      re-save-file-list fastq "${NAME}_filtered.fastq.gz"
+      re-save-file stats stats.txt
 
-      re-save-file-list fastqc_archive ${NAME}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
+      re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
 
 
 - slug: trimmomatic-paired
@@ -185,7 +185,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.6
+  version: 0.1.0
   type: data:reads:fastq:paired:trimmomatic
   category: analyses
   flow_collection: sample
@@ -359,10 +359,10 @@
       NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
 
       FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
-      cat ${FW_READS} > ${NAME1}.fastq.gz
+      cat "${FW_READS}" > fw.fastq.gz
 
       RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
-      cat ${RW_READS} > ${NAME2}.fastq.gz
+      cat "${RW_READS}" > rw.fastq.gz
 
       re-progress 0.2
       ILLUMINACLIP_OPTIONAL="{%if illuminaclip.min_adapter_length %}{{ illuminaclip.min_adapter_length }}{% endif %}{% if illuminaclip.min_adapter_length and illuminaclip.keep_both_reads %}:{% endif %}{%if illuminaclip.keep_both_reads %}{{ illuminaclip.keep_both_reads }}{% endif %}"
@@ -376,10 +376,15 @@
       MINLEN_S="{% if minlen %}MINLEN:{{minlen}}{% endif %}"
       AVGQUAL_S="{% if average_quality %}AVGQUAL:{{ average_quality }}{% endif %}"
 
-      TrimmomaticPE -threads {{threads}} -trimlog stats.txt ${NAME1}.fastq.gz ${NAME2}.fastq.gz ${NAME1}_paired_filtered.fastq.gz ${NAME1}_unpaired_filtered.fastq.gz ${NAME2}_paired_filtered.fastq.gz ${NAME2}_unpaired_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
+      TrimmomaticPE -threads {{threads}} -trimlog stats.txt fw.fastq.gz rw.fastq.gz fw_paired_filtered.fastq.gz fw_unpaired_filtered.fastq.gz rw_paired_filtered.fastq.gz rw_unpaired_filtered.fastq.gz ${ILLUMINACLIP_S} ${SLIDINGWINDOW_S} ${MAXINFO_S} ${LEADING_S} ${TRAILING_S} ${CROP_S} ${HEADCROP_S} ${MINLEN_S} ${AVGQUAL_S}
 
       re-checkrc "Failed while processing with Trimmomatic."
       re-progress 0.7
+
+      mv fw_paired_filtered.fastq.gz "${NAME1}_paired_filtered.fastq.gz"
+      mv fw_unpaired_filtered.fastq.gz "${NAME1}_unpaired_filtered.fastq.gz"
+      mv rw_paired_filtered.fastq.gz "${NAME2}_paired_filtered.fastq.gz"
+      mv rw_unpaired_filtered.fastq.gz "${NAME2}_unpaired_filtered.fastq.gz"
 
       echo "Postprocessing FastQC..."
       # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
@@ -387,27 +392,27 @@
       re-checkrc "Failed while processing with FastQC."
       re-progress 0.9
 
-      mv fastqc/${NAME1}_paired_filtered_fastqc fastqc/${NAME1}_fastqc
-      mv fastqc/${NAME2}_paired_filtered_fastqc fastqc/${NAME2}_fastqc
-      mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" ${NAME1}_fastqc.zip
-      mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" ${NAME2}_fastqc.zip
+      mv "fastqc/${NAME1}_paired_filtered_fastqc" "fastqc/${NAME1}_fastqc"
+      mv "fastqc/${NAME2}_paired_filtered_fastqc" "fastqc/${NAME2}_fastqc"
+      mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" "${NAME1}_fastqc.zip"
+      mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" "${NAME2}_fastqc.zip"
 
       FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
       FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
 
-      re-save-file-list fastq ${NAME1}_paired_filtered.fastq.gz
-      re-save-file-list fastq2 ${NAME2}_paired_filtered.fastq.gz
+      re-save-file-list fastq "${NAME1}_paired_filtered.fastq.gz"
+      re-save-file-list fastq2 "${NAME2}_paired_filtered.fastq.gz"
       re-save-file stats stats.txt
 
       if [ -f "${NAME1}_unpaired_filtered.fastq.gz" ]; then
-        re-save-file fastq_unpaired ${NAME1}_unpaired_filtered.fastq.gz
+        re-save-file fastq_unpaired "${NAME1}_unpaired_filtered.fastq.gz"
       fi
 
       if [ "-f ${NAME2}_unpaired_filtered.fastq.gz" ]; then
-        re-save-file fastq2_unpaired ${NAME2}_unpaired_filtered.fastq.gz
+        re-save-file fastq2_unpaired "${NAME2}_unpaired_filtered.fastq.gz"
       fi
 
-      re-save-file-list fastqc_archive ${NAME1}_fastqc.zip
-      re-save-file-list fastqc_archive2 ${NAME2}_fastqc.zip
-      re-save-list fastqc_url $FASTQC_URL
-      re-save-list fastqc_url2 $FASTQC_URL2
+      re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"

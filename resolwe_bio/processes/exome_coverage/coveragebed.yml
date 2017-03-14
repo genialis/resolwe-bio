@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.0.7
+  version: 2.1.0
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -36,15 +36,17 @@
       BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
       SAMPLE_NAME='{{ alignment|sample_name }}'
 
-      picard-tools AddOrReplaceReadGroups I={{alignment.bam.file}} O="${BAM_NAME}.RG.bam" SO=coordinate RGID=amplicons RGLB=swift RGSM=${BAM_NAME} RGPL=illumina RGPU=miseq
+      picard-tools AddOrReplaceReadGroups I="{{alignment.bam.file}}" O="${BAM_NAME}.RG.bam" SO=coordinate RGID=amplicons RGLB=swift RGSM="${BAM_NAME}" RGPL=illumina RGPU=miseq
       re-checkrc
+      re-progress 0.2
 
-      coverageBed -abam "${BAM_NAME}.RG.bam" -b {{bed.BED.file}} -d > "${SAMPLE_NAME}.covd"
+      coverageBed -abam "${BAM_NAME}.RG.bam" -b "{{bed.BED.file}}" -d > "${SAMPLE_NAME}.covd"
       re-checkrc
       re-progress 0.5
 
-      coverageBed -abam "${BAM_NAME}.RG.bam" -b {{bed.BED.file}} > "${SAMPLE_NAME}.cov"
+      coverageBed -abam "${BAM_NAME}.RG.bam" -b "{{bed.BED.file}}" > "${SAMPLE_NAME}.cov"
       re-checkrc
+      re-progress 0.9
 
       re-save-file covd "${SAMPLE_NAME}.covd"
       re-save-file cov "${SAMPLE_NAME}.cov"

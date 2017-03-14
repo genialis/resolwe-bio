@@ -7,7 +7,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Report ({{ bam|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -54,6 +54,6 @@
 
       re-checkrc
 
-      mv report.pdf ${SAMPLE_NAME}_report.pdf
+      mv report.pdf "${SAMPLE_NAME}_report.pdf"
 
-      re-save-file report ${SAMPLE_NAME}_report.pdf
+      re-save-file report "${SAMPLE_NAME}_report.pdf"

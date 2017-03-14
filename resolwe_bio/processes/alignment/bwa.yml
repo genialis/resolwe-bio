@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.18
+  version: 1.1.0
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -118,19 +118,22 @@
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
 
+      FW_READS=()
+      RW_READS=()
+
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${FW_READS} > fw_reads.fastq.gz
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"{{ r.file }} "
+          RW_READS+=("{{ r.file }}")
         {% endfor %}
-        cat ${RW_READS} > rw_reads.fastq.gz
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
         gzip -d rw_reads.fastq.gz
       {% endif %}
 
@@ -166,12 +169,12 @@
       bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
-      re-save-file bam ${NAME}.bam
-      re-save-file bai ${NAME}.bam.bai
-      re-save-file stats ${NAME}_report.txt
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
+      re-save-file stats "${NAME}_report.txt"
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
-        re-save-file unmapped ${NAME}_unmapped.fastq.gz
+        re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
 - slug: alignment-bwa-sw
