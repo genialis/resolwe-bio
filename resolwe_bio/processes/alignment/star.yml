@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -105,6 +105,13 @@
           required: false
           description: >
             Alignment will be output only if it has fewer mismatches than this value (default: 10).
+        - name: outFilterMismatchNoverLmax
+          label: --outFilterMismatchNoverLmax
+          type: basic:decimal
+          required: false
+          description: >
+            Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
+
     - name: alignment
       label: Alignment and Seeding
       group:
@@ -196,7 +203,7 @@
       re-progress 0.05
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        STAR --runThreadN '{{threads}}' --genomeDir ${INDEX} --readFilesIn fw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        STAR --runThreadN '{{threads}}' --genomeDir ${INDEX} --readFilesIn fw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if filtering.outFilterMismatchNoverLmax %} --outFilterMismatchNoverLmax '{{filtering.outFilterMismatchNoverLmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
         re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
@@ -207,7 +214,7 @@
       fi
 
       {% else %}
-        STAR --runThreadN '{{ threads }}' --genomeDir ${GENOME_PATH} --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{filtering.outFilterType}}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        STAR --runThreadN '{{ threads }}' --genomeDir ${GENOME_PATH} --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{filtering.outFilterType}}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if filtering.outFilterMismatchNoverLmax %} --outFilterMismatchNoverLmax '{{filtering.outFilterMismatchNoverLmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
         re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
