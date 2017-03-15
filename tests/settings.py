@@ -35,8 +35,10 @@ INSTALLED_APPS = (
 
     'resolwe',
     'resolwe.permissions',
-    'resolwe.elastic',
     'resolwe.flow',
+    'resolwe.elastic',
+    'resolwe.toolkit',
+
     'resolwe_bio',
     'resolwe_bio.kb',
 )
@@ -116,16 +118,13 @@ FLOW_EXECUTION_ENGINES = [
 # use its unique SELinux label (Z option).
 FLOW_DOCKER_MAPPINGS = [
     {'src': os.path.join(FLOW_EXECUTOR['DATA_DIR'], '{data_id}'),
-     'dest': '/home/biolinux/data',
+     'dest': '/data',
      'mode': 'rw,Z'},
     {'src': FLOW_EXECUTOR['DATA_DIR'],
-     # NOTE: Destination directory must not be under /home/biolinux as the
-     # latter has the owner and group recursively changed to match the host
-     # user's and that cannot work with read-only volumes.
      'dest': '/data_all',
      'mode': 'ro,z'},
     {'src': FLOW_EXECUTOR['UPLOAD_DIR'],
-     'dest': '/home/biolinux/upload',
+     'dest': '/upload',
      'mode': 'rw,z'},
 ]
 
