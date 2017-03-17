@@ -1,7 +1,7 @@
 - slug: sample
   name: GEO sample annotation
   description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
-  version: 0.0.1
+  version: 0.0.2
   schema:
     - name: sample
       label: Sample annotation
@@ -41,7 +41,7 @@
           label: Strain
           type: basic:string
           custom_choice_conditions: ["sample.organism"]
-          hidden: "(sample.organism == 'Homo sapiens' || sample.organism == 'Mus musculus')"
+          required: false
           description: >
             Microbial or eukaryotic strain name.
         - name: genotype
