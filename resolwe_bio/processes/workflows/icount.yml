@@ -1,9 +1,42 @@
-- slug: workflow-icount
+- slug: workflow-icount-demultiplex
   category: workflow:primary
-  name: iCount Pipeline
+  name: iCount demultiplex and annotate
+  data_name: "iCount Demultiplex"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 0.0.1
+  type: data:workflow:icount:demultiplex
+  input:
+    - name: reads
+      label: Input multiplexed reads
+      type: list:basic:file
+    - name: icount_annotation
+      label: iCount annotation
+      type: basic:file
+  run:
+    language: workflow
+    program:
+      - id: upload_reads
+        run: upload-fastq-single
+        input:
+          src: '{{input.reads}}'
+      - id: upload_icount_annotation
+        run: upload-tab-file
+        input:
+          src: '{{input.icount_annotation}}'
+      - id: demultiplex_annotate
+        run: icount-demultiplex-annotate
+        input:
+          reads: '{{steps.upload_reads}}'
+          annotation: '{{steps.upload_icount_annotation}}'
+
+- slug: workflow-icount
+  category: workflow:primary
+  name: iCount Primary Analysis
+  data_name: "iCount primary analysis ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.1
   type: data:workflow:icount
   input:
     - name: reads

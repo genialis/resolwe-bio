@@ -75,6 +75,18 @@ class ICountPreprocess(BioProcessTestCase):
         nomatch_reads = Data.objects.last()
         self.assertFiles(nomatch_reads, "fastq", ["icount.demultiplex.out.nomatch.fastq.gz"], compression='gzip')
 
+    def test_demultiplex_samples(self):
+        inputs = {'src': ['iCount_test_file_small.fastq.gz']}
+        multiplexed_reads = self.run_process('upload-fastq-single', inputs)
+
+        inputs = {'src': 'icount_annotation.xlsx'}
+        sample_annotation = self.run_process('upload-tab-file', inputs)
+
+        self.run_process('icount-demultiplex-samples', {
+            'reads': multiplexed_reads.id,
+            'annotation': sample_annotation.id
+        })
+
     def test_xlsites(self):
         inputs = {'src': 'icount.xlsites.in.bam'}
         bam = self.run_process('upload-bam', inputs)
@@ -166,26 +178,3 @@ class ICountAnalyses(BioProcessTestCase):
         summary = self.run_process('icount-summary', inputs)
 
         self.assertFile(summary, "summary", "icount.summary.out.tsv")
-
-    def test_workflow(self):
-        inputs = {'src': 'icount.workflow.in.fasta.gz'}
-        genome = self.run_process('upload-fasta-nucl', inputs)
-        inputs = {'src': 'icount.workflow.in.gtf', 'source': 'ENSEMBL'}
-        ann = self.run_process('upload-gtf', inputs)
-        inputs = {'annotation': ann.pk, 'genome': genome.pk}
-        segmentation = self.run_process('icount-segment', inputs)
-
-        inputs = {'genome2': genome.pk, 'annotation': ann.pk}
-        star_index = self.run_process('alignment-star-index', inputs)
-
-        inputs = {'src': ['icount.workflow.in.fastq']}
-        reads = self.run_process('upload-fastq-single', inputs)
-
-        self.run_process('workflow-icount', {
-            'reads': reads.pk,
-            'index': star_index.pk,
-            'segmentation': segmentation.pk,
-        })
-
-        peaks = Data.objects.last()
-        self.assertFile(peaks, "scores", "icount.workflow.out.tsv.gz", compression='gzip')

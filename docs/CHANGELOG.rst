@@ -20,6 +20,7 @@ Added
 * Add primertrim process
 * RNA-Seq experiment descriptor schema
 * iCount sample and reads descriptor schemas
+* iCount demultiplexing and sample annotation
 
 Fixed
 -----
