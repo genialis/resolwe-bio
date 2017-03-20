@@ -2,7 +2,7 @@
   name: iCount annotate
   description: Annotate each cross link site with types of regions that intersect with it.
   category: analyses:icount
-  version: 1.0.0
+  version: 1.0.1
   type: data:bed:icount
   requirements:
     expression-engine: jinja
@@ -10,6 +10,7 @@
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:icount"
   data_name: "iCount-annotate ({{sites.BED.file|basename|default('?')}})"
+  flow_collection: sample
   persistence: CACHED
   input:
   - name: segmentation

@@ -3,7 +3,7 @@
   description: >
     Quantity and determine positions of cross-link events
   category: analyses:icount
-  version: 1.0.0
+  version: 1.0.1
   type: data:bed:icount
   requirements:
     expression-engine: jinja
@@ -11,6 +11,7 @@
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:icount"
   data_name: "iCount-xlsites ({{bam.bam.file|basename|default('?')}})"
+  flow_collection: sample
   persistence: CACHED
   input:
   - name: bam
