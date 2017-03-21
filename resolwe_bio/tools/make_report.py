@@ -65,6 +65,16 @@ def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None
     return table_data, header
 
 
+def cut_to_pieces(string, piece_size):
+    """Cut long string into smaller pieces."""
+    pieces = []
+    while len(string) > piece_size:
+        pieces.append(string[:piece_size])
+        string = string[piece_size:]
+    pieces.append(string)
+    return ' '.join(pieces)
+
+
 def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     """Make a TeX table from python list."""
     lines = []
@@ -84,7 +94,9 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     for line in data:
         if long_columns:
             for col_index in long_columns:
-                line[col_index] = '\\multicolumn{{1}}{{m{{2.5cm}}|}}{{{}}}'.format(line[col_index])
+                # If hyperlink line, don't do a thing. Otherwise, insert spaces, so that wrapping can happen:
+                new_val = line[col_index] if '\href' in line[col_index] else cut_to_pieces(line[col_index], 8)
+                line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}|}}{{{}}}'.format(new_val)
 
         lines.append(' & '.join(map(_format_latex, line)) + ' \\\\')
         lines.append('\\hline')
@@ -250,7 +262,7 @@ if __name__ == '__main__':
             # Create gene hypelinks:
             vcf_table = [line[:-2] + [gene_href(line[-2])] + [line[-1]] for line in vcf_table]
             table_text += list_to_tex_table(
-                vcf_table, header=common_columns, caption=os.path.basename(vcf_file), long_columns=[-1])
+                vcf_table, header=common_columns, caption=os.path.basename(vcf_file), long_columns=[2, 3, -1])
             table_text += '\n\\newpage\n'
         template = template.replace('{#VCF_TABLES#}', table_text)
 
