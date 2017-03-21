@@ -214,3 +214,12 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                           'old_encoding1_transformed.fastq.gz'], compression='gzip')
         self.assertFiles(reads, 'fastq2', ['old_encoding_transformed_R2.fastq.gz',
                                            'old_encoding1_transformed_R2.fastq.gz'], compression='gzip')
+
+    def test_upload_master_file(self):
+        inputs = {'src': '56G_masterfile_170113.txt'}
+        master_file = self.run_process('upload-master-file', inputs)
+
+        self.assertFile(master_file, 'bedfile', 'amplicon_master_file_merged.bed')
+        self.assertFile(master_file, 'nomergebed', 'amplicon_master_file_nomergebed.bed')
+        self.assertFile(master_file, 'olapfreebed', 'amplicon_master_file_olapfreebed.bed')
+        self.assertFile(master_file, 'primers', 'amplicon_primers.bed')

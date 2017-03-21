@@ -1,0 +1,86 @@
+# ===================================
+# Generate BED files from master file
+# ===================================
+---
+
+- slug: upload-master-file
+  name: Upload master file
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.1
+  type: data:masterfile:amplicon
+  category: upload
+  persistence: CACHED
+  description: >
+    Generate 5-column BED files from the uploaded master file
+  input:
+    - name: src
+      label: Master file
+      type: basic:file
+  output:
+    - name: master_file
+      label: Master file
+      type: basic:file
+    - name: bedfile
+      label: BED file (merged targets)
+      type: basic:file
+    - name: nomergebed
+      label: BED file (nonmerged targets)
+      type: basic:file
+    - name: olapfreebed
+      label: BED file (overlap-free targets)
+      type: basic:file
+    - name: primers
+      label: Primers
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      re-import "{{ src.file_temp }}" "{{ src.file }}" "txt" "txt" 0.1 extract
+
+      # non-merged target BED from master
+      awk '{print $1,$2,$3,$4}' OFS="\t" "${NAME}.txt" | sort -k1,1n -k2,2n > "${NAME}_nonmerged_targets.bed"
+      re-progress 0.2
+
+      # merged target BED
+      bedtools merge -nms -i "${NAME}_nonmerged_targets.bed" | sed 's/;.*//' | sort -k1,1n -k2,2n > "${NAME}_merged_targets.bed"
+      re-checkrc "bedtools merge command failed"
+      re-progress 0.5
+
+      ### overlap-removed non-merged target BED ###
+      # get all overlapping regions for target bedfile
+      # NOTE: awk step isolates overlapping regions and removes full regions
+      # (intersectBed outputs all full regions as they self-intersect)
+      bedtools intersect -a "${NAME}_nonmerged_targets.bed" -b "${NAME}_nonmerged_targets.bed" | awk 'a[$1FS$2FS$3]++' OFS="\t" > "${NAME}_overlapped_regions.bed"
+      re-checkrc "bedtools intersect command failed"
+      re-progress 0.7
+
+      bedtools subtract -a "${NAME}_nonmerged_targets.bed" -b "${NAME}_overlapped_regions.bed" > "${NAME}_nonmerged_noolaps_targets.bed"
+      re-checkrc "bedtools subtract command failed"
+      re-progress 0.8
+
+      # handle both old and current master file formats
+      colcnts=$(awk 'NR==1{print NF}' "${NAME}.txt")
+      if [ $colcnts -eq 12 ]; then
+          # primer BED (for primer trimming)
+          awk '{print $1,$5,$6,$7;print $1,$8,$9,$10}' OFS="\t" "${NAME}.txt" > "${NAME}_primers.bed"
+      else
+          # primer BED (for primer trimming)
+          awk '{print $1,$6,$7,$8;print $1,$9,$10,$11}' OFS="\t" "${master}" > "${NAME}_primers.bed"
+      fi
+
+      # Convert target BED files to 5-column format for analysis workflow
+      for f in *targets.bed
+      do
+          awk '{print $1,$2,$3,"+",$4}' OFS="\t" "$f" > "${f%%.bed}_5col.bed"
+      done
+
+      re-progress 0.9
+
+      re-save-file master_file "${NAME}.txt"
+      re-save-file bedfile "${NAME}_merged_targets_5col.bed"
+      re-save-file nomergebed "${NAME}_nonmerged_targets_5col.bed"
+      re-save-file olapfreebed "${NAME}_nonmerged_noolaps_targets_5col.bed"
+      re-save-file primers "${NAME}_primers.bed"
