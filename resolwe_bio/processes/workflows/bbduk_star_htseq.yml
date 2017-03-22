@@ -1,0 +1,72 @@
+- slug: workflow-bbduk_star_htseq
+  category: workflow:primary
+  name: Workflow with bbduk star and Htseq-count
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:rnaseq:htseq
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq:single
+    - name: star_index
+      label: Star index
+      type: data:genomeindex:star
+    - name: bbduk_adapters
+      label: bbduk adapters
+      type: list:data:seq:nucleotide
+      description: >
+            Provide a list of sequencing adapters files (.fasta) with adapters to be removed by bbduk.
+    - name: annotation
+      label: annotation
+      type: data:annotation
+    - name: stranded
+      label: Is data from QuantSeq FWD or REV Library?
+      type: basic:string
+      choices:
+        - label: QuantSeq FWD Libraries
+          value: 'yes'
+        - label: QuantSeq REV Libraries
+          value: 'reverse'
+  run:
+    language: workflow
+    program:
+      - id: bbduk_filtering
+        run: bbduk-single
+        input:
+          reads: '{{input.reads}}'
+          adapters:
+            reference: '{{input.bbduk_adapters}}'
+          processing_par:
+            k: 13
+            useshortkmers: True
+          trimming_par:
+            ktrim: 'r'
+            mink: 5
+            qtrim: rl
+            trimq: 10
+            minlength: 20
+      - id: star
+        run: alignment-star
+        input:
+          genome: '{{input.star_index}}'
+          reads: '{{steps.bbduk_filtering}}'
+          threads: 8
+          filtering:
+            outFilterType: 'BySJout'
+            outFilterMultimapNmax: 20
+            outFilterMismatchNmax: 999
+          alignment:
+            alignSJoverhangMin: 8
+            alignSJDBoverhangMin: 1
+            alignIntronMin: 20
+            alignIntronMax: 1000000
+            alignMatesGapMax: 1000000
+      - id: htseq_count
+        run: htseq-count
+        input:
+          alignments: '{{steps.star}}'
+          gff: '{{input.annotation}}'
+          mode: 'intersection-nonempty'
+          stranded: '{{input.stranded}}'

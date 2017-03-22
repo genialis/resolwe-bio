@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.9
+  version: 1.1.0
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -111,7 +111,6 @@
           required: false
           description: >
             Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
-
     - name: alignment
       label: Alignment and Seeding
       group:
@@ -186,18 +185,21 @@
       READS_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
       INDEX="{{genome.index.dir}}"
 
+      FW_READS=()
+      RW_READS=()
+
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=("{{ r.file }}")
       {% endfor %}
 
-      cat ${FW_READS} > fw_reads.fastq.gz
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
           READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"{{ r.file }} "
+          RW_READS+=("{{ r.file }}")
         {% endfor %}
-        cat ${RW_READS} > rw_reads.fastq.gz
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
       {% endif %}
 
       re-progress 0.05
@@ -208,9 +210,9 @@
 
       if [ -f Unmapped.out.mate1 ]
       then
-        mv Unmapped.out.mate1 ${READS_NAME}_unmapped.out.mate1.fastq
-        gzip ${READS_NAME}_unmapped.out.mate1.fastq
-        re-save-file unmapped_f ${READS_NAME}_unmapped.out.mate1.fastq.gz
+        mv Unmapped.out.mate1 "${READS_NAME}_unmapped.out.mate1.fastq"
+        gzip "${READS_NAME}_unmapped.out.mate1.fastq"
+        re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
       fi
 
       {% else %}
@@ -219,58 +221,58 @@
 
       if [ -f Unmapped.out.mate1 ]
       then
-        mv Unmapped.out.mate1 ${READS_NAME}_unmapped.out.mate1.fastq
-        gzip ${READS_NAME}_unmapped.out.mate1.fastq
-        re-save-file unmapped_f ${READS_NAME}_unmapped.out.mate1.fastq.gz
+        mv "Unmapped.out.mate1" "${READS_NAME}_unmapped.out.mate1.fastq"
+        gzip "${READS_NAME}_unmapped.out.mate1.fastq"
+        re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
       fi
 
       if [ -f Unmapped.out.mate2 ]
       then
-        mv Unmapped.out.mate2 ${READS_NAME}_unmapped.out.mate2.fastq
-        gzip ${READS_NAME}_unmapped.out.mate2.fastq
-        re-save-file unmapped_r ${READS_NAME}_unmapped.out.mate2.fastq
+        mv "Unmapped.out.mate2" "${READS_NAME}_unmapped.out.mate2.fastq"
+        gzip "${READS_NAME}_unmapped.out.mate2.fastq"
+        re-save-file unmapped_r "${READS_NAME}_unmapped.out.mate2.fastq"
       fi
 
       {% endif %}
 
       re-progress 0.8
-      samtools index Aligned.sortedByCoord.out.bam ${READS_NAME}.bam.bai
+      samtools index Aligned.sortedByCoord.out.bam "${READS_NAME}.bam.bai"
       re-checkrc
       re-progress 0.9
 
       {% if detect_chimeric.chimeric %}
-        mv Chimeric.out.sam ${READS_NAME}_chimeric.out.sam
-        re-save-file chimeric ${READS_NAME}_chimeric.out.sam
+        mv Chimeric.out.sam "${READS_NAME}_chimeric.out.sam"
+        re-save-file chimeric "${READS_NAME}_chimeric.out.sam"
       {% endif %}
 
       {% if t_coordinates.quantmode %}
-        mv Aligned.toTranscriptome.out.bam ${READS_NAME}_aligned.toTranscriptome.out.bam
-        re-save-file alignment_transcriptome ${READS_NAME}_aligned.toTranscriptome.out.bam
+        mv Aligned.toTranscriptome.out.bam "${READS_NAME}_aligned.toTranscriptome.out.bam"
+        re-save-file alignment_transcriptome "${READS_NAME}_aligned.toTranscriptome.out.bam"
       {% endif %}
 
       {% if t_coordinates.gene_counts %}
-        mv ReadsPerGene.out.tab ${READS_NAME}.tab
-        gzip ${READS_NAME}.tab
-        re-save-file gene_counts ${READS_NAME}.tab.gz
-        cp ${READS_NAME}.tab.gz ${READS_NAME}_1.tab.gz
-        cp ${READS_NAME}.tab.gz ${READS_NAME}_2.tab.gz
-        cp ${READS_NAME}.tab.gz ${READS_NAME}_3.tab.gz
-        re-export ${READS_NAME}_1.tab.gz
-        re-export ${READS_NAME}_2.tab.gz
-        re-export ${READS_NAME}_3.tab.gz
+        mv ReadsPerGene.out.tab "${READS_NAME}.tab"
+        gzip "${READS_NAME}.tab"
+        re-save-file gene_counts "${READS_NAME}.tab.gz"
+        cp "${READS_NAME}.tab.gz" "${READS_NAME}_1.tab.gz"
+        cp "${READS_NAME}.tab.gz" "${READS_NAME}_2.tab.gz"
+        cp "${READS_NAME}.tab.gz" "${READS_NAME}_3.tab.gz"
+        re-export "${READS_NAME}_1.tab.gz"
+        re-export "${READS_NAME}_2.tab.gz"
+        re-export "${READS_NAME}_3.tab.gz"
         echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no","source":"{{genome.source}}"}}'
         echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes","source":"{{genome.source}}"}}'
         echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":"{{genome.source}}"}}'
       {% endif %}
 
-      mv Aligned.sortedByCoord.out.bam ${READS_NAME}.bam
-      mv Log.final.out ${READS_NAME}_stats.txt
-      mv SJ.out.tab ${READS_NAME}_SJ.out.tab
+      mv Aligned.sortedByCoord.out.bam "${READS_NAME}.bam"
+      mv Log.final.out "${READS_NAME}_stats.txt"
+      mv SJ.out.tab "${READS_NAME}_SJ.out.tab"
 
-      re-save-file bam ${READS_NAME}.bam
-      re-save-file bai ${READS_NAME}.bam.bai
-      re-save-file sj ${READS_NAME}_SJ.out.tab
-      re-save-file stats ${READS_NAME}_stats.txt
+      re-save-file bam "${READS_NAME}.bam"
+      re-save-file bai "${READS_NAME}.bam.bai"
+      re-save-file sj "${READS_NAME}_SJ.out.tab"
+      re-save-file stats "${READS_NAME}_stats.txt"
 
 
 - slug: alignment-star-index

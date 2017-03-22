@@ -1,0 +1,13 @@
+- slug: quantseq
+  name: QuantSeq workflow
+  version: 0.0.1
+  description: QuantSeq workflow selection template
+  schema:
+    - name: stranded
+      label: Is data from QuantSeq FWD or REV Library?
+      type: basic:string
+      choices:
+        - label: QuantSeq FWD Libraries
+          value: 'yes'
+        - label: QuantSeq REV Libraries
+          value: 'reverse'
