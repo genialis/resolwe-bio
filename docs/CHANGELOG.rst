@@ -24,6 +24,7 @@ Fixed
 * Upload reads (paired/single) containing whitespace in the file name
 * Fix reads filtering processes for cases where input read file names contain whitespace
 * Add additional filtering option to STAR aligner
+* Fix bbduk-star-htseq_count workflow
 
 Changed
 -------

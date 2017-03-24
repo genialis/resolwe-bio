@@ -4,11 +4,11 @@
 ---
 
 - slug: alignment-star
-  name: STAR (2.4.2a)
+  name: STAR
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -276,11 +276,11 @@
 
 
 - slug: alignment-star-index
-  name: STAR genome index (2.4.2a)
+  name: STAR genome index
   requirements:
     expression-engine: jinja
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.7
+  version: 1.0.8
   type: data:genomeindex:star
   persistence: CACHED
   description: >

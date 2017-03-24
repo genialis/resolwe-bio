@@ -1,10 +1,10 @@
-- slug: workflow-bbduk_star_htseq
+- slug: workflow-bbduk-star-htseq
   category: workflow:primary
-  name: Workflow with bbduk star and Htseq-count
+  name: Workflow with bbduk star and Htseq-count-raw
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -25,9 +25,9 @@
       label: Is data from QuantSeq FWD or REV Library?
       type: basic:string
       choices:
-        - label: QuantSeq FWD Libraries
+        - label: QuantSeq FWD Library
           value: 'yes'
-        - label: QuantSeq REV Libraries
+        - label: QuantSeq REV Library
           value: 'reverse'
   run:
     language: workflow
@@ -64,7 +64,7 @@
             alignIntronMax: 1000000
             alignMatesGapMax: 1000000
       - id: htseq_count
-        run: htseq-count
+        run: htseq-count-raw
         input:
           alignments: '{{steps.star}}'
           gff: '{{input.annotation}}'

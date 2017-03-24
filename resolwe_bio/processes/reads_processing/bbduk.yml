@@ -6,11 +6,11 @@
 ---
 
 - slug: bbduk-single
-  name: BBDuk from BBMap 36.20 (single-end)
+  name: BBDuk (single-end)
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -325,11 +325,11 @@
 
 
 - slug: bbduk-paired
-  name: BBDuk from BBMap 36.20 (paired-end)
+  name: BBDuk (paired-end)
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample

@@ -20,7 +20,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         )
 
     def test_bbduk_star_htseq_workflow(self):
-        inputs = {'src': ['workflow_bbduk_star_test.fastq.gz']}
+        inputs = {'src': ['workflow_bbduk_star test.fastq.gz']}
         reads = self.run_processor('upload-fastq-single', inputs)
 
         inputs = {'src': 'HS_chr21_ensemble.fa.gz'}
@@ -29,14 +29,14 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         inputs = {'src': 'poly_A.fa.gz'}
         adapters1 = self.run_process('upload-fasta-nucl', inputs)
 
-        inputs = {'src': 'HS_chr21_short.gtf.gz', 'source': 'ENSEMBLE'}
+        inputs = {'src': 'HS_chr21_short.gtf.gz', 'source': 'ENSEMBL'}
         annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
         star_index = self.run_process('alignment-star-index', inputs)
 
         self.run_process(
-            'workflow-bbduk_star_htseq', {
+            'workflow-bbduk-star-htseq', {
                 'reads': reads.id,
                 'star_index': star_index.id,
                 'bbduk_adapters': [adapters1.id],
