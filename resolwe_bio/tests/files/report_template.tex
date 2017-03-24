@@ -16,6 +16,9 @@
 
 \usepackage{caption}
 
+% Make only a subset of pages in landscape mode
+\usepackage{pdflscape}
+
 % tables spanning multiple pages
 \usepackage{longtable}
 
@@ -66,11 +69,11 @@ Number of amplicons with 100 \% coverage: \textbf{{#COVERED_AMPLICONS#} ({#PCT_C
 
 \newpage
 
-\section{Annotated variants}
-
-\small
-
-{#VCF_TABLES#}
+\begin{landscape}
+    \section{Annotated variants}
+    \small
+    {#VCF_TABLES#}
+\end{landscape}
 
 
 \end{document}
