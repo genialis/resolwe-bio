@@ -40,12 +40,12 @@ def isgzipped(f):
 
 
 def component_top_factors(component):
-    """Return top 10 absolute factors."""
+    """Return top 20 absolute factors."""
     # 10x faster, but not supported in current numpy:
     #   abs_component = np.abs(component)
-    #   unordered_ixs = np.argpartition(abs_component, -10)[-10:]
+    #   unordered_ixs = np.argpartition(abs_component, -20)[-20:]
     #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
-    ixs = np.argsort(np.abs(component))[:-11:-1]
+    ixs = np.argsort(np.abs(component))[:-21:-1]
     if len(ixs) == 0:
         return []
     return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
