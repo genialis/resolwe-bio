@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'PCA'
-  version: 1.1.0
+  version: 1.1.1
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -45,18 +45,18 @@
       {% endfor %}
 
       {% for exp in exps %}
-        exp=$exp"{{ exp.exp.file }},"
-        obj_id=$obj_id"{{ exp|sample_id }},"
+        exp_files=$exp_files"{{ exp.exp.file }},"
+        sample_ids=$sample_ids"{{ exp|sample_id }},"
       {% endfor %}
 
       re-save proc.rc $?
       re-save proc.progress 0.1
 
-      obj_id=${obj_id%?}
-      exp=${exp%?}
+      sample_ids=${sample_ids%?}
+      exp_files=${exp_files%?}
 
       re-save proc.rc $?
       re-save proc.progress 0.2
 
-      pca.py ${exp} ${obj_id} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} {% if filter %}--filter{% endif %}
+      pca.py ${exp_files} ${sample_ids} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} {% if filter %}--filter{% endif %}
       re-save proc.rc $?

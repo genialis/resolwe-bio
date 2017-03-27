@@ -15,7 +15,7 @@ import utils
 
 
 parser = argparse.ArgumentParser(description="PCA")
-parser.add_argument('samples', help="All samples (comma separated)")
+parser.add_argument('sample_files', help="All samples (comma separated)")
 parser.add_argument('sample_ids', help="Sample IDs (comma separated")
 parser.add_argument('--genes', nargs='+', help='filter genes')
 parser.add_argument('--filter', help="Filter genes with low expression", action="store_true")
@@ -59,7 +59,7 @@ def save_pca(coordinates, explained_variance_ratios=[0, 0], components=[[], []],
                 'data': coordinates,
                 'xlabel': 'PC 1',
                 'ylabel': 'PC 2',
-                'samples': sample_ids,
+                'sample_ids': sample_ids,
             },
             'zero_gene_symbols': list(zero_genes),
         }
@@ -73,10 +73,10 @@ def save_pca(coordinates, explained_variance_ratios=[0, 0], components=[[], []],
     print(json.dumps(data, separators=(',', ':'), allow_nan=False))
 
 
-samples = args.samples.split(',')
+sample_files = args.sample_files.split(',')
 sample_ids = args.sample_ids.split(',')
 
-if len(samples) != len(sample_ids):
+if len(sample_files) != len(sample_ids):
     print('{"rc":"1"}')
     exit(1)
 
@@ -84,7 +84,7 @@ exp = []
 allgenes = set()
 zero_genes = set()
 
-for fname in samples:
+for fname in sample_files:
     myopen = utils.gzopen if isgzipped(fname) else open
 
     with myopen(fname) as f:
