@@ -3,32 +3,23 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
-    @skipDockerFailure("Processor requires a custom Docker image.")
+    # @skipDockerFailure("Processor requires a custom Docker image.")
     def test_amplicon_workflow(self):
+        self.keep_data()
         inputs = {
             'src1': ['56GSID_10k_mate1.fastq.gz'],
             'src2': ['56GSID_10k_mate2.fastq.gz']}
         reads = self.run_process('upload-fastq-paired', inputs)
 
         adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
-        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
-        inputs = {'src': '5ptrim_new56Gprimers.fa.gz'}
-        primers_1 = self.run_processor('upload-fasta-nucl', inputs)
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
 
-        inputs = {'src': '3ptrim_new56Gprimers.fa.gz'}
-        primers_2 = self.run_processor('upload-fasta-nucl', inputs)
+        inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
+        indels = self.run_process('upload-variants-vcf', inputs)
 
-        intervals_picard = self.run_process('upload-bed', {'src': '56g_targets_picard_small.bed'})
-        intervals = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
-
-        inputs = {'src': 'Mills_and_1000G_gold_standard.indels.b37.chr22_small.vcf.gz'}
-        indels_1 = self.run_process('upload-variants-vcf', inputs)
-
-        inputs = {'src': '1000G_phase1.indels.b37.chr22_small.vcf.gz'}
-        indels_2 = self.run_process('upload-variants-vcf', inputs)
-
-        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
         template = self.run_process('upload-file', {'src': 'report_template.tex'})
         logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
@@ -37,18 +28,11 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
             'workflow-accel', {
                 'reads': reads.id,
                 'genome': genome.id,
-                'primers': {
-                    'adapters': adapters.id,
-                    'up_primers': primers_1.id,
-                    'down_primers': primers_2.id,
-                },
-                'target_intervals': {
-                    'intervals_picard': intervals_picard.id,
-                    'intervals': intervals.id,
-                },
+                'master_file': master_file.id,
+                'adapters': adapters.id,
                 'preprocess_bam': {
                     'known_vars': [dbsnp.id],
-                    'known_indels': [indels_1.id, indels_2.id]
+                    'known_indels': [indels.id]
                 },
                 'gatk': {
                     'dbsnp': dbsnp.id,
