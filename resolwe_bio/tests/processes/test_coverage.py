@@ -55,9 +55,9 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         self.assertFile(exon_cov, 'exon_coverage', 'exons_coverage.txt.gz', compression='gzip')
 
     def test_amplicon_coverage(self):
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_trimmed.bam'})
-        bed = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
 
-        coverage = self.run_process('coveragebed', {'alignment': bam.id, 'bed': bed.id})
-        self.assertFile(coverage, 'cov', '56GSID_10k_trimmed.cov')
-        self.assertFile(coverage, 'covd', '56GSID_10k_trimmed.covd')
+        coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
+        self.assertFile(coverage, 'cov_metrics', '56GSID_10k_covMetrics.txt')
+        self.assertFile(coverage, 'mean_cov', '56GSID_10k_ampmeancov.covd')

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.1.0
+  version: 2.2.0
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -19,34 +19,55 @@
     - name: alignment
       label: Alignment (BAM)
       type: data:alignment:bam
-    - name: bed
-      label: BED file
-      type: data:bed
+    - name: master_file
+      label: Master file
+      type: data:masterfile:amplicon
   output:
-    - name: cov
-      label: Coverage
+    - name: cov_metrics
+      label: Coverage metrics
       type: basic:file
-    - name: covd
-      label: Coverage (depth at each position)
+    - name: mean_cov
+      label: Mean amplicon coverage
+      type: basic:file
+    - name: covplot
+      label: Coverage plot
+      type: basic:file
+    - name: amplicon_cov
+      label: Amplicon coverage file (nomergebed)
       type: basic:file
   run:
     runtime: polyglot
     language: bash
     program: |
-      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
-      SAMPLE_NAME='{{ alignment|sample_name }}'
+      SAMPLE_SLUG='{{ alignment|sample_slug }}'
 
-      picard-tools AddOrReplaceReadGroups I="{{alignment.bam.file}}" O="${BAM_NAME}.RG.bam" SO=coordinate RGID=amplicons RGLB=swift RGSM="${BAM_NAME}" RGPL=illumina RGPU=miseq
-      re-checkrc
-      re-progress 0.2
-
-      coverageBed -abam "${BAM_NAME}.RG.bam" -b "{{bed.BED.file}}" -d > "${SAMPLE_NAME}.covd"
+      ### calculate coverage metrics ###
+      echo "calculating coverage metrics"
+      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.bedfile.file}}" -d > "${SAMPLE_SLUG}.covd"
       re-checkrc
       re-progress 0.5
 
-      coverageBed -abam "${BAM_NAME}.RG.bam" -b "{{bed.BED.file}}" > "${SAMPLE_NAME}.cov"
-      re-checkrc
-      re-progress 0.9
+      awk '{sum+=$7}END{m=(sum/NR); b=m*0.2; print m, b}' "${SAMPLE_SLUG}.covd" > "${SAMPLE_SLUG}.tmp"
 
-      re-save-file covd "${SAMPLE_NAME}.covd"
-      re-save-file cov "${SAMPLE_NAME}.cov"
+      # make an amplicon-specific coverage metrics report
+      # NOTE: coverage is not uniquely assigned to individual amplicons for overlapping regions!
+      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.nomergebed.file}}" > "${SAMPLE_SLUG}_amplicon_coverage.cov"
+
+      # make an amplicon-specific coverage metrics report with olaps omitted
+      # and report mean amplicon coverage using bedtool option
+      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.olapfreebed.file}}" -d > "${SAMPLE_SLUG}_olapfree.covd"
+      awk 'BEGIN{n=0}NR==FNR{m=$1;b=$2;next}{if($7>=b)n++}END{print m,b,(n/FNR*100.0)}' OFS="\t" "${SAMPLE_SLUG}.tmp" "${SAMPLE_SLUG}.covd" > "${SAMPLE_SLUG}_covMetrics.txt"
+
+      echo "calculating mean amplicon coverage"
+      # find mean amplicon coverage using coverage metrics for non-overlapping regions of each amplicon
+      awk '{a[$5]+=$7;b[$5]=$6}END{for(i in a){print i, (a[i]/b[i])}}' OFS="\t" <(sort -k6,6n "${SAMPLE_SLUG}_olapfree.covd") | sort -k2,2g > "${SAMPLE_SLUG}_ampmeancov.covd"
+
+      # Create coverage uniformity plot input file
+      sort -k1,1 < "${SAMPLE_SLUG}_ampmeancov.covd" | awk '{print $1,$2,$1}' OFS="\t" | awk '{sub(/_.*$/,"",$3); print $0}' OFS="\t" > "${SAMPLE_SLUG}_ampmeancov.tmp"
+
+      plotcoverage.py -i "${SAMPLE_SLUG}_ampmeancov.tmp" -o "${SAMPLE_SLUG}_coverageplot.pdf"
+
+      re-save-file cov_metrics "${SAMPLE_SLUG}_covMetrics.txt"
+      re-save-file mean_cov "${SAMPLE_SLUG}_ampmeancov.covd"
+      re-save-file covplot "${SAMPLE_SLUG}_coverageplot.pdf"
+      re-save-file amplicon_cov "${SAMPLE_SLUG}_amplicon_coverage.cov"
