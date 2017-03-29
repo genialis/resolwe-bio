@@ -1,0 +1,53 @@
+# ================================
+# Picard CollectTargetedPcrMetrics
+# ================================
+---
+
+- slug: picard-pcrmetrics
+  name: Picard CollectTargetedPcrMetrics
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+  data_name: "CollectTargetedPcrMetrics ({{ alignment|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:picard:coverage
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Run Picard CollectTargetedPcrMetrics.
+  input:
+    - name: alignment
+      label: Alignment file (BAM)
+      type: data:alignment:bam
+    - name: master_file
+      label: Master file
+      type: data:masterfile:amplicon
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+  output:
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      SAMPLE_SLUG="{{ alignment|sample_slug }}"
+
+      # make intervals file for CollectTargetedPcrMetrics
+      samtools view -H "{{alignment.bam.file}}" > header.txt
+      cat header.txt "{{master_file.bedfile.file}}" > fullintervals.txt
+      cat header.txt "{{master_file.bedfile.file}}" > noprimerintervals.txt
+
+      java -jar /usr/gitc/picard.jar CollectTargetedPcrMetrics I="{{alignment.bam.file}}" O="${SAMPLE_SLUG}.targetPCRmetrics.txt" AI=fullintervals.txt TI=noprimerintervals.txt R="{{genome.fasta.file}}" PER_TARGET_COVERAGE="${SAMPLE_SLUG}.perTargetCov.txt"
+      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+
+      echo "{\"target_pcr_metrics\":{\"file\":\"${SAMPLE_SLUG}.targetPCRmetrics.txt\"}}"
+      echo "{\"target_coverage\":{\"file\":\"${SAMPLE_SLUG}.perTargetCov.txt\"}}"

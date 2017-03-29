@@ -3,15 +3,15 @@
 # =====================================
 ---
 
-- slug: vc-preprocess-bam
-  name: Preprocess BAM (Amplicon)
+- slug: vc-realign-recalibrate
+  name: Indel Realignment and Base Recalibration
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:alignment:bam:vc
   category: analyses:variants
   flow_collection: sample
@@ -22,9 +22,6 @@
     - name: alignment
       label: Alignment file (BAM)
       type: data:alignment:bam
-    - name: bed
-      label: BED file
-      type: data:bed
     - name: genome
       label: Genome
       type: data:genome:fasta
@@ -45,48 +42,38 @@
     - name: bai
       label: Index BAI
       type: basic:file
-    - name: target_pcr_metrics
-      label: Target PCR metrics
-      type: basic:file
-    - name: target_coverage
-      label: Target coverage
+    - name: stats
+      label: Stats
       type: basic:file
   run:
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_NAME="{{ alignment|sample_name }}"
-      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
+      SAMPLE_SLUG="{{ alignment|sample_slug }}"
 
-      # Add RG
-      java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I="{{alignment.bam.file}}" O=alignment.RG.bam SO=coordinate RGID=amplicons RGLB=swift RGSM="${BAM_NAME}" RGPL=illumina RGPU=miseq
-      echo "{\"proc.progress\":0.10,\"proc.rc\":$?}"
+      cp "{{alignment.bam.file}}" alignment.RG.bam
+      cp "{{alignment.bai.file}}" alignment.RG.bam.bai
 
-      # Index BAM file
-      samtools index alignment.RG.bam
-      echo "{\"proc.progress\":0.20,\"proc.rc\":$?}"
-
-      #picard
-      java -jar /usr/gitc/picard.jar CollectTargetedPcrMetrics I=alignment.RG.bam O="${SAMPLE_NAME}.targetPCRmetrics.txt" AI="{{bed.BED.file}}" TI="{{bed.BED.file}}" R="{{genome.fasta.file}}" PER_TARGET_COVERAGE="${SAMPLE_NAME}.perTargetCov.txt"
-      echo "{\"proc.progress\":0.30,\"proc.rc\":$?}"
-
-      #Create target interval for Indelrealigner
+      echo "Create target interval for Indelrealigner"
       java -jar /usr/gitc/GATK36.jar -T RealignerTargetCreator -R "{{genome.fasta.file}}" -I alignment.RG.bam {% for indelx in known_indels %} -known "{{ indelx.vcf.file }}" {% endfor %} -o forIndelRealigner.intervals
       echo "{\"proc.progress\":0.40,\"proc.rc\":$?}"
 
-      #GATK Indel Realignment
+      echo "GATK Indel Realignment"
       java -jar /usr/gitc/GATK36.jar -T IndelRealigner -R "{{genome.fasta.file}}" -I alignment.RG.bam {% for indelx in known_indels %} -known "{{ indelx.vcf.file }}" {% endfor %} --targetIntervals forIndelRealigner.intervals -o realigned.bam
       echo "{\"proc.progress\":0.60,\"proc.rc\":$?}"
 
-      #GATK Base Recalibration
+      echo "GATK Base Recalibration"
       java -jar /usr/gitc/GATK36.jar -T BaseRecalibrator -R "{{genome.fasta.file}}" -I realigned.bam {% for known_var in known_indels + known_vars %} --knownSites "{{ known_var.vcf.file }}" {% endfor %} -nct {{threads}} -o recal_data.table
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
-      #generate Recalibrated bam
-      java -jar /usr/gitc/GATK36.jar -T PrintReads -R "{{genome.fasta.file}}" -I realigned.bam -BQSR recal_data.table -o "${SAMPLE_NAME}.realigned.bqsrCal.bam"
+      echo "generate Recalibrated bam"
+      java -jar /usr/gitc/GATK36.jar -T PrintReads -R "{{genome.fasta.file}}" -I realigned.bam -BQSR recal_data.table -o "${SAMPLE_SLUG}.realigned.bqsrCal.bam"
       echo "{\"proc.rc\":$?}"
 
-      echo "{\"bam\":{\"file\":\"${SAMPLE_NAME}.realigned.bqsrCal.bam\"}}"
-      echo "{\"bai\":{\"file\":\"${SAMPLE_NAME}.realigned.bqsrCal.bai\"}}"
-      echo "{\"target_pcr_metrics\":{\"file\":\"${SAMPLE_NAME}.targetPCRmetrics.txt\"}}"
-      echo "{\"target_coverage\":{\"file\":\"${SAMPLE_NAME}.perTargetCov.txt\"}}"
+      echo "Calculating statistics"
+      samtools flagstat "${SAMPLE_SLUG}.realigned.bqsrCal.bam" > "${SAMPLE_SLUG}_report.txt"
+      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+
+      echo "{\"stats\":{\"file\":\"${SAMPLE_SLUG}_report.txt\"}}"
+      echo "{\"bam\":{\"file\":\"${SAMPLE_SLUG}.realigned.bqsrCal.bam\"}}"
+      echo "{\"bai\":{\"file\":\"${SAMPLE_SLUG}.realigned.bqsrCal.bai\"}}"

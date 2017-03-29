@@ -1,0 +1,39 @@
+# =======================================
+# Import Picard CollectTargetedPcrMetrics
+# =======================================
+---
+
+- slug: upload-picard-pcrmetrics
+  name: Upload Picard CollectTargetedPcrMetrics
+  requirements:
+    expression-engine: jinja
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.1
+  type: data:picard:coverage:upload
+  category: upload
+  persistence: RAW
+  description: >
+    Upload Picard CollectTargetedPcrMetrics result files.
+  input:
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+  output:
+    - name: target_pcr_metrics
+      label: Target PCR metrics
+      type: basic:file
+    - name: target_coverage
+      label: Target coverage
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+        re-import "{{ target_pcr_metrics.file_temp }}" "{{ target_pcr_metrics.file }}" "txt" "txt" 0.5 extract
+        re-save-file target_pcr_metrics "${NAME}.txt"
+
+        re-import "{{ target_coverage.file_temp }}" "{{ target_coverage.file }}" "txt" "txt" 1 extract
+        re-save-file target_coverage "${NAME}.txt"
