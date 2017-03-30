@@ -8,20 +8,16 @@ class ReportProcessorTestCase(BioProcessTestCase):
         template = self.run_process('upload-file', {'src': 'report_template.tex'})
         logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
 
-        inputs = {
-            'src': '56GSID_10k_trimmed.bam.realigned.bqsrCal.bam',
-            'target_pcr_metrics': '56GSID_10k_trimmed.bam.targetPCRmetrics.txt',
-            'target_coverage': '56GSID_10k_trimmed.bam.perTargetCov.txt'
-        }
-
-        preprocess_bam = self.run_process('upload-bam-vc', inputs)
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
 
         inputs = {
-            'cov': '56GSID_10k_trimmed.cov',
-            'covd': '56GSID_10k_trimmed.covd'
+            'target_pcr_metrics': '56gsid_10k.targetPCRmetrics.txt',
+            'target_coverage': '56gsid_10k.perTargetCov.txt'
         }
 
-        coverage = self.run_process('upload-coverage', inputs)
+        pcr_metrics = self.run_process('upload-picard-pcrmetrics', inputs)
 
         inputs = {
             'annotation': '56GSID.lf.finalvars.txt',
@@ -32,8 +28,8 @@ class ReportProcessorTestCase(BioProcessTestCase):
         annot_variants = self.run_process('upload-snpeff', inputs)
 
         report_inputs = {
-            'bam': preprocess_bam.id,
             'coverage': coverage.id,
+            'pcr_metrics': pcr_metrics.id,
             'template': template.id,
             'logo': logo.id,
             'panel_name': '56G Oncology Panel v2',

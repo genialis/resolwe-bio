@@ -6,29 +6,15 @@ import os
 import argparse
 import subprocess
 
-import matplotlib as mpl
-from collections import defaultdict
-from matplotlib import pyplot as plt
-
 
 DECIMALS = 3  # Decimal precision when presenting results:
-
-# Set defult colors:
-GENIALIS_BLUE = '#00bcd4'
-GENIALIS_GREY = '#9E9E9E'
-mpl.rcParams['axes.labelcolor'] = GENIALIS_GREY
-mpl.rcParams['axes.edgecolor'] = GENIALIS_GREY
-mpl.rcParams['lines.color'] = GENIALIS_GREY
-mpl.rcParams['lines.antialiased'] = False
-mpl.rcParams['text.color'] = GENIALIS_GREY
-mpl.rcParams['xtick.color'] = GENIALIS_GREY
-mpl.rcParams['ytick.color'] = GENIALIS_GREY
 
 parser = argparse.ArgumentParser(description="Fill data into tex template file.")
 parser.add_argument('--sample', help="Sample name.")
 parser.add_argument('--panel', help="Panel name")
-parser.add_argument('--cov', help="coverageBed report file (*.cov extension).")
-parser.add_argument('--covd', help="coverageBed report file (*.covd extension).")
+parser.add_argument('--covplot', help="Coverage plot.")
+parser.add_argument('--covmetrics', help="Coverge metrics")
+parser.add_argument('--cov', help="Amplicon coverage")
 parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.")
 parser.add_argument('--vcf', help="File with VCF data.", nargs='+')
 parser.add_argument('--template', help="Report template file.")
@@ -143,63 +129,6 @@ def parse_target_pcr_metrics(metrics_report):
         return dict(zip(labels, values))
 
 
-def get_mean_coverage(covd):
-    """Calculate mean coverage from coverageBed (.covd) report file."""
-    with open(covd) as pbc:
-        cov = 0
-        lines = 0
-        for line in pbc:
-            cov = cov + int(line.strip().split('\t')[6])
-            lines = lines + 1
-
-    return cov / lines
-
-
-def per_amplicon_mean_coverge(covd):
-    """Calculate per amplicon mean coverage from coverageBed (.covd) report file."""
-    with open(covd) as pbc:
-        n_bases = defaultdict(list)
-        for line in pbc:
-            data = line.strip().split('\t')
-            n_bases[data[4]].append(int(data[6]))
-
-    amp_vals = {}
-    for amp in n_bases:
-        amp_vals[amp] = float(sum(n_bases[amp])) / len(n_bases[amp])
-
-    return amp_vals
-
-
-def coverage_uniformity(covd, mean_coverage, cutoff):
-    """Parse coverageBed (.covd) report file."""
-    with open(covd) as pbc:
-        covered_bases = 0
-        all_bases = 0
-        for line in pbc:
-            cov_data = line.strip().split('\t')
-            if int(cov_data[6]) >= mean_coverage * cutoff:
-                covered_bases = covered_bases + 1
-            all_bases = all_bases + 1
-    return float(covered_bases) / float(all_bases)
-
-
-def make_scatterplot(x, y, hline=None, savefile=None, dpi=300):
-    """Make scatterplot."""
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-
-    ax.plot(x, y, color=GENIALIS_BLUE, marker='o', linestyle=' ', markeredgewidth=0.0)
-    ax.set_xlim(min(x), max(x))
-    ax.set_yscale('log')
-    ax.set_xlabel("Amplicon")
-    ax.set_ylabel("Average coverage")
-    ax.yaxis.set_major_formatter(mpl.ticker.FuncFormatter(lambda x, _: '{:.0f}'.format(x)))
-    if hline:
-        ax.axhline(hline, color=GENIALIS_GREY)
-
-    plt.savefig(savefile, dpi=dpi)
-
-
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -210,13 +139,17 @@ if __name__ == '__main__':
         template = template.replace('{#SAMPLE_NAME#}', _format_latex(args.sample))
         template = template.replace('{#PANEL#}', _format_latex(args.panel))
 
+        # get coverage stats
+        with open(args.covmetrics) as covmetrics:
+            cov_data = covmetrics.readline().strip().split('\t')
+            mean_coverage = float(cov_data[0])
+            mean20 = float(cov_data[1])
+            cov_unif = float(cov_data[2])
+
         # Produce results, metrics:
         metrics = parse_target_pcr_metrics(args.metrics)
         pf_bases = float(metrics['PF_BASES'])
         bases_aligned = (float(metrics['ON_AMPLICON_BASES']) + float(metrics['NEAR_AMPLICON_BASES'])) / pf_bases
-        mean_coverage = get_mean_coverage(args.covd)
-        mean20 = round(0.2 * mean_coverage, DECIMALS)
-        cov_unif = round(coverage_uniformity(args.covd, mean_coverage, 0.2) * 100, DECIMALS)
 
         template = template.replace('{#TOTAL_READS#}', metrics['TOTAL_READS'])
         template = template.replace('{#ALIGNED_READS#}', metrics['PF_UQ_READS_ALIGNED'])
@@ -247,10 +180,7 @@ if __name__ == '__main__':
         template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
 
         # Scatterplot:
-        per_amp_cov = per_amplicon_mean_coverge(args.covd)
-        cov2 = [per_amp_cov[line[4]] for line in cov_list]
-        make_scatterplot(amp_numb, cov2, hline=mean20, savefile='scatter.png')
-        template = template.replace('{#IMAGE2#}', 'scatter.png')
+        template = template.replace('{#IMAGE2#}', args.covplot)
 
         # Make VCF tables:
         table_text = ''

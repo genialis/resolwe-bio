@@ -7,7 +7,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Report ({{ bam|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -15,9 +15,9 @@
   description: >
     Create amplicon report.
   input:
-    - name: bam
-      label: Preprocessed BAM
-      type: data:alignment:bam:vc
+    - name: pcr_metrics
+      label: Picard TargetedPcrMetrics
+      type: data:picard:coverage
     - name: coverage
       label: Coverage
       type: data:coverage
@@ -41,12 +41,14 @@
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_NAME='{{ bam|sample_name }}'
+      SAMPLE_NAME='{{ coverage|sample_name }}'
+      SAMPLE_SLUG='{{ coverage|sample_slug }}'
 
       make_report.py --sample "${SAMPLE_NAME}" \
-      --cov "{{coverage.cov.file}}" \
-      --covd "{{coverage.covd.file}}" \
-      --metrics "{{bam.target_pcr_metrics.file}}" \
+      --cov "{{coverage.amplicon_cov.file}}" \
+      --covmetrics "{{coverage.cov_metrics.file}}" \
+      --covplot "{{coverage.covplot.file}}" \
+      --metrics "{{pcr_metrics.target_pcr_metrics.file}}" \
       --template "{{template.file.file}}" \
       --logo "{{logo.file.file}}" \
       --vcf {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %} \
@@ -54,6 +56,6 @@
 
       re-checkrc
 
-      mv report.pdf "${SAMPLE_NAME}_report.pdf"
+      mv report.pdf "${SAMPLE_SLUG}_report.pdf"
 
-      re-save-file report "${SAMPLE_NAME}_report.pdf"
+      re-save-file report "${SAMPLE_SLUG}_report.pdf"
