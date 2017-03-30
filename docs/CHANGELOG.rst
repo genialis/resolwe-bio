@@ -17,6 +17,8 @@ Added
 * Amplicon report generator
 * Add Rattus norvegicus organism choice to sample schema
 * Transforming form Phred 64 to Phred 33 when uploading fastq reads
+* Add primertrim process
+
 
 Fixed
 -----
