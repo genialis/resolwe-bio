@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.4
+  version: 0.1.0
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -13,33 +13,14 @@
     - name: genome
       label: Genome
       type: data:genome:fasta
-    - name: primers
-      label: Adapters and primers
-      group:
-        - name: adapters
-          label: Adapters
-          type: data:seq:nucleotide
-          description: >
-            Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
-        - name: up_primers
-          label: '5 prime primers'
-          type: data:seq:nucleotide
-          description: >
-            Provide a list of 5' primers in fasta format.
-        - name: down_primers
-          label: '3 prime primers'
-          type: data:seq:nucleotide
-          description: >
-            Provide a list of 3' primers in fasta format.
-    - name: target_intervals
-      label: Target interval files (BED)
-      group:
-        - name: intervals
-          label: Target intervals (BED)
-          type: data:bed
-        - name: intervals_picard
-          label: Target intervals (Picard formatted)
-          type: data:bed
+    - name: master_file
+      label: Experiment Master file
+      type: data:masterfile:amplicon
+    - name: adapters
+      label: Adapters
+      type: data:seq:nucleotide
+      description: >
+        Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
     - name: preprocess_bam
       label: Indel realignment and base recalibration options
       group:
@@ -109,7 +90,7 @@
         run: trimmomatic-paired
         input:
           reads: '{{input.reads}}'
-          adapters: '{{input.primers.adapters}}'
+          adapters: '{{input.adapters}}'
           illuminaclip:
             seed_mismatches: 2
             palindrome_clip_threshold: 30
@@ -117,18 +98,12 @@
           trailing: 3
           minlen: 40
           threads: '{{input.threads}}'
-      - id: cutadapt
-        run: cutadapt-amplicon
+      - id: bwa_trim
+        run: align-bwa-trim
         input:
-          reads: '{{steps.trimmomatic_filtering}}'
-          up_primers: '{{input.primers.up_primers}}'
-          down_primers: '{{input.primers.down_primers}}'
-          cputhreads: '{{input.threads}}'
-      - id: bwa
-        run: alignment-bwa-mem
-        input:
+          master_file: '{{input.master_file}}'
           genome: '{{input.genome}}'
-          reads: '{{steps.cutadapt}}'
+          reads: '{{steps.trimmomatic_filtering}}'
           m: true
           threads: '{{input.threads}}'
           scoring:
@@ -136,13 +111,18 @@
       - id: coveragebed
         run: coveragebed
         input:
-          alignment: '{{steps.bwa}}'
-          bed: '{{input.target_intervals.intervals}}'
-      - id: preprocess_bam
-        run: vc-preprocess-bam
+          alignment: '{{steps.bwa_trim}}'
+          master_file: '{{input.master_file}}'
+      - id: picard_target_pcr_metrics
+        run: picard-pcrmetrics
         input:
-          alignment: '{{steps.bwa}}'
-          bed: '{{input.target_intervals.intervals_picard}}'
+          alignment: '{{steps.bwa_trim}}'
+          master_file: '{{input.master_file}}'
+          genome: '{{input.genome}}'
+      - id: realign_recalibrate
+        run: vc-realign-recalibrate
+        input:
+          alignment: '{{steps.bwa_trim}}'
           genome: '{{input.genome}}'
           known_vars: '{{input.preprocess_bam.known_vars}}'
           known_indels: '{{input.preprocess_bam.known_indels}}'
@@ -150,18 +130,18 @@
       - id: gatk_hc
         run: vc-gatk-hc
         input:
-          alignment: '{{steps.preprocess_bam}}'
+          alignment: '{{steps.realign_recalibrate}}'
           genome: '{{input.genome}}'
-          intervals: '{{input.target_intervals.intervals}}'
+          intervals: '{{input.master_file}}'
           dbsnp: '{{input.gatk.dbsnp}}'
           mbq: '{{input.gatk.mbq}}'
           stand_emit_conf: '{{input.gatk.stand_emit_conf}}'
       - id: lofreq
         run: lofreq
         input:
-          alignment: '{{steps.preprocess_bam}}'
+          alignment: '{{steps.realign_recalibrate}}'
           genome: '{{input.genome}}'
-          intervals: '{{input.target_intervals.intervals}}'
+          intervals: '{{input.master_file}}'
           min_bq: '{{input.lofreq.min_bq}}'
           min_alt_bq: '{{input.lofreq.min_alt_bq}}'
       - id: annotate_gatk
@@ -179,7 +159,7 @@
       - id: report
         run: amplicon-report
         input:
-          bam: '{{steps.preprocess_bam}}'
+          pcr_metrics: '{{steps.picard_target_pcr_metrics}}'
           coverage: '{{steps.coveragebed}}'
           annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
           template: '{{input.report.template}}'

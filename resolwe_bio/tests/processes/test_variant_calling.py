@@ -85,38 +85,47 @@ class VariantCallingTestCase(BioProcessTestCase):
 
     @skipDockerFailure("Processor requires a custom Docker image.")
     def test_vc_preprocess_bam(self):
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_trimmed.bam'})
-        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
-        bed = self.run_process('upload-bed', {'src': '56g_targets_picard_small.bed'})
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
-        inputs = {'src': 'Mills_and_1000G_gold_standard.indels.b37.chr22_small.vcf.gz'}
-        indels_1 = self.run_process('upload-variants-vcf', inputs)
+        inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
+        indels = self.run_process('upload-variants-vcf', inputs)
 
-        inputs = {'src': '1000G_phase1.indels.b37.chr22_small.vcf.gz'}
-        indels_2 = self.run_process('upload-variants-vcf', inputs)
-
-        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
         inputs = {
             'alignment': bam.id,
-            'bed': bed.id,
             'genome': genome.id,
-            'known_indels': [indels_1.id, indels_2.id],
+            'known_indels': [indels.id],
             'known_vars': [dbsnp.id]
         }
 
-        self.run_process('vc-preprocess-bam', inputs)
+        self.run_process('vc-realign-recalibrate', inputs)
+
+    @skipDockerFailure("Processor requires a custom Docker image.")
+    def test_collecttargetedpcrmetrics(self):
+        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+
+        inputs = {
+            'alignment': bam.id,
+            'master_file': master_file.id,
+            'genome': genome.id
+        }
+
+        self.run_process('picard-pcrmetrics', inputs)
 
     @skipDockerFailure("Processor requires a custom Docker image.")
     def test_gatk_haplotypecaller(self):
         alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
-        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
-        intervals = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
-        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
         inputs = {
             'alignment': alignment.id,
-            'intervals': intervals.id,
+            'intervals': master_file.id,
             'genome': genome.id,
             'dbsnp': dbsnp.id
         }
@@ -131,12 +140,12 @@ class VariantCallingTestCase(BioProcessTestCase):
 
     def test_lofreq(self):
         alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
-        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr22_frag.fasta.gz'})
-        intervals = self.run_process('upload-bed', {'src': '56g_targets_small.bed'})
+        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
 
         inputs = {
             'alignment': alignment.id,
-            'intervals': intervals.id,
+            'intervals': master_file.id,
             'genome': genome.id,
         }
 
@@ -150,7 +159,7 @@ class VariantCallingTestCase(BioProcessTestCase):
 
     def test_snpeff(self):
         variants_lf = self.run_process('upload-variants-vcf', {'src': '56GSID_10k.lf.vcf'})
-        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr22_small.vcf.gz'})
+        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
         inputs = {
             'variants': variants_lf.id,

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:variants:vcf:lofreq
   category: analyses:variants
   flow_collection: sample
@@ -24,7 +24,7 @@
       type: data:genome:fasta
     - name: intervals
       label: Intervals
-      type: data:bed
+      type: data:masterfile:amplicon
       description: >
         Use this option to perform the analysis over only part of the genome.
     - name: min_bq
@@ -45,20 +45,20 @@
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_NAME="{{ alignment|sample_name }}"
+      SAMPLE_SLUG="{{ alignment|sample_slug }}"
 
-      lofreq call -q "{{min_bq}}" -Q "{{min_alt_bq}}" --call-indels -f "{{genome.fasta.file}}" "{{alignment.bam.file}}" -l "{{intervals.BED.file}}" -o variants.lf.vcf
+      lofreq call -q "{{min_bq}}" -Q "{{min_alt_bq}}" --call-indels -f "{{genome.fasta.file}}" "{{alignment.bam.file}}" -l "{{intervals.bedfile.file}}" -o variants.lf.vcf
       re-checkrc
       re-progress 0.8
 
-      mv variants.lf.vcf "${SAMPLE_NAME}.lf.vcf"
+      mv variants.lf.vcf "${SAMPLE_SLUG}.lf.vcf"
 
-      bgzip -c "${SAMPLE_NAME}.lf.vcf" > "${SAMPLE_NAME}.lf.vcf.bgz"
+      bgzip -c "${SAMPLE_SLUG}.lf.vcf" > "${SAMPLE_SLUG}.lf.vcf.bgz"
       re-checkrc
       re-progress 0.8
 
-      tabix -p vcf "${SAMPLE_NAME}.lf.vcf.bgz"
+      tabix -p vcf "${SAMPLE_SLUG}.lf.vcf.bgz"
       re-checkrc
       re-progress 0.8
 
-      re-save-file vcf "${SAMPLE_NAME}.lf.vcf" "${SAMPLE_NAME}.lf.vcf.bgz" "${SAMPLE_NAME}.lf.vcf.bgz.tbi"
+      re-save-file vcf "${SAMPLE_SLUG}.lf.vcf" "${SAMPLE_SLUG}.lf.vcf.bgz" "${SAMPLE_SLUG}.lf.vcf.bgz.tbi"

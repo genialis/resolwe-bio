@@ -3,9 +3,8 @@ from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
-    # @skipDockerFailure("Processor requires a custom Docker image.")
+    @skipDockerFailure("Processor requires a custom Docker image.")
     def test_amplicon_workflow(self):
-        self.keep_data()
         inputs = {
             'src1': ['56GSID_10k_mate1.fastq.gz'],
             'src2': ['56GSID_10k_mate2.fastq.gz']}

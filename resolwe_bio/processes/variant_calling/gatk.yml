@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:variants:vcf:gatk:hc
   category: analyses:variants
   flow_collection: sample
@@ -26,8 +26,8 @@
       label: Genome
       type: data:genome:fasta
     - name: intervals
-      label: Intervals
-      type: data:bed
+      label: Intervals (from master file)
+      type: data:masterfile:amplicon
       description: >
         Use this option to perform the analysis over only part of the genome.
     - name: dbsnp
@@ -59,15 +59,15 @@
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_NAME='{{ alignment|sample_name }}'
+      SAMPLE_SLUG='{{ alignment|sample_slug }}'
 
-      java -jar /usr/gitc/GATK36.jar -T HaplotypeCaller -R "{{genome.fasta.file}}" -I "{{alignment.bam.file}}" -stand_call_conf "{{stand_call_conf}}" -stand_emit_conf "{{stand_emit_conf}}" -mbq "{{mbq}}" --dbsnp "{{ dbsnp.vcf.file }}" -L "{{intervals.BED.file}}" -o "${SAMPLE_NAME}.gatkHC.vcf"
+      java -jar /usr/gitc/GATK36.jar -T HaplotypeCaller -R "{{genome.fasta.file}}" -I "{{alignment.bam.file}}" -stand_call_conf "{{stand_call_conf}}" -stand_emit_conf "{{stand_emit_conf}}" -mbq "{{mbq}}" --dbsnp "{{ dbsnp.vcf.file }}" -L "{{intervals.bedfile.file}}" -o "${SAMPLE_SLUG}.gatkHC.vcf"
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
-      /usr/gitc/bgzip -c "${SAMPLE_NAME}.gatkHC.vcf" > "${SAMPLE_NAME}.gatkHC.vcf.bgz"
+      /usr/gitc/bgzip -c "${SAMPLE_SLUG}.gatkHC.vcf" > "${SAMPLE_SLUG}.gatkHC.vcf.bgz"
       echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
 
-      /usr/gitc/tabix -p vcf "${SAMPLE_NAME}.gatkHC.vcf.bgz"
+      /usr/gitc/tabix -p vcf "${SAMPLE_SLUG}.gatkHC.vcf.bgz"
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
-      echo "{\"vcf\":{\"file\":\"${SAMPLE_NAME}.gatkHC.vcf\",\"refs\":[\"${SAMPLE_NAME}.gatkHC.vcf.bgz\", \"${SAMPLE_NAME}.gatkHC.vcf.bgz.tbi\"]}}"
+      echo "{\"vcf\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf\",\"refs\":[\"${SAMPLE_SLUG}.gatkHC.vcf.bgz\", \"${SAMPLE_SLUG}.gatkHC.vcf.bgz.tbi\"]}}"
