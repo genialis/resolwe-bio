@@ -12,3 +12,36 @@
           value: 'yes'
         - label: QuantSeq REV Library
           value: 'reverse'
+
+- slug: rna-seq-quantseq
+  name: RNA-Seq
+  version: 0.0.1
+  description: RNA-Seq template
+  schema:
+    - name: trimming
+      label: Reads trimming options
+      group:
+        - name: trimq
+          label: Trim below defined quality score
+          type: basic:integer
+          default: 6
+          description: >
+            Regions with average quality below this value will be trimmed.
+        - name: minlength
+          label: Minlength
+          type: basic:integer
+          default: 10
+          description: >
+            Reads shorter than this after trimming will be discarded.
+    - name: stranded
+      label: Were samples processed with a strand-specific protocol?
+      type: basic:string
+      default: 'yes'
+      choices:
+        - label: 'Yes'
+          value: 'yes'
+        - label: 'No'
+          value: 'no'
+        - label: 'Reverse'
+          value: 'reverse'
+
