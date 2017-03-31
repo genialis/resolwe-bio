@@ -88,7 +88,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
@@ -186,7 +186,7 @@
         fi
       done
 
-      for name in ${RW_FASTQ[@]}; do
+      for name in "${RW_FASTQ[@]}"; do
         READS_NAME_RW=`basename "$name" .fastq`
         ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_RW}_fastqc/fastqc_data.txt"`
 
