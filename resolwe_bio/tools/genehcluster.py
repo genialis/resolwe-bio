@@ -23,6 +23,7 @@ parser.add_argument('-s', '--sampleids', nargs='+', default=[], help='sample ids
 parser.add_argument('-g', '--genes', nargs='+', default=[], help='subset of gene ids')
 parser.add_argument('-d', '--dstfunc', default='euclidean', help='distance function')
 parser.add_argument('-l', '--linkage', default='average', help='clustering linkage function')
+parser.add_argument('--output', help='Output JSON file')
 
 args = parser.parse_args()
 
@@ -111,14 +112,16 @@ calculated_genes_dict = {}
 for i, gene in enumerate(calculated_genes):
     calculated_genes_dict[i] = {'gene': (gene)}
 
-output = {
-    'cluster': {
-        'linkage': cluster.tolist(),
-        'gene_symbols': calculated_genes_dict,
-        'order': dend['leaves'],
-        'zero_gene_symbols': list_zero_genes,
-        'zero_sample_ids': [int(args.sampleids[index]) for index in sample_zero]
-    }
+cluster = {
+    'linkage': cluster.tolist(),
+    'gene_symbols': calculated_genes_dict,
+    'order': dend['leaves'],
+    'zero_gene_symbols': list_zero_genes,
+    'zero_sample_ids': [int(args.sampleids[index]) for index in sample_zero]
 }
 
-print(json.dumps(output, separators=(',', ':')))
+if args.output:
+    with open(args.output, 'w') as f:
+        json.dump(cluster, f)
+else:
+    print(json.dumps({'cluster': cluster}, separators=(',', ':')))

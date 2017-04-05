@@ -25,6 +25,7 @@ parser.add_argument('-e', '--expids', nargs='+', default=[], help='experiment id
 parser.add_argument('-g', '--genes', nargs='+', default=[], help='subset of gene ids')
 parser.add_argument('-d', '--dstfunc', default='pearson', help='distance function')
 parser.add_argument('-l', '--linkage', default='average', help='clustering linkage function')
+parser.add_argument('--output', help='Output JSON file')
 
 args = parser.parse_args()
 
@@ -118,5 +119,10 @@ def dendrogram(cluster):
     return res
 
 
-dend = dendrogram(root)
-print(json.dumps({'clustering': {'tree': dend}}, separators=(',', ':')))
+clustering = {'tree': dendrogram(root)}
+
+if args.output:
+    with open(args.output, 'w') as f:
+        json.dump(clustering, f)
+else:
+    print(json.dumps({'clustering': clustering}, separators=(',', ':')))
