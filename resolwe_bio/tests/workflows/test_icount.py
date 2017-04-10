@@ -1,10 +1,9 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class IcountWorkflowTestCase(BioProcessTestCase):
-    @skipDockerFailure("Processor requires a custom Docker image.")
     def test_icount_primary_analysis(self):
         inputs = {'src': 'icount.workflow.in.fasta.gz'}
         genome = self.run_process('upload-fasta-nucl', inputs)
@@ -28,7 +27,6 @@ class IcountWorkflowTestCase(BioProcessTestCase):
         peaks = Data.objects.last()
         self.assertFile(peaks, "scores", "icount.workflow.out.tsv.gz", compression='gzip')
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     def test_icount_demultiplex(self):
         # TODO add star-index and annotation objects upload to test ICount workflow functionality
         # TODO assert workflow output results

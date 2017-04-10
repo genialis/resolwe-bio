@@ -1,4 +1,4 @@
-gene [protein_coding]	1001
+gene protein_coding	1001
 intergenic	114453829
 intron protein_coding	599
 ncRNA protein_coding	402

@@ -1,9 +1,8 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
-from resolwe_bio.utils.test import BioProcessTestCase, skipDockerFailure
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
-@skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
 class ICountImport(BioProcessTestCase):
 
     def test_genome(self):
@@ -34,7 +33,6 @@ class ICountImport(BioProcessTestCase):
         self.assertFile(bed, "BED", 'icount.group.in1.bed')
 
 
-@skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
 class ICountPreprocess(BioProcessTestCase):
 
     def test_segment(self):
@@ -98,7 +96,6 @@ class ICountPreprocess(BioProcessTestCase):
         self.assertFile(xlsites, "skipped", "icount.xlsites.out.skipped.bam")
 
 
-@skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
 class ICountAnalyses(BioProcessTestCase):
 
     def test_annotate(self):
