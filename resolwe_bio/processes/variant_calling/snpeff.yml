@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample
@@ -67,7 +67,7 @@
       {% if var_source == 'lofreq' %}
         FIELDS='CHROM POS ID REF ALT QUAL DP AF SB DP4'
       {% elif var_source == 'gatk_hc' %}
-        FIELDS='CHROM POS ID REF ALT QUAL DP AF'
+        FIELDS='CHROM POS ID REF ALT QUAL DP AF FS GEN[0].AD'
       {% endif %}
 
       #extract relevant fields from the vcf

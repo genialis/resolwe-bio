@@ -185,7 +185,7 @@ if __name__ == '__main__':
         # Make VCF tables:
         table_text = ''
         for vcf_file in args.vcf:
-            header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP4', 'SB', 'EFF[*].GENE', 'ID']
+            header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'GEN[0].AD', 'SB', 'FS', 'EFF[*].GENE', 'ID']
             vcf_table, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
             # Insert space between SNP ID's and create hypelinks:
             vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]
