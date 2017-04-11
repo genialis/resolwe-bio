@@ -25,6 +25,8 @@
 \usepackage{array}
 \newcolumntype{L}{>{\centering\arraybackslash}m{2.3cm}}
 
+\usepackage{booktabs}
+
 \begin{document}
 
 \section*{{#SAMPLE_NAME#}}
@@ -71,7 +73,7 @@ Number of amplicons with 100 \% coverage: \textbf{{#COVERED_AMPLICONS#} ({#PCT_C
 
 \begin{landscape}
     \section{Annotated variants}
-    \small
+    \footnotesize
     {#VCF_TABLES#}
 \end{landscape}
 

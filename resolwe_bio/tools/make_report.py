@@ -68,25 +68,25 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     if long_columns:
         for col_index in long_columns:
             column_alingnment[col_index] = 'L'
-    lines.append('\\begin{{longtable}} {{| {} |}}'.format(' | '.join(column_alingnment)))
+    lines.append('\\begin{{longtable}} {{ {} }}'.format('  '.join(column_alingnment)))
 
     if caption:
         lines.append('\\caption{{{}}}\\\\'.format(_format_latex(caption)))
 
-    lines.append('\\hline')
     if header:
         lines.append(' & '.join(map(_format_latex, header)) + ' \\\\')
-        lines.append('\\hline')
+        lines.append('\\toprule')
     for line in data:
         if long_columns:
             for col_index in long_columns:
                 # If hyperlink line, don't do a thing. Otherwise, insert spaces, so that wrapping can happen:
                 new_val = line[col_index] if '\href' in line[col_index] else cut_to_pieces(line[col_index], 8)
-                line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}|}}{{{}}}'.format(new_val)
+                line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}}}{{{}}}'.format(new_val)
 
         lines.append(' & '.join(map(_format_latex, line)) + ' \\\\')
-        lines.append('\\hline')
+        lines.append('\\midrule')
 
+    lines[-1] = '\\bottomrule'
     lines.append('\\end{longtable}')
     return '\n'.join(lines)
 
