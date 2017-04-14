@@ -23,6 +23,7 @@ Added
 * iCount demultiplexing and sample annotation
 * Add MM8, RN4 and RN6 options to rose2 process
 * Add RN4 and RN6 options to bamplot process
+* Archive-samples process
 
 Fixed
 -----

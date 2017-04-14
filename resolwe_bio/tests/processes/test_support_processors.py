@@ -46,3 +46,14 @@ class SupportProcessorTestCase(BioProcessTestCase):
         inputs = {'annotation': annotation.pk}
         gff_to_gtf = self.run_process('gff-to-gtf', inputs)
         self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gtf_annotation.gtf')
+
+    def test_archive_samples(self):
+        txt_file = self.run_process('upload-file', {'src': '56G_masterfile_test.txt'})
+        bam = self.run_process('upload-bam', {'src': 'alignment_name_sorted.bam'})
+
+        read_inputs = {'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz']}
+        reads = self.run_process('upload-fastq-single', read_inputs)
+
+        self.run_process('archive-samples', {
+            'data': [txt_file.id, bam.id, reads.id],
+            'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive']})

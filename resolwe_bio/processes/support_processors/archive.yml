@@ -1,0 +1,63 @@
+- slug: archive-samples
+  name: Archive samples
+  data_name: Sample archive
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/archiver"
+  version: 0.0.1
+  type: "data:archive:samples"
+  category: other
+  persistence: TEMP
+  description: >
+    Create an archive of output files. The ouput folder
+    structure is organized by sample slug and data object's
+    output-field names.
+  input:
+    - name: data
+      label: Data list
+      type: list:data
+    - name: fields
+      label: Output file fields
+      type: list:basic:string
+    - name: j
+      label: Junk paths
+      type: basic:boolean
+      description: Store just names of saved files (junk the path)
+      default: False
+  output:
+    - name: archive
+      label: Archive
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% for d in data %}
+        {% for field in fields %}
+          {% if d[field].file %}
+            mkdir -p {{d|sample_slug}}/{{field}}/
+            ln -s --backup=numbered "{{ d[field].file }}" "{{d|sample_slug}}/{{field}}/{{ d[field].file|basename }}"
+            {% for ref in d[field].refs %}
+              ln -s --backup=numbered "{{ ref }}" "{{d|sample_slug}}/{{field}}/{{ref|basename}}"
+            {% endfor %}
+          {% endif %}
+          {% for file in d[field] %}
+            {% if file.file %}
+              mkdir -p {{d|sample_slug}}/{{field}}/
+              ln -s --backup=numbered "{{ file.file }}" "{{d|sample_slug}}/{{field}}/{{ file.file|basename }}"
+              {% for ref in file.refs %}
+                ln -s --backup=numbered "{{ ref }}" "{{d|sample_slug}}/{{field}}/{{ref|basename}}"
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+      {% endfor %}
+
+      if [ -d None ]; then
+        mv None other_data
+      fi
+
+      zip -0 -r {% if j %}-j {% endif %}results.zip */
+      re-save-file archive results.zip
