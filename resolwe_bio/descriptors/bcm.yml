@@ -1,0 +1,71 @@
+- slug: bcm-workflow-rnaseq
+  name: RNA-Seq workflow
+  version: 0.0.1
+  description:  RNA-Seq workflow runs HISAT2 and Cuffquant.
+  schema:
+    - name: genome_and_annotation
+      label: Select organism
+      type: basic:string
+      default: hs
+      choices:
+        - label: Homo Sapiens
+          value: hs
+        - label: Rattus Norvegicus
+          value: rn
+    - name: ercc_spike_in
+      label: Were ERCC spike-in used in experiment?
+      type: basic:string
+      default: "no"
+      choices:
+        - label: "Yes"
+          value: "yes"
+        - label: "No"
+          value: "no"
+
+- slug: bcm-workflow-chipseq
+  name: RNA-Seq workflow
+  version: 0.0.1
+  description:  Chip-Seq workflow runs Bowtie 2.2.3, Macs 1.4 and Rose 2.
+  schema:
+    - name: genome_and_annotation
+      label: Select organism
+      type: basic:string
+      default: hs
+      choices:
+        - label: Homo Sapiens
+          value: hs
+        - label: Rattus Norvegicus
+          value: rn
+    - name: ercc_spike_in
+      label: Were ERCC spike-in used in experiment?
+      type: basic:string
+      default: "no"
+      choices:
+        - label: "Yes"
+          value: "yes"
+        - label: "No"
+          value: "no"
+
+- slug: bcm-workflow-wgbs
+  name: RNA-Seq workflow
+  version: 0.0.1
+  description:  Whole genome bisulfite sequencing runs Bsmap and Mcall.
+  schema:
+    - name: genome_and_annotation
+      label: Select organism
+      type: basic:string
+      default: hs
+      choices:
+        - label: Homo Sapiens
+          value: hs
+        - label: Rattus Norvegicus
+          value: rn
+    - name: ercc_spike_in
+      label: Were ERCC spike-in used in experiment?
+      type: basic:string
+      default: "no"
+      choices:
+        - label: "Yes"
+          value: "yes"
+        - label: "No"
+          value: "no"

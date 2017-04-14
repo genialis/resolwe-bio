@@ -1,0 +1,65 @@
+- slug: workflow-chip-seq
+  category: workflow:primary
+  name: Chip-Seq
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:chipseq
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq
+    - name: genome
+      label: genome
+      type: data:genome:fasta
+    - name: annotation
+      label: Annotation file
+      type: data:annotation
+    - name: macs_gsize
+      label: Effective genome size
+      type: basic:string
+      choices:
+        - label: HS
+          value: hs
+        - label: MM
+          value: mm
+        - label: CE
+          value: ce
+        - label: DM
+          value: dm
+        - label: RN
+          value: '2e9'
+        - label: DA
+          value: '1e9'
+    - name: rose_genome
+      label: Genome build
+      type: basic:string
+      choices:
+        - label: MM10
+          value: MM10
+        - label: MM9
+          value: MM9
+        - label: HG19
+          value: HG19
+        - label: HG18
+          value: HG18
+  run:
+    language: workflow
+    program:
+      - id: bowtie2
+        run: alignment-bowtie2
+        input:
+          genome: '{{input.genome}}'
+          reads: '{{input.reads}}'
+      - id: macs14
+        run: macs14
+        input:
+          treatment: '{{steps.bowtie2}}'
+          gsize: '{{input.macs_gsize}}'
+      - id: rose2
+        run: rose2
+        input:
+          genome: '{{input.rose_genome}}'
+          input: '{{steps.macs14}}'
+          rankby: '{{steps.bowtie2}}'
