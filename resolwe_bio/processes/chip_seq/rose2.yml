@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: ROSE2 analysis
-  version: 2.0.1
+  version: 2.0.2
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -23,10 +23,16 @@
           value: MM10
         - label: MM9
           value: MM9
+        - label: MM8
+          value: MM8
         - label: HG19
           value: HG19
         - label: HG18
           value: HG18
+        - label: RN4
+          value: RN4
+        - label: RN6
+          value: RN6
     - name: input
       label: BED file (MACS results)
       type: data:chipseq:macs14
