@@ -70,7 +70,7 @@ setup(
             # https://github.com/PyCQA/pycodestyle/issues/617
             'pycodestyle~=2.2.0',
             'pydocstyle>=1.0.0',
-            'pylint>=1.6.4',
+            'pylint~=1.7.0',
             'readme_renderer',
             'tblib>=1.3.0',
         ],
