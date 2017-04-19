@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Align BWA and Trim ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample
@@ -154,7 +154,7 @@
       re-progress 0.5
 
       echo "trimming primers"
-      primerclip-v1 "${NAME}_align_unsorted.sam" "{{master_file.primers.file}}" "${NAME}_ptrimd.sam" 2> "${NAME}_ptrim.log"
+      primerclip "${NAME}_align_unsorted.sam" "{{master_file.primers.file}}" "${NAME}_ptrimd.sam" 2> "${NAME}_ptrim.log"
       re-checkrc
       re-progress 0.7
 

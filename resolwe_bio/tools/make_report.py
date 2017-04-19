@@ -148,14 +148,14 @@ if __name__ == '__main__':
 
         # Produce results, metrics:
         metrics = parse_target_pcr_metrics(args.metrics)
-        pf_bases = float(metrics['PF_BASES'])
-        bases_aligned = (float(metrics['ON_AMPLICON_BASES']) + float(metrics['NEAR_AMPLICON_BASES'])) / pf_bases
+
+        pct_aligned_reads = str(round(float(metrics['PCT_PF_UQ_READS_ALIGNED']) * 100, DECIMALS))
+        pct_amplified_bases = str(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS))
 
         template = template.replace('{#TOTAL_READS#}', metrics['TOTAL_READS'])
         template = template.replace('{#ALIGNED_READS#}', metrics['PF_UQ_READS_ALIGNED'])
-        template = template.replace('{#BASES_ALIGNED#}',
-                                    str(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS)))
-        template = template.replace('{#BASES_TARGET#}', str(round(bases_aligned * 100, DECIMALS)))
+        template = template.replace('{#PCT_ALIGNED_READS#}', pct_aligned_reads)
+        template = template.replace('{#ALIGN_BASES_ONTARGET#}', pct_amplified_bases)
         template = template.replace('{#COV_MEAN#}', str(round(mean_coverage, DECIMALS)))
         template = template.replace('{#COV_20#}', str(mean20))
         template = template.replace('{#COV_UNI#}', str(cov_unif))
