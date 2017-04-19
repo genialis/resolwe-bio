@@ -2,12 +2,12 @@
   name: iCount demultiplex and annotate
   description: Annote iCount samples after demultiplexing
   category: analyses:icount
-  version: 0.0.1
+  version: 0.0.2
   type: data:icount:annotsample
   requirements:
     expression-engine: jinja
   data_name: "Annotate iCount samples"
-  persistence: CACHED
+  persistence: TEMP
   input:
   - name: reads
     label: Sequencing reads
