@@ -26,7 +26,7 @@ def parse_arguments():
 
 
 def main():
-    """Invoked when run directly as a program."""
+    """Invoke when run directly as a program."""
     args = parse_arguments()
 
     de_data = pd.read_csv(args.raw_file, sep='\t')

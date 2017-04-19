@@ -22,7 +22,7 @@ def parse_arguments():
 
 
 def main():
-    """Invoked when run directly as a program."""
+    """Invoke when run directly as a program."""
     args = parse_arguments()
 
     res = resdk.Resolwe()

@@ -100,7 +100,7 @@ class FeatureViewSet(mixins.ListModelMixin,
     queryset = Feature.objects.all()
 
     def create(self, request):
-        """A custom create, which updates existing features instead of failing."""
+        """Instead of failing, update existing features with a custom create."""
         try:
             feature = Feature.objects.get(
                 source=request.data['source'],
@@ -153,7 +153,7 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
         return search
 
     def filter_permissions(self, search):
-        """Mapping objects have no permissions."""
+        """Filter permissions since Mapping objects have no permissions."""
         return search
 
 
@@ -172,7 +172,7 @@ class MappingViewSet(mixins.ListModelMixin,
     queryset = Mapping.objects.all()
 
     def create(self, request):
-        """A custom create, which updates existing mappings instead of failing."""
+        """Instead of failing, update existing mappings using a custom create."""
         try:
             mapping = Mapping.objects.get(
                 source_db=request.data['source_db'],
