@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "bamplot"
-  version: 0.0.1
+  version: 1.0.0
   type: data:bam:plot
   category: plotting
   persistence: CACHED
@@ -29,6 +29,10 @@
           value: MM9
         - label: MM10
           value: MM10
+        - label: RN6
+          value: RN6
+        - label: RN4
+          value: RN4
     - name: input_gff
       label: Region string
       type: data:annotation:gtf
