@@ -34,7 +34,7 @@ def _tsv_to_dict(table_file):
 
 
 def main():
-    """Invoked when run directly as a program."""
+    """Invoke when run directly as a program."""
     args = parse_arguments()
 
     demux_data = _tsv_to_dict(args.annotation_file)
