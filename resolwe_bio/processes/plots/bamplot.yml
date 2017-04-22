@@ -4,12 +4,12 @@
 ---
 
 - slug: bamplot
-  name: bamplot
+  name: Bamplot
   requirements:
     expression-engine: jinja
   data_name: "bamplot"
-  version: 1.0.0
-  type: data:bam:plot
+  version: 1.1.0
+  type: data:bam:plot:bamplot
   category: plotting
   persistence: CACHED
   description: >
@@ -101,7 +101,7 @@
         Choose either relative or uniform y axis scaling. Default is relative scaling.
     - name: names
       label: Names
-      type: basic:string
+      type: list:basic:string
       required: false
       description: >
          Enter a comma separated list of names for your bams.
@@ -152,15 +152,19 @@
     language: bash
     program: |
 
+      BAM_PARAMS=()
+
       mkdir output_plot
-      BAM_PARAMS='--bam {% for bam_file in bam %}{{bam_file.bam.file}} {% endfor %}'
+      BAM_PARAMS+=({% for bam_file in bam %}"{{bam_file.bam.file}}" {% endfor %})
       SCALE_PARAM='{% if scale %}--scale {{scale}}{% endif %}'
       BED_PARAM='{% if bed %}--bed {{bed|join(',', attribute='BED.file')}}{% endif %}'
       STRETCH_PARAM='{% if stretch_input %}--stretch-input {{stretch_input}}{% endif %}'
       MULTI_PAGE_PARAM='{% if multi_page %}--multi_page {{multi_page}}{% endif %}'
-      OTHER_PARAMS='--genome {{genome}} --color {{color}} --extension {{extension}} --sense {{sense}} --yScale {{yscale}} {% if rpm %}--rpm{% endif %} {% if names %}--names {{names}}{% endif %} --plot {{plot}} --output output_plot --title {{title}}'
+      NAMES='{% if names %}--names {{names|join(',')}}{% endif %}'
 
-      BAMPLOT_PARAMS="${BAM_PARAMS} ${SCALE_PARAM} ${BED_PARAM} ${STRETCH_PARAM} ${MULTI_PAGE_PARAM} ${OTHER_PARAMS}"
+      OTHER_PARAMS="--genome {{genome}} --color {{color}} --extension {{extension}} --sense {{sense}} --yScale {{yscale}} {% if rpm %}--rpm{% endif %} ${NAMES} --plot {{plot}} --output output_plot --title {{title}}"
+
+      BAMPLOT_PARAMS="--bam ${BAM_PARAMS[@]} ${SCALE_PARAM} ${BED_PARAM} ${STRETCH_PARAM} ${MULTI_PAGE_PARAM} ${OTHER_PARAMS}"
 
       {% if input_region %}
         bamplot --input {{input_region}} ${BAMPLOT_PARAMS}

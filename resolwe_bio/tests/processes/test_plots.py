@@ -8,11 +8,14 @@ class PlotsProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'bamplot_alignment.bam'}
         bam = self.run_process('upload-bam', inputs)
 
+        inputs = {'src': 'bamplot_alignment.bam'}
+        bam1 = self.run_process('upload-bam', inputs)
+
         inputs = {'genome': 'HG19',
                   'input_region': 'chr1:+:41468594-41566948',
-                  'bam': [bam.pk],
+                  'bam': [bam.pk, bam1.pk],
                   'color': '0,69,134',
-                  'names': 'WNT',
+                  'names': ['WNT', 'bbb'],
                   'yscale': 'uniform',
                   'title': 'SINGLE_REGION',
                   'plot': 'multiple',
@@ -33,7 +36,7 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'input_gff': gff.pk,
                   'bam': [bam.pk],
                   'color': '255,192,0',
-                  'names': 'GROUP3_MB',
+                  'names': ['GROUP3_MB'],
                   'yscale': 'uniform',
                   'title': 'SINGLE_REGION',
                   'plot': 'multiple',
