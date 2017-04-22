@@ -1,0 +1,210 @@
+# =============
+# Bamliquidator
+# =============
+---
+
+- slug: bamliquidator
+  name: Bamliquidator
+  requirements:
+    expression-engine: jinja
+  data_name: "Bamliquidator"
+  version: 0.0.10
+  type: data:bam:plot:bamliquidator
+  category: analyses
+  persistence: CACHED
+  description: >
+    Set of tools for analyzing the density of short DNA sequence read alignments in the BAM file format.
+  input:
+    - name: analysis_type
+      label: Analysis type
+      type: basic:string
+      default: bin
+      choices:
+        - label: Bin mode
+          value: bin
+        - label: Region mode
+          value: region
+        - label: BED mode
+          value: bed
+    - name: bam
+      label: BAM File
+      type: list:data:alignment:bam
+    - name: cell_type
+      label: Cell type
+      type: basic:string
+      default: cell_type
+    - name: bin_size
+      label: Bin size
+      type: basic:integer
+      hidden: "analysis_type != 'bin'"
+      required: False
+      description: >
+        Number of base pairs in each bin. The smaller the bin size the longer the runtime and the larger the data files.
+        Default is 100000.
+    - name: regions_gtf
+      label: Region gff file / Annotation file (.gff|.gtf)
+      type: data:annotation:gtf
+      hidden: "analysis_type != 'region'"
+      required: False
+    - name: regions_bed
+      label: Region bed file / Annotation file (.bed)
+      type: data:bed
+      hidden: "analysis_type != 'bed'"
+      required: False
+    - name: extension
+      label: Extension
+      type: basic:integer
+      default: 200
+      description: >
+        Extends reads by number of bp
+    - name: sense
+      label: Mapping strand to gff file
+      type: basic:string
+      default: "."
+      choices:
+        - label: Forward
+          value: +
+        - label: Reverse
+          value: "-"
+        - label: Both
+          value: "."
+    - name: skip_plot
+      label: Skip plot
+      type:  basic:boolean
+      required: False
+    - name: black_list
+      label: Black list
+      type: list:basic:string
+      required: False
+      description: >
+        One or more chromosome patterns to skip during bin liquidation. Default is to skip any
+        chromosomes that contain any of the following substrings chrUn _random Zv9_ _hap.
+    - name: threads
+      label: Threads
+      type: basic:integer
+      default: 1
+      description: >
+        Number of threads to run concurrently during liquidation.
+  output:
+    - name: analysis_type
+      label: Analysis type
+      type: basic:string
+      hidden: true
+    - name: output_dir
+      label: Output directory
+      type: basic:file
+    - name: counts
+      label: Counts HDF5 file
+      type: basic:file
+    - name: matrix
+      label: Matrix file
+      type: basic:file
+      required: False
+      hidden: "analysis_type != 'region'"
+    - name: summary
+      label: Summary file
+      type: basic:file:html
+      required: False
+      hidden: "analysis_type != 'bin'"
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+
+      re-save analysis_type {{ analysis_type }}
+
+      {% if analysis_type == "bin" and (regions_bed or regions_gtf) %}
+        re-error "In Bin mode, regions bed or gff files can not be used. Please select different analysis type."
+      {% endif %}
+
+      {% if analysis_type == "region" and (regions_bed or bin_size) %}
+        re-error "In Region mode, bed file or bin size can not be used. Please select different analysis type."
+      {% endif %}
+
+      {% if analysis_type == "bed" and (bin_size or regions_gtf) %}
+        re-error "In BED mode, region gtf file or bin size can not be used. Please select different analysis type."
+      {% endif %}
+
+      {% if analysis_type == "region" and not regions_gtf %}
+        re-error "Please provide regions file when coosing Region mode."
+      {% endif %}
+
+      {% if analysis_type == "bed" and not regions_regions_bed %}
+        re-error "Please provide regions bed file, when choosing Bed mode."
+      {% endif %}
+
+      BAM_PARAMS=()
+      BAM_BAI_PARAMS=()
+      ALL_MODE_PAR=()
+
+      BAM_PARAMS+=({% for bam_file in bam %}"{{bam_file.bam.file}}" {% endfor %})
+      BAM_BAI_PARAMS+=({% for bai_file in bam %}"{{bai_file.bai.file}}" {% endfor %})
+      SKIP_PLOT='{% if skip_plot %} --skip_plot {% endif%}'
+      BLACK_LIST='{% if black_list %} --black_list {{black_list|join(' ')}}{% endif%}'
+      SENSE='{% if sense %} --sense {{ sense }}{% endif %}'
+      EXTENSION='{% if extension %} -e {{ extension }}{% endif %}'
+
+      ALL_MODE_PAR+=("{{ cell_type }}" -n {{threads}} --xml_timings ${BLACK_LIST} ${EXTENSION} ${SENSE} -o output)
+
+      echo "Creating folder with bams..."
+      mkdir "{{ cell_type }}"
+      for file in "${BAM_PARAMS[@]}"; do
+        NAME=`basename "$file" .bam`
+        ln -s "$file" "{{ cell_type }}"/"${NAME}".bam
+      done
+
+      for file in "${BAM_BAI_PARAMS[@]}"; do
+        NAME=`basename "$file" .bam.bai`
+        ln -s "$file" "{{ cell_type }}"/"${NAME}".bam.bai
+      done
+
+      if [ {{ analysis_type }} == "bin" ]; then
+        {% if bin_size %}
+          BIN_SIZE={{bin_size}}
+        {% else %}
+          BIN_SIZE=10000
+        {% endif %}
+
+        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -b ${BIN_SIZE} -f ${SKIP_PLOT}
+        re-checkrc "Bamliquidator failed."
+
+        {% if not skip_plot %}
+          re-save-file summary "output/summary.html"
+        {% endif %}
+
+        zip -r output.zip output
+        re-save-file output_dir output.zip
+
+      elif [ {{ analysis_type }} == "region" ]; then
+
+        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_gtf.gtf.file }} --region_format gff -m
+        re-checkrc "Bamliquidator failed."
+
+        SAMPLE_NAMES=()
+        BAM_NAMES=()
+
+        {% for bam_file in bam %}
+          SAMPLE_NAMES+=("{{ bam_file|sample_name }}" )
+          NAME=`basename "{{bam_file.bam.file}}"`
+          BAM_NAMES+=("${NAME}")
+        {% endfor %}
+        bamliquidator_table.py --sample_names "${SAMPLE_NAMES[@]}" --bam_files "${BAM_NAMES[@]}" --matrix_table output/matrix.txt
+
+        mv table_output.csv output/matrix.txt
+        re-save-file matrix output/matrix.txt
+
+        zip -r output.zip output
+        GTF_NAME=`basename "{{regions_gtf.gtf.file}}" .gtf`
+        mv output.zip "${GTF_NAME}".zip
+        re-save-file output_dir "${GTF_NAME}".zip
+
+      elif [ {{ analysis_type }} == "bed" ]; then
+
+        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_bed.BED.file }} --region_format bed
+        re-checkrc "Bamliquidator failed."
+        zip -r output.zip output
+        re-save-file output_dir output.zip
+      fi
+
+      re-save-file counts output/counts.h5
