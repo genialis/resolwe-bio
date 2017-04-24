@@ -29,7 +29,7 @@ class BioCollectionFilter(CollectionFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
+    sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
 
 
 class BioDataFilter(DataFilter):
@@ -48,4 +48,4 @@ class BioDataFilter(DataFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(queryset=Sample.objects.all())
+    sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
