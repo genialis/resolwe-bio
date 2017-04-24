@@ -161,6 +161,8 @@ def main():
                 read.sample.save()
                 read.sample.confirm_is_annotated()
 
+                read.sample.api(read.sample.id).permissions.post(permissions)
+
                 for pc in parent.collections:
                     pc.add_samples(read.sample)
 
