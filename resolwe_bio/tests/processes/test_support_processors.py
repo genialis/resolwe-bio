@@ -49,11 +49,13 @@ class SupportProcessorTestCase(BioProcessTestCase):
 
     def test_archive_samples(self):
         txt_file = self.run_process('upload-file', {'src': '56G_masterfile_test.txt'})
-        bam = self.run_process('upload-bam', {'src': 'alignment_name_sorted.bam'})
+        bam = self.run_process('upload-bam', {'src': 'bamplot_alignment.bam'})
 
         read_inputs = {'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-single', read_inputs)
 
+        vcf = self.run_process('upload-variants-vcf', {'src': 'igv_human.lf.vcf'})
+
         self.run_process('archive-samples', {
-            'data': [txt_file.id, bam.id, reads.id],
-            'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive']})
+            'data': [txt_file.id, bam.id, reads.id, vcf.id],
+            'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf']})

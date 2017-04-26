@@ -26,6 +26,7 @@ Added
 * Archive-samples process
 * Add bamliquidator
 * CheMut workflow
+* IGV session to Archive-samples process
 
 Fixed
 -----

@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwe/archiver"
-  version: 0.0.1
+        image: "resolwebio/archive-samples"
+  version: 0.0.2
   type: "data:archive:samples"
   category: other
   persistence: TEMP
@@ -34,6 +34,9 @@
     runtime: polyglot
     language: bash
     program: |
+
+      IGV_FILES=()
+
       {% for d in data %}
         {% for field in fields %}
           {% if d[field].file %}
@@ -53,11 +56,25 @@
             {% endif %}
           {% endfor %}
         {% endfor %}
+
+        if [[ {{ d|type }} == "data:alignment:bam"* ]]; then
+          mv "{{d|sample_slug}}/bai/{{ d.bai.file|basename }}" "{{d|sample_slug}}/bam/{{ d.bai.file|basename }}"
+          rm -r "{{d|sample_slug}}/bai"
+          IGV_FILES+=("{{d|sample_slug}}/bam/{{ d.bam.file|basename }}")
+
+        elif [[ {{ d|type }} == "data:variants:vcf"* ]]; then
+          IGV_FILES+=("{{d|sample_slug}}/vcf/{{ d.vcf.file|basename }}")
+        fi
       {% endfor %}
+
+      make_igv_session_archive.py --files "${IGV_FILES[@]}" --genome hg19
 
       if [ -d None ]; then
         mv None other_data
       fi
+
+      mkdir igv
+      mv 'igv_session.xml' 'igv/igv_session.xml'
 
       zip -0 -r {% if j %}-j {% endif %}results.zip */
       re-save-file archive results.zip
