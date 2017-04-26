@@ -21,6 +21,7 @@ Added
 * RNA-Seq experiment descriptor schema
 * iCount sample and reads descriptor schemas
 * iCount demultiplexing and sample annotation
+* ICount QC
 * Add MM8, RN4 and RN6 options to rose2 process
 * Add RN4 and RN6 options to bamplot process
 * Archive-samples process
