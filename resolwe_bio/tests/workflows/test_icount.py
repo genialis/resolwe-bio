@@ -19,9 +19,9 @@ class IcountWorkflowTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-single', inputs)
 
         self.run_process('workflow-icount', {
-            'reads': reads.pk,
-            'index': star_index.pk,
-            'segmentation': segmentation.pk,
+            'reads': reads.id,
+            'index': star_index.id,
+            'segmentation': segmentation.id,
         })
 
         peaks = Data.objects.last()

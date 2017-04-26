@@ -3,7 +3,7 @@
   description: >
     Quantity and determine positions of cross-link events
   category: analyses:icount
-  version: 1.0.1
+  version: 1.0.2
   type: data:bed:icount
   requirements:
     expression-engine: jinja
@@ -60,6 +60,9 @@
     label: Reads that do not map as expected are stored in here.
     type: basic:file
     required: false
+  - name: qc
+    label: QC status
+    type: basic:json
   run:
     language: bash
     runtime: polyglot
@@ -80,6 +83,9 @@
           {% if report_progress %} --report_progress {% endif %}
 
       re-checkrc
+
+      READS=`samtools view -F 0x04 -c {{bam.bam.file}}`
+      icount_qc.py $READS $(gzip -d -c $MULTINAME | cat | wc -l)
 
       re-progress 0.9
       re-save-file BED $UNIQUENAME
