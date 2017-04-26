@@ -46,6 +46,7 @@ Changed
 * Replace Travis CI with Genialis' Jenkins for running the tests
 * Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 * Change sample_geo descriptor schema to have strain option available for all organisms
+* More readable rna-seq-quantseq schema, field stranded
 
 
 ================
