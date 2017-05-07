@@ -27,6 +27,7 @@ Added
 * Add bamliquidator
 * CheMut workflow
 * IGV session to Archive-samples process
+* Use Resolwe's field projection mixins for knowledge base endpoints
 
 Fixed
 -----

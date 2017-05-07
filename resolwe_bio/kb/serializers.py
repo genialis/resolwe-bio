@@ -9,10 +9,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 from rest_framework import serializers
 
+from resolwe.rest.serializers import SelectiveFieldMixin
+
 from .models import Feature, Mapping
 
 
-class FeatureSerializer(serializers.ModelSerializer):
+class FeatureSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
     """Serializer for feature."""
 
     class Meta:
@@ -22,7 +24,7 @@ class FeatureSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class MappingSerializer(serializers.ModelSerializer):
+class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
     """Serializer for mapping."""
 
     class Meta:
