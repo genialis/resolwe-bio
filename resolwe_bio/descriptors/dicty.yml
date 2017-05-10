@@ -1,0 +1,12 @@
+- slug: dicty-align-reads
+  name: Align reads (dicty)
+  version: 0.0.1
+  description:  Dicty primary analysis schema.
+  schema:
+    - name: genome
+      label: Select organism
+      type: basic:string
+      default: D. discoideum
+      choices:
+        - label: D. discoideum
+          value: D. discoideum

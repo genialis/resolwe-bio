@@ -26,6 +26,7 @@ Added
 * Archive-samples process
 * Add bamliquidator
 * CheMut workflow
+* Dicty primary analysis descriptor schema
 * IGV session to Archive-samples process
 * Use Resolwe's field projection mixins for knowledge base endpoints
 
