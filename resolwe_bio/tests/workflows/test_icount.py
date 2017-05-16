@@ -24,8 +24,8 @@ class IcountWorkflowTestCase(BioProcessTestCase):
             'segmentation': segmentation.id,
         })
 
-        peaks = Data.objects.last()
-        self.assertFile(peaks, "scores", "icount.workflow.out.tsv.gz", compression='gzip')
+        xlsites = Data.objects.last()
+        self.assertFile(xlsites, "BED", "icount.workflow.out.bed.gz", compression='gzip')
 
     def test_icount_demultiplex(self):
         # TODO add star-index and annotation objects upload to test ICount workflow functionality
