@@ -55,7 +55,9 @@ setup(
     ),
     extras_require = {
         'docs':  [
-            'Sphinx>=1.5.0',
+            # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't work with our custom
+            # page template
+            'Sphinx~=1.5.6',
             'sphinx_rtd_theme',
         ],
         'package': [
