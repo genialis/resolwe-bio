@@ -19,13 +19,13 @@ class IcountWorkflowTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-single', inputs)
 
         self.run_process('workflow-icount', {
-            'reads': reads.pk,
-            'index': star_index.pk,
-            'segmentation': segmentation.pk,
+            'reads': reads.id,
+            'index': star_index.id,
+            'segmentation': segmentation.id,
         })
 
-        peaks = Data.objects.last()
-        self.assertFile(peaks, "scores", "icount.workflow.out.tsv.gz", compression='gzip')
+        xlsites = Data.objects.last()
+        self.assertFile(xlsites, "BED", "icount.workflow.out.bed.gz", compression='gzip')
 
     def test_icount_demultiplex(self):
         # TODO add star-index and annotation objects upload to test ICount workflow functionality

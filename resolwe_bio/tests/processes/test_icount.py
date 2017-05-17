@@ -94,6 +94,7 @@ class ICountPreprocess(BioProcessTestCase):
         self.assertFile(xlsites, "BED", "icount.xlsites.out.unique.bed.gz", compression='gzip')
         self.assertFile(xlsites, "BED_multi", "icount.xlsites.out.multi.bed.gz", compression='gzip')
         self.assertFile(xlsites, "skipped", "icount.xlsites.out.skipped.bam")
+        self.assertJSON(xlsites, xlsites.output['qc'], '', 'icount_qc.json.gz')
 
 
 class ICountAnalyses(BioProcessTestCase):

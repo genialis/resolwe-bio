@@ -2,7 +2,7 @@
   name: iCount peaks
   description: "Find positions with high density of cross-linked sites."
   category: analyses:icount
-  version: 1.0.1
+  version: 1.0.2
   type: data:icount:peaks
   requirements:
     expression-engine: jinja
@@ -14,7 +14,7 @@
   persistence: CACHED
   input:
   - name: segmentation
-    label: GTF snnotation file, obtained from "iCount segment".
+    label: GTF annotation file, obtained from "iCount segment".
     type: data:annotation:gtf:icount
   - name: sites
     label: Crosslinks in BED6 format

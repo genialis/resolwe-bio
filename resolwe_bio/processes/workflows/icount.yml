@@ -36,7 +36,7 @@
   data_name: "iCount primary analysis ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 1.0.2
   type: data:workflow:icount
   input:
     - name: reads
@@ -61,18 +61,3 @@
         run: icount-xlsites
         input:
           bam: '{{steps.starmap}}'
-      - id: summary
-        run: icount-summary
-        input:
-          segmentation: '{{input.segmentation}}'
-          sites: '{{steps.xlsites}}'
-      - id: annotate
-        run: icount-annotate
-        input:
-          segmentation: '{{input.segmentation}}'
-          sites: '{{steps.xlsites}}'
-      - id: peaks
-        run: icount-peaks
-        input:
-          segmentation: '{{input.segmentation}}'
-          sites: '{{steps.xlsites}}'
