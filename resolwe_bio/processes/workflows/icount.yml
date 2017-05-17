@@ -1,18 +1,26 @@
 - slug: workflow-icount-demultiplex
   category: workflow:primary
-  name: iCount demultiplex and annotate
+  name: iCount demultiplex and analyse
   data_name: "iCount Demultiplex"
+  description: >
+    From multiplexed reads to annotated clusters using iCOUNT (https://github.com/tomazc/iCount).
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:icount:demultiplex
   input:
     - name: reads
-      label: Input multiplexed reads
+      label: Multiplexed reads
       type: list:basic:file
+      description: >
+        This should be a single large file containing sequencing reads
+        for multiple samples in FASTQ format (e.g. *.fastq.gz).
     - name: icount_annotation
-      label: iCount annotation
+      label: Annotation
       type: basic:file
+      description: >
+        This should be an Excel spreadsheet (*.xlsx). Please use the
+        template with instructions at this link: http://genial.is/iclip-template
   run:
     language: workflow
     program:
@@ -32,11 +40,11 @@
 
 - slug: workflow-icount
   category: workflow:primary
-  name: iCount Primary Analysis
+  name: iCount Primary Analysis (test)
   data_name: "iCount primary analysis ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 1.0.2
+  version: 1.0.3
   type: data:workflow:icount
   input:
     - name: reads
