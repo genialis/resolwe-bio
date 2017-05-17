@@ -7,8 +7,11 @@
   name: Microarray Quality Metrics
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwe/bio-linux8-resolwe-preview:microarray"
   data_name: "Array Quality Metrics"
-  version: 1.0.4
+  version: 1.0.5
   type: data:microarray:qc:affy
   category: analyses
   flow_collection: sample
