@@ -32,9 +32,9 @@
       type: basic:string
       default: hs
       choices:
-        - label: Homo Sapiens
+        - label: Homo sapiens
           value: hs
-        - label: Rattus Norvegicus
+        - label: Rattus norvegicus
           value: rn
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
@@ -56,9 +56,9 @@
       type: basic:string
       default: hs
       choices:
-        - label: Homo Sapiens
+        - label: Homo sapiens
           value: hs
-        - label: Rattus Norvegicus
+        - label: Rattus norvegicus
           value: rn
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
