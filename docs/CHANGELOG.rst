@@ -38,6 +38,9 @@ Fixed
 * Fix reads filtering processes for cases where input read file names contain whitespace
 * Add additional filtering option to STAR aligner
 * Fix bbduk-star-htseq_count workflow
+* Fix cuffnorm process: Use sample names as labels (boxplot, tables),
+  remove group labels input, auto asign group labels, add outputs for
+  Rscript output files which were only available compressed
 
 Changed
 -------

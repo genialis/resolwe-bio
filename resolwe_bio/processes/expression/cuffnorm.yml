@@ -4,11 +4,11 @@
 ---
 
 - slug: cuffnorm
-  name: Cuffnorm (2.2.1)
+  name: Cuffnorm
   requirements:
     expression-engine: jinja
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.0.15
+  version: 1.1.0
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -28,11 +28,6 @@
       type: list:basic:string
       description: >
         Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
-    - name: labels
-      label: Group labels
-      type: list:basic:string
-      description: >
-        Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2).
     - name: useERCC
       label: ERCC spike-in normalization
       type: basic:boolean
@@ -91,6 +86,34 @@
     - name: boxplot
       label: Boxplot
       type: basic:file
+    - name: fpkm_exp_raw
+      label: FPKM exp raw
+      type: basic:file
+    - name: replicate_correlations
+      label: Replicate correlatios plot
+      type: basic:file  
+    - name: fpkm_means
+      label: FPKM means
+      type: basic:file 
+    - name: exp_fpkm_means
+      label: Exp FPKM means
+      type: basic:file 
+    - name: norm_scatter
+      label: FKPM exp scatter normalized plot 
+      type: basic:file 
+      required: false
+    - name: fpkm_exp_norm
+      label: FPKM exp normalized
+      type: basic:file 
+      required: false
+    - name: spike_raw
+      label: Spike raw
+      type: basic:file
+      required: false      
+    - name: spike_norm
+      label: Spike normalized
+      type: basic:file 
+      required: false
     - name: R_data
       label: All R normalization data
       type: basic:file
@@ -102,22 +125,26 @@
     language: bash
     program: |
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
-      replicates='{% for r in replicates %}{{r}},{% endfor %}'
-      labels='{% for l in labels %}{{l}},{% endfor %}'
+      experiment=${experiment%?} #removes comma at the end
 
-      labels=${labels%?}
-      experiment=${experiment%?}
+      replicates='{% for r in replicates %}{{r}},{% endfor %}'
       replicates=${replicates%?}
 
-      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}`
+      sample_names='{% for cq in cuffquant %}{{cq|sample_name}},{% endfor %}'
+      sample_names=${sample_names%?}
+     
+      labels=`cuffnorm_group_labels.py ${replicates}` #construction of group labels
+      labels=${labels%?}
 
+      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}` #put into correct format for cuffnorm       
+      
       re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads '{{ threads }}' --labels ${labels} {% if annotation.gtf.file %} '{{ annotation.gtf.file }}' {% elif annotation.gff.file %} '{{ annotation.gff.file }}' {% elif annotation.merged_gtf.file %} '{{ annotation.merged_gtf.file }}' {% endif %} ${experiments}
-
+      cuffnorm --output-dir ./ --num-threads '{{ threads }}' {% if annotation.gtf.file %} '{{ annotation.gtf.file }}' {% elif annotation.gff.file %} '{{ annotation.gff.file }}' {% elif annotation.merged_gtf.file %} '{{ annotation.merged_gtf.file }}' {% endif %} ${experiments}    
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
-
+      
+      cuffnorm_output_table_headers.py ${replicates} ${sample_names} #replaces all cuffnorm output tables headers with sample names
       Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "'{{useERCC|yesno("TRUE", "FALSE")}}'")'
 
       {% if useERCC %}
@@ -155,5 +182,15 @@
       re-save-file run_info run.info
       re-save-file raw_scatter cuffnorm_all_fpkm_exprs_raw_scatter.png
       re-save-file boxplot cuffnorm_exprs_boxplot.pdf
+      re-save-file fpkm_exp_raw cuffnorm_all_fpkm_exprs_raw.txt
+      re-save-file replicate_correlations cuffnorm_replicate_correlations.pdf
+      re-save-file fpkm_means cuffnorm_all_fpkm_means.txt
+      re-save-file exp_fpkm_means cuffnorm_exprs_fpkm_means.txt
+      {% if useERCC %}
+        re-save-file norm_scatter cuffnorm_all_fpkm_exprs_norm_scatter.png
+        re-save-file fpkm_exp_norm cuffnorm_all_fpkm_exprs_norm.txt
+        re-save-file spike_raw cuffnorm_spike_raw.pdf
+        re-save-file spike_norm cuffnorm_spike_norm.pdf
+      {% endif %}
       re-save-file R_data R_data.zip
       re-save source "{{annotation.source}}"
