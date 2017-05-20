@@ -18,6 +18,7 @@ replicates = args.replicates.split(",")
 
 d = defaultdict(list)
 
+# This sort must produce the same order as cuffnorm_output_table_headers.py
 for s, r in zip(samples, replicates):
     d[r].append(s)
 

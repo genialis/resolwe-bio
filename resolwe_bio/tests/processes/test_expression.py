@@ -64,7 +64,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {
             'cuffquant': [sample_1.pk, sample_2.pk],
             'annotation': annotation.id,
-            'labels': ['Group1', 'Group2'],
             'replicates': ['1', '2']}
         cuffnorm = self.run_process('cuffnorm', inputs)
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
