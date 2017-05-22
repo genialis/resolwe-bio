@@ -1,6 +1,6 @@
 - slug: bcm-workflow-rnaseq
   name: RNA-Seq workflow
-  version: 0.0.1
+  version: 0.0.2
   description:  RNA-Seq workflow runs HISAT2 and Cuffquant.
   schema:
     - name: genome_and_annotation
@@ -8,9 +8,9 @@
       type: basic:string
       default: hs
       choices:
-        - label: Homo Sapiens
+        - label: Homo sapiens
           value: hs
-        - label: Rattus Norvegicus
+        - label: Rattus norvegicus
           value: rn
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
@@ -24,7 +24,7 @@
 
 - slug: bcm-workflow-chipseq
   name: RNA-Seq workflow
-  version: 0.0.1
+  version: 0.0.2
   description:  Chip-Seq workflow runs Bowtie 2.2.3, Macs 1.4 and Rose 2.
   schema:
     - name: genome_and_annotation
@@ -48,7 +48,7 @@
 
 - slug: bcm-workflow-wgbs
   name: RNA-Seq workflow
-  version: 0.0.1
+  version: 0.0.2
   description:  Whole genome bisulfite sequencing runs Bsmap and Mcall.
   schema:
     - name: genome_and_annotation
