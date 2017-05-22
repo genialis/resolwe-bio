@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.models import Sample
 from resolwe.flow.models import Data
 
 
@@ -173,8 +174,14 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
     def test_hisat2(self):
         genome = self.prepare_genome()
         reads = self.prepare_reads()
+        sample = Sample.objects.get(data=reads)
+        sample.name = 'Single reads'
+        sample.save()
         reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
                                                  mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+        sample_paired = Sample.objects.get(data=reads_paired)
+        sample_paired.name = 'Paired-end reads'
+        sample_paired.save()
 
         inputs = {
             'genome': genome.id,

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -46,24 +46,15 @@
       GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
       INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
 
-      NAME='{{ reads|sample_name }}'
+      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
       re-progress 0.1
 
-      {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{r.file}},"
-      {% endfor %}
+      FW_READS="{{ reads.fastq|join(',', attribute='file') }}"
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
-        {% for r in reads.fastq2 %}
-          RW_READS=${RW_READS}"{{r.file}},"
-        {% endfor %}
-        RW_READS=${RW_READS%?}
-        RW_READS_S=${RW_READS//,/ }
+        RW_READS="{{ reads.fastq2|join(',', attribute='file') }}"
       {% endif %}
-
-      FW_READS=${FW_READS%?}
-      FW_READS_S=${FW_READS//,/ }
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
 
@@ -89,10 +80,10 @@
       re-checkrc
       re-progress 0.9
 
-      mv alignment.bam ${NAME}.bam
-      mv alignment.bam.bai ${NAME}.bam.bai
-      mv stats.txt ${NAME}_stats.txt
+      mv alignment.bam "${NAME}.bam"
+      mv alignment.bam.bai "${NAME}.bam.bai"
+      mv stats.txt "${NAME}_stats.txt"
 
-      re-save-file bam ${NAME}.bam
-      re-save-file bai ${NAME}.bam.bai
-      re-save-file stats ${NAME}_stats.txt
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
+      re-save-file stats "${NAME}_stats.txt"

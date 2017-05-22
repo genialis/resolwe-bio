@@ -41,6 +41,7 @@ Fixed
 * Fix cuffnorm process: Use sample names as labels (boxplot, tables),
   remove group labels input, auto asign group labels, add outputs for
   Rscript output files which were only available compressed
+* Derive output filenames in hisat2 from the first reads filename
 
 Changed
 -------
