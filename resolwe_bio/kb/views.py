@@ -33,9 +33,16 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('name', 'source', 'species')
+    filtering_fields = ('name', 'source', 'species', 'feature_id')
     ordering_fields = ('name',)
     ordering = 'name'
+
+    def custom_filter_feature_id(self, value, search):
+        """Support exact feature_id queries."""
+        if not isinstance(value, list):
+            value = [value]
+
+        return search.filter('terms', feature_id=value)
 
     def custom_filter(self, search):
         """Support general query using the 'query' attribute."""

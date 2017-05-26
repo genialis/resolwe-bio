@@ -124,6 +124,20 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         response = self.client.post(FEATURE_SEARCH_URL, {'query': [str(x) for x in range(1024)]}, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+        # Test search by feature_id.
+        response = self.client.get(FEATURE_SEARCH_URL, {'feature_id': 'FOO', 'source': 'XSRC'}, format='json')
+        self.assertEqual(len(response.data), 0)
+
+        response = self.client.get(FEATURE_SEARCH_URL, {'feature_id': 'FOO1', 'source': 'XSRC'}, format='json')
+        self.assertEqual(len(response.data), 0)
+
+        response = self.client.get(FEATURE_SEARCH_URL, {'feature_id': 'FT-9', 'source': 'XSRC'}, format='json')
+        self.assertEqual(len(response.data), 1)
+
+        response = self.client.post(FEATURE_SEARCH_URL, {'feature_id': ['FT-1', 'FT-2'], 'source': 'NCBI'},
+                                    format='json')
+        self.assertEqual(len(response.data), 2)
+
     def test_feature_autocomplete(self):
         FEATURE_AUTOCOMPLETE_URL = reverse('resolwebio-api:kb_feature_autocomplete')
 
