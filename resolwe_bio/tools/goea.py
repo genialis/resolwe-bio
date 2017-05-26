@@ -30,7 +30,7 @@ def main():
     with open(args.feature_ids) as gene_file:
         genes = [gene.strip() for gene in gene_file]
 
-    org_features = res.feature.filter(source=args.source_db, query=genes)
+    org_features = res.feature.filter(source=args.source_db, feature_id=genes)
 
     if len(org_features) == 0:
         print('{"proc.error":"No genes were fetched from the knowledge base."}')

@@ -42,6 +42,7 @@ Fixed
   remove group labels input, auto asign group labels, add outputs for
   Rscript output files which were only available compressed
 * Derive output filenames in hisat2 from the first reads filename
+* Correctly fetch KB features in ``goea.py``
 
 Changed
 -------
