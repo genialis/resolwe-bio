@@ -120,6 +120,7 @@ Added
   importing features and mappings to the Knowledge Base
 * Add bsmap and mcall to analyse WGBS data
 * Vaccinesurvey sample descriptor schema
+* Add RNA-Seq single and paired-end workflow
 
 Fixed
 -----

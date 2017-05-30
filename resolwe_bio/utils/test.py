@@ -83,6 +83,10 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src': fn, 'source': source}
         return self.run_process('upload-gtf', inputs)
 
+    def prepare_adapters(self, fn='adapters.fasta'):
+        """Prepare adapters FASTA."""
+        return self.run_process('upload-fasta-nucl', {'src': fn})
+
     def prepare_expression(self, f_rc='exp_1_rc.tab.gz',
                            f_exp='exp_1_tpm.tab.gz',
                            f_type="TPM",

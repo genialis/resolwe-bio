@@ -47,3 +47,71 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
 
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_reads_rc.tab.gz', compression='gzip')
+
+    def test_rnaseq_single_workflow(self):
+        genome = self.prepare_genome()
+        single_reads = self.prepare_reads()
+        annotation = self.prepare_annotation('annotation.gtf.gz')
+        adapters = self.prepare_adapters()
+
+        self.run_process('workflow-rnaseq-single', {
+            'genome': genome.id,
+            'reads': single_reads.id,
+            'annotation': annotation.id,
+            'minlen': 10,
+            'stranded': 'no',
+            'id_attribute': 'transcript_id'
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
+
+        self.run_process('workflow-rnaseq-single', {
+            'genome': genome.id,
+            'reads': single_reads.id,
+            'annotation': annotation.id,
+            'adapters': adapters.id,
+            'minlen': 10,
+            'stranded': 'no',
+            'id_attribute': 'transcript_id'
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
+
+    def test_rnaseq_paired_workflow(self):
+        genome = self.prepare_genome()
+        paired_reads = self.prepare_paired_reads()
+        annotation = self.prepare_annotation('annotation.gtf.gz')
+        adapters = self.prepare_adapters()
+
+        self.run_process('workflow-rnaseq-paired', {
+            'genome': genome.id,
+            'reads': paired_reads.id,
+            'annotation': annotation.id,
+            'minlen': 10,
+            'trailing': 1,
+            'stranded': 'no',
+            'id_attribute': 'transcript_id'
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
+
+        self.run_process('workflow-rnaseq-paired', {
+            'genome': genome.id,
+            'reads': paired_reads.id,
+            'annotation': annotation.id,
+            'adapters': adapters.id,
+            'minlen': 10,
+            'trailing': 1,
+            'stranded': 'no',
+            'id_attribute': 'transcript_id'
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
