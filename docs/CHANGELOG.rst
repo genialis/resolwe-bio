@@ -133,6 +133,7 @@ Fixed
 * Fix sample hiererhical clustering
 * Fix name in gff to gtf process
 * Fix clustering to read expressed genes as strings
+* Fix protocol labels in ``rna-seq-quantseq`` descriptor schema
 
 
 ================

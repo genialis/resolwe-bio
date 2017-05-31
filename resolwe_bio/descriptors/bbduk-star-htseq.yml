@@ -15,7 +15,7 @@
 
 - slug: rna-seq-quantseq
   name: RNA-Seq
-  version: 0.0.2
+  version: 0.0.3
   description: RNA-Seq template
   schema:
     - name: trimming
@@ -36,13 +36,19 @@
     - name: stranded
       label: Were samples processed with a strand-specific protocol?
       type: basic:string
-      default: 'yes'
+      default: 'no'
       choices:
-        - label: 'Stranded'
-          value: 'yes'
-        - label: 'Non-stranded'
+        - label: Strand non-specific
           value: 'no'
-        - label: 'Reverse'
-          value: 'reverse'
+        - label: Strand-specific forward
+          value: 'yes'
+        - label: Strand-specific reverse
+          value: reverse
       description: >
-        For non-stranded, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For reverse streanded, these rules are reversed.
+        For strand non-specific protocol, a read is considered overlapping
+        with a feature regardless of whether it is mapped to the same or the
+        opposite strand as the feature. For strand-specific forward protocol
+        and single-end reads, the read has to be mapped to the same strand as
+        the feature. For paired-end reads, the first read has to be on the
+        same strand and the second read on the opposite strand. For
+        strand-specific reverse protocol, these rules are reversed.
