@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -61,7 +61,7 @@
         For paired-end reads, the first read has to be on the same strand and
         the second read on the opposite strand. In strand-specific reverse
         assay these rules are reversed.
-      default: no
+      default: "no"
       choices:
         - label: Strand non-specific
           value: "no"
@@ -116,7 +116,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -180,7 +180,7 @@
         For paired-end reads, the first read has to be on the same strand and
         the second read on the opposite strand. In strand-specific reverse
         assay these rules are reversed.
-      default: no
+      default: "no"
       choices:
         - label: Strand non-specific
           value: "no"
