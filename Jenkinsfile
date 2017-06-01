@@ -23,10 +23,6 @@ node {
                  // set database name to a unique value
                  "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
                  "RESOLWE_DOCKER_COMMAND=sudo docker",
-                 // XXX: Work-around for the "No module named 'six'" issue with
-                 // the latest version of setuptools (36.0.0):
-                 // https://github.com/pypa/setuptools/issues/1042
-                 "VIRTUALENV_NO_DOWNLOAD=1",
                  "DJANGO_TEST_PROCESSES=${DJANGO_TEST_PROCESSES}"]) {
             // documentation, linters and packaging environments are run first
             // so that if any of them fails, developer will get the feedback
