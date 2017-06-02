@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring
+from os.path import join
+
 from resolwe_bio.utils.filter import filter_vcf_variable
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import skipDockerFailure, skipUnlessLargeFiles, BioProcessTestCase
 
 
 class VariantCallingTestCase(BioProcessTestCase):
@@ -93,8 +95,9 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(hsqutils_dedup, 'summary', 'HSQUtils_dedup_summary.txt')
 
     @skipDockerFailure("Processor requires a custom Docker image.")
+    @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_vc_preprocess_bam(self):
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
         inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
@@ -112,8 +115,9 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.run_process('vc-realign-recalibrate', inputs)
 
     @skipDockerFailure("Processor requires a custom Docker image.")
+    @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_collecttargetedpcrmetrics(self):
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
         master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
@@ -126,8 +130,12 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.run_process('picard-pcrmetrics', inputs)
 
     @skipDockerFailure("Processor requires a custom Docker image.")
+    @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
     def test_gatk_haplotypecaller(self):
-        alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
+        alignment = self.run_process(
+            'upload-bam',
+            {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
+        )
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
         master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
         dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
@@ -142,8 +150,12 @@ class VariantCallingTestCase(BioProcessTestCase):
         gatk_vars = self.run_process('vc-gatk-hc', inputs)
         self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_vcf_variable)
 
+    @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
     def test_lofreq(self):
-        alignment = self.run_process('upload-bam', {'src': '56GSID_10k.realigned.bqsrCal.bam'})
+        alignment = self.run_process(
+            'upload-bam',
+            {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
+        )
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
         master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
 

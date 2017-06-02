@@ -1,14 +1,17 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import BioProcessTestCase
+from os.path import join
+
+from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
 
 class ReportProcessorTestCase(BioProcessTestCase):
 
+    @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_amplicon_report(self):
         template = self.run_process('upload-file', {'src': 'report_template.tex'})
         logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
 
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
         master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
         coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
 

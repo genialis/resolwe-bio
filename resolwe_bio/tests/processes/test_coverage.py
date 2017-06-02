@@ -1,5 +1,7 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import BioProcessTestCase
+from os.path import join
+
+from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
 
 class CoverageProcessorTestCase(BioProcessTestCase):
@@ -54,8 +56,9 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         exon_cov = self.run_process('coverage-garvan', inputs)
         self.assertFile(exon_cov, 'exon_coverage', 'exons_coverage.txt.gz', compression='gzip')
 
+    @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_amplicon_coverage(self):
-        bam = self.run_process('upload-bam', {'src': '56GSID_10k_mate1_RG.bam'})
+        bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
         master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
 
         coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
