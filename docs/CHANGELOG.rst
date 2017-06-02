@@ -51,6 +51,8 @@ Changed
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
 * Always run Tox's ``docs``, ``linters`` and ``packaging`` environments with
   Python 3
+* Add ``extra`` Tox testing environment with a check that there are no large
+  test files in ``resolwe_bio/tests/files``
 * Replace Travis CI with Genialis' Jenkins for running the tests
 * Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 * Change sample_geo descriptor schema to have strain option available for all organisms

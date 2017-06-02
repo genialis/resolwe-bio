@@ -9,6 +9,7 @@ sftp-config.json
 # Ignore dot files
 .*
 !.env
+!.scripts/
 
 # Ignore backup files
 *.orig

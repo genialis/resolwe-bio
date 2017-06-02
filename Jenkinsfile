@@ -26,14 +26,16 @@ throttle(["resolwe_bio"]) {
                          // set number of parallel Django test processes to 6
                          "DJANGO_TEST_PROCESSES=6",
                          "TOX_WORKDIR=${tox_workdir}"]) {
-                    // documentation, linters and packaging environments are run first so that if
-                    // any of them fails, developer will get the feedback right away (rather than
-                    // having to wait for all ordinary tests to run)
+                    // documentation, linters, packaging and extra environments are run first so
+                    // that if any of them fails, developer will get the feedback right away
+                    // (rather than having to wait for all ordinary tests to run)
                     sh "tox -e docs"
 
                     sh "tox -e linters"
 
                     sh "tox -e packaging"
+
+                    sh "tox -e extra"
 
                     sh "echo 'Environment:' && python2.7 --version"
                     sh "tox -e py27"
