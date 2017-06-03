@@ -7,6 +7,8 @@
   name: GO Enrichment analysis
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
   version: 3.0.1
   type: data:goea

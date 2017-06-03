@@ -10,6 +10,8 @@
     executor:
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:icount"
+    resources:
+      network: true
   data_name: 'ENSEMBL genome ({{ species ~ "." ~ release | default("?")}})'
   persistence: RAW
   input:
