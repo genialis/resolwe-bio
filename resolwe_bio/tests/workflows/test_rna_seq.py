@@ -115,3 +115,34 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
         self.assertFields(workflow, 'source', 'DICTYBASE')
+
+
+class RNASeqDSSTestCase(BioProcessTestCase):
+    def test_dss_rnaseq(self):
+        genome = self.prepare_genome()
+        genome.slug = 'genome-mm10'
+        single_reads = self.prepare_reads()
+        paired_reads = self.prepare_paired_reads()
+        annotation = self.prepare_annotation('annotation.gtf.gz')
+        annotation.slug = 'annotation-mm10'
+        adapters = self.prepare_adapters()
+        adapters.slug = 'adapters-illumina'
+
+        self.run_process('dss-rnaseq', {
+            'genome_and_annotation': 'mm',
+            'reads': single_reads.id
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
+
+        self.run_process('dss-rnaseq', {
+            'genome_and_annotation': 'mm',
+            'reads': paired_reads.id,
+            'trailing': 1
+        })
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'TPM')
+        self.assertFields(workflow, 'source', 'DICTYBASE')
