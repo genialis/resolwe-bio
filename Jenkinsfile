@@ -1,6 +1,10 @@
 throttle(["resolwe_bio"]) {
 
     node {
+        // NOTE: To avoid exceeding the maximum allowed shebang lenght when calling pip due very
+        // long paths of Jenkins' workspaces, we need to set a shorter Tox's working directory path
+        // More info: http://tox.readthedocs.io/en/latest/example/jenkins.html#avoiding-the-path-too-long-error-with-long-shebang-lines
+        def tox_workdir = "${env.HOME}/.tox-${env.BUILD_TAG}"
 
         try {
             stage("Checkout") {
@@ -11,8 +15,8 @@ throttle(["resolwe_bio"]) {
             }
 
             stage("Test") {
-                // remove Tox's directory to force a rebuild of Tox's environments
-                sh "rm -rf .tox/"
+                // remove Tox's working directory to force a rebuild of Tox's environments
+                sh "rm -rf ${tox_workdir}"
                 withEnv(["RESOLWE_POSTGRESQL_USER=postgres",
                          "RESOLWE_POSTGRESQL_PORT=55433",
                          "RESOLWE_ES_PORT=59201",
@@ -20,7 +24,8 @@ throttle(["resolwe_bio"]) {
                          "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
                          "RESOLWE_DOCKER_COMMAND=sudo docker",
                          // set number of parallel Django test processes to 6
-                         "DJANGO_TEST_PROCESSES=6"]) {
+                         "DJANGO_TEST_PROCESSES=6",
+                         "TOX_WORKDIR=${tox_workdir}"]) {
                     // documentation, linters and packaging environments are run first so that if
                     // any of them fails, developer will get the feedback right away (rather than
                     // having to wait for all ordinary tests to run)
