@@ -30,6 +30,7 @@ Added
 * Dicty primary analysis descriptor schema
 * IGV session to Archive-samples process
 * Use Resolwe's field projection mixins for knowledge base endpoints
+* ``amplicon-table`` process
 
 Fixed
 -----
@@ -43,6 +44,7 @@ Fixed
   Rscript output files which were only available compressed
 * Derive output filenames in hisat2 from the first reads filename
 * Correctly fetch KB features in ``goea.py``
+* Append JBrowse tracks to sample
 
 Changed
 -------

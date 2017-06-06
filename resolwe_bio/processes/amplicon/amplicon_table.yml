@@ -1,0 +1,43 @@
+# =============================
+# Create amplicon variant table
+# =============================
+---
+
+- slug: amplicon-table
+  name: Amplicon table
+  requirements:
+    expression-engine: jinja
+  data_name: "Amplicon table ({{ coverage|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:varianttable:amplicon
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Create variant table for use together with the genome browser.
+  input:
+    - name: master_file
+      label: Master file
+      type: data:masterfile:amplicon
+    - name: coverage
+      label: Amplicon coverage
+      type: data:coverage
+    - name: annot_vars
+      label: Annotated variants
+      type: list:data:snpeff
+  output:
+    - name: variant_table
+      label: Variant table
+      type: basic:json
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME='{{ coverage|sample_slug }}'
+
+      make_amplicon_table.py "{{master_file.master_file.file}}" "{{coverage.mean_cov.file}}" \
+      -v {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %}
+      re-checkrc
+
+      mv amplicon_table.json ${NAME}_amplicon_table.json
+      re-save variant_table ${NAME}_amplicon_table.json

@@ -8,13 +8,14 @@
   name: Build coverage track (JBrowse)
   requirements:
     expression-engine: jinja
-  data_name: "Coverage track ({{bam.bam.file}})"
-  version: 1.0.4
+  data_name: "Coverage track ({{bam|sample_name}})"
+  version: 1.0.5
   type: data:jbrowse:bigwig:coverage
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
-    Prepare genome-wide coverage track in BigWig format.
+    Prepare coverage track in BigWig format.
   input:
     - name: bam
       label: BAM mapping

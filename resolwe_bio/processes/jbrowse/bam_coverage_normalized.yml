@@ -9,9 +9,10 @@
   requirements:
     expression-engine: jinja
   data_name: "Normalized coverage track ({{bam.bam.file}})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
+  flow_collection: sample
   persistence: CACHED
   description: >
     Prepare genome-wide normalized coverage track in BigWig format. The method uses bamCoverage tool from Deeptools software package.

@@ -9,9 +9,10 @@
   requirements:
     expression-engine: jinja
   data_name: 'BED annotation track (JBrowse)'
-  version: 1.0.3
+  version: 1.0.4
   type: data:jbrowse:annotation:bed
   category: jbrowse
+  flow_collection: sample
   persistence: CACHED
   description: >
     Prepare BED annotation track for JBrowse.
