@@ -1,12 +1,15 @@
 """Test helper functions."""
 import os
 import unittest
+import sys
+
+import wrapt
 
 from django.conf import settings
 from django.core.management import call_command
 from django.test import TestCase as DjangoTestCase
 
-from resolwe.test import TransactionProcessTestCase
+from resolwe.test import with_resolwe_host as resolwe_with_resolwe_host, TransactionProcessTestCase
 
 TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
 TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
@@ -44,6 +47,24 @@ def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
             # file_ is a binary file (this is expected)
             pass
     return lambda func: func
+
+
+@wrapt.decorator
+def with_resolwe_host(wrapped_method, instance, args, kwargs):
+    """Decorate unit test to give it access to a live Resolwe host.
+
+    This is a slightly modified version of Resolwe's
+    :func:`~resolwe.test.utils.with_resolwe_host` decorator which skips
+    the decorated tests on non-Linux systems since accessing live
+    Resolwe host from a Docker container on non-Linux systems is not
+    possible yet.
+
+    """
+    return unittest.skipUnless(
+        sys.platform.startswith('linux'),
+        "Accessing live Resolwe host from a Docker container on non-Linux systems is not possible "
+        "yet."
+    )(resolwe_with_resolwe_host)(wrapped_method)(*args, **kwargs)
 
 
 class TransactionBioProcessTestCase(TransactionProcessTestCase):

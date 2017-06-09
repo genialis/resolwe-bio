@@ -14,6 +14,8 @@ Added
 -----
 * Support bioinformatics process test case based on Resolwe's
   ``TransactionProcessTestCase``
+* Custom version of Resolwe's ``with_resolwe_host`` test decorator which
+  skips the decorated tests on non-Linux systems
 * Add optimal leaf ordering and simulated annealing to gene and sample
   hierarchical clustering
 * Add ``resolwebio/chipseq`` docker image

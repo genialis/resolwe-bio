@@ -53,6 +53,7 @@ setup(
         'djangorestframework>=3.4.0',
         'resolwe==1.6.0a1',
         'tqdm>=4.1',
+        'wrapt>=1.10.8',
     ),
     extras_require = {
         'docs':  [
