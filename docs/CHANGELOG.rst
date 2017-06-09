@@ -31,6 +31,7 @@ Added
 * IGV session to Archive-samples process
 * Use Resolwe's field projection mixins for knowledge base endpoints
 * ``amplicon-table`` process
+* Add C. griseus organism choice to Sample descriptor schema
 
 Fixed
 -----

@@ -1,7 +1,7 @@
 - slug: sample
   name: GEO sample annotation
   description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
-  version: 0.0.2
+  version: 0.0.3
   schema:
     - name: sample
       label: Sample annotation
@@ -15,12 +15,14 @@
           description: >
             Identify the organism from which the sequences were derived.
           choices:
+            - label: Cricetulus griseus
+              value: Cricetulus griseus
+            - label: Dictyostelium discoideum
+              value: Dictyostelium discoideum
             - label: Homo sapiens
               value: Homo sapiens
             - label: Mus musculus
               value: Mus musculus
-            - label: Dictyostelium discoideum
-              value: Dictyostelium discoideum
             - label: Rattus norvegicus
               value: Rattus norvegicus
         - name: source
@@ -75,7 +77,7 @@
           type: list:basic:string
           required: false
           description: >
-            Optional annotation of a biosource characteristic (e.g. strain, tissue, developmental stage, tumor stage, etc).
+            Optional annotation of a biosource characteristic (e.g. strain, tissue, developmental stage, tumor stage, transgene sequence, etc).
             For each of the entered characteristics, enter the associated value (e.g. 129SV, brain, embryo, etc). Enter the
             optional characteristics in the format <characteristic:value>.
         - name: description
