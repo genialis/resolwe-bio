@@ -7,8 +7,10 @@
   name: Import GFF annotation from dictyBase
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: "D. discoideum transcript GFF"
-  version: 1.0.11
+  version: 1.0.12
   type: data:annotation:gff3
   category: import
   persistence: RAW

@@ -10,10 +10,11 @@
     resources:
       network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.0.1
+  version: 3.0.2
   type: data:goea
   category: analyses
   persistence: TEMP
+  scheduling_class: interactive
   description: >
     Identify significantly enriched Gene Ontology terms for given genes.
   input:

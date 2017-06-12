@@ -7,8 +7,10 @@
   name: BED track file
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.5
+  version: 1.0.6
   type: data:bed
   category: upload
   persistence: RAW

@@ -6,10 +6,11 @@
     executor:
       docker:
         image: "resolwebio/archive-samples"
-  version: 0.0.2
+  version: 0.0.3
   type: "data:archive:samples"
   category: other
   persistence: TEMP
+  scheduling_class: interactive
   description: >
     Create an archive of output files. The ouput folder
     structure is organized by sample slug and data object's

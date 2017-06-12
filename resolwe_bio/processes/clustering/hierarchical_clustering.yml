@@ -8,10 +8,11 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of {{genes|join(", ")|default("?")}}'
-  version: 1.0.6
+  version: 1.0.7
   type: data:clustering:hierarchical:genes:etc
   category: analyses
   persistence: TEMP
+  scheduling_class: interactive
   description: >
     Hierarchical clustering of expression time courses. Developed by Bioinformatics Laboratory, Faculty of Computer and
     Information Science, University of Ljubljana, Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics,

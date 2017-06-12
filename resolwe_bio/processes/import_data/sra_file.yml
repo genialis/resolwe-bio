@@ -7,8 +7,10 @@
   name: SRA import (single)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -73,8 +75,10 @@
   name: SRA import (paired)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:paired
   flow_collection: sample
   category: upload

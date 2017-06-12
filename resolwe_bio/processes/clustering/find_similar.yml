@@ -8,9 +8,10 @@
   requirements:
     expression-engine: jinja
   data_name: "Expression of genes similar to {{gene}}"
-  version: 1.0.8
+  version: 1.0.9
   type: data:similarexpression
   persistence: TEMP
+  scheduling_class: interactive
   description: >
     From selected genes find genes with similar expression
   input:

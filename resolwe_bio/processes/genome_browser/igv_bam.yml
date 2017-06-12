@@ -8,10 +8,11 @@
   requirements:
     expression-engine: jinja
   data_name: "IGV {{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.1
+  version: 1.0.2
   type: data:igv:bam
   category: analyses
   persistence: CACHED
+  scheduling_class: interactive
   description: >
     Process creates a session for Integrative Genomics Viewer (IGV).
   input:

@@ -9,8 +9,10 @@
   name: Import Expressions from tranSMART
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: 'Import from tranSMART'
-  version: 0.0.17
+  version: 0.0.18
   type: data:expressionset:transmart
   category: import
   persistence: RAW

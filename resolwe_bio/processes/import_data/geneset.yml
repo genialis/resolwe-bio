@@ -8,10 +8,11 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.6
+  version: 0.0.7
   type: data:geneset
   category: upload
   persistence: RAW
+  scheduling_class: interactive
   description: >
     Upload Gene Set.
   input:
@@ -61,10 +62,11 @@
   requirements:
     expression-engine: jinja
   data_name: Gene set
-  version: 0.0.2
+  version: 0.0.3
   type: data:geneset
   category: upload
   persistence: RAW
+  scheduling_class: interactive
   description: >
     Create Gene Set.
   input:
@@ -113,10 +115,11 @@
   requirements:
     expression-engine: jinja
   data_name: Gene set (Venn)
-  version: 0.0.3
+  version: 0.0.4
   type: data:geneset:venn
   category: upload
   persistence: RAW
+  scheduling_class: interactive
   description: >
     Create Venn gene set.
   input:
