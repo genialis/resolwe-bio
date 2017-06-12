@@ -61,7 +61,7 @@ Changed
 * Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
 * Change sample_geo descriptor schema to have strain option available for all organisms
 * More readable rna-seq-quantseq schema, field stranded
-
+* Remove obsolete Gene Info processes
 
 ================
 1.3.0 2017-01-28
