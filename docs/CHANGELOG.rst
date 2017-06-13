@@ -32,6 +32,7 @@ Added
 * Use Resolwe's field projection mixins for knowledge base endpoints
 * ``amplicon-table`` process
 * Add C. griseus organism choice to Sample descriptor schema
+* Add S. tuberosum organism choice to Sample descriptor schema
 
 Fixed
 -----
