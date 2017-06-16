@@ -23,6 +23,7 @@ parser.add_argument('-s', '--sampleids', nargs='+', default=[], help='sample ids
 parser.add_argument('-g', '--genes', nargs='+', default=[], help='subset of gene ids')
 parser.add_argument('-d', '--dstfunc', help='distance function')
 parser.add_argument('-l', '--linkage', help='clustering linkage function')
+parser.add_argument('--log2', action='store_true', help='Log2')
 parser.add_argument('--output', help='Output JSON file')
 
 args = parser.parse_args()
@@ -94,6 +95,9 @@ if matrix.shape[0] == 0:
     msg = "Expressions of selected genes are 0. Please select different samples or genes."
     print(error(msg))
     raise ValueError(msg)
+
+if args.log2:
+    matrix = np.log2(matrix + 1.0)
 
 distance = distance_map[args.dstfunc]
 cluster = linkage(matrix, method=args.linkage, metric=distance)

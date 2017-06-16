@@ -68,7 +68,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.8
+  version: 1.0.9
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -109,6 +109,11 @@
           value: single
         - label: complete
           value: complete
+    - name: log2
+      label: Log2
+      type: basic:boolean
+      default: true
+      description: Log2 transform the data before clustering.
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -127,7 +132,7 @@
         {% endfor %}
       fi
 
-      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}} --output cluster.json
+      samplehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}}{%if log2 %} --log2{% endif %} --output cluster.json
       re-save cluster cluster.json
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
@@ -137,7 +142,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of genes'
-  version: 1.0.3
+  version: 1.0.4
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
@@ -178,6 +183,11 @@
           value: single
         - label: complete
           value: complete
+    - name: log2
+      label: Log2
+      type: basic:boolean
+      default: true
+      description: Log2 transform the data before clustering.
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -196,8 +206,7 @@
         {% endfor %}
       fi
 
-      genehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}} --output cluster.json
+      genehcluster.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %}{% if genes %} --genes {{genes|join(" ")}}{% endif %} --linkage {{linkage}} --dstfunc {{distance}}{%if log2 %} --log2{% endif %} --output cluster.json
       re-save cluster cluster.json
       re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
-
