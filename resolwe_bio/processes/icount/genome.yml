@@ -3,7 +3,7 @@
   description: >
     Download genome for a given release/species from ENSEMBL in FASTA format.
   category: import
-  version: 1.0.0
+  version: 1.0.1
   type: data:seq:nucleotide
   requirements:
     expression-engine: jinja

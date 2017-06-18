@@ -10,7 +10,7 @@
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.1
+  version: 0.1.2
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample

@@ -3,7 +3,7 @@
   description: >
     Download annotation for given release/species from ENSEMBL.
   category: import
-  version: 1.0.1
+  version: 1.0.2
   type: data:annotation:gtf
   requirements:
     expression-engine: jinja
