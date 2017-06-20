@@ -34,6 +34,7 @@ Added
 * Add C. griseus organism choice to Sample descriptor schema
 * Add S. tuberosum organism choice to Sample descriptor schema
 * Add log2 to gene and sample hierarchical clustering
+* Add new inputs to import SRA, add read type selection process
 
 Fixed
 -----
