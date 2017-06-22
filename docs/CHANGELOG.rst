@@ -48,6 +48,7 @@ Fixed
 * Derive output filenames in hisat2 from the first reads filename
 * Correctly fetch KB features in ``goea.py``
 * Append JBrowse tracks to sample
+* Replace the BAM MD tag in `align-bwa-trim` process to correct for an issue with the primerclip tool
 
 Changed
 -------
