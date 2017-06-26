@@ -231,8 +231,10 @@
   name: Bowtie
   requirements:
     expression-engine: jinja
+    resources:
+      cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.22
+  version: 1.0.23
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -417,17 +419,17 @@
 
       FW_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
 
-      {% if PE_options.use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
+      {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
         cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
       {% endif %}
 
       echo "ALIGNING with bowtie2:"
-      {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_SE %}
-        {% if PE_options.use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
-          bowtie2 {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U reads.fastq -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
+      {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_se %}
+        {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
+          bowtie2 {{mode}} $a_mode $s_mode -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U reads.fastq -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
           re-checkrc
         {% else %}
-          bowtie2 {{mode}} $a_mode $s_mode --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U ${FW_READS} -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
+          bowtie2 {{mode}} $a_mode $s_mode -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U ${FW_READS} -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
           re-checkrc
         {% endif %}
         {% if trimming.trim_iter >= 1 %}
@@ -435,7 +437,7 @@
           for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
             do
             echo -e "\nTrimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed)" >> "report.txt"
-            bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${FW_NAME}_new_mapped$((c+1)).sam" --un "${FW_NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
+            bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${FW_NAME}_new_mapped$((c+1)).sam" --un "${FW_NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
             re-checkrc
             samtools view -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
             re-checkrc
@@ -462,7 +464,7 @@
         {% endif %}
 
       {% else %}
-        bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_SE %} --no-mixed {% endif %} -I {{ PE_options.I}} -X {{ PE_options.X}} -1 ${FW_READS} -2 ${RW_READS} -S "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_report.txt"
+        bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_se %} --no-mixed {% endif %} --minins {{PE_options.minins}} --maxins {{PE_options.maxins}} -1 ${FW_READS} -2 ${RW_READS} -S "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_report.txt"
         re-checkrc
         samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
         re-checkrc
