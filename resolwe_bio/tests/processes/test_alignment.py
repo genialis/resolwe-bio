@@ -24,7 +24,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'genome': genome.id,
             'reads': reads_paired.id,
             'reporting': {'r': "-a -m 1 --best --strata"},
-            'use_SE': True
+            'use_se': True
         }
         alignment = self.run_process('alignment-bowtie', inputs)
         self.assertFile(alignment, 'stats', 'bowtie_use_SE_report.tab.gz', compression='gzip')
@@ -63,7 +63,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'genome': genome.id,
             'reads': reads_paired.id,
             'reporting': {'rep_mode': "def"},
-            'PE_options': {'use_SE': True}
+            'PE_options': {'use_se': True}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_use_SE_report.txt')

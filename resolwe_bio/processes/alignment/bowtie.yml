@@ -4,11 +4,11 @@
 ---
 
 - slug: alignment-bowtie
-  name: Bowtie 1.0.0
+  name: Bowtie (dicty)
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.17
+  version: 1.0.18
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -49,7 +49,7 @@
       description: >
         Only for "Use qualities (-n)". Seed length (-l) is the number of bases on the high-quality end of the read to which the -n ceiling applies. The lowest permitted setting is 5 and the default is 28. bowtie is faster for larger values of -l.
       default: 28
-    - name: use_SE
+    - name: use_se
       label: Map as single-ended (for paired end reads only)
       type: basic:boolean
       default: false
@@ -142,7 +142,7 @@
       FW_READS=${FW_READS%?}
       FW_READS_S=${FW_READS//,/ }
 
-      {% if use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
+      {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
         cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
       {% endif %}
 
@@ -152,8 +152,8 @@
       STATS="0 ${FW_NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
-      {% if reads|type|subtype('data:reads:fastq:single:') or use_SE %}
-        {% if use_SE and reads|type|subtype('data:reads:fastq:paired:') %}
+      {% if reads|type|subtype('data:reads:fastq:single:') or use_se %}
+        {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
           bowtie --un "${FW_NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam ${INDEX} reads.fastq 1>"${FW_NAME}_align_unsorted.sam" 2>"${FW_NAME}_align_unsorted.stats"
           re-checkrc
         {% else %}
@@ -228,7 +228,7 @@
       fi
 
 - slug: alignment-bowtie2
-  name: Bowtie 2.2.3
+  name: Bowtie
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
@@ -274,7 +274,7 @@
     - name: PE_options
       label: Paired end alignment options
       group:
-        - name: use_SE
+        - name: use_se
           label: Map as single-ended (for paired-end reads only)
           type: basic:boolean
           default: false
@@ -286,19 +286,19 @@
           default: true
           description: >
             If both mates have unique alignments, but the alignments do not match paired-end expectations (orientation and relative distance) then alignment will be reported. Useful for detecting structural variations.
-        - name: rep_SE
+        - name: rep_se
           label: Report single ended
           type: basic:boolean
           default: true
           description: >
             If paired alignment can not be found Bowtie2 tries to find alignments for the individual mates.
-        - name: I
+        - name: minins
           label: Minimal distance
           type: basic:integer
           description: >
             The minimum fragment length for valid paired-end alignments. 0 imposes no minimum.
           default: 0
-        - name: X
+        - name: maxins
           label: Maximal distance
           type: basic:integer
           description: >
