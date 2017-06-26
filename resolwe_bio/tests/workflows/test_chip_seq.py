@@ -15,7 +15,7 @@ class ChipSeqWorkflowTestCase(BioProcessTestCase):
                 'reads': reads.id,
                 'genome': genome.id,
                 'annotation': annotation.id,
-                'macs_gsize': 'dm',
+                'macs_gsize': '1.2e8',
                 'rose_genome': 'MM9'
             }
         )

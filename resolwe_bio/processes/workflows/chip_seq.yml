@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:chipseq
   input:
     - name: reads
@@ -20,18 +20,18 @@
       label: Effective genome size
       type: basic:string
       choices:
-        - label: HS
-          value: hs
-        - label: MM
-          value: mm
-        - label: CE
-          value: ce
-        - label: DM
-          value: dm
-        - label: RN
+        - label: Homo sapiens
+          value: '2.7e9'
+        - label: Mus musculus
+          value: '1.87e9'
+        - label: Caenorhabditis elegans
+          value: '9e7'
+        - label: Drosophila melanogaster
+          value: '1.2e8'
+        - label: Rattus norvegicus
           value: '2e9'
-        - label: DA
-          value: '1e9'
+        - label: Dictyostelium discoideum
+          value: '3.4e7'
     - name: rose_genome
       label: Genome build
       type: basic:string
