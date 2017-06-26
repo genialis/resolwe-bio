@@ -1,0 +1,13 @@
+# Read the Docs YAML Config
+#
+# More info: http://docs.readthedocs.io/en/latest/yaml-config.html
+
+formats:
+  # NOTE: HTML & JSON are always built
+  - none
+
+python:
+  version: 3.5
+  pip_install: true
+  extra_requirements:
+    - docs
