@@ -1,5 +1,6 @@
 - slug: diff-exp
   name: Differential expression details
+  version: 0.0.1
   description: Differential expression details template
   schema:
     - name: thresholds
@@ -8,7 +9,7 @@
         - name: logfc
           label: Log2 FC
           type: basic:decimal
-          default: 2
+          default: 1
         - name: prob
           label: Probability
           type: basic:decimal

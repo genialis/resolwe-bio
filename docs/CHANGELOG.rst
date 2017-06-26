@@ -64,6 +64,7 @@ Changed
 * Change sample_geo descriptor schema to have strain option available for all organisms
 * More readable rna-seq-quantseq schema, field stranded
 * Remove obsolete Gene Info processes
+* Change log2(fc) default from 2 to 1 in diffexp descriptor schema
 
 ================
 1.3.0 2017-01-28
