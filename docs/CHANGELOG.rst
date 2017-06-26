@@ -38,6 +38,8 @@ Added
 * Add 16384 MB of memory as a resource in jbrowse annotation gff3 and gtf processes
 * Add 32768 MB of memory as a resource in star alignment and index processes
  
+* Add C. elegans organism choice to Sample descriptor schema
+* Add D. melanogaster organism choice to Sample descriptor schema
 * Add cores resources to bowtie2 process requirements
 
 Fixed

@@ -1,7 +1,7 @@
 - slug: sample
   name: GEO sample annotation
   description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
-  version: 0.0.4
+  version: 0.0.5
   schema:
     - name: sample
       label: Sample annotation
@@ -15,10 +15,14 @@
           description: >
             Identify the organism from which the sequences were derived.
           choices:
+            - label: Caenorhabditis elegans
+              value: Caenorhabditis elegans
             - label: Cricetulus griseus
               value: Cricetulus griseus
             - label: Dictyostelium discoideum
               value: Dictyostelium discoideum
+            - label: Drosophila melanogaster
+              value: Drosophila melanogaster              
             - label: Homo sapiens
               value: Homo sapiens
             - label: Mus musculus
