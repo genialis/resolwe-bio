@@ -9,7 +9,8 @@ from resdk import Resolwe
 
 GENOMES_AND_ANNOTATIONS = {
     'hs': {'genome': 'genome-hg19', 'annotation': 'annotation-hg19'},
-    'mm': {'genome': 'genome-mm10', 'annotation': 'annotation-mm10'}
+    'mm': {'genome': 'genome-mm10', 'annotation': 'annotation-mm10'},
+    'st': {'genome': 'genome-st', 'annotation': 'annotation-st'}
 }
 ADAPTERS = {
     'yes': 'adapters-illumina',
