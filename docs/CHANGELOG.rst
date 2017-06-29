@@ -35,7 +35,9 @@ Added
 * Add S. tuberosum organism choice to Sample descriptor schema
 * Add log2 to gene and sample hierarchical clustering
 * Add new inputs to import SRA, add read type selection process
-
+* Add 16384 MB of memory as a resource in jbrowse annotation gff3 and gtf processes
+* Add 32768 MB of memory as a resource in star alignment and index processes
+ 
 Fixed
 -----
 * Use new import paths in ``resolwe.flow``

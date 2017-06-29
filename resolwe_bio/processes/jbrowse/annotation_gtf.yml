@@ -8,8 +8,10 @@
   name: Build GTF annotation track (JBrowse)
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 16384
   data_name: 'Annotation track ({{ gtf.gtf.file|default("?") }})'
-  version: 1.0.4
+  version: 1.0.5
   type: data:jbrowse:annotation:gtf
   category: jbrowse
   persistence: CACHED

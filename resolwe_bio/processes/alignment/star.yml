@@ -7,8 +7,10 @@
   name: STAR
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 32768
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.1
+  version: 1.1.2
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -279,8 +281,10 @@
   name: STAR genome index
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 32768
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:genomeindex:star
   persistence: CACHED
   description: >

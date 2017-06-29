@@ -7,9 +7,11 @@
 - slug: jbrowse-gff3
   name: Build GFF3 annotation track (JBrowse)
   requirements:
+    resources:
+      memory: 16384
     expression-engine: jinja
   data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
-  version: 1.0.4
+  version: 1.0.5
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED
