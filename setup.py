@@ -66,7 +66,6 @@ setup(
         ],
         'test': [
             'check-manifest',
-            'coverage>=4.2',
             # pycodestyle 2.3.0 raises false-positive for variables
             # starting with 'def'
             # https://github.com/PyCQA/pycodestyle/issues/617
