@@ -38,6 +38,8 @@ Added
 * Add 16384 MB of memory as a resource in jbrowse annotation gff3 and gtf processes
 * Add 32768 MB of memory as a resource in star alignment and index processes
  
+* Add S. tuberosum organism choice to RNA-seq workflow
+
 Fixed
 -----
 * Use new import paths in ``resolwe.flow``
