@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.2
+  version: 0.0.3
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -221,7 +221,7 @@
       label: Reads file
       type: list:basic:file
     - name: stats
-      label: Statistic trimmomotic single
+      label: Statistic trimmomatic single
       type: basic:file
     - name: fastqc_url
       label: Quality control with FastQC
@@ -329,7 +329,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.2
+  version: 0.0.3
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
@@ -541,7 +541,7 @@
       label: Reads file (mate 2)
       type: list:basic:file
     - name: stats
-      label: Statistic trimmomotic single
+      label: Statistic trimmomatic single
       type: basic:file
     - name: fastqc_url
       label: Quality control with FastQC (Upstream)

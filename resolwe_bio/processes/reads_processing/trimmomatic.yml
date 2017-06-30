@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -115,7 +115,7 @@
       label: Reads file
       type: list:basic:file
     - name: stats
-      label: Statistic trimmomotic single
+      label: Statistic trimmomatic single
       type: basic:file
     - name: fastqc_url
       label: Quality control with FastQC
