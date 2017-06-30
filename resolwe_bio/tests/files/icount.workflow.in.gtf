@@ -1,4 +1,0 @@
-1	.	gene	1	200	.	+	.	gene_id "1"; transcript_biotype "K"
-1	.	transcript	1	200	.	+	.	gene_id "1"; transcript_id "1"; transcript_biotype "K";
-1	.	exon	1	200	.	+	.	gene_id "1"; transcript_id "1"; transcript_biotype "K"; exon_number "1";
-1	.	CDS	1	200	.	+	.	gene_name "A"; gene_id "1"; transcript_id "1"; transcript_biotype "K";

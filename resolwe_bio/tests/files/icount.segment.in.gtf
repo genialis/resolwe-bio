@@ -1,4 +1,0 @@
-Y	ensembl	gene	1000	2000	.	+	.	gene_id "ENSG00000129824"; gene_name "RPS4Y1"; gene_biotype "protein_coding";
-Y	ensembl	transcript	1000	2000	.	+	.	gene_id "ENSG00000129824"; transcript_id "ENST00000250784"; gene_name "RPS4Y1"; gene_biotype "protein_coding"; transcript_biotype "protein_coding";
-Y	ensembl	exon	1000	1200	.	+	.	gene_id "ENSG00000129824"; transcript_id "ENST00000250784"; exon_number "1"; gene_name "RPS4Y1"; gene_biotype "protein_coding"; transcript_biotype "protein_coding";
-Y	ensembl	exon	1800	2000	.	+	.	gene_id "ENSG00000129824"; transcript_id "ENST00000250784"; exon_number "2"; gene_name "RPS4Y1"; gene_biotype "protein_coding"; transcript_biotype "protein_coding";

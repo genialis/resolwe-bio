@@ -75,6 +75,7 @@ Changed
 * Change log2(fc) default from 2 to 1 in diffexp descriptor schema
 * Change Efective genome size values to actual values in macs14 process
 * Change variable names in bowtie processes
+* Remove iClip processes, tools, files and tests
 
 
 ================
