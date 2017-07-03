@@ -7,8 +7,10 @@
   name: Align (BWA) and trim adapters
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 32768    
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 0.0.4
+  version: 0.0.5
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample

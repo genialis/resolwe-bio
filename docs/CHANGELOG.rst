@@ -41,6 +41,7 @@ Added
 * Add C. elegans organism choice to Sample descriptor schema
 * Add D. melanogaster organism choice to Sample descriptor schema
 * Add cores resources to bowtie2 process requirements
+* Set memory resource requirement in amplicon BWA trim process to 32GB
 
 Fixed
 -----
