@@ -35,12 +35,11 @@ Added
 * Add S. tuberosum organism choice to Sample descriptor schema
 * Add log2 to gene and sample hierarchical clustering
 * Add new inputs to import SRA, add read type selection process
-* Add 16384 MB of memory as a resource in jbrowse annotation gff3 and gtf processes
-* Add 32768 MB of memory as a resource in star alignment and index processes
- 
+* Set memory resource requirement in jbrowse annotation gff3 and gtf processes to 16GB
+* Set memory resource requirement in star alignment and index processes to 32GB
 * Add C. elegans organism choice to Sample descriptor schema
 * Add D. melanogaster organism choice to Sample descriptor schema
-* Add cores resources to bowtie2 process requirements
+* Set core resource requirement in Bowtie process to 1
 * Set memory resource requirement in amplicon BWA trim process to 32GB
 
 Fixed
@@ -51,7 +50,7 @@ Fixed
 * Add additional filtering option to STAR aligner
 * Fix bbduk-star-htseq_count workflow
 * Fix cuffnorm process: Use sample names as labels (boxplot, tables),
-  remove group labels input, auto asign group labels, add outputs for
+  remove group labels input, auto assign group labels, add outputs for
   Rscript output files which were only available compressed
 * Derive output filenames in hisat2 from the first reads filename
 * Correctly fetch KB features in ``goea.py``
