@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.1.0
+  version: 1.1.1
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -91,28 +91,28 @@
       type: basic:file
     - name: replicate_correlations
       label: Replicate correlatios plot
-      type: basic:file  
+      type: basic:file
     - name: fpkm_means
       label: FPKM means
-      type: basic:file 
+      type: basic:file
     - name: exp_fpkm_means
       label: Exp FPKM means
-      type: basic:file 
+      type: basic:file
     - name: norm_scatter
-      label: FKPM exp scatter normalized plot 
-      type: basic:file 
+      label: FKPM exp scatter normalized plot
+      type: basic:file
       required: false
     - name: fpkm_exp_norm
       label: FPKM exp normalized
-      type: basic:file 
+      type: basic:file
       required: false
     - name: spike_raw
       label: Spike raw
       type: basic:file
-      required: false      
+      required: false
     - name: spike_norm
       label: Spike normalized
-      type: basic:file 
+      type: basic:file
       required: false
     - name: R_data
       label: All R normalization data
@@ -132,24 +132,24 @@
 
       sample_names='{% for cq in cuffquant %}{{cq|sample_name}},{% endfor %}'
       sample_names=${sample_names%?}
-     
+
       labels=`cuffnorm_group_labels.py ${replicates}` #construction of group labels
       labels=${labels%?}
 
-      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}` #put into correct format for cuffnorm       
-      
+      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}` #put into correct format for cuffnorm
+
       re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads '{{ threads }}' {% if annotation.gtf.file %} '{{ annotation.gtf.file }}' {% elif annotation.gff.file %} '{{ annotation.gff.file }}' {% elif annotation.merged_gtf.file %} '{{ annotation.merged_gtf.file }}' {% endif %} ${experiments}    
+      cuffnorm --output-dir ./ --num-threads {{ threads }} {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{ annotation.gff.file }} {% elif annotation.merged_gtf.file %} {{ annotation.merged_gtf.file }} {% endif %} ${experiments}
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
-      
+
       cuffnorm_output_table_headers.py ${replicates} ${sample_names} #replaces all cuffnorm output tables headers with sample names
-      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "'{{useERCC|yesno("TRUE", "FALSE")}}'")'
+      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "{{useERCC|yesno("TRUE", "FALSE")}}")'
 
       {% if useERCC %}
         {% for exp in cuffquant %}
-          S_NAME="{{exp|sample_name}}"
+          S_NAME={{exp|sample_name}}
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{loop.index0}} -n
           mv expression.tab ${S_NAME}_expression.tab
           re-export "${S_NAME}_expression.tab"
@@ -157,7 +157,7 @@
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          S_NAME="{{exp|sample_name}}"
+          S_NAME={{exp|sample_name}}
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_raw.txt {{loop.index0}} -n
           mv expression.tab ${S_NAME}_expression.tab
           re-export "${S_NAME}_expression.tab"
@@ -193,4 +193,4 @@
         re-save-file spike_norm cuffnorm_spike_norm.pdf
       {% endif %}
       re-save-file R_data R_data.zip
-      re-save source "{{annotation.source}}"
+      re-save source {{annotation.source}}

@@ -7,7 +7,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.1.2
+  version: 0.1.3
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -41,18 +41,18 @@
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_NAME='{{ coverage|sample_name }}'
-      SAMPLE_SLUG='{{ coverage|sample_slug }}'
+      SAMPLE_NAME={{ coverage|sample_name }}
+      SAMPLE_SLUG={{ coverage|sample_slug }}
 
       make_report.py --sample "${SAMPLE_NAME}" \
-      --cov "{{coverage.amplicon_cov.file}}" \
-      --covmetrics "{{coverage.cov_metrics.file}}" \
-      --covplot "{{coverage.covplot.file}}" \
-      --metrics "{{pcr_metrics.target_pcr_metrics.file}}" \
-      --template "{{template.file.file}}" \
-      --logo "{{logo.file.file}}" \
-      --vcf {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %} \
-      --panel "{{panel_name}}"
+        --cov {{coverage.amplicon_cov.file}} \
+        --covmetrics {{coverage.cov_metrics.file}} \
+        --covplot {{coverage.covplot.file}} \
+        --metrics {{pcr_metrics.target_pcr_metrics.file}} \
+        --template {{template.file.file}} \
+        --logo {{logo.file.file}} \
+        --vcf {% for vars in annot_vars %}{{vars.annotation.file}} {% endfor %} \
+        --panel {{panel_name}}
 
       re-checkrc
 

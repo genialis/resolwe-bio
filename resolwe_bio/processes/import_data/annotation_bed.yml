@@ -10,7 +10,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.6
+  version: 1.0.7
   type: data:bed
   category: upload
   persistence: RAW
@@ -32,7 +32,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "bed|narrowPeak" "bed" 1.0
+      re-import {{ src.file_temp }} {{ src.file }} "bed|narrowPeak" "bed" 1.0
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       re-checkrc "BED file format validation failed. Check file integrity."
       re-save-file BED "${NAME}.bed"

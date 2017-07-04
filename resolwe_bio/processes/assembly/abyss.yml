@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "ABySS assembly ({{ options.name }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:abyss
   category: analyses
   flow_collection: sample
@@ -83,40 +83,50 @@
       {% endif %}
 
       {% if paired_end %}
+        fw_reads=()
         {% for r in paired_end.fastq %}
-          FW_READS=${FW_READS}"{{ r.file }} "
+          fw_reads+=({{ r.file }})
         {% endfor %}
-        cat ${FW_READS} > fw_1.fastq.gz
+        cat "${fw_reads[@]}" > fw_1.fastq.gz
+
+        rw_reads=()
         {% for r in paired_end.fastq2 %}
-          RW_READS=${RW_READS}"{{ r.file }} "
+          rw_reads+=({{ r.file }})
         {% endfor %}
-        cat ${RW_READS} > rw_2.fastq.gz
+        cat "${rw_reads[@]}" > rw_2.fastq.gz
       {% endif %}
 
       {% if use_unmapped %}
         {% if use_unmapped and not unmapped %}
           re-error "Use unmapped reads option is selected but the input file is not provided."
         {% else %}
-          SE='se={{ unmapped.unmapped.file }}'
+          se='se='{{ unmapped.unmapped.file }}
         {% endif %}
       {% elif se and not use_unmapped %}
+        reads=()
         {% for r in se.fastq %}
-          READS=${READS}"{{ r.file }} "
+          reads+=({{ r.file }})
         {% endfor %}
-        cat ${READS} > se_reads.fastq.gz
-        SE='se=se_reads.fastq.gz'
+        cat "${reads[@]}" > se_reads.fastq.gz
+        se='se=se_reads.fastq.gz'
       {% endif %}
 
       re-progress 0.1
 
       # remove whitespace from a sample name
-      NAME="$(echo -e "{{options.name}}" | tr -d '[[:space:]]')"
+      NAME="$(echo -e {{options.name}} | tr -d '[[:space:]]')"
 
-      abyss-pe name=${NAME} k='{{options.k}}' s='{{options.s}}' n='{{options.n}}' {% if paired_end %} in='fw_1.fastq.gz rw_2.fastq.gz' {% endif %} ${SE}
+      abyss-pe \
+        name="${NAME}" \
+        k={{options.k}} \
+        s={{options.s}} \
+        n={{options.n}} \
+        {% if paired_end %}in='fw_1.fastq.gz rw_2.fastq.gz'{% endif %} \
+        ${se}
       re-checkrc
       re-progress 0.9
 
-      zip ${NAME}_contigs *.fa
+      zip "${NAME}_contigs" *.fa
 
-      re-save-file contigs ${NAME}_contigs.zip
-      re-save-file stats ${NAME}-stats.tab
+      re-save-file contigs "${NAME}_contigs.zip"
+      re-save-file stats "${NAME}-stats.tab"

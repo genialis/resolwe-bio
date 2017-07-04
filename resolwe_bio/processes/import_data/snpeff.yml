@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:snpeff:upload
   category: upload
   persistence: RAW
@@ -38,11 +38,11 @@
     runtime: polyglot
     language: bash
     program: |
-        re-import "{{ annotation.file_temp }}" "{{ annotation.file }}" "txt" "txt" 0.3 extract
+        re-import {{ annotation.file_temp }} {{ annotation.file }} "txt" "txt" 0.3 extract
         re-save-file annotation "${NAME}.txt"
 
-        re-import "{{ summary.file_temp }}" "{{ summary.file }}" "html" "html" 0.6 extract
+        re-import {{ summary.file_temp }} {{ summary.file }} "html" "html" 0.6 extract
         re-save-file summary "${NAME}.html"
 
-        re-import "{{ snpeff_genes.file_temp }}" "{{ snpeff_genes.file }}" "txt" "txt" 0.9 extract
+        re-import {{ snpeff_genes.file_temp }} {{ snpeff_genes.file }} "txt" "txt" 0.9 extract
         re-save-file snpeff_genes "${NAME}.txt"

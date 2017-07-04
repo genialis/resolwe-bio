@@ -9,7 +9,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'BED annotation track (JBrowse)'
-  version: 1.0.4
+  version: 1.0.5
   type: data:jbrowse:annotation:bed
   category: jbrowse
   flow_collection: sample
@@ -47,12 +47,12 @@
       {% endif %}
 
       {% if bed.BED.file %}
-        flatfile-to-json.pl --bed '{{bed.BED.file}}' --out . --trackLabel "bed"
+        flatfile-to-json.pl --bed {{bed.BED.file}} --out . --trackLabel "bed"
         re-checkrc "BED track processing for JBrowse failed."
       {% endif %}
 
       {% if macs2.narrow_peaks.file %}
-        flatfile-to-json.pl --bed '{{macs2.narrow_peaks.file}}' --out . --trackLabel "bed"
+        flatfile-to-json.pl --bed {{macs2.narrow_peaks.file}} --out . --trackLabel "bed"
         re-checkrc "BED track processing for JBrowse failed."
       {% endif %}
 

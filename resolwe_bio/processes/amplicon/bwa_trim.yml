@@ -8,9 +8,9 @@
   requirements:
     expression-engine: jinja
     resources:
-      memory: 32768    
+      memory: 32768
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 0.0.5
+  version: 0.0.6
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample
@@ -121,15 +121,15 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME='{{ reads|sample_slug }}'
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
+      NAME={{ reads|sample_slug }}
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()
 
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > fw_reads.fastq.gz
@@ -137,7 +137,7 @@
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          RW_READS+=("{{ r.file }}")
+          RW_READS+=({{ r.file }})
         {% endfor %}
         cat "${RW_READS[@]}" > rw_reads.fastq.gz
         gzip -d rw_reads.fastq.gz
@@ -147,28 +147,75 @@
 
       echo "ALIGNING with BWA-MEM:"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} {% if m %} -M {% endif %} -t {{threads}} ${INDEX} fw_reads.fastq 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          mem \
+          {% if reporting.report_all %}-a{% endif %} \
+          -r {{re_seeding}} \
+          -k {{ seed_l }} \
+          -w {{ band_w }} \
+          -A {{scoring.match}} \
+          -B {{scoring.missmatch}} \
+          -O {{scoring.gap_o}} \
+          -E {{scoring.gap_e}} \
+          -L {{scoring.clipping}} \
+          -T {{ reporting.report_tr }} \
+          {% if m %}-M{% endif %} \
+          -t {{threads}} \
+          "${INDEX}" \
+          fw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% else %}
-        bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} {% if m %} -M {% endif %} -t {{threads}} ${INDEX} fw_reads.fastq rw_reads.fastq 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          mem \
+          {% if reporting.report_all %}-a{% endif %} \
+          -U {{scoring.unpaired_p}} \
+          -r {{re_seeding}} \
+          -k {{ seed_l }} \
+          -w {{ band_w }} \
+          -A {{scoring.match}} \
+          -B {{scoring.missmatch}} \
+          -O {{scoring.gap_o}} \
+          -E {{scoring.gap_e}} \
+          -L {{scoring.clipping}} \
+          -T {{ reporting.report_tr }} \
+          {% if m %}-M{% endif %} \
+          -t {{threads}} \
+          "${INDEX}" \
+          fw_reads.fastq \
+          rw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% endif %}
 
       re-checkrc
       re-progress 0.5
 
       echo "trimming primers"
-      primerclip "${NAME}_align_unsorted.sam" "{{master_file.primers.file}}" "${NAME}_ptrimd.sam" 2> "${NAME}_ptrim.log"
+      primerclip \
+        "${NAME}_align_unsorted.sam" \
+        {{master_file.primers.file}} \
+        "${NAME}_ptrimd.sam" 2> "${NAME}_ptrim.log"
       re-checkrc
       re-progress 0.7
 
       re-save-file ptrimlog "${NAME}_ptrim.log"
 
       echo "sorting and adding read groups"
-      picard-tools AddOrReplaceReadGroups I="${NAME}_ptrimd.sam" O="${NAME}_RG_temp.bam" SO=coordinate RGID=snpID LB=swift SM="${NAME}" PL=illumina PU=miseq
+      picard-tools \
+        AddOrReplaceReadGroups \
+        I="${NAME}_ptrimd.sam" \
+        O="${NAME}_RG_temp.bam" \
+        SO=coordinate \
+        RGID=snpID \
+        LB=swift \
+        SM="${NAME}" \
+        PL=illumina \
+        PU=miseq
       re-checkrc
       re-progress 0.8
 
       # Fix the MD tag to correct for an issue with the primerclip
-      samtools calmd -b "${NAME}_RG_temp.bam" "{{genome.fasta.file}}" > "${NAME}_RG.bam" 2> /dev/null
+      samtools \
+        calmd \
+        -b "${NAME}_RG_temp.bam" \
+        {{genome.fasta.file}} > "${NAME}_RG.bam" 2> /dev/null
       re-checkrc
 
       re-save-file bam "${NAME}_RG.bam"

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ cel.file|default("?") }}'
-  version: 1.0.6
+  version: 1.0.7
   type: data:microarray:affy
   category: upload
   flow_collection: sample
@@ -33,6 +33,6 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ cel.file_temp|default(cel.file) }}" "{{ cel.file }}" "cel|CEL" "CEL"
+      re-import {{ cel.file_temp|default(cel.file) }} {{ cel.file }} "cel|CEL" "CEL"
       re-save-file cel "${NAME}.CEL"
       re-save source "AFFY"

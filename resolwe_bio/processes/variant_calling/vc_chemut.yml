@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Called variants (CheMut)"
-  version: 1.0.5
+  version: 1.0.6
   type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
@@ -152,29 +152,57 @@
       {% endif %}
 
       {% for bam in parental_strains + mutant_strains %}
-        BAM_FILE=`basename '{{ bam.bam.file }}'`
+        BAM_FILE=`basename {{ bam.bam.file }}`
         NAMES=$NAMES"${BAM_FILE},"
       {% endfor %}
 
       unique_sample_names.py ${NAMES}
 
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
 
       COUNTER=1
 
       {% for bam in parental_strains + mutant_strains %}
         echo "bam files processing"
-        BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
+        BAM_FILE=`basename {{ bam.bam.file }} .bam`
 
         echo "sorting, marking duplicates, indexing"
-        java -jar /usr/gitc/picard.jar MarkDuplicates I="{{ bam.bam.file }}" O="${BAM_FILE}_inds.bam" METRICS_FILE=junk.txt VALIDATION_STRINGENCY=LENIENT
+        java \
+          -jar /usr/gitc/picard.jar \
+          MarkDuplicates \
+          I={{ bam.bam.file }} \
+          O="${BAM_FILE}_inds.bam" \
+          METRICS_FILE=junk.txt \
+          VALIDATION_STRINGENCY=LENIENT
         echo "{\"proc.rc\":$?}"
 
         {% if bam in parental_strains %}
-          java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=parental_${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+          java \
+            -jar /usr/gitc/picard.jar \
+            AddOrReplaceReadGroups \
+            I="${BAM_FILE}_inds.bam" \
+            O="${BAM_FILE}_indh.bam" \
+            RGID=ReadGroup_${COUNTER} \
+            RGLB={{reads_info.LB}} \
+            RGPL={{reads_info.PL}} \
+            RGPU={{reads_info.PU}} \
+            RGSM=parental_${BAM_FILE} \
+            RGCN={{reads_info.CN}} \
+            RGDT={{reads_info.DT}}
           echo "{\"proc.rc\":$?}"
         {% else %}
-          java -jar /usr/gitc/picard.jar AddOrReplaceReadGroups I="${BAM_FILE}_inds.bam" O="${BAM_FILE}_indh.bam" RGID=ReadGroup_${COUNTER} RGLB={{reads_info.LB}} RGPL={{reads_info.PL}} RGPU={{reads_info.PU}} RGSM=mut_${BAM_FILE} RGCN={{reads_info.CN}} RGDT={{reads_info.DT}}
+          java \
+            -jar /usr/gitc/picard.jar \
+            AddOrReplaceReadGroups \
+            I="${BAM_FILE}_inds.bam" \
+            O="${BAM_FILE}_indh.bam" \
+            RGID=ReadGroup_${COUNTER} \
+            RGLB={{reads_info.LB}} \
+            RGPL={{reads_info.PL}} \
+            RGPU={{reads_info.PU}} \
+            RGSM=mut_${BAM_FILE} \
+            RGCN={{reads_info.CN}} \
+            RGDT={{reads_info.DT}}
           echo "{\"proc.rc\":$?}"
         {% endif %}
 
@@ -187,37 +215,73 @@
 
       {% if br_and_ind_ra %}
         {% for bam in parental_strains + mutant_strains %}
-          BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
+          BAM_FILE=`basename {{ bam.bam.file }} .bam`
           echo "indel realignment"
-          java -jar /usr/gitc/GATK36.jar -T RealignerTargetCreator -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o indel_interval.bed {% if known_indels %} -known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
+          java \
+            -jar /usr/gitc/GATK36.jar \
+            -T RealignerTargetCreator \
+            -I "${BAM_FILE}_indh.bam" \
+            -R {{ genome.fasta.file }} \
+            -o indel_interval.bed \
+            {% if known_indels %}-known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
           echo "{\"proc.rc\":$?}"
 
-          java -jar /usr/gitc/GATK36.jar -T IndelRealigner -I "${BAM_FILE}_indh.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_noncal.bam" -targetIntervals indel_interval.bed -compress 0
+          java \
+            -jar /usr/gitc/GATK36.jar \
+            -T IndelRealigner \
+            -I "${BAM_FILE}_indh.bam" \
+            -R {{ genome.fasta.file }} \
+            -o "${BAM_FILE}_noncal.bam" \
+            -targetIntervals indel_interval.bed \
+            -compress 0
           echo "{\"proc.rc\":$?}"
 
           echo "Base recalibration"
-          java -jar /usr/gitc/GATK36.jar -T BaseRecalibrator -I "${BAM_FILE}_noncal.bam"  -R "{{ genome.fasta.file }}" -o recal_data.table -knownSites "{{ known_sites.vcf.file }}"
+          java \
+            -jar /usr/gitc/GATK36.jar \
+            -T BaseRecalibrator \
+            -I "${BAM_FILE}_noncal.bam" \
+            -R {{ genome.fasta.file }} \
+            -o recal_data.table \
+            -knownSites {{ known_sites.vcf.file }}
           echo "{\"proc.rc\":$?}"
 
-          java -jar /usr/gitc/GATK36.jar -T PrintReads -I "${BAM_FILE}_noncal.bam" -R "{{ genome.fasta.file }}" -o "${BAM_FILE}_final.bam" -BQSR recal_data.table
+          java \
+            -jar /usr/gitc/GATK36.jar \
+            -T PrintReads \
+            -I "${BAM_FILE}_noncal.bam" \
+            -R {{ genome.fasta.file }} \
+            -o "${BAM_FILE}_final.bam" \
+            -BQSR recal_data.table
           echo "{\"proc.rc\":$?}"
         {% endfor %}
         echo "{\"proc.progress\":0.40}"
       {% else %}
         {% for bam in parental_strains + mutant_strains %}
-          BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
+          BAM_FILE=`basename {{ bam.bam.file }} .bam`
           mv "${BAM_FILE}_indh.bam" "${BAM_FILE}_final.bam"
         {% endfor %}
       {% endif %}
 
       {% for bam in parental_strains + mutant_strains %}
-        BAM_FILE=`basename '{{ bam.bam.file }}' .bam`
+        BAM_FILE=`basename {{ bam.bam.file }} .bam`
         samtools index ${BAM_FILE}_final.bam
         SAMPLES=$SAMPLES"-I ${BAM_FILE}_final.bam "
       {% endfor %}
 
       echo "variant calling"
-      java -jar /usr/gitc/GATK36.jar -T UnifiedGenotyper ${SAMPLES} -R "{{ genome.fasta.file }}" -o GATKvariants_raw.vcf {% if dbsnp and known_sites %} --dbsnp {{ known_sites.vcf.file }} {% endif %} -ploidy {{ Varc_param.ploidy }} -glm {{ Varc_param.glm }} -stand_call_conf {{ Varc_param.stand_call_conf }} -stand_emit_conf {{ Varc_param.stand_emit_conf }} {% if Varc_param.intervals %} {% for l in Varc_param.intervals %} {{"-L" if l != ""}} {{l}} {% endfor %} {% endif %} {% if Varc_param.rf %} -rf ReassignOneMappingQuality -RMQF 255 -RMQT 60 {% endif %}
+      java \
+        -jar /usr/gitc/GATK36.jar \
+        -T UnifiedGenotyper ${SAMPLES} \
+        -R {{ genome.fasta.file }} \
+        -o GATKvariants_raw.vcf \
+        {% if dbsnp and known_sites %}--dbsnp {{ known_sites.vcf.file }}{% endif %} \
+        -ploidy {{ Varc_param.ploidy }} \
+        -glm {{ Varc_param.glm }} \
+        -stand_call_conf {{ Varc_param.stand_call_conf }} \
+        -stand_emit_conf {{ Varc_param.stand_emit_conf }} \
+        {% if Varc_param.intervals %}{% for l in Varc_param.intervals %} {{"-L" if l != ""}} {{l}} {% endfor %}{% endif %} \
+        {% if Varc_param.rf %}-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60{% endif %}
       echo "{\"proc.rc\":$?}"
       echo "{\"proc.progress\":0.80}"
 

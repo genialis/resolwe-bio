@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Import gene sets from {{gaf.gaf.file}}"
-  version: 0.0.2
+  version: 0.0.3
   type: data:genesets:go
   category: analyses
   persistence: CACHED

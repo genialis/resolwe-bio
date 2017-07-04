@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -115,14 +115,14 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()
 
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > fw_reads.fastq.gz
@@ -130,22 +130,54 @@
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS+=("{{ r.file }}")
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          RW_READS+=({{ r.file }})
         {% endfor %}
         cat "${RW_READS[@]}" > rw_reads.fastq.gz
         gzip -d rw_reads.fastq.gz
       {% endif %}
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       re-progress 0.3
 
       echo "ALIGNING with BWA-MEM:"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        bwa mem {% if reporting.report_all %}-a{% endif %} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} {% if m %} -M {% endif %} -t {{threads}} ${INDEX} fw_reads.fastq 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          mem \
+          {% if reporting.report_all %}-a{% endif %} \
+          -r {{re_seeding}} \
+          -k {{ seed_l }} \
+          -w {{ band_w }} \
+          -A {{scoring.match}} \
+          -B {{scoring.missmatch}} \
+          -O {{scoring.gap_o}} \
+          -E {{scoring.gap_e}} \
+          -L {{scoring.clipping}} \
+          -T {{ reporting.report_tr }} \
+          {% if m %}-M{% endif %} \
+          -t {{threads}} \
+          "${INDEX}" \
+          fw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% else %}
-        bwa mem {% if reporting.report_all %}-a{% endif %} -U {{scoring.unpaired_p}} -r {{re_seeding}} -k {{ seed_l }} -w {{ band_w }} -A {{scoring.match}} -B {{scoring.missmatch}} -O {{scoring.gap_o}} -E {{scoring.gap_e}} -L {{scoring.clipping}} -T {{ reporting.report_tr }} {% if m %} -M {% endif %} -t {{threads}} ${INDEX} fw_reads.fastq rw_reads.fastq 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          mem \
+          {% if reporting.report_all %}-a{% endif %} \
+          -U {{scoring.unpaired_p}} \
+          -r {{re_seeding}} \
+          -k {{ seed_l }} \
+          -w {{ band_w }} \
+          -A {{scoring.match}} \
+          -B {{scoring.missmatch}} \
+          -O {{scoring.gap_o}} \
+          -E {{scoring.gap_e}} \
+          -L {{scoring.clipping}} \
+          -T {{ reporting.report_tr }} \
+          {% if m %}-M{% endif %} \
+          -t {{threads}} \
+          "${INDEX}" \
+          fw_reads.fastq \
+          rw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% endif %}
 
       re-checkrc
@@ -182,7 +214,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.16
+  version: 1.0.17
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -231,32 +263,51 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+
+      FW_READS=()
+      RW_READS=()
 
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
-      cat ${FW_READS} > fw_reads.fastq.gz
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"{{ r.file }} "
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          RW_READS+=({{ r.file }})
         {% endfor %}
-        cat ${RW_READS} > rw_reads.fastq.gz
+
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
         gzip -d rw_reads.fastq.gz
       {% endif %}
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       echo "ALIGNING with BWA-SW:"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} ${INDEX} "fw_reads.fastq" 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          bwasw \
+          -a {{match}} \
+          -b {{missmatch}} \
+          -q {{gap_o}} \
+          -r {{gap_e}} \
+          "${INDEX}" \
+          fw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% else %}
-        bwa bwasw -a {{match}} -b {{missmatch}} -q {{gap_o}} -r {{gap_e}} ${INDEX} "fw_reads.fastq" "rw_reads.fastq" 1>"${NAME}_align_unsorted.sam"
+        bwa \
+          bwasw \
+          -a {{match}} \
+          -b {{missmatch}} \
+          -q {{gap_o}} \
+          -r {{gap_e}} \
+          "${INDEX}" \
+          fw_reads.fastq \
+          rw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% endif %}
 
       re-checkrc
@@ -280,12 +331,12 @@
       bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
-      re-save-file bam ${NAME}.bam
-      re-save-file bai ${NAME}.bam.bai
-      re-save-file stats ${NAME}_report.txt
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
+      re-save-file stats "${NAME}_report.txt"
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
-        re-save-file unmapped ${NAME}_unmapped.fastq.gz
+        re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
 - slug: alignment-bwa-aln
@@ -293,7 +344,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.17
+  version: 1.0.18
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -356,35 +407,67 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bwa.dir}}/${GENOME_NAME}.fasta"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+
+      FW_READS=()
+      RW_READS=()
 
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{ r.file }} "
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
-      cat ${FW_READS} > fw_reads.fastq.gz
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
       gzip -d fw_reads.fastq.gz
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"{{ r.file }} "
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          RW_READS+=({{ r.file }})
         {% endfor %}
-        cat ${RW_READS} > rw_reads.fastq.gz
+
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
         gzip -d rw_reads.fastq.gz
       {% endif %}
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       echo "ALIGNING with BWA-ALN:"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        bwa aln {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} ${INDEX} "fw_reads.fastq" > "${NAME}_align.sai"
-        bwa samse ${INDEX} "${NAME}_align.sai" "fw_reads.fastq" > "${NAME}_align_unsorted.sam"
+        bwa \
+          aln \
+          {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
+          {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          "${INDEX}" \
+          fw_reads.fastq > "${NAME}_align.sai"
+
+        bwa \
+          samse \
+          "${INDEX}" \
+          "${NAME}_align.sai" \
+          fw_reads.fastq > "${NAME}_align_unsorted.sam"
       {% else %}
-        bwa aln {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} ${INDEX} "fw_reads.fastq" > "fw_align.sai"
-        bwa aln {% if use_edit %}-n {{edit_value}} {% else %} -n {{fraction}} {% endif %} {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }} {% endif %} ${INDEX} "rw_reads.fastq" > "rw_align.sai"
-        bwa sampe ${INDEX} "fw_align.sai" "rw_align.sai" "fw_reads.fastq" "rw_reads.fastq" > "${NAME}_align_unsorted.sam"
+        bwa \
+          aln \
+          {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
+          {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          "${INDEX}" \
+          fw_reads.fastq > fw_align.sai
+
+        bwa \
+          aln \
+          {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
+          {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          "${INDEX}" \
+          rw_reads.fastq > rw_align.sai
+
+        bwa \
+          sampe \
+          "${INDEX}" \
+          fw_align.sai \
+          rw_align.sai \
+          fw_reads.fastq \
+          rw_reads.fastq > "${NAME}_align_unsorted.sam"
       {% endif %}
 
       re-checkrc
@@ -408,10 +491,10 @@
       bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       gzip -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
-      re-save-file bam ${NAME}.bam
-      re-save-file bai ${NAME}.bam.bai
-      re-save-file stats ${NAME}_report.txt
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
+      re-save-file stats "${NAME}_report.txt"
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
-        re-save-file unmapped ${NAME}_unmapped.fastq.gz
+        re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi

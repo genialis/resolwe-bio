@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.16
+  version: 1.0.17
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -47,7 +47,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "gff|gff3|gtf" "gff" 0.1
+      re-import {{ src.file_temp }} {{ src.file }} "gff|gff3|gtf" "gff" 0.1
 
       gt gff3validator ${NAME}.gff
       re-checkrc
@@ -60,7 +60,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file }}'
-  version: 1.0.19
+  version: 1.0.20
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -101,7 +101,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "gtf|gff" "gtf" 0.3
+      re-import {{ src.file_temp }} {{ src.file }} "gtf|gff" "gtf" 0.3
 
       re-save-file gtf ${NAME}.gtf
       re-save source {{source}}

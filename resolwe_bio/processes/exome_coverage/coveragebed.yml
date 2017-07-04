@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.2.0
+  version: 2.2.1
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -39,11 +39,11 @@
     runtime: polyglot
     language: bash
     program: |
-      SAMPLE_SLUG='{{ alignment|sample_slug }}'
+      SAMPLE_SLUG={{ alignment|sample_slug }}
 
       ### calculate coverage metrics ###
       echo "calculating coverage metrics"
-      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.bedfile.file}}" -d > "${SAMPLE_SLUG}.covd"
+      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.bedfile.file}} -d > "${SAMPLE_SLUG}.covd"
       re-checkrc
       re-progress 0.5
 
@@ -51,11 +51,11 @@
 
       # make an amplicon-specific coverage metrics report
       # NOTE: coverage is not uniquely assigned to individual amplicons for overlapping regions!
-      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.nomergebed.file}}" > "${SAMPLE_SLUG}_amplicon_coverage.cov"
+      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.nomergebed.file}} > "${SAMPLE_SLUG}_amplicon_coverage.cov"
 
       # make an amplicon-specific coverage metrics report with olaps omitted
       # and report mean amplicon coverage using bedtool option
-      coverageBed -abam "{{ alignment.bam.file }}" -b "{{master_file.olapfreebed.file}}" -d > "${SAMPLE_SLUG}_olapfree.covd"
+      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.olapfreebed.file}} -d > "${SAMPLE_SLUG}_olapfree.covd"
       awk 'BEGIN{n=0}NR==FNR{m=$1;b=$2;next}{if($7>=b)n++}END{print m,b,(n/FNR*100.0)}' OFS="\t" "${SAMPLE_SLUG}.tmp" "${SAMPLE_SLUG}.covd" > "${SAMPLE_SLUG}_covMetrics.txt"
 
       echo "calculating mean amplicon coverage"

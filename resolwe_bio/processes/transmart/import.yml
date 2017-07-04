@@ -12,7 +12,7 @@
     resources:
       network: true
   data_name: 'Import from tranSMART'
-  version: 0.0.18
+  version: 0.0.19
   type: data:expressionset:transmart
   category: import
   persistence: RAW
@@ -47,8 +47,8 @@
     runtime: polyglot
     language: bash
     program: |
-      echo "{{ann}}" > ann.txt
-      echo '{{ann_ids}}' > ann_ids.txt
+      echo {{ann}} > ann.txt
+      echo {{ann_ids}} > ann_ids.txt
       transmart_fetch.R --expsConceptLinks {{exps}} --token {{token}} {% if ann %}--annConceptLinks ann.txt --outA annotation_data.tab --outT anntree.txt{% endif %} --outE expression_data.tab
       re-checkrc "Error fetching data from tranSMART."
 

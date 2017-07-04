@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.2
+  version: 1.1.3
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -120,46 +120,63 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bt2.dir}}"/${GENOME_NAME}_index"
 
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{r.file}},"
+        FW_READS="${FW_READS}"{{r.file}}","
       {% endfor %}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          RW_READS=${RW_READS}"{{r.file}},"
+          RW_READS="${RW_READS}"{{r.file}}","
         {% endfor %}
-        RW_READS=${RW_READS%?}
-        RW_READS_S=${RW_READS//,/ }
+        RW_READS="${RW_READS%?}"
+        RW_READS_S="${RW_READS//,/ }"
       {% endif %}
 
-      FW_READS=${FW_READS%?}
-      FW_READS_S=${FW_READS//,/ }
+      FW_READS="${FW_READS%?}"
+      FW_READS_S="${FW_READS//,/ }"
 
       echo "ALIGNING with TopHat:"
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-
-        tophat2 --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} ${INDEX} ${FW_READS}
-
+        tophat2 \
+          --num-threads {{ threads }} \
+          {% if realign %}--read-realign-edit-dist 0{% endif %} \
+          {% if gff.gtf.file %}--GTF {{ gff.gtf.file }} {% elif gff.gff.file %} --GTF {{ gff.gff.file }} {% endif %} \
+          --output-dir ./ \
+          {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
+          {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \
+          {% if options.microexon_search %}--microexon-search{% endif %} \
+          "${INDEX}" \
+          "${FW_READS}"
       {% else %}
-
-        tophat2 --mate-inner-dist '{{ PE_options.inner_distance }}' --mate-std-dev '{{ PE_options.mate_std_dev }}' --num-threads '{{ threads }}' {% if realign %} --read-realign-edit-dist 0 {% endif %} {% if gff.gtf.file %} --GTF "{{ gff.gtf.file }}" {% elif gff.gff.file %} --GTF "{{ gff.gff.file }}" {% endif %} --output-dir ./ {% if options.max_multihits %} -g '{{options.max_multihits}}' {% endif %} {% if options.secondary_alignments %} --report-secondary-alignments {% endif %} {% if options.microexon_search %} --microexon-search {% endif %} ${INDEX} ${FW_READS} ${RW_READS}
-
+        tophat2 \
+          --mate-inner-dist {{ PE_options.inner_distance }} \
+          --mate-std-dev {{ PE_options.mate_std_dev }} \
+          --num-threads {{ threads }} \
+          {% if realign %}--read-realign-edit-dist 0{% endif %} \
+          {% if gff.gtf.file %}--GTF {{ gff.gtf.file }} {% elif gff.gff.file %} --GTF {{ gff.gff.file }} {% endif %} \
+          --output-dir ./ \
+          {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
+          {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \
+          {% if options.microexon_search %}--microexon-search{% endif %} \
+          "${INDEX}" \
+          "${FW_READS}" \
+          "${RW_READS}"
       {% endif %}
 
       re-checkrc
       re-progress 0.7
 
-      mv accepted_hits.bam ${NAME}.bam
-      mv unmapped.bam ${NAME}_unmapped.bam
-      mv deletions.bed ${NAME}_deletions.bed
-      mv insertions.bed ${NAME}_insertions.bed
-      mv junctions.bed ${NAME}_junctions.bed
+      mv accepted_hits.bam "${NAME}.bam"
+      mv unmapped.bam "${NAME}_unmapped.bam"
+      mv deletions.bed "${NAME}_deletions.bed"
+      mv insertions.bed "${NAME}_insertions.bed"
+      mv junctions.bed "${NAME}_junctions.bed"
       mv align_summary.txt stats.txt
 
       echo "Indexing aligned reads:"
@@ -167,22 +184,22 @@
       samtools index "${NAME}.bam" "${NAME}.bam.bai"
       re-checkrc
 
-      re-save-file bam ${NAME}.bam
-      re-save-file bai ${NAME}.bam.bai
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
       re-save-file stats stats.txt
 
       if [ -f "${NAME}_unmapped.bam" ]; then
-        re-save-file unmapped ${NAME}_unmapped.bam
+        re-save-file unmapped "${NAME}_unmapped.bam"
       fi
 
       if [ -f "${NAME}_junctions.bed" ]; then
-        re-save-file junctions ${NAME}_junctions.bed
+        re-save-file junctions "${NAME}_junctions.bed"
       fi
 
       if [ -f "${NAME}_deletions.bed" ]; then
-        re-save-file deletions ${NAME}_deletions.bed
+        re-save-file deletions "${NAME}_deletions.bed"
       fi
 
       if [ -f "${NAME}_insertions.bed" ]; then
-        re-save-file insertions ${NAME}_insertions.bed
+        re-save-file insertions "${NAME}_insertions.bed"
       fi

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{table_name}}"
-  version: 0.0.2
+  version: 0.0.3
   type: data:varianttable:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -41,17 +41,19 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME='{{ coverage|sample_slug }}'
+      NAME={{ coverage|sample_slug }}
 
-      make_amplicon_table.py "{{master_file.master_file.file}}" "{{coverage.mean_cov.file}}" \
-      -v {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %} \
-      {% if all_amplicons %} -a {% endif %}
+      make_amplicon_table.py \
+        {{master_file.master_file.file}} \
+        {{coverage.mean_cov.file}} \
+        -v {% for vars in annot_vars %}{{vars.annotation.file}} {% endfor %} \
+        {% if all_amplicons %}-a {% endif %}
       re-checkrc
 
       {% if all_amplicons %}
-        mv amplicon_table.json ${NAME}_amplicon_table_all.json
-        re-save variant_table ${NAME}_amplicon_table_all.json
+        mv amplicon_table.json "${NAME}_amplicon_table_all.json"
+        re-save variant_table "${NAME}_amplicon_table_all.json"
       {% else %}
-        mv amplicon_table.json ${NAME}_amplicon_table.json
-        re-save variant_table ${NAME}_amplicon_table.json
+        mv amplicon_table.json "${NAME}_amplicon_table.json"
+        re-save variant_table "${NAME}_amplicon_table.json"
       {% endif %}

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 2.1.2
+  version: 2.1.3
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -88,7 +88,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "fasta|fa|fna|fsa" "fasta" 0.5
+      re-import {{ src.file_temp }} {{ src.file }} "fasta|fa|fna|fsa" "fasta" 0.5
       FASTA_NAME=${NAME}
 
       # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.
@@ -113,7 +113,7 @@
       re-save-file dict "${FASTA_NAME}.dict"
 
       {% if bowtie_index %}
-        re-import "{{ bowtie_index.file_temp|default(bowtie_index.file) }}" "{{ bowtie_index.file }}" "tar" "tar" compress 0.6
+        re-import {{ bowtie_index.file_temp|default(bowtie_index.file) }} {{ bowtie_index.file }} "tar" "tar" compress 0.6
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie_index
       {% else %}
         mkdir bowtie_index
@@ -125,7 +125,7 @@
       re-save-dir index_bt bowtie_index
 
       {% if bowtie2_index %}
-        re-import "{{ bowtie2_index.file_temp|default(bowtie2_index.file) }}" "{{ bowtie2_index.file }}" "tar" "tar" 0.7 compress
+        re-import {{ bowtie2_index.file_temp|default(bowtie2_index.file) }} {{ bowtie2_index.file }} "tar" "tar" 0.7 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie2_index
       {% else %}
         mkdir bowtie2_index
@@ -138,7 +138,7 @@
       re-save-dir index_bt2 bowtie2_index
 
       {% if bwa_index %}
-        re-import "{{ bwa_index.file_temp|default(bwa_index.file) }}" "{{ bwa_index.file }}" "tar" "tar" 0.8 compress
+        re-import {{ bwa_index.file_temp|default(bwa_index.file) }} {{ bwa_index.file }} "tar" "tar" 0.8 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}.fasta BWA_index --bwa
       {% else %}
         mkdir BWA_index
@@ -150,7 +150,7 @@
       re-save-dir index_bwa BWA_index
 
       {% if hisat2_index %}
-        re-import "{{ hisat2_index.file_temp|default(hisat2_index.file) }}" "{{ hisat2_index.file }}" "tar" "tar" 0.9 compress
+        re-import {{ hisat2_index.file_temp|default(hisat2_index.file) }} {{ hisat2_index.file }} "tar" "tar" 0.9 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index hisat2_index
       {% else %}
         mkdir hisat2_index
@@ -162,7 +162,7 @@
       re-save-dir index_hisat2 hisat2_index
 
       {% if subread_index %}
-        re-import "{{ subread_index.file_temp|default(subread_index.file) }}" "{{ subread_index.file }}" "tar" "tar" 0.9 compress
+        re-import {{ subread_index.file_temp|default(subread_index.file) }} {{ subread_index.file }} "tar" "tar" 0.9 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index subread_index
       {% else %}
         mkdir subread_index

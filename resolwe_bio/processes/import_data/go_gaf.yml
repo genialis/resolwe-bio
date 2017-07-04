@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'
-  version: 1.0.11
+  version: 1.0.12
   type: data:gaf:2:0
   category: upload
   persistence: RAW
@@ -59,10 +59,10 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "txt|" "txt" 0.8
+      re-import {{ src.file_temp }} {{ src.file }} "txt|" "txt" 0.8
       preprocessor gaf "${NAME}.txt" gaf_obj
       re-checkrc
       re-save-file gaf "${NAME}.txt.gz"
       re-save-file gaf_obj gaf_obj
-      re-save source "{{source}}"
-      re-save species "{{species}}"
+      re-save source {{source}}
+      re-save species {{species}}

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "bsmap ({{ reads|sample_name|default('?') }})"
-  version: 1.0.1
+  version: 1.0.2
   type: data:alignment:bam:bsmap
   category: analyses:wgbs
   flow_collection: sample
@@ -70,36 +70,36 @@
     language: bash
     program: |
 
-      NAME=`basename '{{ reads|sample_name }}' .fastq.gz`
+      NAME=`basename {{ reads|sample_name }} .fastq.gz`
 
       re-progress 0.1
 
       {% for r in reads.fastq %}
-        FW_READS=${FW_READS}"{{r.file}},"
+        FW_READS="${FW_READS}"{{r.file}}","
       {% endfor %}
 
-      FW_READS=${FW_READS%?}
+      FW_READS="${FW_READS%?}"
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          RW_READS=${RW_READS}"{{r.file}},"
+          RW_READS="${RW_READS}"{{r.file}}","
         {% endfor %}
-        RW_READS=${RW_READS%?}
+        RW_READS="${RW_READS%?}"
       {% endif %}
 
 
-      BSMAP_CODE='-p {{threads}} -d {{genome.fasta.file}} -v {{mismatch_rate}} -n {{mapping_strand}} {% if rrbs %}-D {{rrbs}}{% endif %}'
+      BSMAP_CODE='-p '{{threads}}' -d '{{genome.fasta.file}}' -v '{{mismatch_rate}}' -n '{{mapping_strand}}' {% if rrbs %}-D '{{rrbs}}'{% endif %}'
 
       echo "Calculating bsmap"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
 
-        bsmap -a ${FW_READS} ${BSMAP_CODE} > alignment_unsorted.sam
+        bsmap -a "${FW_READS}" ${BSMAP_CODE} > alignment_unsorted.sam
         re-checkrc "BSMAP alignment failed."
         re-progress 0.6
 
       {% else %}
 
-        bsmap -a ${FW_READS} -b ${RW_READS} ${BSMAP_CODE} > alignment_unsorted.sam
+        bsmap -a "${FW_READS}" -b "${RW_READS}" ${BSMAP_CODE} > alignment_unsorted.sam
         re-checkrc "BSMAP alignment failed."
         re-progress 0.6
 

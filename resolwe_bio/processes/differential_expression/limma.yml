@@ -9,7 +9,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.5
+  version: 1.0.6
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED
@@ -43,17 +43,25 @@
     runtime: polyglot
     language: bash
     program: |
+      controls=()
+      control_vector=()
+      cases=()
+      case_vector=()
+
+      # TODO: This should be made available in common runtime.
+      function join_by { local IFS="$1"; shift; echo "$*"; }
+
       {% for c in control %}
-        controls=$controls"{{c.exp.file}} "
-        contVec=$contVec"1,"
-        caseVec=$caseVec"0,"
+        controls+=({{c.exp.file}})
+        control_vector+=('1')
+        case_vector+=('0')
       {% endfor %}
 
       {% for t in case %}
         {% if t not in control %}
-          cases=$cases"{{t.exp.file}} "
-          contVec=$contVec"0,"
-          caseVec=$caseVec"1,"
+          cases+=({{t.exp.file}})
+          control_vector+=('0')
+          case_vector+=('1')
         {% else %}
           re-error "DE analysis failed. Case and Control groups must contain unique samples."
         {% endif %}
@@ -67,18 +75,17 @@
         {% endfor %}
       {% endfor %}
 
-      contVec=${contVec%?}
-      caseVec=${caseVec%?}
+      control_vector=$(join_by , "${control_vector[@]}")
+      case_vector=$(join_by , "${case_vector[@]}")
 
-      cases=${cases%?}
-      sampleFiles=$controls"$cases"
+      sample_files=("${controls[@]}" "${cases[@]}")
 
       re-progress 0.1
 
-      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      expressionmerge.py "${sample_files[@]}" --experiments "${sample_files[@]}" --intersection --out 'counts.tab'
       re-checkrc "Error merging expression data."
 
-      run_limma.R counts.tab --control ${contVec} --case ${caseVec} --out diffexp_limma.tab
+      run_limma.R counts.tab --control "${control_vector}" --case "${case_vector}" --out diffexp_limma.tab
       re-checkrc "Error computing differential expression (limma)."
 
       re-progress 0.95
@@ -90,4 +97,4 @@
       re-save de_json de_data.json
       re-save-file raw diffexp_limma.tab.gz
       re-save-file de_file de_file.tab.gz
-      re-save source "{{ case.0.source }}"
+      re-save source {{ case.0.source }}

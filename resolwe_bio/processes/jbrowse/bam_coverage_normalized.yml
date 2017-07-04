@@ -9,7 +9,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Normalized coverage track ({{bam.bam.file}})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
   flow_collection: sample
@@ -68,9 +68,9 @@
 
       re-progress 0.1
 
-      NAME=`basename '{{ bam.bam.file }}' .bam`
+      NAME=`basename {{ bam.bam.file }} .bam`
 
-      bamCoverage --bam '{{bam.bam.file}}' --outFileName ${NAME}.bigWig --outFileFormat bigwig '{{normalize}}' {% if normalize == "--normalizeTo1x" %} '{{size}}' {% endif %} --binSize '{{binSize}}' {% if extendReads %}--extendReads {% if extendReads_value %}'{{extendReads_value}}'{% endif %}{% endif %} --verbose
+      bamCoverage --bam {{bam.bam.file}} --outFileName ${NAME}.bigWig --outFileFormat bigwig {{normalize}} {% if normalize == "--normalizeTo1x" %} {{size}} {% endif %} --binSize {{binSize}} {% if extendReads %}--extendReads {% if extendReads_value %}{{extendReads_value}}{% endif %}{% endif %} --verbose
       re-checkrc "Normalized coverage track computation failed."
       re-progress 0.9
 

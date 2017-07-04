@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.3
+  version: 1.0.4
   type: data:mappability:bcm
   category: upload
   persistence: RAW
@@ -29,5 +29,5 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "tab" "tab" 1.0 extract
+      re-import {{ src.file_temp }} {{ src.file }} "tab" "tab" 1.0 extract
       re-save-file mappability ${NAME}.tab

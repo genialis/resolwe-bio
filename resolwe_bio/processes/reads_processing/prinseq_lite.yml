@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:reads:fastq:single:prinseq
   flow_collection: sample
   category: analyses
@@ -74,18 +74,18 @@
     language: bash
     program: |
       echo "Reads processing"
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       re-progress 0.1
 
       READS=()
       {% for r in reads.fastq %}
-        READS+=("{{ r.file }}")
+        READS+=({{ r.file }})
       {% endfor %}
 
       cat "${READS[@]}" > "${NAME}.fastq.gz"
       gzip -c -d "${NAME}.fastq.gz" > prinseq_input.fastq
 
-      prinseq-lite.pl -fastq prinseq_input.fastq -out_good out_good -out_bad out_bad -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
+      prinseq-lite.pl -fastq prinseq_input.fastq -out_good out_good -out_bad out_bad -trim_left {{trimming.left_trim}} -trim_right {{trimming.right_trim}} -trim_qual_left {{trimming.trim_qual_left}} -trim_qual_right {{trimming.trim_qual_right}} -max_len {{filtering.max_len}} -min_len {{filtering.min_len}} -min_qual_score {{filtering.min_qual_score}} -min_qual_mean {{filtering.min_qual_mean}} > /dev/null
       re-checkrc "Failed while processing with PRINSEQ."
       re-progress 0.6
 
@@ -112,7 +112,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:reads:fastq:paired:prinseq
   category: analyses
   flow_collection: sample
@@ -186,12 +186,12 @@
     program: |
       echo "Reads processing"
 
-      NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
-      NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
+      NAME1=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      NAME2=`basename {{ reads.fastq2.0.file }} .fastq.gz`
 
       FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > "${NAME1}.fastq.gz"
@@ -199,7 +199,7 @@
 
       RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS+=("{{ r.file }}")
+        RW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${RW_READS[@]}" > "${NAME2}.fastq.gz"
@@ -210,7 +210,7 @@
       paste - - - - < "prinseq_input_mate_2.fastq" | sort -k1,1 -t " " | tr "\t" "\n" > prinseq_input_mate_2_sorted.fastq
       re-progress 0.4
 
-      prinseq-lite.pl -fastq prinseq_input_mate_1_sorted.fastq -fastq2 prinseq_input_mate_2_sorted.fastq -out_good out_good -out_bad out_bad -trim_left "{{trimming.left_trim}}" -trim_right "{{trimming.right_trim}}" -trim_qual_left "{{trimming.trim_qual_left}}" -trim_qual_right "{{trimming.trim_qual_right}}" -max_len "{{filtering.max_len}}" -min_len "{{filtering.min_len}}" -min_qual_score "{{filtering.min_qual_score}}" -min_qual_mean "{{filtering.min_qual_mean}}" > /dev/null
+      prinseq-lite.pl -fastq prinseq_input_mate_1_sorted.fastq -fastq2 prinseq_input_mate_2_sorted.fastq -out_good out_good -out_bad out_bad -trim_left {{trimming.left_trim}} -trim_right {{trimming.right_trim}} -trim_qual_left {{trimming.trim_qual_left}} -trim_qual_right {{trimming.trim_qual_right}} -max_len {{filtering.max_len}} -min_len {{filtering.min_len}} -min_qual_score {{filtering.min_qual_score}} -min_qual_mean {{filtering.min_qual_mean}} > /dev/null
       re-checkrc "Failed while processing with PRINSEQ."
       re-progress 0.7
 

@@ -4,7 +4,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ alignment.bam.file|default("?") }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:alignment:bam:hsqutils
   category: analyses
   flow_collection: sample
@@ -39,19 +39,19 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
-      NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
-      BAM_NAME=`basename '{{ alignment.bam.file }}' .bam`
+      NAME1=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      NAME2=`basename {{ reads.fastq2.0.file }} .fastq.gz`
+      BAM_NAME=`basename {{ alignment.bam.file }} .bam`
 
-      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      FW_READS={{ reads.fastq|join(' ', attribute='file') }}
       cat ${FW_READS} > ${NAME1}.fastq.gz
       gzip -d ${NAME1}.fastq.gz
 
-      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
+      RW_READS={{ reads.fastq2|join(' ', attribute='file') }}
       cat ${RW_READS} > ${NAME2}.fastq.gz
       gzip -d ${NAME2}.fastq.gz
 
-      hsqutils dedup --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe "{{probe.file.file}}" --inputBam "{{alignment.bam.file}}" --outputBamFileName "${BAM_NAME}_dedup.bam"
+      hsqutils dedup --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe {{probe.file.file}} --inputBam {{alignment.bam.file}} --outputBamFileName "${BAM_NAME}_dedup.bam"
       re-checkrc "HSQutils program failed."
 
       samtools index "${BAM_NAME}_dedup.bam" "${BAM_NAME}_dedup.bam.bai"

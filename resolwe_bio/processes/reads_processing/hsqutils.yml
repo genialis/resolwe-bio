@@ -4,7 +4,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:paired:hsqutils
   category: analyses
   flow_collection: sample
@@ -41,18 +41,18 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME1=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
-      NAME2=`basename '{{ reads.fastq2.0.file }}' .fastq.gz`
+      NAME1=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      NAME2=`basename {{ reads.fastq2.0.file }} .fastq.gz`
 
-      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      FW_READS={{ reads.fastq|join(' ', attribute='file') }}
       cat ${FW_READS} > ${NAME1}.fastq.gz
       gzip -d ${NAME1}.fastq.gz
 
-      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
+      RW_READS={{ reads.fastq2|join(' ', attribute='file') }}
       cat ${RW_READS} > ${NAME2}.fastq.gz
       gzip -d ${NAME2}.fastq.gz
 
-      hsqutils trim --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe "{{probe.file.file}}"
+      hsqutils trim --r1 "${NAME1}.fastq" --r2 "${NAME2}.fastq" --probe {{probe.file.file}}
       re-checkrc "HSQutils program failed."
 
       re-progress 0.7

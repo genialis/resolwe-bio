@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.1
+  version: 0.0.2
   type: data:masterfile:amplicon
   category: upload
   persistence: CACHED
@@ -38,7 +38,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "txt" "txt" 0.1 extract
+      re-import {{ src.file_temp }} {{ src.file }} "txt" "txt" 0.1 extract
 
       # non-merged target BED from master
       awk '{print $1,$2,$3,$4}' OFS="\t" "${NAME}.txt" | sort -k1,1n -k2,2n > "${NAME}_nonmerged_targets.bed"

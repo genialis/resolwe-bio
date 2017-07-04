@@ -10,7 +10,7 @@
     resources:
       memory: 32768
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.2
+  version: 1.1.3
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -184,22 +184,22 @@
     runtime: polyglot
     language: bash
     program: |
-      READS_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
-      INDEX="{{genome.index.dir}}"
+      READS_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      INDEX={{genome.index.dir}}
 
       FW_READS=()
       RW_READS=()
 
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > fw_reads.fastq.gz
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS+=("{{ r.file }}")
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          RW_READS+=({{ r.file }})
         {% endfor %}
         cat "${RW_READS[@]}" > rw_reads.fastq.gz
       {% endif %}
@@ -207,7 +207,26 @@
       re-progress 0.05
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        STAR --runThreadN '{{threads}}' --genomeDir ${INDEX} --readFilesIn fw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{ filtering.outFilterType }}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if filtering.outFilterMismatchNoverLmax %} --outFilterMismatchNoverLmax '{{filtering.outFilterMismatchNoverLmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        STAR \
+          --runThreadN {{threads}} \
+          --genomeDir "${INDEX}" \
+          --readFilesIn fw_reads.fastq.gz \
+          --readFilesCommand zcat \
+          --outSAMtype BAM SortedByCoordinate \
+          --outReadsUnmapped Fastx \
+          {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
+          {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
+          {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
+          {% if t_coordinates.quantmode %}--quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} \
+          --outFilterType {{ filtering.outFilterType }} \
+          {% if filtering.outFilterMultimapNmax %}--outFilterMultimapNmax {{filtering.outFilterMultimapNmax}}{% endif %} \
+          {% if filtering.outFilterMismatchNmax %}--outFilterMismatchNmax {{filtering.outFilterMismatchNmax}}{% endif %} \
+          {% if filtering.outFilterMismatchNoverLmax %}--outFilterMismatchNoverLmax {{filtering.outFilterMismatchNoverLmax}}{% endif %} \
+          {% if alignment.alignSJoverhangMin %}--alignSJoverhangMin {{alignment.alignSJoverhangMin}}{% endif %} \
+          {% if alignment.alignSJDBoverhangMin %}--alignSJDBoverhangMin {{alignment.alignSJDBoverhangMin}}{% endif %} \
+          {% if alignment.alignIntronMin %}--alignIntronMin {{alignment.alignIntronMin}}{% endif %} \
+          {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
+          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
@@ -218,7 +237,26 @@
       fi
 
       {% else %}
-        STAR --runThreadN '{{ threads }}' --genomeDir ${GENOME_PATH} --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz --readFilesCommand zcat --outSAMtype BAM SortedByCoordinate --outReadsUnmapped Fastx {% if unstranded %} --outSAMstrandField intronMotif {% endif %} {% if noncannonical %} --outFilterIntronMotifs RemoveNoncanonical {% endif %} {% if detect_chimeric.chimeric %}  --chimSegmentMin '{{detect_chimeric.chimSegmentMin}}' {% endif %} {% if t_coordinates.quantmode %}  --quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} --outFilterType '{{filtering.outFilterType}}' {% if filtering.outFilterMultimapNmax %} --outFilterMultimapNmax '{{filtering.outFilterMultimapNmax}}' {% endif %} {% if filtering.outFilterMismatchNmax %} --outFilterMismatchNmax '{{filtering.outFilterMismatchNmax}}' {% endif %} {% if filtering.outFilterMismatchNoverLmax %} --outFilterMismatchNoverLmax '{{filtering.outFilterMismatchNoverLmax}}' {% endif %} {% if alignment.alignSJoverhangMin %} --alignSJoverhangMin '{{alignment.alignSJoverhangMin}}' {% endif %} {% if alignment.alignSJDBoverhangMin %} --alignSJDBoverhangMin '{{alignment.alignSJDBoverhangMin}}' {% endif %} {% if alignment.alignIntronMin %} --alignIntronMin '{{alignment.alignIntronMin}}' {% endif %} {% if alignment.alignIntronMax %} --alignIntronMax '{{alignment.alignIntronMax}}' {% endif %} {% if alignment.alignMatesGapMax %} --alignMatesGapMax '{{alignment.alignMatesGapMax}}' {% endif %}
+        STAR \
+          --runThreadN {{ threads }} \
+          --genomeDir "${GENOME_PATH}" \
+          --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz \
+          --readFilesCommand zcat \
+          --outSAMtype BAM SortedByCoordinate \
+          --outReadsUnmapped Fastx \
+          {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
+          {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
+          {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
+          {% if t_coordinates.quantmode %}--quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} \
+          --outFilterType {{filtering.outFilterType}} \
+          {% if filtering.outFilterMultimapNmax %}--outFilterMultimapNmax {{filtering.outFilterMultimapNmax}}{% endif %} \
+          {% if filtering.outFilterMismatchNmax %}--outFilterMismatchNmax {{filtering.outFilterMismatchNmax}}{% endif %} \
+          {% if filtering.outFilterMismatchNoverLmax %}--outFilterMismatchNoverLmax {{filtering.outFilterMismatchNoverLmax}}{% endif %} \
+          {% if alignment.alignSJoverhangMin %}--alignSJoverhangMin {{alignment.alignSJoverhangMin}}{% endif %} \
+          {% if alignment.alignSJDBoverhangMin %}--alignSJDBoverhangMin {{alignment.alignSJDBoverhangMin}}{% endif %} \
+          {% if alignment.alignIntronMin %}--alignIntronMin {{alignment.alignIntronMin}}{% endif %} \
+          {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
+          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
       if [ -f Unmapped.out.mate1 ]
@@ -284,7 +322,7 @@
     resources:
       memory: 32768
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.9
+  version: 1.0.10
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -376,15 +414,16 @@
       re-progress 0.1
       mkdir star_index
       STAR \
-      --runThreadN {{ threads }} \
-      --runMode genomeGenerate {% if advanced.genomeSAindexNbases %} --genomeSAindexNbases {{ advanced.genomeSAindexNbases }} {% endif %} \
-      {% if advanced.genomeChrBinNbits %} --genomeChrBinNbits  {{ advanced.genomeChrBinNbits }} {% endif %} \
-      {% if advanced.genomeSAsparseD %} --genomeSAsparseD {{ advanced.genomeSAsparseD }} {% endif %} \
-      --genomeDir ./star_index/ \
-      --genomeFastaFiles genome.fasta \
-      --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% else %} {{annotation.seg.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} \
-      --sjdbOverhang {{ sjdbOverhang }} \
-      --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
+        --runThreadN {{ threads }} \
+        --runMode genomeGenerate \
+        {% if advanced.genomeSAindexNbases %}--genomeSAindexNbases {{ advanced.genomeSAindexNbases }}{% endif %} \
+        {% if advanced.genomeChrBinNbits %}--genomeChrBinNbits  {{ advanced.genomeChrBinNbits }}{% endif %} \
+        {% if advanced.genomeSAsparseD %}--genomeSAsparseD {{ advanced.genomeSAsparseD }}{% endif %} \
+        --genomeDir ./star_index/ \
+        --genomeFastaFiles genome.fasta \
+        --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% else %} {{annotation.seg.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} \
+        --sjdbOverhang {{ sjdbOverhang }} \
+        --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       re-checkrc "Genome index build failed."
       re-progress 0.8
       re-save-dir index star_index

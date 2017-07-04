@@ -3,7 +3,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.0.3
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
@@ -53,10 +53,41 @@
             fqt2=$2
             tprefix=${fqt1%%_R1.fastq}
 
-            cutadapt -g file:5_primers.fasta -o ${tprefix}_tmpR1.fastq -p ${tprefix}_tmpR2.fastq $fqt1 $fqt2 --minimum-length 40 -e 0.12
-            cutadapt -g file:5_primers.fasta -o ${tprefix}_5ptmpR2.fastq -p ${tprefix}_5ptmpR1.fastq ${tprefix}_tmpR2.fastq ${tprefix}_tmpR1.fastq --minimum-length 40 -e 0.12
-            cutadapt -a file:3_primers.fasta -o ${tprefix}_tmp3R1.fastq -p ${tprefix}_tmp3R2.fastq ${tprefix}_5ptmpR1.fastq ${tprefix}_5ptmpR2.fastq --minimum-length 40 -e 0.12
-            cutadapt -a file:3_primers.fasta -o ${tprefix}_R2_primertrimd.fastq -p ${tprefix}_R1_primertrimd.fastq ${tprefix}_tmp3R2.fastq ${tprefix}_tmp3R1.fastq --minimum-length 40 -e 0.12
+            cutadapt \
+              -g file:5_primers.fasta \
+              -o ${tprefix}_tmpR1.fastq \
+              -p ${tprefix}_tmpR2.fastq \
+              $fqt1 \
+              $fqt2 \
+              --minimum-length 40 \
+              -e 0.12
+
+            cutadapt \
+              -g file:5_primers.fasta \
+              -o ${tprefix}_5ptmpR2.fastq \
+              -p ${tprefix}_5ptmpR1.fastq \
+              ${tprefix}_tmpR2.fastq \
+              ${tprefix}_tmpR1.fastq \
+              --minimum-length 40 \
+              -e 0.12
+
+            cutadapt \
+              -a file:3_primers.fasta \
+              -o ${tprefix}_tmp3R1.fastq \
+              -p ${tprefix}_tmp3R2.fastq \
+              ${tprefix}_5ptmpR1.fastq \
+              ${tprefix}_5ptmpR2.fastq \
+              --minimum-length 40 \
+              -e 0.12
+
+            cutadapt \
+              -a file:3_primers.fasta \
+              -o ${tprefix}_R2_primertrimd.fastq \
+              -p ${tprefix}_R1_primertrimd.fastq \
+              ${tprefix}_tmp3R2.fastq \
+              ${tprefix}_tmp3R1.fastq \
+              --minimum-length 40 \
+              -e 0.12
         }
 
         r1reformat()
@@ -74,21 +105,21 @@
         export -f r2reformat
 
         # get sample name
-        SAMPLE_NAME='{{ reads|sample_name }}'
+        SAMPLE_NAME={{ reads|sample_name }}
 
         # decompress primer files
-        gzip -cd '{{up_primers.fasta.file}}' > 5_primers.fasta
-        gzip -cd '{{down_primers.fasta.file}}' > 3_primers.fasta
+        gzip -cd {{up_primers.fasta.file}} > 5_primers.fasta
+        gzip -cd {{down_primers.fasta.file}} > 3_primers.fasta
 
         # concatenate and decompress fastq files
-        NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
-        NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+        NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+        NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
 
-        FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
-        cat "${FW_READS}" > "${NAME1}.fastq.gz"
+        FW_READS=({% for read in reads.fastq %}{{ read.file }} {% endfor %})
+        cat "${FW_READS[@]}" > "${NAME1}.fastq.gz"
 
-        RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
-        cat "${RW_READS}" > "${NAME2}.fastq.gz"
+        RW_READS=({% for read in reads.fastq2 %}{{ read.file }} {% endfor %})
+        cat "${RW_READS[@]}" > "${NAME2}.fastq.gz"
 
         gzip -cd "${NAME1}.fastq.gz" > fw.fastq
         gzip -cd "${NAME2}.fastq.gz" > rw.fastq
@@ -99,7 +130,7 @@
 
         # get number of fastq records in sample before converting back to fastq format
         l=$(wc -l fw.tmp | awk '{print $1}')
-        chunklinecnt=$(( $l / {{cputhreads}} ))
+        chunklinecnt=$(( $l / {{cputhreads|safe}} ))
 
         # split re-formatted fastq files into chunks
         split -d -l $chunklinecnt fw.tmp r1split
@@ -127,7 +158,12 @@
         re-save-file-list fastq2 "${SAMPLE_NAME}_mate2_trimmed.fastq.gz"
 
         # Run FastQC analysis
-        mkdir "fastqc" && fastqc "${SAMPLE_NAME}_mate1_trimmed.fastq.gz" "${SAMPLE_NAME}_mate2_trimmed.fastq.gz" --extract --outdir="fastqc" >&2
+        mkdir "fastqc"
+        fastqc \
+          "${SAMPLE_NAME}_mate1_trimmed.fastq.gz" \
+          "${SAMPLE_NAME}_mate2_trimmed.fastq.gz" \
+          --extract \
+          --outdir="fastqc" >&2
         re-checkrc "Failed while processing with FastQC."
         re-progress 0.9
 

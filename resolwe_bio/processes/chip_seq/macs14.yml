@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.0.2
+  version: 2.0.3
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -73,7 +73,7 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ treatment.bam.file }}' .bam`
+      NAME=`basename {{ treatment.bam.file }} .bam`
 
       CONTROL='{% if control %}--control {{ control.bam.file }} {% endif %}'
       macs14 --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50

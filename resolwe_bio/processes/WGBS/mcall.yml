@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "mcall"
-  version: 1.0.3
+  version: 1.0.4
   type: data:wgbs:mcall
   category: analyses:wgbs
   persistence: CACHED
@@ -106,19 +106,25 @@
       {% endfor %}
 
       echo "Calculating mcall"
-      mcall -m {% for bam_file in bam %}{{bam_file.bam.file|basename}} {% endfor %} -r "{{genome.fasta.file}}" -g {{genome_identifier}} -p {{threads}} --fullMode {{full_mode}} --statsOnly {{stats_only}}{% if sample_name %} --sampleName {{sample_name}}{% endif %}
+      mcall \
+        -m {% for bam_file in bam %}{{bam_file.bam.file|basename}} {% endfor %} \
+        -r {{genome.fasta.file}} \
+        -g {{genome_identifier}} \
+        -p {{threads}} \
+        --fullMode {{full_mode}} \
+        --statsOnly {{stats_only}} \
+        {% if sample_name %}--sampleName {{sample_name}}{% endif %}
       re-checkrc "Mcall failed"
       re-progress 0.8
 
       {% if bam|length > 1 %}
-
         {% if sample_name %}
-          NAME='{{sample_name}}'
+          NAME={{sample_name}}
         {% else %}
           NAME=mSuite
         {% endif %}
       {% else %}
-        NAME="{{bam[0].bam.file|basename}}"
+        NAME={{bam[0].bam.file|basename}}
       {% endif %}
 
       re-save-file stats "${NAME}_stat.txt"
@@ -132,5 +138,4 @@
           re-save-file skip_bed "${NAME}_skip.bed"
           re-save-file strand_bed "${NAME}_strand.bed"
         {% endif %}
-
       {% endif %}

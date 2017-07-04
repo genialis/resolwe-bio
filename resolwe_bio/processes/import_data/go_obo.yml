@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.16
+  version: 1.0.17
   type: data:ontology:obo
   category: upload
   persistence: RAW
@@ -33,6 +33,6 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "obo" "obo" 0.8
+      re-import {{ src.file_temp }} {{ src.file }} "obo" "obo" 0.8
       preprocessor obo "${NAME}.obo" obo_obj
       echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"

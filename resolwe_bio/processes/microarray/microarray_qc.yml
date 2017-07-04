@@ -11,7 +11,7 @@
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:microarray"
   data_name: "Array Quality Metrics"
-  version: 1.0.5
+  version: 1.0.6
   type: data:microarray:qc:affy
   category: analyses
   flow_collection: sample
@@ -51,10 +51,10 @@
     language: bash
     program: |
       {% for c in cel %}
-        cp "{{c.cel.file}}" .
+        cp {{c.cel.file}} .
       {% endfor %}
 
-      microarrayQC.R '{{ library }}' {% if logtransform %} --logtransform {% endif %}
+      microarrayQC.R {{ library }} {% if logtransform %} --logtransform {% endif %}
       re-checkrc "Array Quality Metrics processing failed. Try loading data using alternative R library."
 
       re-save qc_report_url "{\"name\":\"View\",\"url\":\"report/index.html\",\"refs\":[\"report\"]}"

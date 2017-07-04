@@ -15,8 +15,8 @@ import utils
 
 
 parser = argparse.ArgumentParser(description="PCA")
-parser.add_argument('sample_files', help="All samples (comma separated)")
-parser.add_argument('sample_ids', help="Sample IDs (comma separated")
+parser.add_argument('--sample-files', nargs='+', help="All samples")
+parser.add_argument('--sample-ids', nargs='+', help="Sample IDs")
 parser.add_argument('--genes', nargs='+', help='filter genes')
 parser.add_argument('--filter', help="Filter genes with low expression", action="store_true")
 args = parser.parse_args()
@@ -73,8 +73,8 @@ def save_pca(coordinates, explained_variance_ratios=[0, 0], components=[[], []],
     print(json.dumps(data, separators=(',', ':'), allow_nan=False))
 
 
-sample_files = args.sample_files.split(',')
-sample_ids = args.sample_ids.split(',')
+sample_files = args.sample_files
+sample_ids = args.sample_ids
 
 if len(sample_files) != len(sample_ids):
     print('{"rc":"1"}')

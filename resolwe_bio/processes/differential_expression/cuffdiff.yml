@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Cuffdiff results'
-  version: 1.0.15
+  version: 1.0.16
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -124,23 +124,24 @@
     runtime: polyglot
     language: bash
     program: |
+      cases=()
+      controls=()
+      labels=()
+
+      # TODO: This should be made available in common runtime.
+      function join_by { local IFS="$1"; shift; echo "$*"; }
+
       {% for cs_samp in case %}
-        cases=$cases"{{ cs_samp.cxb.file }},"
+        cases+=({{ cs_samp.cxb.file }})
       {% endfor %}
 
       {% for ct_samp in control %}
-        controls=$controls"{{ ct_samp.cxb.file }},"
+        controls+=({{ ct_samp.cxb.file }})
       {% endfor %}
 
-      {% for l in labels %}
-        labels=$labels"{{l}},"
+      {% for label in labels %}
+        labels+=({{ label }})
       {% endfor %}
-
-      labels=${labels%?}
-      cases=${cases%?}
-      controls=${controls%?}
-
-      EXPERIMENTS="${controls} ${cases}"
 
       {% for c in control %}
         {% for t in case %}
@@ -150,30 +151,68 @@
         {% endfor %}
       {% endfor %}
 
-      re-save source "{{ case.0.source }}"
+      re-save source {{ case.0.source }}
 
       {% if annotation.merged_gtf.file %}
-        ANNOTATION='{{ annotation.merged_gtf.file }}'
+        annotation={{ annotation.merged_gtf.file }}
       {% elif  annotation.gtf.file %}
-        ANNOTATION='{{ annotation.gtf.file }}'
+        annotation={{ annotation.gtf.file }}
       {% elif  annotation.gff.file %}
-        ANNOTATION='{{ annotation.gff.file }}'
+        annotation={{ annotation.gff.file }}
       {% else %}
         re-error "Please provide a suitable annotation (GFF/GTF) file."
       {% endif %}
 
       re-progress 0.1
 
-      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet ${ANNOTATION} ${EXPERIMENTS}
+      controls=$(join_by , "${controls[@]}")
+      cases=$(join_by , "${cases[@]}")
+      labels=$(join_by , "${labels[@]}")
+
+      cuffdiff \
+        -output-dir ./ \
+        -num-threads {{ threads }} \
+        -labels "${labels}" \
+        {% if genome %}-frag-bias-correct {{ genome.fasta.file }}{% endif %} \
+        {% if multi_read_correct %}-multi-read-correct{% endif %} \
+        -FDR {{ fdr }} \
+        -library-type {{ library_type }} \
+        -library-norm-method {{ library_normalization }} \
+        -dispersion-method {{ dispersion_method }} \
+        -quiet \
+        "${annotation}" \
+        "${controls}" \
+        "${cases}"
 
       re-checkrc
       re-progress 0.9
 
       mv gene_exp.diff cuffdiff.tab
 
-      zip cuffdiff_output.zip cds.* isoforms.* genes.* tss_groups.* read_groups.* promoters.diff splicing.diff cds_exp.diff cuffdiff.tab isoform_exp.diff tss_group_exp.diff
+      zip \
+        cuffdiff_output.zip \
+        cds.* \
+        isoforms.* \
+        genes.* \
+        tss_groups.* \
+        read_groups.* \
+        promoters.diff \
+        splicing.diff \
+        cds_exp.diff \
+        cuffdiff.tab \
+        isoform_exp.diff \
+        tss_group_exp.diff
 
-      parse_diffexp.py cuffdiff.tab de_data.json de_file.tab.gz --gene_id gene_id --fdr q_value --pvalue p_value --logfc "log2(fold_change)" --stat test_stat
+      parse_diffexp.py \
+        cuffdiff.tab \
+        de_data.json \
+        de_file.tab.gz \
+        --gene_id gene_id \
+        --fdr q_value \
+        --pvalue p_value \
+        --logfc "log2(fold_change)" \
+        --stat test_stat
+
       gzip cuffdiff.tab
 
       re-save de_json de_data.json

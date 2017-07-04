@@ -38,7 +38,8 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         expression_3 = self.run_process('upload-expression', inputs)
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
-                  'genes': [' A1BG E2f4 A2ML1 A2MP1 A3GALT2 A4GALT AADACL4 AADACL3 AADACL2 AADAC'],
+                  'genes': ['A1BG', 'E2f4', 'A2ML1', 'A2MP1', 'A3GALT2', 'A4GALT',
+                            'AADACL4', 'AADACL3', 'AADACL2', 'AADAC'],
                   'genes_source': 'UCSC'}
 
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
@@ -67,7 +68,8 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         expression_3 = self.run_process('upload-expression', inputs)
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
-                  'genes': [' A1BG E2f4 A2ML1 A2MP1 A3GALT2 A4GALT AADACL4 AADACL3 AADACL2 AADAC'],
+                  'genes': ['A1BG', 'E2f4', 'A2ML1', 'A2MP1', 'A3GALT2', 'A4GALT',
+                            'AADACL4', 'AADACL3', 'AADACL2', 'AADAC'],
                   'genes_source': 'UCSC'}
 
         clustering = self.run_process('clustering-hierarchical-genes', inputs)
@@ -96,7 +98,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         expression_3 = self.run_process('upload-expression', inputs)
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
-                  'genes': ["1", "503538", "56934", "29974", "2", "144571", "3"],
+                  'genes': ['1', '503538', '56934', '29974', '2', '144571', '3'],
                   'genes_source': 'NCBI'}
 
         clustering = self.run_process('clustering-hierarchical-genes', inputs)
@@ -124,7 +126,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         expression_3 = self.run_process('upload-expression', inputs)
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
-                  'genes': ["1", "503538", "56934", "29974", "2", "144571", "3"],
+                  'genes': ['1', '503538', '56934', '29974', '2', '144571', '3'],
                   'genes_source': 'NCBI'}
 
         clustering = self.run_process('clustering-hierarchical-samples', inputs)

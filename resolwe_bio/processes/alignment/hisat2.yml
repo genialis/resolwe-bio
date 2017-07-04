@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -43,17 +43,17 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       re-progress 0.1
 
-      FW_READS="{{ reads.fastq|join(',', attribute='file') }}"
+      FW_READS={{ reads.fastq|join(',', attribute='file') }}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
-        RW_READS="{{ reads.fastq2|join(',', attribute='file') }}"
+        RW_READS={{ reads.fastq2|join(',', attribute='file') }}
       {% endif %}
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}

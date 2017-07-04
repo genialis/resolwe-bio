@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
-  version: 1.0.11
+  version: 1.0.12
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -29,7 +29,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "out|txt" "out" 0.1
+      re-import {{ src.file_temp }} {{ src.file }} "out|txt" "out" 0.1
 
       echo "Generating GFF3 file..."
 

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Compatibility check ({{reference.fasta.file}})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:reports:compatibility
   category: analyses
   persistence: CACHED
@@ -37,22 +37,22 @@
     program: |
       BAM_HEADER="bam_header.txt"
 
-      GENOME_NAME=`basename '{{ reference.fasta.file }}' .fasta`
+      GENOME_NAME=`basename {{ reference.fasta.file }} .fasta`
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
 
       {% if bam %}
       echo "Fetching bam header"
-      samtools view -H "{{bam.bam.file}}" > "${BAM_HEADER}"
+      samtools view -H {{bam.bam.file}} > "${BAM_HEADER}"
       echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
       echo "${BAM_HEADER}"
       {% endif %}
 
       {% if annot|type == 'data:annotation:gff3:' %}
-        ANOT_FILE="{{annot.gff.file}}"
+        ANOT_FILE={{annot.gff.file}}
       {% else %}
-        ANOT_FILE="{{annot.gtf.file}}"
+        ANOT_FILE={{annot.gtf.file}}
       {% endif %}
 
       echo "Compatibility check"
-      compatibilty_check.py --genome "{{ reference.fasta.file }}" {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
+      compatibilty_check.py --genome {{ reference.fasta.file }} {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
       re-save-file report_file ${GENOME_NAME}_compatibility_report.txt

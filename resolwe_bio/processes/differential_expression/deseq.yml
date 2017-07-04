@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.11
+  version: 1.0.12
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -49,12 +49,16 @@
     runtime: polyglot
     language: bash
     program: |
+      controls=()
+      cases=()
+      sample_conditions=()
+
       {% for c in control %}
         {% if not c.rc.file %}
           re-error "Read counts are required when using DESeq2"
         {% endif %}
-        controls=$controls"{{c.rc.file}} "
-        sampleConditions=$sampleConditions"control "
+        controls+=({{c.rc.file}})
+        sample_conditions+=('control')
       {% endfor %}
 
       {% for t in case %}
@@ -62,8 +66,8 @@
           re-error "Read counts are required when using DESeq2"
         {% endif %}
         {% if t not in control %}
-          cases=$cases"{{t.rc.file}} "
-          sampleConditions=$sampleConditions"case "
+          cases+=({{t.rc.file}})
+          sample_conditions+=('case')
         {% else %}
           re-error "DE analysis failed. Case and Control groups must contain unique samples."
         {% endif %}
@@ -77,27 +81,42 @@
         {% endfor %}
       {% endfor %}
 
-      sampleConditions=${sampleConditions%?}
-      cases=${cases%?}
-      sampleFiles=$controls"$cases"
+      sample_files=("${controls[@]}" "${cases[@]}")
 
       re-progress 0.1
 
-      expressionmerge.py ${sampleFiles} --experiments ${sampleFiles} --intersection --out 'counts.tab'
+      expressionmerge.py \
+        "${sample_files[@]}" \
+        --experiments "${sample_files[@]}" \
+        --intersection \
+        --out 'counts.tab'
       re-checkrc "Error merging read counts."
 
-      diffexp_filtering.R -counts 'counts.tab' -filter {{filter}} -out counts_filtered.tab
+      diffexp_filtering.R \
+        -counts counts.tab \
+        -filter {{filter}} \
+        -out counts_filtered.tab
 
-      run_deseq2.R counts_filtered.tab --sampleConditions ${sampleConditions}
+      run_deseq2.R \
+        counts_filtered.tab \
+        --sampleConditions "${sample_conditions[@]}"
       re-checkrc "Error computing differential expression (DESeq2)."
 
       re-progress 0.95
 
-      parse_diffexp.py 'diffexp_deseq2.tab' de_data.json de_file.tab.gz --gene_id gene_id --fdr padj --pvalue pvalue --logfc log2FoldChange --stat stat
+      parse_diffexp.py \
+        diffexp_deseq2.tab \
+        de_data.json \
+        de_file.tab.gz \
+        --gene_id gene_id \
+        --fdr padj \
+        --pvalue pvalue \
+        --logfc log2FoldChange \
+        --stat stat
 
-      gzip 'diffexp_deseq2.tab'
+      gzip diffexp_deseq2.tab
 
       re-save de_json de_data.json
       re-save-file raw diffexp_deseq2.tab.gz
       re-save-file de_file de_file.tab.gz
-      re-save source "{{ case.0.source }}"
+      re-save source {{ case.0.source }}

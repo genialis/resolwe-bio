@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "MACS2 analysis ({{ case.bam.file|basename|default('?') }})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:chipseq:macs2:callpeak
   category: analyses
   flow_collection: sample
@@ -180,30 +180,30 @@
         re-error "--broad can't be combined with --call-summits!"
       {% endif %}
 
-      NAME=`basename '{{ case.bam.file }}' .bam`
+      NAME=`basename {{ case.bam.file }} .bam`
 
       re-progress 0.1
 
-      CONTROL='{% if control %} -c '{{ control.bam.file }}' {% endif %}'
-      GSIZE='{% if settings.gsize %} -g '{{ settings.gsize }}' {% endif %}'
-      QVAL='{% if settings.qvalue %} -q '{{ settings.qvalue }}' {% endif %}'
-      PVAL='{% if settings.pvalue %} -p '{{ settings.pvalue }}' {% endif %}'
-      MFOLD='{% if settings.mfold_lower %} -m '{{ settings.mfold_lower }}' '{{ settings.mfold_upper }}' {% endif %}'
+      CONTROL='{% if control %} -c {{ control.bam.file }} {% endif %}'
+      GSIZE='{% if settings.gsize %} -g {{ settings.gsize }} {% endif %}'
+      QVAL='{% if settings.qvalue %} -q {{ settings.qvalue }} {% endif %}'
+      PVAL='{% if settings.pvalue %} -p {{ settings.pvalue }} {% endif %}'
+      MFOLD='{% if settings.mfold_lower %} -m {{ settings.mfold_lower }} {{ settings.mfold_upper }} {% endif %}'
       NO_LAMBDA='{% if settings.nolambda %} --nolambda {% endif %}'
-      SLOCAL='{% if settings.slocal %} --slocal '{{settings.slocal}}' {% endif %}'
-      ILOCAL='{% if settings.llocal %} --llocal '{{settings.llocal}}' {% endif %}'
+      SLOCAL='{% if settings.slocal %} --slocal {{settings.slocal}} {% endif %}'
+      ILOCAL='{% if settings.llocal %} --llocal {{settings.llocal}} {% endif %}'
       FIX_BIMODAL='{% if settings.fix_bimodal %} --fix-bimodal {% endif %}'
       NO_MODEL='{% if settings.nomodel %} --nomodel {% endif %}'
-      EXTSIZE='{% if settings.extsize %} --extsize '{{settings.extsize}}' {% endif %}'
-      SHIFT='{% if settings.shift %} --shift '{{settings.shift}}' {% endif %}'
-      BAND_WIDTH='{% if settings.band_width %} --bw '{{settings.band_width}}' {% endif %}'
-      BROAD_CUTOFF='{% if settings.broad_cutoff %} --broad-cutoff '{{settings.broad_cutoff}}' {% endif %}'
+      EXTSIZE='{% if settings.extsize %} --extsize {{settings.extsize}} {% endif %}'
+      SHIFT='{% if settings.shift %} --shift {{settings.shift}} {% endif %}'
+      BAND_WIDTH='{% if settings.band_width %} --bw {{settings.band_width}} {% endif %}'
+      BROAD_CUTOFF='{% if settings.broad_cutoff %} --broad-cutoff {{settings.broad_cutoff}} {% endif %}'
       BROAD='{% if settings.broad and not settings.call_summits %} --broad ${BROAD_CUTOFF} {% endif %}'
       DOWN_SAMPLE='{% if settings.down_sample %} --down-sample {% endif %}'
       BEDGRAPH='{% if settings.bedgraph %} -B {% endif %}'
       CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
 
-      macs2 callpeak -t '{{ case.bam.file }}' ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
+      macs2 callpeak -t {{ case.bam.file }} ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
       re-checkrc "MACS2 processing failed"
       re-progress 0.8
 

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.18
+  version: 1.0.19
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -120,72 +120,132 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bt.dir}}/${GENOME_NAME}_index"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bt.dir}}"/${GENOME_NAME}_index"
+
+      # TODO: This should be made available in common runtime.
+      function join_by { local IFS="$1"; shift; echo "$*"; }
+
+      fw_reads=()
+      rw_reads=()
+      reporting={{reporting.r}}
 
       {% for r in reads.fastq %}
-        READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-        FW_READS=${FW_READS}"${READS_NAME}.fastq,"
+        READS_NAME=`basename {{ r.file }} .fastq.gz`
+        fw_reads+=("${READS_NAME}.fastq")
         gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
       {% endfor %}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"${READS_NAME}.fastq,"
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          rw_reads+=("${READS_NAME}.fastq")
           gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
         {% endfor %}
-        RW_READS=${RW_READS%?}
-        RW_READS_S=${RW_READS//,/ }
       {% endif %}
 
-      FW_READS=${FW_READS%?}
-      FW_READS_S=${FW_READS//,/ }
-
       {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-        cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
+        cat "${fw_reads[@]}" "${rw_reads[@]}" > reads.fastq
       {% endif %}
 
       re-progress 0.3
 
-      FW_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      fw_reads=$(join_by , "${fw_reads[@]}")
+      rw_reads=$(join_by , "${rw_reads[@]}")
+
+      FW_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       STATS="0 ${FW_NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
       {% if reads|type|subtype('data:reads:fastq:single:') or use_se %}
         {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-          bowtie --un "${FW_NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam ${INDEX} reads.fastq 1>"${FW_NAME}_align_unsorted.sam" 2>"${FW_NAME}_align_unsorted.stats"
+          bowtie \
+            --un "${FW_NAME}_unmapped1.fq" \
+            --trim5 {{start_trimming.trim_5}} \
+            --trim3 {{start_trimming.trim_3}} \
+            --chunkmbs 200 {{ mode }} {{ m }} \
+            -l {{ l }} ${reporting} \
+            --sam "${INDEX}" \
+            reads.fastq 1>"${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
           re-checkrc
         {% else %}
-          bowtie --un "${FW_NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam ${INDEX} ${FW_READS} 1>"${FW_NAME}_align_unsorted.sam" 2>"${FW_NAME}_align_unsorted.stats"
+          bowtie \
+            --un "${FW_NAME}_unmapped1.fq" \
+            --trim5 {{start_trimming.trim_5}} \
+            --trim3 {{start_trimming.trim_3}} \
+            --chunkmbs 200 {{ mode }} {{ m }} \
+            -l {{ l }} ${reporting} \
+            --sam "${INDEX}" \
+            "${fw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
           re-checkrc
         {% endif %}
 
         {% if trimming.trim_iter >= 1 %}
-        echo "iterative alignment of unmapped reads:"
+          echo "iterative alignment of unmapped reads:"
           for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
             do
-            bowtie $encoding --un "${FW_NAME}_unmapped$((c+1)).fq" --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" "${FW_NAME}_unmapped$((c)).fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
-            samtools view -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
-            STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
+              bowtie \
+                $encoding \
+                --un "${FW_NAME}_unmapped$((c+1)).fq" \
+                --trim5 {{start_trimming.trim_5}} \
+                --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
+                --chunkmbs 200 {{ mode }} {{ m }} \
+                -l {{ l }} ${reporting} \
+                --sam "${GENOME_NAME}_index" \
+                "${FW_NAME}_unmapped$((c)).fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
+
+              samtools \
+                view \
+                -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
+
+              STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
             done
-          mv "${FW_NAME}_unmapped$((c)).fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
+          mv \
+            "${FW_NAME}_unmapped$((c)).fq" \
+            "${FW_NAME}_unmapped.fastq" \
+            && \
+            gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
         {% else %}
-          mv "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
+          mv \
+            "${FW_NAME}_unmapped1.fq" \
+            "${FW_NAME}_unmapped.fastq" \
+            && \
+            gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
         {% endif %}
       {% else %}
         re-progress 0.4
-        bowtie --un "${FW_NAME}_unmapped1.fq" --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam ${INDEX} -1 ${FW_READS} -2 ${RW_READS} 1>"${FW_NAME}_align_unsorted.sam" 2>"${FW_NAME}_align_unsorted.stats"
+        bowtie \
+          --un "${FW_NAME}_unmapped1.fq" \
+          --trim5 {{start_trimming.trim_5}} \
+          --trim3 {{start_trimming.trim_3}} \
+          --chunkmbs 200 {{ mode }} {{ m }} \
+          -l {{ l }} ${reporting} \
+          --sam "${INDEX}" \
+          -1 "${fw_reads}" \
+          -2 "${rw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
         re-checkrc
+
         {% if trimming.trim_iter >= 1 %}
-        echo "iterative alignment of unmapped reads:"
-        for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
-          do
-            bowtie --un "${FW_NAME}_unmapped$((c+1)).fq" --trim5 {{start_trimming.trim_5}} --trim3 $(($c* {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) --chunkmbs 200 {{ mode }} {{ m }} -l {{ l }} {{ reporting.r }} --sam "${GENOME_NAME}_index" -1 "${FW_NAME}_unmapped$((c))_1.fq" -2 "${FW_NAME}_unmapped$((c))_2.fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
-            re-checkrc
-            samtools view -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
-            STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
-          done
+          echo "iterative alignment of unmapped reads:"
+          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
+            do
+              bowtie \
+                --un "${FW_NAME}_unmapped$((c+1)).fq" \
+                --trim5 {{start_trimming.trim_5}} \
+                --trim3 $(($c* {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
+                --chunkmbs 200 {{ mode }} {{ m }} \
+                -l {{ l }} ${reporting} \
+                --sam "${GENOME_NAME}_index" \
+                -1 "${FW_NAME}_unmapped$((c))_1.fq" \
+                -2 "${FW_NAME}_unmapped$((c))_2.fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
+              re-checkrc
+
+              samtools \
+                view \
+                -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
+
+              STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
+            done
           cat "${FW_NAME}_unmapped$((c))_1.fq" "${FW_NAME}_unmapped$((c))_2.fq" | gzip -c - > "${FW_NAME}_unmapped.fastq.gz"
         {% else %}
           cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
@@ -219,12 +279,12 @@
       mergebowtiestats.py $STATS
       gzip stats.tab
 
-      re-save-file bam ${FW_NAME}_mapped.bam
-      re-save-file bai ${FW_NAME}_mapped.bam.bai
+      re-save-file bam "${FW_NAME}_mapped.bam"
+      re-save-file bai "${FW_NAME}_mapped.bam.bai"
       re-save-file stats stats.tab.gz
 
       if [ -f "${NAME}_unmapped.bam" ]; then
-        re-save-file unmapped ${FW_NAME}_unmapped.fastq.gz
+        re-save-file unmapped "${FW_NAME}_unmapped.fastq.gz"
       fi
 
 - slug: alignment-bowtie2
@@ -234,7 +294,7 @@
     resources:
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.23
+  version: 1.0.24
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -379,8 +439,11 @@
     runtime: polyglot
     language: bash
     program: |
-      GENOME_NAME=`basename '{{ genome.fasta.file }}' .fasta`
-      INDEX="{{genome.index_bt2.dir}}/${GENOME_NAME}_index"
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_bt2.dir}}"/${GENOME_NAME}_index"
+
+      # TODO: This should be made available in common runtime.
+      function join_by { local IFS="$1"; shift; echo "$*"; }
 
       # mode selection
       if [ {{reporting.rep_mode}} == def ]; then
@@ -398,38 +461,55 @@
         s_mode={{ speed }}-local
       fi
 
+      fw_reads=()
+      rw_reads=()
+
       {% for r in reads.fastq %}
-        READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-        FW_READS=${FW_READS}"${READS_NAME}.fastq,"
+        READS_NAME=`basename {{ r.file }} .fastq.gz`
+        fw_reads+=("${READS_NAME}.fastq")
         gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
       {% endfor %}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename '{{ r.file }}' .fastq.gz`
-          RW_READS=${RW_READS}"${READS_NAME}.fastq,"
+          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          rw_reads+=("${READS_NAME}.fastq")
           gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
         {% endfor %}
-        RW_READS=${RW_READS%?}
-        RW_READS_S=${RW_READS//,/ }
       {% endif %}
 
-      FW_READS=${FW_READS%?}
-      FW_READS_S=${FW_READS//,/ }
-
-      FW_NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
+      FW_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
       {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-        cat ${FW_READS_S} ${RW_READS_S} > reads.fastq
+        cat "${fw_reads[@]}" "${rw_reads[@]}" > reads.fastq
       {% endif %}
+
+      fw_reads=$(join_by , "${fw_reads[@]}")
+      rw_reads=$(join_by , "${rw_reads[@]}")
 
       echo "ALIGNING with bowtie2:"
       {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_se %}
         {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-          bowtie2 {{mode}} $a_mode $s_mode -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U reads.fastq -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
+          bowtie2 \
+            {{mode}} $a_mode $s_mode \
+            -p {{requirements.resources.cores}} \
+            --trim5 {{start_trimming.trim_5}} \
+            --trim3 {{start_trimming.trim_3}} \
+            -x "${INDEX}" \
+            -U reads.fastq \
+            -S "${FW_NAME}_align_unsorted.sam" \
+            --un "${FW_NAME}_unmapped1.fq" 2> report.txt
           re-checkrc
         {% else %}
-          bowtie2 {{mode}} $a_mode $s_mode -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} -x ${INDEX} -U ${FW_READS} -S "${FW_NAME}_align_unsorted.sam" --un "${FW_NAME}_unmapped1.fq" 2> "report.txt"
+          bowtie2 \
+            {{mode}} $a_mode $s_mode \
+            -p {{requirements.resources.cores}} \
+            --trim5 {{start_trimming.trim_5}} \
+            --trim3 {{start_trimming.trim_3}} \
+            -x "${INDEX}" \
+            -U "${fw_reads}" \
+            -S "${FW_NAME}_align_unsorted.sam" \
+            --un "${FW_NAME}_unmapped1.fq" 2> report.txt
           re-checkrc
         {% endif %}
         {% if trimming.trim_iter >= 1 %}
@@ -437,14 +517,23 @@
           for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
             do
             echo -e "\nTrimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed)" >> "report.txt"
-            bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) -U "${NAME}_unmapped$((c)).fq" -S "${FW_NAME}_new_mapped$((c+1)).sam" --un "${FW_NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
+            bowtie2 \
+              {{mode}} $a_mode $s_mode \
+              -x "${INDEX}" \
+              -p {{requirements.resources.cores}} \
+              --trim5 {{start_trimming.trim_5}} \
+              --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
+              -U "${NAME}_unmapped$((c)).fq" \
+              -S "${FW_NAME}_new_mapped$((c+1)).sam" \
+              --un "${FW_NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
+
             re-checkrc
             samtools view -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
             re-checkrc
             mergebowtie2stats.py "report.txt"
             re-checkrc
             mv stats.tab "${NAME}_report.txt"
-            done
+          done
           mv "${FW_NAME}_unmapped$((c)).fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
         {% else %}
           mv "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
@@ -464,7 +553,20 @@
         {% endif %}
 
       {% else %}
-        bowtie2 {{mode}} $a_mode $s_mode -x ${INDEX} -p {{requirements.resources.cores}} --trim5 {{start_trimming.trim_5}} --trim3 {{start_trimming.trim_3}} {% if not PE_options.discordantly %} --no-discordant {% endif %} {% if not PE_options.rep_se %} --no-mixed {% endif %} --minins {{PE_options.minins}} --maxins {{PE_options.maxins}} -1 ${FW_READS} -2 ${RW_READS} -S "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_report.txt"
+        bowtie2 \
+          {{mode}} $a_mode $s_mode \
+          -x "${INDEX}" \
+          -p {{requirements.resources.cores}} \
+          --trim5 {{start_trimming.trim_5}} \
+          --trim3 {{start_trimming.trim_3}} \
+          {% if not PE_options.discordantly %}--no-discordant{% endif %} \
+          {% if not PE_options.rep_se %}--no-mixed{% endif %} \
+          --minins {{ PE_options.minins}} \
+          --maxins {{ PE_options.maxins}} \
+          -1 "${fw_reads}" \
+          -2 "${rw_reads}" \
+          -S "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_report.txt"
+
         re-checkrc
         samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
         re-checkrc
@@ -482,14 +584,14 @@
 
       samtools view -b -F 4 "${FW_NAME}_align.bam" > "${FW_NAME}.bam"
 
-      re-save-file bam ${FW_NAME}.bam
-      re-save-file stats ${FW_NAME}_report.txt
+      re-save-file bam "${FW_NAME}.bam"
+      re-save-file stats "${FW_NAME}_report.txt"
 
       if [ -f "${FW_NAME}_unmapped.fastq" ]; then
-        re-save-file unmapped ${FW_NAME}_unmapped.fastq.gz
+        re-save-file unmapped "${FW_NAME}_unmapped.fastq.gz"
       fi
 
       echo -e "\nINDEXING bam:"
       samtools index "${FW_NAME}.bam" "${FW_NAME}.bam.bai"
       re-checkrc
-      re-save-file bai ${FW_NAME}.bam.bai
+      re-save-file bai "${FW_NAME}.bam.bai"

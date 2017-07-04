@@ -9,7 +9,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Summarized ncRNA expressions"
-  version: 1.0.4
+  version: 1.0.5
   type: data:expressionset:ncrna
   category: analyses
   persistence: CACHED
@@ -52,10 +52,10 @@
         {% endif %}
       {% endfor %}
 
-      summarize_expression_ncRNA.py {% for e in exps %}"{{e.exp.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts.tab'
+      summarize_expression_ncRNA.py {% for e in exps %}{{e.exp.file}} {% endfor %} --experiments {% for e in exps %}{{e|name}} {% endfor %} {% if genes %}--genes {% for g in genes %}{{g}} {% endfor %}{% endif %} --ncrna {{annotation.gff.file}} --intersection --out 'all_transcripts.tab'
       re-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
 
-      summarize_expression_ncRNA.py {% for e in exps %}"{{e.rc.file}}" {% endfor %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --ncrna '{{annotation.gff.file}}' --intersection --out 'all_transcripts_rc.tab'
+      summarize_expression_ncRNA.py {% for e in exps %}{{e.rc.file}} {% endfor %} --experiments {% for e in exps %}{{e|name}} {% endfor %} {% if genes %}--genes {% for g in genes %}{{g}} {% endfor %}{% endif %} --ncrna {{annotation.gff.file}} --intersection --out 'all_transcripts_rc.tab'
       re-checkrc "Processing failed. Input annotation must be the same as used for quantification and in Cufflinks GFF3 format."
 
       head -n 1 all_transcripts.tab > ncRNA.tab

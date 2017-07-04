@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: Expression time course
-  version: 1.0.7
+  version: 1.0.8
   type: data:etc
   category: upload
   persistence: RAW
@@ -33,8 +33,8 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ src.file }}'`
-      TEMP='{{ proc.upload_path }}/{{ src.file_temp }}'
+      NAME=`basename {{ src.file }}`
+      TEMP={{ proc.upload_path }}/{{ src.file_temp }}
 
       mv "${TEMP}" "${NAME}"
       echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"

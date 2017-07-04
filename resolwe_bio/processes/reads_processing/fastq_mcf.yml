@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:reads:fastq:single:fastqmcf
   category: analyses
   flow_collection: sample
@@ -83,17 +83,17 @@
       {% if adapters %}
 
         echo "Preparing adapter file..."
-        ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
+        ADAPTERS=`basename {{adapters.fasta.file}} .fasta.gz`
         gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
         re-progress 0.1
 
       {% endif %}
 
-      NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+      NAME=`basename {{reads.fastq.0.file}} .fastq.gz`
 
       READS=()
       {% for r in reads.fastq %}
-        READS+=("{{ r.file }}")
+        READS+=({{ r.file }})
       {% endfor %}
 
       cat "${READS[@]}" > "${NAME}.fastq.gz"
@@ -102,7 +102,7 @@
 
       echo "Adapter trimming..."
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" -o "${NAME}_filtered.fastq" {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "${NAME}.fastq.gz" -o "${NAME}_filtered.fastq" {% endif %}
+      fastq-mcf {% if adapters %} -s {{ f_parameters.adapter_min_len_match }} -t {{ f_parameters.occurance_threshold }} -m {{ f_parameters.min_clip_length }} -p {{ f_parameters.max_adap_diff_perc }} -l {{ f_parameters.min_seq_len }} -q {{ f_parameters.quality_threshold }} "${ADAPTERS}.fasta" {{ reads.fastq.file }} -o "${NAME}_filtered.fastq" {% else %} -s {{ f_parameters.adapter_min_len_match }} -t {{ f_parameters.occurance_threshold }} -m {{ f_parameters.min_clip_length }} -p {{ f_parameters.max_adap_diff_perc }} -l {{ f_parameters.min_seq_len }} -q {{ f_parameters.quality_threshold }} n/a "${NAME}.fastq.gz" -o "${NAME}_filtered.fastq" {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
 
@@ -130,7 +130,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:reads:fastq:paired:fastqmcf
   category: analyses
   flow_collection: sample
@@ -212,32 +212,32 @@
       {% if adapters %}
 
         echo "Preparing adapter file..."
-        ADAPTERS=`basename '{{adapters.fasta.file}}' .fasta.gz`
+        ADAPTERS=`basename {{adapters.fasta.file}} .fasta.gz`
         gzip -cd {{ adapters.fasta.file }} > "${ADAPTERS}.fasta"
         re-progress 0.1
 
       {% endif %}
 
-      NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
-      NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
 
       FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > "${NAME1}.fastq.gz"
 
       RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS+=("{{ r.file }}")
+        RW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${RW_READS}" > "${NAME2}.fastq.gz"
 
       re-progress 0.2
 
-      fastq-mcf {% if adapters %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" "${ADAPTERS}.fasta" "{{ reads.fastq.file }}" "{{ reads.fastq2.file }}" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s "{{ f_parameters.adapter_min_len_match }}" -t "{{ f_parameters.occurance_threshold }}" -m "{{ f_parameters.min_clip_length }}" -p "{{ f_parameters.max_adap_diff_perc }}" -l "{{ f_parameters.min_seq_len }}" -q "{{ f_parameters.quality_threshold }}" n/a "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
+      fastq-mcf {% if adapters %} -s {{ f_parameters.adapter_min_len_match }} -t {{ f_parameters.occurance_threshold }} -m {{ f_parameters.min_clip_length }} -p {{ f_parameters.max_adap_diff_perc }} -l {{ f_parameters.min_seq_len }} -q {{ f_parameters.quality_threshold }} "${ADAPTERS}.fasta" {{ reads.fastq.file }} {{ reads.fastq2.file }} -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% else %} -s {{ f_parameters.adapter_min_len_match }} -t {{ f_parameters.occurance_threshold }} -m {{ f_parameters.min_clip_length }} -p {{ f_parameters.max_adap_diff_perc }} -l {{ f_parameters.min_seq_len }} -q {{ f_parameters.quality_threshold }} n/a "${NAME1}.fastq.gz" "${NAME2}.fastq.gz" -o "${NAME1}_filtered.fastq"  -o "${NAME2}_filtered.fastq"  {% endif %}
       re-checkrc "Failed while processing with FastqMcf."
       re-progress 0.7
 

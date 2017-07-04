@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.3
+  version: 1.0.4
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample
@@ -49,7 +49,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "cxb" "cxb" 1.0 extract
+      re-import {{ src.file_temp }} {{ src.file }} "cxb" "cxb" 1.0 extract
       re-checkrc
       re-save-file cxb "${NAME}.cxb"
       re-save source {{source}}

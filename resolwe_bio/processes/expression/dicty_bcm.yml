@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.16
+  version: 1.0.17
   type: data:expression:polya
   category: analyses
   flow_collection: sample
@@ -65,21 +65,21 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ alignment.bam.file }}' .bam`
+      NAME=`basename {{ alignment.bam.file }} .bam`
 
       function compute_coverage {
-        xtabcoverage.py --tab "{{ proc.data_dir }}/{{ proc.data_id }}/${1}" --tab-coverage-col 1 --gff3 "{{ gff.gff.file }}" > tmp.bedgraph
+        xtabcoverage.py --tab {{ proc.data_dir }}"/"{{ proc.data_id }}"/${1}" --tab-coverage-col 1 --gff3 {{ gff.gff.file }} > tmp.bedgraph
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
         rm tmp.bedgraph
       }
 
       echo "XEXPRESSION..."
-      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}}
+      xexpression.py {{ gff.gff.file }} {{ alignment.bam.file }} --rc --rpkm --rpkum {{mappable.mappability.file}}
       re-checkrc
       re-progress 0.5
 
-      xexpression.py "{{ gff.gff.file }}" "{{ alignment.bam.file }}" --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
-      samtools idxstats "{{ alignment.bam.file }}" | cut -f -2 | head -n -1 > chrom.sizes
+      xexpression.py {{ gff.gff.file }} {{ alignment.bam.file }} --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
+      samtools idxstats {{ alignment.bam.file }} | cut -f -2 | head -n -1 > chrom.sizes
 
       re-save exp_type polyA
 

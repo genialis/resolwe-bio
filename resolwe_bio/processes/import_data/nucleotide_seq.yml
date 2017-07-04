@@ -11,7 +11,7 @@
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:icount"
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.13
+  version: 1.0.14
   type: data:seq:nucleotide
   category: upload
   persistence: RAW
@@ -39,7 +39,7 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "fasta|fa|fna" "fasta" 1.0 compress
+      re-import {{ src.file_temp }} {{ src.file }} "fasta|fa|fna" "fasta" 1.0 compress
       NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
       re-checkrc
 

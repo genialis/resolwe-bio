@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Cuffmerge annotation (GFF3)'
-  version: 1.0.5
+  version: 1.0.6
   type: data:annotation:gff3
   category: analyses
   persistence: CACHED
@@ -30,13 +30,13 @@
     language: bash
     program: |
       {% if cuffmerge.merged_gtf.file %}
-        ANNOTATION_NAME=`basename '{{ cuffmerge.merged_gtf.file }}' .gtf`
-        gffread -E -F -O '{{cuffmerge.merged_gtf.file}}' -o- > temp.gff
+        ANNOTATION_NAME=`basename {{ cuffmerge.merged_gtf.file }} .gtf`
+        gffread -E -F -O {{cuffmerge.merged_gtf.file}} -o- > temp.gff
         re-checkrc "GTF to GFF3 conversion failed."
         re-progress 0.5
       {% else %}
-        ANNOTATION_NAME=`basename '{{cuffmerge.gtf.file}}' .gtf`
-        gffread -E -F -O '{{cuffmerge.gtf.file}}' -o- > temp.gff
+        ANNOTATION_NAME=`basename {{cuffmerge.gtf.file}} .gtf`
+        gffread -E -F -O {{cuffmerge.gtf.file}} -o- > temp.gff
         re-checkrc "GTF to GFF3 conversion failed."
         re-progress 0.5
       {% endif %}
@@ -44,10 +44,17 @@
       sed -i 's/class_code==/class_code=asInReference/g' temp.gff
       re-checkrc
 
-      gt gff3 -tidy yes -addids yes -fixregionboundaries yes -retainids yes -o ${ANNOTATION_NAME}.gff temp.gff
+      gt \
+        gff3 \
+        -tidy yes \
+        -addids yes \
+        -fixregionboundaries yes \
+        -retainids yes \
+        -o "${ANNOTATION_NAME}.gff" \
+        temp.gff
       re-checkrc
 
-      sed -i '/gffread/d' ${ANNOTATION_NAME}.gff
+      sed -i '/gffread/d' "${ANNOTATION_NAME}.gff"
 
-      re-save-file gff ${ANNOTATION_NAME}.gff
+      re-save-file gff "${ANNOTATION_NAME}.gff"
       re-save source {{cuffmerge.source}}

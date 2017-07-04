@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "TransDecoder analysis ({{ gff.merged_gtf.file|basename|default('?') }})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:annotation:transdecoder
   category: analyses
   persistence: CACHED
@@ -73,7 +73,7 @@
 
       {% if pfam %}
         DB_PATH={{ proc.data_dir }}/{{ pfamDB|id }}/{{ pfamDB.database.refs.0 }}/{{ pfamDB.hmmerdb }}
-        hmmscan --cpu '{{ threads }}' --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
+        hmmscan --cpu {{ threads }} --domtblout pfam.domtblout ${DB_PATH} transcripts.fasta.transdecoder_dir/longest_orfs.pep
         TransDecoder.Predict -t transcripts.fasta --retain_pfam_hits pfam.domtblout
       {% else %}
         TransDecoder.Predict -t transcripts.fasta

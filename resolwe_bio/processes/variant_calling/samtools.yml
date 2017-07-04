@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.0.11
+  version: 1.0.12
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -63,21 +63,21 @@
     runtime: polyglot
     language: bash
     program: |
-      BAM_FILE=`basename '{{ mapping.bam.file }}' .bam`
-      BAM_MPILEUP="{{ mapping.bam.file }}"
+      BAM_FILE=`basename {{ mapping.bam.file }} .bam`
+      BAM_MPILEUP={{ mapping.bam.file }}
 
       {% if options.rmdup %}
         echo "removing duplicates"
-        samtools rmdup "{{ mapping.bam.file }}" "${BAM_FILE}_dedup.bam"
+        samtools rmdup {{ mapping.bam.file }} "${BAM_FILE}_dedup.bam"
         re-checkrc "The process of removing duplicates failed."
         BAM_MPILEUP="${BAM_FILE}_dedup.bam"
       {% endif %}
 
-      samtools mpileup -Bugf "{{ genome.fasta.file }}" "${BAM_MPILEUP}" {% if bed %} -l "{{ bed.BED.file }}" {% endif %} > "${BAM_FILE}_raw.bcf"
+      samtools mpileup -Bugf {{ genome.fasta.file }} "${BAM_MPILEUP}" {% if bed %} -l {{ bed.BED.file }} {% endif %} > "${BAM_FILE}_raw.bcf"
       re-checkrc "Samtools mpileup failed."
       re-progress 0.5
 
-      bcftools view -vmu "${BAM_FILE}_raw.bcf" | vcfutils.pl varFilter -d "{{options.d}}" -D "{{options.D}}" -Q "{{options.Q}}" - > "${BAM_FILE}_filtered_variants.vcf"
+      bcftools view -vmu "${BAM_FILE}_raw.bcf" | vcfutils.pl varFilter -d {{options.d}} -D {{options.D}} -Q {{options.Q}} - > "${BAM_FILE}_filtered_variants.vcf"
       re-checkrc "bcftools view command failed."
 
       bgzip -c "${BAM_FILE}_filtered_variants.vcf" > "${BAM_FILE}_filtered_variants.vcf.bgz"

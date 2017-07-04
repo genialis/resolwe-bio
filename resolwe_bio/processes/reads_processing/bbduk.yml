@@ -10,7 +10,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -241,8 +241,8 @@
       echo "Preparing reads file..."
       re-progress 0.1
 
-      NAME=`basename '{{ reads.fastq.0.file }}' .fastq.gz`
-      READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      READS={{ reads.fastq|join(' ', attribute='file') }}
       cat "${READS}" > in_reads.fastq.gz
 
       echo "Removing adapters and filtering data..."
@@ -250,7 +250,7 @@
       {% if adapters.reference %}
         echo "Preparing reference file..."
         {% for r in adapters.reference %}
-          REFERENCE_NAME=`basename '{{ r.fasta.file }}' .fasta.gz`
+          REFERENCE_NAME=`basename {{ r.fasta.file }} .fasta.gz`
           REFERENCE=${REFERENCE}"${REFERENCE_NAME}.fasta,"
           gzip -cd {{ r.fasta.file }} > "${REFERENCE_NAME}.fasta"
         {% endfor %}
@@ -259,7 +259,7 @@
       {% if adapters.reference and not adapters.bbduk_adapters %}
         REFERENCE_PAR=ref="${REFERENCE}"
       {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR=ref="{{adapters.bbduk_adapters}}"
+        REFERENCE_PAR=ref={{adapters.bbduk_adapters}}
       {% elif adapters.bbduk_adapters and adapters.reference %}
         cp {{adapters.bbduk_adapters}} def_adapters.fasta
         REFERENCE=${REFERENCE}def_adapters.fasta
@@ -273,7 +273,7 @@
       {% if barcode_par.barcode_file %}
        echo "Preparing barcode file..."
        {% for b in barcode_par.barcode_file %}
-         BARCODE_NAME=`basename '{{ b.fasta.file }}' .fasta.gz`
+         BARCODE_NAME=`basename {{ b.fasta.file }} .fasta.gz`
          BARCODE=${BARCODE}"${BARCODE_NAME}.fasta,"
          gzip -cd {{ b.file }} > "${BARCODE_NAME}.fasta"
        {% endfor %}
@@ -329,7 +329,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
@@ -567,12 +567,12 @@
       echo "Preparing reads file..."
       re-progress 0.1
 
-      NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
-      NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
 
-      FW_READS="{{ reads.fastq|join(' ', attribute='file') }}"
+      FW_READS={{ reads.fastq|join(' ', attribute='file') }}
       cat "${FW_READS}" > fw.fastq.gz
-      RW_READS="{{ reads.fastq2|join(' ', attribute='file') }}"
+      RW_READS={{ reads.fastq2|join(' ', attribute='file') }}
       cat "${RW_READS}" > rw.fastq.gz
 
 
@@ -583,7 +583,7 @@
       {% if adapters.reference %}
         echo "Preparing reference file..."
         {% for r in adapters.reference %}
-          REFERENCE_NAME=`basename '{{ r.fasta.file }}' .fasta.gz`
+          REFERENCE_NAME=`basename {{ r.fasta.file }} .fasta.gz`
           REFERENCE=${REFERENCE}"${REFERENCE_NAME}.fasta,"
           gzip -cd {{ r.fasta.file }} > "${REFERENCE_NAME}.fasta"
         {% endfor %}
@@ -592,7 +592,7 @@
        {% if adapters.reference and not adapters.bbduk_adapters %}
         REFERENCE_PAR="ref="${REFERENCE}""
       {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR="ref="{{adapters.bbduk_adapters}}""
+        REFERENCE_PAR="ref={{adapters.bbduk_adapters}}"
       {% elif adapters.bbduk_adapters and adapters.reference %}
         cp {{adapters.bbduk_adapters}} def_adapters.fasta
         REFERENCE=${REFERENCE}def_adapters.fasta
@@ -606,7 +606,7 @@
       {% if barcode_par.barcode_file %}
        echo "Preparing barcode file..."
        {% for b in barcode_par.barcode_file %}
-         BARCODE_NAME=`basename '{{ b.fasta.file }}' .fasta.gz`
+         BARCODE_NAME=`basename {{ b.fasta.file }} .fasta.gz`
          BARCODE=${BARCODE}"${BARCODE_NAME}.fasta,"
          gzip -cd {{ b.file }} > "${BARCODE_NAME}.fasta"
        {% endfor %}

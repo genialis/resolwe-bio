@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Extract feature locations"
-  version: 1.0.3
+  version: 1.0.4
   type: data:featurelocation
   category: analyses
   persistence: CACHED
@@ -62,5 +62,5 @@
     runtime: polyglot
     language: bash
     program: |
-      feature_location.py --annotation {% if annotation.gff.file %} '{{annotation.gff.file}}' {% else %} '{{annotation.gtf.file}}' {% endif %} --feature_type '{{feature_type}}' --id_type '{{id_type}}' {% if summarize_exons %} --summarize_exons {% endif %}
+      feature_location.py --annotation {% if annotation.gff.file %} {{annotation.gff.file}} {% else %} {{annotation.gtf.file}} {% endif %} --feature_type {{feature_type}} --id_type {{id_type}} {% if summarize_exons %} --summarize_exons {% endif %}
       re-checkrc "Parsing of annotation file failed."

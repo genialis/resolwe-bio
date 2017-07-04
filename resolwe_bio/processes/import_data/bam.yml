@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:alignment:bam:upload
   flow_collection: sample
   category: upload
@@ -33,7 +33,7 @@
     runtime: polyglot
     language: bash
     program: |
-        re-import "{{ src.file_temp }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        re-import {{ src.file_temp }} {{ src.file }} "bam" "bam" 0.3 extract
 
         samtools index "${NAME}.bam" 2> stderr.txt
         indexrc=$?
@@ -64,7 +64,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.9
+  version: 1.0.10
   type: data:alignment:bam:upload
   category: upload
   flow_collection: sample
@@ -95,10 +95,10 @@
     runtime: polyglot
     language: bash
     program: |
-        re-import "{{ src.file_temp }}" "{{ src.file }}" "bam" "bam" 0.3 extract
+        re-import {{ src.file_temp }} {{ src.file }} "bam" "bam" 0.3 extract
         BAM_NAME=${NAME}.bam
 
-        re-import "{{ src2.file_temp|default(src2.file) }}" "{{ src2.file }}" "bai" "bai" 0.3 extract
+        re-import {{ src2.file_temp|default(src2.file) }} {{ src2.file }} "bai" "bai" 0.3 extract
         BAI_NAME=${NAME}.bai
 
         if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then

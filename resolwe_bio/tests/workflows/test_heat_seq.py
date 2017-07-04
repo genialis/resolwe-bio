@@ -23,6 +23,9 @@ class HeatSeqWorkflowTestCase(BioProcessTestCase):
             }
         )
 
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         variants = Data.objects.last()
 
         def filter_version(line):

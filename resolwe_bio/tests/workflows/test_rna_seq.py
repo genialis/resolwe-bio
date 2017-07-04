@@ -19,6 +19,9 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             }
         )
 
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
     def test_bbduk_star_htseq_workflow(self):
         inputs = {'src': ['workflow_bbduk_star test.fastq.gz']}
         reads = self.run_processor('upload-fastq-single', inputs)
@@ -45,6 +48,9 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             }
         )
 
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_reads_rc.tab.gz', compression='gzip')
 
@@ -62,6 +68,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             'stranded': 'no',
             'id_attribute': 'transcript_id'
         })
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
@@ -76,6 +86,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             'stranded': 'no',
             'id_attribute': 'transcript_id'
         })
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
@@ -96,6 +110,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             'stranded': 'no',
             'id_attribute': 'transcript_id'
         })
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
@@ -111,6 +129,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             'stranded': 'no',
             'id_attribute': 'transcript_id'
         })
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')

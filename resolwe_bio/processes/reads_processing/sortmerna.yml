@@ -9,8 +9,8 @@
   name: SortMeRNA 2.0 (single-end)
   requirements:
     expression-engine: jinja
-  data_name: SortMeRNA'{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.0
+  data_name: SortMeRNA{{ reads.fastq.0.file|default("?") }}
+  version: 1.1.1
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -64,19 +64,19 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{reads.fastq.0.file}}' .fastq.gz`
+      NAME=`basename {{reads.fastq.0.file}} .fastq.gz`
 
       READS=()
       {% for r in reads.fastq %}
-        READS+=("{{ r.file }}")
+        READS+=({{ r.file }})
       {% endfor %}
 
       cat "${READS[@]}" > reads.fastq.gz
       gzip -d reads.fastq.gz
 
       {% for d in database_selection %}
-        DB_NAME=`basename '{{d.fasta.file}}' .fasta.gz`
-        gzip -cd '{{d.fasta.file}}' > ${DB_NAME}.fasta
+        DB_NAME=`basename {{d.fasta.file}} .fasta.gz`
+        gzip -cd {{d.fasta.file}} > ${DB_NAME}.fasta
         rRNAdb=$rRNAdb"${DB_NAME}.fasta,${DB_NAME}-db:"
       {% endfor %}
 
@@ -121,7 +121,7 @@
 
 
 - slug: sortmerna-paired
-  version: 1.1.0
+  version: 1.1.1
   name: SortMeRNA 2.0 (paired-end)
   requirements:
     expression-engine: jinja
@@ -199,12 +199,12 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME1=`basename '{{reads.fastq.0.file}}' .fastq.gz`
-      NAME2=`basename '{{reads.fastq2.0.file}}' .fastq.gz`
+      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
 
       FW_READS=()
       {% for r in reads.fastq %}
-        FW_READS+=("{{ r.file }}")
+        FW_READS+=({{ r.file }})
       {% endfor %}
 
       cat "${FW_READS[@]}" > reads_fw.fastq.gz
@@ -212,15 +212,15 @@
 
       RW_READS=()
       {% for r in reads.fastq2 %}
-        RW_READS+=("{{ r.file }}")
+        RW_READS+=({{ r.file }})
       {% endfor %}
 
       cat ${RW_READS} > reads_rw.fastq.gz
       gzip -d reads_rw.fastq.gz
 
       {% for d in database_selection %}
-        DB_NAME=`basename '{{d.fasta.file}}' .fasta.gz`
-        gzip -cd '{{d.fasta.file}}' > "${DB_NAME}.fasta"
+        DB_NAME=`basename {{d.fasta.file}} .fasta.gz`
+        gzip -cd {{d.fasta.file}} > "${DB_NAME}.fasta"
         rRNAdb=$rRNAdb"${DB_NAME}.fasta,${DB_NAME}-db:"
       {% endfor %}
 

@@ -11,7 +11,7 @@
       memory: 16384
     expression-engine: jinja
   data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
-  version: 1.0.5
+  version: 1.0.6
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED
@@ -31,6 +31,6 @@
     runtime: polyglot
     language: bash
     program: |
-      flatfile-to-json.pl --gff '{{gff.gff.file}}' --out . --trackLabel "annotation"
+      flatfile-to-json.pl --gff {{gff.gff.file}} --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
       re-save-file annotation_track trackList.json tracks/annotation

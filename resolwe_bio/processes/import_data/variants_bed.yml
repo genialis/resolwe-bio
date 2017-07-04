@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.9
+  version: 1.0.10
   type: data:variants:bed
   category: upload
   persistence: RAW
@@ -29,5 +29,5 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "bed" "bed" 1.0
+      re-import {{ src.file_temp }} {{ src.file }} "bed" "bed" 1.0
       re-save-file bed ${NAME}.bed

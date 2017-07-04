@@ -9,7 +9,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'RefSeq track ({{ refseq.fasta.file|default("?") }})'
-  version: 1.0.4
+  version: 1.0.5
   type: data:jbrowse:refseq:genome
   category: jbrowse
   persistence: CACHED
@@ -29,7 +29,7 @@
     runtime: polyglot
     language: bash
     program: |
-      prepare-refseqs.pl --fasta '{{refseq.fasta.file}}' --out .
+      prepare-refseqs.pl --fasta {{refseq.fasta.file}} --out .
       re-checkrc "Reference sequence processing for JBrowse failed."
       re-progress 0.9
       re-save-file refseq_track seq/refSeqs.json seq

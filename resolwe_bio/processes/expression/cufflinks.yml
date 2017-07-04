@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.12
+  version: 1.0.13
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -91,11 +91,11 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ alignment.bam.file }}' .bam`
+      NAME=`basename {{ alignment.bam.file }} .bam`
 
       re-progress 0.1
 
-      cufflinks {% if gff %} '{{ annotation_usage }}' {% if gff.gtf.file %} "{{ gff.gtf.file }}" {% elif gff.gff.file %} "{{ gff.gff.file }}" {% endif %} {% endif %} {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M '{{ mask_file.gtf.file }}' {% endif %} --library-type '{{ library_type }}' --num-threads '{{ threads }}' --quiet '{{ alignment.bam.file }}'
+      cufflinks {% if gff %} {{ annotation_usage }} {% if gff.gtf.file %} {{ gff.gtf.file }} {% elif gff.gff.file %} {{ gff.gff.file }} {% endif %} {% endif %} {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M {{ mask_file.gtf.file }} {% endif %} --library-type {{ library_type }} --num-threads {{ threads }} --quiet {{ alignment.bam.file }}
 
       re-checkrc
       re-progress 0.9

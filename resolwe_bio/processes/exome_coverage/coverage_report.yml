@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Coverage report ({{ mapping.bam.file|basename|default('?') }})"
-  version: 2.0.6
+  version: 2.0.7
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -65,7 +65,7 @@
     runtime: polyglot
     language: bash
     program: |
-      garvan_coverage.py {{ filter }} '{{ mapping.bam.file }}' '{{ gtf.gtf.file }}' {% if variants %}--variants '{{ variants.vcf.file }}'{% endif %} {% for g in genes %}"{{g}}" {% endfor %}
+      garvan_coverage.py {{ filter }} {{ mapping.bam.file }} {{ gtf.gtf.file }} {% if variants %}--variants {{ variants.vcf.file }}{% endif %} {% for g in genes %}{{g}} {% endfor %}
       re-checkrc
 
       re-save-file exon_coverage exons.txt.gz

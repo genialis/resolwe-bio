@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.0.14
+  version: 1.0.15
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -65,25 +65,30 @@
       {% endfor %}
 
       {% for exp in expressions %}
-        echo '{{ exp.transcripts.file }}' >> transcript_assembly_list.txt
+        echo {{ exp.transcripts.file }} >> transcript_assembly_list.txt
         re-checkrc
       {% endfor %}
 
       {% for annotation in gtf %}
-        echo '{{ annotation.gtf.file }}' >> transcript_assembly_list.txt
+        echo {{ annotation.gtf.file }} >> transcript_assembly_list.txt
         re-checkrc
       {% endfor %}
 
       re-progress 0.1
 
       {% if gff.gff.file %}
-        gffread '{{gff.gff.file}}' -T -o reference_annotation.gtf
+        gffread {{gff.gff.file}} -T -o reference_annotation.gtf
         re-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
       {% endif %}
 
       echo "Running Cuffmerge"
 
-      cuffmerge {% if gff.gtf.file %} --ref-gtf '{{ gff.gtf.file }}' {% else %} --ref-gtf reference_annotation.gtf {% endif %} {% if genome %} --ref-sequence '{{ genome.fasta.file }}' {% endif %} --num-threads '{{ threads }}' -o ./ transcript_assembly_list.txt
+      cuffmerge \
+        {% if gff.gtf.file %} --ref-gtf {{ gff.gtf.file }} {% else %} --ref-gtf reference_annotation.gtf {% endif %} \
+        {% if genome %} --ref-sequence {{ genome.fasta.file }} {% endif %} \
+        --num-threads {{ threads }} \
+        -o ./ \
+        transcript_assembly_list.txt
 
       re-checkrc
       re-progress 0.95

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ name }}"
-  version: 1.0.10
+  version: 1.0.11
   type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED
@@ -53,17 +53,17 @@
         {% endif %}
       {% endfor %}
 
-      expressionmerge.py {% for c in case %}"{{c.rc.file}}" {% endfor %} {% for c in control %}"{{c.rc.file}}" {% endfor %} --experiments {% for c in case %}"Case_Counts_{{c|id}}" {% endfor %} {% for c in control %}"Control_Counts_{{c|id}}" {% endfor %} > expressions.tab
+      expressionmerge.py {% for c in case %}{{c.rc.file}} {% endfor %} {% for c in control %}{{c.rc.file}} {% endfor %} --experiments {% for c in case %}"Case_Counts_"{{c|id}} {% endfor %} {% for c in control %}"Control_Counts_"{{c|id}} {% endfor %} > expressions.tab
       echo "{\"proc.progress\":0.1,\"proc.rc\":$?}"
 
       run_bayseq.R expressions.tab {{mappability.mappability.file}} --groups {% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %} --replicates {% if replicates %}{% for r in replicates %}{{r}} {% endfor %}{% else %}{% for c in case %}1 {% endfor %}{% for c in control %}2 {% endfor %}{% endif %}
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
 
-      expressionmedian.py {% for c in case %}"{{c.exp.file}}" {% endfor %} --name Case_RPKUM_ > rpkum_median_case.tab
+      expressionmedian.py {% for c in case %}{{c.exp.file}} {% endfor %} --name Case_RPKUM_ > rpkum_median_case.tab
       gzip rpkum_median_case.tab
       echo "{\"proc.progress\":0.85,\"proc.rc\":$?}"
 
-      expressionmedian.py {% for c in control %}"{{c.exp.file}}" {% endfor %} --name Control_RPKUM_ > rpkum_median_control.tab
+      expressionmedian.py {% for c in control %}{{c.exp.file}} {% endfor %} --name Control_RPKUM_ > rpkum_median_control.tab
       gzip rpkum_median_control.tab
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"
 

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.11
+  version: 1.0.12
   type: data:bigwig:mappability
   category: upload
   persistence: RAW
@@ -29,5 +29,5 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import "{{ src.file_temp }}" "{{ src.file }}" "bw|bigwig|bigWig" "bw" 0.1
+      re-import {{ src.file_temp }} {{ src.file }} "bw|bigwig|bigWig" "bw" 0.1
       echo "{\"bigwig\":{\"file\":\"${NAME}.bw\"}}"

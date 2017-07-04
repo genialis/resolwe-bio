@@ -6,7 +6,7 @@
     executor:
       docker:
         image: "resolwebio/archive-samples"
-  version: 0.0.3
+  version: 0.0.4
   type: "data:archive:samples"
   category: other
   persistence: TEMP
@@ -42,29 +42,29 @@
         {% for field in fields %}
           {% if d[field].file %}
             mkdir -p {{d|sample_slug}}/{{field}}/
-            ln -s --backup=numbered "{{ d[field].file }}" "{{d|sample_slug}}/{{field}}/{{ d[field].file|basename }}"
+            ln -s --backup=numbered {{ d[field].file }} {{d|sample_slug}}/{{field}}/{{ d[field].file|basename }}
             {% for ref in d[field].refs %}
-              ln -s --backup=numbered "{{ ref }}" "{{d|sample_slug}}/{{field}}/{{ref|basename}}"
+              ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
             {% endfor %}
           {% endif %}
           {% for file in d[field] %}
             {% if file.file %}
               mkdir -p {{d|sample_slug}}/{{field}}/
-              ln -s --backup=numbered "{{ file.file }}" "{{d|sample_slug}}/{{field}}/{{ file.file|basename }}"
+              ln -s --backup=numbered {{ file.file }} {{d|sample_slug}}/{{field}}/{{ file.file|basename }}
               {% for ref in file.refs %}
-                ln -s --backup=numbered "{{ ref }}" "{{d|sample_slug}}/{{field}}/{{ref|basename}}"
+                ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
               {% endfor %}
             {% endif %}
           {% endfor %}
         {% endfor %}
 
         if [[ {{ d|type }} == "data:alignment:bam"* ]]; then
-          mv "{{d|sample_slug}}/bai/{{ d.bai.file|basename }}" "{{d|sample_slug}}/bam/{{ d.bai.file|basename }}"
+          mv {{d|sample_slug}}/bai/{{ d.bai.file|basename }} {{d|sample_slug}}/bam/{{ d.bai.file|basename }}
           rm -r "{{d|sample_slug}}/bai"
-          IGV_FILES+=("{{d|sample_slug}}/bam/{{ d.bam.file|basename }}")
+          IGV_FILES+=({{d|sample_slug}}/bam/{{ d.bam.file|basename }})
 
         elif [[ {{ d|type }} == "data:variants:vcf"* ]]; then
-          IGV_FILES+=("{{d|sample_slug}}/vcf/{{ d.vcf.file|basename }}")
+          IGV_FILES+=({{d|sample_slug}}/vcf/{{ d.vcf.file|basename }})
         fi
       {% endfor %}
 

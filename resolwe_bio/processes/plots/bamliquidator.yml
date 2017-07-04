@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Bamliquidator"
-  version: 0.0.10
+  version: 0.0.11
   type: data:bam:plot:bamliquidator
   category: analyses
   persistence: CACHED
@@ -138,25 +138,25 @@
       BAM_BAI_PARAMS=()
       ALL_MODE_PAR=()
 
-      BAM_PARAMS+=({% for bam_file in bam %}"{{bam_file.bam.file}}" {% endfor %})
-      BAM_BAI_PARAMS+=({% for bai_file in bam %}"{{bai_file.bai.file}}" {% endfor %})
+      BAM_PARAMS+=({% for bam_file in bam %}{{bam_file.bam.file}} {% endfor %})
+      BAM_BAI_PARAMS+=({% for bai_file in bam %}{{bai_file.bai.file}} {% endfor %})
       SKIP_PLOT='{% if skip_plot %} --skip_plot {% endif%}'
       BLACK_LIST='{% if black_list %} --black_list {{black_list|join(' ')}}{% endif%}'
       SENSE='{% if sense %} --sense {{ sense }}{% endif %}'
       EXTENSION='{% if extension %} -e {{ extension }}{% endif %}'
 
-      ALL_MODE_PAR+=("{{ cell_type }}" -n {{threads}} --xml_timings ${BLACK_LIST} ${EXTENSION} ${SENSE} -o output)
+      ALL_MODE_PAR+=({{ cell_type }} -n {{threads}} --xml_timings ${BLACK_LIST} ${EXTENSION} ${SENSE} -o output)
 
       echo "Creating folder with bams..."
-      mkdir "{{ cell_type }}"
+      mkdir {{ cell_type }}
       for file in "${BAM_PARAMS[@]}"; do
         NAME=`basename "$file" .bam`
-        ln -s "$file" "{{ cell_type }}"/"${NAME}".bam
+        ln -s "$file" {{ cell_type }}/"${NAME}".bam
       done
 
       for file in "${BAM_BAI_PARAMS[@]}"; do
         NAME=`basename "$file" .bam.bai`
-        ln -s "$file" "{{ cell_type }}"/"${NAME}".bam.bai
+        ln -s "$file" {{ cell_type }}/"${NAME}".bam.bai
       done
 
       if [ {{ analysis_type }} == "bin" ]; then
@@ -185,8 +185,8 @@
         BAM_NAMES=()
 
         {% for bam_file in bam %}
-          SAMPLE_NAMES+=("{{ bam_file|sample_name }}" )
-          NAME=`basename "{{bam_file.bam.file}}"`
+          SAMPLE_NAMES+=({{ bam_file|sample_name }} )
+          NAME=`basename {{bam_file.bam.file}}`
           BAM_NAMES+=("${NAME}")
         {% endfor %}
         bamliquidator_table.py --sample_names "${SAMPLE_NAMES[@]}" --bam_files "${BAM_NAMES[@]}" --matrix_table output/matrix.txt
@@ -195,7 +195,7 @@
         re-save-file matrix output/matrix.txt
 
         zip -r output.zip output
-        GTF_NAME=`basename "{{regions_gtf.gtf.file}}" .gtf`
+        GTF_NAME=`basename {{regions_gtf.gtf.file}} .gtf`
         mv output.zip "${GTF_NAME}".zip
         re-save-file output_dir "${GTF_NAME}".zip
 

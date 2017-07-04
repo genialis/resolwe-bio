@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.0.4
+  version: 1.0.5
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -102,57 +102,63 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ variants.vcf.file }}' .vcf`
+      NAME=`basename {{ variants.vcf.file }} .vcf`
       re-progress 0.05
 
       cp {{variants.vcf.file}} .
 
-      Rscript -e 'library(chemut)' -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", parental_strain = "{{parental_strain}}", mutant_strain = "{{mutant_strain}}", read_depth = '{{read_depth}}')'
+      Rscript \
+        -e 'library(chemut)' \
+        -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", parental_strain = "'{{parental_strain}}'", mutant_strain = "'{{mutant_strain}}'", read_depth = "'{{read_depth}}'")'
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
 
-      re-save-file summary ${NAME}.vcf_{{read_depth}}/summary.txt
+      re-save-file summary "${NAME}.vcf_"{{read_depth}}"/summary.txt"
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/variants.vcf ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/variants.vcf" ];
       then
-        bgzip -c "${NAME}.vcf_{{read_depth}}/variants.vcf" > "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
-        tabix -p vcf "${NAME}.vcf_{{read_depth}}/variants.vcf.bgz"
-        re-save-file vcf ${NAME}.vcf_{{read_depth}}/variants.vcf ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz ${NAME}.vcf_{{read_depth}}/variants.vcf.bgz.tbi
+        bgzip -c "${NAME}.vcf_"{{read_depth}}"/variants.vcf" > "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz"
+        tabix -p vcf "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz"
+        re-save-file \
+          vcf \
+          "${NAME}.vcf_"{{read_depth}}"/variants.vcf" \
+          "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz" \
+          "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz.tbi"
       else
         re-error "No variants have passed the filters. VCF file was not created."
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/variant_filtered.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/variant_filtered.txt" ];
       then
-        re-save-file variants_filtered ${NAME}.vcf_{{read_depth}}/variant_filtered.txt
+        re-save-file variants_filtered "${NAME}.vcf_"{{read_depth}}"/variant_filtered.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/variant_mult_alt.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/variant_mult_alt.txt" ];
       then
-        re-save-file variants_filtered_alt ${NAME}.vcf_{{read_depth}}/variant_mult_alt.txt
+        re-save-file variants_filtered_alt "${NAME}.vcf_"{{read_depth}}"/variant_mult_alt.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/gene_list_all.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/gene_list_all.txt" ];
       then
-        re-save-file gene_list_all ${NAME}.vcf_{{read_depth}}/gene_list_all.txt
+        re-save-file gene_list_all "${NAME}.vcf_"{{read_depth}}"/gene_list_all.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/gene_list_top.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/gene_list_top.txt" ];
       then
-        re-save-file gene_list_top ${NAME}.vcf_{{read_depth}}/gene_list_top.txt
+        re-save-file gene_list_top "${NAME}.vcf_"{{read_depth}}"/gene_list_top.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/mutations_by_chr.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/mutations_by_chr.txt" ];
       then
-        re-save-file mut_chr ${NAME}.vcf_{{read_depth}}/mutations_by_chr.txt
+        re-save-file mut_chr "${NAME}.vcf_"{{read_depth}}"/mutations_by_chr.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/mutations_by_strain.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/mutations_by_strain.txt" ];
       then
-        re-save-file mut_strain ${NAME}.vcf_{{read_depth}}/mutations_by_strain.txt
+        re-save-file mut_strain "${NAME}.vcf_"{{read_depth}}"/mutations_by_strain.txt"
       fi
 
-      if [ -f ${NAME}.vcf_{{read_depth}}/strain_by_gene.txt ];
+      if [ -f "${NAME}.vcf_"{{read_depth}}"/strain_by_gene.txt" ];
       then
-        re-save-file strain_by_gene ${NAME}.vcf_{{read_depth}}/strain_by_gene.txt
+        re-save-file strain_by_gene "${NAME}.vcf_"{{read_depth}}"/strain_by_gene.txt"
       fi

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "bamplot"
-  version: 1.1.0
+  version: 1.1.1
   type: data:bam:plot:bamplot
   category: plotting
   persistence: CACHED
@@ -151,69 +151,84 @@
     runtime: polyglot
     language: bash
     program: |
-
-      BAM_PARAMS=()
-
+      # Create output directory.
       mkdir output_plot
-      BAM_PARAMS+=({% for bam_file in bam %}"{{bam_file.bam.file}}" {% endfor %})
-      SCALE_PARAM='{% if scale %}--scale {{scale}}{% endif %}'
-      BED_PARAM='{% if bed %}--bed {{bed|join(',', attribute='BED.file')}}{% endif %}'
-      STRETCH_PARAM='{% if stretch_input %}--stretch-input {{stretch_input}}{% endif %}'
-      MULTI_PAGE_PARAM='{% if multi_page %}--multi_page {{multi_page}}{% endif %}'
-      NAMES='{% if names %}--names {{names|join(',')}}{% endif %}'
 
-      OTHER_PARAMS="--genome {{genome}} --color {{color}} --extension {{extension}} --sense {{sense}} --yScale {{yscale}} {% if rpm %}--rpm{% endif %} ${NAMES} --plot {{plot}} --output output_plot --title {{title}}"
-
-      BAMPLOT_PARAMS="--bam ${BAM_PARAMS[@]} ${SCALE_PARAM} ${BED_PARAM} ${STRETCH_PARAM} ${MULTI_PAGE_PARAM} ${OTHER_PARAMS}"
+      # Build parameters.
+      params=()
+      params+=("--bam")
+      params+=({% for bam_file in bam %}{{bam_file.bam.file}} {% endfor %})
+      {% if scale %}
+        params+=("--scale" {{scale}})
+      {% endif %}
+      {% if bed %}
+        params+=("--bed" {{bed|join(',', attribute='BED.file')}})
+      {% endif %}
+      {% if stretch_input %}
+        params+=("--stretch-input" {{stretch_input}})
+      {% endif %}
+      {% if multi_page %}
+        params+=("--multi_page" {{multi_page}})
+      {% endif %}
+      params+=("--genome" {{genome}})
+      params+=("--color" {{color}})
+      params+=("--extension" {{extension}})
+      params+=("--sense" {{sense}})
+      params+=("--yScale" {{yscale}})
+      {% if rpm %}
+        params+=("--rpm")
+      {% endif %}
+      {% if names %}
+        params+=("--names" {{names|join(',')}})
+      {% endif %}
+      params+=("--plot" {{plot}})
+      params+=("--output" "output_plot")
+      params+=("--title" {{title}})
 
       {% if input_region %}
-        bamplot --input {{input_region}} ${BAMPLOT_PARAMS}
+        bamplot --input {{input_region}} "${params[@]}"
 
         re-checkrc "bamplot failed."
 
         {% if multi_page %}
           {% if title != "output" %}
-            re-save-file plot output_plot/{{title}}_plots_NA.pdf
+            re-save-file plot "output_plot/"{{title}}"_plots_NA.pdf"
 
           {% else %}
-            mv output_plot/{{title}}_plots_NA.pdf output_plot/{{input_region}}_plots_NA.pdf
-            re-save-file plot output_plot/{{input_region}}_plots_NA.pdf
+            mv "output_plot/"{{title}}"_plots_NA.pdf" "output_plot/"{{input_region}}"_plots_NA.pdf"
+            re-save-file plot "output_plot/"{{input_region}}"_plots_NA.pdf"
           {% endif %}
 
         {% else %}
           {% if title != "output" %}
-            re-save-file plot output_plot/{{title}}_plots.pdf
-
+            re-save-file plot "output_plot/"{{title}}"_plots.pdf"
           {% else %}
-            mv output_plot/{{title}}_plots.pdf output_plot/{{input_region}}_plots.pdf
-            re-save-file plot output_plot/{{input_region}}_plots.pdf
+            mv "output_plot/"{{title}}"_plots.pdf" "output_plot/"{{input_region}}"_plots.pdf"
+            re-save-file plot "output_plot/"{{input_region}}"_plots.pdf"
           {% endif %}
         {% endif %}
 
       {% elif input_gff %}
         ln -s {{input_gff.gtf.file}} annotation.gff
-        bamplot --input annotation.gff ${BAMPLOT_PARAMS}
+        bamplot --input annotation.gff "${params[@]}"
 
         re-checkrc "bamplot failed."
 
-        NAME=`basename '{{input_gff.gff.file}}' .gff`
+        NAME=`basename {{input_gff.gff.file}} .gff`
 
         {% if multi_page %}
           {% if title != "output" %}
-            re-save-file plot output_plot/{{title}}_plots_NA.pdf
-
+            re-save-file plot "output_plot/"{{title}}"_plots_NA.pdf"
           {% else %}
-            mv output_plot/{{title}}_plots_NA.pdf output_plot/${NAME}_plots_NA.pdf
-            re-save-file plot output_plot/${NAME}_plots_NA.pdf
+            mv "output_plot/"{{title}}"_plots_NA.pdf" "output_plot/${NAME}_plots_NA.pdf"
+            re-save-file plot "output_plot/${NAME}_plots_NA.pdf"
           {% endif %}
-
         {% else %}
           {% if title != "output" %}
-            re-save-file plot output_plot/{{title}}_plots.pdf
-
+            re-save-file plot "output_plot/"{{title}}"_plots.pdf"
           {% else %}
-            mv output_plot/{{title}}_plots.pdf output_plot/${NAME}_plots.pdf
-            re-save-file plot output_plot/${NAME}_plots.pdf
+            mv "output_plot/"{{title}}"_plots.pdf" "output_plot/${NAME}_plots.pdf"
+            re-save-file plot "output_plot/${NAME}_plots.pdf"
           {% endif %}
         {% endif %}
 

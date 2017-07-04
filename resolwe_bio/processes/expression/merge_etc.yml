@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Merged ETC"
-  version: 1.0.6
+  version: 1.0.7
   type: data:expressionset:etc
   category: analyses
   persistence: CACHED
@@ -33,7 +33,11 @@
     runtime: polyglot
     language: bash
     program: |
-      mergeetc.py {% for e in exps %}"{{e.etcfile.file}}" {% endfor %} {% if genes %}--genes {% for g in genes %}"{{g}}" {% endfor %}{% endif %} --experiments {% for e in exps %}"{{e|name}}" {% endfor %} --out 'etc.tab'
+      mergeetc.py \
+        {% for e in exps %}{{e.etcfile.file}} {% endfor %} \
+        {% if genes %}--genes {% for g in genes %}{{g}} {% endfor %}{% endif %} \
+        --experiments {% for e in exps %}{{e|name}} {% endfor %} \
+        --out 'etc.tab'
 
       gzip 'etc.tab'
       re-save-file expset 'etc.tab.gz'

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -142,24 +142,68 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename '{{ alignments.bam.file}}' .bam`
+      NAME=`basename {{ alignments.bam.file}} .bam`
 
       COUNT_MULTI_MAPPING_READS="{% if count_multi_mapping_reads %} -M{% endif %}"
-
       REQUIRE_BOTH_ENDS_MAPPED="{% if PE_options.require_both_ends_mapped %} -B{% endif %}"
       COUNT_CHIMERIC_FRAGMENTS="{% if PE_options.count_chimeric_fragments %} -C{% endif %}"
-      ANNOTATION="{% if annotation.gtf.file %}{{ annotation.gtf.file }}{% elif annotation.gff.file %}{{ annotation.gff.file }}{% elif annotation.merged_gtf.file %}{{ annotation.merged_gtf.file }}{% endif %}"
 
-      if [samtools view -c -f 1 '{{ alignments.bam.file }}' ]; then
-        featureCounts -a ${ANNOTATION} -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} ${REQUIRE_BOTH_ENDS_MAPPED} ${COUNT_CHIMERIC_FRAGMENTS} -p -R "{{ alignments.bam.file }}"
+      ANNOTATION=""
+      {% if annotation.gtf.file %}
+        ANNOTATION={{ annotation.gtf.file }}
+      {% elif annotation.gff.file %}
+        ANNOTATION={{ annotation.gff.file }}
+      {% elif annotation.merged_gtf.file %}
+        ANNOTATION={{ annotation.merged_gtf.file }}
+      {% endif %}
+
+      if [samtools view -c -f 1 {{ alignments.bam.file }} ]; then
+        featureCounts \
+          -a "${ANNOTATION}" \
+          -o "featureCounts_rc.txt" \
+          -g {{ id_attribute }} \
+          -F {{ format_of_annotation }} \
+          ${COUNT_MULTI_MAPPING_READS} \
+          -Q {{ min_mqs }} \
+          -s {{ strand_specific }} \
+          -t {{ feature_type }} \
+          -T {{ cpu_number }} \
+          ${REQUIRE_BOTH_ENDS_MAPPED} \
+          ${COUNT_CHIMERIC_FRAGMENTS} \
+          -p \
+          -R {{ alignments.bam.file }}
       else
-        featureCounts -a ${ANNOTATION} -o "featureCounts_rc.txt" -g {{ id_attribute }} -F {{ format_of_annotation }} ${COUNT_MULTI_MAPPING_READS} -Q {{ min_mqs }} -s {{ strand_specific }} -t {{ feature_type }} -T {{ cpu_number }} -R "{{ alignments.bam.file }}"
+        featureCounts \
+          -a "${ANNOTATION}" \
+          -o "featureCounts_rc.txt" \
+          -g {{ id_attribute }} \
+          -F {{ format_of_annotation }} \
+          ${COUNT_MULTI_MAPPING_READS} \
+          -Q {{ min_mqs }} \
+          -s {{ strand_specific }} \
+          -t {{ feature_type }} \
+          -T {{ cpu_number }} \
+          -R {{ alignments.bam.file }}
       fi
       re-checkrc "featureCounts failed"
 
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
-      ANNOTATION_FORMAT="{% if annotation.gtf.file %}"gtf"{% elif annotation.gff.file %}"gff3"{% elif annotation.merged_gtf.file %}"gtf"{% endif %}"
-      expression_fpkm_tpm.R  ${ANNOTATION} ${ANNOTATION_FORMAT} '{{ feature_type }}' '{{ id_attribute }}' 'rc_wo_header.txt'
+
+      ANNOTATION_FORMAT=""
+      {% if annotation.gtf.file %}
+        ANNOTATION_FORMAT="gtf"
+      {% elif annotation.gff.file %}
+        ANNOTATION_FORMAT="gff3"
+      {% elif annotation.merged_gtf.file %}
+        ANNOTATION_FORMAT="gtf"
+      {% endif %}
+
+      expression_fpkm_tpm.R  \
+        "${ANNOTATION}" \
+        ${ANNOTATION_FORMAT} \
+        {{ feature_type }} \
+        {{ id_attribute }} \
+        'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 
@@ -167,12 +211,12 @@
       add_header.py fpkm_wo_header.tab fpkm.tab
       add_header.py tpm_wo_header.tab tpm.tab
 
-      gzip -c featureCounts_rc.txt > ${NAME}_featureCounts_rc.txt.gz
-      gzip -c rc.txt > ${NAME}_rc.tab.gz
-      gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
-      gzip -c tpm.tab > ${NAME}_tpm.tab.gz
+      gzip -c featureCounts_rc.txt > "${NAME}_featureCounts_rc.txt.gz"
+      gzip -c rc.txt > "${NAME}_rc.tab.gz"
+      gzip -c fpkm.tab > "${NAME}_fpkm.tab.gz"
+      gzip -c tpm.tab > "${NAME}_tpm.tab.gz"
 
-      expression2storage.py --output json.txt ${NAME}_tpm.tab.gz
+      expression2storage.py --output json.txt "${NAME}_tpm.tab.gz"
       re-checkrc
       re-save exp_json json.txt
       re-progress 0.95
