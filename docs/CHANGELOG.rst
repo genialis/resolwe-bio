@@ -41,6 +41,7 @@ Added
 * Add D. melanogaster organism choice to Sample descriptor schema
 * Set core resource requirement in Bowtie process to 1
 * Set memory resource requirement in amplicon BWA trim process to 32GB
+* Add new master file choices to amplicon panel descriptor schema
 
 Fixed
 -----
