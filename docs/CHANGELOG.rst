@@ -42,6 +42,7 @@ Added
 * Set core resource requirement in Bowtie process to 1
 * Set memory resource requirement in amplicon BWA trim process to 32GB
 * Add new master file choices to amplicon panel descriptor schema
+* Add S. tuberosum organism choice to RNA-seq workflow
 
 Fixed
 -----
