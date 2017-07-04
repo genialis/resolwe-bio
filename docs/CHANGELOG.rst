@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+================
+1.4.0 2017-07-04
+================
 
 Added
 -----
@@ -35,8 +35,10 @@ Added
 * Add S. tuberosum organism choice to Sample descriptor schema
 * Add log2 to gene and sample hierarchical clustering
 * Add new inputs to import SRA, add read type selection process
-* Set memory resource requirement in jbrowse annotation gff3 and gtf processes to 16GB
-* Set memory resource requirement in star alignment and index processes to 32GB
+* Set memory resource requirement in jbrowse annotation gff3 and gtf
+  processes to 16GB
+* Set memory resource requirement in star alignment and index processes
+  to 32GB
 * Add C. elegans organism choice to Sample descriptor schema
 * Add D. melanogaster organism choice to Sample descriptor schema
 * Set core resource requirement in Bowtie process to 1
@@ -48,7 +50,8 @@ Fixed
 -----
 * Use new import paths in ``resolwe.flow``
 * Upload reads (paired/single) containing whitespace in the file name
-* Fix reads filtering processes for cases where input read file names contain whitespace
+* Fix reads filtering processes for cases where input read file names
+  contain whitespace
 * Add additional filtering option to STAR aligner
 * Fix bbduk-star-htseq_count workflow
 * Fix cuffnorm process: Use sample names as labels (boxplot, tables),
@@ -57,7 +60,8 @@ Fixed
 * Derive output filenames in hisat2 from the first reads filename
 * Correctly fetch KB features in ``goea.py``
 * Append JBrowse tracks to sample
-* Replace the BAM MD tag in `align-bwa-trim` process to correct for an issue with the primerclip tool
+* Replace the BAM MD tag in `align-bwa-trim` process to correct for an
+  issue with the primerclip tool
 * Fix typo in trimmomatic and bbduk processes
 
 Changed
@@ -65,13 +69,15 @@ Changed
 * Support Resolwe test framework
 * Run tests in parallel with Tox
 * Use Resolwe's new ``FLOW_DOCKER_COMMAND`` setting in test project
-* Always run Tox's ``docs``, ``linters`` and ``packaging`` environments with
-  Python 3
-* Add ``extra`` Tox testing environment with a check that there are no large
-  test files in ``resolwe_bio/tests/files``
+* Always run Tox's ``docs``, ``linters`` and ``packaging`` environments
+  with Python 3
+* Add ``extra`` Tox testing environment with a check that there are no
+  large test files in ``resolwe_bio/tests/files``
 * Replace Travis CI with Genialis' Jenkins for running the tests
-* Store compressed and uncompressed .fasta files in ``data:genome:fasta`` objects
-* Change sample_geo descriptor schema to have strain option available for all organisms
+* Store compressed and uncompressed .fasta files in
+  ``data:genome:fasta`` objects
+* Change sample_geo descriptor schema to have strain option available
+  for all organisms
 * More readable rna-seq-quantseq schema, field stranded
 * Remove obsolete Gene Info processes
 * Change log2(fc) default from 2 to 1 in diffexp descriptor schema
