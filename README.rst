@@ -79,15 +79,15 @@ example, on a Fedora/RHEL-based system, that would mean installing ``gcc``,
 .. _PyPi: https://pypi.python.org/
 .. _GCC: https://gcc.gnu.org/
 
-From PyPI_
-----------
+Using PyPI_
+-----------
 
 .. code::
 
     pip install resolwe-bio
 
-From source
------------
+Using source on GitHub_
+-----------------------
 
 .. code::
 
@@ -102,6 +102,7 @@ the latest Resolwe Bioinformatics from the ``master`` branch, use:
    pip install https://github.com/genialis/resolwe-bio/archive/master.tar.gz
 
 .. _`Resolwe Bioinformatics' GitHub repository`: https://github.com/genialis/resolwe-bio/
+.. _GitHub: `Resolwe Bioinformatics' GitHub repository`_
 
 
 Contribute
