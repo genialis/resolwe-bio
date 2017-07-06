@@ -84,14 +84,14 @@ From PyPI_
 
 .. code::
 
-    pip install --process-dependency-links resolwe-bio
+    pip install resolwe-bio
 
 From source
 -----------
 
 .. code::
 
-   pip install --process-dependency-links https://github.com/genialis/resolwe-bio/archive/<git-tree-ish>.tar.gz
+   pip install https://github.com/genialis/resolwe-bio/archive/<git-tree-ish>.tar.gz
 
 where ``<git-tree-ish>`` can represent any commit SHA, branch name, tag name,
 etc. in `Resolwe Bioinformatics' GitHub repository`_. For example, to install
@@ -99,7 +99,7 @@ the latest Resolwe Bioinformatics from the ``master`` branch, use:
 
 .. code::
 
-   pip install --process-dependency-links https://github.com/genialis/resolwe-bio/archive/master.tar.gz
+   pip install https://github.com/genialis/resolwe-bio/archive/master.tar.gz
 
 .. _`Resolwe Bioinformatics' GitHub repository`: https://github.com/genialis/resolwe-bio/
 

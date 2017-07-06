@@ -14,6 +14,11 @@ Changed
 -------
 * Optionally report all amplicons in Amplicon table
 
+Fixed
+-----
+* Remove remaining references to calling ``pip`` with
+  ``--process-dependency-links`` argument
+
 
 ================
 1.4.0 2017-07-04

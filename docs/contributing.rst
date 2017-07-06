@@ -59,7 +59,7 @@ change directory::
 
 Prepare Resolwe Bioinformatics for development::
 
-    pip install --process-dependency-links -e .[docs,package,test]
+    pip install -e .[docs,package,test]
 
 .. note::
 
