@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import spearmanr
 from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import pdist
 
 from resolwe_runtime_utils import error, warning
 
@@ -106,6 +107,61 @@ distance_sum = cluster[:, 2].sum()
 if distance_sum < 0.1:
     msg = 'All genes distances are 0.'
     print(warning(msg))
+
+
+def swap_children(Z, i, j):
+    """Swap children."""
+    if int(Z[i][j]) >= len(Z) + 1:
+        row = Z[int(Z[i][j]) - len(Z) - 1]
+        row[0], row[1] = row[1], row[0]
+        for k in range(2):
+            swap_children(Z, int(Z[i][j]) - len(Z) - 1, k)
+
+
+def get_condensed_from_square(i, j, n):
+    """Get condensed index from square indices."""
+    assert i != j, "Error: no diagonal elements in condensed matrix."
+    if i < j:
+        i, j = j, i
+    return int(n * j - j * (j + 1) / 2 + i - 1 - j)
+
+
+def get_child(Z, i, j, k):
+    """Get child."""
+    if Z[i][j] < len(Z) + 1:
+        return int(Z[i][j])
+    return get_child(Z, int(Z[i][j]) - len(Z) - 1, k, k)
+
+
+def get_children(Z, i):
+    """Get children."""
+    # ll lr rl rr
+    return [[get_child(Z, i, j, k) for k in range(2)] for j in range(2)]
+
+
+def is_ordered(Z, D, i):
+    """Check if children are ordered."""
+    children = get_children(Z, i)
+    d = [D[get_condensed_from_square(children[0][j], children[1][k], len(Z) + 1)] for j in range(2) for k in range(2)]
+    # ll_rl ll_rr lr_rl lr_rr
+    for j in range(2):
+        for k in range(2):
+            if d[j + 2 * k] == min(d):
+                return [k == 1, j == 0]
+
+
+def order_nn(Z, D):
+    """Order leaves via knn algorithm."""
+    for i in range(len(Z)):
+        ordered = is_ordered(Z, D, i)
+        for k in range(2):
+            if not ordered[k]:
+                swap_children(Z, i, k)
+    return Z
+
+
+dist_condensed = pdist(matrix, metric=distance)
+cluster = order_nn(cluster, dist_condensed)
 
 dend = dendrogram(cluster, no_plot=True)
 
