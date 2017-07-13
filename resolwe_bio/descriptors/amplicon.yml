@@ -1,6 +1,6 @@
 - slug: amplicon-panel
   name: Amplicon panel selection
-  version: 0.0.2
+  version: 0.0.3
   description: Amplicon panel selection template
   schema:
     - name: panel
@@ -8,24 +8,24 @@
       type: basic:string
       default: 56G
       choices:
-        - label: 56G Oncology Panel v2
+        - label: 56G Oncology, v2
           value: 56G
-        - label: BRCA1 and BRCA2 Panel
+        - label: BRCA1 and BRCA2
           value: brca12
-        - label: BRCA1, BRCA2, and PALB2 Panel
+        - label: BRCA1, BRCA2 and PALB2
           value: brca_palb2
-        - label: CFTR Panel
+        - label: CFTR
           value: cftr
-        - label: Comprehensive TP53 Panel
+        - label: Comprehensive TP53
           value: tp53
-        - label: EGFR Pathway Panel
+        - label: EGFR Pathway
           value: egfr
-        - label: Sample_ID Panel
+        - label: Sample_ID
           value: sampleID
 
 - slug: amplicon-panel-advanced
   name: Amplicon panel selection
-  version: 0.0.2
+  version: 0.0.3
   description: Amplicon panel selection template
   schema:
     - name: panel
@@ -33,19 +33,19 @@
       type: basic:string
       default: 56G
       choices:
-        - label: 56G Oncology Panel v2
+        - label: 56G Oncology, v2
           value: 56G
-        - label: BRCA1 and BRCA2 Panel
+        - label: BRCA1 and BRCA2
           value: brca12
-        - label: BRCA1, BRCA2, and PALB2 Panel
+        - label: BRCA1, BRCA2 and PALB2
           value: brca_palb2
-        - label: CFTR Panel
+        - label: CFTR
           value: cftr
-        - label: Comprehensive TP53 Panel
+        - label: Comprehensive TP53
           value: tp53
-        - label: EGFR Pathway Panel
+        - label: EGFR Pathway
           value: egfr
-        - label: Sample_ID Panel
+        - label: Sample_ID
           value: sampleID
     - name: gatk
       label: GATK (HaplotypeCaller) options
