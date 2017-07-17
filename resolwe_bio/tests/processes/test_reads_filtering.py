@@ -157,6 +157,81 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(hsqutils_trimm, 'fastq2', ['hsqutils_reads_trimmed_mate2.fastq.gz'],
                          compression='gzip')
 
+    def test_cutadapt_single(self):
+        reads = self.prepare_reads(['cutadapt_single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+
+        inputs = {
+            'reads': reads.id,
+            'polya_tail': 5,
+            'down_primers_seq': ['AGCACCT'],
+            'up_primers_seq': ['AGCTAAA'],
+            'minlen': 10
+        }
+
+        cutadapt_single = self.run_process('cutadapt-single', inputs)
+
+        self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_single_trimmed.fastq.gz'],
+                         compression='gzip')
+
+        primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
+        primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
+
+        inputs = {
+            'reads': reads.id,
+            'polya_tail': 5,
+            'down_primers_file': primers_down.id,
+            'up_primers_file': primers_up.id,
+            'minlen': 10
+        }
+
+        cutadapt_single = self.run_process('cutadapt-single', inputs)
+
+        self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_single_trimmed.fastq.gz'],
+                         compression='gzip')
+
+    def test_cutadapt_paired(self):
+        reads = self.prepare_paired_reads(mate1=['cutadapt_forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
+                                          mate2=['cutadapt_reverse.fastq.gz'])
+
+        inputs = {
+            'reads': reads.id,
+            'polya_tail': 5,
+            'down_primers_seq_fwd': ['AGCACCT'],
+            'down_primers_seq_rev': ['AGCACCT'],
+            'up_primers_seq_fwd': ['AGCTAAA'],
+            'up_primers_seq_rev': ['AGCTAAA'],
+            'minlen': 10
+        }
+
+        cutadapt_paired = self.run_process('cutadapt-paired', inputs)
+
+        self.assertFiles(cutadapt_paired, 'fastq1', ['cutadapt_paired_forward_trimmed.fastq.gz'],
+                         compression='gzip')
+
+        self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],
+                         compression='gzip')
+
+        primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
+        primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
+
+        inputs = {
+            'reads': reads.id,
+            'polya_tail': 5,
+            'down_primers_file_fwd': primers_down.id,
+            'down_primers_file_rev': primers_down.id,
+            'up_primers_file_fwd': primers_up.id,
+            'up_primers_file_rev': primers_up.id,
+            'minlen': 10
+        }
+
+        cutadapt_paired = self.run_process('cutadapt-paired', inputs)
+
+        self.assertFiles(cutadapt_paired, 'fastq1', ['cutadapt_paired_forward_trimmed.fastq.gz'],
+                         compression='gzip')
+
+        self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],
+                         compression='gzip')
+
     def test_cutadapt_amplicon(self):
         inputs = {
             'src1': ['56GSID_1k_mate1.fastq.gz'],

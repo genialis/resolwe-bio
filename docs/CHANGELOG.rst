@@ -72,6 +72,7 @@ Added
 * Set memory resource requirement in amplicon BWA trim process to 32GB
 * Add new master file choices to amplicon panel descriptor schema
 * Add S. tuberosum organism choice to RNA-seq workflow
+* Add Cutadapt process
 
 Fixed
 -----

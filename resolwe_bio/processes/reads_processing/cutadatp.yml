@@ -1,0 +1,438 @@
+# =============================================
+# Processors for reads procesing - Cutadapt
+# =============================================
+#
+# Processors for NGS reads filtering/trimming
+---
+
+- slug: cutadapt-single
+  name: Cutadapt (single end)
+  requirements:
+    expression-engine: jinja
+  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:reads:fastq:single:cutadapt
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    "Trim 5' and 3' primers using Cutadapt"
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:single
+    - name: up_primers_file
+      label: 5 prime adapter file
+      type: data:seq:nucleotide
+      required: false      
+    - name: down_primers_file
+      label: 3 prime adapter file
+      type: data:seq:nucleotide
+      required: false
+    - name: up_primers_seq
+      label: 5 prime adapter sequence
+      type: list:basic:string
+      required: false      
+    - name: down_primers_seq
+      label: 3 prime adapter sequence
+      type: list:basic:string
+      required: false  
+    - name: polya_tail
+      label: Poly-A tail
+      type: basic:integer
+      required: false
+      description: >
+        Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
+    - name: leading
+      label: Leading quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
+    - name: trailing
+      label: Trailing quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.    
+    - name: crop
+      label: Crop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the read to a specified length by removing bases from the end
+    - name: headcrop
+      label: Headcrop
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the start of the read
+    - name: min_overlap
+      label: Minimal overlap
+      type: basic:integer
+      default: 3
+      description: >
+       Minimum overlap for an adapter match
+    - name: minlen
+      label: Min length
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if it is below a specified length   
+  output:
+    - name: fastq
+      label: Reads file
+      type: list:basic:file
+    - name: report
+      label: Cutadapt report
+      type: basic:file  
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      {% if not up_primers_file
+       and not down_primers_file
+       and not up_primers_seq
+       and not down_primers_seq
+       and not polya_tail
+       and not leading
+       and not trailing
+       and not crop
+       and not headcrop
+       and not minlen %}
+        re-error "At least one parameter required"
+      {% endif %}
+
+      {% if down_primers_file and down_primers_seq %}
+        re-error "3' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}
+
+      {% if up_primers_file and up_primers_seq %}
+        re-error "5' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}
+
+      NAME=`basename {{reads.fastq.0.file}} .fastq.gz`
+
+      READS=({{ reads.fastq|join(' ', attribute='file') }})
+      cat ${READS[@]} > in_reads.fastq.gz
+
+      polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
+      down_primers='{% for primer in down_primers_seq %}-a {{primer}},{% endfor %}'
+      down_primers=${down_primers%?}
+      up_primers='{% for primer in up_primers_seq %}-g {{primer}},{% endfor %}'
+      up_primers=${up_primers%?}
+
+      # Decompress primer files
+      {% if up_primers_file %}
+        gunzip -c {{up_primers_file.fasta.file}} > 5_primers.fasta
+      {% endif %}
+      {% if down_primers_file %}  
+        gunzip -c {{down_primers_file.fasta.file}} > 3_primers.fasta
+      {% endif %}
+
+      # Run Cutadapt
+      cutadapt \
+        {% if headcrop %}-u {{headcrop}}{% endif %} \
+        {% if crop %}-u -{{crop}}{% endif %} \
+        {% if leading %}-q {{leading}}{% endif %} \
+        {% if trailing %}-q {{trailing}},0{% endif %} \
+        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
+        {% if down_primers_seq %}$down_primers{% endif %} \
+        {% if up_primers_seq %}$up_primers{% endif %} \
+        {% if down_primers_file %}-a file:3_primers.fasta{% endif %} \
+        {% if up_primers_file %}-g file:5_primers.fasta{% endif %} \
+        {% if minlen %}-m {{minlen}}{% endif %} \
+        -O {{min_overlap}} -o ${NAME}_trimmed.fastq.gz in_reads.fastq.gz > report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.7
+
+      re-save-file-list fastq ${NAME}_trimmed.fastq.gz
+      re-save-file report report.txt
+
+      # Run FastQC analysis
+      mkdir "fastqc" && fastqc ${NAME}_trimmed.fastq.gz --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv "fastqc/${NAME}_trimmed_fastqc.zip" "${NAME}_trimmed_fastqc.zip"
+
+      FASTQC_URL="{\"file\":\"fastqc/${NAME}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_trimmed_fastqc\"]}"
+
+      re-save-file-list fastqc_archive "${NAME}_trimmed_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+
+
+- slug: cutadapt-paired
+  name: Cutadapt (paired end)
+  requirements:
+    expression-engine: jinja
+  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:reads:fastq:single:cutadapt
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    "Trim 5' and 3' primers using Cutadapt"
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+    - name: up_primers_file_fwd
+      label: 5 prime forward reads adapter file
+      type: data:seq:nucleotide
+      required: false      
+    - name: down_primers_file_fwd
+      label: 3 prime forward reads adapter file
+      type: data:seq:nucleotide
+      required: false
+    - name: up_primers_file_rev
+      label: 5 prime reverse reads adapter file
+      type: data:seq:nucleotide
+      required: false      
+    - name: down_primers_file_rev
+      label: 3 prime reverse reads adapter file
+      type: data:seq:nucleotide
+      required: false
+    - name: up_primers_seq_fwd
+      label: 5 prime forward reads adapter sequence
+      type: list:basic:string
+      required: false      
+    - name: down_primers_seq_fwd
+      label: 3 prime forward reads adapter sequence
+      type: list:basic:string
+      required: false
+    - name: up_primers_seq_rev
+      label: 5 prime reverse reads adapter sequence
+      type: list:basic:string
+      required: false
+    - name: down_primers_seq_rev
+      label: 3 prime reverse reads adapter sequence
+      type: list:basic:string
+      required: false
+    - name: polya_tail
+      label: Poly-A tail
+      type: basic:integer
+      required: false
+      description: >
+        Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
+    - name: leading
+      label: Leading quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
+    - name: trailing
+      label: Trailing quality
+      type: basic:integer
+      required: false
+      description: >
+        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.    
+    - name: crop_fwd
+      label: Crop (forward reads)
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the end of the forward reads
+    - name: crop_rev
+      label: Crop (reverse reads)
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the end of the reverse reads
+    - name: headcrop_fwd
+      label: Headcrop (forward reads)
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the start of the forward reads
+    - name: headcrop_rev
+      label: Headcrop (reverse reads)
+      type: basic:integer
+      required: false
+      description: >
+       Cut the specified number of bases from the start of the reverse reads       
+    - name: min_overlap_fwd
+      label: Minimal overlap (forward reads)
+      type: basic:integer
+      default: 3
+      description: >
+       Minimum overlap for an adapter match in forward reads
+    - name: min_overlap_rev
+      label: Minimal overlap (reverse reads)
+      type: basic:integer
+      default: 3
+      description: >
+       Minimum overlap for an adapter match in reverse reads       
+    - name: minlen
+      label: Min length
+      type: basic:integer
+      required: false
+      description: >
+        Drop the read if it is below a specified length   
+  output:
+    - name: fastq1
+      label: Reads file (forward)
+      type: list:basic:file
+    - name: fastq2
+      label: Reads file (reverse)
+      type: list:basic:file
+    - name: report
+      label: Cutadapt report
+      type: basic:file  
+    - name: fastqc_url1
+      label: Quality control with FastQC (forward)
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Quality control with FastQC (reverse)
+      type: list:basic:file:html      
+    - name: fastqc_archive1
+      label: Download FastQC archive (forward)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (reverse)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      {% if not up_primers_file_fwd
+       and not up_primers_file_rev
+       and not down_primers_file_fwd
+       and not down_primers_file_rev
+       and not up_primers_seq_fwd
+       and not up_primers_seq_rev
+       and not down_primers_seq_fwd
+       and not down_primers_seq_rev
+       and not polya_tail
+       and not leading
+       and not trailing
+       and not crop_fwd
+       and not crop_rev
+       and not headcrop_fwd
+       and not headcrop_rev
+       and not minlen %}
+        re-error "At least one parameter required"
+      {% endif %}
+
+      {% if down_primers_file_fwd and down_primers_seq_fwd %}
+        re-error "Forward reads 3' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}
+
+      {% if down_primers_file_rev and down_primers_seq_rev %}
+        re-error "Reverse reads 3' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}      
+
+      {% if up_primers_file_fwd and up_primers_seq_fwd %}
+        re-error "Forward reads 5' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}
+
+      {% if up_primers_file_rev and up_primers_seq_rev %}
+        re-error "Reverse reads 5' adapters should be either a sequence or in a .fasta file, not both"
+      {% endif %}
+
+      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
+
+      FW_READS=({{ reads.fastq|join(' ', attribute='file') }})
+      cat ${FW_READS[@]} > in_fw_reads.fastq.gz
+
+      RW_READS=({{ reads.fastq2|join(' ', attribute='file') }})
+      cat ${RW_READS[@]} > in_rw_reads.fastq.gz
+
+      polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
+      down_primers_fwd='{% for primer in down_primers_seq_fwd %}-a {{primer}},{% endfor %}'
+      down_primers_fwd=${down_primers_fwd%?}
+      down_primers_rev='{% for primer in down_primers_seq_rev %}-a {{primer}},{% endfor %}'
+      down_primers_rev=${down_primers_rev%?}      
+      up_primers_fwd='{% for primer in up_primers_seq_fwd %}-g {{primer}},{% endfor %}'
+      up_primers_fwd=${up_primers_fwd%?}
+      up_primers_rev='{% for primer in up_primers_seq_rev %}-g {{primer}},{% endfor %}'
+      up_primers_rev=${up_primers_rev%?}
+
+      # Decompress primer files
+      {% if up_primers_file_fwd %}
+        gunzip -c {{up_primers_file_fwd.fasta.file}} > 5_primers_fwd.fasta
+      {% endif %}
+      {% if up_primers_file_rev %}
+        gunzip -c {{up_primers_file_rev.fasta.file}} > 5_primers_rev.fasta
+      {% endif %}      
+      {% if down_primers_file_fwd %}  
+        gunzip -c {{down_primers_file_fwd.fasta.file}} > 3_primers_fwd.fasta
+      {% endif %}
+      {% if down_primers_file_rev %}  
+        gunzip -c {{down_primers_file_rev.fasta.file}} > 3_primers_rev.fasta
+      {% endif %}
+
+      # Run Cutadapt on forward reads
+      cutadapt \
+        {% if headcrop_fwd %}-u {{headcrop_fwd}}{% endif %} \
+        {% if crop_fwd %}-u -{{crop_fwd}}{% endif %} \
+        {% if leading %}-q {{leading}}{% endif %} \
+        {% if trailing %}-q {{trailing}},0{% endif %} \
+        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
+        {% if down_primers_seq_fwd %}$down_primers_fwd{% endif %} \
+        {% if up_primers_seq_fwd %}$up_primers_fwd{% endif %} \
+        {% if down_primers_file_fwd %}-a file:3_primers_fwd.fasta{% endif %} \
+        {% if up_primers_file_fwd %}-g file:5_primers_fwd.fasta{% endif %} \
+        -O {{min_overlap_fwd}} -o ${NAME1}_trimmed.fastq.gz in_fw_reads.fastq.gz > report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.4
+      
+      # Run Cutadapt on reverse reads
+      cutadapt \
+        {% if headcrop_rev %}-u {{headcrop_rev}}{% endif %} \
+        {% if crop_rev %}-u -{{crop_rev}}{% endif %} \
+        {% if leading %}-q {{leading}}{% endif %} \
+        {% if trailing %}-q {{trailing}},0{% endif %} \
+        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
+        {% if down_primers_seq_rev %}$down_primers_rev{% endif %} \
+        {% if up_primers_seq_rev %}$up_primers_rev{% endif %} \
+        {% if down_primers_file_rev %}-a file:3_primers_rev.fasta{% endif %} \
+        {% if up_primers_file_rev %}-g file:5_primers_rev.fasta{% endif %} \
+        -O {{min_overlap_rev}} -o ${NAME2}_trimmed.fastq.gz in_rw_reads.fastq.gz >> report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.7
+
+      # Run Cutadapt on both reads
+      {% if minlen %}
+        if [ -f ${NAME1}_trimmed.fastq.gz ]; then
+         zcat ${NAME1}_trimmed.fastq.gz > in_fw_reads.fastq
+         gzip in_fw_reads.fastq
+        fi
+        if [ -f ${NAME2}_trimmed.fastq.gz ]; then
+         zcat ${NAME2}_trimmed.fastq.gz > in_rw_reads.fastq
+         gzip in_rw_reads.fastq
+        fi
+        cutadapt -m 20 -o ${NAME1}_trimmed.fastq.gz -p ${NAME2}_trimmed.fastq.gz in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
+      {% endif %}
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.8
+
+      re-save-file-list fastq1 ${NAME1}_trimmed.fastq.gz
+      re-save-file-list fastq2 ${NAME2}_trimmed.fastq.gz
+      re-save-file report report.txt
+
+      # Run FastQC analysis
+      mkdir "fastqc" && fastqc ${NAME1}_trimmed.fastq.gz ${NAME2}_trimmed.fastq.gz --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv "fastqc/${NAME1}_trimmed_fastqc.zip" "${NAME1}_trimmed_fastqc.zip"
+      mv "fastqc/${NAME2}_trimmed_fastqc.zip" "${NAME2}_trimmed_fastqc.zip"
+
+      FASTQC_URL1="{\"file\":\"fastqc/${NAME1}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_trimmed_fastqc\"]}"
+      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_trimmed_fastqc\"]}"
+
+      re-save-file-list fastqc_archive1 "${NAME1}_trimmed_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_trimmed_fastqc.zip"
+      re-save-list fastqc_url1 "${FASTQC_URL1}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"
