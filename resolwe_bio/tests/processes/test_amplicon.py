@@ -46,3 +46,14 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
 
         table = self.run_process('amplicon-table', amplicon_table_inputs)
         self.assertJSON(table, table.output['variant_table'], '', 'amplicon_table_output.json.gz')
+
+        amplicon_table_inputs = {
+            'master_file': master_file.id,
+            'coverage': coverage.id,
+            'annot_vars': [annot_variants.id],
+            'all_amplicons': True,
+            'table_name': 'All amplicons'
+        }
+
+        table = self.run_process('amplicon-table', amplicon_table_inputs)
+        self.assertJSON(table, table.output['variant_table'], '', 'amplicon_table_output_all.json.gz')

@@ -6,8 +6,8 @@
   name: Amplicon report
   requirements:
     expression-engine: jinja
-  data_name: "Report ({{ bam|sample_name|default('?') }})"
-  version: 0.1.1
+  data_name: "Report ({{ coverage|sample_name|default('?') }})"
+  version: 0.1.2
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample

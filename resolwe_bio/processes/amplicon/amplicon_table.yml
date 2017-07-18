@@ -7,8 +7,8 @@
   name: Amplicon table
   requirements:
     expression-engine: jinja
-  data_name: "Amplicon table ({{ coverage|sample_name|default('?') }})"
-  version: 0.0.1
+  data_name: "{{table_name}}"
+  version: 0.0.2
   type: data:varianttable:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -25,6 +25,14 @@
     - name: annot_vars
       label: Annotated variants
       type: list:data:snpeff
+    - name: all_amplicons
+      label: Report all amplicons
+      type: basic:boolean
+      default: false
+    - name: table_name
+      label: Amplicon table name
+      type: basic:string
+      default: Amplicons containing variants
   output:
     - name: variant_table
       label: Variant table
@@ -36,8 +44,14 @@
       NAME='{{ coverage|sample_slug }}'
 
       make_amplicon_table.py "{{master_file.master_file.file}}" "{{coverage.mean_cov.file}}" \
-      -v {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %}
+      -v {% for vars in annot_vars %}"{{vars.annotation.file}}" {% endfor %} \
+      {% if all_amplicons %} -a {% endif %}
       re-checkrc
 
-      mv amplicon_table.json ${NAME}_amplicon_table.json
-      re-save variant_table ${NAME}_amplicon_table.json
+      {% if all_amplicons %}
+        mv amplicon_table.json ${NAME}_amplicon_table_all.json
+        re-save variant_table ${NAME}_amplicon_table_all.json
+      {% else %}
+        mv amplicon_table.json ${NAME}_amplicon_table.json
+        re-save variant_table ${NAME}_amplicon_table.json
+      {% endif %}

@@ -2,6 +2,8 @@
 """Create amplicon variant table."""
 from __future__ import absolute_import, division, print_function
 
+from collections import defaultdict
+
 import argparse
 import json
 
@@ -14,6 +16,7 @@ def parse_arguments():
     parser.add_argument('master_file', help="Amplicon master file.")
     parser.add_argument('amplicon_coverage', help='Per-amplicon mean coverage.')
     parser.add_argument('-v', '--variants', nargs='+', required=True, help='snpEff output file')
+    parser.add_argument('-a', '--list_all', action='store_true', help='Output all amplicons.')
     return parser.parse_args()
 
 
@@ -60,6 +63,7 @@ def main():
 
     amplicons = {}
     amp_cov = {}
+    variants_temp = defaultdict(list)
     variants = []
 
     with open(args.master_file) as master_file:
@@ -107,12 +111,25 @@ def main():
             url = 'http://www.ncbi.nlm.nih.gov/gene/?term='
             feature_links = [(variant['EFF[*].GENE'], '{}{}'.format(url, variant['EFF[*].GENE']))]
 
-            variants.append({
+            variants_temp[amp].append({
                 'pos': gb_pos,
                 'columns': [
                     amp, str(cov), feature_links, variant['CHROM'], variant['POS'], var_or_indel,
                     variant['AF'], variant['DP'], other_fields, process, var_links
                 ]
+            })
+
+    for amp in amplicons:
+        if amp in variants_temp:
+            for variant in variants_temp[amp]:
+                variants.append({
+                    'pos': variant['pos'],
+                    'columns': variant['columns']
+                })
+        elif amp not in variants_temp and args.list_all:
+            variants.append({
+                'pos': gb_pos,
+                'columns': [amp, str(cov), '', '', '', '', '', '', '', '', '']
             })
 
     column_types = [

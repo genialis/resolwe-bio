@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.1.1
+  version: 0.1.2
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -165,12 +165,20 @@
           template: '{{input.report.template}}'
           logo: '{{input.report.logo}}'
           panel_name: '{{input.report.panel_name}}'
-      - id: amplicon_table
+      - id: amplicon_table_variants
         run: amplicon-table
         input:
           master_file: '{{input.master_file}}'
           coverage: '{{steps.coveragebed}}'
           annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
+      - id: amplicon_table_all
+        run: amplicon-table
+        input:
+          master_file: '{{input.master_file}}'
+          coverage: '{{steps.coveragebed}}'
+          annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
+          all_amplicons: true
+          table_name: All amplicons
       - id: jbrowse_coverage
         run: jbrowse-bam-coverage
         input:

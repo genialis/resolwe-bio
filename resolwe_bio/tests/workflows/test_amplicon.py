@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe.flow.models import Data
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
@@ -53,3 +54,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'threads': 2
             }
         )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
