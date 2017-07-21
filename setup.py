@@ -44,10 +44,14 @@ setup(
         ]
     },
     zip_safe=False,
+    dependency_links=(
+        # Required for "Add input string variable sanitization" (911c5e1).
+        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-1.6.0a1",
+    ),
     install_requires=(
         'Django~=1.10.5',
         'djangorestframework>=3.4.0',
-        'resolwe~=1.5.0',
+        'resolwe==1.6.0a1',
         'tqdm>=4.1',
     ),
     extras_require = {
