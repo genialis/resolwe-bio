@@ -79,13 +79,6 @@
       default: exon
       description: >
         Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
-    - name: cpu_number
-      label: Number of threads/CPUs
-      type: basic:integer
-      required: false
-      default: 1
-      description: >
-        Specify the number of threads/CPUs used for mapping
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -95,7 +88,7 @@
           required: false
           default: false
           description: >
-            If specified, only fragments that have both ends successfully aligned will be considered for summarization.
+            If specified, fragments (or templates) will be counted instead of reads. This option is only applicable for paired-end reads.
         - name: require_both_ends_mapped
           label: Require both ends mapped
           type: basic:boolean
@@ -145,6 +138,8 @@
       NAME=`basename {{ alignments.bam.file}} .bam`
 
       COUNT_MULTI_MAPPING_READS="{% if count_multi_mapping_reads %} -M{% endif %}"
+
+      IS_PAIRED_END="{% if PE_options.is_paired_end %} -p{% endif %}"
       REQUIRE_BOTH_ENDS_MAPPED="{% if PE_options.require_both_ends_mapped %} -B{% endif %}"
       COUNT_CHIMERIC_FRAGMENTS="{% if PE_options.count_chimeric_fragments %} -C{% endif %}"
 
@@ -157,7 +152,8 @@
         ANNOTATION={{ annotation.merged_gtf.file }}
       {% endif %}
 
-      if [samtools view -c -f 1 {{ alignments.bam.file }} ]; then
+      # Check if reads are paired or single-ended.
+      if [[ $(samtools view -c -f 1 {{ alignments.bam.file }}) != 0 ]]; then
         featureCounts \
           -a "${ANNOTATION}" \
           -o "featureCounts_rc.txt" \
@@ -167,10 +163,9 @@
           -Q {{ min_mqs }} \
           -s {{ strand_specific }} \
           -t {{ feature_type }} \
-          -T {{ cpu_number }} \
           ${REQUIRE_BOTH_ENDS_MAPPED} \
           ${COUNT_CHIMERIC_FRAGMENTS} \
-          -p \
+          ${IS_PAIRED_END} \
           -R {{ alignments.bam.file }}
       else
         featureCounts \
@@ -182,7 +177,6 @@
           -Q {{ min_mqs }} \
           -s {{ strand_specific }} \
           -t {{ feature_type }} \
-          -T {{ cpu_number }} \
           -R {{ alignments.bam.file }}
       fi
       re-checkrc "featureCounts failed"

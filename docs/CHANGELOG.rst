@@ -18,6 +18,7 @@ Fixed
 -----
 * Remove remaining references to calling ``pip`` with
   ``--process-dependency-links`` argument
+* Correctly handle paired-end parameters in `featureCount`
 
 
 ================

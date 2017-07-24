@@ -249,24 +249,31 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {'src': 'annotation.gtf.gz', 'source': 'DICTYBASE'}
         annotation_gtf = self.run_process('upload-gtf', inputs)
 
-        inputs = {"src": "reads.bam"}
-        bam = self.run_process("upload-bam", inputs)
+        inputs = {"src": "feature_counts_paired.bam"}
+        bam_paired = self.run_process("upload-bam", inputs)
 
         inputs = {
-            'alignments': bam.pk,
-            'annotation': annotation_gtf.pk,
-            'id_attribute': 'transcript_id'}
-        expression = self.run_process('feature_counts', inputs)
-        self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
-        self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
-        self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
+            'alignments': bam_paired.id,
+            'annotation': annotation_gtf.id,
+            'id_attribute': 'transcript_id',
+            'PE_options': {
+                'is_paired_end': True,
+                'require_both_ends_mapped': True
+            }
+        }
 
+        expression = self.run_process('feature_counts', inputs)
+        self.assertFile(expression, 'rc', 'feature_counts_out_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'fpkm', 'feature_counts_out_fpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'feature_counts_out_tpm.tab.gz', compression='gzip')
+
+        bam_single = self.run_process("upload-bam", {'src': 'reads.bam'})
         inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
         annotation_gff3 = self.run_process('upload-gff3', inputs)
 
         inputs = {
-            'alignments': bam.pk,
-            'annotation': annotation_gff3.pk,
+            'alignments': bam_single.id,
+            'annotation': annotation_gff3.id,
             'id_attribute': 'Parent'}
         expression = self.run_process('feature_counts', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
