@@ -114,7 +114,9 @@ if exp.shape[1] == 0:
     )
     sys.exit(0)
 
-pca = PCA(n_components=0.99, whiten=True)
+# select the number of components so that explained variance
+# is greater than the fraction specified by n_components
+pca = PCA(n_components=1.0 - sys.float_info.epsilon, whiten=True)
 transformed_data = pca.fit_transform(exp)
 
 coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]

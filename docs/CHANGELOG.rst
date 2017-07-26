@@ -19,6 +19,8 @@ Fixed
 * Remove remaining references to calling ``pip`` with
   ``--process-dependency-links`` argument
 * Correctly handle paired-end parameters in `featureCount`
+* Fix NaN in explained variance in PCA. When PC1 alone explained more
+  than 99% of variance, explained variance for PC2 was not returned.
 
 
 ================
