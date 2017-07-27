@@ -13,6 +13,7 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Changed
 -------
 * Optionally report all amplicons in Amplicon table
+* Improve variant table name in amplicon report
 
 Fixed
 -----

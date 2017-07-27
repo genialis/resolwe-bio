@@ -129,6 +129,16 @@ def parse_target_pcr_metrics(metrics_report):
         return dict(zip(labels, values))
 
 
+def vcf_table_name(vcf_file_name):
+    """Format VCF table caption."""
+    if 'gatkhc.finalvars' in vcf_file_name.lower():
+        return 'GATK HaplotypeCaller variant calls'
+    elif 'lf.finalvars' in vcf_file_name.lower():
+        return 'Lofreq variant calls'
+    else:
+        return os.path.basename(vcf_file_name)
+
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
@@ -192,7 +202,7 @@ if __name__ == '__main__':
             # Create gene hypelinks:
             vcf_table = [line[:-2] + [gene_href(line[-2])] + [line[-1]] for line in vcf_table]
             table_text += list_to_tex_table(
-                vcf_table, header=common_columns, caption=os.path.basename(vcf_file), long_columns=[2, 3, -1])
+                vcf_table, header=common_columns, caption=vcf_table_name(vcf_file), long_columns=[2, 3, -1])
             table_text += '\n\\newpage\n'
         template = template.replace('{#VCF_TABLES#}', table_text)
 
