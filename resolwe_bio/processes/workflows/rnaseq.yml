@@ -237,7 +237,7 @@
     resources:
       network: true
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:dss:rnaseq
   category: dss
   persistence: RAW
@@ -303,4 +303,4 @@
     runtime: polyglot
     language: bash
     program: |
-      rnaseq.py "{{reads|type}}" "{{reads|id}}" "{{genome_and_annotation}}" "{{adapters}}" "{{minlen}}" "{{trailing}}" "{{stranded}}"
+      rnaseq.py {{reads|type}} {{reads|id}} {{genome_and_annotation}} {{adapters}} {{minlen}} {{trailing}} {{stranded}}

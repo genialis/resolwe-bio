@@ -22,6 +22,7 @@ Fixed
 * Correctly handle paired-end parameters in `featureCount`
 * Fix NaN in explained variance in PCA. When PC1 alone explained more
   than 99% of variance, explained variance for PC2 was not returned.
+* Fix input sanitization error in ``dss-rna-seq``
 
 
 ================
