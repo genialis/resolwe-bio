@@ -128,8 +128,8 @@ def main():
                 })
         elif amp not in variants_temp and args.list_all:
             variants.append({
-                'pos': gb_pos,
-                'columns': [amp, str(cov), '', '', '', '', '', '', '', '', '']
+                'pos': '{}:{}..{}'.format(amplicons[amp].chrom, amplicons[amp].start, amplicons[amp].end),
+                'columns': [amp, str(amp_cov[amp]), '', '', '', '', '', '', '', '', '']
             })
 
     column_types = [
