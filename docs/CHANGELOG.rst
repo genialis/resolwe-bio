@@ -23,6 +23,7 @@ Fixed
 * Fix NaN in explained variance in PCA. When PC1 alone explained more
   than 99% of variance, explained variance for PC2 was not returned.
 * Fix input sanitization error in ``dss-rna-seq``
+* Fix gene source check in hierarchical clustering and PCA.
 
 
 ================

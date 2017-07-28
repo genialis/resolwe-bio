@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'PCA'
-  version: 1.1.3
+  version: 1.1.4
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -20,8 +20,13 @@
       label: Expressions
       type: list:data:expression
     - name: genes
-      label: Filter genes
+      label: Gene subset
       type: list:basic:string
+      required: false
+    - name: genes_source
+      label: Source of selected genes
+      description: This field is required if gene subset is set.
+      type: basic:string
       required: false
     - name: filter
       label: Exclude genes with low expression
@@ -37,11 +42,18 @@
     runtime: polyglot
     language: bash
     program: |
-      EXPSET_TYPE={{exps.0.exp_type}}
-
       {% for e in exps %}
-        {% if exps.0.exp_type != e.exp_type %}
-          re-save proc.error "Expressions must be of the same expression type"
+        {% if e.exp_type != exps.0.exp_type %}
+          re-error "All expressions must be of the same expression type."
+        {% endif %}
+        {% if genes %}
+          {%if e.source != genes_source %}
+            re-error "Source of selected genes must be the same as the source of all expression files."
+          {% endif %}
+        {% else %}
+          {% if e.source != exps.0.source %}
+            re-error "All expressions must have the same source."
+          {% endif %}
         {% endif %}
       {% endfor %}
 

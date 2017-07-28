@@ -74,7 +74,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.10
+  version: 1.0.11
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -91,6 +91,7 @@
       placeholder: new gene id
     - name: genes_source
       label: Source of selected genes
+      description: This field is required if gene subset is set.
       type: basic:string
       required: false
     - name: distance
@@ -129,14 +130,17 @@
     runtime: polyglot
     language: bash
     program: |
-
-      {% if not genes %}
-        {% for e in exps %}
-          {% if e.source != genes_source %}
-            re-error "Source of selected genes should be the same as the source of all expression files."
+      {% for e in exps %}
+        {% if genes %}
+          {%if e.source != genes_source %}
+            re-error "Source of selected genes must be the same as the source of all expression files."
           {% endif %}
-        {% endfor %}
-      {% endif %}
+        {% else %}
+          {% if e.source != exps.0.source %}
+            re-error "All expressions must have the same source."
+          {% endif %}
+        {% endif %}
+      {% endfor %}
 
       samplehcluster.py \
         {% for e in exps %}{{e.exp.file}} {% endfor %} \
@@ -155,7 +159,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of genes'
-  version: 1.0.5
+  version: 1.0.6
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
@@ -172,6 +176,7 @@
       placeholder: new gene id
     - name: genes_source
       label: Source of selected genes
+      description: This field is required if gene subset is set.
       type: basic:string
       required: false
     - name: distance
@@ -210,13 +215,17 @@
     runtime: polyglot
     language: bash
     program: |
-      {% if not genes %}
-        {% for e in exps %}
-          {% if e.source != genes_source %}
-            re-error "Source of selected genes should be the same as the source of all expression files."
+      {% for e in exps %}
+        {% if genes %}
+          {%if e.source != genes_source %}
+            re-error "Source of selected genes must be the same as the source of all expression files."
           {% endif %}
-        {% endfor %}
-      {% endif %}
+        {% else %}
+          {% if e.source != exps.0.source %}
+            re-error "All expressions must have the same source."
+          {% endif %}
+        {% endif %}
+      {% endfor %}
 
       genehcluster.py \
         {% for e in exps %}{{e.exp.file}} {% endfor %} \
