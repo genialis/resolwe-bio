@@ -7,8 +7,10 @@
   name: Annotation (GFF3)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file }}'
-  version: 1.0.17
+  version: 1.0.18
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -59,8 +61,10 @@
   name: Annotation (GTF2.2)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file }}'
-  version: 1.0.20
+  version: 1.0.21
   type: data:annotation:gtf
   category: upload
   persistence: RAW

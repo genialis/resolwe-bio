@@ -7,8 +7,10 @@
   name: Upload Picard CollectTargetedPcrMetrics
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.2
+  version: 0.0.3
   type: data:picard:coverage:upload
   category: upload
   persistence: RAW

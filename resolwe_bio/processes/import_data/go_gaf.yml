@@ -7,8 +7,10 @@
   name: Upload GO annotation file (GAF v2.0)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'
-  version: 1.0.12
+  version: 1.0.13
   type: data:gaf:2:0
   category: upload
   persistence: RAW

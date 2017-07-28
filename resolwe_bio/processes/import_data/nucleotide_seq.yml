@@ -7,11 +7,13 @@
   name: Upload nucleotide sequence(s) (FASTA)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
     executor:
       docker:
         image: "resolwe/bio-linux8-resolwe-preview:icount"
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:seq:nucleotide
   category: upload
   persistence: RAW

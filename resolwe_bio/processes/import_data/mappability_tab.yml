@@ -7,8 +7,10 @@
   name: Upload mappability info
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.4
+  version: 1.0.5
   type: data:mappability:bcm
   category: upload
   persistence: RAW

@@ -7,8 +7,10 @@
   name: Upload gene set
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.8
+  version: 0.0.9
   type: data:geneset
   category: upload
   persistence: RAW
@@ -114,8 +116,10 @@
   name: Create Venn gene set
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: Gene set (Venn)
-  version: 0.0.5
+  version: 0.0.6
   type: data:geneset:venn
   category: upload
   persistence: RAW

@@ -7,8 +7,10 @@
   name: Reads (multiplexed, single)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.18
+  version: 1.0.19
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -83,8 +85,10 @@
   name: Reads (multiplexed, paired)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.18
+  version: 1.0.19
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW

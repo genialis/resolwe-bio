@@ -7,8 +7,10 @@
   name: Genome
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 2.1.3
+  version: 2.1.4
   type: data:genome:fasta
   category: upload
   persistence: RAW

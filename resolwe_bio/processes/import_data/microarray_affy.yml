@@ -7,8 +7,10 @@
   name: Upload microarray data (Affymetrix)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ cel.file|default("?") }}'
-  version: 1.0.7
+  version: 1.0.8
   type: data:microarray:affy
   category: upload
   flow_collection: sample

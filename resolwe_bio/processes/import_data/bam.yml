@@ -7,8 +7,10 @@
   name: BAM file
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:alignment:bam:upload
   flow_collection: sample
   category: upload
@@ -63,8 +65,10 @@
   name: BAM file and index
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.10
+  version: 1.0.11
   type: data:alignment:bam:upload
   category: upload
   flow_collection: sample

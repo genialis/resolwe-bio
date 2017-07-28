@@ -7,8 +7,10 @@
   name: Cuffquant results
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.4
+  version: 1.0.5
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample

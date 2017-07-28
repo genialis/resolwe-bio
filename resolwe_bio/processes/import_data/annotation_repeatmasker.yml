@@ -7,8 +7,10 @@
   name: RepeatMasker annotation
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
-  version: 1.0.12
+  version: 1.0.13
   type: data:annotation:gff3
   category: upload
   persistence: RAW

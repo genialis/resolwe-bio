@@ -7,8 +7,10 @@
   name: Upload mappability coverage (BigWig)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.12
+  version: 1.0.13
   type: data:bigwig:mappability
   category: upload
   persistence: RAW

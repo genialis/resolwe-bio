@@ -7,8 +7,10 @@
   name: Upload gene ontology
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.17
+  version: 1.0.18
   type: data:ontology:obo
   category: upload
   persistence: RAW

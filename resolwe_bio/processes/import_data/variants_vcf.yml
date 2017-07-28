@@ -7,8 +7,10 @@
   name: Variants (.vcf)
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.14
+  version: 1.0.15
   type: data:variants:vcf
   category: upload
   persistence: RAW
