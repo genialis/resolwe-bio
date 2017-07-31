@@ -13,6 +13,8 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Added
 -----
 * Add Resolwe API to test url configuration
+* Add TransactionBioProcessTestCase to support writing tests for
+  processes which use resdk
 
 Changed
 -------

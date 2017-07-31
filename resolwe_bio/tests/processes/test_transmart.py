@@ -1,6 +1,6 @@
 # pylint: disable=missing-docstring
 import unittest
-from resolwe_bio.utils.test import ProcessTestCase
+from resolwe.test import ProcessTestCase
 
 
 class TranSMARTProcessorTestCase(ProcessTestCase):

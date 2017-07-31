@@ -4,8 +4,9 @@ import unittest
 
 from django.conf import settings
 from django.core.management import call_command
+from django.test import TestCase as DjangoTestCase
 
-from resolwe.test import ProcessTestCase
+from resolwe.test import TransactionProcessTestCase
 
 TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
 TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
@@ -45,12 +46,12 @@ def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
     return lambda func: func
 
 
-class BioProcessTestCase(ProcessTestCase):
+class TransactionBioProcessTestCase(TransactionProcessTestCase):
     """Test class for bioinformatics processes."""
 
     def setUp(self):
         """Initialize test files path."""
-        super(BioProcessTestCase, self).setUp()
+        super(TransactionBioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
 
     def prepare_genome(self):
@@ -95,6 +96,19 @@ class BioProcessTestCase(ProcessTestCase):
         """Prepare expression."""
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
         return self.run_process('upload-expression', inputs)
+
+
+class BioProcessTestCase(TransactionBioProcessTestCase, DjangoTestCase):
+    """Base class for writing process tests.
+
+    It is based on :class:`~.TransactionBioProcessTestCase` and
+    Django's :class:`~django.test.TestCase`.
+    The latter encloses the test code in a database transaction that is
+    rolled back at the end of the test.
+
+    """
+
+    pass
 
 
 class KBBioProcessTestCase(BioProcessTestCase):
