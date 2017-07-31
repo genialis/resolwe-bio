@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 1.4.1 2017-07-20
 ================
 
+Added
+-----
+* Add Resolwe API to test url configuration
+
 Changed
 -------
 * Optionally report all amplicons in Amplicon table
