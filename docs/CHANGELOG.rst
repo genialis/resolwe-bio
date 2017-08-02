@@ -110,6 +110,7 @@ Fixed
 * Replace the BAM MD tag in `align-bwa-trim` process to correct for an
   issue with the primerclip tool
 * Fix typo in trimmomatic and bbduk processes
+* Use re-import in `etc` and `hmmer_database` processes
 
 Changed
 -------

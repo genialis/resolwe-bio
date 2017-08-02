@@ -7,8 +7,10 @@
   name: Upload HMMER database
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.5
+  version: 1.0.6
   type: data:db:hmmer
   category: upload
   persistence: RAW
@@ -33,27 +35,15 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME={{ src.file }}; NAME="${NAME%.*}"; NAME="${NAME%.*}"
-      TEMP={{ proc.upload_path }}/{{ src.file_temp }}
-
-      echo "Importing and extracting sequences..."
-      shopt -s nocasematch >&2
-      if [[ '.{{ src.file }}' =~ \.(hmm)\.gz$ ]]; then
-        gzip -d -c "${TEMP}" > "${NAME}.hmm" && rm "${TEMP}" >&2
-        echo "{\"proc.progress\":0.3}"
-      elif [[ '.{{ src.file }}' =~ (\.(hmm)(\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$ ]]; then
-        7z x -y -so "${TEMP}" > "${NAME}" && rm "${TEMP}.hmm" >&2
-        echo "{\"proc.progress\":0.3}"
-      elif [[ '.{{ src.file }}' =~ ^\.(hmm)(\.tgz|\.tar\.gz|\.tar\.bz2)$ ]]; then
-        7z x -y -so "${TEMP}" | tar -xO > "${NAME}.hmm" && rm "${TEMP}" >&2
-        echo "{\"proc.progress\":0.3}"
-      else
-        mv "${TEMP}" "${NAME}.hmm" >&2
-      fi
+      re-import {{ src.file_temp }} {{ src.file }} hmm hmm 0.3 extract
 
       mkdir db
       mv "${NAME}.hmm" db/
       hmmpress ./db/"${NAME}.hmm"
+      re-checkrc
 
-      echo "database representation file" > ${NAME}
-      echo "{\"proc.progress\":0.9,\"proc.rc\":$?,\"database\":{\"file\":\"${NAME}\",\"refs\":[\"db\"]}, \"hmmerdb\":\"${NAME}.hmm\"}"
+      echo "database representation file" > "${NAME}"
+      re-checkrc
+      
+      re-save-file database "${NAME}" "db\"
+      re-save hmmerdb "${NAME}.hmm"

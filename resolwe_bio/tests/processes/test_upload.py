@@ -223,3 +223,10 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(master_file, 'nomergebed', 'amplicon_master_file_nomergebed.bed')
         self.assertFile(master_file, 'olapfreebed', 'amplicon_master_file_olapfreebed.bed')
         self.assertFile(master_file, 'primers', 'amplicon_primers.bed')
+
+    def test_upload_etc(self):
+        self.keep_data()
+        inputs = {'src': 'etc_upload_input.xls'}
+        etc = self.run_process('upload-etc', inputs)
+
+        self.assertFile(etc, 'etcfile', 'test_etc.json.gz')

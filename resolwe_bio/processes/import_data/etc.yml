@@ -7,8 +7,10 @@
   name: Expression time course
   requirements:
     expression-engine: jinja
+    resources:
+      network: true
   data_name: Expression time course
-  version: 1.0.8
+  version: 1.0.9
   type: data:etc
   category: upload
   persistence: RAW
@@ -34,16 +36,10 @@
     language: bash
     program: |
       NAME=`basename {{ src.file }}`
-      TEMP={{ proc.upload_path }}/{{ src.file_temp }}
+      EXTENSION=${NAME##*.}
+      re-import {{ src.file_temp }} {{ src.file }} "$EXTENSION" "$EXTENSION" 0.2 extract
+      re-checkrc
+      re-progress 0.2
 
-      mv "${TEMP}" "${NAME}"
-      echo "{\"proc.progress\":0.2,\"proc.rc\":$?}"
-
-      importETC.py "${NAME}"
-      str="{\"proc.progress\":1.0,\"proc.rc\":$?"
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/etc.json.gz ]
-      then
-        str=$str",\"etcfile\":{\"file\":\"etc.json.gz\"}"
-      fi
-      str=$str"}"
-      echo $str
+      importETC.py "${NAME}.${EXTENSION}"
+      re-save-file etcfile etc.json.gz

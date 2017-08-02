@@ -47,4 +47,10 @@ else:
 
 etcjson = '{"etc":%s}' % json.dumps({'genes': genes, 'timePoints': times}, separators=(',', ':'))
 print(etcjson)
-gzip.open('etc.json.gz', 'wb').write(etcjson)
+zipfile = gzip.GzipFile(
+    filename='',
+    mode='wb',
+    fileobj=open('etc.json.gz', 'wb'),
+    mtime=0,
+)
+zipfile.write(etcjson)
