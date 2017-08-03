@@ -37,6 +37,8 @@ throttle(["resolwe_bio"]) {
 
                     sh "tox -e extra"
 
+                    sh "tox -e migrations"
+
                     sh "echo 'Environment:' && python2.7 --version"
                     sh "tox -e py27"
 
