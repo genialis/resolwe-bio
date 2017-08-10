@@ -16,6 +16,7 @@ Added
   ``TransactionProcessTestCase``
 * Add optimal leaf ordering and simulated annealing to gene and sample
   hierarchical clustering
+* Add ``resolwebio/chipseq`` docker image
 
 Changed
 -------
