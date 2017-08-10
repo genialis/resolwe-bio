@@ -95,32 +95,68 @@
       type: basic:string
       required: false
     - name: distance
-      label: Distance measure
+      label: Distance metric
       type: basic:string
-      default: spearman
+      default: pearson
       choices:
-        - label: spearman
-          value: spearman
-        - label: pearson
-          value: pearson
-        - label: euclidean
+        - label: Euclidean
           value: euclidean
+        - label: Pearson
+          value: pearson
+        - label: Spearman
+          value: spearman
     - name: linkage
-      label: Clustering linkage
+      label: Linkage method
       type: basic:string
       default: average
       choices:
-        - label: average
-          value: average
         - label: single
           value: single
+        - label: average
+          value: average
         - label: complete
           value: complete
     - name: log2
-      label: Log2
+      label: Log transform
       type: basic:boolean
-      default: true
-      description: Log2 transform the data before clustering.
+      default: false
+      description: Transform expressions with log2(x + 1) before clustering.
+    - name: normalization
+      label: Normalization
+      type: basic:string
+      default: none
+      description: Normalize expressions of genes before clustering.
+      choices:
+        - label: None
+          value: none
+        - label: Z-score
+          value: z-score
+    - name: ordering
+      label: Sample ordering method
+      type: basic:string
+      default: knn
+      description: Method used for ordering of samples.
+      choices:
+        - label: None
+          value: none
+        - label: k-NN
+          value: knn
+        - label: Optimal leaf ordering
+          value: optimal
+        - label: Simulated annealing
+          value: sa
+    - name: n_keep
+      label: Keep permutations
+      type: basic:integer
+      default: -1
+      description: Number of permutations to keep in optimal leaf ordering. Any negative number keeps all permutations.
+      hidden: "ordering != 'optimal'"
+    - name: n_trials
+      label: Number of trials
+      type: basic:integer
+      default: 1000
+      description: Number of trials in simulated annealing.
+      hidden: "ordering != 'sa'"
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -141,23 +177,30 @@
           {% endif %}
         {% endif %}
       {% endfor %}
-
       samplehcluster.py \
-        {% for e in exps %}{{e.exp.file}} {% endfor %} \
-        --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %} \
-        {% if genes %}--genes {% for gene in genes %}{{gene}} {% endfor %}{% endif %} \
+        --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \
+        --sampleids {% for e in exps %} {{e|sample_id}} {% endfor %} \
+        {% if genes %} --genes {% for gene in genes %} {{gene}} {% endfor %} {% endif %} \
         --linkage {{linkage}} \
-        --dstfunc {{distance}} \
-        {%if log2 %}--log2{% endif %} \
+        --distance {{distance}} \
+        {% if log2 %} --log2 {% endif %} \
+        {% if normalization != "none" %} --normalization {{normalization}} {% endif %} \
+        --ordering {{ordering}} \
+        {% if n_keep >= 0 %} --n_keep {{n_keep}} {% endif %} \
+        --n_trials {{n_trials}} \
         --output cluster.json
+      re-checkrc "Sample hierarchical clustering failed."
+
       re-save cluster cluster.json
-      re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0
+
 
 - slug: clustering-hierarchical-genes
   name: Hierarchical clustering of genes
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 16384
   data_name: 'Hierarchical clustering of genes'
   version: 1.0.6
   type: data:clustering:hierarchical:gene
@@ -180,32 +223,68 @@
       type: basic:string
       required: false
     - name: distance
-      label: Distance measure
+      label: Distance metric
       type: basic:string
-      default: spearman
+      default: euclidean
       choices:
-        - label: spearman
-          value: spearman
-        - label: pearson
-          value: pearson
-        - label: euclidean
+        - label: Euclidean
           value: euclidean
+        - label: Pearson
+          value: pearson
+        - label: Spearman
+          value: spearman
     - name: linkage
-      label: Clustering linkage
+      label: Linkage method
       type: basic:string
-      default: average
+      default: complete
       choices:
-        - label: average
-          value: average
         - label: single
           value: single
+        - label: average
+          value: average
         - label: complete
           value: complete
     - name: log2
-      label: Log2
+      label: Log transform
       type: basic:boolean
-      default: true
-      description: Log2 transform the data before clustering.
+      default: false
+      description: Transform expressions with log2(x + 1) before clustering.
+    - name: normalization
+      label: Normalization
+      type: basic:string
+      default: none
+      description: Normalize expressions of genes before clustering.
+      choices:
+        - label: None
+          value: none
+        - label: Z-score
+          value: z-score
+    - name: ordering
+      label: Gene ordering
+      type: basic:string
+      default: knn
+      description: Method used for ordering of genes.
+      choices:
+        - label: None
+          value: none
+        - label: k-NN
+          value: knn
+        - label: Optimal leaf ordering
+          value: optimal
+        - label: Simulated annealing
+          value: sa
+    - name: n_keep
+      label: Keep permutations
+      type: basic:integer
+      default: -1
+      description: Number of permutations to keep in optimal leaf ordering. Any negative number keeps all permutations.
+      hidden: "ordering != 'optimal'"
+    - name: n_trials
+      label: Number of trials
+      type: basic:integer
+      default: 1000
+      description: Number of trials in simulated annealing.
+      hidden: "ordering != 'sa'"
   output:
     - name: cluster
       label: Hierarchical clustering
@@ -228,13 +307,18 @@
       {% endfor %}
 
       genehcluster.py \
-        {% for e in exps %}{{e.exp.file}} {% endfor %} \
-        --sampleids {% for e in exps %}{{e|sample_id}} {% endfor %} \
-        {% if genes %}--genes {% for gene in genes %}{{gene}} {% endfor %}{% endif %} \
+        --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \
+        --sampleids {% for e in exps %} {{e|sample_id}} {% endfor %} \
+        {% if genes %} --genes {% for gene in genes %} {{gene}} {% endfor %} {% endif %} \
         --linkage {{linkage}} \
-        --dstfunc {{distance}} \
-        {%if log2 %}--log2{% endif %} \
+        --distance {{distance}} \
+        {% if log2 %} --log2 {% endif %} \
+        {% if normalization != "none" %} --normalization {{normalization}} {% endif %} \
+        --ordering {{ordering}} \
+        {% if n_keep >= 0 %} --n_keep {{n_keep}} {% endif %} \
+        --n_trials {{n_trials}} \
         --output cluster.json
+      re-checkrc "Gene hierarchical clustering failed."
+
       re-save cluster cluster.json
-      re-checkrc "Sample Hierarhlical clustering failed"
       re-progress 1.0

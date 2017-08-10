@@ -15,6 +15,8 @@ Added
 * Add Resolwe API to test url configuration
 * Add TransactionBioProcessTestCase to support writing tests for
   processes which use resdk
+* Add optimal leaf ordering and simulated annealing to gene and sample
+  hierarchical clustering
 
 Changed
 -------
@@ -73,6 +75,7 @@ Added
 * Add new master file choices to amplicon panel descriptor schema
 * Add S. tuberosum organism choice to RNA-seq workflow
 * Add Cutadapt process
+* Add leaf ordering to gene and sample hierarchical clustering
 
 Fixed
 -----

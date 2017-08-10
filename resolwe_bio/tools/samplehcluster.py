@@ -5,127 +5,195 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import argparse
 import json
-import csv
-import gzip
+import sys
 
 import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr
+from scipy.stats import spearmanr, pearsonr, zscore
 from scipy.cluster.hierarchy import dendrogram, linkage
+from scipy.spatial.distance import pdist
 
 from resolwe_runtime_utils import error, warning
 
+from clustering_leaf_ordering import knn, optimal, simulated_annealing
 
-parser = argparse.ArgumentParser(description='Hierarchical clustering.')
 
-parser.add_argument('sample_files', nargs='+', help='sample files')
-parser.add_argument('-s', '--sampleids', nargs='+', default=[], help='sample ids')
-parser.add_argument('-g', '--genes', nargs='+', default=[], help='subset of gene ids')
-parser.add_argument('-d', '--dstfunc', help='distance function')
-parser.add_argument('-l', '--linkage', help='clustering linkage function')
-parser.add_argument('--log2', action='store_true', help='Log2')
-parser.add_argument('--output', help='Output JSON file')
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description='Hierarchical clustering of genes')
+    parser.add_argument('-f', '--sample_files', nargs='+', help='Sample files', required=True)
+    parser.add_argument('-s', '--sampleids', nargs='+', default=[], help='Sample IDs', type=int)
+    parser.add_argument('-g', '--genes', nargs='+', default=[], help='Subset of gene labels')
+    parser.add_argument('-d', '--distance', default='euclidean', help='Distance metric')
+    parser.add_argument('-l', '--linkage', default='average', help='Linkage method')
+    parser.add_argument('-o', '--ordering', default=None, help='Ordering method (knn, optimal, sa)')
+    parser.add_argument('-k', '--n_keep', help='Keep _ states in optimal leaf ordering', type=int)
+    parser.add_argument('-r', '--n_trials', help='Number of trials in simulated annealing',
+                        type=int)
+    parser.add_argument('-t', '--log2', action='store_true', help='Log2 transformation')
+    parser.add_argument('-n', '--normalization', default=None, help='Normalization')
+    parser.add_argument('--output', help='Output JSON filename')
+    return parser.parse_args()
 
-args = parser.parse_args()
 
-distance_map = {
-    'spearman': lambda x, y: 1 - spearmanr(x, y).correlation,
-    'pearson': lambda x, y: 1 - np.corrcoef(x, y)[0][1],
-    'euclidean': 'euclidean'
-}
-
-if args.dstfunc not in distance_map:
-    msg = "Invalid distance function {}".format(args.dstfunc)
-    print(error(msg))
-    raise ValueError(msg)
-
-if args.linkage not in ['average', 'single', 'complete']:
-    msg = "Invalid clustering linkage function {}".format(args.linkage)
-    print(error(msg))
-    raise ValueError(msg)
-
-if not args.sampleids or len(args.sampleids) != len(args.sample_files):
-    msg = "Number of sample ids must match the number of files"
-    print(error(msg))
-    raise ValueError(msg)
-
-# read data
-frame = pd.DataFrame()
-matrix = []
-for fname in args.sample_files:
+def get_expression(fname, sep='\t', gene_set=[]):
+    """Read expressions from file and return only expressions of genes in gene_set."""
     df = pd.read_csv(fname, sep='\t', header=0, index_col=0, compression='gzip')
-    matrix.append(df)
-frame = pd.concat(matrix, axis=1)
-frame.index = frame.index.map(str)
+    df.index = df.index.map(str)
+    if not gene_set:
+        return df
+    intersection = [gene for gene in gene_set if gene in df.index]
+    return df.loc[intersection]
 
-# list of genes from files
-genes_from_files = list(frame.index.values)
-# list of genes defined in args.genes
-gene_subset = args.genes
 
-# insert genes that are in args.genes and are missing in all samples
-for gene in gene_subset:
-    if gene not in genes_from_files:
-        frame.loc[gene] = [np.NaN] * len(args.sample_files)
+def get_expressions(fnames, sep='\t', gene_set=[]):
+    """Read expressions from files.
 
-    frame = frame.loc[gene_subset]  # select only genes from args.genes
+    Return only expressions of genes that are listed in all samples and in gene_set.
 
-# list of all genes that are in data frame (from files and in args.genes)
-all_genes = list(frame.index.values)
+    """
+    dfs = [get_expression(fname, sep=sep, gene_set=gene_set) for fname in fnames]
+    df = pd.concat(dfs, axis=1)
+    return df.dropna()
 
-matrix = frame.fillna(value=0)
-matrix = np.array(matrix)
-# samples are in rows
-matrix = np.transpose(matrix)
 
-# sum of  all expressions per sample to find samples without any exprerssed genes
-sample_sum = np.sum(matrix, axis=1)
-sample_zero = np.where(sample_sum < 0.1)[0]
+def transform(expressions, log2=False, const=1.0, normalization=None, ddof=1):
+    """Compute log2 and normalize expression values.
 
-# list of samples with zero expressions
-list_zero_samples = [int(args.sampleids[index]) for index in sample_zero]
+    Parameters:
+    - const: an additive constant used in computation of log2
+    - normalization: None or 'z-score'
+    - ddof: degrees of freedom used in computation of z-scores
 
-# sum of  all expressions per gene to find genes that are not exprerssed in any sample
-genes_sum = np.sum(matrix, axis=0)
-genes_zero = np.where(genes_sum < 0.1)[0]
+    """
+    if log2:
+        try:
+            expressions = expressions.applymap(lambda x: np.log2(x + const))
+        except:
+            msg = 'Cannot apply log2 to expression values.'
+            print(error(msg))
+            raise ValueError(msg)
+    if normalization:
+        if normalization == 'z-score':
+            try:
+                expressions = expressions.apply(lambda x: zscore(x, ddof=ddof), axis=0)
+            except:
+                msg = 'Cannot compute Z-scores.'
+                print(error(msg))
+                raise ValueError(msg)
+        else:
+            msg = 'Unknown normalization type {}.'.format(normalization)
+            print(error(msg))
+            raise ValueError(msg)
+    return expressions
 
-# delete samples where none of the genes are expressed
-matrix = np.delete(matrix, sample_zero, axis=0)
-if matrix.shape[0] == 0:
-    msg = "Expressions of selected genes are 0. Please select different samples or genes."
-    print(error(msg))
-    raise ValueError(msg)
 
-if args.log2:
-    matrix = np.log2(matrix + 1.0)
+def get_distance_metric(distance_metric):
+    """Get distance metric."""
+    if distance_metric == 'spearman':
+        return lambda x, y: 1.0 - spearmanr(x, y).correlation
+    elif distance_metric == 'pearson':
+        return 'correlation'
+    return distance_metric
 
-distance = distance_map[args.dstfunc]
-cluster = linkage(matrix, method=args.linkage, metric=distance)
 
-distance_sum = cluster[:, 2].sum()
-if distance_sum < 0.1:
-    msg = 'All sample distances are 0.'
-    print(warning(msg))
+def get_zero_genes(expressions):
+    """Get labels of genes which have zero expression in all samples."""
+    return expressions[(expressions == 0.0).all(axis=1)].index.tolist()
 
-dend = dendrogram(cluster, no_plot=True)
 
-# create list of samples without deleted samples (with zero expression for all genes)
-calculated_samples = [sample for sample in args.sampleids if sample not in list_zero_samples]
+def get_zero_samples(expressions):
+    """Get indices of samples which have zero expression in all genes."""
+    return [i for i, v in enumerate((expressions == 0.0).all()) if v]
 
-calculated_sample_ids = {}
-for i, sample_id in enumerate(calculated_samples):
-    calculated_sample_ids[i] = {'id': int(sample_id)}
 
-cluster = {
-    'linkage': cluster.tolist(),
-    'sample_ids': calculated_sample_ids,
-    'order': dend['leaves'],
-    'zero_gene_symbols': [all_genes[index] for index in genes_zero],
-    'zero_sample_ids': list_zero_samples
-}
+def get_const_samples(expressions):
+    """Get samples with constant expression profile across genes."""
+    return np.where(expressions.apply(lambda x: min(x) == max(x), axis=0))[0]
 
-if args.output:
-    with open(args.output, 'w') as f:
-        json.dump(cluster, f)
-else:
-    print(json.dumps({'cluster': cluster}, separators=(',', ':')))
+
+def remove_const_samples(expressions):
+    """Remove samples with constant expression profile across genes."""
+    return expressions.loc[:, expressions.apply(lambda x: min(x) != max(x), axis=0)]
+
+
+def get_clustering(
+        expressions,
+        distance_metric='euclidean',
+        linkage_method='average',
+        ordering_method=None,
+        n_keep=None,
+        n_trials=1000):
+    """Compute linkage, order, and produce a dendrogram."""
+    if len(expressions.columns) < 2:
+        return np.array([]), {'leaves': list(expressions)}
+    try:
+        distances = pdist(np.transpose(np.array(expressions)), metric=distance_metric)
+        if np.isnan(distances).any():
+            distances = np.nan_to_num(distances, copy=False)
+            warning('Distances between some samples were undefined and were set to zero.')
+    except:
+        msg = 'Cannot compute distances between samples.'
+        print(error(msg))
+        raise ValueError(msg)
+    try:
+        link = linkage(y=distances, method=linkage_method)
+    except:
+        msg = 'Cannot compute linkage.'
+        print(error(msg))
+        raise ValueError(msg)
+    if ordering_method:
+        if ordering_method == 'knn':
+            link = knn(link, distances)
+        elif ordering_method == 'optimal':
+            link = optimal(link, distances, n_keep)
+        elif ordering_method == 'sa':
+            link = simulated_annealing(link, distances, n_trials)
+        else:
+            msg = 'Unknown ordering method {}'.format(ordering_method)
+            print(error(msg))
+            raise ValueError(msg)
+    try:
+        dend = dendrogram(link, no_plot=True)
+    except:
+        msg = 'Cannot compute dendrogram.'
+        print(error(msg))
+        raise ValueError(msg)
+    return link, dend
+
+
+def output_json(result=dict(), fname=None):
+    """Print json if fname=None else write json to file 'fname'."""
+    if fname:
+        with open(fname, 'w') as f:
+            json.dump(result, f)
+    else:
+        print(json.dumps({'cluster': result}, separators=(',', ':')))
+
+
+def main():
+    """Compute sample hierarchical clustering."""
+    args = parse_args()
+    expressions = get_expressions(fnames=args.sample_files, gene_set=args.genes)
+    expressions = transform(expressions, log2=args.log2, normalization=args.normalization)
+    zero_genes = get_zero_genes(expressions)
+    zero_samples = get_zero_samples(expressions)
+    linkage, dendrogram = get_clustering(
+        expressions,
+        distance_metric=get_distance_metric(args.distance),
+        linkage_method=args.linkage,
+        ordering_method=args.ordering,
+        n_keep=args.n_keep,
+        n_trials=args.n_trials)
+    result = {
+        'linkage': linkage.tolist(),
+        'sample_ids': {i: {'id': sampleid} for i, sampleid in enumerate(args.sampleids)},
+        'order': dendrogram['leaves'],
+        'zero_gene_symbols': zero_genes,
+        'missing_gene_symbols': list(set(args.genes).difference(set(expressions.index))),
+        'zero_sample_ids': [args.sampleids[sample] for sample in zero_samples]
+    }
+    output_json(result, args.output)
+
+
+main()
