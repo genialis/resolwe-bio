@@ -7,8 +7,11 @@
   name: ROSE2
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/chipseq:1.0.0"
   data_name: ROSE2 analysis
-  version: 2.0.3
+  version: 2.0.4
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED

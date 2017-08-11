@@ -7,8 +7,11 @@
   name: Bamplot
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/chipseq:1.0.0"
   data_name: "bamplot"
-  version: 1.1.1
+  version: 1.1.2
   type: data:bam:plot:bamplot
   category: plotting
   persistence: CACHED

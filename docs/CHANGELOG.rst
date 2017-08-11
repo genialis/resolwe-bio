@@ -37,6 +37,7 @@ Changed
   parameters to hisat2 process
 * Remove `threads` input from cuffquant and rna-seq workfows
 * Set core resource requirement in Cuffquant process to 1
+* Use ``resolwebio/chipseq`` docker image in ChIP-Seq processes
 
 Fixed
 -----

@@ -7,8 +7,11 @@
   name: MACS 1.4
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/chipseq:1.0.0"
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.0.3
+  version: 2.0.4
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -38,7 +41,7 @@
         - label: Rattus norvegicus
           value: '2e9'
         - label: Dictyostelium discoideum
-          value: '3.4e7'  
+          value: '3.4e7'
     - name: pvalue
       label: P-value
       type: basic:string

@@ -7,8 +7,11 @@
   name: MACS2 (Call peaks)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/chipseq:1.0.0"
   data_name: "MACS2 analysis ({{ case.bam.file|basename|default('?') }})"
-  version: 1.0.9
+  version: 1.0.10
   type: data:chipseq:macs2:callpeak
   category: analyses
   flow_collection: sample
