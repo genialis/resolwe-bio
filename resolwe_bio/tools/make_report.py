@@ -7,7 +7,7 @@ import argparse
 import subprocess
 
 
-DECIMALS = 3  # Decimal precision when presenting results:
+DECIMALS = 2  # Decimal precision when presenting results:
 
 parser = argparse.ArgumentParser(description="Fill data into tex template file.")
 parser.add_argument('--sample', help="Sample name.")
@@ -26,6 +26,11 @@ def _format_latex(string):
     string = string.replace('_', '\_')
     string = string.replace('%', '\%')
     return string
+
+
+def _remove_underscore(string):
+    """Remove underscore from the LaTeX compliant string and replaces it with white space."""
+    return string.replace('\_', ' ')
 
 
 def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None):
@@ -68,14 +73,18 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     if long_columns:
         for col_index in long_columns:
             column_alingnment[col_index] = 'L'
-    lines.append('\\begin{{longtable}} {{ {} }}'.format('  '.join(column_alingnment)))
 
     if caption:
-        lines.append('\\caption{{{}}}\\\\'.format(_format_latex(caption)))
+        lines.append('\\captionof{{table}}{{{}}}'.format(_format_latex(caption)))
+
+    lines.append('\\noindent')
+    lines.append('\\begin{{longtable}}[l] {{ {} }}'.format('  '.join(column_alingnment)))
 
     if header:
-        lines.append(' & '.join(map(_format_latex, header)) + ' \\\\')
-        lines.append('\\toprule')
+        lines.append('\\rowcolor{darkblue1}')
+        lines.append('\\leavevmode\\color{white}\\textbf{' + '}& \\leavevmode\\color{white}\\textbf{'.join(
+            map(_format_latex, header)) + '}' + ' \\\\')
+
     for line in data:
         if long_columns:
             for col_index in long_columns:
@@ -84,10 +93,9 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
                 line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}}}{{{}}}'.format(new_val)
 
         lines.append(' & '.join(map(_format_latex, line)) + ' \\\\')
-        lines.append('\\midrule')
 
-    lines[-1] = '\\bottomrule'
     lines.append('\\end{longtable}')
+    lines.append('{\n\\addtocounter{table}{-1}}')
     return '\n'.join(lines)
 
 
@@ -146,8 +154,8 @@ if __name__ == '__main__':
     with open(args.template, 'r') as template_in, open('report.tex', 'wt') as template_out:
         template = template_in.read()
         template = template.replace('{#LOGO#}', args.logo)
-        template = template.replace('{#SAMPLE_NAME#}', _format_latex(args.sample))
-        template = template.replace('{#PANEL#}', _format_latex(args.panel))
+        template = template.replace('{#SAMPLE_NAME#}', (_format_latex(args.sample))[:-4])
+        template = template.replace('{#PANEL#}', _remove_underscore(_format_latex(args.panel)))
 
         # get coverage stats
         with open(args.covmetrics) as covmetrics:
@@ -159,16 +167,16 @@ if __name__ == '__main__':
         # Produce results, metrics:
         metrics = parse_target_pcr_metrics(args.metrics)
 
-        pct_aligned_reads = str(round(float(metrics['PCT_PF_UQ_READS_ALIGNED']) * 100, DECIMALS))
-        pct_amplified_bases = str(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS))
+        pct_aligned_reads = str('{0:g}'.format(round(float(metrics['PCT_PF_UQ_READS_ALIGNED']) * 100, DECIMALS)))
+        pct_amplified_bases = str('{0:g}'.format(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS)))
 
         template = template.replace('{#TOTAL_READS#}', metrics['TOTAL_READS'])
         template = template.replace('{#ALIGNED_READS#}', metrics['PF_UQ_READS_ALIGNED'])
         template = template.replace('{#PCT_ALIGNED_READS#}', pct_aligned_reads)
         template = template.replace('{#ALIGN_BASES_ONTARGET#}', pct_amplified_bases)
         template = template.replace('{#COV_MEAN#}', str(round(mean_coverage, DECIMALS)))
-        template = template.replace('{#COV_20#}', str(mean20))
-        template = template.replace('{#COV_UNI#}', str(cov_unif))
+        template = template.replace('{#COV_20#}', str(round(mean20, DECIMALS)))
+        template = template.replace('{#COV_UNI#}', str(round(cov_unif, DECIMALS)))
 
         # Parse *.cov file:
         cov_list, _ = _tsv_to_list(args.cov)
@@ -178,17 +186,24 @@ if __name__ == '__main__':
         # Produce LaTeX table for amplicons with insufficient coverage:
         not_covered_amplicons = [
             (line[4], '{:.1f}'.format(float(line[8]) * 100)) for line in cov_list if float(line[8]) < 1]
+        switch = 0  # switch used for adding the sentence about coverage
+
         if not not_covered_amplicons:
+            switch = 1
             not_covered_amplicons = [['/', '/']]
         table_text = list_to_tex_table(not_covered_amplicons, header=['Amplicon name', '% covered'],
-                                       caption='Amplicons with coverage $<$ 100 %')
+                                       caption='Amplicons with coverage $<$ 100%')
 
         template = template.replace('{#ALL_AMPLICONS#}', str(len(cov_list)))
         template = template.replace('{#COVERED_AMPLICONS#}', str(covered_amplicons))
         template = template.replace(
-            '{#PCT_COV#}', str(round(float(covered_amplicons) / len(cov_list) * 100, DECIMALS)))
-        template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
-
+            '{#PCT_COV#}', str('{0:g}'.format(round(float(covered_amplicons) / len(cov_list) * 100, DECIMALS))))
+        if switch:
+            message = 'All amplicons are completely covered with short reads.'
+            sentence_text = '\\medskip \\noindent \n {{\\boldfont ' + message + '}} \n\n \\lightfont \n'
+            template = template.replace('{#BAD_AMPLICON_TABLE#}', sentence_text + table_text)
+        else:
+            template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
         # Scatterplot:
         template = template.replace('{#IMAGE2#}', args.covplot)
 
@@ -211,6 +226,7 @@ if __name__ == '__main__':
 
     # Generate PDF:
     args = ['pdflatex', '-interaction=nonstopmode', 'report.tex']
+    subprocess.call(args)
     subprocess.check_call(args)
 
     print("Done.")

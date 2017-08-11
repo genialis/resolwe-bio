@@ -6,8 +6,11 @@
   name: Amplicon report
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/latex:1.0.0
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.1.4
+  version: 0.1.5
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
