@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.2
+  version: 0.1.3
   type: data:variants:vcf:lofreq
   category: analyses:variants
   flow_collection: sample
@@ -47,18 +47,19 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
-      lofreq call -q {{min_bq}} -Q {{min_alt_bq}} --call-indels -f {{genome.fasta.file}} {{alignment.bam.file}} -l {{intervals.bedfile.file}} -o variants.lf.vcf
+      lofreq call -q {{min_bq}} -Q {{min_alt_bq}} --call-indels -f {{genome.fasta.file}} {{alignment.bam.file}} -l {{intervals.bedfile.file}} -o variants_raw.lf.vcf
       re-checkrc
       re-progress 0.8
 
-      mv variants.lf.vcf "${SAMPLE_SLUG}.lf.vcf"
+      lofreq2_indel_ovlp.py variants_raw.lf.vcf "${SAMPLE_SLUG}.lf.vcf"
+      re-checkrc
 
       bgzip -c "${SAMPLE_SLUG}.lf.vcf" > "${SAMPLE_SLUG}.lf.vcf.bgz"
       re-checkrc
-      re-progress 0.8
+      re-progress 0.9
 
       tabix -p vcf "${SAMPLE_SLUG}.lf.vcf.bgz"
       re-checkrc
-      re-progress 0.8
+      re-progress 0.95
 
       re-save-file vcf "${SAMPLE_SLUG}.lf.vcf" "${SAMPLE_SLUG}.lf.vcf.bgz" "${SAMPLE_SLUG}.lf.vcf.bgz.tbi"
