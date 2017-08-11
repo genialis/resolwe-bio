@@ -6,33 +6,44 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-================
-1.4.1 2017-07-20
-================
+==========
+Unreleased
+==========
 
 Added
 -----
-* Add Resolwe API to test url configuration
-* Add TransactionBioProcessTestCase to support writing tests for
-  processes which use resdk
+* Support bioinformatics process test case based on Resolwe's
+  ``TransactionProcessTestCase``
 * Add optimal leaf ordering and simulated annealing to gene and sample
   hierarchical clustering
 
 Changed
 -------
-* Optionally report all amplicons in Amplicon table
 * Improve variant table name in amplicon report
+* Prepend ``api/`` to all URL patterns in the Django test project
+
+Fixed
+-----
+* Correctly handle paired-end parameters in ``featureCount``
+* Fix NaN in explained variance in PCA. When PC1 alone explained more
+  than 99% of variance, explained variance for PC2 was not returned
+* Fix input sanitization error in ``dss-rna-seq``
+* Fix gene source check in hierarchical clustering and PCA
+* Enable network access for all import processes
+
+
+================
+1.4.1 2017-07-20
+================
+
+Changed
+-------
+* Optionally report all amplicons in Amplicon table
 
 Fixed
 -----
 * Remove remaining references to calling ``pip`` with
   ``--process-dependency-links`` argument
-* Correctly handle paired-end parameters in `featureCount`
-* Fix NaN in explained variance in PCA. When PC1 alone explained more
-  than 99% of variance, explained variance for PC2 was not returned.
-* Fix input sanitization error in ``dss-rna-seq``
-* Fix gene source check in hierarchical clustering and PCA.
-* Enable network access for all import processes
 
 
 ================
