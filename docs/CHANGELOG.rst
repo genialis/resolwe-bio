@@ -20,6 +20,10 @@ Added
 * Add Odocoileus virginianus texanus (deer) organism to sample
   descriptor
 * Add test for import-sra process
+* Add Resolwe API to test url configuration
+* Add TransactionBioProcessTestCase to support writing tests for
+  processes which use resdk
+* Add RNA-seq DSS test
 
 Changed
 -------
@@ -46,6 +50,7 @@ Fixed
   in `cutadapt` process and change the name of the process from
   'cutadatp' to 'cutadapt'
 * Fix import-sra process to work with input sanitization fix
+* Fix RNA-seq DSS adapters bug
 
 
 ================

@@ -225,7 +225,7 @@
     resources:
       network: true
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.0.3
   type: data:dss:rnaseq
   category: dss
   persistence: RAW
@@ -287,8 +287,16 @@
         For paired-end reads, the first read has to be on the same strand and
         the second read on the opposite strand. In strand-specific reverse
         assay these rules are reversed.
+    - name: id_attribute
+      label: ID attribute
+      type: basic:string
+      default: gene_id
+      description: >
+        GFF attribute to be used as feature ID. Several GFF lines with the
+        same feature ID will be considered as parts of the same feature. The
+        feature ID is used to identity the counts in the output table.
   run:
     runtime: polyglot
     language: bash
     program: |
-      rnaseq.py {{reads|type}} {{reads|id}} {{genome_and_annotation}} {{adapters}} {{minlen}} {{trailing}} {{stranded}}
+      rnaseq.py {{reads|type}} {{reads|id}} {{genome_and_annotation}} {{adapters}} {{minlen}} {{trailing}} {{stranded}} {{id_attribute}}
