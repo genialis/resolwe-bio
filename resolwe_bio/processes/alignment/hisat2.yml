@@ -7,8 +7,10 @@
   name: HISAT2
   requirements:
     expression-engine: jinja
+    resources:
+      memory: 16384
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.7
+  version: 1.0.8
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample

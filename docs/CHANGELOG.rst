@@ -21,6 +21,7 @@ Changed
 -------
 * Improve variant table name in amplicon report
 * Prepend ``api/`` to all URL patterns in the Django test project
+* Set hisat2 process resources (memory) to 16GB
 
 Fixed
 -----
