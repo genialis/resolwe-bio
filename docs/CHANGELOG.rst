@@ -17,6 +17,8 @@ Added
 * Add optimal leaf ordering and simulated annealing to gene and sample
   hierarchical clustering
 * Add ``resolwebio/chipseq`` docker image
+* Add Odocoileus virginianus texanus (deer) organism to sample
+  descriptor
 
 Changed
 -------
