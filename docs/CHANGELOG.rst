@@ -26,6 +26,7 @@ Changed
 * Prepend ``api/`` to all URL patterns in the Django test project
 * Set hisat2 process resources (memory) to 16GB
 * Filter LoFreq output VCF files to remove overlapping indels
+* Set core resource requirement in Hisat2 process to 1
 
 Fixed
 -----
