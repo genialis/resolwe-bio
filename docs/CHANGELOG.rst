@@ -27,6 +27,9 @@ Changed
 * Set hisat2 process resources (memory) to 16GB
 * Filter LoFreq output VCF files to remove overlapping indels
 * Set core resource requirement in Hisat2 process to 1
+* Add `Non-canonical splice sites penalty`, `Disallow soft clipping`
+  and `Report alignments tailored specifically for Cufflinks`
+  parameters to hisat2 process
 
 Fixed
 -----
