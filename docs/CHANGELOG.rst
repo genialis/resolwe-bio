@@ -31,6 +31,7 @@ Changed
   and `Report alignments tailored specifically for Cufflinks`
   parameters to hisat2 process
 * Remove `threads` input from cuffquant and rna-seq workfows
+* Set core resource requirement in Cuffquant process to 1
 
 Fixed
 -----
