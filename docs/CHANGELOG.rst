@@ -19,6 +19,7 @@ Added
 * Add ``resolwebio/chipseq`` docker image
 * Add Odocoileus virginianus texanus (deer) organism to sample
   descriptor
+* Add test for import-sra process
 
 Changed
 -------
@@ -44,6 +45,7 @@ Fixed
 * Fix multiple adapter sequnce (list) input and minimal lenght trimming
   in `cutadapt` process and change the name of the process from
   'cutadatp' to 'cutadapt'
+* Fix import-sra process to work with input sanitization fix
 
 
 ================

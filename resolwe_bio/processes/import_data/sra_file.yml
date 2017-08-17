@@ -87,7 +87,7 @@
     resources:
       network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -156,15 +156,24 @@
     runtime: polyglot
     language: bash
     program: |
-
-      mkdir $HOME/.ncbi/
-      echo '/repository/user/cache-disabled = "true"' >$HOME/.ncbi/user-settings.mkfg
+      CACHE="$PWD/fastq_cache"
+      mkdir "$CACHE"
+      mkdir "$HOME/.ncbi/"
+      echo "/repository/user/main/public/root = \"$CACHE\"" >"$HOME/.ncbi/user-settings.mkfg"
 
       {% if prefetch %}
         wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/{{sra_accession[0:3]}}/{{sra_accession[0:6]}}/{{sra_accession}}/{{sra_accession}}.sra
       {% endif %}
 
-      fastq-dump {% if not gzip %} --gzip {% endif %} {% if min_spot_id %} --minSpotId {{min_spot_id}} {% endif %} {% if max_spot_id %} --maxSpotId {{max_spot_id}} {% endif %} {% if min_read_len %} --minReadLen {{min_read_len}} {% endif %} {% if skip_technical %} --skip-technical {% endif %} {% if aligned %} --aligned {% endif %} {% if unaligned %} --unaligned {% endif %} {{sra_accession}}{% if prefetch %}.sra{% endif %}
+      fastq-dump \
+        {% if not gzip %} --gzip {% endif %} \
+        {% if min_spot_id %} --minSpotId {{min_spot_id}} {% endif %} \
+        {% if max_spot_id %} --maxSpotId {{max_spot_id}} {% endif %} \
+        {% if min_read_len %} --minReadLen {{min_read_len}} {% endif %} \
+        {% if skip_technical %} --skip-technical {% endif %} \
+        {% if aligned %} --aligned {% endif %} \
+        {% if unaligned %} --unaligned {% endif %} \
+        {{sra_accession}}{% if prefetch %}.sra{% endif %}
 
       {% if gzip %}
         gzip {{sra_accession}}.fastq
@@ -172,10 +181,8 @@
 
       re-save-file-list fastq {{sra_accession}}.fastq.gz
 
-      FASTQ="{{sra_accession}}.fastq.gz"
-
       echo "Postprocessing FastQC..."
-      mkdir "fastqc" && fastqc ${FASTQ} --extract --outdir="fastqc" 2> stderr.txt
+      mkdir "fastqc" && fastqc {{sra_accession}}.fastq.gz --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -209,7 +216,7 @@
     resources:
       network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:paired
   flow_collection: sample
   category: upload
@@ -287,15 +294,25 @@
     runtime: polyglot
     language: bash
     program: |
-
-      mkdir $HOME/.ncbi/
-      echo '/repository/user/cache-disabled = "true"' >$HOME/.ncbi/user-settings.mkfg
+      CACHE="$PWD/fastq_cache"
+      mkdir "$CACHE"
+      mkdir "$HOME/.ncbi/"
+      echo "/repository/user/main/public/root = \"$CACHE\"" >"$HOME/.ncbi/user-settings.mkfg"
 
       {% if prefetch %}
         wget ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByRun/sra/{{sra_accession[0:3]}}/{{sra_accession[0:6]}}/{{sra_accession}}/{{sra_accession}}.sra
       {% endif %}
 
-      fastq-dump --split-files {% if not gzip %} --gzip {% endif %} {% if min_spot_id %} --minSpotId {{min_spot_id}} {% endif %} {% if max_spot_id %} --maxSpotId {{max_spot_id}} {% endif %} {% if min_read_len %} --minReadLen {{min_read_len}} {% endif %} {% if skip_technical %} --skip-technical {% endif %} {% if aligned %} --aligned {% endif %} {% if unaligned %} --unaligned {% endif %} {{sra_accession}}{% if prefetch %}.sra{% endif %}
+      fastq-dump \
+        --split-files \
+        {% if not gzip %} --gzip {% endif %} \
+        {% if min_spot_id %} --minSpotId {{min_spot_id}} {% endif %} \
+        {% if max_spot_id %} --maxSpotId {{max_spot_id}} {% endif %} \
+        {% if min_read_len %} --minReadLen {{min_read_len}} {% endif %} \
+        {% if skip_technical %} --skip-technical {% endif %} \
+        {% if aligned %} --aligned {% endif %} \
+        {% if unaligned %} --unaligned {% endif %} \
+        {{sra_accession}}{% if prefetch %}.sra{% endif %}
 
       {% if gzip %}
         gzip {{sra_accession}}_[12].fastq
@@ -304,10 +321,8 @@
       re-save-file-list fastq {{sra_accession}}_1.fastq.gz
       re-save-file-list fastq2 {{sra_accession}}_2.fastq.gz
 
-      FASTQ="{{sra_accession}}_1.fastq.gz {{sra_accession}}_2.fastq.gz"
-
       echo "Postprocessing FastQC..."
-      mkdir "fastqc" && fastqc ${FASTQ} --extract --outdir="fastqc" 2> stderr.txt
+      mkdir "fastqc" && fastqc {{sra_accession}}_1.fastq.gz {{sra_accession}}_2.fastq.gz --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -326,5 +341,5 @@
 
       re-save-file-list fastqc_archive {{sra_accession}}_1_fastqc.zip
       re-save-file-list fastqc_archive2 {{sra_accession}}_2_fastqc.zip
-      re-save-list fastqc_url "{\"file\":\"fastqc/{{sra_accession}}_1_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/{{sra_accession}}_1_fastqc\"]}"
-      re-save-list fastqc_url2 "{\"file\":\"fastqc/{{sra_accession}}_2_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/{{sra_accession}}_2_fastqc\"]}"
+      re-save-list fastqc_url '{"file":"fastqc/'{{sra_accession}}'_1_fastqc/fastqc_report.html","refs":["fastqc/'{{sra_accession}}'_1_fastqc"]}'
+      re-save-list fastqc_url2 '{"file":"fastqc/'{{sra_accession}}'_2_fastqc/fastqc_report.html","refs":["fastqc/'{{sra_accession}}'_2_fastqc"]}'
