@@ -10,6 +10,7 @@ RUN apt-get update && \
     apt-get update && \
 
     apt-get -y install --no-install-recommends \
+      build-essential \
       python \
       python-dev \
       python-pip \
@@ -74,7 +75,8 @@ RUN apt-get update && \
       /opt/BradnerLab/bamliquidator-$BAMLIQUIDATOR_VERSION/bamliquidator_internal/bamliquidatorbatch/bamliquidator_batch && \
 
     # Remove unnecessary packages after bamliquidator compilation
-    apt-get purge -y \
+    apt-get autoremove --purge -y \
+      build-essential \
       python-dev \
       libbam-dev \
       libhdf5-serial-dev \
