@@ -30,6 +30,7 @@ Changed
 * Add `Non-canonical splice sites penalty`, `Disallow soft clipping`
   and `Report alignments tailored specifically for Cufflinks`
   parameters to hisat2 process
+* Remove `threads` input from cuffquant and rna-seq workfows
 
 Fixed
 -----
