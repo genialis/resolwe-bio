@@ -241,7 +241,7 @@
           type: basic:boolean
           required: false
           description: >
-            By specifying „true‟ for this parameter, the reverse read will also be retained, which may be useful e.g. if the downstream tools cannot handle a combination of paired and unpaired reads.
+            By specifying 'true' for this parameter, the reverse read will also be retained, which may be useful e.g. if the downstream tools cannot handle a combination of paired and unpaired reads.
     - name: slidingwindow
       label: Slidingwindow
       group:
