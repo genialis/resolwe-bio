@@ -35,6 +35,9 @@ Fixed
 * Fix input sanitization error in ``dss-rna-seq``
 * Fix gene source check in hierarchical clustering and PCA
 * Enable network access for all import processes
+* Fix multiple adapter sequnce (list) input and minimal lenght trimming
+  in `cutadapt` process and change the name of the process from
+  'cutadatp' to 'cutadapt'
 
 
 ================

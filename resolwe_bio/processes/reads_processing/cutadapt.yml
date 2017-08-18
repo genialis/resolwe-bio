@@ -6,11 +6,11 @@
 ---
 
 - slug: cutadapt-single
-  name: Cutadapt (single end)
+  name: Cutadapt (single-end)
   requirements:
     expression-engine: jinja
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -124,9 +124,9 @@
       cat ${READS[@]} > in_reads.fastq.gz
 
       polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
-      down_primers='{% for primer in down_primers_seq %}-a {{primer}},{% endfor %}'
+      down_primers='{% for primer in down_primers_seq %}-a {{primer}} {% endfor %}'
       down_primers=${down_primers%?}
-      up_primers='{% for primer in up_primers_seq %}-g {{primer}},{% endfor %}'
+      up_primers='{% for primer in up_primers_seq %}-g {{primer}} {% endfor %}'
       up_primers=${up_primers%?}
 
       # Decompress primer files
@@ -170,11 +170,11 @@
 
 
 - slug: cutadapt-paired
-  name: Cutadapt (paired end)
+  name: Cutadapt (paired-end)
   requirements:
     expression-engine: jinja
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -349,13 +349,13 @@
       cat ${RW_READS[@]} > in_rw_reads.fastq.gz
 
       polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
-      down_primers_fwd='{% for primer in down_primers_seq_fwd %}-a {{primer}},{% endfor %}'
+      down_primers_fwd='{% for primer in down_primers_seq_fwd %}-a {{primer}} {% endfor %}'
       down_primers_fwd=${down_primers_fwd%?}
-      down_primers_rev='{% for primer in down_primers_seq_rev %}-a {{primer}},{% endfor %}'
+      down_primers_rev='{% for primer in down_primers_seq_rev %}-a {{primer}} {% endfor %}'
       down_primers_rev=${down_primers_rev%?}      
-      up_primers_fwd='{% for primer in up_primers_seq_fwd %}-g {{primer}},{% endfor %}'
+      up_primers_fwd='{% for primer in up_primers_seq_fwd %}-g {{primer}} {% endfor %}'
       up_primers_fwd=${up_primers_fwd%?}
-      up_primers_rev='{% for primer in up_primers_seq_rev %}-g {{primer}},{% endfor %}'
+      up_primers_rev='{% for primer in up_primers_seq_rev %}-g {{primer}} {% endfor %}'
       up_primers_rev=${up_primers_rev%?}
 
       # Decompress primer files
@@ -405,12 +405,10 @@
       # Run Cutadapt on both reads
       {% if minlen %}
         if [ -f ${NAME1}_trimmed.fastq.gz ]; then
-         zcat ${NAME1}_trimmed.fastq.gz > in_fw_reads.fastq
-         gzip in_fw_reads.fastq
+         mv ${NAME1}_trimmed.fastq.gz in_fw_reads.fastq.gz
         fi
         if [ -f ${NAME2}_trimmed.fastq.gz ]; then
-         zcat ${NAME2}_trimmed.fastq.gz > in_rw_reads.fastq
-         gzip in_rw_reads.fastq
+         mv ${NAME2}_trimmed.fastq.gz in_rw_reads.fastq.gz
         fi
         cutadapt -m 20 -o ${NAME1}_trimmed.fastq.gz -p ${NAME2}_trimmed.fastq.gz in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
       {% endif %}
