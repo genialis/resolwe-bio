@@ -18,11 +18,14 @@ RUN apt-get update && \
       samtools \
       # required for bamliquidator
       libbam-dev \
-      libhdf5-serial-dev \
       libboost-dev \
       libboost-timer-dev \
       libgoogle-perftools-dev \
+      libhdf5-7 \
+      libhdf5-serial-dev \
+      libtbb2 \
       libtbb-dev \
+      libtcmalloc-minimal4 \
       python-numpy \
       python-scipy \
       python-pandas \
@@ -74,19 +77,19 @@ RUN apt-get update && \
     ln -s /opt/BradnerLab/bamliquidator-$BAMLIQUIDATOR_VERSION/bamliquidator_internal/bamliquidatorbatch/bamliquidator_batch.py \
       /opt/BradnerLab/bamliquidator-$BAMLIQUIDATOR_VERSION/bamliquidator_internal/bamliquidatorbatch/bamliquidator_batch && \
 
-    # Remove unnecessary packages after bamliquidator compilation
-    apt-get autoremove --purge -y \
+    # Cleanup
+    apt-get purge -y \
       build-essential \
       python-dev \
-      libbam-dev \
       libhdf5-serial-dev \
       libboost-dev \
       libboost-timer-dev \
       libgoogle-perftools-dev \
       libtbb-dev && \
-
-    # Cleanup
+    apt-get autoremove --purge -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /root/.cache/pip && \
+    rm -rf /tmp/*
 
 CMD ["/bin/bash"]
