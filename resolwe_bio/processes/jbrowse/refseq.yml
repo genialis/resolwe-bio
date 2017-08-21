@@ -8,8 +8,11 @@
   name: Build reference sequence track (JBrowse)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'RefSeq track ({{ refseq.fasta.file|default("?") }})'
-  version: 1.0.5
+  version: 1.0.6
   type: data:jbrowse:refseq:genome
   category: jbrowse
   persistence: CACHED

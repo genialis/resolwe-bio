@@ -7,10 +7,13 @@
   name: snpEff
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.3
+  version: 0.1.4
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample

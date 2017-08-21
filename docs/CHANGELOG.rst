@@ -15,6 +15,10 @@ Added
 * New base and legacy Docker images for processes, which support non-root
   execution as implemented by Resolwe
 
+Changed
+-------
+* **BACKWARD INCOMPATIBLE:** Modify all processes to explicitly use the new Docker images
+
 
 ================
 3.2.0 2017-09-13

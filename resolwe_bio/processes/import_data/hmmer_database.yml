@@ -7,10 +7,13 @@
   name: Upload HMMER database
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.6
+  version: 1.0.7
   type: data:db:hmmer
   category: upload
   persistence: RAW
@@ -44,6 +47,6 @@
 
       echo "database representation file" > "${NAME}"
       re-checkrc
-      
+
       re-save-file database "${NAME}" "db\"
       re-save hmmerdb "${NAME}.hmm"

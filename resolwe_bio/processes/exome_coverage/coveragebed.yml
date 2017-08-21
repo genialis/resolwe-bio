@@ -7,8 +7,11 @@
   name: coverageBed
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.2.1
+  version: 2.2.2
   type: data:coverage
   category: analyses
   flow_collection: sample

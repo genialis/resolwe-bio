@@ -8,8 +8,11 @@
   name: Build normalized coverage track (JBrowse)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Normalized coverage track ({{bam.bam.file}})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:jbrowse:bigwig:coverage:normalized
   category: analyses
   flow_collection: sample

@@ -7,10 +7,13 @@
   name: GO Enrichment analysis
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.0.3
+  version: 3.0.4
   type: data:goea
   category: analyses
   persistence: TEMP

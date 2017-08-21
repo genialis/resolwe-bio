@@ -9,8 +9,11 @@
   name: Mappability
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
-  version: 1.0.12
+  version: 1.0.13
   type: data:mappability:bcm
   category: analyses
   persistence: CACHED

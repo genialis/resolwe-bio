@@ -9,8 +9,11 @@
   name: Cutadapt-custom (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -72,8 +75,11 @@
   name: Cutadapt-custom (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample

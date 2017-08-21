@@ -11,9 +11,9 @@
       network: true
     executor:
       docker:
-        image: "resolwe/bio-linux8-resolwe-preview:icount"
+        image: genialis/iclip:2.0.0
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:seq:nucleotide
   category: upload
   persistence: RAW

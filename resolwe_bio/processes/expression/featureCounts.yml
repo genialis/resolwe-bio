@@ -7,8 +7,11 @@
   name: FeatureCounts
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.1.1
+  version: 0.1.2
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample

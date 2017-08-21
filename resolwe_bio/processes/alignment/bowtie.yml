@@ -7,8 +7,11 @@
   name: Bowtie (dicty)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.19
+  version: 1.0.20
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -291,10 +294,13 @@
   name: Bowtie
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.24
+  version: 1.0.25
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample

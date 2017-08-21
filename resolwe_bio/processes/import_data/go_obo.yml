@@ -7,10 +7,13 @@
   name: Upload gene ontology
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.18
+  version: 1.0.19
   type: data:ontology:obo
   category: upload
   persistence: RAW

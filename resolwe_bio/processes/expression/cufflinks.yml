@@ -7,8 +7,11 @@
   name: Cufflinks (2.2.1)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.13
+  version: 1.0.14
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample

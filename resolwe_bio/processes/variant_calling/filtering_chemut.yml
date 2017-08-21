@@ -7,8 +7,11 @@
   name: Variant filtering (CheMut)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED

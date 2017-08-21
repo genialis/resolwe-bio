@@ -7,8 +7,11 @@
   name: PCA
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'PCA'
-  version: 1.1.4
+  version: 1.1.5
   type: data:pca
   category: analyses
   persistence: TEMP

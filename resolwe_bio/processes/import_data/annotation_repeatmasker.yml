@@ -7,10 +7,13 @@
   name: RepeatMasker annotation
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: 'Upload RepeatMasker annotation (GFF, {{ src.file }})'
-  version: 1.0.13
+  version: 1.0.14
   type: data:annotation:gff3
   category: upload
   persistence: RAW

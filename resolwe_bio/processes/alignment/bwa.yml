@@ -7,8 +7,11 @@
   name: BWA MEM (0.7.5a)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.1
+  version: 1.1.2
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -213,8 +216,11 @@
   name: BWA SW (0.7.5a)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.17
+  version: 1.0.18
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -343,8 +349,11 @@
   name: BWA ALN (0.7.5a)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.18
+  version: 1.0.19
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample

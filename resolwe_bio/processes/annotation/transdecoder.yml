@@ -7,8 +7,11 @@
   name: TransDecoder (2.0.1)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "TransDecoder analysis ({{ gff.merged_gtf.file|basename|default('?') }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:annotation:transdecoder
   category: analyses
   persistence: CACHED

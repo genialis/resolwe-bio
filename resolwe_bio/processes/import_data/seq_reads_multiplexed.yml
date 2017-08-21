@@ -7,10 +7,13 @@
   name: Reads (multiplexed, single)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.19
+  version: 1.0.20
   type: data:multiplexed:qseq:single
   category: upload
   persistence: RAW
@@ -85,10 +88,13 @@
   name: Reads (multiplexed, paired)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.19
+  version: 1.0.20
   type: data:multiplexed:qseq:paired
   category: upload
   persistence: RAW

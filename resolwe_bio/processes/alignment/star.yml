@@ -7,11 +7,14 @@
   name: STAR
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       memory: 32768
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.4
+  version: 1.1.5
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -313,11 +316,14 @@
   name: STAR genome index
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       memory: 32768
       cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.11
+  version: 1.0.12
   type: data:genomeindex:star
   persistence: CACHED
   description: >

@@ -7,10 +7,13 @@
   name: Variants (.bed)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.0.11
+  version: 1.0.12
   type: data:variants:bed
   category: upload
   persistence: RAW

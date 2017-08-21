@@ -9,10 +9,13 @@
   name: Import Expressions from tranSMART
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: 'Import from tranSMART'
-  version: 0.0.19
+  version: 0.0.20
   type: data:expressionset:transmart
   category: import
   persistence: RAW

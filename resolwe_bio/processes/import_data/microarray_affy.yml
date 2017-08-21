@@ -7,10 +7,13 @@
   name: Upload microarray data (Affymetrix)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ cel.file|default("?") }}'
-  version: 1.0.8
+  version: 1.0.9
   type: data:microarray:affy
   category: upload
   flow_collection: sample

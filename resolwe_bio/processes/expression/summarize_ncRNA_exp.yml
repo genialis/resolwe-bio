@@ -8,8 +8,11 @@
   name: Summarize ncRNA expressions
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Summarized ncRNA expressions"
-  version: 1.0.5
+  version: 1.0.6
   type: data:expressionset:ncrna
   category: analyses
   persistence: CACHED

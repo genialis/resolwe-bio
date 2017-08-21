@@ -7,10 +7,13 @@
   name: Variants (.vcf)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.15
+  version: 1.0.16
   type: data:variants:vcf
   category: upload
   persistence: RAW

@@ -7,8 +7,11 @@
   name: edgeR
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Differential expression (case vs. control)'
-  version: 0.0.4
+  version: 0.0.5
   type: data:differentialexpression:edger
   category: analyses
   persistence: CACHED

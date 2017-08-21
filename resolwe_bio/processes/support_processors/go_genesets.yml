@@ -7,8 +7,11 @@
   name: Import gene sets (GO terms)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Import gene sets from {{gaf.gaf.file}}"
-  version: 0.0.3
+  version: 0.0.4
   type: data:genesets:go
   category: analyses
   persistence: CACHED

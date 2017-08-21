@@ -7,10 +7,13 @@
   name: Import SRA
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:reads:fastq
   category: upload
   persistence: TEMP
@@ -84,10 +87,13 @@
   name: Import SRA (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -213,10 +219,13 @@
   name: Import SRA (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:paired
   flow_collection: sample
   category: upload

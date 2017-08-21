@@ -7,8 +7,11 @@
   name: Build paired-end reads from single-ended
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Merged reads"
-  version: 1.0.9
+  version: 1.0.10
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED

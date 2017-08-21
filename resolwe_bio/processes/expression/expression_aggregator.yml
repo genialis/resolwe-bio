@@ -2,8 +2,11 @@
   name: Expression aggregator
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Expression aggregator"
-  version: 0.0.2
+  version: 0.0.3
   type: data:aggregator:expression
   category: analyses
   persistence: CACHED

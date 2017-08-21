@@ -10,8 +10,11 @@
     resources:
       memory: 16384
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
-  version: 1.0.6
+  version: 1.0.7
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED

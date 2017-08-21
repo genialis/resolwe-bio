@@ -7,8 +7,11 @@
   name: Merge Expressions (ETC)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Merged ETC"
-  version: 1.0.7
+  version: 1.0.8
   type: data:expressionset:etc
   category: analyses
   persistence: CACHED

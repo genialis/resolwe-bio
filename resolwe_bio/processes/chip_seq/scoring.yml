@@ -7,8 +7,11 @@
   name: ChIP-Seq (Peak Score)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
-  version: 1.0.7
+  version: 1.0.8
   type: data:chipseq:peakscore
   category: analyses
   flow_collection: sample
@@ -44,8 +47,11 @@
   name: ChIP-Seq (Gene Score)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Gene score ({{ peakscore.peak_score.file|basename|default('?') }})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:chipseq:genescore
   category: analyses
   persistence: TEMP
@@ -81,7 +87,11 @@
     runtime: polyglot
     language: bash
     program: |
-      peak2geneScore.R {{peakscore.peak_score.file}} {% if fdr %} --fdr {{fdr}} {% endif %} {% if pval %} --pval {{pval}} {% endif %} {% if logratio %} --logratio {{logratio}} {% endif %}
+      peak2geneScore.R \
+        {{peakscore.peak_score.file}} \
+        {% if fdr %} --fdr {{fdr}} {% endif %} \
+        {% if pval %} --pval {{pval}} {% endif %} \
+        {% if logratio %} --logratio {{logratio}} {% endif %}
       re-checkrc "GeneScore computing failed."
 
       re-save-file genescore geneScore.xls

@@ -7,8 +7,11 @@
   name: Feature locations
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Extract feature locations"
-  version: 1.0.4
+  version: 1.0.5
   type: data:featurelocation
   category: analyses
   persistence: CACHED

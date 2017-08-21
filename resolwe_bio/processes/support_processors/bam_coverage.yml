@@ -7,8 +7,11 @@
   name: Genome coverage
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "BigWig ({{bam.bam.file}})"
-  version: 1.0.7
+  version: 1.0.8
   type: data:reads:coverage
   category: analyses
   flow_collection: sample

@@ -2,8 +2,11 @@
   name: Cutadapt (Amplicon)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample

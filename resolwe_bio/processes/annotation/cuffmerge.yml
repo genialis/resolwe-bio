@@ -7,8 +7,11 @@
   name: Cuffmerge
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.0.15
+  version: 1.0.16
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED

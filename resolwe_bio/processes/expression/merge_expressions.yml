@@ -7,8 +7,11 @@
   name: Merge Expressions
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Merged expressions"
-  version: 1.0.9
+  version: 1.0.10
   type: data:expressionset
   category: analyses
   persistence: CACHED

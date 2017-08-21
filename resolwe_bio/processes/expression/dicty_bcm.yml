@@ -7,8 +7,11 @@
   name: Expression (BCM)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.17
+  version: 1.0.18
   type: data:expression:polya
   category: analyses
   flow_collection: sample

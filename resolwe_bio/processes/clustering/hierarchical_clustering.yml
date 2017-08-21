@@ -7,6 +7,9 @@
   name: Hierarchical clustering of genes
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/legacy:latest"
   data_name: 'Hierarchical clustering of {{genes|join(", ")|default("?")}}'
   version: 1.0.8
   type: data:clustering:hierarchical:genes:etc
@@ -73,8 +76,11 @@
   name: Hierarchical clustering of samples
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.12
+  version: 1.0.13
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -199,10 +205,13 @@
   name: Hierarchical clustering of genes
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       memory: 16384
   data_name: 'Hierarchical clustering of genes'
-  version: 1.0.7
+  version: 1.0.8
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP

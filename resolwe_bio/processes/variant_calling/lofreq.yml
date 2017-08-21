@@ -7,8 +7,11 @@
   name: LoFreq (call)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.3
+  version: 0.1.4
   type: data:variants:vcf:lofreq
   category: analyses:variants
   flow_collection: sample

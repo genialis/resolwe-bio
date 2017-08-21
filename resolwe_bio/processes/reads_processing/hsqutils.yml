@@ -3,8 +3,11 @@
   name: HSQutils trim
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.1.1
+  version: 0.1.2
   type: data:reads:fastq:paired:hsqutils
   category: analyses
   flow_collection: sample

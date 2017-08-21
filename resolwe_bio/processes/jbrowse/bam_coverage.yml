@@ -8,8 +8,11 @@
   name: Build coverage track (JBrowse)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Coverage track ({{bam|sample_name}})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:jbrowse:bigwig:coverage
   category: analyses
   flow_collection: sample

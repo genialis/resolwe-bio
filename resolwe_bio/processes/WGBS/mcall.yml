@@ -7,8 +7,11 @@
   name: The methylation ratio calling module
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "mcall"
-  version: 1.0.4
+  version: 1.0.5
   type: data:wgbs:mcall
   category: analyses:wgbs
   persistence: CACHED

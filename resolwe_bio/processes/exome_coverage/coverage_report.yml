@@ -7,8 +7,11 @@
   name: Exome Coverage Report
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Coverage report ({{ mapping.bam.file|basename|default('?') }})"
-  version: 2.0.7
+  version: 2.0.8
   type: data:coverage
   category: analyses
   flow_collection: sample

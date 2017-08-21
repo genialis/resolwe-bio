@@ -3,8 +3,11 @@
   name: HSQutils dedup
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ alignment.bam.file|default("?") }}'
-  version: 0.0.2
+  version: 0.0.3
   type: data:alignment:bam:hsqutils
   category: analyses
   flow_collection: sample

@@ -7,8 +7,11 @@
   name: Expression Time Course
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Expression time course"
-  version: 1.0.14
+  version: 1.0.15
   type: data:etc
   category: analyses
   persistence: CACHED

@@ -9,8 +9,11 @@
   name: Cutadapt (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -173,8 +176,11 @@
   name: Cutadapt (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.3
+  version: 0.0.4
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -386,7 +392,7 @@
         -O {{min_overlap_fwd}} -o "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq.gz > report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.4
-      
+
       # Run Cutadapt on reverse reads
       cutadapt \
         {% if headcrop_rev %}-u {{headcrop_rev}}{% endif %} \

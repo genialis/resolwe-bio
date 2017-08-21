@@ -7,8 +7,11 @@
   name: Cuffdiff (2.2.1)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Cuffdiff results'
-  version: 1.0.16
+  version: 1.0.17
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED

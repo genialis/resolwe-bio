@@ -7,10 +7,13 @@
   name: Cuffquant results
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.5
+  version: 1.0.6
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample

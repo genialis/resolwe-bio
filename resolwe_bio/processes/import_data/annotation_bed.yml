@@ -7,10 +7,13 @@
   name: BED track file
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.7
+  version: 1.0.8
   type: data:bed
   category: upload
   persistence: RAW

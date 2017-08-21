@@ -7,10 +7,13 @@
   name: Upload custom master file
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ panel_name }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:masterfile:amplicon
   category: upload
   persistence: CACHED

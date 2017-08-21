@@ -7,8 +7,11 @@
   name: Subread
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 0.0.6
+  version: 0.0.7
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample

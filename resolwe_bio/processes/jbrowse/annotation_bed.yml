@@ -8,8 +8,11 @@
   name: Build BED annotation track (JBrowse)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'BED annotation track (JBrowse)'
-  version: 1.0.5
+  version: 1.0.6
   type: data:jbrowse:annotation:bed
   category: jbrowse
   flow_collection: sample

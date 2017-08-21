@@ -7,8 +7,11 @@
   name: Convert Cuffmerge GTF to GFF3 format
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Cuffmerge annotation (GFF3)'
-  version: 1.0.6
+  version: 1.0.7
   type: data:annotation:gff3
   category: analyses
   persistence: CACHED

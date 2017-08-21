@@ -8,8 +8,11 @@
   name: Limma
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.6
+  version: 1.0.7
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED

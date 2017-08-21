@@ -7,8 +7,11 @@
   name: BaySeq (BCM)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ name }}"
-  version: 1.0.11
+  version: 1.0.12
   type: data:differentialexpression:bayseq
   category: analyses
   persistence: CACHED

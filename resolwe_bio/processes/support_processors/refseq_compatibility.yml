@@ -7,8 +7,11 @@
   name: Coordinate compatibility test
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Compatibility check ({{reference.fasta.file}})"
-  version: 1.0.5
+  version: 1.0.6
   type: data:reports:compatibility
   category: analyses
   persistence: CACHED

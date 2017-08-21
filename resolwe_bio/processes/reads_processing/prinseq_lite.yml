@@ -9,8 +9,11 @@
   name: Prinseq-lite (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.1
+  version: 1.1.2
   type: data:reads:fastq:single:prinseq
   flow_collection: sample
   category: analyses
@@ -111,8 +114,11 @@
   name: Prinseq-lite (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.1
+  version: 1.1.2
   type: data:reads:fastq:paired:prinseq
   category: analyses
   flow_collection: sample

@@ -9,8 +9,11 @@
   name: SortMeRNA 2.0 (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: SortMeRNA{{ reads.fastq.0.file|default("?") }}
-  version: 1.1.1
+  version: 1.1.2
   type: data:reads:fastq:single:sortmerna
   category: analyses
   flow_collection: sample
@@ -121,10 +124,13 @@
 
 
 - slug: sortmerna-paired
-  version: 1.1.1
+  version: 1.1.2
   name: SortMeRNA 2.0 (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
   type: data:reads:fastq:paired:sortmerna
   category: analyses

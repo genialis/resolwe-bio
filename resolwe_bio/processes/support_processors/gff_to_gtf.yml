@@ -8,8 +8,11 @@
   name: Convert GFF3 to GTF format
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Converted GFF3 to GTF file"
-  version: 0.0.5
+  version: 0.0.6
   type: data:annotation:gtf
   category: analyses
   description: >

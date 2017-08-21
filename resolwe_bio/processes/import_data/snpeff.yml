@@ -7,10 +7,13 @@
   name: snpEff
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.3
+  version: 0.0.4
   type: data:snpeff:upload
   category: upload
   persistence: RAW

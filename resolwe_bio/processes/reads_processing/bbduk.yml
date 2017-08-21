@@ -9,8 +9,11 @@
   name: BBDuk (single-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -33,9 +36,9 @@
           required: false
           choices:
             - label: Illumina Truseq DNA adapters.
-              value: '~/bbmap/resources/truseq.fa.gz'
+              value: truseq
             - label: Illumina Truseq RNA adapters.
-              value: '~/bbmap/resources/truseq_rna.fa.gz'
+              value: truseq_rna
         - name: reference
           label: List of reference files
           type: list:data:seq:nucleotide
@@ -238,6 +241,9 @@
         re-error "Specify only list of barcode files or list of barcode strings."
       {% endif %}
 
+      BBDUK_BASE_DIR=$(dirname $(which bbduk.sh))
+      BBDUK_RESOURCE_DIR="${BBDUK_BASE_DIR}/resources"
+
       echo "Preparing reads file..."
       re-progress 0.1
 
@@ -259,9 +265,9 @@
       {% if adapters.reference and not adapters.bbduk_adapters %}
         REFERENCE_PAR=ref="${REFERENCE}"
       {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR=ref={{adapters.bbduk_adapters}}
+        REFERENCE_PAR="ref=${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa.gz"
       {% elif adapters.bbduk_adapters and adapters.reference %}
-        cp {{adapters.bbduk_adapters}} def_adapters.fasta
+        cp "${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa.gz" def_adapters.fasta
         REFERENCE=${REFERENCE}def_adapters.fasta
         REFERENCE_PAR=ref="${REFERENCE}"
       {% endif %}
@@ -328,8 +334,11 @@
   name: BBDuk (paired-end)
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.4
+  version: 0.0.5
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
@@ -351,8 +360,8 @@
           type: basic:string
           required: false
           choices:
-            - label: default_adapters
-              value: '~/bbmap/resources/adapters.fa'
+            - label: Default adapters
+              value: adapters
         - name: reference
           label: List of reference files
           type: list:data:seq:nucleotide
@@ -564,6 +573,9 @@
         re-error "Specify only list of barcode files or list of barcode strings."
       {% endif %}
 
+      BBDUK_BASE_DIR=$(dirname $(which bbduk.sh))
+      BBDUK_RESOURCE_DIR="${BBDUK_BASE_DIR}/resources"
+
       echo "Preparing reads file..."
       re-progress 0.1
 
@@ -592,11 +604,11 @@
        {% if adapters.reference and not adapters.bbduk_adapters %}
         REFERENCE_PAR="ref="${REFERENCE}""
       {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR="ref={{adapters.bbduk_adapters}}"
+        REFERENCE_PAR="ref=${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa"
       {% elif adapters.bbduk_adapters and adapters.reference %}
-        cp {{adapters.bbduk_adapters}} def_adapters.fasta
+        cp "${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa" def_adapters.fasta
         REFERENCE=${REFERENCE}def_adapters.fasta
-        REFERENCE_PAR="ref="${REFERENCE}""
+        REFERENCE_PAR=ref="${REFERENCE}"
       {% endif %}
 
       re-progress 0.3

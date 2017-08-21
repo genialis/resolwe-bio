@@ -7,8 +7,11 @@
   name: SNPdat
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "Variants annotation ({{ variants.vcf.file|basename|default('?') }})"
-  version: 1.0.15
+  version: 1.0.16
   type: data:variants:annotation
   category: analyses:variants
   flow_collection: sample

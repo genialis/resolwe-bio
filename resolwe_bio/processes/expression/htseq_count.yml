@@ -7,8 +7,11 @@
   name: HTSeq-count-normalized
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.19
+  version: 1.0.20
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -165,8 +168,11 @@
   name: HTSeq-count-raw
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.3
+  version: 1.0.4
   type: data:expression:htseq:raw
   category: analyses
   flow_collection: sample
