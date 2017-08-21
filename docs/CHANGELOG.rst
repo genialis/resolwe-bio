@@ -26,6 +26,7 @@ Added
 * Add TransactionBioProcessTestCase to support writing tests for
   processes which use resdk
 * Add RNA-seq DSS test
+* Add custom Cutadapt process
 
 Changed
 -------
