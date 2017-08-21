@@ -1,0 +1,162 @@
+# =============================================
+# Processors for reads procesing - Cutadapt Custom
+# =============================================
+#
+# Processors for NGS reads filtering/trimming
+---
+
+- slug: cutadapt-custom-single
+  name: Cutadapt-custom (single-end)
+  requirements:
+    expression-engine: jinja
+  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:reads:fastq:single:cutadapt
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Custom Cutadapt process
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:single
+  output:
+    - name: fastq
+      label: Reads file
+      type: list:basic:file
+    - name: report
+      label: Cutadapt report
+      type: basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      NAME=`basename {{reads.fastq.0.file}} .fastq.gz`
+
+      READS=({% for read in reads.fastq %}{{read.file}} {% endfor %})
+      cat "${READS[@]}" > in_reads.fastq.gz
+
+      # Run Cutadapt
+      cutadapt --trim-n -a AGAGCACACGTCTG in_reads.fastq.gz 2> report.txt |
+      cutadapt -u 3 -a A{100} --no-indels -e 0.16666666666666666 - 2>> report.txt |
+      cutadapt -O 8 --match-read-wildcards -g GTTCAGAGTTCTACAGTCCGACGATCSSS \
+      -m 18 -o "${NAME}_trimmed.fastq.gz" - >> report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.7
+
+      re-save-file-list fastq "${NAME}_trimmed.fastq.gz"
+      re-save-file report report.txt
+
+      # Run FastQC analysis
+      mkdir "fastqc" && fastqc "${NAME}_trimmed.fastq.gz" --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv "fastqc/${NAME}_trimmed_fastqc.zip" "${NAME}_trimmed_fastqc.zip"
+
+      FASTQC_URL="{\"file\":\"fastqc/${NAME}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_trimmed_fastqc\"]}"
+
+      re-save-file-list fastqc_archive "${NAME}_trimmed_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL}"
+
+
+- slug: cutadapt-custom-paired
+  name: Cutadapt-custom (paired-end)
+  requirements:
+    expression-engine: jinja
+  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:reads:fastq:paired:cutadapt
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Custom Cutadapt process
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+  output:
+    - name: fastq
+      label: Reads file (forward)
+      type: list:basic:file
+    - name: fastq2
+      label: Reads file (reverse)
+      type: list:basic:file
+    - name: report
+      label: Cutadapt report
+      type: basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC (forward)
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Quality control with FastQC (reverse)
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive (forward)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (reverse)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
+      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
+
+      FW_READS=({% for read in reads.fastq %}{{read.file}} {% endfor %})
+      cat "${FW_READS[@]}" > in_fw_reads.fastq.gz
+
+      RW_READS=({% for read in reads.fastq2 %}{{read.file}} {% endfor %})
+      cat "${RW_READS[@]}" > in_rw_reads.fastq.gz
+
+      # Run Cutadapt on forward reads
+      cutadapt --trim-n -a AGAGCACACGTCTG in_fw_reads.fastq.gz 2> report.txt |
+      cutadapt -u 3 -a A{100} --no-indels -e 0.16666666666666666 - 2>> report.txt |
+      cutadapt -O 8 --match-read-wildcards -g GTTCAGAGTTCTACAGTCCGACGATCSSS \
+      -o "${NAME1}_trimmed.fastq.gz" - >> report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.4
+
+      # Run Cutadapt on reverse reads
+      cutadapt --trim-n --match-read-wildcards -n 2 -g T{100} -a SSSGATCGTCGG \
+      -o "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz >> report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.7
+
+      # Run Cutadapt on both reads
+      mv "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq
+      mv "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq
+      cutadapt -m 18 -o "${NAME1}_trimmed.fastq.gz" -p "${NAME2}_trimmed.fastq.gz" in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
+      re-checkrc "Failed while running cutadapt"
+      re-progress 0.8
+
+      re-save-file-list fastq "${NAME1}_trimmed.fastq.gz"
+      re-save-file-list fastq2 "${NAME2}_trimmed.fastq.gz"
+      re-save-file report report.txt
+
+      # Run FastQC analysis
+      mkdir "fastqc" && fastqc "${NAME1}_trimmed.fastq.gz" "${NAME2}_trimmed.fastq.gz" --extract --outdir="fastqc" >&2
+      re-checkrc "Failed while processing with FastQC."
+      re-progress 0.9
+
+      mv "fastqc/${NAME1}_trimmed_fastqc.zip" "${NAME1}_trimmed_fastqc.zip"
+      mv "fastqc/${NAME2}_trimmed_fastqc.zip" "${NAME2}_trimmed_fastqc.zip"
+
+      FASTQC_URL1="{\"file\":\"fastqc/${NAME1}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_trimmed_fastqc\"]}"
+      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_trimmed_fastqc\"]}"
+
+      re-save-file-list fastqc_archive "${NAME1}_trimmed_fastqc.zip"
+      re-save-file-list fastqc_archive2 "${NAME2}_trimmed_fastqc.zip"
+      re-save-list fastqc_url "${FASTQC_URL1}"
+      re-save-list fastqc_url2 "${FASTQC_URL2}"
