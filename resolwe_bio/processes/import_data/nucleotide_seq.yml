@@ -11,7 +11,7 @@
       network: true
     executor:
       docker:
-        image: genialis/iclip:2.0.0
+        image: resolwebio/legacy:latest
   data_name: '{{ src.file|default("?") }}'
   version: 1.0.16
   type: data:seq:nucleotide

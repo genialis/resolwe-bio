@@ -187,7 +187,7 @@
       re-progress 0.5
 
       echo "COMPRESSING sam to sorted bam:"
-      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort -o "${NAME}.bam" -
       re-progress 0.6
 
       echo -e "\nINDEXING bam:"
@@ -320,7 +320,7 @@
       re-progress 0.5
 
       echo "COMPRESSING sam to sorted bam:"
-      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort -o "${NAME}.bam" -
       re-progress 0.6
 
       echo -e "\nINDEXING bam:"
@@ -483,7 +483,7 @@
       re-progress 0.5
 
       echo "COMPRESSING sam to sorted bam:"
-      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort - "${NAME}"
+      samtools view -bS "${NAME}_align_unsorted.sam" | samtools sort -o "${NAME}.bam" -
       re-progress 0.6
 
       echo -e "\nINDEXING bam:"

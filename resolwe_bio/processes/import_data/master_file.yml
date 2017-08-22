@@ -60,7 +60,13 @@
       re-progress 0.2
 
       # merged target BED
-      bedtools merge -nms -i "${NAME}_nonmerged_targets.bed" | sed 's/;.*//' | sort -k1,1n -k2,2n > "${NAME}_merged_targets.bed"
+      bedtools merge \
+        -c 4 \
+        -o collapse \
+        -i "${NAME}_nonmerged_targets.bed" | \
+          sed 's/;.*//' | \
+          sort -k1,1n -k2,2n \
+          > "${NAME}_merged_targets.bed"
       re-checkrc "bedtools merge command failed"
       re-progress 0.5
 
@@ -68,11 +74,18 @@
       # get all overlapping regions for target bedfile
       # NOTE: awk step isolates overlapping regions and removes full regions
       # (intersectBed outputs all full regions as they self-intersect)
-      bedtools intersect -a "${NAME}_nonmerged_targets.bed" -b "${NAME}_nonmerged_targets.bed" | awk 'a[$1FS$2FS$3]++' OFS="\t" > "${NAME}_overlapped_regions.bed"
+      bedtools intersect \
+        -a "${NAME}_nonmerged_targets.bed" \
+        -b "${NAME}_nonmerged_targets.bed" | \
+          awk 'a[$1FS$2FS$3]++' OFS="\t" \
+          > "${NAME}_overlapped_regions.bed"
       re-checkrc "bedtools intersect command failed"
       re-progress 0.7
 
-      bedtools subtract -a "${NAME}_nonmerged_targets.bed" -b "${NAME}_overlapped_regions.bed" > "${NAME}_nonmerged_noolaps_targets.bed"
+      bedtools subtract \
+        -a "${NAME}_nonmerged_targets.bed" \
+        -b "${NAME}_overlapped_regions.bed" \
+        > "${NAME}_nonmerged_noolaps_targets.bed"
       re-checkrc "bedtools subtract command failed"
       re-progress 0.8
 

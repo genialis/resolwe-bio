@@ -67,7 +67,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'replicates': ['1', '2']}
         cuffnorm = self.run_process('cuffnorm', inputs)
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
-        self.assertFile(cuffnorm, 'raw_scatter', 'cuffnorm_scatter_plot.png')
+        self.assertFileExists(cuffnorm, 'raw_scatter')
 
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')

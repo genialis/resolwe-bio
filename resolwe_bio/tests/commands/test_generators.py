@@ -68,7 +68,7 @@ class GenerateSamplesTest(GeneratorBioProcessTestCase):
             # NOTE: The random.gammavariate() that is used for generating expression data produces
             # slightly differently rounded numbers on different platforms (e.g. Linux and MacOS) so
             # the check ignores the generated numbers
-            with mock.patch.object(self, 'assertDictEqual', self.assertDictEqualIgnoreNumbers):
+            with mock.patch.object(self, 'assertAlmostEqualGeneric', self.assertDictEqualIgnoreNumbers):
                 # NOTE: Python 2 and 3 produce different results even when setting random.seed() to
                 # the same number due to https://docs.python.org/3/whatsnew/3.2.html#random
                 if six.PY2:
@@ -92,7 +92,7 @@ class GenerateEtcTest(GeneratorBioProcessTestCase):
         # NOTE: The random.gammavariate() that is used for generating expression data produces
         # slightly differently rounded numbers on different platforms (e.g. Linux and MacOS) so
         # the check ignores the generated numbers
-        with mock.patch.object(self, 'assertDictEqual', self.assertDictEqualIgnoreNumbers):
+        with mock.patch.object(self, 'assertAlmostEqualGeneric', self.assertDictEqualIgnoreNumbers):
             # NOTE: Python 2 and 3 produce different results even when setting random.seed() to the
             # same number due to https://docs.python.org/3/whatsnew/3.2.html#random
             if six.PY2:

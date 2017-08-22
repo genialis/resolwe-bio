@@ -303,7 +303,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         inputs = {
             'reads': reads.id,
             'adapters': {
-                'bbduk_adapters': '~/bbmap/resources/truseq.fa.gz'},
+                'bbduk_adapters': 'truseq'},
             'trimming_par': {
                 'kmask': 'lc'},
             'barcode_par': {

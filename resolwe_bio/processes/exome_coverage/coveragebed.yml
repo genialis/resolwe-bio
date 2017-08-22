@@ -44,31 +44,63 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
-      ### calculate coverage metrics ###
-      echo "calculating coverage metrics"
-      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.bedfile.file}} -d > "${SAMPLE_SLUG}.covd"
+      # Calculate coverage metrics.
+      echo "Calculating coverage metrics."
+      coverageBed \
+        -a {{master_file.bedfile.file}} \
+        -b {{ alignment.bam.file }} \
+        -d > "${SAMPLE_SLUG}.covd"
       re-checkrc
       re-progress 0.5
 
-      awk '{sum+=$7}END{m=(sum/NR); b=m*0.2; print m, b}' "${SAMPLE_SLUG}.covd" > "${SAMPLE_SLUG}.tmp"
+      awk '
+        { sum += $7 }
+        END { m = (sum / NR); b = m * 0.2; print m, b}
+      ' \
+        "${SAMPLE_SLUG}.covd" \
+        > "${SAMPLE_SLUG}.tmp"
 
-      # make an amplicon-specific coverage metrics report
-      # NOTE: coverage is not uniquely assigned to individual amplicons for overlapping regions!
-      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.nomergebed.file}} > "${SAMPLE_SLUG}_amplicon_coverage.cov"
+      # Make an amplicon-specific coverage metrics report.
+      # NOTE: Coverage is not uniquely assigned to individual amplicons for overlapping regions!
+      coverageBed \
+        -a {{master_file.nomergebed.file}} \
+        -b {{ alignment.bam.file }} > "${SAMPLE_SLUG}_amplicon_coverage.cov"
 
-      # make an amplicon-specific coverage metrics report with olaps omitted
-      # and report mean amplicon coverage using bedtool option
-      coverageBed -abam {{ alignment.bam.file }} -b {{master_file.olapfreebed.file}} -d > "${SAMPLE_SLUG}_olapfree.covd"
-      awk 'BEGIN{n=0}NR==FNR{m=$1;b=$2;next}{if($7>=b)n++}END{print m,b,(n/FNR*100.0)}' OFS="\t" "${SAMPLE_SLUG}.tmp" "${SAMPLE_SLUG}.covd" > "${SAMPLE_SLUG}_covMetrics.txt"
+      # Make an amplicon-specific coverage metrics report with olaps omitted
+      # and report mean amplicon coverage using bedtool option.
+      coverageBed \
+        -a {{master_file.olapfreebed.file}} \
+        -b {{ alignment.bam.file }} \
+        -d > "${SAMPLE_SLUG}_olapfree.covd"
 
-      echo "calculating mean amplicon coverage"
+      awk '
+        BEGIN { n = 0 }
+        NR == FNR { m = $1; b = $2; next}
+        { if ($7 >= b) n++ }
+        END { print m, b, (n / FNR * 100.0) }
+      ' OFS="\t" \
+        "${SAMPLE_SLUG}.tmp" \
+        "${SAMPLE_SLUG}.covd" \
+        > "${SAMPLE_SLUG}_covMetrics.txt"
+
+      echo "Calculating mean amplicon coverage."
       # find mean amplicon coverage using coverage metrics for non-overlapping regions of each amplicon
-      awk '{a[$5]+=$7;b[$5]=$6}END{for(i in a){print i, (a[i]/b[i])}}' OFS="\t" <(sort -k6,6n "${SAMPLE_SLUG}_olapfree.covd") | sort -k2,2g > "${SAMPLE_SLUG}_ampmeancov.covd"
+      awk '
+        { a[$5] += $7; b[$5] = $6 }
+        END { for(i in a) { print i, (a[i] / b[i]) } }
+      ' OFS="\t" \
+        <(sort -k6,6n "${SAMPLE_SLUG}_olapfree.covd") | \
+        sort -k2,2g > "${SAMPLE_SLUG}_ampmeancov.covd"
 
-      # Create coverage uniformity plot input file
-      sort -k1,1 < "${SAMPLE_SLUG}_ampmeancov.covd" | awk '{print $1,$2,$1}' OFS="\t" | awk '{sub(/_.*$/,"",$3); print $0}' OFS="\t" > "${SAMPLE_SLUG}_ampmeancov.tmp"
+      # Create coverage uniformity plot input file.
+      sort -k1,1 < "${SAMPLE_SLUG}_ampmeancov.covd" | \
+        awk '{ print $1, $2, $1 }' OFS="\t" | \
+        awk '{ sub(/_.*$/, "", $3); print $0 }' OFS="\t" \
+        > "${SAMPLE_SLUG}_ampmeancov.tmp"
 
-      plotcoverage.py -i "${SAMPLE_SLUG}_ampmeancov.tmp" -o "${SAMPLE_SLUG}_coverageplot.pdf"
+      plotcoverage.py \
+        -i "${SAMPLE_SLUG}_ampmeancov.tmp" \
+        -o "${SAMPLE_SLUG}_coverageplot.pdf"
 
       re-save-file cov_metrics "${SAMPLE_SLUG}_covMetrics.txt"
       re-save-file mean_cov "${SAMPLE_SLUG}_ampmeancov.covd"

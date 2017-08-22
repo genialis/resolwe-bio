@@ -53,7 +53,7 @@
         # Position sort and re-index if indexing failed
         if [ $indexerr -eq 0 ] || [ $indexrc -ne 0 ]; then
             echo "SORTING input BAM file per coordinate:"
-            samtools sort "${NAME}.bam" "${NAME}_aligned" >&2
+            samtools sort -o "${NAME}_aligned.bam" "${NAME}.bam" >&2
             echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
             mv "${NAME}_aligned.bam" "${NAME}.bam"
             echo "{\"proc.rc\":$?}"

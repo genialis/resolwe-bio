@@ -172,7 +172,7 @@
       re-progress 0.5
 
       echo "Sorting BAM file by chromosomal coordinates:"
-      samtools sort "${NAME}_align_unsorted.bam" "${NAME}"
+      samtools sort -o "${NAME}.bam" "${NAME}_align_unsorted.bam"
       re-checkrc
       re-progress 0.6
 

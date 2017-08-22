@@ -76,11 +76,29 @@
         BAM_MPILEUP="${BAM_FILE}_dedup.bam"
       {% endif %}
 
-      samtools mpileup -Bugf {{ genome.fasta.file }} "${BAM_MPILEUP}" {% if bed %} -l {{ bed.BED.file }} {% endif %} > "${BAM_FILE}_raw.bcf"
+      samtools \
+        mpileup \
+        --no-BAQ \
+        --uncompressed \
+        --BCF \
+        --fasta-ref {{ genome.fasta.file }} \
+        {% if bed %}--positions {{ bed.BED.file }}{% endif %} \
+        --output "${BAM_FILE}_raw.bcf" \
+        "${BAM_MPILEUP}"
       re-checkrc "Samtools mpileup failed."
       re-progress 0.5
 
-      bcftools view -vmu "${BAM_FILE}_raw.bcf" | vcfutils.pl varFilter -d {{options.d}} -D {{options.D}} -Q {{options.Q}} - > "${BAM_FILE}_filtered_variants.vcf"
+      bcftools \
+        call \
+        --output-type v \
+        --multiallelic-caller \
+        --variants-only \
+        --format-fields GQ \
+        "${BAM_FILE}_raw.bcf" \
+          | vcfutils.pl varFilter \
+              -d {{options.d}} \
+              -D {{options.D}} \
+              -Q {{options.Q}} - > "${BAM_FILE}_filtered_variants.vcf"
       re-checkrc "bcftools view command failed."
 
       bgzip -c "${BAM_FILE}_filtered_variants.vcf" > "${BAM_FILE}_filtered_variants.vcf.bgz"

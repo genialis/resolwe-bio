@@ -111,7 +111,7 @@
             > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
-          samtools sort -n {{ alignments.bam.file }} "${NAME}_name_sorted"
+          samtools sort -n -o "${NAME}_name_sorted.bam" {{ alignments.bam.file }}
           re-checkrc
           re-progress 0.5
           htseq-count \
@@ -272,7 +272,7 @@
             > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
-          samtools sort -n {{ alignments.bam.file }} "${NAME}_name_sorted"
+          samtools sort -n -o "${NAME}_name_sorted.bam" {{ alignments.bam.file }}
           re-checkrc
           re-progress 0.5
           htseq-count \

@@ -97,5 +97,5 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
 
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
         saved_json, test_json = self.get_json('sample_cluster_data_NCBI.json.gz', clustering.output['cluster'])
-        self.assertEqual(test_json['linkage'], saved_json['linkage'])
+        self.assertAlmostEqualGeneric(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)

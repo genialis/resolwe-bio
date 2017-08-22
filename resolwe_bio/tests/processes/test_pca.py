@@ -19,9 +19,9 @@ class PcaProcessorTestCase(BioProcessTestCase):
         inputs = {'exps': [expression_1.pk, expression_2.pk], 'genes_source': 'DICTYBASE'}
         pca = self.run_process('pca', inputs)
         saved_json, test_json = self.get_json('pca_plot.json.gz', pca.output['pca'])
-        self.assertEqual(test_json['flot']['data'], saved_json['flot']['data'])
-        self.assertEqual(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
-        self.assertEqual(test_json['components'], saved_json['components'])
+        self.assertAlmostEqualGeneric(test_json['flot']['data'], saved_json['flot']['data'])
+        self.assertAlmostEqualGeneric(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
+        self.assertAlmostEqualGeneric(test_json['components'], saved_json['components'])
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],

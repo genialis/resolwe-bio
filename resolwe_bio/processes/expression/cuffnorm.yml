@@ -143,8 +143,21 @@
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
 
-      cuffnorm_output_table_headers.py ${replicates} ${sample_names} #replaces all cuffnorm output tables headers with sample names
-      Rscript -e 'library(RNASeqT)' -e 'normalizeRNASeq(geneFPKMFile = "'genes.fpkm_table'", name = "'cuffnorm'", groupString = "'${labels}'", useERCC = "{{useERCC|yesno("TRUE", "FALSE")}}")'
+      # Replace all cuffnorm output tables headers with sample names.
+      cuffnorm_output_table_headers.py ${replicates} ${sample_names}
+
+      # Run normalizeRNASeq.
+      # TODO: Check what should be used for 'groupString' argument.
+      Rscript --slave --no-save --no-restore-history -e " \
+        library(RNASeqT); \
+        normalizeRNASeq( \
+          geneFPKMFile='genes.fpkm_table', \
+          name='cuffnorm', \
+          groupString='${sample_names}', \
+          useERCC='"{{useERCC|yesno("TRUE", "FALSE")}}"' \
+        ) \
+      "
+      re-checkrc 'normalizeRNASeq failed.'
 
       {% if useERCC %}
         {% for exp in cuffquant %}

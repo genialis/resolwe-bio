@@ -263,10 +263,10 @@
       {% if trimming.trim_iter >= 1 %}
         samtools merge -h "${FW_NAME}_align_unsorted.sam" "${FW_NAME}_align_merged_unsorted.bam" ${FW_NAME}_*.bam
         re-checkrc
-        samtools sort "${FW_NAME}_align_merged_unsorted.bam" "${FW_NAME}_align"
+        samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_merged_unsorted.bam"
         re-checkrc
       {% else %}
-        samtools sort "${FW_NAME}_align_unsorted.bam" "${FW_NAME}_align"
+        samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
         re-checkrc
       {% endif %}
 
@@ -551,10 +551,10 @@
         {%  if trimming.trim_iter >= 1 %}
           samtools merge -h "${FW_NAME}_align_unsorted.sam" "${FW_NAME}_align_merged_unsorted.bam" ${FW_NAME}_*.bam
           re-checkrc
-          samtools sort "${FW_NAME}_align_merged_unsorted.bam" "${FW_NAME}_align"
+          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_merged_unsorted.bam"
           re-checkrc
         {% else %}
-          samtools sort "${FW_NAME}_align_unsorted.bam" "${FW_NAME}_align"
+          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
           re-checkrc
         {% endif %}
 
@@ -576,7 +576,7 @@
         re-checkrc
         samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
         re-checkrc
-        samtools sort "${FW_NAME}_align_unsorted.bam" "${FW_NAME}_align"
+        samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
         re-checkrc
         samtools view -u  -f 4 -F 264 "${FW_NAME}_align.bam" > "${FW_NAME}_unmapped.bam"
         re-checkrc

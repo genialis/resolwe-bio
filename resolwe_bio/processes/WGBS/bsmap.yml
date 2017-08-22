@@ -112,7 +112,7 @@
       samtools view -bSh alignment_unsorted.sam > alignment_unsorted.bam
       re-checkrc
       re-progress 0.7
-      samtools sort -@ {{threads}} alignment_unsorted.bam alignment
+      samtools sort -@ {{threads}} -o alignment.bam alignment_unsorted.bam
       re-checkrc
       re-progress 0.8
 
