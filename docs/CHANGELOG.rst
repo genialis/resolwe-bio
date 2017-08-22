@@ -56,6 +56,7 @@ Fixed
 * Fix import-sra process to work with input sanitization fix
 * Fix RNA-seq DSS adapters bug
 * Allow whitespaces in Cutadapt process input reads names
+* Fix sample hierarchical clustering output for a single sample case
 
 
 ================
