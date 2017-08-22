@@ -126,7 +126,7 @@ def get_clustering(
         n_trials=1000):
     """Compute linkage, order, and produce a dendrogram."""
     if len(expressions.columns) < 2:
-        return np.array([]), {'leaves': list(expressions)}
+        return np.array([]), {'leaves': list(range(len(expressions.columns)))}
     try:
         distances = pdist(np.transpose(np.array(expressions)), metric=distance_metric)
         if np.isnan(distances).any():
