@@ -158,7 +158,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
 
     def test_cutadapt_single(self):
-        reads = self.prepare_reads(['cutadapt_single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+        reads = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
 
         inputs = {
             'reads': reads.id,
@@ -190,7 +190,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
 
     def test_cutadapt_paired(self):
-        reads = self.prepare_paired_reads(mate1=['cutadapt_forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
+        reads = self.prepare_paired_reads(mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
                                           mate2=['cutadapt_reverse.fastq.gz'])
 
         inputs = {
@@ -205,7 +205,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         cutadapt_paired = self.run_process('cutadapt-paired', inputs)
 
-        self.assertFiles(cutadapt_paired, 'fastq1', ['cutadapt_paired_forward_trimmed.fastq.gz'],
+        self.assertFiles(cutadapt_paired, 'fastq', ['cutadapt_paired_forward_trimmed.fastq.gz'],
                          compression='gzip')
 
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],
@@ -226,7 +226,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         cutadapt_paired = self.run_process('cutadapt-paired', inputs)
 
-        self.assertFiles(cutadapt_paired, 'fastq1', ['cutadapt_paired_forward_trimmed.fastq.gz'],
+        self.assertFiles(cutadapt_paired, 'fastq', ['cutadapt_paired_forward_trimmed.fastq.gz'],
                          compression='gzip')
 
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],

@@ -55,6 +55,7 @@ Fixed
   'cutadatp' to 'cutadapt'
 * Fix import-sra process to work with input sanitization fix
 * Fix RNA-seq DSS adapters bug
+* Allow whitespaces in Cutadapt process input reads names
 
 
 ================
