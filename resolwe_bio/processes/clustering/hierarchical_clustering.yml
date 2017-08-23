@@ -74,7 +74,7 @@
   requirements:
     expression-engine: jinja
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.11
+  version: 1.0.12
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -202,7 +202,7 @@
     resources:
       memory: 16384
   data_name: 'Hierarchical clustering of genes'
-  version: 1.0.6
+  version: 1.0.7
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
