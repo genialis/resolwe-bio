@@ -96,34 +96,45 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         self.assertFile(aligned_reads, 'stats', 'tophat_paired_reads_report.txt')
 
     def test_star(self):
-        genome = self.prepare_genome()
-        reads = self.prepare_reads()
+        reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
+        paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
+                                                 mate2=['SRR2124780_2 1k.fastq.gz'])
+        annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='DICTYBASE')
+        star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+        inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
-        inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-        annotation = self.run_process('upload-gff3', inputs)
-
-        inputs = {'genome': genome.pk,
-                  'annotation': annotation.pk,
-                  'threads': 2,
-                  'advanced': {
-                      'genomeSAindexNbases': 12,
-                      'genomeSAsparseD': 4
-                  }}
-
-        genome_index = self.run_process('alignment-star-index', inputs)
+        star_index = self.run_process('alignment-star-index', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
 
         inputs = {
-            'genome': genome_index.pk,
-            'reads': reads.pk,
-            'threads': 2,
+            'genome': star_index.id,
+            'reads': reads.id,
             't_coordinates': {
                 'quantmode': True,
                 'gene_counts': True}}
         aligned_reads = self.run_process('alignment-star', inputs)
-        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star.tab.gz', compression='gzip')
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
 
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_single.tab.gz', compression='gzip')
         exp = Data.objects.last()
-        self.assertFile(exp, 'exp', 'star_expression.tab.gz', compression='gzip')
+        self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'DICTYBASE')
+
+        inputs = {
+            'genome': star_index.id,
+            'reads': paired_reads.id,
+            't_coordinates': {
+                'quantmode': True,
+                'gene_counts': True}}
+        aligned_reads = self.run_process('alignment-star', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_paired.tab.gz', compression='gzip')
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression_paired.tab.gz', compression='gzip')
         self.assertFields(exp, 'source', 'DICTYBASE')
 
     def test_bwa_bt(self):

@@ -9,8 +9,9 @@
     expression-engine: jinja
     resources:
       memory: 32768
+      cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.3
+  version: 1.1.4
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -26,12 +27,6 @@
     - name: reads
       label: Reads
       type: data:reads:fastq
-    - name: threads
-      label: Use this many processor threads
-      type: basic:integer
-      default: 1
-      description: >
-        Number of processor threads to be used when mapping reads to the reference sequence.
     - name: unstranded
       label: The data is unstranded
       type: basic:boolean
@@ -208,7 +203,7 @@
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
         STAR \
-          --runThreadN {{threads}} \
+          --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
           --readFilesIn fw_reads.fastq.gz \
           --readFilesCommand zcat \
@@ -229,17 +224,17 @@
           {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
-      if [ -f Unmapped.out.mate1 ]
-      then
-        mv Unmapped.out.mate1 "${READS_NAME}_unmapped.out.mate1.fastq"
-        gzip "${READS_NAME}_unmapped.out.mate1.fastq"
-        re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
-      fi
+        if [ -f Unmapped.out.mate1 ]
+        then
+          mv Unmapped.out.mate1 "${READS_NAME}_unmapped.out.mate1.fastq"
+          gzip "${READS_NAME}_unmapped.out.mate1.fastq"
+          re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
+        fi
 
       {% else %}
         STAR \
-          --runThreadN {{ threads }} \
-          --genomeDir "${GENOME_PATH}" \
+          --runThreadN {{requirements.resources.cores}} \
+          --genomeDir "${INDEX}" \
           --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz \
           --readFilesCommand zcat \
           --outSAMtype BAM SortedByCoordinate \
@@ -259,22 +254,21 @@
           {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
-      if [ -f Unmapped.out.mate1 ]
-      then
-        mv "Unmapped.out.mate1" "${READS_NAME}_unmapped.out.mate1.fastq"
-        gzip "${READS_NAME}_unmapped.out.mate1.fastq"
-        re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
-      fi
+        if [ -f Unmapped.out.mate1 ]
+        then
+          mv "Unmapped.out.mate1" "${READS_NAME}_unmapped.out.mate1.fastq"
+          gzip "${READS_NAME}_unmapped.out.mate1.fastq"
+          re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
+        fi
 
-      if [ -f Unmapped.out.mate2 ]
-      then
-        mv "Unmapped.out.mate2" "${READS_NAME}_unmapped.out.mate2.fastq"
-        gzip "${READS_NAME}_unmapped.out.mate2.fastq"
-        re-save-file unmapped_r "${READS_NAME}_unmapped.out.mate2.fastq"
-      fi
+        if [ -f Unmapped.out.mate2 ]
+        then
+          mv "Unmapped.out.mate2" "${READS_NAME}_unmapped.out.mate2.fastq"
+          gzip "${READS_NAME}_unmapped.out.mate2.fastq"
+          re-save-file unmapped_r "${READS_NAME}_unmapped.out.mate2.fastq.gz"
+        fi
 
       {% endif %}
-
       re-progress 0.8
       samtools index Aligned.sortedByCoord.out.bam "${READS_NAME}.bam.bai"
       re-checkrc
@@ -321,8 +315,9 @@
     expression-engine: jinja
     resources:
       memory: 32768
+      cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.10
+  version: 1.0.11
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -345,12 +340,6 @@
       default: 100
       description: >
         This parameter specifies the length of the genomic sequence around the annotated junction to be used in constructing the splice junction database. Ideally, this length should be equal to the ReadLength-1, where ReadLength is the length of the reads. For instance, for Illumina 2x100b paired-end reads, the ideal value is 100-1=99. In case of reads of varying length, the ideal value is max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value
-    - name: threads
-      label: Use this many processor threads
-      type: basic:integer
-      default: 1
-      description: >
-        Number of threads to be used for genome index generation.
     - name: annotation_options
       label: Annotation file options
       group:
@@ -414,7 +403,7 @@
       re-progress 0.1
       mkdir star_index
       STAR \
-        --runThreadN {{ threads }} \
+        --runThreadN {{requirements.resources.cores}} \
         --runMode genomeGenerate \
         {% if advanced.genomeSAindexNbases %}--genomeSAindexNbases {{ advanced.genomeSAindexNbases }}{% endif %} \
         {% if advanced.genomeChrBinNbits %}--genomeChrBinNbits  {{ advanced.genomeChrBinNbits }}{% endif %} \

@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.18
+  version: 1.0.19
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -98,23 +98,44 @@
 
       {% if name_ordered %}
         if samtools view -H {{ alignments.bam.file }} | grep SO:queryname; then
-          htseq-count --format=bam --order=name --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} > "HTseq_rc.txt"
+          htseq-count \
+            --format=bam \
+            --order=name \
+            --stranded={{ stranded }} \
+            --mode={{mode}} \
+            --type={{ feature_type }} \
+            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+            > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
           samtools sort -n {{ alignments.bam.file }} "${NAME}_name_sorted"
           re-checkrc
           re-progress 0.5
-          htseq-count --format=bam --order=name --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} ${NAME}_name_sorted.bam {{ gff.gtf.file }} > "HTseq_rc.txt"
+          htseq-count \
+            --format=bam \
+            --order=name \
+            --stranded={{ stranded }} \
+            --mode={{mode}} \
+            --type={{ feature_type }} \
+            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.gtf.file }} \
+            > "HTseq_rc.txt"
         fi
       {% else %}
-        htseq-count --format=bam --order=pos --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} > "HTseq_rc.txt"
+        htseq-count \
+          --format=bam \
+          --order=pos \
+          --stranded={{ stranded }} \
+          --mode={{mode}} \
+          --type={{ feature_type }} \
+          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+          > "HTseq_rc.txt"
       {% endif %}
 
       re-checkrc
       re-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R  {{ gff.gtf.file }} 'gtf' {{ feature_type }} {{ id_attribute }} 'rc_wo_header.txt'
+      expression_fpkm_tpm.R {{ gff.gtf.file }} 'gtf' {{ feature_type }} {{ id_attribute }} 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 
@@ -122,12 +143,12 @@
       add_header.py fpkm_wo_header.tab fpkm.tab
       add_header.py tpm_wo_header.tab tpm.tab
 
-      gzip -c HTseq_rc.txt > ${NAME}_HTseq_rc.txt.gz
-      gzip -c rc.txt > ${NAME}_rc.tab.gz
-      gzip -c fpkm.tab > ${NAME}_fpkm.tab.gz
-      gzip -c tpm.tab > ${NAME}_tpm.tab.gz
+      gzip -c HTseq_rc.txt > "${NAME}_HTseq_rc.txt.gz"
+      gzip -c rc.txt > "${NAME}_rc.tab.gz"
+      gzip -c fpkm.tab > "${NAME}_fpkm.tab.gz"
+      gzip -c tpm.tab > "${NAME}_tpm.tab.gz"
 
-      expression2storage.py --output json.txt ${NAME}_tpm.tab.gz
+      expression2storage.py --output json.txt "${NAME}_tpm.tab.gz"
       re-checkrc
       re-save exp_json json.txt
       re-progress 0.95
@@ -145,7 +166,7 @@
   requirements:
     expression-engine: jinja
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.2
+  version: 1.0.3
   type: data:expression:htseq:raw
   category: analyses
   flow_collection: sample
@@ -235,23 +256,44 @@
 
       {% if name_ordered %}
         if samtools view -H {{ alignments.bam.file }} | grep SO:queryname; then
-          htseq-count --format=bam --order=name --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} > "HTseq_rc.txt"
+          htseq-count \
+            --format=bam \
+            --order=name \
+            --stranded={{ stranded }} \
+            --mode={{mode}} \
+            --type={{ feature_type }} \
+            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+            > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
           samtools sort -n {{ alignments.bam.file }} "${NAME}_name_sorted"
           re-checkrc
           re-progress 0.5
-          htseq-count --format=bam --order=name --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} ${NAME}_name_sorted.bam {{ gff.gtf.file }} > "HTseq_rc.txt"
+          htseq-count \
+            --format=bam \
+            --order=name \
+            --stranded={{ stranded }} \
+            --mode={{mode}} \
+            --type={{ feature_type }} \
+            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.gtf.file }} \
+            > "HTseq_rc.txt"
         fi
       {% else %}
-        htseq-count --format=bam --order=pos --stranded={{ stranded }} --mode={{mode}} --type={{ feature_type }} --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} > "HTseq_rc.txt"
+        htseq-count \
+          --format=bam \
+          --order=pos \
+          --stranded={{ stranded }} \
+          --mode={{mode}} \
+          --type={{ feature_type }} \
+          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+          > "HTseq_rc.txt"
       {% endif %}
 
       re-checkrc
       re-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R  {{ gff.gtf.file }} 'gtf' {{ feature_type }} {{ id_attribute }} 'rc_wo_header.txt'
+      expression_fpkm_tpm.R {{ gff.gtf.file }} 'gtf' {{ feature_type }} {{ id_attribute }} 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 

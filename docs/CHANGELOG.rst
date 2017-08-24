@@ -56,6 +56,7 @@ Fixed
 * Fix RNA-seq DSS adapters bug
 * Fix sample hierarchical clustering output for a single sample case
 * Fix upload-expression-star process to work with arbitrary file names
+* Fix STAR aligner to work with arbitrary file names, remove threads input
 
 
 ================
