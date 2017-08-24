@@ -204,7 +204,7 @@
     resources:
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'
-  version: 1.0.5
+  version: 1.0.6
   type: data:expression:star
   category: upload
   persistence: RAW
@@ -269,32 +269,32 @@
     program: |
       re-import {{ rc.file_temp|default(rc.file) }} {{ rc.file }} "txt|tab|gz" "tab" 0.1
 
-      tail -n+5 ${NAME}.tab > raw_rc.tab
-      parse_star_expressions.py raw_rc.tab ${NAME}
+      tail -n+5 "${NAME}.tab" > raw_rc.tab
+      parse_star_expressions.py raw_rc.tab "${NAME}"
 
       if [ {{stranded}} = "no" ]; then
-        gzip ${NAME}_rc_unstranded.tab
-        expression2storage.py ${NAME}_rc_unstranded.tab.gz
-        re-save-file rc ${NAME}_rc_unstranded.tab.gz
-        re-save-file exp ${NAME}_rc_unstranded.tab.gz
+        gzip "${NAME}_rc_unstranded.tab"
+        expression2storage.py "${NAME}_rc_unstranded.tab.gz"
+        re-save-file rc "${NAME}_rc_unstranded.tab.gz"
+        re-save-file exp "${NAME}_rc_unstranded.tab.gz"
         re-save exp_type "RC"
         re-save source {{source}}
       fi
 
       if [ {{stranded}} = "yes" ]; then
-        gzip ${NAME}_rc_stranded.tab
-        expression2storage.py ${NAME}_rc_stranded.tab.gz
-        re-save-file rc ${NAME}_rc_stranded.tab.gz
-        re-save-file exp ${NAME}_rc_stranded.tab.gz
+        gzip "${NAME}_rc_stranded.tab"
+        expression2storage.py "${NAME}_rc_stranded.tab.gz"
+        re-save-file rc "${NAME}_rc_stranded.tab.gz"
+        re-save-file exp "${NAME}_rc_stranded.tab.gz"
         re-save exp_type "RC"
         re-save source {{source}}
       fi
 
       if [ {{stranded}} = "reverse" ]; then
-        gzip ${NAME}_rc_stranded_reverse.tab
-        expression2storage.py ${NAME}_rc_stranded_reverse.tab.gz
-        re-save-file rc ${NAME}_rc_stranded_reverse.tab.gz
-        re-save-file exp ${NAME}_rc_stranded_reverse.tab.gz
+        gzip "${NAME}_rc_stranded_reverse.tab"
+        expression2storage.py "${NAME}_rc_stranded_reverse.tab.gz"
+        re-save-file rc "${NAME}_rc_stranded_reverse.tab.gz"
+        re-save-file exp "${NAME}_rc_stranded_reverse.tab.gz"
         re-save exp_type "RC"
         re-save source {{source}}
       fi
