@@ -6,56 +6,49 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+================
+2.0.0 2017-08-25
+================
 
 Added
 -----
 * Support bioinformatics process test case based on Resolwe's
   ``TransactionProcessTestCase``
-* Custom version of Resolwe's ``with_resolwe_host`` test decorator which
-  skips the decorated tests on non-Linux systems
+* Custom version of Resolwe's ``with_resolwe_host`` test decorator which skips
+  the decorated tests on non-Linux systems
 * Add optimal leaf ordering and simulated annealing to gene and sample
   hierarchical clustering
-* Add ``resolwebio/chipseq`` docker image
-* Add Odocoileus virginianus texanus (deer) organism to sample
-  descriptor
-* Add test for import-sra process
-* Add Resolwe API to test url configuration
-* Add TransactionBioProcessTestCase to support writing tests for
-  processes which use resdk
+* Add ``resolwebio/chipseq`` docker image and use it in ChIP-Seq processes
+* Add Odocoileus virginianus texanus (deer) organism to sample descriptor
+* Add test for ``import-sra`` process
 * Add RNA-seq DSS test
-* Add custom Cutadapt process
+* Add Cutadapt and custom Cutadapt processes
 
 Changed
 -------
+* Require Resolwe 2.0.x
+* Update processes to support new input sanitization introduced in Resolwe
+  2.0.0
 * Improve variant table name in amplicon report
 * Prepend ``api/`` to all URL patterns in the Django test project
-* Set hisat2 process resources (memory) to 16GB
+* Set ``hisat2`` process' memory resource requirement to 16GB and cores
+  resource requirement to 1
 * Filter LoFreq output VCF files to remove overlapping indels
-* Set core resource requirement in Hisat2 process to 1
-* Add `Non-canonical splice sites penalty`, `Disallow soft clipping`
-  and `Report alignments tailored specifically for Cufflinks`
-  parameters to hisat2 process
-* Remove `threads` input from cuffquant and rna-seq workfows
-* Set core resource requirement in Cuffquant process to 1
-* Use ``resolwebio/chipseq`` docker image in ChIP-Seq processes
+* Add `Non-canonical splice sites penalty`, `Disallow soft clipping` and
+  `Report alignments tailored specifically for Cufflinks` parameters to
+  ``hisat2`` process
+* Remove ``threads`` input from ``cuffquant`` and ``rna-seq`` workfows
+* Set core resource requirement in ``cuffquant`` process to 1
 
 Fixed
 -----
 * Correctly handle paired-end parameters in ``featureCount``
-* Fix NaN in explained variance in PCA. When PC1 alone explained more
-  than 99% of variance, explained variance for PC2 was not returned
-* Fix input sanitization error in ``dss-rna-seq``
+* Fix ``NaN`` in explained variance in PCA. When PC1 alone explained more than
+  99% of variance, explained variance for PC2 was not returned
+* Fix input sanitization error in ``dss-rna-seq`` process
 * Fix gene source check in hierarchical clustering and PCA
 * Enable network access for all import processes
-* Fix multiple adapter sequnce (list) input and minimal lenght trimming
-  in `cutadapt` process and change the name of the process from
-  'cutadatp' to 'cutadapt'
-* Fix import-sra process to work with input sanitization fix
 * Fix RNA-seq DSS adapters bug
-* Allow whitespaces in Cutadapt process input reads names
 * Fix sample hierarchical clustering output for a single sample case
 
 
