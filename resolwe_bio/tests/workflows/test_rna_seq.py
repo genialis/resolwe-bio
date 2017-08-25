@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring
+# pylint: disable=missing-docstring,invalid-name
 from django.contrib.auth.models import AnonymousUser
 from django.test import LiveServerTestCase
 
@@ -59,6 +59,42 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
 
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_reads_rc.tab.gz', compression='gzip')
+
+    def test_custom_cutadapt_star_htseq_workflow(self):
+        reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
+        paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
+                                                 mate2=['SRR2124780_2 1k.fastq.gz'])
+        annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='DICTYBASE')
+        star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+        inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+
+        star_index = self.run_process('alignment-star-index', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.run_process(
+            'workflow-custom-cutadapt-star-htseq-single', {
+                'reads': reads.id,
+                'genome': star_index.id,
+                'gff': annotation.id
+            }
+        )
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_ccshs.tab.gz', compression='gzip')
+
+        self.run_process(
+            'workflow-custom-cutadapt-star-htseq-paired', {
+                'reads': paired_reads.id,
+                'genome': star_index.id,
+                'gff': annotation.id
+            }
+        )
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_ccshp.tab.gz', compression='gzip')
 
     def test_rnaseq_single_workflow(self):
         genome = self.prepare_genome()

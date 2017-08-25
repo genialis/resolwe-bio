@@ -1,0 +1,23 @@
+- slug: cutadapt-star-htseq
+  name: RNA-seq workflow
+  version: 0.0.1
+  description: RNA-seq template
+  schema:
+    - name: organism
+      label: Organism
+      type: basic:string
+      default: hs
+      choices:
+        - label: Homo sapiens
+          value: hs
+        - label: Mus musculus
+          value: mm
+    - name: level
+      label: Level of expression analysis
+      type: basic:string
+      default: gene
+      choices:
+        - label: Gene
+          value: gene
+        - label: Transcript
+          value: transcript

@@ -28,6 +28,8 @@ Added
 * Add test for ``import-sra`` process
 * Add RNA-seq DSS test
 * Add Cutadapt and custom Cutadapt processes
+* Add custom Cutadapt process
+* Add custom Cutadapt - STAR - HT-seq workflow
 
 Changed
 -------
