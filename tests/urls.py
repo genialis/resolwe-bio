@@ -22,5 +22,8 @@ search_router.register(r'kb/mapping/search', MappingSearchViewSet, 'kb_mapping_s
 
 urlpatterns = [  # pylint: disable=invalid-name
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    # XXX: Temporary fix to work with Resolwe 2.0.0, which requires 'resolwe-api' namespace to be available when
+    # reporting errors when running processes.
+    url(r'^api-resolwe/', include(resolwe_router.urls, namespace='resolwe-api')),
     url(r'^api/', include(api_router.urls + search_router.urls + resolwe_router.urls, namespace='resolwebio-api')),
 ]
