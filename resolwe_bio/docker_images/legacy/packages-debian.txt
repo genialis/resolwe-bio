@@ -1,0 +1,49 @@
+file
+parallel
+picard-tools
+bowtie
+bowtie2
+bwa
+tophat
+abyss
+p7zip-full
+python-pip
+python3-pip
+python-xlrd
+python-setuptools
+python3-setuptools
+python-requests
+python3-requests
+python-appdirs
+python3-appdirs
+python-six
+python3-six
+python-yaml
+python3-yaml
+python-wheel
+python3-wheel
+python-dev
+libpython2.7
+build-essential
+gfortran
+r-base-core
+tabix
+pypy
+xml2
+libcurl3
+trimmomatic
+texlive-latex-base
+texlive-latex-recommended
+
+# Required by abyss scripts.
+bsdmainutils
+
+# Required by ea-utils.
+libgsl2
+
+# Required for some R packages.
+liblapack3
+libopenblas-base
+
+# Required for some Perl packages.
+liburi-perl

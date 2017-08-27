@@ -1,0 +1,24 @@
+build-essential
+python-dev
+libcurl4-openssl-dev
+
+# Listed explicitly so they are removed correctly.
+gcc
+g++
+gfortran
+
+# Required for ea-utils.
+libgsl-dev
+
+# Required for building lxml python package.
+libxml2-dev
+libxslt1-dev
+
+# Required for compiling R package arrayQualityMetrics.
+libxt-dev
+libcairo2-dev
+
+# Required for some R packages.
+liblapack-dev
+libopenblas-dev
+libssl-dev

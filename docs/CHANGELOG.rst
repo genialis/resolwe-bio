@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* New base and legacy Docker images for processes, which support non-root
+  execution as implemented by Resolwe
+
 
 ================
 3.2.0 2017-09-13

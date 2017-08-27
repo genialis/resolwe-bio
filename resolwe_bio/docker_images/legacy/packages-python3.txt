@@ -1,0 +1,6 @@
+# Top-level packages.
+resdk==1.9.0 --hash=sha256:6e09c81a6564ccf12332b9acd1f70cbbb83adad559f3510026b49e0039068e53
+
+# Dependencies.
+slumber==0.7.1 --hash=sha256:96899ce914f8d7862ce34f4e50af3a82e35588ab61b4912b85844479f4d177cb
+wrapt==1.10.11 --hash=sha256:d4d560d479f2c21e1b5443bbd15fe7ec4b37fe7e53d335d3b9b0a7b1226fe3c6

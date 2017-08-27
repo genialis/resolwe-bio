@@ -1,0 +1,3 @@
+# Requires numpy to already be installed during setup.
+htseq==0.6.1p1 --hash=sha256:9d6464e5a1776e5a2db2660d2d4bc5cba1880b5d17df3a6e9053cc0f9e6743ac
+orange==2.7.8 --hash=sha256:9602d621d8258c90a8122b2ae2eb7471139836f0a16b6941e83735739913af5c

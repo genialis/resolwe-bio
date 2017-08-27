@@ -1,0 +1,6 @@
+argparse
+devtools
+foreign
+memoise
+stringi
+Rcpp
