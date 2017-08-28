@@ -10,6 +10,19 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add custom Cutadapt - STAR - HT-seq workflow
+
+Changed
+-------
+* Remove ``threads`` input in STAR aligner process
+
+Fixed
+-----
+* Fix ``upload-expression-star`` process to work with arbitrary file names
+* Fix STAR aligner to work with arbitrary file names
+
 
 ================
 2.0.0 2017-08-25
@@ -28,8 +41,6 @@ Added
 * Add test for ``import-sra`` process
 * Add RNA-seq DSS test
 * Add Cutadapt and custom Cutadapt processes
-* Add custom Cutadapt process
-* Add custom Cutadapt - STAR - HT-seq workflow
 
 Changed
 -------
@@ -57,8 +68,6 @@ Fixed
 * Enable network access for all import processes
 * Fix RNA-seq DSS adapters bug
 * Fix sample hierarchical clustering output for a single sample case
-* Fix upload-expression-star process to work with arbitrary file names
-* Fix STAR aligner to work with arbitrary file names, remove threads input
 
 
 ================
