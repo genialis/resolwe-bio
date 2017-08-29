@@ -21,11 +21,11 @@ Changed
 * Allow upload of custom amplicon master files
 * Set core resource requirement in ``cuffnorm`` process to 1
 
-
 Fixed
 -----
 * Fix ``upload-expression-star`` process to work with arbitrary file names
 * Fix STAR aligner to work with arbitrary file names
+* Fix ``cuffnorm`` group analysis to work correctly
 
 
 ================

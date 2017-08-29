@@ -18,7 +18,7 @@ sample_names = args.sample_names.split(",")
 samples = []
 # This sort must produce the same order as cufflinks_sample_groups.py
 for x in sorted(zip(replicates, sample_names), key=itemgetter(0)):
-    samples.append(x[1])
+    samples.append('{}_Group{}'.format(x[1], x[0]))
 
 
 def replace_labels(table_name, sample_list):
