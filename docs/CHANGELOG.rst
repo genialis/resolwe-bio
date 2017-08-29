@@ -19,6 +19,8 @@ Changed
 -------
 * Remove ``threads`` input in STAR aligner process
 * Allow upload of custom amplicon master files
+* Set core resource requirement in ``cuffnorm`` process to 1
+
 
 Fixed
 -----

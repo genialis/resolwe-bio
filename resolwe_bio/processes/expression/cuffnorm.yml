@@ -7,8 +7,10 @@
   name: Cuffnorm
   requirements:
     expression-engine: jinja
+    resources:
+      cores: 1    
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.1.1
+  version: 1.1.2
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -34,12 +36,6 @@
       default: false
       description: >
         Use ERRCC spike-in controls for normalization.
-    - name: threads
-      label: Use this many processor threads
-      type: basic:integer
-      default: 1
-      description: >
-        Use this many threads to align reads. The default is 1.
   output:
     - name: genes_count
       label: Genes count
@@ -140,7 +136,7 @@
 
       re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads {{ threads }} {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{ annotation.gff.file }} {% elif annotation.merged_gtf.file %} {{ annotation.merged_gtf.file }} {% endif %} ${experiments}
+      cuffnorm --output-dir ./ --num-threads {{requirements.resources.cores}} {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{ annotation.gff.file }} {% elif annotation.merged_gtf.file %} {{ annotation.merged_gtf.file }} {% endif %} ${experiments}
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
 
