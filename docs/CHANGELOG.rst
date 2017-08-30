@@ -18,6 +18,7 @@ Added
 Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Modify all processes to explicitly use the new Docker images
+* Require Resolwe 3.0.x
 
 
 ================
