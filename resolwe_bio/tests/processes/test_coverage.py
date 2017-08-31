@@ -59,7 +59,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_amplicon_coverage(self):
         bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
 
         coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
         self.assertFile(coverage, 'cov_metrics', '56GSID_10k_covMetrics.txt')

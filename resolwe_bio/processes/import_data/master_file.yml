@@ -4,22 +4,26 @@
 ---
 
 - slug: upload-master-file
-  name: Upload master file
+  name: Upload custom master file
   requirements:
     expression-engine: jinja
     resources:
       network: true
-  data_name: '{{ src.file|default("?") }}'
-  version: 0.0.3
+  data_name: '{{ panel_name }}'
+  version: 0.0.4
   type: data:masterfile:amplicon
   category: upload
   persistence: CACHED
   description: >
-    Generate 5-column BED files from the uploaded master file
+    This should be a tab delimited file (*.txt).
+    Please check the [example](http://genial.is/amplicon-masterfile) file for details.
   input:
     - name: src
       label: Master file
       type: basic:file
+    - name: panel_name
+      label: Panel name
+      type: basic:string
   output:
     - name: master_file
       label: Master file
@@ -36,11 +40,17 @@
     - name: primers
       label: Primers
       type: basic:file
+    - name: panel_name
+      label: Panel name
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "txt" "txt" 0.1 extract
+
+      validate_master_file.py "${NAME}.txt"
+      re-checkrc
 
       # non-merged target BED from master
       awk '{print $1,$2,$3,$4}' OFS="\t" "${NAME}.txt" | sort -k1,1n -k2,2n > "${NAME}_nonmerged_targets.bed"
@@ -86,3 +96,4 @@
       re-save-file nomergebed "${NAME}_nonmerged_targets_5col.bed"
       re-save-file olapfreebed "${NAME}_nonmerged_noolaps_targets_5col.bed"
       re-save-file primers "${NAME}_primers.bed"
+      re-save panel_name {{ panel_name }}

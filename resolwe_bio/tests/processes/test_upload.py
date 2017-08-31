@@ -216,13 +216,23 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                            'old_encoding1_transformed_R2.fastq.gz'], compression='gzip')
 
     def test_upload_master_file(self):
-        inputs = {'src': '56G_masterfile_170113.txt'}
+        inputs = {
+            'src': '56G_masterfile_corrupted.txt',
+            'panel_name': '56G panel, v2'
+        }
+        master_file = self.run_process('upload-master-file', inputs, Data.STATUS_ERROR)
+
+        inputs = {
+            'src': '56G_masterfile_170113.txt',
+            'panel_name': '56G panel, v2'
+        }
         master_file = self.run_process('upload-master-file', inputs)
 
         self.assertFile(master_file, 'bedfile', 'amplicon_master_file_merged.bed')
         self.assertFile(master_file, 'nomergebed', 'amplicon_master_file_nomergebed.bed')
         self.assertFile(master_file, 'olapfreebed', 'amplicon_master_file_olapfreebed.bed')
         self.assertFile(master_file, 'primers', 'amplicon_primers.bed')
+        self.assertFields(master_file, 'panel_name', '56G panel, v2')
 
     def test_upload_etc(self):
         inputs = {'src': 'etc_upload_input.xls'}

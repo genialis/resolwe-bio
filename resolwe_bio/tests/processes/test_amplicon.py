@@ -13,7 +13,7 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-paired', inputs)
 
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
 
         inputs = {
             'master_file': master_file.id,
@@ -27,7 +27,7 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_amplicon_table(self):
         bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
         coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
 
         inputs = {

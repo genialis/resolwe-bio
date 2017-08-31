@@ -7,7 +7,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.1.3
+  version: 0.1.4
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -21,9 +21,9 @@
     - name: coverage
       label: Coverage
       type: data:coverage
-    - name: panel_name
-      label: Amplicon panel name
-      type: basic:string
+    - name: master_file
+      label: Amplicon master file
+      type: data:masterfile:amplicon
     - name: template
       label: Report template
       type: data:file
@@ -37,6 +37,9 @@
     - name: report
       label: Report
       type: basic:file
+    - name: panel_name
+      label: Panel name
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -52,10 +55,11 @@
         --template {{template.file.file}} \
         --logo {{logo.file.file}} \
         --vcf {% for vars in annot_vars %}{{vars.annotation.file}} {% endfor %} \
-        --panel {{panel_name}}
+        --panel {{master_file.panel_name}}
 
       re-checkrc
 
       mv report.pdf "${SAMPLE_SLUG}_report.pdf"
 
       re-save-file report "${SAMPLE_SLUG}_report.pdf"
+      re-save panel_name {{ master_file.panel_name }}

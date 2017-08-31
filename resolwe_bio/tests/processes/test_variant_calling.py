@@ -118,7 +118,7 @@ class VariantCallingTestCase(BioProcessTestCase):
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     def test_collecttargetedpcrmetrics(self):
         bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
         inputs = {
@@ -137,7 +137,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
         )
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
         dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
         inputs = {
@@ -157,7 +157,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
         )
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
 
         inputs = {
             'alignment': alignment.id,

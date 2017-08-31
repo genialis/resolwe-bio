@@ -127,6 +127,10 @@ class TransactionBioProcessTestCase(TransactionProcessTestCase):
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
         return self.run_process('upload-expression', inputs)
 
+    def prepare_amplicon_master_file(self, mfile='56G_masterfile_test.txt', pname='56G panel, v2'):
+        """Prepare amplicon master file."""
+        return self.run_process('upload-master-file', {'src': mfile, 'panel_name': pname})
+
 
 class BioProcessTestCase(TransactionBioProcessTestCase, DjangoTestCase):
     """Base class for writing bioinformatics process tests.

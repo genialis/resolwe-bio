@@ -14,7 +14,7 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
         adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
         genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
 
         inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
         indels = self.run_process('upload-variants-vcf', inputs)
@@ -49,7 +49,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'report': {
                     'template': template.id,
                     'logo': logo.id,
-                    'panel_name': '56G Oncology Panel v2'
                 },
                 'threads': 2
             }

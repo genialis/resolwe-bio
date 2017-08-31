@@ -18,6 +18,7 @@ Added
 Changed
 -------
 * Remove ``threads`` input in STAR aligner process
+* Allow upload of custom amplicon master files
 
 Fixed
 -----

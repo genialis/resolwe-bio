@@ -12,7 +12,7 @@ class ReportProcessorTestCase(BioProcessTestCase):
         logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
 
         bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
-        master_file = self.run_process('upload-master-file', {'src': '56G_masterfile_test.txt'})
+        master_file = self.prepare_amplicon_master_file()
         coverage = self.run_process('coveragebed', {'alignment': bam.id, 'master_file': master_file.id})
 
         inputs = {
@@ -35,7 +35,7 @@ class ReportProcessorTestCase(BioProcessTestCase):
             'pcr_metrics': pcr_metrics.id,
             'template': template.id,
             'logo': logo.id,
-            'panel_name': '56G Oncology Panel v2',
+            'master_file': master_file.id,
             'annot_vars': [annot_variants.id]
         }
 
