@@ -11,6 +11,8 @@ from django.test import TestCase as DjangoTestCase
 
 from resolwe.test import with_resolwe_host as resolwe_with_resolwe_host, TransactionProcessTestCase
 
+from resolwe_bio.models import Sample
+
 TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
 TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
 
@@ -118,14 +120,16 @@ class TransactionBioProcessTestCase(TransactionProcessTestCase):
         """Prepare adapters FASTA."""
         return self.run_process('upload-fasta-nucl', {'src': fn})
 
-    def prepare_expression(self, f_rc='exp_1_rc.tab.gz',
-                           f_exp='exp_1_tpm.tab.gz',
-                           f_type="TPM",
-                           name='Expression',
-                           source='DICTYBASE'):
+    def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type='TPM',
+                           name='Expression', source='DICTYBASE', descriptor=None):
         """Prepare expression."""
         inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
-        return self.run_process('upload-expression', inputs)
+        expression = self.run_process('upload-expression', inputs)
+        if descriptor:
+            sample = Sample.objects.get(data=expression)
+            sample.descriptor = descriptor
+            sample.save()
+        return expression
 
     def prepare_amplicon_master_file(self, mfile='56G_masterfile_test.txt', pname='56G panel, v2'):
         """Prepare amplicon master file."""
