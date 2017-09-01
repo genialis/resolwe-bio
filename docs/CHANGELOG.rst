@@ -14,6 +14,7 @@ Added
 -----
 * Add custom Cutadapt - STAR - HT-seq workflow
 * Add ``resolwebio/rnaseq`` docker image
+* Add expression aggregator
 
 Changed
 -------

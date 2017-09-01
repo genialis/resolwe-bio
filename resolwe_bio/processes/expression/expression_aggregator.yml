@@ -1,0 +1,62 @@
+- slug: expression-aggregator
+  name: Expression aggregator
+  requirements:
+    expression-engine: jinja
+  data_name: "Expression aggregator"
+  version: 0.0.1
+  type: data:aggregator:expression
+  category: analyses
+  persistence: CACHED
+  description: >
+    Collect expression data from samples grouped by sample descriptor field.
+  input:
+    - name: exps
+      label: Expressions
+      type: list:data:expression
+    - name: group_by
+      label: Sample descriptor field
+      type: basic:string
+    - name: expr_aggregator
+      label: Expression aggregator
+      type: data:aggregator:expression
+      required: false
+  output:
+    - name: exp_matrix
+      label: Expression matrix
+      type: basic:file
+    - name: box_plot
+      label: Box plot
+      type: basic:json
+    - name: source
+      label: Source
+      type: basic:string
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% for e in exps %}
+        {% if e.source != exps.0.source %}
+          re-error "All expressions must have the same source."
+        {% endif %}
+        {% if e.exp_type != exps.0.exp_type %}
+          re-error "All expressions must be of the same type."
+        {% endif %}
+      {% endfor %}
+
+      expression_aggregator.py \
+        --expressions {% for e in exps %} {{e.exp.file}} {% endfor %} \
+        --descriptors {% for e in exps %} {{e | sample | descriptor(group_by)}} {% endfor %} \
+        --source {{exps.0.source}} \
+        --expression-type {{exps.0.exp_type}} \
+        --group-by {{group_by}} \
+        {% if expr_aggregator %} --aggregator {{expr_aggregator.exp_matrix.file}} {% endif %} \
+        --output-box-plot box_plot.json \
+        --output-expressions exp_matrix.json.gz
+      re-checkrc "Expression aggregator failed."
+      re-save-file exp_matrix exp_matrix.json.gz
+      re-save box_plot box_plot.json
+      re-save source {{exps.0.source}}
+      re-save exp_type {{exps.0.exp_type}}
