@@ -21,6 +21,7 @@ Changed
 * Allow upload of custom amplicon master files
 * Set core resource requirement in ``cuffnorm`` process to 1
 * Add sample descriptor to ``prepare_expression`` test function
+* Add access to sample field of data objects in processes
 
 Fixed
 -----

@@ -10,7 +10,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 from resolwe_bio.models import Sample
 
 
-def get_sample_attr(data, attr):
+def get_sample(data):
     """Get sample object."""
     if isinstance(data, dict):
         # `Data` object's id is hydrated as `__id` in expression engine
@@ -21,7 +21,14 @@ def get_sample_attr(data, attr):
     if not sample_qs.exists():
         return None
 
-    return getattr(sample_qs.first(), attr, None)
+    return sample_qs.first()
+
+
+def get_sample_attr(data, attr):
+    """Get ``attr`` attribute of sample object."""
+    sample = get_sample(data)
+
+    return getattr(sample, attr, None)
 
 
 def sample_id(data):
@@ -44,4 +51,5 @@ filters = {  # pylint: disable=invalid-name
     'sample_id': sample_id,
     'sample_slug': sample_slug,
     'sample_name': sample_name,
+    'sample': get_sample,
 }
