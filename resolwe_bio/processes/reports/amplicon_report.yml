@@ -10,7 +10,7 @@
       docker:
         image: resolwebio/latex:1.0.0
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.1.5
+  version: 0.1.6
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -64,5 +64,6 @@
 
       mv report.pdf "${SAMPLE_SLUG}_report.pdf"
 
-      re-save-file report "${SAMPLE_SLUG}_report.pdf"
+      # Reference the original .tex file for the debugging purposes
+      re-save-file report "${SAMPLE_SLUG}_report.pdf" report.tex
       re-save panel_name {{ master_file.panel_name }}

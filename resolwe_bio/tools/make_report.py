@@ -21,10 +21,18 @@ parser.add_argument('--template', help="Report template file.")
 parser.add_argument('--logo', help="Logo.")
 
 
-def _format_latex(string):
+def _escape_latex(string):
     """Format normal string to be LaTeX compliant."""
-    string = string.replace('_', '\_')
+    string = string.replace('\\', '\\\\')
+    string = string.replace('&', '\&')
     string = string.replace('%', '\%')
+    string = string.replace('$', '\$')
+    string = string.replace('#', '\#')
+    string = string.replace('_', '\_')
+    string = string.replace('{', '\{')
+    string = string.replace('}', '\}')
+    string = string.replace('~', '\textasciitilde ')
+    string = string.replace('^', '\textasciicircum ')
     return string
 
 
@@ -75,15 +83,15 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
             column_alingnment[col_index] = 'L'
 
     if caption:
-        lines.append('\\captionof{{table}}{{{}}}'.format(_format_latex(caption)))
+        lines.append('\\captionof{{table}}{{{}}}'.format(caption))
 
     lines.append('\\noindent')
     lines.append('\\begin{{longtable}}[l] {{ {} }}'.format('  '.join(column_alingnment)))
 
     if header:
         lines.append('\\rowcolor{darkblue1}')
-        lines.append('\\leavevmode\\color{white}\\textbf{' + '}& \\leavevmode\\color{white}\\textbf{'.join(
-            map(_format_latex, header)) + '}' + ' \\\\')
+        lines.append('\\leavevmode\\color{white}\\textbf{' +
+                     '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
 
     for line in data:
         if long_columns:
@@ -92,7 +100,7 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
                 new_val = line[col_index] if '\href' in line[col_index] else cut_to_pieces(line[col_index], 8)
                 line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}}}{{{}}}'.format(new_val)
 
-        lines.append(' & '.join(map(_format_latex, line)) + ' \\\\')
+        lines.append(' & '.join(line) + ' \\\\')
 
     lines.append('\\end{longtable}')
     lines.append('{\n\\addtocounter{table}{-1}}')
@@ -154,8 +162,8 @@ if __name__ == '__main__':
     with open(args.template, 'r') as template_in, open('report.tex', 'wt') as template_out:
         template = template_in.read()
         template = template.replace('{#LOGO#}', args.logo)
-        template = template.replace('{#SAMPLE_NAME#}', (_format_latex(args.sample))[:-4])
-        template = template.replace('{#PANEL#}', _remove_underscore(_format_latex(args.panel)))
+        template = template.replace('{#SAMPLE_NAME#}', _escape_latex(args.sample))
+        template = template.replace('{#PANEL#}', _remove_underscore(_escape_latex(args.panel)))
 
         # get coverage stats
         with open(args.covmetrics) as covmetrics:
@@ -185,14 +193,14 @@ if __name__ == '__main__':
 
         # Produce LaTeX table for amplicons with insufficient coverage:
         not_covered_amplicons = [
-            (line[4], '{:.1f}'.format(float(line[8]) * 100)) for line in cov_list if float(line[8]) < 1]
+            (_escape_latex(line[4]), '{:.1f}'.format(float(line[8]) * 100)) for line in cov_list if float(line[8]) < 1]
         switch = 0  # switch used for adding the sentence about coverage
 
         if not not_covered_amplicons:
             switch = 1
             not_covered_amplicons = [['/', '/']]
-        table_text = list_to_tex_table(not_covered_amplicons, header=['Amplicon name', '% covered'],
-                                       caption='Amplicons with coverage $<$ 100%')
+        table_text = list_to_tex_table(not_covered_amplicons, header=['Amplicon name', '\% covered'],
+                                       caption='Amplicons with coverage $<$ 100\%')
 
         template = template.replace('{#ALL_AMPLICONS#}', str(len(cov_list)))
         template = template.replace('{#COVERED_AMPLICONS#}', str(covered_amplicons))
@@ -212,12 +220,19 @@ if __name__ == '__main__':
         for vcf_file in args.vcf:
             header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'GEN[0].AD', 'SB', 'FS', 'EFF[*].GENE', 'ID']
             vcf_table, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
+
+            # Escape user inputs:
+            common_columns = [_escape_latex(name) for name in common_columns]
+            caption = _escape_latex(vcf_table_name(vcf_file))
+            vcf_table = [[_escape_latex(value) for value in line] for line in vcf_table]
+
             # Insert space between SNP ID's and create hypelinks:
             vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]
+
             # Create gene hypelinks:
             vcf_table = [line[:-2] + [gene_href(line[-2])] + [line[-1]] for line in vcf_table]
-            table_text += list_to_tex_table(
-                vcf_table, header=common_columns, caption=vcf_table_name(vcf_file), long_columns=[2, 3, -1])
+
+            table_text += list_to_tex_table(vcf_table, header=common_columns, caption=caption, long_columns=[2, 3, -1])
             table_text += '\n\\newpage\n'
         template = template.replace('{#VCF_TABLES#}', table_text)
 

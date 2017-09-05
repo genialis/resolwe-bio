@@ -30,6 +30,8 @@ Fixed
 * Fix ``upload-expression-star`` process to work with arbitrary file names
 * Fix STAR aligner to work with arbitrary file names
 * Fix ``cuffnorm`` group analysis to work correctly
+* Do not crop Amplicon report title as this may result in malformed LaTeX command
+* Escape LaTeX special characters
 
 
 ================
