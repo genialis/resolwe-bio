@@ -8,7 +8,7 @@
   requirements:
     expression-engine: jinja
   data_name: "Test"
-  version: 1.0.5
+  version: 1.0.6
   type: data:test:result
   persistence: CACHED
   description: >
@@ -38,5 +38,6 @@
       echo "{\"proc.progress\":0.8}"
       sleep {{ t }}
       echo "{\"proc.progress\":1.0}"
+
+      re-save output Done
       echo "Done."
-      exit 0

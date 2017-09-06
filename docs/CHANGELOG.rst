@@ -32,6 +32,7 @@ Fixed
 * Fix ``cuffnorm`` group analysis to work correctly
 * Do not crop Amplicon report title as this may result in malformed LaTeX command
 * Escape LaTeX special characters
+* Fix validation error in ``Test sleep progress`` process
 
 
 ================
