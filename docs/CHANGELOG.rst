@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 * Add statistics of logarithmized expressions to ``expression-aggregator``
+* Add input field description to ``cutadapt-star-htseq`` descriptor schema
 
 
 ================

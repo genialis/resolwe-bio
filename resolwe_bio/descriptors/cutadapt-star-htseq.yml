@@ -1,6 +1,6 @@
 - slug: cutadapt-star-htseq
   name: RNA-seq workflow
-  version: 0.0.1
+  version: 0.0.2
   description: RNA-seq template
   schema:
     - name: organism
@@ -21,3 +21,8 @@
           value: gene
         - label: Transcript
           value: transcript
+      description: >
+        The gene-level expression analysis quantifies reads per gene using the HTSeq tool. The
+        transcript-level expression analysis quantifies reads per transcript using the RSEM tool.
+        Currently, the transcript-level analysis does not support differential expression analysis
+        and visualization module.
