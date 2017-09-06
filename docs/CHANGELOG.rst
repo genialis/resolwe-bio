@@ -6,32 +6,38 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+================
+3.0.0 2017-09-07
+================
 
 Added
 -----
 * Add custom Cutadapt - STAR - HT-seq workflow
+* Add expression aggregator process
 * Add ``resolwebio/rnaseq`` docker image
-* Add expression aggregator
 * Add ``resolwebio/latex`` docker image
+* Add access to sample field of data objects in processes via ``sample`` filter
 
 Changed
 -------
-* Remove ``threads`` input in STAR aligner process
-* Allow upload of custom amplicon master files
-* Set core resource requirement in ``cuffnorm`` process to 1
+* **BACKWARD INCOMPATIBLE** Remove ``threads`` input in STAR aligner process
+  and replace it with the ``cores`` resources requirement
+* **BACKWARD INCOMPATIBLE** Allow upload of custom amplicon master files (make
+  changes to ``amplicon-panel`` descriptor schema, ``upload-master-file`` and
+  ``amplicon-report`` processes and ``workflow-accel`` workflow)
+* **BACKWARD INCOMPATIBLE** Remove ``threads`` input in ``cuffnorm`` process
+  and replace it with the ``cores`` resources requirement
 * Add sample descriptor to ``prepare_expression`` test function
-* Add access to sample field of data objects in processes
+* Prettify amplicon report
 
 Fixed
 -----
 * Fix ``upload-expression-star`` process to work with arbitrary file names
 * Fix STAR aligner to work with arbitrary file names
 * Fix ``cuffnorm`` group analysis to work correctly
-* Do not crop Amplicon report title as this may result in malformed LaTeX command
-* Escape LaTeX special characters
+* Do not crop Amplicon report title as this may result in malformed LaTeX
+  command
+* Escape LaTeX's special characters in ``make_report.py`` tool
 * Fix validation error in ``Test sleep progress`` process
 
 
