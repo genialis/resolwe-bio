@@ -61,17 +61,6 @@ RUN apt-get update && \
     rm -r /opt/alexdobin/STAR-$STAR_VERSION/bin/MacOSX_x86_64 && \
     echo "PATH=\$PATH:/opt/alexdobin/STAR-$STAR_VERSION/bin/Linux_x86_64_static" >> /etc/profile.d/rnaseq.sh && \
 
-    echo "Installing eXpress..." && \
-    express_VERSION=1.5.1 && \
-    express_SHA256SUM=50e268af69cd5f561ae238e7d155ebb4a6505219bd93bc25a7667f7bf92b7bd5 && \
-    wget -q https://pachterlab.github.io/eXpress/downloads/express-1.5.1/express-1.5.1-linux_x86_64.tgz -O /tmp/express.tgz && \
-    echo "$express_SHA256SUM */tmp/express.tgz" | sha256sum -c - && \
-    mkdir -p /opt/pachterlab/express-$express_VERSION && \
-    tar -xf /tmp/express.tgz --directory /opt/pachterlab/express-$express_VERSION --strip-components=1 && \
-    rm /tmp/express.tgz && \
-    rm -r /opt/pachterlab/express-$express_VERSION/sample_data && \
-    echo "PATH=\$PATH:/opt/pachterlab/express-$express_VERSION" >> /etc/profile.d/rnaseq.sh && \
-
     echo "Installing R packages..." && \
     Rscript --slave --no-save --no-restore-history -e "\
       package_list = c( \

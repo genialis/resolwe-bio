@@ -6,7 +6,6 @@ https://hub.docker.com/r/resolwe/base/) image.
 Included bioinformatics tools:
 ------------------------------
 * cutadapt (v1.14)
-* eXpress (v1.5.1)
 * FastQC (v0.11.5)
 * HTSeq (v1.13.1)
 * SAMtools (v0.1.19)

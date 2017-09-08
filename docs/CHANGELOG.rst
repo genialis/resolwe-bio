@@ -15,6 +15,10 @@ Added
 * Add statistics of logarithmized expressions to ``expression-aggregator``
 * Add input field description to ``cutadapt-star-htseq`` descriptor schema
 
+Changed
+-------
+* Remove ``eXpress`` tool from ``resolwebio/rnaseq`` docker image
+
 
 ================
 3.0.0 2017-09-07
