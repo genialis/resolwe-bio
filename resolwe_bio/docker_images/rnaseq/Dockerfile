@@ -5,46 +5,21 @@ LABEL MAINTAINER Resolwe Bioinformatics authors https://github.com/genialis/reso
 RUN apt-get update && \
 
     apt-get -y install --no-install-recommends \
+      fastqc \
       python \
+      python-cutadapt \
+      python-htseq \
       python-pip \
       r-base-core \
       samtools \
       unzip \
       wget \
-      # Required for fastqc.
-      default-jre \
-      perl \
       #Required for R packages.
       build-essential \
       libz-dev \
       libcurl4-openssl-dev \
       libxml2-dev \
       && \
-    
-    # Required for HTSeq.
-    echo "Installing numpy..." && \
-    pip install numpy==1.13.1 && \
-
-    # Required for HTSeq.
-    echo "Installing pysam..." && \
-    pip install pysam==0.11.2.2 && \
-
-    echo "Installing HTSeq..." && \
-    pip install HTSeq==0.9.1 && \
-
-    echo "Installing cutadapt..." && \
-    pip install cutadapt==1.14 && \
-
-    echo "Installing FastQC..." && \
-    FastQC_VERSION=0.11.5 && \
-    FastQC_SHA256SUM=dd7a5ad80ceed2588cf6d6ffe35e0f161c0d9977ed08355f5e4d9473282cbd66 && \
-    wget -q https://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v$FastQC_VERSION.zip -O /tmp/FastQC.zip && \
-    echo "$FastQC_SHA256SUM */tmp/FastQC.zip" | sha256sum -c - && \
-    mkdir -p /opt/babraham/FastQC-$FastQC_VERSION && \
-    unzip -q /tmp/FastQC.zip -d /opt/babraham/FastQC-$FastQC_VERSION && \
-    rm /tmp/FastQC.zip && \
-    chmod +x /opt/babraham/FastQC-$FastQC_VERSION/FastQC/fastqc && \
-    echo "PATH=\$PATH:/opt/babraham/FastQC-$FastQC_VERSION/FastQC" >> /etc/profile.d/rnaseq.sh && \
 
     echo "Installing STAR..." && \
     STAR_VERSION=2.5.3a && \
