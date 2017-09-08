@@ -1,0 +1,385 @@
+- slug: workflow-custom-cutadapt-star-rsem-single
+  category: workflow:primary
+  name: Workflow with Cutadapt, STAR, and RSEM for single-end reads
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:rnaseq:rsem
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:single
+    - name: star_index
+      label: STAR genome index
+      type: data:genomeindex:star
+    - name: expression_index
+      label: Gene expression indices
+      type: data:expression:index
+    - name: stranded
+      label: Assay type
+      type: basic:string
+      default: 'no'
+      choices:
+        - label: Strand non-specific
+          value: 'no'
+        - label: Strand-specific forward
+          value: 'yes'
+        - label: Strand-specific reverse
+          value: reverse
+      description: >
+        In strand non-specific assay a read is considered overlapping with a
+        feature regardless of whether it is mapped to the same or the opposite
+        strand as the feature. In strand-specific forward assay and single
+        reads, the read has to be mapped to the same strand as the feature.
+        For paired-end reads, the first read has to be on the same strand and
+        the second read on the opposite strand. In strand-specific reverse
+        assay these rules are reversed.
+    - name: advanced
+      label: Advanced
+      type: basic:boolean
+      default: false
+    - name: star
+      label: STAR aligner options
+      hidden: "!advanced"
+      group:
+      - name: noncannonical
+        label: Remove non-cannonical junctions (Cufflinks compatibility)
+        type: basic:boolean
+        default: false
+        description: >
+          It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
+      - name: detect_chimeric
+        label: Detect chimeric and circular alignments
+        group:
+          - name: chimeric
+            label: Detect chimeric and circular alignments
+            type: basic:boolean
+            default: false
+            description: >
+              To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
+          - name: chimSegmentMin
+            label: --chimSegmentMin
+            type: basic:integer
+            default: 20
+            disabled: "!star.detect_chimeric.chimeric"
+      - name: t_coordinates
+        label: Output in transcript coordinates
+        group:
+          - name: quantmode
+            label: Output in transcript coordinates
+            type: basic:boolean
+            default: true
+            description: >
+              With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
+          - name: singleend
+            label: Allow soft-clipping and indels
+            type: basic:boolean
+            default: false
+            disabled: "!star.t_coordinates.quantmode"
+            description: >
+              By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
+          - name: gene_counts
+            label: Count reads
+            type: basic:boolean
+            default: false
+            disabled: "!star.t_coordinates.quantmode"
+            description: >
+              With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
+      - name: filtering
+        label: Output filtering
+        group:
+          - name: outFilterType
+            label: Type of filtering
+            type: basic:string
+            default: Normal
+            description: >
+              Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
+            choices:
+              - label: Normal
+                value: Normal
+              - label: BySJout
+                value: BySJout
+          - name: outFilterMultimapNmax
+            label: --outFilterMultimapNmax
+            type: basic:integer
+            required: false
+            description: >
+              Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
+          - name: outFilterMismatchNmax
+            label: --outFilterMismatchNmax
+            type: basic:integer
+            required: false
+            description: >
+              Alignment will be output only if it has fewer mismatches than this value (default: 10).
+          - name: outFilterMismatchNoverLmax
+            label: --outFilterMismatchNoverLmax
+            type: basic:decimal
+            required: false
+            description: >
+              Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
+      - name: alignment
+        label: Alignment and seeding
+        group:
+          - name: alignSJoverhangMin
+            label: --alignSJoverhangMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum overhang (i.e. block size) for spliced alignments (default: 5).
+          - name: alignSJDBoverhangMin
+            label: --alignSJDBoverhangMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
+          - name: alignIntronMin
+            label: --alignIntronMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
+          - name: alignIntronMax
+            label: --alignIntronMax
+            type: basic:integer
+            required: false
+            description: >
+              Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+          - name: alignMatesGapMax
+            label: --alignMatesGapMax
+            type: basic:integer
+            required: false
+            description: >
+              Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+  run:
+    language: workflow
+    program:
+      - id: cutadapt
+        run: cutadapt-custom-single
+        input:
+          reads: '{{ input.reads }}'
+      - id: star
+        run: alignment-star
+        input:
+          genome: '{{ input.star_index }}'
+          reads: '{{ steps.cutadapt }}'
+          unstranded: "{{ input.stranded == 'no' }}"
+          noncannonical: '{{ input.star.noncannonical }}'
+          detect_chimeric:
+            chimeric: '{{ input.star.detect_chimeric.chimeric }}'
+            chimSegmentMin: '{{ input.star.detect_chimeric.chimSegmentMin }}'
+          t_coordinates:
+            quantmode: '{{ input.star.t_coordinates.quantmode }}'
+            singleend: '{{ input.star.t_coordinates.singleend }}'
+            gene_counts: '{{ input.star.t_coordinates.gene_counts }}'
+          filtering:
+            outFilterType: '{{ input.star.filtering.outFilterType }}'
+            outFilterMultimapNmax: '{{ input.star.filtering.outFilterMultimapNmax }}'
+            outFilterMismatchNmax: '{{ input.star.filtering.outFilterMismatchNmax }}'
+            outFilterMismatchNoverLmax: '{{ input.star.filtering.outFilterMismatchNoverLmax }}'
+          alignment:
+            alignSJoverhangMin: '{{ input.star.alignment.alignSJoverhangMin }}'
+            alignSJDBoverhangMin: '{{ input.star.alignment.alignSJDBoverhangMin }}'
+            alignIntronMin: '{{ input.star.alignment.alignIntronMin }}'
+            alignIntronMax: '{{ input.star.alignment.alignIntronMax }}'
+            alignMatesGapMax: '{{ input.star.alignment.alignMatesGapMax }}'
+      - id: rsem
+        run: rsem
+        input:
+          alignments: '{{ steps.star }}'
+          expression_index: '{{ input.expression_index }}'
+          strandedness: "{{ 'none' if input.stranded == 'no' else ('forward' if input.stranded == 'yes' else 'reverse') }}"
+
+
+- slug: workflow-custom-cutadapt-star-rsem-paired
+  category: workflow:primary
+  name: Workflow with Cutadapt, STAR, and RSEM for paired-end reads
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:rnaseq:rsem
+  input:
+    - name: reads
+      label: NGS reads
+      type: data:reads:fastq:paired
+    - name: star_index
+      label: STAR genome index
+      type: data:genomeindex:star
+    - name: expression_index
+      label: Gene expression indices
+      type: data:expression:index
+    - name: stranded
+      label: Assay type
+      type: basic:string
+      default: 'no'
+      choices:
+        - label: Strand non-specific
+          value: 'no'
+        - label: Strand-specific forward
+          value: 'yes'
+        - label: Strand-specific reverse
+          value: reverse
+      description: >
+        In strand non-specific assay a read is considered overlapping with a
+        feature regardless of whether it is mapped to the same or the opposite
+        strand as the feature. In strand-specific forward assay and single
+        reads, the read has to be mapped to the same strand as the feature.
+        For paired-end reads, the first read has to be on the same strand and
+        the second read on the opposite strand. In strand-specific reverse
+        assay these rules are reversed.
+    - name: advanced
+      label: Advanced
+      type: basic:boolean
+      default: false
+    - name: star
+      label: STAR aligner options
+      hidden: "!advanced"
+      group:
+      - name: noncannonical
+        label: Remove non-cannonical junctions (Cufflinks compatibility)
+        type: basic:boolean
+        default: false
+        description: >
+          It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
+      - name: detect_chimeric
+        label: Detect chimeric and circular alignments
+        group:
+          - name: chimeric
+            label: Detect chimeric and circular alignments
+            type: basic:boolean
+            default: false
+            description: >
+              To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
+          - name: chimSegmentMin
+            label: --chimSegmentMin
+            type: basic:integer
+            default: 20
+            disabled: "!star.detect_chimeric.chimeric"
+      - name: t_coordinates
+        label: Output in transcript coordinates
+        group:
+          - name: quantmode
+            label: Output in transcript coordinates
+            type: basic:boolean
+            default: true
+            description: >
+              With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
+          - name: singleend
+            label: Allow soft-clipping and indels
+            type: basic:boolean
+            default: false
+            disabled: "!star.t_coordinates.quantmode"
+            description: >
+              By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
+          - name: gene_counts
+            label: Count reads
+            type: basic:boolean
+            default: false
+            disabled: "!star.t_coordinates.quantmode"
+            description: >
+              With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
+      - name: filtering
+        label: Output filtering
+        group:
+          - name: outFilterType
+            label: Type of filtering
+            type: basic:string
+            default: Normal
+            description: >
+              Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
+            choices:
+              - label: Normal
+                value: Normal
+              - label: BySJout
+                value: BySJout
+          - name: outFilterMultimapNmax
+            label: --outFilterMultimapNmax
+            type: basic:integer
+            required: false
+            description: >
+              Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
+          - name: outFilterMismatchNmax
+            label: --outFilterMismatchNmax
+            type: basic:integer
+            required: false
+            description: >
+              Alignment will be output only if it has fewer mismatches than this value (default: 10).
+          - name: outFilterMismatchNoverLmax
+            label: --outFilterMismatchNoverLmax
+            type: basic:decimal
+            required: false
+            description: >
+              Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
+      - name: alignment
+        label: Alignment and seeding
+        group:
+          - name: alignSJoverhangMin
+            label: --alignSJoverhangMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum overhang (i.e. block size) for spliced alignments (default: 5).
+          - name: alignSJDBoverhangMin
+            label: --alignSJDBoverhangMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
+          - name: alignIntronMin
+            label: --alignIntronMin
+            type: basic:integer
+            required: false
+            description: >
+              Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
+          - name: alignIntronMax
+            label: --alignIntronMax
+            type: basic:integer
+            required: false
+            description: >
+              Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+          - name: alignMatesGapMax
+            label: --alignMatesGapMax
+            type: basic:integer
+            required: false
+            description: >
+              Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+  run:
+    language: workflow
+    program:
+      - id: cutadapt
+        run: cutadapt-custom-paired
+        input:
+          reads: '{{input.reads}}'
+      - id: star
+        run: alignment-star
+        input:
+          genome: '{{input.star_index}}'
+          reads: '{{steps.cutadapt}}'
+          unstranded: "{{ input.stranded == 'no' }}"
+          noncannonical: '{{input.star.noncannonical}}'
+          detect_chimeric:
+            chimeric: '{{input.star.detect_chimeric.chimeric}}'
+            chimSegmentMin: '{{input.star.detect_chimeric.chimSegmentMin}}'
+          t_coordinates:
+            quantmode: '{{input.star.t_coordinates.quantmode}}'
+            singleend: '{{input.star.t_coordinates.singleend}}'
+            gene_counts: '{{input.star.t_coordinates.gene_counts}}'
+          filtering:
+            outFilterType: '{{input.star.filtering.outFilterType}}'
+            outFilterMultimapNmax: '{{input.star.filtering.outFilterMultimapNmax}}'
+            outFilterMismatchNmax: '{{input.star.filtering.outFilterMismatchNmax}}'
+            outFilterMismatchNoverLmax: '{{input.star.filtering.outFilterMismatchNoverLmax}}'
+          alignment:
+            alignSJoverhangMin: '{{input.star.alignment.alignSJoverhangMin}}'
+            alignSJDBoverhangMin: '{{input.star.alignment.alignSJDBoverhangMin}}'
+            alignIntronMin: '{{input.star.alignment.alignIntronMin}}'
+            alignIntronMax: '{{input.star.alignment.alignIntronMax}}'
+            alignMatesGapMax: '{{input.star.alignment.alignMatesGapMax}}'
+      - id: rsem
+        run: rsem
+        input:
+          alignments: '{{ steps.star }}'
+          read_type: 'pe'
+          expression_index: '{{ input.expression_index }}'
+          strandedness: "{{ 'none' if input.stranded == 'no' else ('forward' if input.stranded == 'yes' else 'reverse') }}"

@@ -1,0 +1,95 @@
+- slug: index-fasta-nucl
+  name: Gene expression indices
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:1.1.0
+  data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
+  version: 0.0.1
+  type: data:expression:index
+  persistence: CACHED
+  description: >
+    Generate gene expression indices
+  input:
+    - name: nucl
+      label: Nucleotide sequence
+      type: data:seq:nucleotide
+      hidden: "genome"
+      required: false
+    - name: nucl_genome
+      label: Type of nucleotide sequence
+      type: basic:string
+      default: gs
+      choices:
+        - label: Genome sequence
+          value: gs
+        - label: Transcript sequences
+          value: ts
+      hidden: "!nucl"
+    - name: genome
+      label: Genome sequence
+      type: data:genome:fasta
+      hidden: "nucl"
+      required: false
+    - name: annotation
+      label: Annotation
+      type: data:annotation:gtf
+      hidden: "nucl && nucl_genome == 'ts'"
+      required: false
+    - name: source
+      label: Source of attribute ID
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
+      hidden: "!(nucl && nucl_genome == 'ts')"
+      required: false
+  output:
+    - name: rsem_index
+      label: RSEM index
+      type: basic:dir
+    - name: source
+      label: Source of attribute ID
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      mkdir rsem
+
+      {% if nucl %}
+        gunzip -c {{ nucl.fasta.file }} > nucl.fasta
+        {% if nucl_genome == 'ts' %}
+          rsem-prepare-reference \
+            nucl.fasta \
+            rsem/index
+        {% else %}
+          rsem-prepare-reference \
+            --gtf {{ annotation.gtf.file }} \
+            nucl.fasta \
+            rsem/index
+        {% endif %}
+      {% else %}
+        rsem-prepare-reference \
+          --gtf {{ annotation.gtf.file }} \
+          {{ genome.fasta.file }} \
+          rsem/index
+      {% endif %}
+      re-checkrc 'RSEM index build failed.'
+
+      re-save-dir rsem_index rsem
+      {% if nucl and nucl_genome == 'ts' %}
+        re-save source {{ source }}
+      {% else %}
+        re-save source {{ annotation.source }}
+      {% endif %}
