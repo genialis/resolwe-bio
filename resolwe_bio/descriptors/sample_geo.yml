@@ -1,7 +1,7 @@
 - slug: sample
   name: GEO sample annotation
   description: GEO compliant meta data (the minimal set of meta data fields compliant with the Gene Expression Omnibus repository)
-  version: 0.0.6
+  version: 0.0.7
   schema:
     - name: sample
       label: Sample annotation
@@ -23,8 +23,12 @@
               value: Dictyostelium discoideum
             - label: Drosophila melanogaster
               value: Drosophila melanogaster              
+            - label: hg19_dm6
+              value: hg19_dm6
             - label: Homo sapiens
               value: Homo sapiens
+            - label: mm10_dm6
+              value: mm10_dm6  
             - label: Mus musculus
               value: Mus musculus
             - label: Odocoileus virginianus texanus

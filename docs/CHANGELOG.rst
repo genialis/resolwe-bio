@@ -14,6 +14,7 @@ Added
 -----
 * Add custom Cutadapt - STAR - HT-seq workflow
 * Add ``resolwebio/rnaseq`` docker image
+* Add ``mm10_dm6`` and ``hg19_dm6`` organisms to descriptor schema
 
 Changed
 -------
