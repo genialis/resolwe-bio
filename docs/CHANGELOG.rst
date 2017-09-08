@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add ``index-fasta-nucl`` and ``rsem`` process
+* Add custom Cutadapt - STAR - RSEM workflow
+
 
 ================
 3.1.0 2017-09-13

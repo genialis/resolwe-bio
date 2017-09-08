@@ -1,0 +1,121 @@
+# =================
+# Expression - RSEM
+# =================
+---
+
+- slug: rsem
+  name: RSEM
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 1
+    executor:
+      docker:
+        image: resolwebio/rnaseq:1.1.0
+  data_name: "Quantification ({{ (alignments|sample_name) }})"
+  version: 0.0.1
+  type: data:expression:rsem
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Quantify gene and isoform abundances from single-end or paired-end RNA-seq data
+  input:
+    - name: alignments
+      label: Aligned reads
+      type: data:alignment:bam
+    - name: read_type
+      label: Type of reads
+      type: basic:string
+      default: se
+      choices:
+        - label: Single-end
+          value: se
+        - label: Paired-end
+          value: pe
+    - name: expression_index
+      label: Gene expression indices
+      type: data:expression:index
+    - name: strandedness
+      label: Strandedness
+      type: basic:string
+      default: 'none'
+      choices:
+        - label: None
+          value: none
+        - label: Forward
+          value: forward
+        - label: Reverse
+          value: reverse
+  output:
+    - name: rc
+      label: Read counts
+      type: basic:file
+    - name: fpkm
+      label: FPKM
+      type: basic:file
+    - name: exp
+      label: TPM (Transcripts Per Million)
+      type: basic:file
+    - name: exp_json
+      label: TPM (json)
+      type: basic:json
+    - name: exp_type
+      label: Type of expression
+      type: basic:string
+    - name: source
+      label: Source of transcript ID
+      type: basic:string
+    - name: log
+      label: RSEM log
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% if not alignments.alignment_transcriptome %}
+        re-error 'Aligned reads in transcriptome coordinates missing.'
+      {% endif %}
+
+      NAME=`basename {{ alignments.alignment_transcriptome.file }} .bam`
+      mv {{ alignments.alignment_transcriptome.file }} reads.bam
+
+      rsem-calculate-expression \
+        --alignments \
+        {% if read_type == 'pe' %} --paired-end {% endif %} \
+        --no-bam-output \
+        --num-threads {{ requirements.resources.cores }} \
+        --strandedness {{ strandedness }} \
+        reads.bam \
+        '{{ expression_index.rsem_index.dir }}/index' \
+        rsem &>"${NAME}_RSEM.log"
+      re-checkrc 'Quantification by RSEM failed.'
+
+      gzip "${NAME}_RSEM.log"
+
+      echo -e 'Transcript\tExpression' >"${NAME}_RSEM_rc.tab"
+      cut -f1,5 rsem.isoforms.results | tail -n +2 >>"${NAME}_RSEM_rc.tab"
+      gzip "${NAME}_RSEM_rc.tab"
+
+      echo -e 'Transcript\tExpression' >"${NAME}_fpkm.tab"
+      cut -f1,7 rsem.isoforms.results | tail -n +2 >>"${NAME}_fpkm.tab"
+      gzip "${NAME}_fpkm.tab"
+
+      echo -e 'Transcript\tExpression' >"${NAME}_tpm.tab"
+      cut -f1,6 rsem.isoforms.results | tail -n +2 >>"${NAME}_tpm.tab"
+      gzip "${NAME}_tpm.tab"
+
+      expression2storage.py --output "${NAME}_tpm.json" "${NAME}_tpm.tab.gz"
+      re-checkrc
+
+      echo -e 'Transcript\tExpression' >"${NAME}_iso_pct.tab"
+      cut -f1,8 rsem.isoforms.results | tail -n +2 >>"${NAME}_iso_pct.tab"
+      gzip "${NAME}_iso_pct.tab"
+      
+      re-save-file rc "${NAME}_RSEM_rc.tab.gz"
+      re-save-file fpkm "${NAME}_fpkm.tab.gz"
+      re-save-file exp "${NAME}_tpm.tab.gz"
+      re-save exp_json "${NAME}_tpm.json"
+      re-save exp_type 'TPM'
+      re-save source {{ expression_index.source }}
+      re-save-file log "${NAME}_RSEM.log.gz"

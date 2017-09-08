@@ -126,6 +126,19 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
 
+    def test_index_fasta_nucl(self):
+        inputs = {'src': 'HS_chr21_ensemble.fa.gz'}
+        genome = self.run_process('upload-fasta-nucl', inputs)
+
+        inputs = {'src': 'HS_chr21_short.gtf.gz', 'source': 'ENSEMBL'}
+        annotation = self.run_process('upload-gtf', inputs)
+
+        inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
+        index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
+
+        self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem'})
+        self.assertFields(index_fasta_nucl, 'source', 'ENSEMBL')
+
     def test_mergeexpression(self):
         expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
         expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")

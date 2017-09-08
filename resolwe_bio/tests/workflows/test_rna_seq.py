@@ -96,6 +96,53 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_ccshp.tab.gz', compression='gzip')
 
+    def test_custom_cutadapt_star_rsem_workflow(self):
+        inputs = {'src': 'genome_rsem.fa.gz'}
+        genome = self.run_process('upload-fasta-nucl', inputs)
+
+        inputs = {'src': 'annotation_rsem.gtf.gz', 'source': 'ENSEMBL'}
+        annotation = self.run_process('upload-gtf', inputs)
+
+        inputs = {'genome2': genome.pk, 'annotation': annotation.pk}
+        star_index = self.run_process('alignment-star-index', inputs)
+
+        inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
+        index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
+
+        inputs = {'src': ['reads_rsem.fq.gz']}
+        single_reads = self.run_process('upload-fastq-single', inputs)
+
+        inputs = {'src1': ['reads_rsem.fq.gz'], 'src2': ['reads_rsem2.fq.gz']}
+        paired_reads = self.run_process('upload-fastq-paired', inputs)
+
+        inputs = {
+            'reads': single_reads.pk,
+            'star_index': star_index.pk,
+            'expression_index': index_fasta_nucl.pk,
+            'stranded': 'yes'
+        }
+        self.run_process('workflow-custom-cutadapt-star-rsem-single', inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+
+        self.assertFile(workflow, 'rc', 'workflow_ccsrs.tab.gz', compression='gzip')
+
+        inputs = {
+            'reads': paired_reads.pk,
+            'star_index': star_index.pk,
+            'expression_index': index_fasta_nucl.pk,
+            'stranded': 'yes'
+        }
+        self.run_process('workflow-custom-cutadapt-star-rsem-paired', inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+
+        self.assertFile(workflow, 'rc', 'workflow_ccsrp.tab.gz', compression='gzip')
+
     def test_rnaseq_single_workflow(self):
         genome = self.prepare_genome()
         single_reads = self.prepare_reads()
