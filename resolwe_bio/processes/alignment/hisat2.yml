@@ -8,10 +8,10 @@
   requirements:
     expression-engine: jinja
     resources:
-      memory: 16384
-      cores: 1    
+      memory: 32768
+      cores: 1
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample

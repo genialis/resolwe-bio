@@ -16,11 +16,11 @@ Added
 * Add input field description to ``cutadapt-star-htseq`` descriptor schema
 * Add ``HISAT2`` and ``RSEM`` tool to ``resolwebio/rnaseq`` docker image
 
-
 Changed
 -------
 * Remove ``eXpress`` tool from ``resolwebio/rnaseq`` docker image
 * Use system packages of RNA-seq tools in ``resolwebio/rnaseq`` docker image
+* Set ``hisat2`` process' memory resource requirement to 32GB
 
 
 ================
