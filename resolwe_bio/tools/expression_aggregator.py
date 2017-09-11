@@ -3,9 +3,10 @@
 """Expression aggregator."""
 
 import argparse
-import json
 import csv
 import gzip
+import json
+import math
 
 import numpy as np
 
@@ -19,8 +20,9 @@ def get_args():
     parser.add_argument('-t', '--expression-type', help='Expression type', required=True)
     parser.add_argument('-g', '--group-by', help='Group by', required=True)
     parser.add_argument('-a', '--aggregator', help='Aggregator')
-    parser.add_argument('-b', '--output-box-plot', help='Output box plot')
-    parser.add_argument('-x', '--output-expressions', help='Output expressions')
+    parser.add_argument('-b', '--box-plot-output', help='Box plot output file name')
+    parser.add_argument('-l', '--log-box-plot-output', help='Log box plot output file name')
+    parser.add_argument('-x', '--expressions-output', help='Expressions output file name')
     return parser.parse_args()
 
 
@@ -58,6 +60,18 @@ def load_expressions(aggregator, expression_fns=[], sep='\t', descriptors=[]):
         for gene in genes
     }
     return raw_expressions, descriptors, grouped_expressions
+
+
+def get_log_expressions(grouped_expressions):
+    """Get log(expression + 1) for all expressions."""
+    log_expressions = {
+        gene: {
+            descriptor: [math.log(expression + 1.0, 2.0) for expression in grouped_expressions[gene][descriptor]]
+            for descriptor in grouped_expressions[gene]
+        }
+        for gene in grouped_expressions
+    }
+    return log_expressions
 
 
 def generate_statistic(expression, gene, attribute, expression_type):
@@ -140,15 +154,18 @@ def main():
         aggregator = load_json(args.aggregator)
         check_aggregator(aggregator, args.source, args.expression_type, args.group_by)
     raw_expressions, descriptors, expressions = load_expressions(aggregator, args.expressions, '\t', args.descriptors)
+    log_expressions = get_log_expressions(expressions)
 
-    statistics = get_statistics(expressions, args.expression_type)
-
-    if args.output_box_plot:
-        output_json(statistics, args.output_box_plot)
-    if args.output_expressions:
+    if args.box_plot_output:
+        statistics = get_statistics(expressions, args.expression_type)
+        output_json(statistics, args.box_plot_output)
+    if args.log_box_plot_output:
+        log_statistics = get_statistics(log_expressions, args.expression_type)
+        output_json(log_statistics, args.log_box_plot_output)
+    if args.expressions_output:
         expressions_out = get_expressions_out(raw_expressions, descriptors, args.source,
                                               args.expression_type, args.group_by)
-        output_json(expressions_out, args.output_expressions, True)
+        output_json(expressions_out, args.expressions_output, True)
 
 
 if __name__ == '__main__':

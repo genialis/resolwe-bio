@@ -27,5 +27,8 @@ class ExpressionAggregatorTestCase(BioProcessTestCase):
         self.assertJSON(
             expression_aggregator, expression_aggregator.output['box_plot'], '', 'box_plot.json.gz'
         )
+        self.assertJSON(
+            expression_aggregator, expression_aggregator.output['log_box_plot'], '', 'log_box_plot.json.gz'
+        )
         self.assertFields(expression_aggregator, 'source', 'DICTYBASE')
         self.assertFields(expression_aggregator, 'exp_type', 'TPM')

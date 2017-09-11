@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add statistics of logarithmized expressions to ``expression-aggregator``
+
 
 ================
 3.0.0 2017-09-07
