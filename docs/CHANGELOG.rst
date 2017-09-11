@@ -21,6 +21,7 @@ Changed
 * Remove ``eXpress`` tool from ``resolwebio/rnaseq`` docker image
 * Use system packages of RNA-seq tools in ``resolwebio/rnaseq`` docker image
 * Set ``hisat2`` process' memory resource requirement to 32GB
+* Use ``resolwebio/rnaseq`` docker image in ``hisat2`` process
 
 
 ================

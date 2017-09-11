@@ -10,8 +10,11 @@
     resources:
       memory: 32768
       cores: 1
+    executor:
+      docker:
+        image: resolwebio/rnaseq:1.1.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.1
+  version: 1.2.0
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
