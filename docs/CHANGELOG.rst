@@ -64,12 +64,12 @@ Added
 
 Changed
 -------
-* **BACKWARD INCOMPATIBLE** Remove ``threads`` input in STAR aligner process
+* **BACKWARD INCOMPATIBLE:** Remove ``threads`` input in STAR aligner process
   and replace it with the ``cores`` resources requirement
-* **BACKWARD INCOMPATIBLE** Allow upload of custom amplicon master files (make
+* **BACKWARD INCOMPATIBLE:** Allow upload of custom amplicon master files (make
   changes to ``amplicon-panel`` descriptor schema, ``upload-master-file`` and
   ``amplicon-report`` processes and ``workflow-accel`` workflow)
-* **BACKWARD INCOMPATIBLE** Remove ``threads`` input in ``cuffnorm`` process
+* **BACKWARD INCOMPATIBLE:** Remove ``threads`` input in ``cuffnorm`` process
   and replace it with the ``cores`` resources requirement
 * Add sample descriptor to ``prepare_expression`` test function
 * Prettify amplicon report
