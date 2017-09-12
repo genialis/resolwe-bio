@@ -31,6 +31,21 @@ RUN apt-get update && \
     rm /tmp/HISAT2.zip && \
     echo "PATH=\$PATH:/opt/johnshopkins/hisat2-$HISAT2_VERSION" >> /etc/profile.d/rnaseq.sh && \
 
+    echo "Installing RSEM..." && \
+    RSEM_VERSION=1.3.0 && \
+    RSEM_SHA256SUM=a6776aae25a690375504974d65e8554d6e3ddab93cef5b82969064854d22c09f && \
+    wget -q https://github.com/deweylab/RSEM/archive/v$RSEM_VERSION.tar.gz -O /tmp/RSEM.tar.gz && \
+    echo "$RSEM_SHA256SUM */tmp/RSEM.tar.gz" | sha256sum -c - && \
+    mkdir -p /opt/deweylab/RSEM-$RSEM_VERSION && \
+    tar -xf /tmp/RSEM.tar.gz --directory /opt/deweylab/RSEM-$RSEM_VERSION --strip-components=1 && \
+    rm /tmp/RSEM.tar.gz && \
+    ORIG_DIR=$PWD && \
+    cd /opt/deweylab/RSEM-$RSEM_VERSION && \
+    make && \
+    make install && \
+    cd $ORIG_DIR && \
+    echo "PATH=\$PATH:/opt/deweylab/RSEM-$RSEM_VERSION" >> /etc/profile.d/rnaseq.sh && \
+
     echo "Installing STAR..." && \
     STAR_VERSION=2.5.3a && \
     STAR_SHA256SUM=2a258e77cda103aa293e528f8597f25dc760cba188d0a7bc7c9452f4698e7c04 && \

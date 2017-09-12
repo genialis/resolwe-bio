@@ -14,7 +14,8 @@ Added
 -----
 * Add statistics of logarithmized expressions to ``expression-aggregator``
 * Add input field description to ``cutadapt-star-htseq`` descriptor schema
-* Add ``HISAT2`` tool to ``resolwebio/rnaseq`` docker image
+* Add ``HISAT2`` and ``RSEM`` tool to ``resolwebio/rnaseq`` docker image
+
 
 Changed
 -------
