@@ -7,6 +7,7 @@ Included bioinformatics tools:
 ------------------------------
 * cutadapt (v1.9.1)
 * FastQC (v0.11.4)
+* HISAT2 (v2.1.0)
 * HTSeq (v0.5.4)
 * SAMtools (v0.1.19)
 * STAR (v2.5.3a)

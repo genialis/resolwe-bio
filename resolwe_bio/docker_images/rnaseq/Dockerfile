@@ -21,6 +21,16 @@ RUN apt-get update && \
       libxml2-dev \
       && \
 
+    echo "Installing HISAT2..." && \
+    HISAT2_VERSION=2.1.0 && \
+    HISAT2_SHA256SUM=7f68df59db7db93b8a4710d934d75577ac9138ecccc2a8b26d700925354c09bc && \
+    wget -q ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-2.1.0-Linux_x86_64.zip -O /tmp/HISAT2.zip && \
+    echo "$HISAT2_SHA256SUM */tmp/HISAT2.zip" | sha256sum -c - && \
+    mkdir -p /opt/johnshopkins/ && \
+    unzip -q /tmp/HISAT2.zip -d /opt/johnshopkins/ && \
+    rm /tmp/HISAT2.zip && \
+    echo "PATH=\$PATH:/opt/johnshopkins/hisat2-$HISAT2_VERSION" >> /etc/profile.d/rnaseq.sh && \
+
     echo "Installing STAR..." && \
     STAR_VERSION=2.5.3a && \
     STAR_SHA256SUM=2a258e77cda103aa293e528f8597f25dc760cba188d0a7bc7c9452f4698e7c04 && \
