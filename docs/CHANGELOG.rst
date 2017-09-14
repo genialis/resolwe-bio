@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+
+================
+3.2.0 2017-09-13
+================
+
 Added
 -----
 * Add ``index-fasta-nucl`` and ``rsem`` process
