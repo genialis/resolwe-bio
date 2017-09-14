@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+4.0.0 - 2017-09-14
+==================
 
 Added
 -----
@@ -19,7 +19,7 @@ Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Modify all processes to explicitly use the new Docker images
 * **BACKWARD INCOMPATIBLE:** Remove ``clustering-hierarchical-genes-etc`` process
-* Require Resolwe 3.0.x
+* Require Resolwe 3.x
 
 
 ================
