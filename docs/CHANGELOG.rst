@@ -24,6 +24,9 @@ Changed
 * Enable Chemut workflow and process tests
 * Remove obsolete mongokey escape functionality
 * Report novel splice-site junctions in HISAT2
+* Use the latest stable versions of the following bioinformatics
+  tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14, 
+  FastQC 0.11.5, HTSeq 0.9.1, and SAMtools 1.5
 
 Fixed
 -----

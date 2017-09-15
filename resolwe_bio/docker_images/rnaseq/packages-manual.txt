@@ -1,3 +1,6 @@
+fastqc
 hisat2
+r-packages
 rsem
+samtools
 star
