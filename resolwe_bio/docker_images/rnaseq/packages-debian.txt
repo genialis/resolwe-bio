@@ -1,0 +1,14 @@
+fastqc
+python
+python-cutadapt
+python-htseq
+python-pip
+r-base-core
+samtools
+unzip
+wget
+
+# Required for some R packages.
+libz-dev
+libcurl4-openssl-dev
+libxml2-dev
