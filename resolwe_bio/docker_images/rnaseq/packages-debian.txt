@@ -1,14 +1,16 @@
-fastqc
-python
-python-cutadapt
-python-htseq
 python-pip
 r-base-core
-samtools
-unzip
-wget
 
-# Required for some R packages.
-libz-dev
+# Required by FastQC
+default-jre
+libfindbin-libs-perl
+
+# Required by HTSeq.
+libbz2-dev
+libncurses5-dev
+liblzma-dev
+zlib1g-dev
+
+# Required by SAMtools
 libcurl4-openssl-dev
-libxml2-dev
+libssl-dev

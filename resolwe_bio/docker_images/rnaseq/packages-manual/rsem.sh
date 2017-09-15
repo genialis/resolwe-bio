@@ -11,7 +11,6 @@ download_and_verify \
     RSEM-\${version}
 
 make
-make install
 
 add_binary_path \
     deweylab \

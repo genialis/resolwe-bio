@@ -1,0 +1,2 @@
+# Requires numpy to already be installed during setup.
+HTSeq==0.9.1 --hash=sha256:2e11f1ad0521ed5101e114a8fd0d4e91bda88859a1107ac0a7dcc5c57a41909d
