@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add Mus musculus to all BCM workflows' schemas 
+
 
 ==================
 4.0.0 - 2017-09-14
