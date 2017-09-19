@@ -1,10 +1,11 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """Plot amplicon coverage."""
 import argparse
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from cycler import cycler
+COLOR_CYCLE = [
+    '#586e75', '#b58900', '#268bd2', '#cb4b16', '#859900', '#d33682', '#2aa198', '#dc322f', '#073642', '#6c71c4']
 
 
 def parse_arguments():
@@ -26,49 +27,32 @@ def main():
     df['offsetcov'] = df['meancov'] + 0.1
     df = df.dropna().reset_index(drop=True)
 
-    # set colors for plot points
-    s = ['#586e75', '#b58900', '#268bd2', '#cb4b16', '#859900',
-         '#d33682', '#2aa198', '#dc322f', '#073642', '#6c71c4']
-
-    colors = cycler('color', s)
-
     # coverage stats
     mncov = df.offsetcov.mean()
-    pt2xmean = 0.2 * mncov
-    pt1xmean = 0.1 * mncov
-    pt05xmean = 0.05 * mncov
-    fivexmean = 5.0 * mncov
+    mean02 = 0.2 * mncov
+    mean01 = 0.1 * mncov
+    mean005 = 0.05 * mncov
+    mean5 = 5.0 * mncov
 
     # group data by gene/ID column for coloring points
     dfgrps = df.groupby('gene', sort=False)
 
     xwidth = len(df.amplicon) + 2
-    xrnge = xrange(-10, xwidth)
-    covmax = df.offsetcov.max() + 1000
-
-    if covmax >= fivexmean:
-        ymax = (2.0 * covmax)
-    else:
-        ymax = (2.0 * fivexmean)
-
+    xrnge = range(-10, xwidth)
+    ymax = 2.0 * max(df.offsetcov.max() + 1000, mean5)
     ymin = 0.2
 
     # Plot data
-    plt.rcParams.update(pd.tools.plotting.mpl_stylesheet)
-
     f, ax = plt.subplots(figsize=(32, 8))  # tune figure size/aspect ratio
 
-    ax.set_prop_cycle(colors)
+    for i, (name, group) in enumerate(dfgrps):
+        color = COLOR_CYCLE[i % len(COLOR_CYCLE)]
+        ax.plot(group.index, group.offsetcov, label=name, marker='o', ms=8, linestyle='', alpha=0.7, color=color)
 
-    for name, group in dfgrps:
-        ax.plot(group.index, group.offsetcov, label=name, marker='o', ms=8, linestyle='', alpha=0.7)
-
-    ax.plot((-2, xwidth + 2), (pt05xmean, pt05xmean), ls='--', c='magenta',
-                               linewidth=1.0, alpha=0.5, label="5% mean cov")
-    ax.plot((-2, xwidth + 2), (pt1xmean, pt1xmean), ls='--', c='purple',
-                               linewidth=1.0, alpha=0.5, label="10% mean cov")
-    ax.plot((-2, xwidth + 2), (pt2xmean, pt2xmean), 'r--', linewidth=2.0, label="20% mean cov")
-    ax.plot((-2, xwidth + 2), (fivexmean, fivexmean), ls='--', c='blue', linewidth=2.0, label="5x mean cov")
+    ax.plot((-2, xwidth + 2), (mean005, mean005), ls='--', c='magenta', linewidth=1.0, alpha=0.5, label="5% mean cov")
+    ax.plot((-2, xwidth + 2), (mean01, mean01), ls='--', c='purple', linewidth=1.0, alpha=0.5, label="10% mean cov")
+    ax.plot((-2, xwidth + 2), (mean02, mean02), 'r--', linewidth=2.0, label="20% mean cov")
+    ax.plot((-2, xwidth + 2), (mean5, mean5), ls='--', c='blue', linewidth=2.0, label="5x mean cov")
     ax.plot((-2, xwidth + 2), (mncov, mncov), ls='--', c='green', linewidth=1.0, alpha=0.3)
 
     ax.set_xlim((-1, xwidth + 1))

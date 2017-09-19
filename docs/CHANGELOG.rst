@@ -21,6 +21,7 @@ Added
 * Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
 * Add input filename regex validator for ``upload-master-file`` process
 * Add automatic headers extractor to ``bam-split`` process
+* Add html amplicon plot in ``coveragebed`` process
 
 Changed
 -------

@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/dnaseq:1.0.0
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.2.2
+  version: 2.2.3
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -25,6 +25,15 @@
     - name: master_file
       label: Master file
       type: data:masterfile:amplicon
+    - name: template_html
+      label: HTML plot template
+      type: data:file
+    - name: bokeh_css
+      label: Bokeh css file
+      type: data:file
+    - name: bokeh_js
+      label: Bokeh js file
+      type: data:file
   output:
     - name: cov_metrics
       label: Coverage metrics
@@ -38,6 +47,9 @@
     - name: amplicon_cov
       label: Amplicon coverage file (nomergebed)
       type: basic:file
+    - name: covplot_html
+      label: HTML coverage plot
+      type: basic:file:html
   run:
     runtime: polyglot
     language: bash
@@ -102,7 +114,17 @@
         -i "${SAMPLE_SLUG}_ampmeancov.tmp" \
         -o "${SAMPLE_SLUG}_coverageplot.pdf"
 
+      mkdir htmlplot
+      cp -p {{bokeh_css.file.file}} htmlplot/
+      cp -p {{bokeh_js.file.file}} htmlplot/
+      plotcoverage_html.py \
+        --infile "${SAMPLE_SLUG}_ampmeancov.tmp" \
+        --template {{template_html.file.file}} \
+        --outfile "htmlplot/${SAMPLE_SLUG}_coverageplot.html"
+      re-checkrc
+
       re-save-file cov_metrics "${SAMPLE_SLUG}_covMetrics.txt"
       re-save-file mean_cov "${SAMPLE_SLUG}_ampmeancov.covd"
-      re-save-file covplot "${SAMPLE_SLUG}_coverageplot.pdf"
       re-save-file amplicon_cov "${SAMPLE_SLUG}_amplicon_coverage.cov"
+      re-save-file covplot "${SAMPLE_SLUG}_coverageplot.pdf"
+      re-save-file covplot_html "htmlplot/${SAMPLE_SLUG}_coverageplot.html" htmlplot

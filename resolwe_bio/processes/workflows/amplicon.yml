@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.1.3
+  version: 0.1.4
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -21,6 +21,15 @@
       type: data:seq:nucleotide
       description: >
         Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
+    - name: template_html
+      label: HTML plot template
+      type: data:file
+    - name: bokeh_css
+      label: Bokeh css file
+      type: data:file
+    - name: bokeh_js
+      label: Bokeh js file
+      type: data:file
     - name: preprocess_bam
       label: Indel realignment and base recalibration options
       group:
@@ -110,6 +119,9 @@
         input:
           alignment: '{{steps.bwa_trim}}'
           master_file: '{{input.master_file}}'
+          template_html: '{{input.template_html}}'
+          bokeh_css: '{{input.bokeh_css}}'
+          bokeh_js: '{{input.bokeh_js}}'
       - id: picard_target_pcr_metrics
         run: picard-pcrmetrics
         input:
