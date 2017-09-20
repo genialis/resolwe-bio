@@ -10,6 +10,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
 
 ==================
 4.1.0 - 2017-09-22
