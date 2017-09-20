@@ -1,0 +1,97 @@
+# ===================
+# Hybrid bam splitter
+# ===================
+---
+
+- slug: bam-split
+  name: Bam split
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:1.1.0
+  data_name: "Split ({{ bam|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:split
+  category: other
+  persistence: CACHED
+  description: >
+    Split hybrid bam file into two bam files
+  input:
+    - name: bam
+      label: Hybrid alignment bam
+      type: data:alignment:bam
+    - name: header
+      label: Header bam file 1 (primary)
+      type: data:sam:header
+    - name: header2
+      label: Header bam file 2 (secondary)
+      type: data:sam:header
+    - name: organism
+      label: Primary bam genome build
+      type: basic:string
+      choices:
+        - label: hg19
+          value: hg19
+        - label: mm10
+          value: mm10
+    - name: organism2
+      label: Secondary bam genome build
+      type: basic:string
+      default: dm6
+      choices:
+        - label: dm6
+          value: dm6
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      BAM={{bam.bam.file}}
+      NAME=`basename {{ bam.bam.file }} .bam`
+      ORG1={{organism}}
+      ORG2={{organism2}}
+
+      samtools view -h -o "${NAME}.sam" "${BAM}"
+      re-checkrc
+      re-progress 0.1
+
+      samtools view -S -F 4 "${NAME}.sam" |
+      awk -vOFS="	" \
+      '{
+        sindex=index($3,"_'${ORG2}'")
+        if(sindex >0) {
+          $3=substr($3,1,sindex-1)
+          print $0 > "'${NAME}'_'${ORG2}'.sam";
+        }
+        else {
+          print $0 > "'${NAME}'_'${ORG1}'.sam";
+        }
+      }'
+      re-checkrc
+      re-progress 0.2
+
+      cat {{header.sam.file}} "${NAME}_${ORG1}.sam" | samtools view -bS - > "${NAME}_${ORG1}_unsorted.bam"
+      re-checkrc
+      re-progress 0.3
+
+      cat {{header2.sam.file}} "${NAME}_${ORG2}.sam" | samtools view -bS - > "${NAME}_${ORG2}_unsorted.bam"
+      re-checkrc
+      re-progress 0.4
+
+      samtools sort "${NAME}_${ORG1}_unsorted.bam" "${NAME}_${ORG1}"
+      re-checkrc
+      re-progress 0.5
+
+      samtools sort "${NAME}_${ORG2}_unsorted.bam" "${NAME}_${ORG2}"
+      re-checkrc
+      re-progress 0.6
+
+      re-export "${NAME}_${ORG1}.bam"
+      echo 'run {"process":"upload-bam-primary","input":{"bam":'{{bam | id}}',"src":"'"${NAME}_${ORG1}.bam"'"}}'
+      re-checkrc
+      re-progress 0.8
+
+      re-export "${NAME}_${ORG2}.bam"
+      echo 'run {"process":"upload-bam-secondary","input":{"bam":'{{bam | id}}',"src":"'"${NAME}_${ORG2}.bam"'"}}'
+      re-checkrc
+      re-progress 1.0

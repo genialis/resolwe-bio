@@ -1,0 +1,39 @@
+# ===================
+# Import - Header SAM
+# ===================
+---
+
+- slug: upload-header-sam
+  name: Upload Header SAM file
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/base:ubuntu-16.04
+    resources:
+      network: true
+  data_name: '{{ src.file|default("?") }}'
+  version: 0.0.1
+  type: data:sam:header
+  category: upload
+  persistence: RAW
+  description: >
+    Upload a mapping file header in SAM format.
+  input:
+    - name: src
+      label: Header (SAM)
+      type: basic:file
+      description: >
+        A mapping file header in SAM format.
+      validate_regex: '\.(sam)$'
+  output:
+    - name: sam
+      label: Uploaded file
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+        re-import {{ src.file_temp }} {{ src.file }} "sam" "sam" 0.8 extract
+
+        re-save-file sam "${NAME}.sam"
