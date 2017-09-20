@@ -12,10 +12,18 @@ Unreleased
 
 Added
 -----
-* Add Mus musculus to all BCM workflows' schemas 
-* Add ``bam-split`` process with supporting processes 
+* Add Mus musculus to all BCM workflows' schemas
+* Add ``bam-split`` process with supporting processes
   ``upload-bam-primary``, ``upload-bam-secondary`` and
   ``upload-header-sam``
+
+Changed
+-------
+* Enable Chemut workflow and process tests
+
+Fixed
+-----
+* Fix chemut `intervals` input option
 
 
 ==================
