@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 * Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
+* Add ``resolwebio/dnaseq`` Docker image
 
 Changed
 -------
