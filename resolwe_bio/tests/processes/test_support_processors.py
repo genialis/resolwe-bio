@@ -17,6 +17,29 @@ class SupportProcessorTestCase(BioProcessTestCase):
         compatibility_test = self.run_process('reference_compatibility', inputs)
         self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
 
+    def test_bam_split(self):
+        bam = self.prepare_bam('hybrid.bam')
+        header = self.run_process('upload-header-sam', {'src': 'mm10_header.sam'})
+        header2 = self.run_process('upload-header-sam', {'src': 'dm6_header.sam'})
+
+        inputs = {
+            'bam': bam.id,
+            'header': header.id,
+            'header2': header2.id,
+            'organism': 'mm10',
+            'organism2': 'dm6'
+        }
+        self.run_process('bam-split', inputs)
+
+        split_data = list(Data.objects.all())
+        bam1 = split_data[-2]
+        bam2 = split_data[-1]
+
+        self.assertFile(bam1, 'bam', 'hybrid_mm10.bam')
+        self.assertFile(bam1, 'bai', 'hybrid_mm10.bam.bai')
+        self.assertFile(bam2, 'bam', 'hybrid_dm6.bam')
+        self.assertFile(bam2, 'bam', 'hybrid_dm6.bam.bai')
+
     def test_feature_location(self):
         inputs = {'src': 'mm10_small.gtf.gz', 'source': 'UCSC'}
         annotation = self.run_process('upload-gtf', inputs)
