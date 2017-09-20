@@ -4,7 +4,7 @@
   data_name: 'CheMut'
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:cuffquant
   input:
     - name: analysis_type
@@ -43,7 +43,7 @@
           Varc_param:
             ploidy: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2")|yesno(2, 1) }}'
             glm: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "snv")|yesno("SNP", "INDEL") }}'
-            intervals: '{{ ["chr2:2263132-3015703"] if (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2") else [""]}}'
+            intervals: '{{ ["chr2:2263132-3015703"] if (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2")}}'
       - id: variant_filtering
         run: filtering-chemut
         input:

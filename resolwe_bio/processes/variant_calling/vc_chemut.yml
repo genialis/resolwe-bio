@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Called variants (CheMut)"
-  version: 1.0.6
+  version: 1.0.7
   type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
@@ -280,7 +280,7 @@
         -glm {{ Varc_param.glm }} \
         -stand_call_conf {{ Varc_param.stand_call_conf }} \
         -stand_emit_conf {{ Varc_param.stand_emit_conf }} \
-        {% if Varc_param.intervals %}{% for l in Varc_param.intervals %} {{"-L" if l != ""}} {{l}} {% endfor %}{% endif %} \
+        {% if Varc_param.intervals %}{% for l in Varc_param.intervals %} -L {{l}} {% endfor %}{% endif %} \
         {% if Varc_param.rf %}-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60{% endif %}
       echo "{\"proc.rc\":$?}"
       echo "{\"proc.progress\":0.80}"

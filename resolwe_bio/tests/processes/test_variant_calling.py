@@ -28,7 +28,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         samtools_variants = self.run_process('vc-samtools', inputs)
         self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_vcf_variable)
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     def test_variant_calling_chemut(self):
         inputs = {'src': 'chemut_genome.fasta.gz'}
         genome = self.run_process('upload-genome', inputs)

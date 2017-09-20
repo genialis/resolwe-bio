@@ -1,12 +1,11 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.filter import filter_vcf_variable
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
 
 
 class CheMutWorkflowTestCase(BioProcessTestCase):
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     def test_chemut_workflow(self):
         inputs = {'src': 'chemut_genome.fasta.gz'}
         genome = self.run_process('upload-genome', inputs)
@@ -35,6 +34,9 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
                 'genome': genome.id
             }
         )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
 
         variants = Data.objects.last()
         self.assertFile(variants, 'vcf', 'chemut.vcf', file_filter=filter_vcf_variable)
