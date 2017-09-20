@@ -16,6 +16,7 @@ Added
 * Add ``bam-split`` process with supporting processes
   ``upload-bam-primary``, ``upload-bam-secondary`` and
   ``upload-header-sam``
+* Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
 
 Changed
 -------
