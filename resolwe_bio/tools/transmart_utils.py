@@ -41,11 +41,6 @@ def format_annotations(annfile, treefile, ann_ids_file):
             s = s.replace(k, '.')
         return s
 
-    def esc(s):
-        for k, v in escape_chars.items():
-            s = s.replace(k, v)
-        return s
-
     tree = [esc_tree(l) for l in treefile if l.strip() != '']
     treefile.close()
     tree_original_names = {esc_dot(l): l for l in tree}
@@ -174,7 +169,7 @@ def format_annotations(annfile, treefile, ann_ids_file):
 
         field, field_type = None, None
         field = {
-            'name': esc(utils.escape_mongokey(attr_name).encode('unicode_escape')).replace('\\u', 'U'),
+            'name': attr_name,
             'label': label,
         }
 

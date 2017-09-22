@@ -99,5 +99,4 @@ with open(args.annotation) as annotation:
             feature_locations[feature_id]['str'] = str(min(map(int, feature_locations[feature_id]['str'])))
             feature_locations[feature_id]['end'] = str(max(map(int, feature_locations[feature_id]['end'])))
 
-new_feature_locations = {utils.escape_mongokey(key): val for (key, val) in iteritems(feature_locations)}
-print(json.dumps({'feature_location': new_feature_locations}, separators=(',', ':')))
+print(json.dumps({'feature_location': feature_locations}, separators=(',', ':')))

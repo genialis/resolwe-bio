@@ -14,6 +14,11 @@ Added
 -----
 * Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
 
+Changed
+-------
+* Remove obsolete mongokey escape functionality
+
+
 ==================
 4.1.0 - 2017-09-22
 ==================
