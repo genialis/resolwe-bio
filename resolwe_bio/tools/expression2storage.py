@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Save expressions to storage."""
-from __future__ import absolute_import, division, print_function
 
 import json
 import os
@@ -37,7 +36,7 @@ with utils.gzopen(args.input) as f:
     # Split lines by tabs
     # Ignore lines without a number in second column
     # Build a dictionary of gene-expression pairs
-    exp = {'genes': {utils.escape_mongokey(gene_exp[0]): float(gene_exp[1]) for
+    exp = {'genes': {gene_exp[0]: float(gene_exp[1]) for
                      gene_exp in (l.split('\t') for l in f) if
                      len(gene_exp) == 2 and isfloat(gene_exp[1])}}
 

@@ -21,6 +21,7 @@ Added
 Changed
 -------
 * Enable Chemut workflow and process tests
+* Remove obsolete mongokey escape functionality
 
 Fixed
 -----
