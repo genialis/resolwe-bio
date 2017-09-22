@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+4.1.0 - 2017-09-22
+==================
 
 Added
 -----
@@ -23,7 +23,7 @@ Changed
 
 Fixed
 -----
-* Fix chemut `intervals` input option
+* Fix chemut ``intervals`` input option
 
 
 ==================
