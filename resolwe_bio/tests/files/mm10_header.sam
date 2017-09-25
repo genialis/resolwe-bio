@@ -21,3 +21,4 @@
 @SQ	SN:chrM	LN:16299
 @SQ	SN:chrX	LN:171031299
 @SQ	SN:chrY	LN:91744698
+@PG	ID:bowtie2	PN:bowtie2	VN:2.2.6	CL:"/usr/bin/../lib/bowtie2/bin/bowtie2-align-s --wrapper basic-0 --end-to-end --sensitive -p 1 --trim5 0 --trim3 0 -x /data_all/3416/bowtie2_index/mm10_dm6_genome_index --passthrough -U 13-F577-5percent-S2-Myc-Active-Motif.fastq"

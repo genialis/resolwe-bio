@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: "Split ({{ bam|sample_name|default('?') }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:split
   category: other
   persistence: CACHED
@@ -22,11 +22,17 @@
       label: Hybrid alignment bam
       type: data:alignment:bam
     - name: header
-      label: Header bam file 1 (primary)
+      label: Primary header sam file (optional)
       type: data:sam:header
+      required: false
+      description: >
+        If no header file is provided, the headers will be extracted from the hybrid alignment bam file.
     - name: header2
-      label: Header bam file 2 (secondary)
+      label: Secondary header sam file (optional)
       type: data:sam:header
+      required: false
+      description: >
+        If no header file is provided, the headers will be extracted from the hybrid alignment bam file.
     - name: organism
       label: Primary bam genome build
       type: basic:string
@@ -46,6 +52,10 @@
     runtime: polyglot
     language: bash
     program: |
+      {% if (header or header2) and not (header and header2) %}
+        re-error "Both or no headers must be present"
+      {% endif %}
+
       BAM={{bam.bam.file}}
       NAME=`basename {{ bam.bam.file }} .bam`
       ORG1={{organism}}
@@ -53,7 +63,34 @@
 
       samtools view -h -o "${NAME}.sam" "${BAM}"
       re-checkrc
-      re-progress 0.1
+      re-progress 0.05
+
+      {% if header %}
+        HEADER={{header.sam.file}}
+        HEADER2={{header2.sam.file}}
+      {% else %}
+        NUM=`grep -v @ "${NAME}.sam" -m 1 -n | cut -d ':' -f 1`
+        SELECTION=`grep -e @ -m $((NUM-1)) "${NAME}.sam"`
+        HEAD=`echo "$SELECTION" | grep -e @HD "${NAME}.sam"` 
+        TAIL=`echo "$SELECTION" | grep -e @PG "${NAME}.sam"`
+        re-checkrc
+        re-progress 0.1
+
+        echo "$HEAD" > header.sam
+        echo "$SELECTION" | grep -e @SQ - | grep -v "_${ORG2}" - >> header.sam
+        echo "$TAIL" >> header.sam
+        re-checkrc
+        re-progress 0.15
+
+        echo "$HEAD" > header2.sam
+        echo "$SELECTION" | grep -e @SQ - | grep -e "_${ORG2}" - | sed -e 's/_'${ORG2}'//' - >> header2.sam
+        echo "$TAIL" >> header2.sam
+        re-checkrc
+        re-progress 0.2
+
+        HEADER=header.sam
+        HEADER2=header2.sam
+      {% endif %}
 
       samtools view -S -F 4 "${NAME}.sam" |
       awk -vOFS="	" \
@@ -68,13 +105,13 @@
         }
       }'
       re-checkrc
-      re-progress 0.2
+      re-progress 0.25
 
-      cat {{header.sam.file}} "${NAME}_${ORG1}.sam" | samtools view -bS - > "${NAME}_${ORG1}_unsorted.bam"
+      cat "${HEADER}" "${NAME}_${ORG1}.sam" | samtools view -bS - > "${NAME}_${ORG1}_unsorted.bam"
       re-checkrc
       re-progress 0.3
 
-      cat {{header2.sam.file}} "${NAME}_${ORG2}.sam" | samtools view -bS - > "${NAME}_${ORG2}_unsorted.bam"
+      cat "${HEADER2}" "${NAME}_${ORG2}.sam" | samtools view -bS - > "${NAME}_${ORG2}_unsorted.bam"
       re-checkrc
       re-progress 0.4
 

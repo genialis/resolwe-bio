@@ -20,6 +20,7 @@ Added
 * Add ``resolwebio/dnaseq`` Docker image
 * Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
 * Add input filename regex validator for ``upload-master-file`` process
+* Add automatic headers extractor to ``bam-split`` process
 
 Changed
 -------
