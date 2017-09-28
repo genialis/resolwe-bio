@@ -7,8 +7,11 @@
   name: Test disabled inputs
   requirements:
     expression-engine: jinja
+    executor:
+      docker:
+        image: resolwe/base:fedora-26
   data_name: "Test"
-  version: 1.0.5
+  version: 1.1.0
   type: data:test:disabled
   persistence: CACHED
   description: >
