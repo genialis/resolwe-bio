@@ -15,20 +15,18 @@ throttle(["resolwe_bio"]) {
             }
 
             stage("Test") {
-                // remove Tox's working directory to force a rebuild of Tox's environments
-                sh "rm -rf ${tox_workdir}"
                 withEnv(["RESOLWE_POSTGRESQL_USER=postgres",
                          "RESOLWE_POSTGRESQL_PORT=55433",
                          "RESOLWE_ES_PORT=59201",
                          // set database name to a unique value
                          "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
                          "RESOLWE_DOCKER_COMMAND=sudo docker",
-                         // set number of parallel Django test processes to 6
+                         // limit the number of parallel Django test processes
                          "DJANGO_TEST_PROCESSES=6",
                          "TOX_WORKDIR=${tox_workdir}"]) {
-                    // documentation, linters, packaging and extra environments are run first so
-                    // that if any of them fails, developer will get the feedback right away
-                    // (rather than having to wait for all ordinary tests to run)
+                    // run non-test Tox environments first so that if any of them fails, developer
+                    // will get the feedback right away (rather than having to wait for all
+                    // ordinary tests to run)
                     sh "tox -e docs"
 
                     sh "tox -e linters"
@@ -51,6 +49,10 @@ throttle(["resolwe_bio"]) {
                 notifyFailed()
             }
             throw e
+        } finally {
+            // manually remove Tox's working directory since it is created outside Jenkins's
+            // workspace
+            sh "rm -rf ${tox_workdir}"
         }
     }
 }
