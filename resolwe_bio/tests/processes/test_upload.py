@@ -223,7 +223,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         master_file = self.run_process('upload-master-file', inputs, Data.STATUS_ERROR)
 
         inputs = {
-            'src': '56G_masterfile_170113.txt',
+            'src': '56G_masterfile_170113.txt.gz',
             'panel_name': '56G panel, v2'
         }
         master_file = self.run_process('upload-master-file', inputs)
