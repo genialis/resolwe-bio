@@ -19,6 +19,7 @@ Added
 * Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
 * Add ``resolwebio/dnaseq`` Docker image
 * Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
+* Add input filename regex validator for ``upload-master-file`` process
 
 Changed
 -------
@@ -26,7 +27,7 @@ Changed
 * Remove obsolete mongokey escape functionality
 * Report novel splice-site junctions in HISAT2
 * Use the latest stable versions of the following bioinformatics
-  tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14, 
+  tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14,
   FastQC 0.11.5, HTSeq 0.9.1, and SAMtools 1.5
 
 Fixed

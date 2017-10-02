@@ -1,6 +1,8 @@
 # pylint: disable=missing-docstring
 import six
 
+from django.core.exceptions import ValidationError
+
 from resolwe.flow.models import Data
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -221,6 +223,14 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'panel_name': '56G panel, v2'
         }
         master_file = self.run_process('upload-master-file', inputs, Data.STATUS_ERROR)
+
+        inputs = {
+            'src': 'amplicon_master_file_merged.bed',
+            'panel_name': '56G panel, v2'
+        }
+
+        with self.assertRaises(ValidationError):
+            self.run_process('upload-master-file', inputs)
 
         inputs = {
             'src': '56G_masterfile_170113.txt.gz',
