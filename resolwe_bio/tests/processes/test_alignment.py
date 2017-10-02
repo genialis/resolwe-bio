@@ -199,12 +199,14 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_report.txt')
+        self.assertFileExists(aligned_reads, 'splice_junctions')
 
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_paired_report.txt')
+        self.assertFileExists(aligned_reads, 'splice_junctions')
 
     def test_subread(self):
         genome = self.prepare_genome()

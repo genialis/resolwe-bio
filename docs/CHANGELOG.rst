@@ -17,6 +17,7 @@ Added
 Changed
 -------
 * Remove obsolete mongokey escape functionality
+* Report novel splice-site junctions in HISAT2
 
 
 ==================
