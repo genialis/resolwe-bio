@@ -15,6 +15,7 @@ Added
 * Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
 * Add ``resolwebio/dnaseq`` Docker image
 * Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
+* Add input filename regex validator for ``upload-master-file`` process
 
 Changed
 -------

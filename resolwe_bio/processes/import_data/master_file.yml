@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ panel_name }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:masterfile:amplicon
   category: upload
   persistence: CACHED
@@ -24,6 +24,7 @@
     - name: src
       label: Master file
       type: basic:file
+      validate_regex: '\.txt(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: panel_name
       label: Panel name
       type: basic:string
