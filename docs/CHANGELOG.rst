@@ -22,6 +22,7 @@ Changed
 -------
 * Enable Chemut workflow and process tests
 * Remove obsolete mongokey escape functionality
+* Report novel splice-site junctions in HISAT2
 
 Fixed
 -----
