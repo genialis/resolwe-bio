@@ -288,3 +288,14 @@ class UploadProcessorTestCase(BioProcessTestCase):
         etc = self.run_process('upload-etc', inputs)
 
         self.assertFile(etc, 'etcfile', 'test_etc.json.gz')
+
+    def test_upload_nucl_seq(self):
+        inputs = {
+            'src': 'genome.fasta.gz',
+            'species': 'Dictyostelium discoideum',
+            'genome_build': 'dd-05-2009'
+        }
+        seq = self.run_process('upload-fasta-nucl', inputs)
+        self.assertFile(seq, 'fasta', 'genome.fasta.gz', compression='gzip')
+        self.assertFields(seq, 'species', 'Dictyostelium discoideum')
+        self.assertFields(seq, 'build', 'dd-05-2009')

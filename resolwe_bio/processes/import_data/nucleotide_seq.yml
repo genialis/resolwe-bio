@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.16
+  version: 1.1.0
   type: data:seq:nucleotide
   category: upload
   persistence: RAW
@@ -26,6 +26,30 @@
       description: >
         Sequence file (containing single or multiple sequences) in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
       validate_regex: '\.(fasta|fa|fna)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      required: false
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
+      required: false
   output:
     - name: fasta
       label: Uploaded file
@@ -37,6 +61,14 @@
     - name: fai
       label: File with chromosome lengths
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+      required: false
+    - name: build
+      label: Build
+      type: basic:string
+      required: false
   run:
     runtime: polyglot
     language: bash
@@ -53,3 +85,6 @@
       re-save number ${NUMBER}
       re-save-file fasta ${NAME}.fasta.gz
       re-save-file fai $FAI
+
+      {% if species %} re-save species {{species}} {% endif %}
+      {% if build %} re-save build {{ build }} {% endif %}
