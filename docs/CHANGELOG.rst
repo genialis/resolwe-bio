@@ -13,13 +13,15 @@ Unreleased
 Changed
 -------
 
-- **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
+* **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
   of lifetime and change all images to use new ubuntu 17.10 image
+* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
+  inputs in ``upload-genome`` process
 
 Added
 -----
 
-- Add Ubuntu 17.10 base Docker image
+* Add Ubuntu 17.10 base Docker image
 
 
 ==================

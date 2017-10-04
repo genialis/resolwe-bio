@@ -231,7 +231,11 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {'src': 'ncRNA_annotation.gff.gz', 'source': 'DICTYBASE'}
             annotation = self.run_process('upload-gff3', inputs)
 
-            inputs = {"src": "ncRNA_genome.fasta.gz"}
+            inputs = {
+                'src': 'ncRNA_genome.fasta.gz',
+                'species': 'Dictyostelium discoideum',
+                'genome_build': 'dd-05-2009'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             inputs = {

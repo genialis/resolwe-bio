@@ -10,7 +10,11 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('reference_compatibility')
     def test_reference_compatibility(self):
         with self.preparation_stage():
-            inputs = {"src": "sp_test.fasta"}
+            inputs = {
+                'src': 'sp_test.fasta',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             mapping = self.prepare_bam()

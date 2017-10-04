@@ -14,7 +14,13 @@ class HeatSeqWorkflowTestCase(BioProcessTestCase):
                 'src2': ['heat_seq_mate2.fq.gz']}
             reads = self.run_process('upload-fastq-paired', inputs)
 
-            genome = self.run_process('upload-genome', {'src': 'chr21_small.fasta.gz'})
+            inputs = {
+                'src': 'chr21_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            genome = self.run_process('upload-genome', inputs)
+
             probe = self.run_process('upload-file', {'src': 'heat_seq_probe_info.txt'})
             bed = self.run_process('upload-bed', {'src': 'heat_seq_capture_targets.bed'})
 

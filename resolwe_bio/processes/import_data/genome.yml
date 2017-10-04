@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 2.1.5
+  version: 3.0.0
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -26,41 +26,66 @@
       description: >
         Genome sequence in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
       validate_regex: '\.(fasta|fa|fna|fsa)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
-    - name: bowtie_index
-      label: Bowtie index files
-      type: basic:file
-      required: false
+    - name: species
+      label: Species
+      type: basic:string
       description: >
-        Bowtie index files. Supported extensions (*.tar.gz).
-      validate_regex: '(\.tar\.gz)$'
-    - name: bowtie2_index
-      label: Bowtie2 index files
-      type: basic:file
-      required: false
-      description: >
-        Bowtie2 index files. Supported extensions (*.tar.gz).
-      validate_regex: '(\.tar\.gz)$'
-    - name: bwa_index
-      label: BWA index files
-      type: basic:file
-      required: false
-      description: >
-        BWA index files. Supported extensions (*.tar.gz).
-      validate_regex: '(\.tar\.gz)$'
-    - name: hisat2_index
-      label: HISAT2 index files
-      type: basic:file
-      required: false
-      description: >
-        HISAT2 index files. Supported extensions (*.tar.gz).
-      validate_regex: '(\.tar\.gz)$'
-    - name: subread_index
-      label: subread index files
-      type: basic:file
-      required: false
-      description: >
-        subread index files. Supported extensions (*.tar.gz).
-      validate_regex: '(\.tar\.gz)$'
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
+    - name: advanced
+      label: Advanced
+      group:
+        - name: bowtie_index
+          label: Bowtie index files
+          type: basic:file
+          required: false
+          description: >
+            Bowtie index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
+        - name: bowtie2_index
+          label: Bowtie2 index files
+          type: basic:file
+          required: false
+          description: >
+            Bowtie2 index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
+        - name: bwa_index
+          label: BWA index files
+          type: basic:file
+          required: false
+          description: >
+            BWA index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
+        - name: hisat2_index
+          label: HISAT2 index files
+          type: basic:file
+          required: false
+          description: >
+            HISAT2 index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
+        - name: subread_index
+          label: subread index files
+          type: basic:file
+          required: false
+          description: >
+            subread index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
   output:
     - name: fastagz
       label: Genome FASTA file (compressed)
@@ -89,6 +114,12 @@
     - name: dict
       label: Fasta dict
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -117,8 +148,12 @@
       re-save-file fai "${FASTA_NAME}.fasta.fai"
       re-save-file dict "${FASTA_NAME}.dict"
 
-      {% if bowtie_index %}
-        re-import {{ bowtie_index.file_temp|default(bowtie_index.file) }} {{ bowtie_index.file }} "tar" "tar" compress 0.6
+      re-save species {{species}}
+      re-save build {{build}}
+
+      {% if advanced.bowtie_index %}
+        re-import {{ advanced.bowtie_index.file_temp|default(advanced.bowtie_index.file) }} \
+        {{ advanced.bowtie_index.file }} "tar" "tar" compress 0.6
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie_index
       {% else %}
         mkdir bowtie_index
@@ -129,8 +164,9 @@
 
       re-save-dir index_bt bowtie_index
 
-      {% if bowtie2_index %}
-        re-import {{ bowtie2_index.file_temp|default(bowtie2_index.file) }} {{ bowtie2_index.file }} "tar" "tar" 0.7 compress
+      {% if advanced.bowtie2_index %}
+        re-import {{ advanced.bowtie2_index.file_temp|default(advanced.bowtie2_index.file) }} \
+        {{ advanced.bowtie2_index.file }} "tar" "tar" 0.7 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie2_index
       {% else %}
         mkdir bowtie2_index
@@ -142,8 +178,9 @@
       cp "${FASTA_NAME}.fasta" "bowtie2_index/${FASTA_NAME}_index.fa"
       re-save-dir index_bt2 bowtie2_index
 
-      {% if bwa_index %}
-        re-import {{ bwa_index.file_temp|default(bwa_index.file) }} {{ bwa_index.file }} "tar" "tar" 0.8 compress
+      {% if advanced.bwa_index %}
+        re-import {{ advanced.bwa_index.file_temp|default(advanced.bwa_index.file) }} \
+        {{ advanced.bwa_index.file }} "tar" "tar" 0.8 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}.fasta BWA_index --bwa
       {% else %}
         mkdir BWA_index
@@ -154,8 +191,9 @@
 
       re-save-dir index_bwa BWA_index
 
-      {% if hisat2_index %}
-        re-import {{ hisat2_index.file_temp|default(hisat2_index.file) }} {{ hisat2_index.file }} "tar" "tar" 0.9 compress
+      {% if advanced.hisat2_index %}
+        re-import {{ advanced.hisat2_index.file_temp|default(advanced.hisat2_index.file) }} \
+        {{ advanced.hisat2_index.file }} "tar" "tar" 0.9 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index hisat2_index
       {% else %}
         mkdir hisat2_index
@@ -166,8 +204,9 @@
 
       re-save-dir index_hisat2 hisat2_index
 
-      {% if subread_index %}
-        re-import {{ subread_index.file_temp|default(subread_index.file) }} {{ subread_index.file }} "tar" "tar" 0.9 compress
+      {% if advanced.subread_index %}
+        re-import {{ advanced.subread_index.file_temp|default(advanced.subread_index.file) }} \
+        {{ advanced.subread_index.file }} "tar" "tar" 0.9 compress
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index subread_index
       {% else %}
         mkdir subread_index

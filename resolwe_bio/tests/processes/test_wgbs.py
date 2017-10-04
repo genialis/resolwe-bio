@@ -22,7 +22,11 @@ class WgbsProcessorTestCase(BioProcessTestCase):
     @tag_process('mcall')
     def test_mcall(self):
         with self.preparation_stage():
-            inputs = {'src': 'chr1_part.fasta.gz'}
+            inputs = {
+                'src': 'chr1_part.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             inputs = {'src': 'wgbs.bam'}

@@ -235,7 +235,11 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
 
-            inputs = {'src': 'my.strange.genome name$.fasta.gz'}
+            inputs = {
+                'src': 'my.strange.genome name$.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             genome_2 = self.run_process('upload-genome', inputs)
 
             reads = self.prepare_reads()

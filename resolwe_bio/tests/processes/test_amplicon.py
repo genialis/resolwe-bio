@@ -15,7 +15,13 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
                 'src2': ['56GSID_10k_mate2.fastq.gz']}
             reads = self.run_process('upload-fastq-paired', inputs)
 
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+            genome = self.run_process(
+                'upload-genome', {
+                    'src': 'hs_b37_chr2_small.fasta.gz',
+                    'species': 'Homo sapiens',
+                    'build': 'b37'
+                }
+            )
             master_file = self.prepare_amplicon_master_file()
 
         inputs = {

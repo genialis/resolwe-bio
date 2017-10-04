@@ -11,7 +11,11 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('vc-samtools')
     def test_variant_calling_samtools(self):
         with self.preparation_stage():
-            inputs = {"src": "variant_calling_genome.fasta.gz"}
+            inputs = {
+                'src': 'variant_calling_genome.fasta.gz',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             reads = self.prepare_reads(['variant_calling_reads.fastq.gz'])
@@ -34,7 +38,11 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('vc-chemut')
     def test_variant_calling_chemut(self):
         with self.preparation_stage():
-            inputs = {'src': 'chemut_genome.fasta.gz'}
+            inputs = {
+                'src': 'chemut_genome.fasta.gz',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             inputs = {'src1': ['AX4_mate1.fq.gz'],
@@ -108,7 +116,12 @@ class VariantCallingTestCase(BioProcessTestCase):
     def test_vc_preprocess_bam(self):
         with self.preparation_stage():
             bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+            inputs = {
+                'src': 'hs_b37_chr2_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            genome = self.run_process('upload-genome', inputs)
 
             inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
             indels = self.run_process('upload-variants-vcf', inputs)
@@ -131,7 +144,13 @@ class VariantCallingTestCase(BioProcessTestCase):
         with self.preparation_stage():
             bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
             master_file = self.prepare_amplicon_master_file()
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+
+            inputs = {
+                'src': 'hs_b37_chr2_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            genome = self.run_process('upload-genome', inputs)
 
         inputs = {
             'alignment': bam.id,
@@ -150,7 +169,14 @@ class VariantCallingTestCase(BioProcessTestCase):
                 'upload-bam',
                 {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
             )
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+
+            inputs = {
+                'src': 'hs_b37_chr2_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            genome = self.run_process('upload-genome', inputs)
+
             master_file = self.prepare_amplicon_master_file()
             dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
@@ -172,7 +198,14 @@ class VariantCallingTestCase(BioProcessTestCase):
                 'upload-bam',
                 {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
             )
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+
+            inputs = {
+                'src': 'hs_b37_chr2_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            genome = self.run_process('upload-genome', inputs)
+
             master_file = self.prepare_amplicon_master_file()
 
         inputs = {

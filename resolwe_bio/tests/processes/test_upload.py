@@ -165,14 +165,25 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('upload-genome')
     def test_upload_genome(self):
-        inputs = {'src': 'genome.fasta.gz'}
+        inputs = {
+            'src': 'genome.fasta.gz',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009'
+        }
         genome = self.run_process('upload-genome', inputs)
-        inputs = {"src": "genome.fasta.gz",
-                  "bowtie_index": "bt_index.tar.gz",
-                  "bowtie2_index": "bt2_index.tar.gz",
-                  "bwa_index": "bwa_index.tar.gz",
-                  "hisat2_index": "hisat2_index.tar.gz",
-                  "subread_index": "subread_index.tar.gz"}
+
+        inputs = {
+            'src': 'genome.fasta.gz',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009',
+            'advanced': {
+                'bowtie_index': 'bt_index.tar.gz',
+                'bowtie2_index': 'bt2_index.tar.gz',
+                'bwa_index': 'bwa_index.tar.gz',
+                'hisat2_index': 'hisat2_index.tar.gz',
+                'subread_index': 'subread_index.tar.gz'
+            }
+        }
         genome = self.run_process('upload-genome', inputs)
         del genome.output['index_bt']['total_size']  # Non-deterministic output.
         self.assertFields(genome, "index_bt", {'dir': 'bowtie_index'})

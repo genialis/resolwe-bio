@@ -11,7 +11,11 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
     @tag_process('workflow-chemut')
     def test_chemut_workflow(self):
         with self.preparation_stage():
-            inputs = {'src': 'chemut_genome.fasta.gz'}
+            inputs = {
+                'src': 'chemut_genome.fasta.gz',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             genome = self.run_process('upload-genome', inputs)
 
             inputs = {'src1': ['AX4_mate1.fq.gz'],

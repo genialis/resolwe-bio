@@ -16,7 +16,13 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
             reads = self.run_process('upload-fastq-paired', inputs)
 
             adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+
+            inputs = {
+                'src': 'hs_b37_chr2_small.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            genome = self.run_process('upload-genome', inputs)
 
             master_file = self.prepare_amplicon_master_file()
 
