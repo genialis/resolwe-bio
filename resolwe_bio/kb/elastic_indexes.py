@@ -107,6 +107,14 @@ class FeatureSearchIndex(BaseIndex):
             obj.name
         ] + obj.aliases
 
+    def get_permissions(self, obj):
+        """Skip since Feature objects have no permissions."""
+        return {
+            'users': [],
+            'groups': [],
+            'public': False,
+        }
+
 
 class MappingSearchDocument(BaseDocument):
     """Index for mapping search."""
@@ -151,3 +159,11 @@ class MappingSearchIndex(BaseIndex):
 
         """
         return super(MappingSearchIndex, self).process_object(obj, push=False)
+
+    def get_permissions(self, obj):
+        """Skip since Mapping objects have no permissions."""
+        return {
+            'users': [],
+            'groups': [],
+            'public': False,
+        }
