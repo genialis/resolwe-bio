@@ -31,6 +31,11 @@ class BioCollectionFilter(CollectionFilter):
 
     sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
 
+    class Meta(CollectionFilter.Meta):
+        """Filter configuration."""
+
+        fields = CollectionFilter.Meta.fields + ['sample']
+
 
 class BioDataFilter(DataFilter):
     """Filter the data endpoint.
@@ -49,3 +54,8 @@ class BioDataFilter(DataFilter):
     """
 
     sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
+
+    class Meta(DataFilter.Meta):
+        """Filter configuration."""
+
+        fields = DataFilter.Meta.fields + ['sample']

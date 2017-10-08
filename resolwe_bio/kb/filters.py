@@ -24,3 +24,6 @@ class MappingFilter(filters.FilterSet):
         """Filter configuration."""
 
         model = Mapping
+        fields = [
+            'source_db', 'source_id', 'target_db', 'target_id'
+        ]

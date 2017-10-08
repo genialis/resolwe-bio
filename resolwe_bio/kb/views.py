@@ -7,7 +7,8 @@ Views
 """
 from elasticsearch_dsl.query import Q
 
-from rest_framework import viewsets, mixins, permissions, filters
+from rest_framework import viewsets, mixins, permissions
+from rest_framework_filters.backends import DjangoFilterBackend
 
 from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
 
@@ -103,7 +104,7 @@ class FeatureViewSet(mixins.ListModelMixin,
 
     serializer_class = FeatureSerializer
     permission_classes = [permissions.IsAdminUser]
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend]
     queryset = Feature.objects.all()
 
     def create(self, request):
@@ -174,7 +175,7 @@ class MappingViewSet(mixins.ListModelMixin,
 
     serializer_class = MappingSerializer
     permission_classes = [permissions.IsAdminUser]
-    filter_backends = [filters.DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend]
     filter_class = MappingFilter
     queryset = Mapping.objects.all()
 

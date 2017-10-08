@@ -47,6 +47,7 @@ setup(
     install_requires=(
         'Django~=1.10.5',
         'djangorestframework>=3.4.0',
+        'djangorestframework-filters~=0.10.0',
         'resolwe~=3.0',
         'tqdm>=4.1',
         'wrapt>=1.10.8',
