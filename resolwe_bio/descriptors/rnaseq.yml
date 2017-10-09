@@ -1,6 +1,6 @@
 - slug: rna-seq
   name: RNA-seq
-  version: 0.0.1
+  version: 0.0.2
   description: RNA-seq template
   schema:
     - name: genome_and_annotation
@@ -12,8 +12,6 @@
           value: hs
         - label: Mus musculus
           value: mm
-        - label: Solanum tuberosum
-          value: st
     - name: adapters
       label: Adapters
       type: basic:string
