@@ -1,0 +1,126 @@
+- slug: amplicon-archive-multi-report
+  name: Archive and make multi-sample report for amplicon data
+  data_name: Amplicon archive and multi-sample report
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/latex:1.0.2
+  version: 0.0.1
+  type: "data:archive:samples:amplicon"
+  category: other
+  persistence: TEMP
+  scheduling_class: interactive
+  description: >
+    Create an archive of output files. The ouput folder structure is
+    organized by sample slug and data object's output-field names.
+    Additionally, create multi-sample report for selected samples.
+  input:
+    - name: data
+      label: Data list
+      type: list:data
+    - name: fields
+      label: Output file fields
+      type: list:basic:string
+    - name: template
+      label: Report template
+      type: data:file
+    - name: logo
+      label: Logo
+      type: data:file
+    - name: j
+      label: Junk paths
+      type: basic:boolean
+      description: Store just names of saved files (junk the path)
+      default: False
+    - name: af_threshold
+      label: Allele frequency threshold
+      type: basic:decimal
+      default: 0.01
+  output:
+    - name: archive
+      label: Archive of selected samples and a heatmap comparing them
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      SAMPLE_NAMES=()
+      COV_FILES=()
+      COVMETRICS_FILES=()
+      METRICS_FILES=()
+      VCF_GATKHC_FILES=()
+      VCF_LF_FILES=()
+      MEANCOV_FILES=()
+
+      {% for d in data %}
+        {% for field in fields %}
+          {% if d[field].file %}
+            mkdir -p {{d|sample_slug}}/{{field}}/
+            ln -s --backup=numbered {{ d[field].file }} {{d|sample_slug}}/{{field}}/{{ d[field].file|basename }}
+            {% for ref in d[field].refs %}
+              ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
+            {% endfor %}
+          {% endif %}
+          {% for file in d[field] %}
+            {% if file.file %}
+              mkdir -p {{d|sample_slug}}/{{field}}/
+              ln -s --backup=numbered {{ file.file }} {{d|sample_slug}}/{{field}}/{{ file.file|basename }}
+              {% for ref in file.refs %}
+                ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
+              {% endfor %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+
+
+        if [[ {{ d|type }} == "data:coverage"* ]]; then
+          SAMPLE_NAMES+=({{d | sample_name}})
+          COV_FILES+=({{d.amplicon_cov.file}})
+          COVMETRICS_FILES+=({{d.cov_metrics.file}})
+          MEANCOV_FILES+=({{d.mean_cov.file}})
+        fi
+
+        if [[ {{ d|type }} == "data:picard:coverage"* ]]; then
+          METRICS_FILES+=({{d.target_pcr_metrics.file}})
+        fi
+
+        if [[ {{ d|type }} == "data:snpeff"* ]]; then
+          echo {{d.annotation.file}}
+          BASE=$(basename {{d.annotation.file}})
+          echo $BASE
+          if [[ $BASE == *"gatkHC.finalvars.txt"* ]]; then
+            VCF_GATKHC_FILES+=({{d.annotation.file}})
+          fi
+          if [[ $BASE == *"lf.finalvars.txt"* ]]; then
+            VCF_LF_FILES+=({{d.annotation.file}})
+          fi
+
+        fi
+
+      {% endfor %}
+
+      mkdir multisample_report
+      {% if data|length <= 1 %}
+        echo "You need to pick at least two samples to make a multi-sample report." > multisample_report/report.txt
+      {% else %}
+        make_multireport.py \
+          --sample "${SAMPLE_NAMES[@]}" \
+          --covmetrics "${COVMETRICS_FILES[@]}" \
+          --cov "${COV_FILES[@]}" \
+          --metrics "${METRICS_FILES[@]}" \
+          --vcfgatkhc "${VCF_GATKHC_FILES[@]}" \
+          --vcflf "${VCF_LF_FILES[@]}" \
+          --meancov "${MEANCOV_FILES[@]}" \
+          --template {{template.file.file}} \
+          --logo {{logo.file.file}} \
+          --afthreshold {{af_threshold}}
+        re-checkrc
+      {% endif %}
+      mv multireport.pdf multisample_report/report.pdf
+      mv GATKHCvariants.html multisample_report/GATKHCvariants.html
+      mv Lowfreqvariants.html multisample_report/Lowfreqvariants.html
+
+      zip -0 -r {% if j %}-j {% endif %} results.zip */
+      re-save-file archive results.zip

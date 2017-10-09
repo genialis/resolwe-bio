@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add ``amplicon-archive-multi-report`` process
+
 Changed
 -------
 * Improve ``PCA`` process performance
