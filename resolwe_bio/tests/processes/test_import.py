@@ -1,9 +1,11 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ImportProcessorTestCase(BioProcessTestCase):
+    @tag_process('import-sra')
     def external_test_sra(self):
         # single-end reads from Polyak RNA-seq demo dataset
         inputs = {'sra_accession': 'SRR1661332', 'prefetch': False, 'max_spot_id': 1}

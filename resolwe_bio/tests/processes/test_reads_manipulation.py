@@ -1,12 +1,15 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ReadsProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('reads-merge')
     def test_merge_reads(self):
-        reads = self.prepare_reads()
-        reads2 = self.prepare_reads()
+        with self.preparation_stage():
+            reads = self.prepare_reads()
+            reads2 = self.prepare_reads()
 
         inputs = {
             'reads_1': reads.pk,

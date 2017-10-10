@@ -1,14 +1,17 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class GenomeBrowserProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('igv')
     def test_igv_bam(self):
-        bam = self.prepare_bam()
+        with self.preparation_stage():
+            bam = self.prepare_bam()
 
-        inputs = {'src': 'reads.bam'}
-        bam1 = self.run_process('upload-bam', inputs)
+            inputs = {'src': 'reads.bam'}
+            bam1 = self.run_process('upload-bam', inputs)
 
         inputs = {
             'genomeid': 'hg19',

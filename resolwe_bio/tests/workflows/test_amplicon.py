@@ -1,28 +1,31 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
     @skipDockerFailure("Processor requires a custom Docker image.")
+    @tag_process('workflow-accel')
     def test_amplicon_workflow(self):
-        inputs = {
-            'src1': ['56GSID_10k_mate1.fastq.gz'],
-            'src2': ['56GSID_10k_mate2.fastq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['56GSID_10k_mate1.fastq.gz'],
+                'src2': ['56GSID_10k_mate2.fastq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
-        adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
-        genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+            adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
+            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
 
-        master_file = self.prepare_amplicon_master_file()
+            master_file = self.prepare_amplicon_master_file()
 
-        inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
-        indels = self.run_process('upload-variants-vcf', inputs)
+            inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
+            indels = self.run_process('upload-variants-vcf', inputs)
 
-        dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
+            dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
 
-        template = self.run_process('upload-file', {'src': 'report_template.tex'})
-        logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
+            template = self.run_process('upload-file', {'src': 'report_template.tex'})
+            logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
 
         self.run_process(
             'workflow-accel', {

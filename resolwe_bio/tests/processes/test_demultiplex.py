@@ -1,10 +1,12 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 
 
 class DemultiplexProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('upload-multiplexed-paired')
     def test_demultiplex(self):
         inputs = {
             'reads': 'pool24.read1.small.qseq.bz2',

@@ -1,20 +1,23 @@
 # pylint: disable=missing-docstring
 import six
 
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class PcaProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('pca')
     def test_pca(self):
-        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz',
-                                               f_exp='exp_1_tpm.tab.gz',
-                                               f_type='TPM',
-                                               source='DICTYBASE')
-        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
-                                               f_exp='exp_2_tpm.tab.gz',
-                                               f_type='TPM',
-                                               source='DICTYBASE')
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz',
+                                                   f_exp='exp_1_tpm.tab.gz',
+                                                   f_type='TPM',
+                                                   source='DICTYBASE')
+            expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
+                                                   f_exp='exp_2_tpm.tab.gz',
+                                                   f_type='TPM',
+                                                   source='DICTYBASE')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk], 'genes_source': 'DICTYBASE'}
         pca = self.run_process('pca', inputs)
@@ -35,19 +38,21 @@ class PcaProcessorTestCase(BioProcessTestCase):
             'Expressions of all selected genes are 0. Please select different samples or genes.'
         )
 
+    @tag_process('pca')
     def test_pca_ncbi(self):
-        expression_1 = self.prepare_expression(f_exp='clustering_NCBI.gz',
-                                               f_type='rc',
-                                               name='Expression',
-                                               source='NCBI')
-        expression_2 = self.prepare_expression(f_exp='clustering_NCBI_1.gz',
-                                               f_type='rc',
-                                               name='Expression',
-                                               source='NCBI')
-        expression_3 = self.prepare_expression(f_exp='clustering_NCBI_2.gz',
-                                               f_type='rc',
-                                               name='Expression',
-                                               source='NCBI')
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(f_exp='clustering_NCBI.gz',
+                                                   f_type='rc',
+                                                   name='Expression',
+                                                   source='NCBI')
+            expression_2 = self.prepare_expression(f_exp='clustering_NCBI_1.gz',
+                                                   f_type='rc',
+                                                   name='Expression',
+                                                   source='NCBI')
+            expression_3 = self.prepare_expression(f_exp='clustering_NCBI_2.gz',
+                                                   f_type='rc',
+                                                   name='Expression',
+                                                   source='NCBI')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk, ],
                   'genes': ['1', '503538', '56934', '29974', '2', '144571', '3', 'abc', 'lll'],

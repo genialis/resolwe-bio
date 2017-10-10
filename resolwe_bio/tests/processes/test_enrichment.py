@@ -1,15 +1,18 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class EnrichmentProcessorTestCase(KBBioProcessTestCase):
 
+    @tag_process('goenrichment')
     def test_go_enrichment_dicty(self):
-        inputs = {'src': 'ontology_dicty_cropped.obo.gz'}
-        ontology = self.run_process('upload-obo', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'ontology_dicty_cropped.obo.gz'}
+            ontology = self.run_process('upload-obo', inputs)
 
-        inputs = {'src': 'gaf_dicty_cropped.gz', 'source': 'DICTYBASE', 'species': 'Dictyostelium discoideum'}
-        annotation = self.run_process('upload-gaf', inputs)
+            inputs = {'src': 'gaf_dicty_cropped.gz', 'source': 'DICTYBASE', 'species': 'Dictyostelium discoideum'}
+            annotation = self.run_process('upload-gaf', inputs)
 
         inputs = {
             'ontology': ontology.pk,
@@ -22,12 +25,14 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(len(enrichment.process_warning), 0)
         self.assertJSON(enrichment, enrichment.output['terms'], '', 'go_enriched_terms_dicty.json.gz')
 
+    @tag_process('goenrichment')
     def test_go_enrichment(self):
-        inputs = {'src': 'ontology_mus_cropped.obo.gz'}
-        ontology = self.run_process('upload-obo', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'ontology_mus_cropped.obo.gz'}
+            ontology = self.run_process('upload-obo', inputs)
 
-        inputs = {'src': 'gaf_mgi_cropped.gz', 'source': 'MGI', 'species': 'Mus musculus'}
-        gaf = self.run_process('upload-gaf', inputs)
+            inputs = {'src': 'gaf_mgi_cropped.gz', 'source': 'MGI', 'species': 'Mus musculus'}
+            gaf = self.run_process('upload-gaf', inputs)
 
         inputs = {
             'ontology': ontology.pk,

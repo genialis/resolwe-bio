@@ -1,10 +1,12 @@
 # pylint: disable=missing-docstring
 import unittest
-from resolwe.test import ProcessTestCase
+
+from resolwe.test import ProcessTestCase, tag_process
 
 
 class TranSMARTProcessorTestCase(ProcessTestCase):
     @unittest.skip("processor connects to remote tranSMART server")
+    @tag_process('transmart-expressions')
     def test_import(self):
         # self.assertDataCount(0)
         inputs = {'exps': 'transmart_log_exp.xlsx'}
@@ -14,6 +16,7 @@ class TranSMARTProcessorTestCase(ProcessTestCase):
         self.assertFileExists(annotation, 'expset')
 
     @unittest.skip("processor connects to remote tranSMART server")
+    @tag_process('transmart-expressions')
     def test_import_with_annotation(self):
         ann = ('/studies/UBIOPRED/concepts/Sample%20Identifiers/Virology%20Sample%20ID/18_or_more;'
                '/studies/UBIOPRED/concepts/Sample%20Identifiers/Virology%20Sample%20ID/2to17;'

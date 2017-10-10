@@ -1,20 +1,23 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ExpressionAggregatorTestCase(BioProcessTestCase):
+    @tag_process('expression-aggregator')
     def test_expression_aggregator(self):
-        descriptor_hs = {'sample': {'organism': 'Homo sapiens'}}
-        expression1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                              f_type='TPM', descriptor=descriptor_hs)
-        expression2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                              f_type='TPM', descriptor=descriptor_hs)
+        with self.preparation_stage():
+            descriptor_hs = {'sample': {'organism': 'Homo sapiens'}}
+            expression1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
+                                                  f_type='TPM', descriptor=descriptor_hs)
+            expression2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
+                                                  f_type='TPM', descriptor=descriptor_hs)
 
-        descriptor_mm = {'sample': {'organism': 'Mus musculus'}}
-        expression3 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                              f_type='TPM', descriptor=descriptor_mm)
-        expression4 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                              f_type='TPM', descriptor=descriptor_mm)
+            descriptor_mm = {'sample': {'organism': 'Mus musculus'}}
+            expression3 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
+                                                  f_type='TPM', descriptor=descriptor_mm)
+            expression4 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
+                                                  f_type='TPM', descriptor=descriptor_mm)
 
         inputs = {
             'exps': [expression1.id, expression2.id, expression3.id, expression4.id],

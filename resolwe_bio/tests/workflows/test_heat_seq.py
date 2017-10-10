@@ -1,18 +1,21 @@
 # pylint: disable=missing-docstring
 from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 
 
 class HeatSeqWorkflowTestCase(BioProcessTestCase):
+    @tag_process('workflow-heat-seq')
     def test_heatseq_workflow(self):
-        inputs = {
-            'src1': ['heat_seq_mate1.fq.gz'],
-            'src2': ['heat_seq_mate2.fq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['heat_seq_mate1.fq.gz'],
+                'src2': ['heat_seq_mate2.fq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
-        genome = self.run_process('upload-genome', {'src': 'chr21_small.fasta.gz'})
-        probe = self.run_process('upload-file', {'src': 'heat_seq_probe_info.txt'})
-        bed = self.run_process('upload-bed', {'src': 'heat_seq_capture_targets.bed'})
+            genome = self.run_process('upload-genome', {'src': 'chr21_small.fasta.gz'})
+            probe = self.run_process('upload-file', {'src': 'heat_seq_probe_info.txt'})
+            bed = self.run_process('upload-bed', {'src': 'heat_seq_capture_targets.bed'})
 
         self.run_process(
             'workflow-heat-seq', {

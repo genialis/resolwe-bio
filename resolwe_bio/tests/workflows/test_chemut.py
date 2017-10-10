@@ -2,29 +2,32 @@
 from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 
 
 class CheMutWorkflowTestCase(BioProcessTestCase):
 
+    @tag_process('workflow-chemut')
     def test_chemut_workflow(self):
-        inputs = {'src': 'chemut_genome.fasta.gz'}
-        genome = self.run_process('upload-genome', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'chemut_genome.fasta.gz'}
+            genome = self.run_process('upload-genome', inputs)
 
-        inputs = {'src1': ['AX4_mate1.fq.gz'],
-                  'src2': ['AX4_mate2.fq.gz']}
+            inputs = {'src1': ['AX4_mate1.fq.gz'],
+                      'src2': ['AX4_mate2.fq.gz']}
 
-        parental_reads = self.run_process('upload-fastq-paired', inputs)
+            parental_reads = self.run_process('upload-fastq-paired', inputs)
 
-        inputs = {'src1': ['CM_mate1.fq.gz'],
-                  'src2': ['CM_mate2.fq.gz']}
+            inputs = {'src1': ['CM_mate1.fq.gz'],
+                      'src2': ['CM_mate2.fq.gz']}
 
-        mut_reads = self.run_process('upload-fastq-paired', inputs)
+            mut_reads = self.run_process('upload-fastq-paired', inputs)
 
-        inputs = {'genome': genome.id, 'reads': parental_reads.id}
-        align_parental = self.run_process('alignment-bwa-mem', inputs)
+            inputs = {'genome': genome.id, 'reads': parental_reads.id}
+            align_parental = self.run_process('alignment-bwa-mem', inputs)
 
-        inputs = {'genome': genome.id, 'reads': mut_reads.id}
-        align_mut = self.run_process('alignment-bwa-mem', inputs)
+            inputs = {'genome': genome.id, 'reads': mut_reads.id}
+            align_mut = self.run_process('alignment-bwa-mem', inputs)
 
         self.run_process(
             'workflow-chemut', {

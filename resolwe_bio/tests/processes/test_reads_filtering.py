@@ -1,12 +1,15 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase, skipDockerFailure
 
 
 class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('prinseq-lite-single')
     def test_prinseq_single(self):
-        reads = self.prepare_reads()
-        inputs = {'reads': reads.pk}
+        with self.preparation_stage():
+            reads = self.prepare_reads()
+            inputs = {'reads': reads.pk}
 
         filtered_reads = self.run_process('prinseq-lite-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_single.fastq.gz'], compression='gzip')
@@ -14,11 +17,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                           'refs': ['fastqc/reads_fastqc'],
                                                           'size': 314749}])
 
+    @tag_process('prinseq-lite-paired')
     def test_prinseq_paired(self):
-        inputs = {
-            'src1': ['rRNA forw.fastq.gz'],
-            'src2': ['rRNA_rew.fastq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['rRNA forw.fastq.gz'],
+                'src2': ['rRNA_rew.fastq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
         inputs = {'reads': reads.pk}
         filtered_reads = self.run_process('prinseq-lite-paired', inputs)
@@ -31,8 +36,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
                                                            'size': 340697}])
 
+    @tag_process('fastq-mcf-single')
     def test_fastqmcf_single(self):
-        reads = self.prepare_reads()
+        with self.preparation_stage():
+            reads = self.prepare_reads()
+
         inputs = {'reads': reads.pk}
         filtered_reads = self.run_process('fastq-mcf-single', inputs)
 
@@ -41,11 +49,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                           'refs': ['fastqc/reads_fastqc'],
                                                           'size': 305101}])
 
+    @tag_process('fastq-mcf-paired')
     def test_fastqmcf_paired(self):
-        inputs = {
-            'src1': ['rRNA forw.fastq.gz'],
-            'src2': ['rRNA_rew.fastq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['rRNA forw.fastq.gz'],
+                'src2': ['rRNA_rew.fastq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
         inputs = {'reads': reads.pk}
         filtered_reads = self.run_process('fastq-mcf-paired', inputs)
@@ -59,10 +69,12 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                            'size': 340715}])
 
     @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
+    @tag_process('sortmerna-single')
     def test_sortmerna_single(self):
-        reads = self.prepare_reads(['rRNA forw.fastq.gz'])
-        rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
-        rrnadb_2 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-23s-id98.fasta.gz'})
+        with self.preparation_stage():
+            reads = self.prepare_reads(['rRNA forw.fastq.gz'])
+            rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
+            rrnadb_2 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-23s-id98.fasta.gz'})
 
         inputs = {
             'reads': reads.id,
@@ -79,14 +91,16 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                             'size': 345492}])
 
     @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
+    @tag_process('sortmerna-paired')
     def test_sortmerna_paired(self):
-        inputs = {
-            'src1': ['rRNA forw.fastq.gz'],
-            'src2': ['rRNA_rew.fastq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['rRNA forw.fastq.gz'],
+                'src2': ['rRNA_rew.fastq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
-        rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
-        rrnadb_2 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-23s-id98.fasta.gz'})
+            rrnadb_1 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-16s-id95.fasta.gz'})
+            rrnadb_2 = self.run_process('upload-fasta-nucl', {'src': 'silva-arc-23s-id98.fasta.gz'})
 
         inputs = {
             'reads': reads.id,
@@ -108,8 +122,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                             'refs': ['fastqc/rRNA_rew_filtered_fastqc'],
                             'size': 347212}])
 
+    @tag_process('trimmomatic-single')
     def test_trimmomatic_single(self):
-        reads = self.prepare_reads()
+        with self.preparation_stage():
+            reads = self.prepare_reads()
+
         inputs = {'reads': reads.pk,
                   'trailing': 3,
                   'crop': 5}
@@ -120,11 +137,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                           'refs': ['fastqc/reads_fastqc'],
                                                           'size': 206718}])
 
+    @tag_process('trimmomatic-paired')
     def test_trimmomatic_paired(self):
-        inputs = {
-            'src1': ['rRNA_forw.fastq.gz'],
-            'src2': ['rRNA_rew.fastq.gz']}
-        reads = self.run_processor('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['rRNA_forw.fastq.gz'],
+                'src2': ['rRNA_rew.fastq.gz']}
+            reads = self.run_processor('upload-fastq-paired', inputs)
+
         inputs = {'reads': reads.pk,
                   'trailing': 3}
         filtered_reads = self.run_processor('trimmomatic-paired', inputs)
@@ -139,13 +159,15 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
                                                            'size': 340745}])
 
-    def test_hsqutils_trimm(self):
-        inputs = {
-            'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
-            'src2': ['hsqutils_reads_mate2_paired_filtered.fastq.gz']}
-        reads = self.run_processor('upload-fastq-paired', inputs)
+    @tag_process('hsqutils-trim')
+    def test_hsqutils_trim(self):
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
+                'src2': ['hsqutils_reads_mate2_paired_filtered.fastq.gz']}
+            reads = self.run_processor('upload-fastq-paired', inputs)
 
-        probe = self.run_processor('upload-file', {'src': 'hsqutils_probe_info.txt'})
+            probe = self.run_processor('upload-file', {'src': 'hsqutils_probe_info.txt'})
 
         inputs = {'reads': reads.id,
                   'probe': probe.id}
@@ -157,8 +179,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(hsqutils_trimm, 'fastq2', ['hsqutils_reads_trimmed_mate2.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-single')
     def test_cutadapt_single(self):
-        reads = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+        with self.preparation_stage():
+            reads = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+
+            primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
+            primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
 
         inputs = {
             'reads': reads.id,
@@ -173,9 +200,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_single_trimmed.fastq.gz'],
                          compression='gzip')
 
-        primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
-        primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
-
         inputs = {
             'reads': reads.id,
             'polya_tail': 5,
@@ -189,9 +213,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_single_trimmed.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-paired')
     def test_cutadapt_paired(self):
-        reads = self.prepare_paired_reads(mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
-                                          mate2=['cutadapt_reverse.fastq.gz'])
+        with self.preparation_stage():
+            reads = self.prepare_paired_reads(mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
+                                              mate2=['cutadapt_reverse.fastq.gz'])
+
+            primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
+            primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
 
         inputs = {
             'reads': reads.id,
@@ -211,9 +240,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],
                          compression='gzip')
 
-        primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
-        primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
-
         inputs = {
             'reads': reads.id,
             'polya_tail': 5,
@@ -232,10 +258,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_paired_reverse_trimmed.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-custom-single', 'cutadapt-custom-paired')
     def test_cutadapt_custom(self):
-        reads_single = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
-        reads_paired = self.prepare_paired_reads(mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
-                                                 mate2=['cutadapt_reverse.fastq.gz'])
+        with self.preparation_stage():
+            reads_single = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(
+                mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
+                mate2=['cutadapt_reverse.fastq.gz']
+            )
 
         inputs_single = {'reads': reads_single.id}
         inputs_paired = {'reads': reads_paired.id}
@@ -252,17 +282,19 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_custom_paired_reverse_trimmed.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-amplicon')
     def test_cutadapt_amplicon(self):
-        inputs = {
-            'src1': ['56GSID_1k_mate1.fastq.gz'],
-            'src2': ['56GSID_1k_mate2.fastq.gz']}
-        reads = self.run_processor('upload-fastq-paired', inputs)
+        with self.preparation_stage():
+            inputs = {
+                'src1': ['56GSID_1k_mate1.fastq.gz'],
+                'src2': ['56GSID_1k_mate2.fastq.gz']}
+            reads = self.run_processor('upload-fastq-paired', inputs)
 
-        inputs = {'src': '5ptrim_new56Gprimers.fa.gz'}
-        primers_1 = self.run_processor('upload-fasta-nucl', inputs)
+            inputs = {'src': '5ptrim_new56Gprimers.fa.gz'}
+            primers_1 = self.run_processor('upload-fasta-nucl', inputs)
 
-        inputs = {'src': '3ptrim_new56Gprimers.fa.gz'}
-        primers_2 = self.run_processor('upload-fasta-nucl', inputs)
+            inputs = {'src': '3ptrim_new56Gprimers.fa.gz'}
+            primers_2 = self.run_processor('upload-fasta-nucl', inputs)
 
         inputs = {
             'reads': reads.id,
@@ -277,12 +309,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(filtered_reads, 'fastq2', ['cutadapt_trimmed_mate2.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('bbduk-single')
     def test_bbduk_single(self):
-        inputs = {'src': ['bbduk test reads.fastq.gz']}
-        reads = self.run_processor('upload-fastq-single', inputs)
+        with self.preparation_stage():
+            inputs = {'src': ['bbduk test reads.fastq.gz']}
+            reads = self.run_processor('upload-fastq-single', inputs)
 
-        inputs = {'src': 'bbduk_adapters.fasta'}
-        adapters = self.run_processor('upload-fasta-nucl', inputs)
+            inputs = {'src': 'bbduk_adapters.fasta'}
+            adapters = self.run_processor('upload-fasta-nucl', inputs)
 
         inputs = {
             'reads': reads.id,
@@ -312,12 +346,15 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads_1 = self.run_process('bbduk-single', inputs)
         self.assertFiles(filtered_reads_1, 'fastq', ['filtered_reads_bbduk_single.fastq.gz'], compression='gzip')
 
+    @tag_process('bbduk-paired')
     def test_bbduk_paired(self):
-        inputs = {'src': 'bbduk_adapters.fasta'}
-        adapters = self.run_processor('upload-fasta-nucl', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'bbduk_adapters.fasta'}
+            adapters = self.run_processor('upload-fasta-nucl', inputs)
 
-        reads_paired = self.prepare_paired_reads(mate1=['rRNA forw.fastq.gz'],
-                                                 mate2=['rRNA_rew.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['rRNA forw.fastq.gz'],
+                                                     mate2=['rRNA_rew.fastq.gz'])
+
         inputs = {
             'reads': reads_paired.id,
             'adapters': {

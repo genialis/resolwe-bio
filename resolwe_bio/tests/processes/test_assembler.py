@@ -1,16 +1,19 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class AbyssProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('assembler-abyss')
     def test_abyss(self):
-        se_reads = self.prepare_reads(['reads.fastq.gz'])
+        with self.preparation_stage():
+            se_reads = self.prepare_reads(['reads.fastq.gz'])
 
-        inputs = {'src1': ['reads_paired_abyss_1.fastq.gz'], 'src2': ['reads_paired_abyss_2.fastq.gz']}
-        reads = self.run_process('upload-fastq-paired', inputs)
+            inputs = {'src1': ['reads_paired_abyss_1.fastq.gz'], 'src2': ['reads_paired_abyss_2.fastq.gz']}
+            reads = self.run_process('upload-fastq-paired', inputs)
 
         inputs = {'paired_end': reads.pk,
                   'se': se_reads.pk,

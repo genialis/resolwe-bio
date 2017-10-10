@@ -1,15 +1,18 @@
 # pylint: disable=missing-docstring
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class PlotsProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('bamplot')
     def test_bamplot(self):
-        inputs = {'src': 'bamplot_alignment.bam'}
-        bam = self.run_process('upload-bam', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'bamplot_alignment.bam'}
+            bam = self.run_process('upload-bam', inputs)
 
-        inputs = {'src': 'bamplot_alignment.bam'}
-        bam1 = self.run_process('upload-bam', inputs)
+            inputs = {'src': 'bamplot_alignment.bam'}
+            bam1 = self.run_process('upload-bam', inputs)
 
         inputs = {'genome': 'HG19',
                   'input_region': 'chr1:+:41468594-41566948',
@@ -22,15 +25,17 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'rpm': True, }
         self.run_process('bamplot', inputs)
 
+    @tag_process('bamplot')
     def test_bamplot_gff(self):
-        inputs = {'src': 'bamplot.bed'}
-        bed = self.run_process('upload-bed', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'bamplot.bed'}
+            bed = self.run_process('upload-bed', inputs)
 
-        inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
-        gff = self.run_process('upload-gtf', inputs)
+            inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
+            gff = self.run_process('upload-gtf', inputs)
 
-        inputs = {'src': 'bamplot_alignment.bam'}
-        bam = self.run_process('upload-bam', inputs)
+            inputs = {'src': 'bamplot_alignment.bam'}
+            bam = self.run_process('upload-bam', inputs)
 
         inputs = {'genome': 'HG19',
                   'input_gff': gff.pk,
@@ -44,12 +49,14 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'bed': [bed.pk], }
         self.run_process('bamplot', inputs)
 
+    @tag_process('bamliquidator')
     def test_bamliquidator(self):
-        inputs = {'src': 'bamplot_ alignment1.bam'}
-        bam1 = self.run_process('upload-bam', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'bamplot_ alignment1.bam'}
+            bam1 = self.run_process('upload-bam', inputs)
 
-        inputs = {'src': 'bamplot_alignment.bam'}
-        bam = self.run_process('upload-bam', inputs)
+            inputs = {'src': 'bamplot_alignment.bam'}
+            bam = self.run_process('upload-bam', inputs)
 
         inputs = {'bam': [bam1.id, bam.id],
                   'cell_type': 'MCD cell',
@@ -58,15 +65,17 @@ class PlotsProcessorTestCase(BioProcessTestCase):
         bamliquidator = self.run_process('bamliquidator', inputs)
         self.assertFields(bamliquidator, 'summary', {'file': 'output/summary.html', 'size': 524296})
 
+    @tag_process('bamliquidator')
     def test_bamliquidator_gff(self):
-        inputs = {'src': 'bamplot_ alignment1.bam'}
-        bam1 = self.run_process('upload-bam', inputs)
+        with self.preparation_stage():
+            inputs = {'src': 'bamplot_ alignment1.bam'}
+            bam1 = self.run_process('upload-bam', inputs)
 
-        inputs = {'src': 'bamplot_alignment.bam'}
-        bam = self.run_process('upload-bam', inputs)
+            inputs = {'src': 'bamplot_alignment.bam'}
+            bam = self.run_process('upload-bam', inputs)
 
-        inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
-        gff = self.run_process('upload-gtf', inputs)
+            inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
+            gff = self.run_process('upload-gtf', inputs)
 
         inputs = {'bam': [bam1.id, bam.id],
                   'analysis_type': 'region',

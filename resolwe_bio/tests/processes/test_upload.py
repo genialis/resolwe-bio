@@ -4,11 +4,13 @@ import six
 from django.core.exceptions import ValidationError
 
 from resolwe.flow.models import Data
+from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class UploadProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('upload-bam', 'upload-bam-indexed')
     def test_bam_upload(self):
         inputs = {'src': 'alignment_name_sorted.bam'}
         upload_bam = self.run_process('upload-bam', inputs)
@@ -24,6 +26,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
 
+    @tag_process('upload-expression')
     def test_upload_expression(self):
         inputs = {'exp_type': 'TPM', 'exp_name': 'Expression', 'source': 'UCSC'}
         self.run_process('upload-expression', inputs, Data.STATUS_ERROR)
@@ -72,6 +75,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         exp_8 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
+    @tag_process('upload-cxb', 'upload-expression-cuffnorm')
     def test_upload_cuffquant_expr(self):
         inputs = {'src': 'cuffquant_1.cxb', 'source': 'UCSC'}
         cxb = self.run_process('upload-cxb', inputs)
@@ -81,6 +85,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'cxb': cxb.id}
         self.run_process('upload-expression-cuffnorm', inputs)
 
+    @tag_process('upload-fastq-paired')
     def test_upload_paired_end_reads(self):
         inputs = {'src1': ['mate1.fastq.gz'], 'src2': ['mate2.fastq.gz']}
         self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
@@ -104,6 +109,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                                   'refs': ['fastqc/20Hr_fastqc'],
                                                   'size': 287245}])
 
+    @tag_process('upload-fastq-single')
     def test_upload_single_end_reads(self):
         inputs = {'src': ['mate1.fastq.gz']}
         self.run_process('upload-fastq-single', inputs, Data.STATUS_ERROR)
@@ -119,6 +125,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
                                                  'size': 323297}])
 
+    @tag_process('upload-diffexp')
     def test_upload_de(self):
         inputs = {
             'src': 'deseq2_output.tab.gz',
@@ -134,6 +141,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(diff_exp, 'raw', 'deseq2_output.tab.gz')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2_volcano_plot.json.gz')
 
+    @tag_process('upload-diffexp')
     def test_upload_de_check_field_type(self):
         inputs = {
             'src': 'diff_exp_check_geneid_type.tab.gz',
@@ -149,6 +157,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertEqual(test_json, saved_json)
         all(self.assertIsInstance(gene, six.text_type) for gene in test_json['gene_id'])
 
+    @tag_process('upload-genome')
     def test_upload_genome(self):
         inputs = {'src': 'genome.fasta.gz'}
         genome = self.run_process('upload-genome', inputs)
@@ -165,6 +174,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index'})
         self.assertFields(genome, "index_subread", {'dir': 'subread_index'})
 
+    @tag_process('upload-bed')
     def test_upload_bed(self):
         inputs = {'src': 'bad.bed'}
         bed = self.run_process('upload-bed', inputs, Data.STATUS_ERROR)
@@ -173,6 +183,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         bed = self.run_process('upload-bed', inputs)
         self.assertFile(bed, 'BED', 'good.bed')
 
+    @tag_process('upload-geneset')
     def test_upload_geneset(self):
         inputs = {'src': 'geneset.tab.gz', 'source': 'UCSC'}
         geneset = self.run_process('upload-geneset', inputs)
@@ -181,6 +192,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(geneset, 'source', 'UCSC')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
 
+    @tag_process('create-geneset')
     def test_create_geneset(self):
         inputs = {'genes': ['ABC', 'DEF', 'GHI'], 'source': 'UCSC'}
         geneset = self.run_process('create-geneset', inputs)
@@ -195,6 +207,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertJSON(geneset_2, geneset_2.output['geneset_json'], '', 'geneset_3.json.gz')
         self.assertEqual(geneset_2.process_warning[0], 'Removed duplicated genes.')
 
+    @tag_process('create-geneset-venn')
     def test_create_venn(self):
         inputs = {'genes': ['ABC', 'GHI', 'DEF'], 'source': 'UCSC', 'venn': 'venn.json.gz'}
         venn = self.run_process('create-geneset-venn', inputs)
@@ -203,11 +216,13 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertJSON(venn, venn.output['geneset_json'], '', 'geneset_venn.json.gz')
         self.assertJSON(venn, venn.output['venn'], '', 'venn.json.gz')
 
+    @tag_process('upload-fastq-single')
     def test_upload_reformating_single(self):
         inputs = {'src': ['old_encoding.fastq.gz']}
         reads = self.run_process('upload-fastq-single', inputs)
         self.assertFiles(reads, 'fastq', ['old_encoding_transformed.fastq.gz'], compression='gzip')
 
+    @tag_process('upload-fastq-paired')
     def test_upload_reformating_paired(self):
         inputs = {'src1': ['old_encoding.fastq.gz', 'old_encoding1.fastq.gz'],
                   'src2': ['old_encoding_R2.fastq.gz', 'old_encoding1_R2.fastq.gz']}
@@ -217,6 +232,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFiles(reads, 'fastq2', ['old_encoding_transformed_R2.fastq.gz',
                                            'old_encoding1_transformed_R2.fastq.gz'], compression='gzip')
 
+    @tag_process('upload-master-file')
     def test_upload_master_file(self):
         inputs = {
             'src': '56G_masterfile_corrupted.txt',
@@ -244,6 +260,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFile(master_file, 'primers', 'amplicon_primers.bed')
         self.assertFields(master_file, 'panel_name', '56G panel, v2')
 
+    @tag_process('upload-etc')
     def test_upload_etc(self):
         inputs = {'src': 'etc_upload_input.xls'}
         etc = self.run_process('upload-etc', inputs)
