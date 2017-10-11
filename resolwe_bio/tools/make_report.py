@@ -12,7 +12,6 @@ DECIMALS = 2  # Decimal precision when presenting results:
 parser = argparse.ArgumentParser(description="Fill data into tex template file.")
 parser.add_argument('--sample', help="Sample name.")
 parser.add_argument('--panel', help="Panel name")
-parser.add_argument('--covplot', help="Coverage plot.")
 parser.add_argument('--covmetrics', help="Coverge metrics")
 parser.add_argument('--cov', help="Amplicon coverage")
 parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.")
@@ -212,8 +211,6 @@ if __name__ == '__main__':
             template = template.replace('{#BAD_AMPLICON_TABLE#}', sentence_text + table_text)
         else:
             template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
-        # Scatterplot:
-        template = template.replace('{#IMAGE2#}', args.covplot)
 
         # Make VCF tables:
         table_text = ''

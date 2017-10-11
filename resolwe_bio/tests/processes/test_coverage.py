@@ -75,5 +75,4 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         self.assertFile(coverage, 'cov_metrics', '56GSID_10k_covMetrics.txt')
         self.assertFile(coverage, 'mean_cov', '56GSID_10k_ampmeancov.covd')
         self.assertFileExists(coverage, 'amplicon_cov')
-        self.assertFileExists(coverage, 'covplot')
         self.assertFileExists(coverage, 'covplot_html')

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/dnaseq:1.0.0
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 2.2.3
+  version: 3.0.0
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -40,9 +40,6 @@
       type: basic:file
     - name: mean_cov
       label: Mean amplicon coverage
-      type: basic:file
-    - name: covplot
-      label: Coverage plot
       type: basic:file
     - name: amplicon_cov
       label: Amplicon coverage file (nomergebed)
@@ -110,10 +107,6 @@
         awk '{ sub(/_.*$/, "", $3); print $0 }' OFS="\t" \
         > "${SAMPLE_SLUG}_ampmeancov.tmp"
 
-      plotcoverage.py \
-        -i "${SAMPLE_SLUG}_ampmeancov.tmp" \
-        -o "${SAMPLE_SLUG}_coverageplot.pdf"
-
       mkdir htmlplot
       cp -p {{bokeh_css.file.file}} htmlplot/
       cp -p {{bokeh_js.file.file}} htmlplot/
@@ -126,5 +119,4 @@
       re-save-file cov_metrics "${SAMPLE_SLUG}_covMetrics.txt"
       re-save-file mean_cov "${SAMPLE_SLUG}_ampmeancov.covd"
       re-save-file amplicon_cov "${SAMPLE_SLUG}_amplicon_coverage.cov"
-      re-save-file covplot "${SAMPLE_SLUG}_coverageplot.pdf"
       re-save-file covplot_html "htmlplot/${SAMPLE_SLUG}_coverageplot.html" htmlplot
