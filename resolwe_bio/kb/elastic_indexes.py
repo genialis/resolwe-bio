@@ -80,8 +80,8 @@ class FeatureSearchIndex(BaseIndex):
     object_type = Feature
     document_class = FeatureSearchDocument
 
-    def process_object(self, obj, push=True):
-        """Process object, but don't push it to the ElasticSearch.
+    def build(self, obj=None, queryset=None, push=True):
+        """Build object, but don't push it to the ElasticSearch.
 
         ``Feature`` objects are inserted only through management command
         in bulks, so it is much faster if they are not pushed to ES
@@ -98,7 +98,7 @@ class FeatureSearchIndex(BaseIndex):
                 index_builder.push(index=FeatureSearchIndex)
 
         """
-        return super(FeatureSearchIndex, self).process_object(obj, push=False)
+        return super(FeatureSearchIndex, self).build(obj, queryset, push=False)
 
     def get_autocomplete_value(self, obj):
         """Return autocomplete value."""
@@ -140,8 +140,8 @@ class MappingSearchIndex(BaseIndex):
     object_type = Mapping
     document_class = MappingSearchDocument
 
-    def process_object(self, obj, push=True):
-        """Process object, but don't push it to the ElasticSearch.
+    def build(self, obj=None, queryset=None, push=True):
+        """Build object, but don't push it to the ElasticSearch.
 
         ``Mapping`` objects are inserted only through management command
         in bulks, so it is much faster if they are not pushed to ES
@@ -158,7 +158,7 @@ class MappingSearchIndex(BaseIndex):
                 index_builder.push(index=MappingSearchIndex)
 
         """
-        return super(MappingSearchIndex, self).process_object(obj, push=False)
+        return super(MappingSearchIndex, self).build(obj, queryset, push=False)
 
     def get_permissions(self, obj):
         """Skip since Mapping objects have no permissions."""
