@@ -15,7 +15,8 @@ import biox
 
 
 gene_types = ['mRNA', 'SRP_RNA', 'snRNA', 'tRNA', 'C_D_box_snoRNA', 'class_I_RNA',
-              'class_II_RNA', 'rRNA', 'H_ACA_box_snoRNA', 'RNase_P_RNA', 'ncRNA']
+              'class_II_RNA', 'rRNA', 'H_ACA_box_snoRNA', 'RNase_P_RNA', 'ncRNA',
+              'antisense_RNA']
 
 parser = argparse.ArgumentParser(description='Create gene expression profiles.')
 parser.add_argument('gff_file', help='gff file')
@@ -60,6 +61,13 @@ with open(args.gff_file, 'rt') as f:
             genes[gene_id] = {'chr': args.chr, 'strand': strand, 'attr': attr, 'gene_type': '', 'transcripts': {}}
         if rec_type in gene_types:
             gene_id = attr['Parent']
+            existing_transcripts = genes[gene_id]['transcripts'].values()
+            existing_tr_types = set([transcript['type'] for transcript in existing_transcripts])
+            if len(existing_tr_types) > 0 and rec_type not in existing_tr_types:
+                print("All transcripts of a gene need to be of the same type, skipping: {} {} {}-{}".format(seqid, rec_type, start, stop))
+                r = f.readline()
+                continue
+
             t_id = attr['ID']
             gene_type = rec_type
             genes[gene_id]['gene_type'] = gene_type
@@ -72,6 +80,11 @@ with open(args.gff_file, 'rt') as f:
             gene_type = None
         if gene_type is not None and rec_type == 'exon':
             t_id = attr['Parent']
+            if t_id not in tr_genes:
+                print("Parent with ID {} not found, skipping exon: {} {} {}-{}".format(t_id, seqid, rec_type, start, stop))
+                r = f.readline()
+                continue
+
             gene_id = tr_genes[t_id]
             genes[gene_id]['transcripts'][t_id]['exons'].append((start, stop))
         r = f.readline()
