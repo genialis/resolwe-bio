@@ -28,50 +28,93 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('upload-expression')
     def test_upload_expression(self):
-        inputs = {'exp_type': 'TPM', 'exp_name': 'Expression', 'source': 'UCSC'}
+        inputs = {
+            'exp_type': 'TPM',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         self.run_process('upload-expression', inputs, Data.STATUS_ERROR)
 
-        inputs = {'exp': 'exp_1_tpm.tab.gz',
-                  'rc': 'exp_1_rc.tab.gz',
-                  'exp_name': 'Expression',
-                  'source': 'UCSC'}
+        inputs = {
+            'exp': 'exp_1_tpm.tab.gz',
+            'rc': 'exp_1_rc.tab.gz',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         self.run_process('upload-expression', inputs, Data.STATUS_ERROR)
 
-        inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
+        inputs = {
+            'rc': 'exp_1_rc.tab.gz',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_3 = self.run_process('upload-expression', inputs)
         self.assertFile(exp_3, 'rc', 'exp_1_rc.tab.gz')
         self.assertFile(exp_3, 'exp', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_3, exp_3.output['exp_json'], '', 'exp_1.json.gz')
+        self.assertFields(exp_3, 'species', 'Homo sapiens')
+        self.assertFields(exp_3, 'build', 'hg19')
+        self.assertFields(exp_3, 'feature_type', 'gene')
 
-        inputs = {'exp': 'exp_1_tpm.tab.gz',
-                  'exp_type': 'TPM',
-                  'exp_name': 'Expression',
-                  'source': 'UCSC'}
+        inputs = {
+            'exp': 'exp_1_tpm.tab.gz',
+            'exp_type': 'TPM',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_4 = self.run_process('upload-expression', inputs)
         self.assertFile(exp_4, 'exp', 'exp_1_tpm.tab.gz')
 
-        inputs = {'rc': 'exp_1_rc.tab.gz',
-                  'exp': 'exp_1_tpm.tab.gz',
-                  'exp_type': 'TPM',
-                  'exp_name': 'Expression',
-                  'source': 'UCSC'}
+        inputs = {
+            'rc': 'exp_1_rc.tab.gz',
+            'exp': 'exp_1_tpm.tab.gz',
+            'exp_type': 'TPM',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_5 = self.run_process('upload-expression', inputs)
         self.assertFields(exp_5, 'exp_type', 'TPM')
         self.assertFile(exp_5, 'exp', 'exp_1_tpm.tab.gz')
         self.assertFile(exp_5, 'rc', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
 
-        inputs = {'rc': 'exp_mac_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
+        inputs = {
+            'rc': 'exp_mac_line_ending.txt.gz',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_6 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_6, exp_6.output['exp_json'], '', 'exp.json.gz')
 
-        inputs = {'rc': 'exp_unix_line_ending.txt.gz', 'exp_name': 'Expression', 'source': 'UCSC'}
+        inputs = {
+            'rc': 'exp_unix_line_ending.txt.gz',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_7 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_7, exp_7.output['exp_json'], '', 'exp.json.gz')
 
-        inputs = {'rc': 'exp_windows_line_ending.txt.gz',
-                  'exp_name': 'Expression',
-                  'source': 'UCSC'}
+        inputs = {
+            'rc': 'exp_windows_line_ending.txt.gz',
+            'exp_name': 'Expression',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         exp_8 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 

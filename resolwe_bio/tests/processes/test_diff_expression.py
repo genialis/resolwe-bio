@@ -97,21 +97,45 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
     @tag_process('differentialexpression-edger')
     def test_edger(self):
         with self.preparation_stage():
-            inputs = {'rc': 'exp_1_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
+            inputs = {
+                'rc': 'exp_1_rc.tab.gz',
+                'exp_name': 'Expression',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
             expression_1 = self.run_process('upload-expression', inputs)
 
-            inputs = {'rc': 'exp_2_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
+            inputs = {
+                'rc': 'exp_2_rc.tab.gz',
+                'exp_name': 'Expression',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
             expression_2 = self.run_process('upload-expression', inputs)
 
-            inputs = {'rc': 'exp_3_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
+            inputs = {
+                'rc': 'exp_3_rc.tab.gz',
+                'exp_name': 'Expression',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
             expression_3 = self.run_process('upload-expression', inputs)
 
-            inputs = {'rc': 'exp_4_rc.tab.gz', 'exp_name': 'Expression', 'source': 'DICTYBASE'}
+            inputs = {
+                'rc': 'exp_4_rc.tab.gz',
+                'exp_name': 'Expression',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
             expression_4 = self.run_process('upload-expression', inputs)
 
         inputs = {
-            'case': [expression_1.pk, expression_3.pk],
-            'control': [expression_2.pk, expression_4.pk]
+            'case': [expression_1.id, expression_3.id],
+            'control': [expression_2.id, expression_4.id]
         }
 
         diff_exp = self.run_process('differentialexpression-edger', inputs)

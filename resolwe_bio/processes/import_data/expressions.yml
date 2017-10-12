@@ -13,13 +13,14 @@
     resources:
       network: true
   data_name: '{{ exp_name }}'
-  version: 1.0.15
+  version: 2.0.0
   type: data:expression
   flow_collection: sample
   category: upload
   persistence: RAW
   description: >
-        Upload expression data. Please provide raw expression data (read counts) and/or normalized expression data together with the associated data normalization type.
+        Upload expression data. Please provide raw expression data (read counts) and/or normalized
+        expression data together with the associated data normalization type.
   input:
     - name: rc
       label: Read counts (raw expression)
@@ -59,6 +60,41 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
+      description: >
+        Genome build or annotation version.
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      default: gene
+      choices:
+        - label: gene
+          value: gene
+        - label: transcript
+          value: transcript
+        - label: exon
+          value: exon
   output:
     - name: exp
       label: Normalized expression
@@ -78,20 +114,26 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       {% if not exp and not rc %}
-        re-save source {{source}}
         re-error "Please provide raw or/and normalized expression files."
 
       {% elif exp and not exp_type %}
-        re-save source {{source}}
         re-error "Please provide normalization type together with normalized expressions."
 
       {% elif not exp and exp_type and rc %}
-        re-save source {{source}}
         re-error "Please provide raw or/and normalized expression files."
 
       {% elif rc and not exp and not exp_type %}
@@ -105,6 +147,9 @@
         re-checkrc
         re-save exp_json json.txt
         re-save source {{source}}
+        re-save species {{species}}
+        re-save build {{build}}
+        re-save feature_type {{feature_type}}
 
       {% elif exp and exp_type and not rc %}
         re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" "tab" 0.1 compress
@@ -112,11 +157,15 @@
         EXP_TYPE={{exp_type}}
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${EXP_NAME}.tab.gz
+        re-save feature_type {{feature_type}}
 
         expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt
         re-save source {{source}}
+        re-save species {{species}}
+        re-save build {{build}}
+        re-save feature_type {{feature_type}}
 
       {% else %}
         re-import {{ rc.file_temp|default(rc.file) }} {{ rc.file }} "txt|tab|gz" "tab" 0.5 compress
@@ -132,6 +181,9 @@
         re-checkrc
         re-save exp_json json.txt
         re-save source {{source}}
+        re-save species {{species}}
+        re-save build {{build}}
+        re-save feature_type {{feature_type}}
       {% endif %}
 
 
@@ -145,7 +197,7 @@
     resources:
       network: true
   data_name: '{{ exp.file|default("?") }}'
-  version: 1.0.8
+  version: 1.1.0
   type: data:expression
   category: upload
   persistence: RAW
@@ -184,6 +236,12 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -197,6 +255,8 @@
         re-save exp_type ${EXP_TYPE}
         re-save-file exp ${EXP_NAME}.tab.gz
         re-save source {{cxb.source}}
+        re-save species {{cxb.species}}
+        re-save build {{cxb.build}}
         expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt

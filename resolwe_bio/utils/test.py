@@ -125,9 +125,19 @@ class BioProcessTestCase(ProcessTestCase):
         return self.run_process('upload-fasta-nucl', {'src': fn})
 
     def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type='TPM',
-                           name='Expression', source='DICTYBASE', descriptor=None):
+                           name='Expression', source='DICTYBASE', descriptor=None, feature_type='gene',
+                           species='Dictyostelium discoideum', build='dd-05-2009'):
         """Prepare expression."""
-        inputs = {'rc': f_rc, 'exp': f_exp, 'exp_type': f_type, 'exp_name': name, 'source': source}
+        inputs = {
+            'rc': f_rc,
+            'exp': f_exp,
+            'exp_type': f_type,
+            'exp_name': name,
+            'source': source,
+            'species': species,
+            'build': build,
+            'feature_type': feature_type
+        }
         expression = self.run_process('upload-expression', inputs)
         if descriptor:
             sample = Sample.objects.get(data=expression)
