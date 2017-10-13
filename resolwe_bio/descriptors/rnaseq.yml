@@ -1,6 +1,6 @@
 - slug: rna-seq
   name: RNA-seq
-  version: 0.0.2
+  version: 0.0.3
   description: RNA-seq template
   schema:
     - name: genome_and_annotation
@@ -12,9 +12,16 @@
           value: hs
         - label: Mus musculus
           value: mm
+    - name: advanced
+      label: Advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
     - name: adapters
       label: Adapters
       type: basic:string
+      hidden: "!advanced"
       default: 'yes'
       choices:
         - label: Remove
@@ -24,12 +31,14 @@
     - name: minlen
       label: Minimum read length
       type: basic:integer
+      hidden: "!advanced"
       default: 10
       description: >
         Trimmed reads shorter than the minimum read length will be discarded.
     - name: trailing
       label: Trailing quality
       type: basic:integer
+      hidden: "!advanced"
       default: 28
       description: >
         The minimum quality required to keep a base. Bases with lower quality
@@ -37,6 +46,7 @@
     - name: stranded
       label: Assay type
       type: basic:string
+      hidden: "!advanced"
       default: 'no'
       choices:
         - label: Strand non-specific

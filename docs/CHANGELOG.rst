@@ -31,6 +31,7 @@ Changed
   tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14,
   FastQC 0.11.5, HTSeq 0.9.1, and SAMtools 1.5
 * **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 1.11.x
+* Add the advanced options checkbox to the ``rna-seq`` descriptor schema
 
 Fixed
 -----
