@@ -16,9 +16,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
         self.run_process(
             'workflow-rnaseq-cuffquant', {
@@ -43,7 +41,12 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             inputs = {'src': 'poly_A.fa.gz'}
             adapters1 = self.run_process('upload-fasta-nucl', inputs)
 
-            inputs = {'src': 'HS_chr21_short.gtf.gz', 'source': 'ENSEMBL'}
+            inputs = {
+                'src': 'HS_chr21_short.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            }
             annotation = self.run_process('upload-gtf', inputs)
 
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
@@ -70,8 +73,13 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
             paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
-                                                     mate2=['SRR2124780_2 1k.fastq.gz'])
-            annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='DICTYBASE')
+                                                    mate2=['SRR2124780_2 1k.fastq.gz'])
+            annotation = self.prepare_annotation(
+                fn='HS_chr21_short.gtf.gz',
+                source='UCSC',
+                species='Homo sapiens',
+                build='hg19'
+            )
             star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
@@ -89,6 +97,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         )
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
+
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_ccshs.tab.gz', compression='gzip')
 
@@ -110,7 +119,12 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             inputs = {'src': 'genome_rsem.fa.gz'}
             genome = self.run_process('upload-fasta-nucl', inputs)
 
-            inputs = {'src': 'annotation_rsem.gtf.gz', 'source': 'ENSEMBL'}
+            inputs = {
+                'src': 'annotation_rsem.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            }
             annotation = self.run_process('upload-gtf', inputs)
 
             inputs = {'genome2': genome.pk, 'annotation': annotation.pk}

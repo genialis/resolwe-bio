@@ -115,10 +115,27 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src': fn}
         return self.run_process('upload-bam', inputs)
 
-    def prepare_annotation(self, fn='sp_test.gtf', source='DICTYBASE'):
+    def prepare_annotation(self, fn='sp_test.gtf', source='DICTYBASE',
+                           species='Dictyostelium discoideum', build='dd-05-2009'):
         """Prepare annotation GTF."""
-        inputs = {'src': fn, 'source': source}
+        inputs = {
+            'src': fn,
+            'source': source,
+            'species': species,
+            'build': build
+        }
         return self.run_process('upload-gtf', inputs)
+
+    def prepare_annotation_gff(self, fn='annotation.gff.gz', source='DICTYBASE',
+                               species='Dictyostelium discoideum', build='dd-05-2009'):
+        """Prepare annotation GFF3."""
+        inputs = {
+            'src': fn,
+            'source': source,
+            'species': species,
+            'build': build
+        }
+        return self.run_process('upload-gff3', inputs)
 
     def prepare_adapters(self, fn='adapters.fasta'):
         """Prepare adapters FASTA."""

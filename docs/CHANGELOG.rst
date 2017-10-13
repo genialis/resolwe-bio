@@ -17,6 +17,8 @@ Changed
   of lifetime and change all images to use new ubuntu 17.10 image
 * **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
   inputs in ``upload-genome`` process
+* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
+  inputs in ``upload-gtf`` and ``upload-gff3`` process
 
 Added
 -----

@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 1.0.19
+  version: 2.0.0
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -41,12 +41,40 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
   output:
     - name: gff
       label: Uploaded file
       type: basic:file
     - name: source
       label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
       type: basic:string
   run:
     runtime: polyglot
@@ -59,6 +87,8 @@
       re-progress 0.2
       re-save-file gff ${NAME}.gff
       re-save source {{source}}
+      re-save species {{species}}
+      re-save build {{build}}
 
 - slug: upload-gtf
   name: Annotation (GTF2.2)
@@ -70,7 +100,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 1.0.22
+  version: 2.0.0
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -100,12 +130,40 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
   output:
     - name: gtf
       label: Uploaded file
       type: basic:file
     - name: source
       label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
       type: basic:string
   run:
     runtime: polyglot
@@ -115,3 +173,5 @@
 
       re-save-file gtf ${NAME}.gtf
       re-save source {{source}}
+      re-save species {{species}}
+      re-save build {{build}}

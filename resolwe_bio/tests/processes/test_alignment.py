@@ -82,8 +82,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
                                                      mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
 
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
         inputs = {
             'genome': genome.id,
@@ -103,13 +102,32 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_process('alignment-tophat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'tophat_paired_reads_report.txt')
 
+<<<<<<< Updated upstream
+=======
+    @tag_process('alignment-star-index')
+    def test_star_index(self):
+        with self.preparation_stage():
+            annotation_gtf = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
+                                                     species='Homo sapiens', build='hg19')
+            star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+            genome = self.prepare_genome()
+            annotation_gff3 = self.prepare_annotation_gff()
+
+        inputs_gtf = {'annotation': annotation_gtf.id, 'genome2': star_index_fasta.id}
+        self.run_process('alignment-star-index', inputs_gtf)
+
+        inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
+        self.run_process('alignment-star-index', inputs_gff3)
+
+>>>>>>> Stashed changes
     @tag_process('alignment-star-index', 'alignment-star')
     def test_star(self):
         with self.preparation_stage():
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
             paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
                                                      mate2=['SRR2124780_2 1k.fastq.gz'])
-            annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='DICTYBASE')
+            annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
+                                                 species='Homo sapiens', build='hg19')
             star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
 
         inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}

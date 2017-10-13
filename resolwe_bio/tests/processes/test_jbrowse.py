@@ -18,8 +18,7 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
     @tag_process('jbrowse-gff3')
     def test_gff3_track(self):
         with self.preparation_stage():
-            inputs = {'src': 'annotation.gff.gz', 'source': 'dictyBase'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
         gff = self.run_process('jbrowse-gff3', {'gff': annotation.pk})
         del gff.output['annotation_track']['total_size']  # Non-deterministic output.

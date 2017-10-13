@@ -10,19 +10,17 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
             inputs = {
-                'genome': genome.pk,
-                'reads': reads.pk,
-                'gff': annotation.pk,
+                'genome': genome.id,
+                'reads': reads.id,
+                'gff': annotation.id,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)
 
-        inputs = {'bam': aligned_reads.pk}
+        inputs = {'bam': aligned_reads.id}
 
         coverage = self.run_process('bam-coverage', inputs)
         self.assertFile(coverage, 'bigwig', 'genome_coverage.bw')

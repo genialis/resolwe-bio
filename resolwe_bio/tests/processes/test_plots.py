@@ -28,10 +28,14 @@ class PlotsProcessorTestCase(BioProcessTestCase):
     @tag_process('bamplot')
     def test_bamplot_gff(self):
         with self.preparation_stage():
-            inputs = {'src': 'bamplot.bed'}
-            bed = self.run_process('upload-bed', inputs)
+            bed = self.run_process('upload-bed', {'src': 'bamplot.bed'})
 
-            inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
+            inputs = {
+                'src': 'bamplot.gff',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38'
+            }
             gff = self.run_process('upload-gtf', inputs)
 
             inputs = {'src': 'bamplot_alignment.bam'}
@@ -76,8 +80,18 @@ class PlotsProcessorTestCase(BioProcessTestCase):
             inputs = {'src': 'bamplot_alignment.bam'}
             bam = self.run_process('upload-bam', inputs)
 
+<<<<<<< HEAD
             inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
             gff = self.run_process('upload-gtf', inputs)
+=======
+        inputs = {
+            'src': 'bamplot.gff',
+            'source': 'NCBI',
+            'species': 'Homo sapiens',
+            'build': 'GRCh38'
+        }
+        gff = self.run_process('upload-gtf', inputs)
+>>>>>>> Add species and build inputs to upload-gtf/gff processes
 
         inputs = {'bam': [bam1.id, bam.id],
                   'analysis_type': 'region',

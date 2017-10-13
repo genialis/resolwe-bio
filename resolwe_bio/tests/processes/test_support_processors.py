@@ -60,7 +60,12 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('feature_location')
     def test_feature_location(self):
         with self.preparation_stage():
-            inputs = {'src': 'mm10_small.gtf.gz', 'source': 'UCSC'}
+            inputs = {
+                'src': 'mm10_small.gtf.gz',
+                'source': 'UCSC',
+                'species': 'Mus musculus',
+                'build': 'mm10'
+            }
             annotation = self.run_process('upload-gtf', inputs)
 
         inputs = {'annotation': annotation.pk,
@@ -86,11 +91,9 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('gff-to-gtf')
     def test_gff_to_gtf(self):
         with self.preparation_stage():
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
-        inputs = {'annotation': annotation.pk}
-        gff_to_gtf = self.run_process('gff-to-gtf', inputs)
+        gff_to_gtf = self.run_process('gff-to-gtf', {'annotation': annotation.id})
         self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gtf_annotation.gtf')
 
     @tag_process('archive-samples')

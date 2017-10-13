@@ -18,7 +18,12 @@ class AnnotationProcessorTestCase(BioProcessTestCase):
             }
             genome = self.run_process('upload-genome', inputs)
 
-            inputs = {'src': 'annotation_transdecoder.gff.gz', 'source': 'dictyBase'}
+            inputs = {
+                'src': 'annotation_transdecoder.gff.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             annotation = self.run_process('upload-gff3', inputs)
 
             inputs = {

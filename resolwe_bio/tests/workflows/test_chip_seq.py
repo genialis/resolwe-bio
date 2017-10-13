@@ -10,9 +10,7 @@ class ChipSeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
+            annotation = self.prepare_annotation_gff()
 
         self.run_process(
             'workflow-chip-seq', {

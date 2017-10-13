@@ -12,16 +12,24 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
+            annotation = self.prepare_annotation_gff()
 
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
-
-            # GTF inport
-            inputs = {'src': 'annotation_ok.gtf.gz', 'source': 'DICTYBASE'}
+            # GTF import
+            inputs = {
+                'src': 'annotation_ok.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             annotation_gtf = self.run_process('upload-gtf', inputs)
 
-            # redundant GTF inport
-            inputs = {'src': 'annotation_red.gtf.gz', 'source': 'DICTYBASE'}
+            # redundant GTF import
+            inputs = {
+                'src': 'annotation_red.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             annotation_gtf_red = self.run_process('upload-gtf', inputs)
 
             inputs = {
