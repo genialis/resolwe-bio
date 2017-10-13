@@ -38,7 +38,16 @@ throttle(["resolwe_bio"]) {
                     sh "tox -e migrations"
 
                     sh "echo 'Environment:' && python3.4 --version"
-                    sh "tox -e py34"
+
+                    if (env.CHANGE_TARGET) {
+                        // run partial test suite depending on detected changes to the target
+                        // branch if we are testing a pull request
+                        withEnv(["RESOLWE_TEST_ONLY_CHANGES_TO=origin/${env.CHANGE_TARGET}"]) {
+                            sh "tox -e py34-partial"
+                        }
+                    } else {
+                        sh "tox -e py34"
+                    }
                 }
             }
 

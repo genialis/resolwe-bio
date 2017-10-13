@@ -1,0 +1,29 @@
+# Processes.
+- type: process
+  match: '^resolwe_bio/processes/.+\.ya?ml$'
+# Tests.
+- type: test
+  match: '^resolwe_bio/tests/.+\.py$'
+# Test data files.
+- type: force_run
+  name: test data files
+  match: '^resolwe_bio/tests/files/.+$'
+# Other code.
+- type: force_run
+  name: other code
+  match: '\.py$'
+# Documentation.
+- type: ignore
+  name: documentation
+  match: '\.(md|rst)'
+- type: ignore
+  name: documentation
+  match: '^docs/.+$'
+# Manifest.
+- type: ignore
+  name: package manifest
+  match: 'MANIFEST.in'
+# Git metadata.
+- type: ignore
+  name: git
+  match: '^\.git.+'

@@ -143,6 +143,17 @@ For example, to only run the tests with Python 3.5, use ::
     To control the number of test processes `Django will run in parallel`_, set
     the ``DJANGO_TEST_PROCESSES`` environment variable.
 
+Since running tests for all processes may take a long time, there is an option
+to run partial tests based on what files have been changed between HEAD and a
+specific commit (e.g. master). The Tox environments that run partial tests have
+the ``-partial`` suffix, e.g.::
+
+    tox -e py35-partial
+
+To configure the commit against which the changes are compared you should set
+the ``RESOLWE_TEST_ONLY_CHANGES_TO`` environmental variable (it is set to master
+by default).
+
 .. _Tox: http://tox.testrun.org/
 .. _Django will run in parallel:
     https://docs.djangoproject.com/en/1.10/ref/django-admin/#cmdoption-test-parallel

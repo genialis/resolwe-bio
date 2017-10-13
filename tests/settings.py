@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'resolwe.flow',
     'resolwe.elastic',
     'resolwe.toolkit',
+    'resolwe.test_helpers',
 
     'resolwe_bio',
     'resolwe_bio.kb',
@@ -158,3 +159,9 @@ if os.environ.get('RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES', '').lower() in ["no",
 
 ELASTICSEARCH_HOST = os.environ.get('RESOLWE_ES_HOST', 'localhost')
 ELASTICSEARCH_PORT = int(os.environ.get('RESOLWE_ES_PORT', '59201'))
+
+# Testing.
+
+TEST_RUNNER = 'resolwe.test_helpers.test_runner.ResolweRunner'
+TEST_PROCESS_REQUIRE_TAGS = True
+TEST_PROCESS_PROFILE = True
