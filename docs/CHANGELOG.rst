@@ -21,6 +21,7 @@ Changed
   VCF files are stored in bgzip-compressed form. Tabix index is not referenced
   to an original VCF file anymore, but stored in a separate ``tbi`` output field
 - **BACKWARD INCOMPATIBLE:** Remove an obsolete ``workflow-accel-2`` workflow
+- **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 5.x
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
 - Use ``resolwebio/dnaseq`` Docker image in ``picard-pcrmetrics`` process

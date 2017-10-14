@@ -48,6 +48,7 @@ setup(
         'Django~=1.11.0',
         'djangorestframework~=3.7.0',
         'djangorestframework-filters~=0.10.0',
+        'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=7.0a1, ==7.*',
         'tqdm>=4.1',

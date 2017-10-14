@@ -17,31 +17,28 @@ class FeatureSearchDocument(BaseDocument):
     """Index for feature search."""
 
     # pylint: disable=no-member
-    source = dsl.String(index='not_analyzed')
-    feature_id = dsl.String(
-        index='not_analyzed',
+    source = dsl.Keyword()
+    feature_id = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
-        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+        fields={'lower': {'type': 'text', 'analyzer': identifier_analyzer}},
     )
-    species = dsl.String()
-    type = dsl.String()  # pylint: disable=invalid-name
-    sub_type = dsl.String()
-    name = dsl.String(
-        index='not_analyzed',
+    species = dsl.Keyword()
+    type = dsl.Keyword()  # pylint: disable=invalid-name
+    sub_type = dsl.Keyword()
+    name = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
-        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+        fields={'lower': {'type': 'text', 'analyzer': identifier_analyzer}},
     )
-    full_name = dsl.String()
-    description = dsl.String()
-    aliases = dsl.String(
+    full_name = dsl.Text()
+    description = dsl.Text()
+    aliases = dsl.Keyword(
         multi=True,
-        index='not_analyzed',
         # Additional subfield used for boosting during autocomplete.
-        fields={'lower': {'type': 'string', 'analyzer': identifier_analyzer}},
+        fields={'lower': {'type': 'text', 'analyzer': identifier_analyzer}},
     )
 
     # Autocomplete.
-    autocomplete = dsl.String(
+    autocomplete = dsl.Text(
         multi=True,
         # During indexing, we lowercase terms and tokenize using edge_ngram.
         analyzer=dsl.analyzer(
@@ -100,14 +97,14 @@ class MappingSearchDocument(BaseDocument):
     """Index for mapping search."""
 
     # pylint: disable=no-member
-    relation_type = dsl.String(index='not_analyzed')
-    source_db = dsl.String(index='not_analyzed')
-    source_id = dsl.String(index='not_analyzed')
-    source_species = dsl.String(index='not_analyzed')
-    target_db = dsl.String(index='not_analyzed')
-    target_id = dsl.String(index='not_analyzed')
-    target_species = dsl.String(index='not_analyzed')
-    relation_type = dsl.String(index='not_analyzed')
+    relation_type = dsl.Keyword()
+    source_db = dsl.Keyword()
+    source_id = dsl.Keyword()
+    source_species = dsl.Keyword()
+    target_db = dsl.Keyword()
+    target_id = dsl.Keyword()
+    target_species = dsl.Keyword()
+    relation_type = dsl.Keyword()
 
     class Meta:
         """Meta class for mapping search document."""

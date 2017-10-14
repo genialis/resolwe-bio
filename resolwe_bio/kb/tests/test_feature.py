@@ -1,8 +1,6 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import time
-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
@@ -39,14 +37,6 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
 
         for i in range(7, 10):
             self.features.append(FeatureTestCase.create_feature(i, 'XSRC'))
-
-        # Features are not pushed automatically
-        self.push_indexes()
-
-        # TODO: Better solution for ES5:
-        #       https://github.com/elastic/elasticsearch/pull/17986
-        # wait for ElasticSearch to index the data
-        time.sleep(2)
 
     def assertFeatureEqual(self, data, feature):
         self.assertEqual(data['source'], feature.source)

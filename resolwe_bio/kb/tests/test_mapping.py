@@ -1,8 +1,6 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import time
-
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
@@ -29,14 +27,6 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
                 target_id='ANOTHER{}'.format(i),
                 target_species='Mus musculus',
             ))
-
-        # Mappings are not pushed automatically
-        self.push_indexes()
-
-        # TODO: Better solution for ES5:
-        #       https://github.com/elastic/elasticsearch/pull/17986
-        # wait for ElasticSearch to index the data
-        time.sleep(2)
 
     def assertMappingEqual(self, data, mapping):
         self.assertEqual(data['relation_type'], mapping.relation_type)
