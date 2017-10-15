@@ -23,14 +23,14 @@ class FeatureSearchDocument(BaseDocument):
         fields={'lower': {'type': 'text', 'analyzer': identifier_analyzer}},
     )
     species = dsl.Keyword()
-    type = dsl.Keyword()  # pylint: disable=invalid-name
-    sub_type = dsl.Keyword()
+    type = dsl.Keyword(index=False)  # pylint: disable=invalid-name
+    sub_type = dsl.Keyword(index=False)
     name = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
         fields={'lower': {'type': 'text', 'analyzer': identifier_analyzer}},
     )
-    full_name = dsl.Text()
-    description = dsl.Text()
+    full_name = dsl.Text(index=False)
+    description = dsl.Text(index=False)
     aliases = dsl.Keyword(
         multi=True,
         # Additional subfield used for boosting during autocomplete.
@@ -97,7 +97,7 @@ class MappingSearchDocument(BaseDocument):
     """Index for mapping search."""
 
     # pylint: disable=no-member
-    relation_type = dsl.Keyword()
+    relation_type = dsl.Keyword(index=False)
     source_db = dsl.Keyword()
     source_id = dsl.Keyword()
     source_species = dsl.Keyword()
