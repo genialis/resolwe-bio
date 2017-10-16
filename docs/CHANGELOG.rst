@@ -19,6 +19,8 @@ Changed
   inputs in ``upload-genome`` process
 * **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
   inputs in ``upload-gtf`` and ``upload-gff3`` process
+* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
+  information in aligner processes
 
 Added
 -----

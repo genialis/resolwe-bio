@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.20
+  version: 1.1.0
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -119,6 +119,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -285,6 +291,8 @@
       re-save-file bam "${FW_NAME}_mapped.bam"
       re-save-file bai "${FW_NAME}_mapped.bam.bai"
       re-save-file stats stats.tab.gz
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
       if [ -f "${NAME}_unmapped.bam" ]; then
         re-save-file unmapped "${FW_NAME}_unmapped.fastq.gz"
@@ -300,7 +308,7 @@
     resources:
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.25
+  version: 1.1.0
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -441,6 +449,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -601,3 +615,5 @@
       samtools index "${FW_NAME}.bam" "${FW_NAME}.bam.bai"
       re-checkrc
       re-save-file bai "${FW_NAME}.bam.bai"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}

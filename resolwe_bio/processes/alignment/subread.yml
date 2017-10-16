@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 0.0.7
+  version: 0.1.0
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample
@@ -101,6 +101,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -193,6 +199,8 @@
       re-save-file bam "${NAME}.bam"
       re-save-file bai "${NAME}.bam.bai"
       re-save-file stats "${NAME}_report.txt"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"

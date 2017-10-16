@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.2
+  version: 1.2.0
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -114,6 +114,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -207,6 +213,8 @@
       re-save-file bam "${NAME}.bam"
       re-save-file bai "${NAME}.bam.bai"
       re-save-file stats "${NAME}_report.txt"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
@@ -220,7 +228,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.18
+  version: 1.1.0
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -265,6 +273,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -340,6 +354,8 @@
       re-save-file bam "${NAME}.bam"
       re-save-file bai "${NAME}.bam.bai"
       re-save-file stats "${NAME}_report.txt"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
@@ -353,7 +369,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.19
+  version: 1.1.0
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -412,6 +428,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -503,6 +525,8 @@
       re-save-file bam "${NAME}.bam"
       re-save-file bai "${NAME}.bam.bai"
       re-save-file stats "${NAME}_report.txt"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"

@@ -18,6 +18,8 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         }
         bsmap = self.run_process('bsmap', inputs)
         self.assertFile(bsmap, 'stats', 'bsmap_reads_report.txt')
+        self.assertFields(bsmap, 'species', 'Dictyostelium discoideum')
+        self.assertFields(bsmap, 'build', 'dd-05-2009')
 
     @tag_process('mcall')
     def test_mcall(self):

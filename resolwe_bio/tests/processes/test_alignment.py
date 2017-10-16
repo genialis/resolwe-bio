@@ -23,6 +23,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         }
         alignment = self.run_process('alignment-bowtie', inputs)
         self.assertFile(alignment, 'stats', 'bowtie_single_reads_report.tab.gz', compression='gzip')
+        self.assertFields(alignment, 'species', 'Dictyostelium discoideum')
+        self.assertFields(alignment, 'build', 'dd-05-2009')
 
         inputs = {
             'genome': genome.id,
@@ -56,6 +58,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
         inputs = {
             'genome': genome.id,
@@ -92,6 +96,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
                 'library_type': "fr-unstranded"}}
         aligned_reads = self.run_process('alignment-tophat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'tophat_reads_report.txt')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
         inputs = {
             'genome': genome.id,
@@ -129,10 +135,10 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
                                                  species='Homo sapiens', build='hg19')
             star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
-        inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            star_index = self.run_process('alignment-star-index', inputs)
 
-        star_index = self.run_process('alignment-star-index', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
@@ -147,9 +153,12 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
 
         self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_single.tab.gz', compression='gzip')
+        self.assertFields(aligned_reads, 'species', 'Homo sapiens')
+        self.assertFields(aligned_reads, 'build', 'hg19')
+
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
-        self.assertFields(exp, 'source', 'DICTYBASE')
+        self.assertFields(exp, 'source', 'UCSC')
 
         inputs = {
             'genome': star_index.id,
@@ -164,7 +173,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_paired.tab.gz', compression='gzip')
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'star_expression_paired.tab.gz', compression='gzip')
-        self.assertFields(exp, 'source', 'DICTYBASE')
+        self.assertFields(exp, 'source', 'UCSC')
 
     @tag_process('alignment-bwa-aln')
     def test_bwa_bt(self):
@@ -181,6 +190,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-bwa-aln', inputs)
         self.assertFile(aligned_reads, 'stats', 'bwa_bt_paired_reads_report.txt')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
     @tag_process('alignment-bwa-sw')
     def test_bwa_sw(self):
@@ -199,6 +210,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_process('alignment-bwa-sw', inputs)
         self.assertFile(aligned_reads, 'bam', 'bwa_sw_paired_reads_mapped.bam')
         self.assertFile(aligned_reads, 'stats', 'bwa_sw_paired_reads_report.txt')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
     @tag_process('alignment-bwa-mem')
     def test_bwa_mem(self):
@@ -216,6 +229,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         aligned_reads = self.run_process('alignment-bwa-mem', inputs)
         self.assertFile(aligned_reads, 'stats', 'bwa_mem_paired_reads_report.txt')
         self.assertFile(aligned_reads, 'unmapped', 'bwa_mem_unmapped_reads.fastq.gz', compression='gzip')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
     @tag_process('alignment-hisat2')
     def test_hisat2(self):
@@ -247,6 +262,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped_1.fastq.gz', compression='gzip')
         self.assertFile(aligned_reads, 'unmapped_r', 'hisat2_unmapped_2.fastq.gz', compression='gzip')
         self.assertFileExists(aligned_reads, 'splice_junctions')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
     @tag_process('alignment-subread')
     def test_subread(self):
@@ -267,6 +284,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_reads_report.txt')
+        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
+        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
         inputs = {'genome': genome_2.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-subread', inputs)

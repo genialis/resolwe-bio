@@ -14,7 +14,7 @@
       memory: 32768
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.5
+  version: 1.2.0
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -178,6 +178,12 @@
     - name: stats
       label: Statistics
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -310,6 +316,8 @@
       re-save-file bai "${READS_NAME}.bam.bai"
       re-save-file sj "${READS_NAME}_SJ.out.tab"
       re-save-file stats "${READS_NAME}_stats.txt"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
 
 
 - slug: alignment-star-index
@@ -323,7 +331,7 @@
       memory: 32768
       cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.0.12
+  version: 1.1.0
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -383,6 +391,12 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -423,3 +437,5 @@
       re-progress 0.8
       re-save-dir index star_index
       re-save source {{annotation.source}}
+      re-save species {{annotation.species}}
+      re-save build {{annotation.build}}
