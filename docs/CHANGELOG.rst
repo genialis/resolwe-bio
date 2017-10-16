@@ -22,6 +22,7 @@ Added
 * Add input filename regex validator for ``upload-master-file`` process
 * Add automatic headers extractor to ``bam-split`` process
 * Add html amplicon plot in ``coveragebed`` process
+* Add raw `RSEM` tool output to `rsem` process output
 
 Changed
 -------

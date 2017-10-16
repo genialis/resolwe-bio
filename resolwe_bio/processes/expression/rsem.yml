@@ -11,9 +11,9 @@
       cores: 1
     executor:
       docker:
-        image: resolwebio/rnaseq:1.1.0
+        image: resolwebio/rnaseq:1.2.0
   data_name: "Quantification ({{ (alignments|sample_name) }})"
-  version: 0.0.1
+  version: 0.0.2
   type: data:expression:rsem
   category: analyses
   flow_collection: sample
@@ -66,6 +66,12 @@
     - name: source
       label: Source of transcript ID
       type: basic:string
+    - name: genes
+      label: Results grouped by gene
+      type: basic:file
+    - name: transcripts
+      label: Results grouped by transcript
+      type: basic:file
     - name: log
       label: RSEM log
       type: basic:file
@@ -88,14 +94,14 @@
         --strandedness {{ strandedness }} \
         reads.bam \
         '{{ expression_index.rsem_index.dir }}/index' \
-        rsem &>"${NAME}_RSEM.log"
+        rsem &>"${NAME}.log"
       re-checkrc 'Quantification by RSEM failed.'
 
-      gzip "${NAME}_RSEM.log"
+      gzip "${NAME}.log"
 
-      echo -e 'Transcript\tExpression' >"${NAME}_RSEM_rc.tab"
-      cut -f1,5 rsem.isoforms.results | tail -n +2 >>"${NAME}_RSEM_rc.tab"
-      gzip "${NAME}_RSEM_rc.tab"
+      echo -e 'Transcript\tExpression' >"${NAME}_rc.tab"
+      cut -f1,5 rsem.isoforms.results | tail -n +2 >>"${NAME}_rc.tab"
+      gzip "${NAME}_rc.tab"
 
       echo -e 'Transcript\tExpression' >"${NAME}_fpkm.tab"
       cut -f1,7 rsem.isoforms.results | tail -n +2 >>"${NAME}_fpkm.tab"
@@ -106,16 +112,20 @@
       gzip "${NAME}_tpm.tab"
 
       expression2storage.py --output "${NAME}_tpm.json" "${NAME}_tpm.tab.gz"
-      re-checkrc
+      re-checkrc 'Conversion of expressions to JSON failed.'
 
-      echo -e 'Transcript\tExpression' >"${NAME}_iso_pct.tab"
-      cut -f1,8 rsem.isoforms.results | tail -n +2 >>"${NAME}_iso_pct.tab"
-      gzip "${NAME}_iso_pct.tab"
+      mv rsem.genes.results "${NAME}_genes.tab"
+      gzip "${NAME}_genes.tab"
+
+      mv rsem.isoforms.results "${NAME}_isoforms.tab"
+      gzip "${NAME}_isoforms.tab"
       
-      re-save-file rc "${NAME}_RSEM_rc.tab.gz"
+      re-save-file rc "${NAME}_rc.tab.gz"
       re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save exp_json "${NAME}_tpm.json"
       re-save exp_type 'TPM'
       re-save source {{ expression_index.source }}
-      re-save-file log "${NAME}_RSEM.log.gz"
+      re-save-file log "${NAME}.log.gz"
+      re-save-file genes "${NAME}_genes.tab.gz"
+      re-save-file transcripts "${NAME}_isoforms.tab.gz"

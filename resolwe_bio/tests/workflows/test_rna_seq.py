@@ -128,6 +128,8 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
 
         self.assertFile(workflow, 'rc', 'workflow_ccsrs.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'genes', 'rsem_genes_single.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'transcripts', 'rsem_isoforms_single.tab.gz', compression='gzip')
 
         inputs = {
             'reads': paired_reads.pk,
@@ -142,6 +144,8 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
 
         self.assertFile(workflow, 'rc', 'workflow_ccsrp.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'genes', 'rsem_genes_paired.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'transcripts', 'rsem_isoforms_paired.tab.gz', compression='gzip')
 
     def test_rnaseq_single_workflow(self):
         genome = self.prepare_genome()
