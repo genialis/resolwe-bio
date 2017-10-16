@@ -21,6 +21,10 @@ Changed
   process
 * Change formatting of ``EFF[*].AA`` column in ``snpeff`` process
 
+Fixed
+-----
+* Fix pre-sorting in ``upload-master-file`` process
+
 
 ==================
 6.0.0 - 2017-11-28
