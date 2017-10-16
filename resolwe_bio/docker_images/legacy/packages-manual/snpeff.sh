@@ -23,6 +23,9 @@ echo '#!/bin/sh' > bin/SnpSift
 echo 'exec java -Xmx16g -jar /opt/snpeff/snpeff/SnpSift.jar "$@"' > bin/SnpSift
 chmod +x bin/SnpSift
 
+# Ensure data is downloaded during build. If not, fail.
+test -d data
+
 add_binary_path \
     snpeff \
     snpeff \
