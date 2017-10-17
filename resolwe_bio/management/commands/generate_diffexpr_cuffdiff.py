@@ -75,14 +75,22 @@ class Command(BaseCommand):
                 process=get_process('upload-cxb'),
                 contributor=get_superuser(),
                 status=Data.STATUS_PROCESSING,
-                input={'src': {'file': cuffquant_file}, 'source': 'UCSC'})
+                input={
+                    'src': {'file': cuffquant_file},
+                    'source': 'UCSC',
+                    'species': 'Homo sapiens',
+                    'build': 'hg19',
+                    'feature_type': 'gene'})
 
             os.mkdir(os.path.join(self.data_dir, str(exp.id)))
             shutil.copy(os.path.join(self.test_files_path, cuffquant_file), os.path.join(self.data_dir, str(exp.id)))
 
             exp.output = {
                 'cxb': {'file': cuffquant_file},
-                'source': 'UCSC'
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+                'feature_type': 'gene'
             }
             exp.status = Data.STATUS_DONE
             exp.save()
@@ -109,7 +117,11 @@ class Command(BaseCommand):
             process=get_process('upload-gtf'),
             contributor=get_superuser(),
             status=Data.STATUS_PROCESSING,
-            input={'src': {'file': filename}, 'source': 'UCSC'})
+            input={
+                'src': {'file': filename},
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19'})
 
         os.mkdir(os.path.join(self.data_dir, str(ann.id)))
 
@@ -118,8 +130,10 @@ class Command(BaseCommand):
                 shutil.copyfileobj(gzfile, outfile)
 
         ann.output = {
-            'gtf': {'file': filename[:-3]},
-            'source': 'UCSC'
+            'annot': {'file': filename[:-3]},
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
         }
         ann.status = Data.STATUS_DONE
         ann.save()
@@ -261,7 +275,10 @@ class Command(BaseCommand):
             'cds_diff_exp': {'file': 'test.txt'},
             'tss_group_diff_exp': {'file': 'test.txt'},
             'cuffdiff_output': {'file': 'test.txt'},
-            'source': 'UCSC'
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19',
+            'feature_type': 'gene',
         }
 
         de_obj.status = Data.STATUS_DONE

@@ -32,6 +32,24 @@ from .utils import (get_descriptorschema, get_process, get_superuser,
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 
+SPECIES_MAP = {
+    'Dd': {
+        'source': 'DICTYBASE',
+        'species': 'Dictyostelium discoideum',
+        'build': 'dd-05-2009'
+    },
+    'Mm': {
+        'source': 'UCSC',
+        'species': 'Mus musculus',
+        'build': 'mm10'
+    },
+    'Hs': {
+        'source': 'UCSC',
+        'species': 'Homo sapiens',
+        'build': 'hg19'
+    }
+}
+
 
 class Command(BaseCommand):
     """Generate test data."""
@@ -64,15 +82,6 @@ class Command(BaseCommand):
             return 'Mm_{}_{}_{}'.format(self.get_random_word(3), group, replicate)
         if organism == 'Homo sapiens':
             return 'Hs_{}_{}_{}'.format(self.get_random_word(3), group, replicate)
-
-    def set_source(self, species):
-        """Set Gene ID source."""
-        if species.startswith('Dd'):
-            return 'DICTYBASE'
-        if species.startswith('Mm'):
-            return 'UCSC'
-        if species.startswith('Hs'):
-            return 'UCSC'
 
     @staticmethod
     def generate_expressions(gene_ids, path):
@@ -110,6 +119,10 @@ class Command(BaseCommand):
         # Create reads data object
         started = timezone.now()
         data_name = self.set_name()
+        species_prefix = data_name[0:2]
+        species = SPECIES_MAP[species_prefix]['species']
+        build = SPECIES_MAP[species_prefix]['build']
+        source = SPECIES_MAP[species_prefix]['source']
         d = Data.objects.create(
             slug='gs-reads',
             name=data_name,
@@ -159,7 +172,9 @@ class Command(BaseCommand):
             status=Data.STATUS_PROCESSING,
             input={
                 'src': {'file': 'alignment_position_sorted.bam'},
-                'src2': {'file': 'alignment_position_sorted.bam.bai'}})
+                'src2': {'file': 'alignment_position_sorted.bam.bai'},
+                'species': species,
+                'build': build})
 
         os.mkdir(os.path.join(data_dir, str(bam.id)))
         shutil.copy(bam_mapping, os.path.join(data_dir, str(bam.id)))
@@ -167,7 +182,9 @@ class Command(BaseCommand):
 
         bam.output = {
             'bam': {'file': 'alignment_position_sorted.bam'},
-            'bai': {'file': 'alignment_position_sorted.bam.bai'}}
+            'bai': {'file': 'alignment_position_sorted.bam.bai'},
+            'species': species,
+            'build': build}
         bam.status = Data.STATUS_DONE
         bam.save()
 
@@ -189,7 +206,10 @@ class Command(BaseCommand):
             input={'exp': {'file': 'expressions.tab.gz'},
                    'exp_type': 'FPKM',
                    'exp_name': 'Expression',
-                   'source': self.set_source(d.name)})
+                   'source': source,
+                   'species': species,
+                   'build': build,
+                   'feature_type': 'gene'})
 
         os.mkdir(os.path.join(data_dir, str(exp.id)))
 
@@ -210,7 +230,10 @@ class Command(BaseCommand):
             'exp': {'file': 'expressions.tab.gz'},
             'exp_type': 'FPKM',
             'exp_json': json_object.id,
-            'source': self.set_source(d.name)
+            'source': source,
+            'species': species,
+            'build': build,
+            'feature_type': 'gene'
         }
         exp.status = Data.STATUS_DONE
         exp.save()
