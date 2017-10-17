@@ -92,7 +92,12 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('hsqutils-dedup')
     def test_hsqutils_dedup(self):
         with self.preparation_stage():
-            bam = self.run_process('upload-bam', {'src': 'hsqutils_aligment.bam'})
+            bam_input = {
+                'src': 'hsqutils_aligment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bam = self.run_process('upload-bam', bam_input)
 
             inputs = {
                 'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
@@ -115,7 +120,12 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('vc-realign-recalibrate')
     def test_vc_preprocess_bam(self):
         with self.preparation_stage():
-            bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
+            bam_input = {
+                'src': join('large', '56GSID_10k_mate1_RG.bam'),
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            bam = self.run_process('upload-bam', bam_input)
             inputs = {
                 'src': 'hs_b37_chr2_small.fasta.gz',
                 'species': 'Homo sapiens',
@@ -142,7 +152,12 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('picard-pcrmetrics')
     def test_collecttargetedpcrmetrics(self):
         with self.preparation_stage():
-            bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
+            bam_input = {
+                'src': join('large', '56GSID_10k_mate1_RG.bam'),
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            bam = self.run_process('upload-bam', bam_input)
             master_file = self.prepare_amplicon_master_file()
 
             inputs = {
@@ -166,8 +181,11 @@ class VariantCallingTestCase(BioProcessTestCase):
     def test_gatk_haplotypecaller(self):
         with self.preparation_stage():
             alignment = self.run_process(
-                'upload-bam',
-                {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
+                'upload-bam', {
+                    'src': join('large', '56GSID_10k.realigned.bqsrCal.bam'),
+                    'species': 'Homo sapiens',
+                    'build': 'b37'
+                }
             )
 
             inputs = {
@@ -195,8 +213,11 @@ class VariantCallingTestCase(BioProcessTestCase):
     def test_lofreq(self):
         with self.preparation_stage():
             alignment = self.run_process(
-                'upload-bam',
-                {'src': join('large', '56GSID_10k.realigned.bqsrCal.bam')}
+                'upload-bam', {
+                    'src': join('large', '56GSID_10k.realigned.bqsrCal.bam'),
+                    'species': 'Homo sapiens',
+                    'build': 'b37'
+                }
             )
 
             inputs = {

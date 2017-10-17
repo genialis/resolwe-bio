@@ -31,12 +31,16 @@ class WgbsProcessorTestCase(BioProcessTestCase):
             }
             genome = self.run_process('upload-genome', inputs)
 
-            inputs = {'src': 'wgbs.bam'}
+            inputs = {
+                'src': 'wgbs.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam1 = self.run_process('upload-bam', inputs)
 
-        inputs = {'genome': genome.pk,
+        inputs = {'genome': genome.id,
                   'genome_identifier': 'hg19',
-                  'bam': [bam1.pk],
+                  'bam': [bam1.id],
                   'threads': 3}
 
         mcall = self.run_process('mcall', inputs)

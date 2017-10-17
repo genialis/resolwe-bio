@@ -8,10 +8,18 @@ class PlotsProcessorTestCase(BioProcessTestCase):
     @tag_process('bamplot')
     def test_bamplot(self):
         with self.preparation_stage():
-            inputs = {'src': 'bamplot_alignment.bam'}
+            inputs = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam = self.run_process('upload-bam', inputs)
 
-            inputs = {'src': 'bamplot_alignment.bam'}
+            inputs = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam1 = self.run_process('upload-bam', inputs)
 
         inputs = {'genome': 'HG19',
@@ -38,7 +46,11 @@ class PlotsProcessorTestCase(BioProcessTestCase):
             }
             gff = self.run_process('upload-gtf', inputs)
 
-            inputs = {'src': 'bamplot_alignment.bam'}
+            inputs = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam = self.run_process('upload-bam', inputs)
 
         inputs = {'genome': 'HG19',
@@ -56,10 +68,18 @@ class PlotsProcessorTestCase(BioProcessTestCase):
     @tag_process('bamliquidator')
     def test_bamliquidator(self):
         with self.preparation_stage():
-            inputs = {'src': 'bamplot_ alignment1.bam'}
+            inputs = {
+                'src': 'bamplot_ alignment1.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam1 = self.run_process('upload-bam', inputs)
 
-            inputs = {'src': 'bamplot_alignment.bam'}
+            inputs = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam = self.run_process('upload-bam', inputs)
 
         inputs = {'bam': [bam1.id, bam.id],
@@ -74,24 +94,27 @@ class PlotsProcessorTestCase(BioProcessTestCase):
     @tag_process('bamliquidator')
     def test_bamliquidator_gff(self):
         with self.preparation_stage():
-            inputs = {'src': 'bamplot_ alignment1.bam'}
+            inputs = {
+                'src': 'bamplot_ alignment1.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam1 = self.run_process('upload-bam', inputs)
 
-            inputs = {'src': 'bamplot_alignment.bam'}
+            inputs = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam = self.run_process('upload-bam', inputs)
 
-<<<<<<< HEAD
-            inputs = {'src': 'bamplot.gff', 'source': 'NCBI'}
+            inputs = {
+                'src': 'bamplot.gff',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38'
+            }
             gff = self.run_process('upload-gtf', inputs)
-=======
-        inputs = {
-            'src': 'bamplot.gff',
-            'source': 'NCBI',
-            'species': 'Homo sapiens',
-            'build': 'GRCh38'
-        }
-        gff = self.run_process('upload-gtf', inputs)
->>>>>>> Add species and build inputs to upload-gtf/gff processes
 
         inputs = {'bam': [bam1.id, bam.id],
                   'analysis_type': 'region',

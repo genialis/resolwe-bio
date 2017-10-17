@@ -12,19 +12,37 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('upload-bam', 'upload-bam-indexed')
     def test_bam_upload(self):
-        inputs = {'src': 'alignment_name_sorted.bam'}
+        inputs = {
+            'src': 'alignment_name_sorted.bam',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         upload_bam = self.run_process('upload-bam', inputs)
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
+        self.assertFields(upload_bam, 'species', 'Homo sapiens')
+        self.assertFields(upload_bam, 'build', 'hg19')
 
-        inputs = {'src': 'alignment_position_sorted.bam', 'src2': 'alignment_bam_upload_index.bam.bai'}
+        inputs = {
+            'src': 'alignment_position_sorted.bam',
+            'src2': 'alignment_bam_upload_index.bam.bai',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         upload_bam = self.run_process('upload-bam-indexed', inputs, Data.STATUS_ERROR)
         self.assertEqual(upload_bam.process_error[0], 'BAI should have the same name as BAM with .bai extension')
 
-        inputs = {'src': 'alignment_position_sorted.bam', 'src2': 'alignment_position_sorted.bam.bai'}
+        inputs = {
+            'src': 'alignment_position_sorted.bam',
+            'src2': 'alignment_position_sorted.bam.bai',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
         upload_bam = self.run_process('upload-bam-indexed', inputs)
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
+        self.assertFields(upload_bam, 'species', 'Homo sapiens')
+        self.assertFields(upload_bam, 'build', 'hg19')
 
     @tag_process('upload-expression')
     def test_upload_expression(self):

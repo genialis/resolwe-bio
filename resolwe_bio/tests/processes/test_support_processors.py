@@ -100,7 +100,12 @@ class SupportProcessorTestCase(BioProcessTestCase):
     def test_archive_samples(self):
         with self.preparation_stage():
             txt_file = self.run_process('upload-file', {'src': '56G_masterfile_test.txt'})
-            bam = self.run_process('upload-bam', {'src': 'bamplot_alignment.bam'})
+            bam_input = {
+                'src': 'bamplot_alignment.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bam = self.run_process('upload-bam', bam_input)
 
             read_inputs = {'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz']}
             reads = self.run_process('upload-fastq-single', read_inputs)

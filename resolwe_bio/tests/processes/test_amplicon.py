@@ -57,7 +57,13 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
     @tag_process('amplicon-table')
     def test_amplicon_table(self):
         with self.preparation_stage():
-            bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
+            bam = self.run_process(
+                'upload-bam', {
+                    'src': join('large', '56GSID_10k_mate1_RG.bam'),
+                    'species': 'Homo sapiens',
+                    'build': 'b37'
+                }
+            )
             master_file = self.prepare_amplicon_master_file()
             template = self.run_process('upload-file', {'src': 'report_html_template.html'})
             bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})

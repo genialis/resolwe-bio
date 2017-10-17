@@ -10,14 +10,22 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
     @tag_process('chipseq-peakscore', 'chipseq-genescore')
     def test_chipseq(self):
         with self.preparation_stage():
-            inputs = {"src": "chip_seq_control.bam"}
+            inputs = {
+                'src': 'chip_seq_control.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             control_bam = self.run_process("upload-bam", inputs)
 
-            inputs = {"src": "chip_seq_case.bam"}
+            inputs = {
+                'src': 'chip_seq_case.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             case_bam = self.run_process("upload-bam", inputs)
 
-            inputs = {"src": "chip_seq.bed"}
-            bed = self.run_process("upload-bed", inputs)
+            inputs = {'src': 'chip_seq.bed'}
+            bed = self.run_process('upload-bed', inputs)
 
             inputs = {
                 'case': case_bam.pk,
@@ -33,20 +41,28 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         inputs = {
             'peaks': macs2.pk,
             'bed': bed.pk}
-        peak_score = self.run_process("chipseq-peakscore", inputs)
-        self.assertFile(peak_score, "peak_score", "chip_seq_peakscore_genomicContext")
+        peak_score = self.run_process('chipseq-peakscore', inputs)
+        self.assertFile(peak_score, 'peak_score', 'chip_seq_peakscore_genomicContext')
 
-        inputs = {"peakscore": peak_score.pk}
-        gene_score = self.run_process("chipseq-genescore", inputs)
-        self.assertFile(gene_score, "genescore", "chip_seq_geneScore.xls")
+        inputs = {'peakscore': peak_score.id}
+        gene_score = self.run_process('chipseq-genescore', inputs)
+        self.assertFile(gene_score, 'genescore', 'chip_seq_geneScore.xls')
 
     @tag_process('macs14')
     def test_macs14(self):
         with self.preparation_stage():
-            inputs = {"src": "macs14_control.bam"}
+            inputs = {
+                'src': 'macs14_control.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             control_bam = self.run_process("upload-bam", inputs)
 
-            inputs = {"src": "macs14_case.bam"}
+            inputs = {
+                'src': 'macs14_case.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             case_bam = self.run_process("upload-bam", inputs)
 
         inputs = {"treatment": case_bam.id,
@@ -59,10 +75,18 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
     @tag_process('rose2')
     def test_rose2(self):
         with self.preparation_stage():
-            inputs = {'src': join('large', 'rose2_case.bam')}
+            inputs = {
+                'src': join('large', 'rose2_case.bam'),
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam = self.run_process('upload-bam', inputs)
 
-            inputs = {'src': join('large', 'rose2_control.bam')}
+            inputs = {
+                'src': join('large', 'rose2_control.bam'),
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             control = self.run_process("upload-bam", inputs)
 
             inputs = {'src': 'macs14_chr22.bed'}

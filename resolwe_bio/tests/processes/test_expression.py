@@ -36,6 +36,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'genome': genome.pk}
         cuff_exp = self.run_process('cufflinks', inputs)
         self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
+        self.assertFields(cuff_exp, 'species', 'Dictyostelium discoideum')
+        self.assertFields(cuff_exp, 'build', 'dd-05-2009')
 
         inputs = {
             'alignment': aligned_reads.pk,
@@ -52,16 +54,34 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('cuffquant')
     def test_cuffquant(self):
+<<<<<<< HEAD
         with self.preparation_stage():
             inputs = {"src": "cuffquant_mapping.bam"}
             bam = self.run_process("upload-bam", inputs)
 
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
+=======
+        inputs = {
+            'src': 'cuffquant_mapping.bam',
+            'species': 'Homo sapiens',
+            'build': 'hg19'
+        }
+        bam = self.run_process('upload-bam', inputs)
+
+        annotation = self.prepare_annotation(
+            fn='hg19_chr20_small.gtf.gz',
+            source='UCSC',
+            species='Homo sapiens',
+            build='hg19'
+        )
+>>>>>>> Require species/build input in bam upload processes
 
         inputs = {
             'alignment': bam.id,
             'gff': annotation.id}
-        self.run_process('cuffquant', inputs)
+        cuffquant = self.run_process('cuffquant', inputs)
+        self.assertFields(cuffquant, 'species', 'Homo sapiens')
+        self.assertFields(cuffquant, 'build', 'hg19')
 
     @tag_process('cuffnorm')
     def test_cuffnorm(self):
@@ -251,6 +271,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('mappability-bcm', 'expression-bcm-ncrna', 'summarizexpressions-ncrna')
     def test_ncrna(self):
+<<<<<<< HEAD
         with self.preparation_stage():
             inputs = {"src": "ncRNA_sample1.bam"}
             sample_1 = self.run_process("upload-bam", inputs)
@@ -265,6 +286,29 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'build': 'dd-05-2009'
             }
             annotation = self.run_process('upload-gff3', inputs)
+=======
+        inputs = {
+            'src': 'ncRNA_sample1.bam',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009'
+        }
+        sample_1 = self.run_process('upload-bam', inputs)
+
+        inputs = {
+            'src': 'ncRNA_sample2.bam',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009'
+        }
+        sample_2 = self.run_process('upload-bam', inputs)
+
+        inputs = {
+            'src': 'ncRNA_annotation.gff.gz',
+            'source': 'DICTYBASE',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009'
+        }
+        annotation = self.run_process('upload-gff3', inputs)
+>>>>>>> Require species/build input in bam upload processes
 
             inputs = {
                 'src': 'ncRNA_genome.fasta.gz',
@@ -320,7 +364,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
     @tag_process('feature_counts')
     def test_feature_counts(self):
         with self.preparation_stage():
-
             inputs = {
                 'src': 'annotation.gtf.gz',
                 'source': 'DICTYBASE',
@@ -328,10 +371,22 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'build': 'dd-05-2009'
             }
             annotation_gtf = self.run_process('upload-gtf', inputs)
+            annotation_gff3 = self.prepare_annotation_gff()
 
-            bam_single = self.run_process("upload-bam", {'src': 'reads.bam'})
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation_gff3 = self.run_process('upload-gff3', inputs)
+            bam_single_inputs = {
+                'src': 'reads.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
+            bam_single = self.run_process('upload-bam', bam_single_inputs)
+
+
+            inputs = {
+                'src': 'feature_counts_paired.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
+            bam_paired = self.run_process('upload-bam', inputs)
 
         inputs = {
             'alignments': bam_paired.id,

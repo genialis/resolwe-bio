@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.17
+  version: 1.1.0
   type: data:alignment:bam:upload
   flow_collection: sample
   category: upload
@@ -27,6 +27,28 @@
       description: >
         A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
       validate_regex: '\.(bam)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
   output:
     - name: bam
       label: Uploaded file
@@ -34,6 +56,12 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -54,15 +82,19 @@
         if [ $indexerr -eq 0 ] || [ $indexrc -ne 0 ]; then
             echo "SORTING input BAM file per coordinate:"
             samtools sort -o "${NAME}_aligned.bam" "${NAME}.bam" >&2
-            echo "{\"proc.progress\":0.4,\"proc.rc\":$?}"
+            re-checkrc
+            re-progress 0.4
             mv "${NAME}_aligned.bam" "${NAME}.bam"
-            echo "{\"proc.rc\":$?}"
+            re-checkrc
             echo "INDEXING input BAM file"
             samtools index "${NAME}.bam"
-            echo "{\"proc.rc\":$?}"
+            re-checkrc
         fi
 
-        echo "{\"bam\":{\"file\":\"${NAME}.bam\"},\"bai\":{\"file\":\"${NAME}.bam.bai\"}}"
+        re-save-file bam "${NAME}.bam"
+        re-save-file bai "${NAME}.bam.bai"
+        re-save species {{species}}
+        re-save build {{build}}
 
 - slug: upload-bam-indexed
   name: BAM file and index
@@ -74,7 +106,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.12
+  version: 1.1.0
   type: data:alignment:bam:upload
   category: upload
   flow_collection: sample
@@ -94,6 +126,28 @@
       description: >
         An index file of a BAM mapping file (ending with bam.bai).
       validate_regex: '\.(bam.bai)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
   output:
     - name: bam
       label: Uploaded file
@@ -101,6 +155,12 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -112,9 +172,12 @@
         BAI_NAME=${NAME}.bai
 
         if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then
-            echo "{\"bam\":{\"file\":\"${BAM_NAME}\"},\"bai\":{\"file\":\"${BAI_NAME}\"}}"
+          re-save-file bam "${BAM_NAME}"
+          re-save-file bai "${BAI_NAME}"
+          re-save species {{species}}
+          re-save build {{build}}
         else
-            echo "{\"proc.error\":\"BAI should have the same name as BAM with .bai extension\"}"
+          re-error "BAI should have the same name as BAM with .bai extension"
         fi
 
 - slug: upload-bam-primary
@@ -213,6 +276,6 @@
         samtools index "${NAME}.bam"
         re-checkrc
         re-progress 0.8
-        
+
         re-save-file bam "${NAME}.bam"
         re-save-file bai "${NAME}.bam.bai"

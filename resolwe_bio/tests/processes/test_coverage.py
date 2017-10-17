@@ -75,7 +75,12 @@ class CoverageProcessorTestCase(BioProcessTestCase):
             bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})
             bokeh_js = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.js'})
 
-            bam = self.run_process('upload-bam', {'src': join('large', '56GSID_10k_mate1_RG.bam')})
+            bam_input = {
+                'src': join('large', '56GSID_10k_mate1_RG.bam'),
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            bam = self.run_process('upload-bam', bam_input)
             master_file = self.prepare_amplicon_master_file()
 
         coverage = self.run_process('coveragebed', {

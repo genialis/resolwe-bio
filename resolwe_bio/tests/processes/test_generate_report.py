@@ -10,7 +10,12 @@ class ReportProcessorTestCase(BioProcessTestCase):
     def prepare_report_inputs(self, bam_file, mfile, pname, template_html, bokeh_css, bokeh_js, target_pcr, target_cov,
                               annotations, summaries, snpeffs):
         """Prepare report inputs."""
-        bam = self.run_process('upload-bam', {'src': join('large', bam_file)})
+        bam_input = {
+            'src': join('large', bam_file),
+            'species': 'Homo sapiens',
+            'build': 'b37'
+        }
+        bam = self.run_process('upload-bam', bam_input)
         master_file = self.prepare_amplicon_master_file(mfile=mfile, pname=pname)
         template_html = self.run_process('upload-file', {'src': template_html})
         bokeh_css = self.run_process('upload-file', {'src': bokeh_css})

@@ -51,8 +51,12 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
     @tag_process('jbrowse-bam-coverage')
     def test_coverage_track(self):
         with self.preparation_stage():
-            inputs = {"src": "alignment_coverage.bam"}
-            bam = self.run_process("upload-bam", inputs)
+            inputs = {
+                'src': 'alignment_coverage.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bam = self.run_process('upload-bam', inputs)
 
         coverage = self.run_process('jbrowse-bam-coverage', {'bam': bam.pk})
         self.assertFile(coverage, 'bigwig_track', 'Jbrowse_genome_coverage.bw')
@@ -60,8 +64,12 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
     @tag_process('jbrowse-bam-coverage-normalized')
     def test_norm_coverage_track(self):
         with self.preparation_stage():
-            inputs = {"src": "alignment_coverage.bam"}
-            bam = self.run_process("upload-bam", inputs)
+            inputs = {
+                'src': 'alignment_coverage.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bam = self.run_process('upload-bam', inputs)
 
         inputs = {'bam': bam.pk, 'size': 34000000}
         coverage = self.run_process('jbrowse-bam-coverage-normalized', inputs)

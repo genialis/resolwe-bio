@@ -10,14 +10,18 @@ class GenomeBrowserProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             bam = self.prepare_bam()
 
-            inputs = {'src': 'reads.bam'}
+            inputs = {
+                'src': 'reads.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             bam1 = self.run_process('upload-bam', inputs)
 
-        inputs = {
-            'genomeid': 'hg19',
-            'bam': [bam.pk, bam1.pk],
-            'locus': 'chr7:79439229-79481604'
-        }
+            inputs = {
+                'genomeid': 'hg19',
+                'bam': [bam.id, bam1.id],
+                'locus': 'chr7:79439229-79481604'
+            }
 
         igv_session = self.run_process('igv', inputs)
 
