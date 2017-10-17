@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.6
+  version: 1.1.0
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample
@@ -22,7 +22,7 @@
         Upload Cuffquant results file (.cxb)
   input:
     - name: src
-      label: Annotation file
+      label: Cuffquant file
       type: basic:file
       description: >
         Upload Cuffquant results file. Supported extention: *.cxb
@@ -43,12 +43,54 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      default: gene
+      choices:
+        - label: gene
+          value: gene
+        - label: transcript
+          value: transcript
+        - label: exon
+          value: exon
   output:
     - name: cxb
       label: Cuffquant results
       type: basic:file
     - name: source
       label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
       type: basic:string
   run:
     runtime: polyglot
@@ -58,3 +100,6 @@
       re-checkrc
       re-save-file cxb "${NAME}.cxb"
       re-save source {{source}}
+      re-save species {{species}}
+      re-save build {{build}}
+      re-save feature_type {{feature_type}}

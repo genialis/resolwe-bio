@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.2.1
+  version: 1.3.0
   type: data:expressionset:cuffnorm
   category: analyses
   persistence: CACHED
@@ -119,6 +119,12 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -206,3 +212,5 @@
       {% endif %}
       re-save-file R_data R_data.zip
       re-save source {{annotation.source}}
+      re-save species {{cuffquant.species}}
+      re-save build {{cuffquant.build}}

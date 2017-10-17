@@ -13,7 +13,7 @@
     resources:
       cores: 1
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.0.14
+  version: 1.1.0
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -65,15 +65,34 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       NAME=`basename {{ alignment.bam.file }} .bam`
 
-      cuffquant {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} "--multi-read-correct" {% endif %} {% if mask_file %} -M {{ mask_file.gtf.file }} {% endif %} --library-type {{ library_type }} --num-threads {{requirements.resources.cores}} --quiet {% if gff.gtf.file %} {{ gff.gtf.file }} {% elif gff.gff.file %} {{ gff.gff.file }} {% elif gff.merged_gtf.file %} {{ gff.merged_gtf.file }} {% endif %} {{ alignment.bam.file }}
-      re-checkrc
+      cuffquant \
+        {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} \
+        {% if multi_read_correct %} --multi-read-correct {% endif %} \
+        {% if mask_file %} -M {{ mask_file.gtf.file }} {% endif %} \
+        --library-type {{ library_type }} \
+        --num-threads {{requirements.resources.cores}} \
+        --quiet \
+        {% if gff.gtf.file %} {{ gff.gtf.file }} \
+        {% elif gff.gff.file %} {{ gff.gff.file }} \
+        {% elif gff.merged_gtf.file %} {{ gff.merged_gtf.file }} \
+        {% endif %} \
+        {{ alignment.bam.file }}
+      re-checkrc "Cuffquant analysis failed."
 
       mv abundances.cxb ${NAME}.cxb
       re-save-file cxb ${NAME}.cxb
       re-save source {{gff.source}}
+      re-save species {{alignment.species}}
+      re-save build {{alignment.build}}

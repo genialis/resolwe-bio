@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.0.14
+  version: 1.1.0
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -90,6 +90,12 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -113,3 +119,5 @@
       re-save-file genes_fpkm_tracking ${NAME}_genes_fpkm_tracking.txt
       re-save-file skipped_loci ${NAME}_skipped.gtf
       re-save source {{gff.source}}
+      re-save species {{alignment.species}}
+      re-save build {{alignment.build}}

@@ -138,13 +138,18 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('upload-cxb', 'upload-expression-cuffnorm')
     def test_upload_cuffquant_expr(self):
-        inputs = {'src': 'cuffquant_1.cxb', 'source': 'UCSC'}
+        inputs = {
+            'src': 'cuffquant_1.cxb',
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+            'build': 'hg19'}
         cxb = self.run_process('upload-cxb', inputs)
 
         inputs = {
             'exp': 'cuffquant_exp.tab',
             'cxb': cxb.id}
-        self.run_process('upload-expression-cuffnorm', inputs)
+        exp = self.run_process('upload-expression-cuffnorm', inputs)
+        self.assertFields(exp, 'feature_type', 'gene')
 
     @tag_process('upload-fastq-paired')
     def test_upload_paired_end_reads(self):

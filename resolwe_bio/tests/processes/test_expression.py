@@ -9,18 +9,10 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('cufflinks', 'cuffmerge')
     def test_cufflinks(self):
-<<<<<<< HEAD
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
-=======
-        genome = self.prepare_genome()
-        reads = self.prepare_reads()
-        annotation = self.prepare_annotation_gff()
->>>>>>> Add species and build inputs to upload-gtf/gff processes
+            annotation = self.prepare_annotation_gff()
 
             inputs = {
                 'genome': genome.pk,
@@ -54,27 +46,20 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('cuffquant')
     def test_cuffquant(self):
-<<<<<<< HEAD
         with self.preparation_stage():
-            inputs = {"src": "cuffquant_mapping.bam"}
-            bam = self.run_process("upload-bam", inputs)
+            inputs = {
+                'src': 'cuffquant_mapping.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bam = self.run_process('upload-bam', inputs)
 
-            annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
-=======
-        inputs = {
-            'src': 'cuffquant_mapping.bam',
-            'species': 'Homo sapiens',
-            'build': 'hg19'
-        }
-        bam = self.run_process('upload-bam', inputs)
-
-        annotation = self.prepare_annotation(
-            fn='hg19_chr20_small.gtf.gz',
-            source='UCSC',
-            species='Homo sapiens',
-            build='hg19'
-        )
->>>>>>> Require species/build input in bam upload processes
+            annotation = self.prepare_annotation(
+                fn='hg19_chr20_small.gtf.gz',
+                source='UCSC',
+                species='Homo sapiens',
+                build='hg19'
+            )
 
         inputs = {
             'alignment': bam.id,
@@ -86,13 +71,24 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
     @tag_process('cuffnorm')
     def test_cuffnorm(self):
         with self.preparation_stage():
-            inputs = {'src': 'cuffquant_1.cxb', 'source': "UCSC"}
+            inputs = {
+                'src': 'cuffquant_1.cxb',
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             sample_1 = self.run_process("upload-cxb", inputs)
 
-            inputs = {'src': 'cuffquant_2.cxb', 'source': "UCSC"}
+            inputs = {
+                'src': 'cuffquant_2.cxb',
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             sample_2 = self.run_process("upload-cxb", inputs)
 
-            annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
+            annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC',
+                                                species='Homo sapiens', build='hg19')
 
         inputs = {
             'cuffquant': [sample_1.pk, sample_2.pk],
@@ -107,18 +103,10 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('expression-bcm', 'etc-bcm')
     def test_expression_bcm(self):
-<<<<<<< HEAD
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-            inputs = {'src': 'annotation.gff.gz', 'source': 'DICTYBASE'}
-            annotation = self.run_process('upload-gff3', inputs)
-=======
-        genome = self.prepare_genome()
-        reads = self.prepare_reads()
-        annotation = self.prepare_annotation_gff()
->>>>>>> Add species and build inputs to upload-gtf/gff processes
+            annotation = self.prepare_annotation_gff()
 
             inputs = {
                 'genome': genome.pk,
@@ -147,19 +135,13 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-
-<<<<<<< HEAD
-            inputs = {'src': 'annotation.gtf.gz', 'source': 'DICTYBASE'}
+            inputs = {
+                'src': 'annotation.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             annotation = self.run_process('upload-gtf', inputs)
-=======
-        inputs = {
-            'src': 'annotation.gtf.gz',
-            'source': 'DICTYBASE',
-            'species': 'Dictyostelium discoideum',
-            'build': 'dd-05-2009'
-        }
-        annotation = self.run_process('upload-gtf', inputs)
->>>>>>> Add species and build inputs to upload-gtf/gff processes
 
             inputs = {
                 'genome': genome.pk,
@@ -185,18 +167,13 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {'src': 'HS_chr21_ensemble.fa.gz'}
             genome = self.run_process('upload-fasta-nucl', inputs)
 
-<<<<<<< HEAD
-            inputs = {'src': 'HS_chr21_short.gtf.gz', 'source': 'ENSEMBL'}
+            inputs = {
+                'src': 'HS_chr21_short.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            }
             annotation = self.run_process('upload-gtf', inputs)
-=======
-        inputs = {
-            'src': 'HS_chr21_short.gtf.gz',
-            'source': 'ENSEMBL',
-            'species': 'Homo sapiens',
-            'build': 'ens_90'
-        }
-        annotation = self.run_process('upload-gtf', inputs)
->>>>>>> Add species and build inputs to upload-gtf/gff processes
 
         inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
         index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
@@ -271,13 +248,20 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
     @tag_process('mappability-bcm', 'expression-bcm-ncrna', 'summarizexpressions-ncrna')
     def test_ncrna(self):
-<<<<<<< HEAD
         with self.preparation_stage():
-            inputs = {"src": "ncRNA_sample1.bam"}
-            sample_1 = self.run_process("upload-bam", inputs)
+            inputs = {
+                'src': 'ncRNA_sample1.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
+            sample_1 = self.run_process('upload-bam', inputs)
 
-            inputs = {"src": "ncRNA_sample2.bam"}
-            sample_2 = self.run_process("upload-bam", inputs)
+            inputs = {
+                'src': 'ncRNA_sample2.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
+            sample_2 = self.run_process('upload-bam', inputs)
 
             inputs = {
                 'src': 'ncRNA_annotation.gff.gz',
@@ -286,29 +270,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'build': 'dd-05-2009'
             }
             annotation = self.run_process('upload-gff3', inputs)
-=======
-        inputs = {
-            'src': 'ncRNA_sample1.bam',
-            'species': 'Dictyostelium discoideum',
-            'build': 'dd-05-2009'
-        }
-        sample_1 = self.run_process('upload-bam', inputs)
-
-        inputs = {
-            'src': 'ncRNA_sample2.bam',
-            'species': 'Dictyostelium discoideum',
-            'build': 'dd-05-2009'
-        }
-        sample_2 = self.run_process('upload-bam', inputs)
-
-        inputs = {
-            'src': 'ncRNA_annotation.gff.gz',
-            'source': 'DICTYBASE',
-            'species': 'Dictyostelium discoideum',
-            'build': 'dd-05-2009'
-        }
-        annotation = self.run_process('upload-gff3', inputs)
->>>>>>> Require species/build input in bam upload processes
 
             inputs = {
                 'src': 'ncRNA_genome.fasta.gz',

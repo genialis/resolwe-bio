@@ -10,10 +10,20 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
     @tag_process('cuffdiff')
     def test_cuffdiff(self):
         with self.preparation_stage():
-            inputs = {'src': 'cuffquant_1.cxb', 'source': 'UCSC'}
+            inputs = {
+                'src': 'cuffquant_1.cxb',
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             cuffquant = self.run_process("upload-cxb", inputs)
 
-            inputs = {'src': 'cuffquant_2.cxb', 'source': 'UCSC'}
+            inputs = {
+                'src': 'cuffquant_2.cxb',
+                'source': 'UCSC',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             cuffquant2 = self.run_process("upload-cxb", inputs)
 
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
