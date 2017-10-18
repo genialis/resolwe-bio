@@ -1,0 +1,5 @@
+# Top-level packages.
+bokeh==0.12.9 --hash=sha256:af7b41fbedf91c047845e25e5ff7804014a85b901c16f2618cdf19cfbc1f5d02
+
+# Dependencies.
+tornado==4.5.2 --hash=sha256:1fb8e494cd46c674d86fac5885a3ff87b0e283937a47d74eb3c02a48c9e89ad0

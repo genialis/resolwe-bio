@@ -1,12 +1,6 @@
-FROM resolwe/base:ubuntu-16.04
+FROM docker.io/resolwebio/base:ubuntu-16.04
 
-RUN apt-get update && apt-get install -y \
-    texlive-latex-base \
-    texlive-latex-recommended \
-    texlive-latex-extra  && \
+MAINTAINER Resolwe Bioinformatics authors https://github.com/genialis/resolwe-bio
 
-    # Cleanup
-    apt-get autoremove --purge -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /tmp/*
+# Force matplotlib backend to a headless one.
+ENV MPLBACKEND Agg

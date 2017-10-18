@@ -38,6 +38,8 @@ Changed
 * Add the advanced options checkbox to the ``rna-seq`` descriptor schema
 * Remove static amplicon plot from ``coveragebed`` and
   ``amplicon-report`` process
+* Update Dockerfile for ``resolwebio/latex`` with newer syntax and add
+  some additional Python packages
 
 Fixed
 -----

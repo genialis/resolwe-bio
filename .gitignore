@@ -10,6 +10,7 @@ sftp-config.json
 .*
 !.env
 !.scripts/
+!.placeholder
 
 # Ignore backup files
 *.orig
