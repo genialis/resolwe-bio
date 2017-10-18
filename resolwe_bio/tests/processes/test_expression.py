@@ -246,82 +246,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         etcmerge = self.run_process('mergeetc', inputs)
         self.assertFile(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
 
-    @tag_process('mappability-bcm', 'expression-bcm-ncrna', 'summarizexpressions-ncrna')
-    def test_ncrna(self):
-        with self.preparation_stage():
-            inputs = {
-                'src': 'ncRNA_sample1.bam',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
-            }
-            sample_1 = self.run_process('upload-bam', inputs)
-
-            inputs = {
-                'src': 'ncRNA_sample2.bam',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
-            }
-            sample_2 = self.run_process('upload-bam', inputs)
-
-            inputs = {
-                'src': 'ncRNA_annotation.gff.gz',
-                'source': 'DICTYBASE',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
-            }
-            annotation = self.run_process('upload-gff3', inputs)
-
-            inputs = {
-                'src': 'ncRNA_genome.fasta.gz',
-                'species': 'Dictyostelium discoideum',
-                'genome_build': 'dd-05-2009'
-            }
-            genome = self.run_process('upload-genome', inputs)
-
-            inputs = {
-                'alignment': sample_1.pk,
-                'gff': annotation.pk,
-                'library_type': "fr-firststrand"}
-            cuff_exp_1 = self.run_process('cufflinks', inputs)
-
-            inputs = {
-                'alignment': sample_2.pk,
-                'gff': annotation.pk,
-                'library_type': "fr-firststrand"}
-            cuff_exp_2 = self.run_process('cufflinks', inputs)
-
-            inputs = {
-                'expressions': [cuff_exp_1.pk, cuff_exp_2.pk],
-                'gff': annotation.pk,
-                'genome': genome.pk}
-            merged_annotation = self.run_process('cuffmerge', inputs)
-
-            annotation_gff3 = self.run_process('cuffmerge-gtf-to-gff3', {"cuffmerge": merged_annotation.pk})
-
-        inputs = {"genome": genome.pk, "gff": annotation_gff3.pk, "length": 100}
-        mappa = self.run_process("mappability-bcm", inputs)
-
-        inputs = {
-            'alignment': sample_1.pk,
-            'gff': annotation_gff3.pk,
-            'mappable': mappa.pk,
-            'stranded': True}
-        expression_1 = self.run_process('expression-bcm-ncrna', inputs)
-
-        inputs = {
-            'alignment': sample_2.pk,
-            'gff': annotation_gff3.pk,
-            'mappable': mappa.pk,
-            'stranded': True}
-        expression_2 = self.run_process('expression-bcm-ncrna', inputs)
-
-        inputs = {
-            'exps': [expression_1.pk, expression_2.pk],
-            'annotation': annotation_gff3.pk}
-        ncrna_expressions = self.run_process('summarizexpressions-ncrna', inputs)
-        self.assertFile(ncrna_expressions, 'expset', 'ncRNA_exp_all.tab.gz', compression='gzip')
-        self.assertFile(ncrna_expressions, 'ncrna', 'ncRNA_exp.tab.gz', compression='gzip')
-
     @tag_process('feature_counts')
     def test_feature_counts(self):
         with self.preparation_stage():
@@ -340,7 +264,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'build': 'dd-05-2009'
             }
             bam_single = self.run_process('upload-bam', bam_single_inputs)
-
 
             inputs = {
                 'src': 'feature_counts_paired.bam',

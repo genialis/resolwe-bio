@@ -23,6 +23,7 @@ Changed
   information in aligner processes
 * **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
   inputs in ``upload-bam`` and ``upload-bam-indexed`` process
+* Remove Dictyostelium-specific ncRNA quantification processors
 
 Added
 -----
