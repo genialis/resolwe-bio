@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Process
 
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -52,11 +52,10 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
                                                f_exp='exp_2_tpm.tab.gz',
                                                f_type="TPM",
                                                source="UCSC")
-
         inputs = {
             'case': [expression_1.pk],
             'control': [expression_2.pk],
-            'filter': 0
+            'filter': 0,
         }
 
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)
@@ -69,8 +68,67 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
             'case': [expression_1.pk],
             'control': [expression_3.pk]
         }
-
         diff_exp = self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
+
+        # Mock RSEM process
+        process = Process.objects.create(
+            name='RSEM mock process',
+            requirements={
+                'expression-engine': 'jinja',
+                'resources': {
+                    'network': True,
+                },
+                'executor': {
+                    'docker': {
+                        'image': 'resolwebio/base:ubuntu-17.04',
+                    },
+                },
+            },
+            contributor=self.contributor,
+            type='data:expression:rsem:',
+            input_schema=[
+                {
+                    'name': 'genes',
+                    'type': 'basic:file:',
+                },
+            ],
+            output_schema=[
+                {
+                    'name': 'genes',
+                    'type': 'basic:file:',
+                },
+                {
+                    'name': 'source',
+                    'type': 'basic:string:',
+                },
+            ],
+            run={
+                'language': 'bash',
+                'program': r"""
+re-import {{ genes.file_temp|default(genes.file) }} {{ genes.file }} "tab|gz" "tab" 1.0 compress
+re-save-file genes "${NAME}.tab.gz"
+re-save source DICTYBASE
+"""
+            }
+        )
+
+        inputs1 = {'genes': 'rsem_genes1.tab.gz'}
+        rsem1 = self.run_process(process.slug, inputs1)
+        self.assertFile(rsem1, 'genes', 'rsem_genes1.tab.gz', compression='gzip')
+
+        inputs2 = {'genes': 'rsem_genes2.tab.gz'}
+        rsem2 = self.run_process(process.slug, inputs2)
+        self.assertFile(rsem2, 'genes', 'rsem_genes2.tab.gz', compression='gzip')
+
+        inputs = {
+            'case': [rsem1.pk],
+            'control': [rsem2.pk],
+            'filter': 0,
+        }
+        de_rsem = self.run_process('differentialexpression-deseq2', inputs)
+        self.assertFile(de_rsem, 'raw', 'deseq_rsem.tab.gz', compression='gzip')
+        self.assertJSON(de_rsem, de_rsem.output['de_json'], '', 'deseq_rsem.json.gz')
+        self.assertFields(de_rsem, 'source', 'DICTYBASE')
 
     def test_limma(self):
         expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")

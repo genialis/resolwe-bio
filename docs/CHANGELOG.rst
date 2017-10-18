@@ -23,6 +23,8 @@ Added
 * Add automatic headers extractor to ``bam-split`` process
 * Add html amplicon plot in ``coveragebed`` process
 * Add raw `RSEM` tool output to `rsem` process output
+* Add support for transcript-level differential expression
+  in ``deseq2`` process
 
 Changed
 -------

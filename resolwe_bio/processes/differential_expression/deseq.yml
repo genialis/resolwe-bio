@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/rnaseq:1.2.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.13
+  version: 1.0.14
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -29,12 +29,12 @@
       description: >
         Control samples (replicates)
     - name: filter
-      label: Raw counts filtering threshold
+      label: Minimum expression count summed over all samples
       type: basic:integer
       default: 10
       description: >
         Filter genes in the expression matrix input. Remove genes where the
-        number of counts in all samples is below the threshold.
+        expression count sum over all samples is below the threshold.
   output:
     - name: raw
       label: Differential expression
@@ -52,57 +52,31 @@
     runtime: polyglot
     language: bash
     program: |
-      controls=()
-      cases=()
-      sample_conditions=()
+      {% set expressions = case + control %}
 
-      {% for c in control %}
-        {% if not c.rc.file %}
-          re-error "Read counts are required when using DESeq2"
-        {% endif %}
-        controls+=({{c.rc.file}})
-        sample_conditions+=('control')
-      {% endfor %}
+      {% set rsem = expressions|type|subtype('data:expression:rsem:')|all %}
+
+      {% if not rsem and not expressions|map(attribute='rc.file')|all %}
+        re-error "Read counts are required when using DESeq2."
+      {% endif %}
+
+      {% if expressions|selectattr('source', 'equalto', (case|first).source)|list|length != expressions|length %}
+        re-error "DE analysis must be crated using the expression data from the same source."
+      {% endif %}
 
       {% for t in case %}
-        {% if not t.rc.file %}
-          re-error "Read counts are required when using DESeq2"
-        {% endif %}
-        {% if t not in control %}
-          cases+=({{t.rc.file}})
-          sample_conditions+=('case')
-        {% else %}
+        {% if t in control %}
           re-error "DE analysis failed. Case and Control groups must contain unique samples."
         {% endif %}
       {% endfor %}
 
-      {% for c in control %}
-        {% for t in case %}
-          {% if control.0.source != c.source or c.source != t.source %}
-            re-error "DE analysis must be crated using the expression data from the same source."
-          {% endif %}
-        {% endfor %}
-      {% endfor %}
-
-      sample_files=("${controls[@]}" "${cases[@]}")
-
       re-progress 0.1
 
-      expressionmerge.py \
-        "${sample_files[@]}" \
-        --experiments "${sample_files[@]}" \
-        --intersection \
-        --out 'counts.tab'
-      re-checkrc "Error merging read counts."
-
-      diffexp_filtering.R \
-        -counts counts.tab \
-        -filter {{filter}} \
-        -out counts_filtered.tab
-
-      run_deseq2.R \
-        counts_filtered.tab \
-        --sampleConditions "${sample_conditions[@]}"
+      deseq.R \
+        --cases {% for c in case %} {{ c.rc.file if not rsem else c.genes.file }} {% endfor %} \
+        --controls {% for c in control %} {{ c.rc.file if not rsem else c.genes.file }} {% endfor %} \
+        --min-count-sum {{ filter }} \
+        {% if rsem %} --format rsem {% endif %}
       re-checkrc "Error computing differential expression (DESeq2)."
 
       re-progress 0.95
@@ -122,4 +96,4 @@
       re-save de_json de_data.json
       re-save-file raw diffexp_deseq2.tab.gz
       re-save-file de_file de_file.tab.gz
-      re-save source {{ case.0.source }}
+      re-save source {{ (case|first).source }}
