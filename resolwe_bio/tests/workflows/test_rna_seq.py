@@ -4,7 +4,7 @@ from django.test import LiveServerTestCase
 
 from guardian.shortcuts import assign_perm
 
-from resolwe_bio.utils.test import BioProcessTestCase, TransactionBioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
 from resolwe.test.utils import with_resolwe_host
 
@@ -232,7 +232,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFields(workflow, 'source', 'DICTYBASE')
 
 
-class RNASeqDSSTestCase(TransactionBioProcessTestCase, LiveServerTestCase):
+class RNASeqDSSTestCase(BioProcessTestCase, LiveServerTestCase):
     @with_resolwe_host
     def test_rnaseq_dss(self):
         single_reads = self.prepare_reads()

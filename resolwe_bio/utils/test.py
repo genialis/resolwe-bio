@@ -7,9 +7,8 @@ import wrapt
 
 from django.conf import settings
 from django.core.management import call_command
-from django.test import TestCase as DjangoTestCase
 
-from resolwe.test import with_resolwe_host as resolwe_with_resolwe_host, TransactionProcessTestCase
+from resolwe.test import with_resolwe_host as resolwe_with_resolwe_host, ProcessTestCase
 
 from resolwe_bio.models import Sample
 
@@ -69,21 +68,18 @@ def with_resolwe_host(wrapped_method, instance, args, kwargs):
     )(resolwe_with_resolwe_host)(wrapped_method)(*args, **kwargs)
 
 
-class TransactionBioProcessTestCase(TransactionProcessTestCase):
-    """Base class for writing bioinformatics process tests not enclosed in a transaction.
+class BioProcessTestCase(ProcessTestCase):
+    """Base class for writing bioinformatics process tests.
 
-    It is a subclass of Resolwe's
-    :class:`~resolwe.test.TransactionProcessTestCase` with some specific
-    functions used for testing bioinformatics processes.
-
-    It is useful when one needs access to the process test's database
-    from another thread/process.
+    It is a subclass of Resolwe's :class:`~resolwe.test.ProcessTestCase`
+    with some specific functions used for testing bioinformatics
+    processes.
 
     """
 
     def setUp(self):
         """Initialize test files path."""
-        super(TransactionBioProcessTestCase, self).setUp()
+        super(BioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
 
     def prepare_genome(self):
@@ -134,19 +130,6 @@ class TransactionBioProcessTestCase(TransactionProcessTestCase):
     def prepare_amplicon_master_file(self, mfile='56G_masterfile_test.txt', pname='56G panel, v2'):
         """Prepare amplicon master file."""
         return self.run_process('upload-master-file', {'src': mfile, 'panel_name': pname})
-
-
-class BioProcessTestCase(TransactionBioProcessTestCase, DjangoTestCase):
-    """Base class for writing bioinformatics process tests.
-
-    It is based on :class:`~.TransactionBioProcessTestCase` and
-    Django's :class:`~django.test.TestCase`.
-    The latter encloses the test code in a database transaction that is
-    rolled back at the end of the test.
-
-    """
-
-    pass
 
 
 class KBBioProcessTestCase(BioProcessTestCase):

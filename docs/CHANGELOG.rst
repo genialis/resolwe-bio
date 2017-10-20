@@ -28,6 +28,7 @@ Added
 
 Changed
 -------
+* **BACKWARD INCOMPATIBLE:** Make ``BioProcessTestCase`` non-transactional
 * Enable Chemut workflow and process tests
 * Remove obsolete mongokey escape functionality
 * Report novel splice-site junctions in HISAT2
