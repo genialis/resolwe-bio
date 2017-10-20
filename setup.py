@@ -54,6 +54,10 @@ setup(
         'resolwe==4.0.0a1',
         'tqdm>=4.1',
         'wrapt>=1.10.8',
+        # XXX: djangorestframework-filters has too open requirement for
+        # django-filter and doesn't work with the latest version, so we
+        # have to pin it
+        'django-filter~=1.0.0',
     ),
     extras_require = {
         'docs':  [
