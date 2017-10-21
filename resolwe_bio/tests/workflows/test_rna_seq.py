@@ -73,7 +73,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
             paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
-                                                    mate2=['SRR2124780_2 1k.fastq.gz'])
+                                                     mate2=['SRR2124780_2 1k.fastq.gz'])
             annotation = self.prepare_annotation(
                 fn='HS_chr21_short.gtf.gz',
                 source='UCSC',

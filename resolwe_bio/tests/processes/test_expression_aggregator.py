@@ -9,19 +9,19 @@ class ExpressionAggregatorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             descriptor_hs = {'sample': {'organism': 'Homo sapiens'}}
             expression1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                                f_type='TPM', descriptor=descriptor_hs,
-                                                species='Homo sapiens', build='ens_90')
+                                                  f_type='TPM', descriptor=descriptor_hs,
+                                                  species='Homo sapiens', build='ens_90')
             expression2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                                f_type='TPM', descriptor=descriptor_hs,
-                                                species='Homo sapiens', build='ens_90')
+                                                  f_type='TPM', descriptor=descriptor_hs,
+                                                  species='Homo sapiens', build='ens_90')
 
             descriptor_mm = {'sample': {'organism': 'Mus musculus'}}
             expression3 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                                f_type='TPM', descriptor=descriptor_mm,
-                                                species='Mus musculus', build='ens_90')
+                                                  f_type='TPM', descriptor=descriptor_mm,
+                                                  species='Mus musculus', build='ens_90')
             expression4 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                                f_type='TPM', descriptor=descriptor_mm,
-                                                species='Mus musculus', build='ens_90')
+                                                  f_type='TPM', descriptor=descriptor_mm,
+                                                  species='Mus musculus', build='ens_90')
 
         inputs = {
             'exps': [expression1.id, expression2.id, expression3.id, expression4.id],

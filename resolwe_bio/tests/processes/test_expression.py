@@ -88,7 +88,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             sample_2 = self.run_process("upload-cxb", inputs)
 
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC',
-                                                species='Homo sapiens', build='hg19')
+                                                 species='Homo sapiens', build='hg19')
 
         inputs = {
             'cuffquant': [sample_1.pk, sample_2.pk],
@@ -125,6 +125,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         expression = self.run_process('expression-bcm', inputs)
         self.assertFile(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
         self.assertFields(expression, "source", "DICTYBASE")
+        self.assertFields(expression, 'species', 'Dictyostelium discoideum')
+        self.assertFields(expression, 'build', 'dd-05-2009')
+        self.assertFields(expression, 'feature_type', 'gene')
 
         inputs = {'expressions': [expression.pk, expression.pk]}
         etc = self.run_process('etc-bcm', inputs)
@@ -160,6 +163,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
+        self.assertFields(expression, 'species', 'Dictyostelium discoideum')
+        self.assertFields(expression, 'build', 'dd-05-2009')
+        self.assertFields(expression, 'feature_type', 'gene')
 
     @tag_process('index-fasta-nucl')
     def test_index_fasta_nucl(self):
@@ -181,6 +187,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         del index_fasta_nucl.output['rsem_index']['total_size']  # Non-deterministic output.
         self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem'})
         self.assertFields(index_fasta_nucl, 'source', 'ENSEMBL')
+        self.assertFields(index_fasta_nucl, 'species', 'Homo sapiens')
+        self.assertFields(index_fasta_nucl, 'build', 'ens_90')
 
     @tag_process('mergeexpressions')
     def test_mergeexpression(self):
@@ -286,6 +294,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'rc', 'feature_counts_out_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'feature_counts_out_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'feature_counts_out_tpm.tab.gz', compression='gzip')
+        self.assertFields(expression, 'species', 'Dictyostelium discoideum')
+        self.assertFields(expression, 'build', 'dd-05-2009')
+        self.assertFields(expression, 'feature_type', 'gene')
 
         inputs = {
             'alignments': bam_single.id,
@@ -295,3 +306,4 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
+        self.assertFields(expression, 'feature_type', 'gene')

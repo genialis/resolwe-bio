@@ -6,8 +6,8 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.0.1
-  type: data:expression:index
+  version: 0.1.0
+  type: data:index:expression
   persistence: CACHED
   description: >
     Generate gene expression indices
@@ -54,6 +54,32 @@
           value: UCSC
       hidden: "!(nucl && nucl_genome == 'ts')"
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      hidden: "!(nucl && nucl_genome == 'ts')"
+      required: false
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
+      hidden: "!(nucl && nucl_genome == 'ts')"
+      required: false
   output:
     - name: rsem_index
       label: RSEM index
@@ -61,11 +87,25 @@
     - name: source
       label: Source of attribute ID
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       mkdir rsem
+
+      {% if genome and annotation %}
+        {% if genome.species != annotation.species %}
+          re-error "Genome and annotation files must share the same species information."
+        {% elif genome.build != annotation.build %}
+          re-error "Genome and annotation files must share the same build information."
+        {% endif %}
+      {% endif %}
 
       {% if nucl %}
         gunzip -c {{ nucl.fasta.file }} > nucl.fasta
@@ -90,6 +130,10 @@
       re-save-dir rsem_index rsem
       {% if nucl and nucl_genome == 'ts' %}
         re-save source {{ source }}
+        re-save species {{ species }}
+        re-save build {{ build }}
       {% else %}
         re-save source {{ annotation.source }}
+        re-save species {{ annotation.species }}
+        re-save build {{ annotation.build }}
       {% endif %}

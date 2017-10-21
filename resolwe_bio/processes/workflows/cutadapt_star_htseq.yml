@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -170,12 +170,12 @@
             value: intersection-strict
           - label: intersection-nonempty
             value: intersection-nonempty
-      - name: feature_type
-        label: Feature type
+      - name: feature_class
+        label: Feature class
         type: basic:string
         default: exon
         description: >
-          Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
+          Feature class (3rd column in GFF file) to be used. All other features will be ignored.
       - name: id_attribute
         label: ID attribute
         type: basic:string
@@ -228,7 +228,7 @@
           gff: '{{input.gff}}'
           mode: '{{input.htseq.mode}}'
           stranded: '{{input.stranded}}'
-          feature_type: '{{input.htseq.feature_type}}'
+          feature_class: '{{input.htseq.feature_class}}'
           id_attribute: '{{input.htseq.id_attribute}}'
           name_ordered: '{{input.htseq.name_ordered}}'
 
@@ -239,7 +239,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -405,12 +405,12 @@
             value: intersection-strict
           - label: intersection-nonempty
             value: intersection-nonempty
-      - name: feature_type
-        label: Feature type
+      - name: feature_class
+        label: Feature class
         type: basic:string
         default: exon
         description: >
-          Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
+          Feature class (3rd column in GFF file) to be used. All other features will be ignored.
       - name: id_attribute
         label: ID attribute
         type: basic:string
@@ -463,6 +463,6 @@
           gff: '{{input.gff}}'
           mode: '{{input.htseq.mode}}'
           stranded: '{{input.stranded}}'
-          feature_type: '{{input.htseq.feature_type}}'
+          feature_class: '{{input.htseq.feature_class}}'
           id_attribute: '{{input.htseq.id_attribute}}'
           name_ordered: '{{input.htseq.name_ordered}}'

@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:rsem
   input:
     - name: reads
@@ -15,7 +15,7 @@
       type: data:genomeindex:star
     - name: expression_index
       label: Gene expression indices
-      type: data:expression:index
+      type: data:index:expression
     - name: stranded
       label: Assay type
       type: basic:string
@@ -197,7 +197,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:rsem
   input:
     - name: reads
@@ -208,7 +208,7 @@
       type: data:genomeindex:star
     - name: expression_index
       label: Gene expression indices
-      type: data:expression:index
+      type: data:index:expression
     - name: stranded
       label: Assay type
       type: basic:string

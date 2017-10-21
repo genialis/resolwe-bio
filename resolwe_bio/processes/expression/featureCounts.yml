@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.1.2
+  version: 0.2.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -25,6 +25,17 @@
     - name: annotation
       label: Annotation (GTF/GFF3)
       type: data:annotation
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      default: gene
+      choices:
+        - label: gene
+          value: gene
+        - label: transcript
+          value: transcript
+      description: >
+        The type of feature the quantification program summarizes over (e.g. gene or transcript-level analysis).
     - name: id_attribute
       label: ID attribute
       type: basic:string
@@ -40,14 +51,15 @@
         - label: geneid
           value: geneid
       description: >
-        GTF or GFF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
-    - name: format_of_annotation
-      label: Format of the annotation file
+        GTF or GFF attribute to be used as feature ID.
+        Several GTF lines with the same feature ID will be considered as parts of the same feature.
+        The feature ID is used to identity the counts in the output table.
+    - name: feature_class
+      label: Feature class
       type: basic:string
-      required: false
-      default: GTF
+      default: exon
       description: >
-        Specify the format of the annotation file. GTF file is used by default.
+        Feature class (3rd column in GFF file) to be used. All other features will be ignored.
     - name: count_multi_mapping_reads
       label: Count multi mapping reads
       type: basic:boolean
@@ -76,12 +88,6 @@
           value: 1
         - label: reversely stranded
           value: 2
-    - name: feature_type
-      label: Feature type
-      type: basic:string
-      default: exon
-      description: >
-        Feature type (3rd column in GFF file) to be used, all features of other type are ignored.
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -134,6 +140,15 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -161,11 +176,10 @@
           -a "${ANNOTATION}" \
           -o "featureCounts_rc.txt" \
           -g {{ id_attribute }} \
-          -F {{ format_of_annotation }} \
           ${COUNT_MULTI_MAPPING_READS} \
           -Q {{ min_mqs }} \
           -s {{ strand_specific }} \
-          -t {{ feature_type }} \
+          -t {{ feature_class }} \
           ${REQUIRE_BOTH_ENDS_MAPPED} \
           ${COUNT_CHIMERIC_FRAGMENTS} \
           ${IS_PAIRED_END} \
@@ -175,11 +189,10 @@
           -a "${ANNOTATION}" \
           -o "featureCounts_rc.txt" \
           -g {{ id_attribute }} \
-          -F {{ format_of_annotation }} \
           ${COUNT_MULTI_MAPPING_READS} \
           -Q {{ min_mqs }} \
           -s {{ strand_specific }} \
-          -t {{ feature_type }} \
+          -t {{ feature_class }} \
           -R {{ alignments.bam.file }}
       fi
       re-checkrc "featureCounts failed"
@@ -198,7 +211,7 @@
       expression_fpkm_tpm.R  \
         "${ANNOTATION}" \
         ${ANNOTATION_FORMAT} \
-        {{ feature_type }} \
+        {{ feature_class }} \
         {{ id_attribute }} \
         'rc_wo_header.txt'
       re-checkrc
@@ -226,3 +239,6 @@
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save exp_type 'TPM'
       re-save source {{annotation.source}}
+      re-save species {{alignments.species}}
+      re-save build {{alignments.build}}
+      re-save feature_type {{feature_type}}
