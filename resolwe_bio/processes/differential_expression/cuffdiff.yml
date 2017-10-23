@@ -4,7 +4,7 @@
 ---
 
 - name: cuffdiff:-2-2-1
-  version: 1.0.8
+  version: 1.0.9
   label: Differential Expression (Cuffdiff 2.2.1)
   type: data:differentialexpression:cuffdiff
   category: analyses
@@ -28,10 +28,9 @@
       required: true
       description: >
         Define labels for each sample group. For example, for samples split into 2 groups (e.g. 1 1 2 2 2), enter two group labels (e.g. group1 group2)
-    - name: gff
+    - name: annotation
       label: Annotation (GTF/GFF3)
-      type: data:annotation:cuffmerge
-      required: true
+      type: data:annotation
       description: >
         A transcript annotation file produced by cufflinks, cuffcompare, or other source.
     - name: genome
@@ -188,9 +187,32 @@
 
       {% endif %}
 
+      {% if annotation.merged_gtf.file %}
+        annotation={{ annotation.merged_gtf.file }}
+      {% elif  annotation.gtf.file %}
+        annotation={{ annotation.gtf.file }}
+      {% elif  annotation.gff.file %}
+        annotation={{ annotation.gff.file }}
+      {% else %}
+        echo "{\"proc.error\":\"Please provide a suitable annotation (GFF/GTF) file.\"}"
+      {% endif %}
+
       echo "{\"proc.progress\":0.1}"
 
-      cuffdiff -output-dir ./ -num-threads '{{ threads }}' -labels ${labels} {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} {% if multi_read_correct %} -multi-read-correct {% endif %} {% if time_series %} -time-series {% endif %} -FDR '{{ fdr }}' -library-type '{{ library_type }}' -library-norm-method '{{ library_normalization }}' -dispersion-method '{{ dispersion_method }}' -quiet '{{ gff.merged_gtf.file }}' ${experiments}
+      cuffdiff \
+        -output-dir ./ \
+        -num-threads '{{ threads }}' \
+        -labels ${labels} \
+        {% if genome %} -frag-bias-correct "${GENOME_NAME}.fasta" {% endif %} \
+        {% if multi_read_correct %} -multi-read-correct {% endif %} \
+        {% if time_series %} -time-series {% endif %} \
+        -FDR '{{ fdr }}' \
+        -library-type '{{ library_type }}' \
+        -library-norm-method '{{ library_normalization }}' \
+        -dispersion-method '{{ dispersion_method }}' \
+        -quiet \
+        "${annotation}" \
+        ${experiments}
 
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
