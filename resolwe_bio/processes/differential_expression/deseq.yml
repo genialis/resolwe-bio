@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.0.15
+  version: 1.1.0
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -48,6 +48,15 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -62,6 +71,18 @@
 
       {% if expressions|selectattr('source', 'equalto', (case|first).source)|list|length != expressions|length %}
         re-error "DE analysis must be crated using the expression data from the same source."
+      {% endif %}
+
+      {% if expressions|selectattr('species', 'equalto', (case|first).species)|list|length != expressions|length %}
+        re-error "DE analysis must be crated using the expression data from the same species."
+      {% endif %}
+
+      {% if expressions|selectattr('build', 'equalto', (case|first).build)|list|length != expressions|length %}
+        re-error "DE analysis must be crated using the expression data from the same build."
+      {% endif %}
+
+      {% if expressions|selectattr('feature_type', 'equalto', (case|first).feature_type)|list|length != expressions|length %}
+        re-error "DE analysis must be crated using the expression data of the same Feature type (gene, transcript, etc.)."
       {% endif %}
 
       {% for t in case %}
@@ -97,3 +118,6 @@
       re-save-file raw diffexp_deseq2.tab.gz
       re-save-file de_file de_file.tab.gz
       re-save source {{ (case|first).source }}
+      re-save species {{ (case|first).species }}
+      re-save build {{ (case|first).build }}
+      re-save feature_type {{ (case|first).feature_type }}

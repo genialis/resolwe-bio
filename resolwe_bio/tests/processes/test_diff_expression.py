@@ -36,6 +36,10 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFile(cuffdiff, 'raw', 'raw_cuffdiff.tab.gz', compression='gzip')
         self.assertFile(cuffdiff, 'de_file', 'de_file_cuffdiff.tab.gz', compression='gzip')
         self.assertJSON(cuffdiff, cuffdiff.output['de_json'], '', 'cuffdiff.json.gz')
+        self.assertFields(cuffdiff, 'source', 'UCSC')
+        self.assertFields(cuffdiff, 'species', 'Homo sapiens')
+        self.assertFields(cuffdiff, 'build', 'hg19')
+        self.assertFields(cuffdiff, 'feature_type', 'gene')
 
     @tag_process('differentialexpression-bcm')
     def test_bayseq_bcm(self):
@@ -53,6 +57,10 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
             'mappability': mappa.id}
         diff_exp = self.run_process('differentialexpression-bcm', inputs)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
+        self.assertFields(diff_exp, 'source', 'DICTYBASE')
+        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
+        self.assertFields(diff_exp, 'build', 'dd-05-2009')
+        self.assertFields(diff_exp, 'feature_type', 'gene')
 
     @tag_process('differentialexpression-deseq2')
     def test_deseq2_genes(self):
@@ -73,6 +81,9 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(diff_exp, 'raw')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2.json.gz')
         self.assertFields(diff_exp, 'source', 'DICTYBASE')
+        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
+        self.assertFields(diff_exp, 'build', 'dd-05-2009')
+        self.assertFields(diff_exp, 'feature_type', 'gene')
 
     @tag_process('differentialexpression-deseq2')
     def test_deseq2_source(self):
@@ -103,6 +114,9 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-limma', inputs)
         self.assertFile(diff_exp, "raw", 'diffexp_limma.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'limma.json.gz')
+        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
+        self.assertFields(diff_exp, 'build', 'dd-05-2009')
+        self.assertFields(diff_exp, 'feature_type', 'gene')
 
     @tag_process('differentialexpression-edger')
     def test_edger(self):
@@ -152,3 +166,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFile(diff_exp, 'raw', 'diffexp_edgeR.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'edgeR.json.gz')
         self.assertFields(diff_exp, 'source', 'DICTYBASE')
+        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
+        self.assertFields(diff_exp, 'build', 'dd-05-2009')
+        self.assertFields(diff_exp, 'feature_type', 'gene')

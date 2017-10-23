@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Cuffdiff results'
-  version: 1.0.17
+  version: 1.1.0
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -123,6 +123,15 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -154,7 +163,10 @@
         {% endfor %}
       {% endfor %}
 
-      re-save source {{ case.0.source }}
+      re-save source {{ (case|first).source }}
+      re-save species {{ (case|first).species }}
+      re-save build {{ (case|first).build }}
+      re-save feature_type 'gene'
 
       {% if annotation.merged_gtf.file %}
         annotation={{ annotation.merged_gtf.file }}

@@ -207,6 +207,9 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'fdr': 'padj',
             'pvalue': 'pvalue',
             'stat': 'stat',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009',
+            'feature_type': 'gene'
         }
         diff_exp = self.run_process('upload-diffexp', inputs)
 
@@ -223,6 +226,9 @@ class UploadProcessorTestCase(BioProcessTestCase):
             'fdr': 'padj',
             'pvalue': 'pvalue',
             'stat': 'stat',
+            'species': 'Dictyostelium discoideum',
+            'build': 'dd-05-2009',
+            'feature_type': 'gene'
         }
         diff_exp = self.run_process('upload-diffexp', inputs)
         saved_json, test_json = self.get_json('diff_exp_check_types.json.gz', diff_exp.output['de_json'])

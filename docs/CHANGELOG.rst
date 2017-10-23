@@ -25,6 +25,8 @@ Changed
   inputs in ``upload-bam`` and ``upload-bam-indexed`` process
 * **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
   and ``feature_type`` in quantification processes
+* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
+  and ``feature_type`` in differential expression processes
 * Remove Dictyostelium-specific ncRNA quantification processors
 
 Added
