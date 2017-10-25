@@ -44,14 +44,11 @@ setup(
         ]
     },
     zip_safe=False,
-    dependency_links=(
-        "git+https://github.com/genialis/resolwe.git@master#egg=resolwe-4.0.0a1",
-    ),
     install_requires=(
         'Django~=1.11.0',
         'djangorestframework~=3.7.0',
         'djangorestframework-filters~=0.10.0',
-        'resolwe==4.0.0a1',
+        'resolwe~=4.0',
         'tqdm>=4.1',
         'wrapt>=1.10.8',
         # XXX: djangorestframework-filters has too open requirement for

@@ -6,9 +6,53 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+5.0.0 - 2017-10-25
+==================
+
+Added
+-----
+* Add automatic headers extractor to ``bam-split`` process
+* Add HTML amplicon plot in ``coveragebed`` process
+* Add raw RSEM tool output to `rsem` process output
+* Add support for transcript-level differential expression
+  in ``deseq2`` process
+
+Changed
+-------
+* **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 1.11.x
+* **BACKWARD INCOMPATIBLE:** Make ``BioProcessTestCase`` non-transactional
+* Require Resolwe 4.x
+* Add the advanced options checkbox to the ``rna-seq`` descriptor schema
+* Remove static amplicon plot from ``coveragebed`` and ``amplicon-report``
+  processes
+* Update Dockerfile for ``resolwebio/latex`` with newer syntax and add some
+  additional Python packages
+
+
+==================
+4.2.0 - 2017-10-05
+==================
+
+Added
+-----
+* Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
+* Add ``resolwebio/dnaseq`` Docker image
+* Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
+* Add input filename regex validator for ``upload-master-file`` process
+
+Changed
+-------
+* Remove obsolete mongokey escape functionality
+* Report novel splice-site junctions in HISAT2
+* Use the latest stable versions of the following bioinformatics
+  tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14,
+  FastQC 0.11.5, HTSeq 0.9.1, and SAMtools 1.5
+
+
+==================
+4.1.0 - 2017-09-22
+==================
 
 Added
 -----
@@ -16,35 +60,14 @@ Added
 * Add ``bam-split`` process with supporting processes
   ``upload-bam-primary``, ``upload-bam-secondary`` and
   ``upload-header-sam``
-* Add ``resolwebio/base`` Docker image based on Ubuntu 17.04
-* Add ``resolwebio/dnaseq`` Docker image
-* Add ``DESeq2`` tool to ``resolwebio/rnaseq`` docker image
-* Add input filename regex validator for ``upload-master-file`` process
-* Add automatic headers extractor to ``bam-split`` process
-* Add html amplicon plot in ``coveragebed`` process
-* Add raw `RSEM` tool output to `rsem` process output
-* Add support for transcript-level differential expression
-  in ``deseq2`` process
 
 Changed
 -------
-* **BACKWARD INCOMPATIBLE:** Make ``BioProcessTestCase`` non-transactional
 * Enable Chemut workflow and process tests
-* Remove obsolete mongokey escape functionality
-* Report novel splice-site junctions in HISAT2
-* Use the latest stable versions of the following bioinformatics
-  tools in ``resolwebio/rnaseq`` docker image: Cutadapt 1.14,
-  FastQC 0.11.5, HTSeq 0.9.1, and SAMtools 1.5
-* **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 1.11.x
-* Add the advanced options checkbox to the ``rna-seq`` descriptor schema
-* Remove static amplicon plot from ``coveragebed`` and
-  ``amplicon-report`` process
-* Update Dockerfile for ``resolwebio/latex`` with newer syntax and add
-  some additional Python packages
 
 Fixed
 -----
-* Fix chemut `intervals` input option
+* Fix chemut ``intervals`` input option
 
 
 ==================
