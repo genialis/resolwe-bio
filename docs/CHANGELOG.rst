@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add Python package ``pandas`` to ``resolwebio/latex`` image
+
 Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Make species part of the feature primary key
