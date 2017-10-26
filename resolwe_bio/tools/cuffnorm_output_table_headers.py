@@ -10,32 +10,42 @@ from operator import itemgetter
 parser = argparse.ArgumentParser(description="Rename cuffnorm output tables headers")
 parser.add_argument('replicates', help="Define replicates and groups")
 parser.add_argument('sample_names', help="Sample names")
+parser.add_argument('file_names', help="File names")
 args = parser.parse_args()
 
 replicates = args.replicates.split(",")
 sample_names = args.sample_names.split(",")
+file_names = args.file_names.split(",")
 
-samples = []
-# This sort must produce the same order as cufflinks_sample_groups.py
-for x in sorted(zip(replicates, sample_names), key=itemgetter(0)):
-    samples.append('{}_Group{}'.format(x[1], x[0]))
+reps_samples = dict(zip(sample_names, replicates))
+samples_files = dict(zip(file_names, sample_names))
+
+files_ids = {}
+with open('samples.table', 'rb') as samples_table:
+    samples_table.readline()
+    lines = samples_table.readlines()
+    for line in lines:
+        values = line.split('\t')
+        files_ids[values[0]] = values[1]
 
 
-def replace_labels(table_name, sample_list):
-    """Replace original table headers which contain group names with sample names.
+def replace_labels(table_name):
+    """Replace original cuffnorm table headers with sample names.
 
     :param str table_name: cuffnorm output table files
-    :param sample_list: list of sample names
-    :type sample_list: list
 
     """
     with open(table_name, 'r') as genes_table:
-        genes_table.readline()
+        header = genes_table.readline().split('\t')
         file_lines = genes_table.readlines()
 
+    # Replace cuffnorm automatic header values with sample names
+    for i, label in enumerate(header[1:]):
+        sample = samples_files[files_ids[label.strip('\n')]]
+        header[i + 1] = '{}_Group{}'.format(sample, reps_samples[sample])
+
     with open(table_name, 'w') as genes_table:
-        genes_table.write("tracking_id" + '\t')
-        genes_table.write('\t'.join(sample_list) + '\n')
+        genes_table.write('\t'.join(header) + '\n')
         genes_table.writelines(file_lines)
 
 
@@ -51,4 +61,4 @@ tables = [
 ]
 
 for table in tables:
-    replace_labels(table, samples)
+    replace_labels(table)
