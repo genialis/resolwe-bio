@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Fixed
+-----
+* Fix ``cuffnorm`` process to correctly use sample names as labels in output
+  files and expand ``cuffnorm`` tests
+
 
 ==================
 6.2.1 - 2018-01-28

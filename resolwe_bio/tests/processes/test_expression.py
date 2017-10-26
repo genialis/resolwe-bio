@@ -66,13 +66,38 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {'src': 'cuffquant_2.cxb', 'source': "UCSC"}
             sample_2 = self.run_process("upload-cxb", inputs)
 
+            inputs = {
+                'src': 'cuffquant_3.cxb',
+                'source': 'UCSC',
+            }
+            sample_3 = self.run_process("upload-cxb", inputs)
+
+            inputs = {
+                'src': 'cuffquant_4.cxb',
+                'source': 'UCSC',
+            }
+            sample_4 = self.run_process("upload-cxb", inputs)
+
+            inputs = {
+                'src': 'cuffquant_5.cxb',
+                'source': 'UCSC',
+            }
+            sample_5 = self.run_process("upload-cxb", inputs)
+
+            inputs = {
+                'src': 'cuffquant_6.cxb',
+                'source': 'UCSC',
+            }
+            sample_6 = self.run_process("upload-cxb", inputs)
+
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC')
 
         inputs = {
-            'cuffquant': [sample_1.pk, sample_2.pk],
+            'cuffquant': [sample_1.pk, sample_2.pk, sample_3.pk, sample_4.pk, sample_5.pk, sample_6.pk],
             'annotation': annotation.id,
-            'replicates': ['1', '2']}
+            'replicates': ['1', '1', '2', '2', '2', '3']}
         cuffnorm = self.run_process('cuffnorm', inputs)
+        self.assertFile(cuffnorm, 'fpkm_means', 'cuffnorm_all_fpkm_means.txt')
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
         self.assertFileExists(cuffnorm, 'raw_scatter')
 
