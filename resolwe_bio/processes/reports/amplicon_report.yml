@@ -8,9 +8,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.0
+        image: resolwebio/latex:1.0.1
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.1.7
+  version: 0.1.8
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -36,6 +36,10 @@
     - name: annot_vars
       label: Annotated variants (snpEff)
       type: list:data:snpeff
+    - name: af_threshold
+      label: Allele frequency threshold
+      type: basic:decimal
+      default: 0.01
   output:
     - name: report
       label: Report
@@ -57,7 +61,8 @@
         --template {{template.file.file}} \
         --logo {{logo.file.file}} \
         --vcf {% for vars in annot_vars %}{{vars.annotation.file}} {% endfor %} \
-        --panel {{master_file.panel_name}}
+        --panel {{master_file.panel_name}} \
+        --afthreshold {{af_threshold}}
 
       re-checkrc
 

@@ -77,7 +77,7 @@
           label: Known variants
           type: list:data:variants:vcf
     - name: report
-      label: Report input files
+      label: Report parameters and input files
       group:
         - name: template
           label: Template file (.tex)
@@ -85,6 +85,10 @@
         - name: logo
           label: Logo image (.pdf)
           type: data:file
+        - name: af_threshold
+          label: Allele frequency threshold
+          type: basic:decimal
+          default: 0.01
     - name: threads
       label: CPU threads
       type: basic:integer
@@ -174,6 +178,7 @@
           template: '{{input.report.template}}'
           logo: '{{input.report.logo}}'
           master_file: '{{input.master_file}}'
+          af_threshold: '{{input.report.af_threshold}}'
       - id: amplicon_table_variants
         run: amplicon-table
         input:

@@ -18,6 +18,7 @@ parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.")
 parser.add_argument('--vcf', help="File with VCF data.", nargs='+')
 parser.add_argument('--template', help="Report template file.")
 parser.add_argument('--logo', help="Logo.")
+parser.add_argument('--afthreshold', help="Allele Frequency lower threshold.")
 
 
 def _escape_latex(string):
@@ -91,6 +92,7 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
         lines.append('\\rowcolor{darkblue1}')
         lines.append('\\leavevmode\\color{white}\\textbf{' +
                      '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
+        lines.append('\\endhead')
 
     for line in data:
         if long_columns:
@@ -163,6 +165,8 @@ if __name__ == '__main__':
         template = template.replace('{#LOGO#}', args.logo)
         template = template.replace('{#SAMPLE_NAME#}', _escape_latex(args.sample))
         template = template.replace('{#PANEL#}', _remove_underscore(_escape_latex(args.panel)))
+        template = template.replace(
+            '{#AF_THRESHOLD#}', '{{:.{}f}}'.format(DECIMALS).format(float(args.afthreshold) * 100))
 
         # get coverage stats
         with open(args.covmetrics) as covmetrics:
@@ -221,7 +225,8 @@ if __name__ == '__main__':
             # Escape user inputs:
             common_columns = [_escape_latex(name) for name in common_columns]
             caption = _escape_latex(vcf_table_name(vcf_file))
-            vcf_table = [[_escape_latex(value) for value in line] for line in vcf_table]
+            vcf_table = [[_escape_latex(value) for value in line] for line in vcf_table if
+                         float(line[4]) >= float(args.afthreshold)]
 
             # Insert space between SNP ID's and create hypelinks:
             vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]
