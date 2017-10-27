@@ -5,6 +5,8 @@ Models
 ======
 
 """
+from __future__ import unicode_literals
+
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
@@ -64,14 +66,15 @@ class Feature(models.Model):
         """Feature Meta options."""
 
         unique_together = (
-            ('source', 'feature_id'),
+            ('source', 'feature_id', 'species'),
         )
 
     def __unicode__(self):
         """Represent a feature instance as a string."""
-        return "{source}: {feature_id}".format(
+        return "{source}: {feature_id} ({species})".format(
             source=self.source,
-            feature_id=self.feature_id
+            feature_id=self.feature_id,
+            species=self.species,
         )
 
 
@@ -80,33 +83,41 @@ class Mapping(models.Model):
 
     RELATION_TYPE_CROSSDB = 'crossdb'
     RELATION_TYPE_ORTHOLOG = 'ortholog'
+    RELATION_TYPE_TRANSCRIPT = 'transcript'
+    RELATION_TYPE_EXON = 'exon'
     RELATION_TYPE_CHOICES = (
         (RELATION_TYPE_CROSSDB, "Crossdb"),
-        (RELATION_TYPE_ORTHOLOG, "Ortholog")
+        (RELATION_TYPE_ORTHOLOG, "Ortholog"),
+        (RELATION_TYPE_TRANSCRIPT, "Transcript"),
+        (RELATION_TYPE_EXON, "Exon"),
     )
 
     relation_type = models.CharField(max_length=20, choices=RELATION_TYPE_CHOICES)
     source_db = models.CharField(max_length=20)
     source_id = models.CharField(max_length=50)
+    source_species = models.CharField(max_length=50)
     target_db = models.CharField(max_length=20)
     target_id = models.CharField(max_length=50)
+    target_species = models.CharField(max_length=50)
 
     class Meta:
         """Mapping Meta options."""
 
         unique_together = [
-            ['source_db', 'source_id', 'target_db', 'target_id', 'relation_type'],
+            ['source_db', 'source_id', 'source_species', 'target_db', 'target_id', 'target_species', 'relation_type'],
         ]
         index_together = [
-            ['source_db', 'source_id', 'target_db'],
-            ['target_db', 'target_id']
+            ['source_db', 'source_id', 'source_species', 'target_db'],
+            ['target_db', 'target_id', 'target_species']
         ]
 
     def __unicode__(self):
         """Represent a feature instance as a string."""
-        return "{src_db}: {src_id} -> {dst_db}: {dst_id}".format(
+        return "{src_db}: {src_id} ({src_species}) -> {dst_db}: {dst_id} ({dst_species})".format(
             src_db=self.source_db,
             src_id=self.source_id,
+            src_species=self.source_species,
             dst_db=self.target_db,
-            dst_id=self.target_id
+            dst_id=self.target_id,
+            dst_species=self.target_species,
         )

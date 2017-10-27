@@ -46,8 +46,10 @@ class Command(BaseCommand):
                 _, created = Mapping.objects.update_or_create(relation_type=row['relation_type'],
                                                               source_db=row['source_db'],
                                                               source_id=row['source_id'],
+                                                              source_species=row['source_species'],
                                                               target_db=row['target_db'],
-                                                              target_id=row['target_id'])
+                                                              target_id=row['target_id'],
+                                                              target_species=row['target_species'])
                 if created:
                     count_inserted += 1
                 else:

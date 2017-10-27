@@ -104,7 +104,6 @@ class Command(BaseCommand):
                 sub_type = SUBTYPE_MAP.get(row['Gene type'], 'other')
 
                 values = {
-                    'species': row['Species'],
                     'type': row['Type'],
                     'sub_type': sub_type,
                     'name': row['Name'],
@@ -115,6 +114,7 @@ class Command(BaseCommand):
 
                 feature, created = Feature.objects.get_or_create(source=row['Source'],
                                                                  feature_id=row['ID'],
+                                                                 species=row['Species'],
                                                                  defaults=values)
                 if created:
                     count_inserted += 1

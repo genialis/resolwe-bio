@@ -127,8 +127,10 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     Request:
      - source_id
      - source_db
+     - source_species
      - target_id
      - target_db
+     - target_species
      - relation_type
 
     Response:
@@ -138,7 +140,7 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     document_class = MappingSearchDocument
     serializer_class = MappingSerializer
 
-    filtering_fields = ('source_db', 'target_db', 'relation_type')
+    filtering_fields = ('source_db', 'source_species', 'target_db', 'target_species', 'relation_type')
     ordering_fields = ('source_id',)
     ordering = 'source_id'
 
@@ -185,8 +187,10 @@ class MappingViewSet(mixins.ListModelMixin,
             mapping = Mapping.objects.get(
                 source_db=request.data['source_db'],
                 source_id=request.data['source_id'],
+                source_species=request.data['source_species'],
                 target_db=request.data['target_db'],
-                target_id=request.data['target_id']
+                target_id=request.data['target_id'],
+                target_species=request.data['target_species'],
             )
             self.kwargs[self.lookup_field] = mapping.pk
             return super(MappingViewSet, self).update(request)  # pylint: disable=no-member

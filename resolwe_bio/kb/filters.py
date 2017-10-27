@@ -17,13 +17,15 @@ class MappingFilter(filters.FilterSet):
 
     source_db = filters.AllLookupsFilter()
     source_id = filters.AllLookupsFilter()
+    source_species = filters.AllLookupsFilter()
     target_db = filters.AllLookupsFilter()
     target_id = filters.AllLookupsFilter()
+    target_species = filters.AllLookupsFilter()
 
     class Meta:
         """Filter configuration."""
 
         model = Mapping
         fields = [
-            'source_db', 'source_id', 'target_db', 'target_id'
+            'source_db', 'source_id', 'source_species', 'target_db', 'target_id', 'target_species'
         ]

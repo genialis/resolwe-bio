@@ -24,8 +24,10 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
                 relation_type='crossdb',
                 source_db='SRC',
                 source_id='FT{}'.format(i),
+                source_species='Mus musculus',
                 target_db='TGT',
                 target_id='ANOTHER{}'.format(i),
+                target_species='Mus musculus',
             ))
 
         # Mappings are not pushed automatically
@@ -40,8 +42,10 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         self.assertEqual(data['relation_type'], mapping.relation_type)
         self.assertEqual(data['source_db'], mapping.source_db)
         self.assertEqual(data['source_id'], mapping.source_id)
+        self.assertEqual(data['source_species'], mapping.source_species)
         self.assertEqual(data['target_db'], mapping.target_db)
         self.assertEqual(data['target_id'], mapping.target_id)
+        self.assertEqual(data['target_species'], mapping.target_species)
 
     def test_lookup(self):
         MAPPING_URL = reverse('resolwebio-api:kb_mapping_search')
@@ -114,8 +118,10 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
             {
                 'source_db': 'SRC',
                 'source_id': 'MYSRCID',
+                'source_species': 'Mus musculus',
                 'target_db': 'TGT',
                 'target_id': 'MYTGTID',
+                'target_species': 'Mus musculus',
                 'relation_type': Mapping.RELATION_TYPE_CROSSDB,
             },
         )
@@ -128,8 +134,10 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
             {
                 'source_db': 'SRC',
                 'source_id': 'MYSRCID',
+                'source_species': 'Mus musculus',
                 'target_db': 'TGT',
                 'target_id': 'MYTGTID',
+                'target_species': 'Mus musculus',
                 'relation_type': Mapping.RELATION_TYPE_ORTHOLOG,
             },
         )
@@ -144,6 +152,7 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
                 'source_db': 'SRC',
                 'target_db': 'TGT',
                 'target_id': 'MYTGTID',
+                'target_species': 'Mus musculus',
                 'relation_type': Mapping.RELATION_TYPE_ORTHOLOG,
             },
         )

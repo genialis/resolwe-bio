@@ -123,8 +123,10 @@ class MappingSearchDocument(BaseDocument):
     relation_type = dsl.String(index='not_analyzed')
     source_db = dsl.String(index='not_analyzed')
     source_id = dsl.String(index='not_analyzed')
+    source_species = dsl.String(index='not_analyzed')
     target_db = dsl.String(index='not_analyzed')
     target_id = dsl.String(index='not_analyzed')
+    target_species = dsl.String(index='not_analyzed')
     relation_type = dsl.String(index='not_analyzed')
 
     class Meta:
