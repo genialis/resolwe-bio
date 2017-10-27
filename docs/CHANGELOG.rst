@@ -21,6 +21,7 @@ Changed
 * Refactor ``amplicon-report`` process to contain all relevant inputs for
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
+* Adjust bam-split process so it can be included in workflows
 
 
 ==================

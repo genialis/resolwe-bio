@@ -10,9 +10,10 @@
     executor:
       docker:
         image: resolwebio/rnaseq:1.1.0
-  data_name: "Split ({{ bam|sample_name|default('?') }})"
-  version: 0.0.2
-  type: data:split
+  data_name: "{{ bam.bam.file.split('.')[0] }}_{{ bam.build.split('/')[0] }}.bam"
+  version: 0.1.0
+  type: data:alignment:bam:primary
+  flow_collection: sample
   category: other
   persistence: CACHED
   description: >
@@ -33,21 +34,19 @@
       required: false
       description: >
         If no header file is provided, the headers will be extracted from the hybrid alignment bam file.
-    - name: organism
-      label: Primary bam genome build
+  output:
+    - name: bam
+      label: Uploaded file
+      type: basic:file
+    - name: bai
+      label: Index BAI
+      type: basic:file
+    - name: species
+      label: Species
       type: basic:string
-      choices:
-        - label: hg19
-          value: hg19
-        - label: mm10
-          value: mm10
-    - name: organism2
-      label: Secondary bam genome build
+    - name: build
+      label: Build
       type: basic:string
-      default: dm6
-      choices:
-        - label: dm6
-          value: dm6
   run:
     runtime: polyglot
     language: bash
@@ -56,18 +55,29 @@
         re-error "Both or no headers must be present"
       {% endif %}
 
-      BAM={{bam.bam.file}}
+      BAM={{ bam.bam.file }}
       NAME=`basename {{ bam.bam.file }} .bam`
-      ORG1={{organism}}
-      ORG2={{organism2}}
+      BUILD={{ bam.build }}
+      BUILD1=${BUILD%/*}
+      BUILD2=${BUILD##*/}
+
+      {% set build_to_species = {
+        'dm6': 'Drosophila melanogaster',
+        }
+      %}
+      SPECIES1={{ bam.species }}
+      SPECIES2={{ build_to_species[bam.build.split('/')[1]] }}
+      if [ -z $SPECIES2 ]; then
+        re-error "${BUILD} is not a valid hybrid genome build. Accepted builds are: \"mm10/dm6\", \"hg19/dm6\"."
+      fi
 
       samtools view -h -o "${NAME}.sam" "${BAM}"
       re-checkrc
       re-progress 0.05
 
       {% if header %}
-        HEADER={{header.sam.file}}
-        HEADER2={{header2.sam.file}}
+        HEADER={{ header.sam.file }}
+        HEADER2={{ header2.sam.file }}
       {% else %}
         NUM=`grep -v @ "${NAME}.sam" -m 1 -n | cut -d ':' -f 1`
         SELECTION=`grep -e @ -m $((NUM-1)) "${NAME}.sam"`
@@ -77,13 +87,13 @@
         re-progress 0.1
 
         echo "$HEAD" > header.sam
-        echo "$SELECTION" | grep -e @SQ - | grep -v "_${ORG2}" - >> header.sam
+        echo "$SELECTION" | grep -e @SQ - | grep -v "_${BUILD2}" - >> header.sam
         echo "$TAIL" >> header.sam
         re-checkrc
         re-progress 0.15
 
         echo "$HEAD" > header2.sam
-        echo "$SELECTION" | grep -e @SQ - | grep -e "_${ORG2}" - | sed -e 's/_'${ORG2}'//' - >> header2.sam
+        echo "$SELECTION" | grep -e @SQ - | grep -e "_${BUILD2}" - | sed -e 's/_'${BUILD2}'//' - >> header2.sam
         echo "$TAIL" >> header2.sam
         re-checkrc
         re-progress 0.2
@@ -95,40 +105,44 @@
       samtools view -S -F 4 "${NAME}.sam" |
       awk -vOFS="	" \
       '{
-        sindex=index($3,"_'${ORG2}'")
+        sindex=index($3,"_'${BUILD2}'")
         if(sindex >0) {
           $3=substr($3,1,sindex-1)
-          print $0 > "'${NAME}'_'${ORG2}'.sam";
+          print $0 > "'${NAME}'_'${BUILD2}'.sam";
         }
         else {
-          print $0 > "'${NAME}'_'${ORG1}'.sam";
+          print $0 > "'${NAME}'_'${BUILD1}'.sam";
         }
       }'
       re-checkrc
       re-progress 0.25
 
-      cat "${HEADER}" "${NAME}_${ORG1}.sam" | samtools view -bS - > "${NAME}_${ORG1}_unsorted.bam"
+      cat "${HEADER}" "${NAME}_${BUILD1}.sam" | samtools view -bS - > "${NAME}_${BUILD1}_unsorted.bam"
       re-checkrc
       re-progress 0.3
 
-      cat "${HEADER2}" "${NAME}_${ORG2}.sam" | samtools view -bS - > "${NAME}_${ORG2}_unsorted.bam"
+      cat "${HEADER2}" "${NAME}_${BUILD2}.sam" | samtools view -bS - > "${NAME}_${BUILD2}_unsorted.bam"
       re-checkrc
       re-progress 0.4
 
-      samtools sort "${NAME}_${ORG1}_unsorted.bam" "${NAME}_${ORG1}"
+      samtools sort "${NAME}_${BUILD1}_unsorted.bam" "${NAME}_${BUILD1}"
       re-checkrc
       re-progress 0.5
 
-      samtools sort "${NAME}_${ORG2}_unsorted.bam" "${NAME}_${ORG2}"
+      samtools sort "${NAME}_${BUILD2}_unsorted.bam" "${NAME}_${BUILD2}"
       re-checkrc
       re-progress 0.6
 
-      re-export "${NAME}_${ORG1}.bam"
-      echo 'run {"process":"upload-bam-primary","input":{"bam":'{{bam | id}}',"src":"'"${NAME}_${ORG1}.bam"'"}}'
+      re-export "${NAME}_${BUILD2}.bam"
+      echo 'run {"process":"upload-bam-secondary","input":{"bam":'{{ bam|id }}',"src":"'"${NAME}_${BUILD2}.bam"'","species":"'"${SPECIES2}"'","build":"'"${BUILD2}"'"}}'
       re-checkrc
       re-progress 0.8
 
-      re-export "${NAME}_${ORG2}.bam"
-      echo 'run {"process":"upload-bam-secondary","input":{"bam":'{{bam | id}}',"src":"'"${NAME}_${ORG2}.bam"'"}}'
+      samtools index "${NAME}_${BUILD1}.bam"
       re-checkrc
       re-progress 1.0
+
+      re-save-file bam "${NAME}_${BUILD1}.bam"
+      re-save-file bai "${NAME}_${BUILD1}.bam.bai"
+      re-save species "${SPECIES1}"
+      re-save build ${BUILD1}

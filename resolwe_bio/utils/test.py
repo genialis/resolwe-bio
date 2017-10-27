@@ -103,9 +103,14 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src1': mate1, 'src2': mate2}
         return self.run_process('upload-fastq-paired', inputs)
 
-    def prepare_bam(self, fn='sp_test.bam'):
+    def prepare_bam(self, fn='sp_test.bam', species='Dictyostelium discoideum',
+                    build='dd-05-2009'):
         """Prepare alignment BAM."""
-        inputs = {'src': fn}
+        inputs = {
+            'src': fn,
+            'species': species,
+            'build': build
+        }
         return self.run_process('upload-bam', inputs)
 
     def prepare_annotation(self, fn='sp_test.gtf', source='DICTYBASE'):

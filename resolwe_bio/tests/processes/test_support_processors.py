@@ -23,35 +23,40 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('bam-split')
     def test_bam_split(self):
         with self.preparation_stage():
-            bam = self.prepare_bam('hybrid.bam')
+            bam = self.prepare_bam(fn='hybrid.bam', species='Mus musculus',
+                                   build='mm10/dm6')
 
             header = self.run_process('upload-header-sam', {'src': 'mm10_header.sam'})
             header2 = self.run_process('upload-header-sam', {'src': 'dm6_header.sam'})
 
         inputs = {
             'bam': bam.id,
-            'organism': 'mm10',
-            'organism2': 'dm6'
         }
-        self.run_process('bam-split', inputs)
-
-        bam2, bam1 = Data.objects.order_by('-id')[0:2]
+        bam1 = self.run_process('bam-split', inputs)
+        bam2 = Data.objects.last()
 
         self.assertFile(bam1, 'bam', 'hybrid_mm10.bam')
         self.assertFile(bam1, 'bai', 'hybrid_mm10.bam.bai')
+        self.assertFields(bam1, 'species', 'Mus musculus')
+        self.assertFields(bam1, 'build', 'mm10')
         self.assertFile(bam2, 'bam', 'hybrid_dm6.bam')
         self.assertFile(bam2, 'bai', 'hybrid_dm6.bam.bai')
+        self.assertFields(bam2, 'species', 'Drosophila melanogaster')
+        self.assertFields(bam2, 'build', 'dm6')
 
         inputs['header'] = header.id
         inputs['header2'] = header2.id
-        self.run_process('bam-split', inputs)
-
-        bam2, bam1 = Data.objects.order_by('-id')[0:2]
+        bam1 = self.run_process('bam-split', inputs)
+        bam2 = Data.objects.last()
 
         self.assertFile(bam1, 'bam', 'hybrid_mm10.bam')
         self.assertFile(bam1, 'bai', 'hybrid_mm10.bam.bai')
+        self.assertFields(bam1, 'species', 'Mus musculus')
+        self.assertFields(bam1, 'build', 'mm10')
         self.assertFile(bam2, 'bam', 'hybrid_dm6.bam')
         self.assertFile(bam2, 'bai', 'hybrid_dm6.bam.bai')
+        self.assertFields(bam2, 'species', 'Drosophila melanogaster')
+        self.assertFields(bam2, 'build', 'dm6')
 
     @tag_process('feature_location')
     def test_feature_location(self):
