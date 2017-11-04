@@ -22,6 +22,8 @@ Changed
 * Set maximum RAM requirement in ``bbduk`` process
 * Move `Assay type` input parameter in RNA-Seq descriptor schema
   from advanced options to regular options
+* Use resolwebio/rnaseq docker image in Cutadapt processes
+
 
 ==================
 5.0.0 - 2017-10-25
