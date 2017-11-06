@@ -23,6 +23,7 @@ Changed
 * Move `Assay type` input parameter in RNA-Seq descriptor schema
   from advanced options to regular options
 * Use resolwebio/rnaseq docker image in Cutadapt processes
+* Use additional adapter trimming option in ``cutadapt-custom-single/paired`` processes
 
 
 ==================

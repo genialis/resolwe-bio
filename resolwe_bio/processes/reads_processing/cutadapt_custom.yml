@@ -11,9 +11,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/rnaseq:1.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -48,7 +48,7 @@
       cat "${READS[@]}" > in_reads.fastq.gz
 
       # Run Cutadapt
-      cutadapt --trim-n -a AGAGCACACGTCTG in_reads.fastq.gz 2> report.txt |
+      cutadapt --trim-n -a GATCGGAAGAGCACACGTCTG -a AGAGCACACGTCTG in_reads.fastq.gz 2> report.txt |
       cutadapt -u 3 -a A{100} --no-indels -e 0.16666666666666666 - 2>> report.txt |
       cutadapt -O 8 --match-read-wildcards -g GTTCAGAGTTCTACAGTCCGACGATCSSS \
       -m 18 -o "${NAME}_trimmed.fastq.gz" - >> report.txt
@@ -77,9 +77,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/rnaseq:1.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
@@ -127,7 +127,7 @@
       cat "${RW_READS[@]}" > in_rw_reads.fastq.gz
 
       # Run Cutadapt on forward reads
-      cutadapt --trim-n -a AGAGCACACGTCTG in_fw_reads.fastq.gz 2> report.txt |
+      cutadapt --trim-n -a GATCGGAAGAGCACACGTCTG -a AGAGCACACGTCTG in_fw_reads.fastq.gz 2> report.txt |
       cutadapt -u 3 -a A{100} --no-indels -e 0.16666666666666666 - 2>> report.txt |
       cutadapt -O 8 --match-read-wildcards -g GTTCAGAGTTCTACAGTCCGACGATCSSS \
       -o "${NAME1}_trimmed.fastq.gz" - >> report.txt
