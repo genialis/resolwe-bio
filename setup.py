@@ -56,6 +56,7 @@ setup(
         # have to pin it
         'django-filter~=1.0.0',
     ),
+    python_requires='>=3.4, <3.6',
     extras_require = {
         'docs':  [
             # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't work with our custom
@@ -96,8 +97,6 @@ setup(
         'Operating System :: OS Independent',
 
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
