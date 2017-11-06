@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -311,7 +311,8 @@
         {% if threads %}threads={{threads}}{% endif %} \
         out=out_reads.fastq \
         stats=stats.txt \
-        statscolumns=5
+        statscolumns=5 \
+        -Xmx1g
 
       re-checkrc "Failed while processing with bbduk.sh"
 
@@ -348,7 +349,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.5
+  version: 0.0.6
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
@@ -662,7 +663,8 @@
         out=fw_paired_filtered.fastq \
         out2=rw_paired_filtered.fastq \
         stats=bbduk_stats.txt \
-        statscolumns=5
+        statscolumns=5 \
+        -Xmx1g
       re-checkrc "Failed while processing with bbduk.sh"
       mv fw_paired_filtered.fastq "${NAME1}_paired_filtered.fastq"
       gzip "${NAME1}_paired_filtered.fastq"
