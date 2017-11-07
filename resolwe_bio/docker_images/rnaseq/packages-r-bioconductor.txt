@@ -1,3 +1,4 @@
+affy
 DESeq2
 rtracklayer
 tximport

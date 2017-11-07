@@ -17,8 +17,9 @@ Added
 * Add number of samples to the output of expression aggregator
 * Add primerclip, samtools, picard-tools and bwa to resolwebio/dnaseq docker
 * Add ``ChIP-Rx``, ``ChIPmentation`` and ``eClIP`` experiment types to
-  ``reads`` descriptor schema  
+  ``reads`` descriptor schema
 * Add ``RNASeqT`` R library to ``resolwebio/rnaseq`` docker image
+* Add ``cufflinks`` to ``resolwebio/rnaseq`` docker image
 
 Changed
 -------

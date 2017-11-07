@@ -1,3 +1,4 @@
+cufflinks
 fastqc
 hisat2
 r-packages
