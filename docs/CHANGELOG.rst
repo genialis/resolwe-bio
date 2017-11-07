@@ -14,6 +14,7 @@ Added
 -----
 * Add Python package ``pandas`` to ``resolwebio/latex`` image
 * Add AF filter to amplicon report
+* Add number of samples to the output of expression aggregator
 
 Changed
 -------

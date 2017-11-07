@@ -84,6 +84,7 @@ def generate_statistic(expression, gene, attribute, expression_type):
     iqr = q3 - q1
     lowerwhisker = max(min_val, q1 - 1.5 * iqr)
     upperwhisker = min(max_val, q3 + 1.5 * iqr)
+    data_count = len(expression)
     return {
         'attribute': attribute,
         'gene': gene,
@@ -95,6 +96,7 @@ def generate_statistic(expression, gene, attribute, expression_type):
         'q3': q3,
         'lowerwhisker': lowerwhisker,
         'upperwhisker': upperwhisker,
+        'data_count': data_count,
     }
 
 
