@@ -14,3 +14,10 @@ sed -e 's/^#.*$//g' -e '/^$/d' /var/cache/build/packages-r.txt | \
 sed -e 's/^#.*$//g' -e '/^$/d' /var/cache/build/packages-r-bioconductor.txt | \
     Rscript --slave --no-save --no-restore-history \
         -e "source('http://www.bioconductor.org/biocLite.R'); biocLite(readLines('stdin'))"
+
+# XXX: This is unverifiable and thus may compromise the whole image.
+# XXX: Use notary (https://github.com/ropenscilabs/notary) when ready.
+Rscript --slave --no-save --no-restore-history -e " \
+  library(devtools); \
+  install_github('jkokosar/RNASeqT') \
+"

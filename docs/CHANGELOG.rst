@@ -18,6 +18,7 @@ Added
 * Add primerclip, samtools, picard-tools and bwa to resolwebio/dnaseq docker
 * Add ``ChIP-Rx``, ``ChIPmentation`` and ``eClIP`` experiment types to
   ``reads`` descriptor schema  
+* Add ``RNASeqT`` R library to ``resolwebio/rnaseq`` docker image
 
 Changed
 -------
