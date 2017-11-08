@@ -26,6 +26,10 @@ Changed
 * Use resolwebio/rnaseq docker image in Cutadapt processes
 * Use additional adapter trimming option in ``cutadapt-custom-single/paired`` processes
 
+Fixed
+-----
+* Fix merging multiple expressions in ``DESeq`` process
+
 
 ==================
 5.0.0 - 2017-10-25

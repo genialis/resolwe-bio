@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data, Process
+from resolwe.flow.models import Data
 
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -39,96 +39,34 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-bcm', inputs)
         self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
 
-    def test_deseq2(self):
-        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz',
-                                               f_exp='exp_1_tpm.tab.gz',
-                                               f_type="TPM",
-                                               source="DICTYBASE")
-        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
-                                               f_exp='exp_2_tpm.tab.gz',
-                                               f_type="TPM",
-                                               source="DICTYBASE")
-        expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz',
-                                               f_exp='exp_2_tpm.tab.gz',
-                                               f_type="TPM",
-                                               source="UCSC")
+    def test_deseq2_genes(self):
+        expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', source='DICTYBASE')
+        expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', source='DICTYBASE')
+        expression_3 = self.prepare_expression(f_rc='exp_3_rc.tab.gz', source='DICTYBASE')
+        expression_4 = self.prepare_expression(f_rc='exp_4_rc.tab.gz', source='DICTYBASE')
+
         inputs = {
-            'case': [expression_1.pk],
-            'control': [expression_2.pk],
+            'case': [expression_1.pk, expression_3.pk],
+            'control': [expression_2.pk, expression_4.pk],
             'filter': 0,
         }
 
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)
-        self.assertFile(diff_exp, 'raw', 'diffexp_deseq2.tab.gz', compression='gzip')
+
+        self.assertFileExists(diff_exp, 'raw')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2.json.gz')
         self.assertFields(diff_exp, 'source', 'DICTYBASE')
 
-        # Check if process fails when used with the expression data from different sources.
-        inputs = {
-            'case': [expression_1.pk],
-            'control': [expression_3.pk]
-        }
-        diff_exp = self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
-
-        # Mock RSEM process
-        process = Process.objects.create(
-            name='RSEM mock process',
-            requirements={
-                'expression-engine': 'jinja',
-                'resources': {
-                    'network': True,
-                },
-                'executor': {
-                    'docker': {
-                        'image': 'resolwebio/base:ubuntu-17.04',
-                    },
-                },
-            },
-            contributor=self.contributor,
-            type='data:expression:rsem:',
-            input_schema=[
-                {
-                    'name': 'genes',
-                    'type': 'basic:file:',
-                },
-            ],
-            output_schema=[
-                {
-                    'name': 'genes',
-                    'type': 'basic:file:',
-                },
-                {
-                    'name': 'source',
-                    'type': 'basic:string:',
-                },
-            ],
-            run={
-                'language': 'bash',
-                'program': r"""
-re-import {{ genes.file_temp|default(genes.file) }} {{ genes.file }} "tab|gz" "tab" 1.0 compress
-re-save-file genes "${NAME}.tab.gz"
-re-save source DICTYBASE
-"""
-            }
-        )
-
-        inputs1 = {'genes': 'rsem_genes1.tab.gz'}
-        rsem1 = self.run_process(process.slug, inputs1)
-        self.assertFile(rsem1, 'genes', 'rsem_genes1.tab.gz', compression='gzip')
-
-        inputs2 = {'genes': 'rsem_genes2.tab.gz'}
-        rsem2 = self.run_process(process.slug, inputs2)
-        self.assertFile(rsem2, 'genes', 'rsem_genes2.tab.gz', compression='gzip')
+    def test_deseq2_source(self):
+        expression_dictybase = self.prepare_expression(source='DICTYBASE')
+        expression_ucsc = self.prepare_expression(source='UCSC')
 
         inputs = {
-            'case': [rsem1.pk],
-            'control': [rsem2.pk],
-            'filter': 0,
+            'case': [expression_dictybase.pk],
+            'control': [expression_ucsc.pk]
         }
-        de_rsem = self.run_process('differentialexpression-deseq2', inputs)
-        self.assertFile(de_rsem, 'raw', 'deseq_rsem.tab.gz', compression='gzip')
-        self.assertJSON(de_rsem, de_rsem.output['de_json'], '', 'deseq_rsem.json.gz')
-        self.assertFields(de_rsem, 'source', 'DICTYBASE')
+
+        self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
 
     def test_limma(self):
         expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")

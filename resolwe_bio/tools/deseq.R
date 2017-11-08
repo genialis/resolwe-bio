@@ -21,11 +21,11 @@ if (args$format == 'rsem') {
     rownames(sampleTable) <- colnames(txi$counts)
     dds <- DESeqDataSetFromTximport(txi, sampleTable, ~condition)
 } else {
-    data <- lapply(files, read.csv, sep='\t', row.names='Gene')
+    data <- lapply(files, read.csv, sep='\t')
     for(i in 1:length(files)) {
-        colnames(data[[i]]) <- names(files)[i]
+        colnames(data[[i]])[2] <- names(files)[i]
     }
-    counts <- Reduce(function(...) merge(..., by=0), data)
+    counts <- Reduce(function(...) merge(..., by=1), data)
     cts <- counts[,-1]
     rownames(cts) <- counts[,1]
     rownames(sampleTable) <- names(files)
