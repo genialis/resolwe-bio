@@ -1,6 +1,9 @@
 build-essential
 python3-dev
 libcurl4-openssl-dev
+zlib1g-dev
+libbz2-dev
+liblzma-dev
 
 # Listed explicitly so they are removed correctly.
 gcc

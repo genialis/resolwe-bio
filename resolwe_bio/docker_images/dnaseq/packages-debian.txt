@@ -1,3 +1,5 @@
+bedtools
+bwa
+picard-tools
 python3-setuptools
 python3-wheel
-bedtools
