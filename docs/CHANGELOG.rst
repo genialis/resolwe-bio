@@ -16,6 +16,8 @@ Added
 * Add AF filter to amplicon report
 * Add number of samples to the output of expression aggregator
 * Add primerclip, samtools, picard-tools and bwa to resolwebio/dnaseq docker
+* Add ``ChIP-Rx``, ``ChIPmentation`` and ``eClIP`` experiment types to
+  ``reads`` descriptor schema  
 
 Changed
 -------

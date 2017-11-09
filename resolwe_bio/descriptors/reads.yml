@@ -1,6 +1,7 @@
 - slug: reads
   name: Reads annotation
   description: Annotation of raw sequencing data
+  version: 0.0.1
   schema:
     - name: experiment_type
       label: Experiment type
@@ -23,6 +24,10 @@
           value: RNA-Seq (RACE)
         - label: ChIP-Seq
           value: ChIP-Seq
+        - label: ChIPmentation
+          value: ChIPmentation
+        - label: ChIP-Rx
+          value: ChIP-Rx
         - label: MNase-Seq
           value: MNase-Seq
         - label: MBD-Seq
@@ -47,6 +52,8 @@
           value: RIP-Seq
         - label: ChIA-PET
           value: ChIA-PET
+        - label: eClIP
+          value: eClIP
         - label: OTHER
           value: OTHER
     - name: protocols
