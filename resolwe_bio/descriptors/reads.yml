@@ -1,7 +1,7 @@
 - slug: reads
   name: Reads annotation
   description: Annotation of raw sequencing data
-  version: 0.0.1
+  version: 0.0.2
   schema:
     - name: experiment_type
       label: Experiment type
@@ -93,12 +93,28 @@
           label: IP Tag
           type: basic:string
           required: false  # XXX: remove this when fixed
-          hidden: "experiment_type != 'ChIP-Seq'"
+          hidden:
+              experiment_type != 'ChIP-Seq' &&
+              experiment_type != 'ChIPmentation' &&
+              experiment_type != 'ChIP-Rx' &&
+              experiment_type != 'eClIP' &&
+              experiment_type != 'MNase-Seq' &&
+              experiment_type != 'MeDIP-Seq' &&
+              experiment_type != 'RIP-Seq' &&
+              experiment_type != 'ChIA-PET'
         - name: sample_type
           label: Sample type
           type: basic:string
           required: false
-          hidden: "experiment_type != 'ChIP-Seq'"
+          hidden: 
+              experiment_type != 'ChIP-Seq' &&
+              experiment_type != 'ChIPmentation' &&
+              experiment_type != 'ChIP-Rx' &&
+              experiment_type != 'eClIP' &&
+              experiment_type != 'MNase-Seq' &&
+              experiment_type != 'MeDIP-Seq' &&
+              experiment_type != 'RIP-Seq' &&
+              experiment_type != 'ChIA-PET'
           choices:
             - label: Sample
               value: Sample
@@ -114,10 +130,26 @@
           label: IP target
           type: basic:string
           required: false
-          hidden: "experiment_type != 'ChIP-Seq'"
+          hidden:
+              experiment_type != 'ChIP-Seq' &&
+              experiment_type != 'ChIPmentation' &&
+              experiment_type != 'ChIP-Rx' &&
+              experiment_type != 'eClIP' &&
+              experiment_type != 'MNase-Seq' &&
+              experiment_type != 'MeDIP-Seq' &&
+              experiment_type != 'RIP-Seq' &&
+              experiment_type != 'ChIA-PET'
         - name: antibody_information
           label: Antibody Information
-          hidden: "experiment_type != 'ChIP-Seq'"
+          hidden:
+              experiment_type != 'ChIP-Seq' &&
+              experiment_type != 'ChIPmentation' &&
+              experiment_type != 'ChIP-Rx' &&
+              experiment_type != 'eClIP' &&
+              experiment_type != 'MNase-Seq' &&
+              experiment_type != 'MeDIP-Seq' &&
+              experiment_type != 'RIP-Seq' &&
+              experiment_type != 'ChIA-PET'
           group:
             - name: manufacturer
               label: Manufacturer

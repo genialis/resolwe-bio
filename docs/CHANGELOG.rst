@@ -28,6 +28,9 @@ Changed
   from advanced options to regular options
 * Use resolwebio/rnaseq docker image in Cutadapt processes
 * Use additional adapter trimming option in ``cutadapt-custom-single/paired`` processes
+* Show antibody information in ``reads`` descriptor for ``ChIP-Seq``, 
+  ``ChIPmentation``, ``ChIP-Rx``,  ``eClIP``, ``MNase-Seq``,
+  ``MeDIP-Seq``, ``RIP-Seq`` and ``ChIA-PET`` experiment types
 
 Fixed
 -----
