@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+* Update Features and Mappings ElasticSearch indices building to be compatible
+  with Resolwe 4.0
+
+
 ==================
 5.0.0 - 2017-10-25
 ==================
