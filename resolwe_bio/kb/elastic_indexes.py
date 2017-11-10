@@ -80,26 +80,6 @@ class FeatureSearchIndex(BaseIndex):
     object_type = Feature
     document_class = FeatureSearchDocument
 
-    def build(self, obj=None, queryset=None, push=True):
-        """Build object, but don't push it to the ElasticSearch.
-
-        ``Feature`` objects are inserted only through management command
-        in bulks, so it is much faster if they are not pushed to ES
-        individualy.
-
-        .. important::
-
-            To work properly, push has to be manualy called after
-            inserting features with the following command:
-
-            .. code-block:: python
-
-                from resolwe.elastic.builder import index_builder
-                index_builder.push(index=FeatureSearchIndex)
-
-        """
-        return super(FeatureSearchIndex, self).build(obj, queryset, push=False)
-
     def get_autocomplete_value(self, obj):
         """Return autocomplete value."""
         return [
@@ -141,26 +121,6 @@ class MappingSearchIndex(BaseIndex):
     queryset = Mapping.objects.all()
     object_type = Mapping
     document_class = MappingSearchDocument
-
-    def build(self, obj=None, queryset=None, push=True):
-        """Build object, but don't push it to the ElasticSearch.
-
-        ``Mapping`` objects are inserted only through management command
-        in bulks, so it is much faster if they are not pushed to ES
-        individualy.
-
-        .. important::
-
-            To work properly, push has to be manualy called after
-            inserting mappings with the following command:
-
-            .. code-block:: python
-
-                from resolwe.elastic.builder import index_builder
-                index_builder.push(index=MappingSearchIndex)
-
-        """
-        return super(MappingSearchIndex, self).build(obj, queryset, push=False)
 
     def get_permissions(self, obj):
         """Skip since Mapping objects have no permissions."""
