@@ -79,7 +79,7 @@ class Command(BaseCommand):
             descriptor_schema=get_descriptorschema('geneset'),
             descriptor={'description': 'Gene set description.'},
             status=Data.STATUS_PROCESSING,
-            input={'src': {'file': 'geneset.tab.gz'}, 'source': 'UCSC'})
+            input={'src': {'file': 'geneset.tab.gz'}, 'source': 'UCSC', 'species': 'Homo sapiens'})
 
         mouse_genes = os.path.join(self.test_files_path, 'mouse_genes.tab.gz')
 
@@ -99,7 +99,8 @@ class Command(BaseCommand):
         geneset.output = {
             'geneset': {'file': 'geneset.tab.gz'},
             'geneset_json': json_object.id,
-            'source': 'UCSC'
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
         }
 
         geneset.status = Data.STATUS_DONE

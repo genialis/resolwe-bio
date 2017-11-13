@@ -27,6 +27,7 @@ Changed
   and ``feature_type`` in quantification processes
 * **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
   and ``feature_type`` in differential expression processes
+* **BACKWARD INCOMPATIBLE:** Track ``species`` in gene set (Venn) processes
 * Remove Dictyostelium-specific ncRNA quantification processors
 
 Added

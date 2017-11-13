@@ -279,22 +279,37 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('upload-geneset')
     def test_upload_geneset(self):
-        inputs = {'src': 'geneset.tab.gz', 'source': 'UCSC'}
+        inputs = {
+            'src': 'geneset.tab.gz',
+            'source': 'UCSC',
+            'species': 'Homo sapiens'
+        }
         geneset = self.run_process('upload-geneset', inputs)
 
         self.assertFile(geneset, 'geneset', 'geneset_out.tab.gz', compression='gzip')
         self.assertFields(geneset, 'source', 'UCSC')
+        self.assertFields(geneset, 'species', 'Homo sapiens')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset.json.gz')
 
     @tag_process('create-geneset')
     def test_create_geneset(self):
-        inputs = {'genes': ['ABC', 'DEF', 'GHI'], 'source': 'UCSC'}
+        inputs = {
+            'genes': ['ABC', 'DEF', 'GHI'],
+            'source': 'UCSC',
+            'species': 'Homo sapiens',
+        }
         geneset = self.run_process('create-geneset', inputs)
 
         self.assertFile(geneset, 'geneset', 'geneset_2.tab.gz', compression='gzip')
         self.assertJSON(geneset, geneset.output['geneset_json'], '', 'geneset_2.json.gz')
+        self.assertFields(geneset, 'source', 'UCSC')
+        self.assertFields(geneset, 'species', 'Homo sapiens')
 
-        inputs = {'genes': ['1', '3', '3', '2'], 'source': 'NCBI'}
+        inputs = {
+            'genes': ['1', '3', '3', '2'],
+            'source': 'NCBI',
+            'species': 'Homo sapiens',
+        }
         geneset_2 = self.run_process('create-geneset', inputs)
 
         self.assertFile(geneset_2, 'geneset', 'geneset_3.tab.gz', compression='gzip')
@@ -303,12 +318,19 @@ class UploadProcessorTestCase(BioProcessTestCase):
 
     @tag_process('create-geneset-venn')
     def test_create_venn(self):
-        inputs = {'genes': ['ABC', 'GHI', 'DEF'], 'source': 'UCSC', 'venn': 'venn.json.gz'}
+        inputs = {
+            'genes': ['ABC', 'GHI', 'DEF'],
+            'source': 'UCSC',
+            'venn': 'venn.json.gz',
+            'species': 'Homo sapiens',
+        }
         venn = self.run_process('create-geneset-venn', inputs)
 
         self.assertFile(venn, 'geneset', 'geneset_venn.tab.gz', compression='gzip')
         self.assertJSON(venn, venn.output['geneset_json'], '', 'geneset_venn.json.gz')
         self.assertJSON(venn, venn.output['venn'], '', 'venn.json.gz')
+        self.assertFields(venn, 'source', 'UCSC')
+        self.assertFields(venn, 'species', 'Homo sapiens')
 
     @tag_process('upload-fastq-single')
     def test_upload_reformating_single(self):

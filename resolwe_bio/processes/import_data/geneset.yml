@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.10
+  version: 0.1.0
   type: data:geneset
   category: upload
   persistence: RAW
@@ -42,6 +42,25 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
   output:
     - name: geneset
       label: Gene set
@@ -52,12 +71,16 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "tab|txt" "tab" 0.9 extract
-      re-save source {{source}}
+      re-save source {{ source }}
+      re-save species {{ species }}
       geneset2storage.py "${NAME}.tab" geneset.json "${NAME}.tab.gz"
       re-save geneset_json geneset.json
       re-save-file geneset "${NAME}.tab.gz"
@@ -70,7 +93,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: Gene set
-  version: 0.0.5
+  version: 0.1.0
   type: data:geneset
   category: upload
   persistence: RAW
@@ -98,6 +121,25 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
   output:
     - name: geneset
       label: Gene set
@@ -108,6 +150,9 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -116,7 +161,8 @@
       geneset2storage.py geneset.tab geneset.json geneset.tab.gz
       re-save geneset_json geneset.json
       re-save-file geneset geneset.tab.gz
-      re-save source {{source}}
+      re-save source {{ source }}
+      re-save species {{ species }}
 
 - slug: create-geneset-venn
   name: Create Venn gene set
@@ -128,7 +174,7 @@
     resources:
       network: true
   data_name: Gene set (Venn)
-  version: 0.0.7
+  version: 0.1.0
   type: data:geneset:venn
   category: upload
   persistence: RAW
@@ -156,6 +202,25 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
     - name: venn
       label: Venn diagram
       type: basic:file
@@ -172,6 +237,9 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
     - name: venn
       label: Venn diagram
       type: basic:json
@@ -184,5 +252,6 @@
       geneset2storage.py geneset.tab geneset.json geneset.tab.gz
       re-save geneset_json geneset.json
       re-save-file geneset geneset.tab.gz
-      re-save source {{source}}
+      re-save source {{ source }}
+      re-save species {{ species }}
       re-save venn ${NAME}.json
