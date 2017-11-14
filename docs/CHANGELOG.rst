@@ -30,6 +30,7 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Track ``species`` in gene set (Venn) processes
 * **BACKWARD INCOMPATIBLE:** Track ``species`` in ``goenrichment`` process
 * Remove Dictyostelium-specific ncRNA quantification processors
+* Remove obsolete ``go-geneset`` process
 
 Added
 -----

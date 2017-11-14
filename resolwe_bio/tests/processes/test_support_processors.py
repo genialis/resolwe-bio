@@ -75,19 +75,6 @@ class SupportProcessorTestCase(BioProcessTestCase):
         features = self.run_process('feature_location', inputs)
         self.assertJSON(features, features.output['feature_location'], '', 'feature_locations.json.gz')
 
-    @tag_process('go-genesets')
-    def test_generate_go_genesets(self):
-        with self.preparation_stage():
-            inputs = {'src': 'go_genesets.mgi.gz', 'source': 'MGI', 'species': 'Mus musculus'}
-            gaf = self.run_process('upload-gaf', inputs)
-
-        inputs = {'gaf': gaf.id, 'source': 'MGI_ID'}
-        go_genesets = self.run_process('go-genesets', inputs)
-        self.assertFields(go_genesets, 'num_genesets', 6)
-
-        last_geneset = Data.objects.last()
-        self.assertFile(last_geneset, 'geneset', 'go_geneset.tab.gz', compression='gzip')
-
     @tag_process('gff-to-gtf')
     def test_gff_to_gtf(self):
         with self.preparation_stage():
