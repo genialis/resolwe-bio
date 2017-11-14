@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.0.4
+  version: 3.1.0
   type: data:goea
   category: analyses
   persistence: TEMP
@@ -34,6 +34,25 @@
     - name: source
       label: Source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name. This field is required if gene subset is set.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
     - name: pval_threshold
       label: P-value threshold
       type: basic:decimal
@@ -52,15 +71,31 @@
     - name: source
       label: Source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
+      {% if species != gaf.species %}
+        re-error "Selected genes Species must be the same as the Species field of the GAF file."
+      {% endif %}
+
       {% for gene in genes %}
         echo {{ gene }} >> genes.txt
       {% endfor %}
 
-      goea.py {{source}} {{gaf.source}} {{gaf.species}} genes.txt {{ontology.obo_obj.file}} {{gaf.gaf_obj.file}} --pval {{pval_threshold}} --min_genes {{min_genes}}
+      goea.py \
+        {{ source }} \
+        {{ gaf.source }} \
+        {{ species }} \
+        genes.txt \
+        {{ ontology.obo_obj.file }} \
+        {{ gaf.gaf_obj.file }} \
+        --pval {{pval_threshold}} \
+        --min_genes {{min_genes}}
       re-checkrc
-      re-save source {{gaf.source}}
+      re-save source {{ gaf.source }}
+      re-save species {{ gaf.species }}
       re-save terms terms.json

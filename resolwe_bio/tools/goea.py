@@ -30,24 +30,21 @@ def main():
     with open(args.feature_ids) as gene_file:
         genes = [gene.strip() for gene in gene_file]
 
-    org_features = res.feature.filter(source=args.source_db, feature_id=genes)
+    org_features = res.feature.filter(source=args.source_db, species=args.species, feature_id=genes)
 
     if len(org_features) == 0:
         print('{"proc.error":"No genes were fetched from the knowledge base."}')
         exit(1)
 
-    species = set(feature.species for feature in org_features)
-
-    if len(species) != 1:
-        print('{"proc.error":"Input genes belong to multiple species."}')
-        exit(1)
-    else:
-        species = species.pop()
-
-    if args.species == species and args.source_db == args.target_db:
+    if args.source_db == args.target_db:
         target_ids = genes
     else:
-        features = res.mapping.filter(source_db=args.source_db, target_db=args.target_db, source_id=genes)
+        features = res.mapping.filter(
+            source_db=args.source_db,
+            source_species=args.species,
+            target_db=args.target_db,
+            target_species=args.species,
+            source_id=genes)
 
         if len(features) == 0:
             print('{"proc.error":"Failed to map features."}')

@@ -20,7 +20,9 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
             'gaf': annotation.pk,
             'pval_threshold': 1,
             'source': 'DICTYBASE',
-            'genes': ['DDB_G0277589', 'DDB_G0286855', 'DDB_G0267640']}
+            'species': 'Dictyostelium discoideum',
+            'genes': ['DDB_G0277589', 'DDB_G0286855', 'DDB_G0267640']
+        }
 
         enrichment = self.run_process('goenrichment', inputs)
         self.assertEqual(len(enrichment.process_warning), 0)
@@ -41,7 +43,8 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
             'gaf': gaf.pk,
             'pval_threshold': 1,
             'genes': ['193202', '56535'],
-            'source': 'NCBI'
+            'source': 'NCBI',
+            'species': 'Mus musculus'
         }
 
         enrichment = self.run_process('goenrichment', inputs)
