@@ -11,20 +11,24 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
             expression_1 = self.prepare_expression(f_exp='clustering_expressions_1.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
             expression_2 = self.prepare_expression(f_exp='clustering_expressions_2.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
             expression_3 = self.prepare_expression(f_exp='clustering_expressions_3.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
                   'genes': ['A1BG', 'E2f4', 'A2ML1', 'A2MP1', 'A3GALT2', 'A4GALT',
                             'AADACL4', 'AADACL3', 'AADACL2', 'AADAC'],
-                  'genes_source': 'UCSC'}
+                  'source': 'UCSC',
+                  'species': 'Homo sapiens'}
 
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
 
@@ -38,20 +42,24 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
             expression_1 = self.prepare_expression(f_exp='clustering_expressions_1.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
             expression_2 = self.prepare_expression(f_exp='clustering_expressions_2.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
             expression_3 = self.prepare_expression(f_exp='clustering_expressions_3.tab.gz',
                                                    f_type='Log2',
                                                    name='Expression',
-                                                   source='UCSC')
+                                                   source='UCSC',
+                                                   species='Homo sapiens')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
                   'genes': ['A1BG', 'E2f4', 'A2ML1', 'A2MP1', 'A3GALT2', 'A4GALT',
                             'AADACL4', 'AADACL3', 'AADACL2', 'AADAC'],
-                  'genes_source': 'UCSC'}
+                  'source': 'UCSC',
+                  'species': 'Homo sapiens'}
 
         clustering = self.run_process('clustering-hierarchical-genes', inputs)
 
@@ -65,19 +73,23 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
             expression_1 = self.prepare_expression(f_exp='clustering_NCBI.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
             expression_2 = self.prepare_expression(f_exp='clustering_NCBI_1.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
             expression_3 = self.prepare_expression(f_exp='clustering_NCBI_2.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
                   'genes': ['1', '503538', '56934', '29974', '2', '144571', '3'],
-                  'genes_source': 'NCBI'}
+                  'source': 'NCBI',
+                  'species': 'Homo sapiens'}
 
         clustering = self.run_process('clustering-hierarchical-genes', inputs)
         saved_json, test_json = self.get_json('gene_cluster_data_NCBI.json.gz', clustering.output['cluster'])
@@ -90,19 +102,23 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
             expression_1 = self.prepare_expression(f_exp='clustering_NCBI.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
             expression_2 = self.prepare_expression(f_exp='clustering_NCBI_1.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
             expression_3 = self.prepare_expression(f_exp='clustering_NCBI_2.gz',
                                                    f_type='rc',
                                                    name='Expression',
-                                                   source='NCBI')
+                                                   source='NCBI',
+                                                   species='Homo sapiens')
 
         inputs = {'exps': [expression_1.pk, expression_2.pk, expression_3.pk],
                   'genes': ['1', '503538', '56934', '29974', '2', '144571', '3'],
-                  'genes_source': 'NCBI'}
+                  'source': 'NCBI',
+                  'species': 'Homo sapiens'}
 
         clustering = self.run_process('clustering-hierarchical-samples', inputs)
         saved_json, test_json = self.get_json('sample_cluster_data_NCBI.json.gz', clustering.output['cluster'])

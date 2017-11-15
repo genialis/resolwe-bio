@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Hierarchical clustering of samples'
-  version: 1.0.13
+  version: 1.1.0
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -26,11 +26,31 @@
       type: list:basic:string
       required: false
       placeholder: new gene id
-    - name: genes_source
+    - name: source
       label: Source of selected genes
       description: This field is required if gene subset is set.
       type: basic:string
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name. This field is required if gene subset is set.
+      allow_custom_choice: true
+      required: false
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
     - name: distance
       label: Distance metric
       type: basic:string
@@ -103,17 +123,22 @@
     runtime: polyglot
     language: bash
     program: |
-      {% for e in exps %}
-        {% if genes %}
-          {%if e.source != genes_source %}
-            re-error "Source of selected genes must be the same as the source of all expression files."
-          {% endif %}
-        {% else %}
-          {% if e.source != exps.0.source %}
-            re-error "All expressions must have the same source."
-          {% endif %}
+      {% if genes %}
+        {% if exps|selectattr('source', 'equalto', source)|list|length != exps|length %}
+          re-error "Source of selected genes must be the same as the source of all expression files."
         {% endif %}
-      {% endfor %}
+        {% if exps|selectattr('species', 'equalto', species)|list|length != exps|length %}
+          re-error "Selected genes Species must be the same as the Species field of all the expression files."
+        {% endif %}
+      {% else %}
+        {% if exps|selectattr('source', 'equalto', (exps|first).source)|list|length != exps|length %}
+          re-error "All expressions must have the same Source field value."
+        {% endif %}
+        {% if exps|selectattr('species', 'equalto', (exps|first).species)|list|length != exps|length %}
+          re-error "All expressions must have the same Species field value."
+        {% endif %}
+      {% endif %}
+
       samplehcluster.py \
         --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \
         --sampleids {% for e in exps %} {{e|sample_id}} {% endfor %} \
@@ -142,7 +167,7 @@
     resources:
       memory: 16384
   data_name: 'Hierarchical clustering of genes'
-  version: 1.0.8
+  version: 1.1.0
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
@@ -157,11 +182,31 @@
       type: list:basic:string
       required: false
       placeholder: new gene id
-    - name: genes_source
+    - name: source
       label: Source of selected genes
       description: This field is required if gene subset is set.
       type: basic:string
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name. This field is required if gene subset is set.
+      allow_custom_choice: true
+      required: false
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
     - name: distance
       label: Distance metric
       type: basic:string
@@ -234,17 +279,21 @@
     runtime: polyglot
     language: bash
     program: |
-      {% for e in exps %}
-        {% if genes %}
-          {%if e.source != genes_source %}
-            re-error "Source of selected genes must be the same as the source of all expression files."
-          {% endif %}
-        {% else %}
-          {% if e.source != exps.0.source %}
-            re-error "All expressions must have the same source."
-          {% endif %}
+      {% if genes %}
+        {% if exps|selectattr('source', 'equalto', source)|list|length != exps|length %}
+          re-error "Source of selected genes must be the same as the source of all expression files."
         {% endif %}
-      {% endfor %}
+        {% if exps|selectattr('species', 'equalto', species)|list|length != exps|length %}
+          re-error "Selected genes Species must be the same as the Species field of all the expression files."
+        {% endif %}
+      {% else %}
+        {% if exps|selectattr('source', 'equalto', (exps|first).source)|list|length != exps|length %}
+          re-error "All expressions must have the same Source field value."
+        {% endif %}
+        {% if exps|selectattr('species', 'equalto', (exps|first).species)|list|length != exps|length %}
+          re-error "All expressions must have the same Species field value."
+        {% endif %}
+      {% endif %}
 
       genehcluster.py \
         --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \
