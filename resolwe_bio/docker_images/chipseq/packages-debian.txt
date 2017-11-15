@@ -1,0 +1,32 @@
+python
+python-pip
+samtools
+
+# required for bokeh (required for bamliquidator)
+python-flask
+python-requests
+python-tornado
+python-pandas
+python-jinja2
+python-colorama
+python-markdown
+python-pystache
+python-pygments
+python-six
+python-dateutil
+python-itsdangerous
+python-greenlet
+python-werkzeug
+python-markupsafe
+
+# required for bamliquidator
+python-numpy
+python-scipy
+python-pandas
+python-redis
+python-software-properties
+python-tables
+python-numexpr
+
+# required for ROSE2
+r-base

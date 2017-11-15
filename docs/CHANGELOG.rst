@@ -39,6 +39,7 @@ Changed
   ``resolwebio/rnaseq`` docker image. The processes to be updated to this version
   of the docker image should also have their python scripts updated to Python 3.
 * Use ``resolwebio/dnaseq`` docker image in ``align-bwa-trim`` process
+* Refactor ``resolwebio/chipseq`` docker image
 
 Fixed
 -----
