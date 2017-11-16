@@ -16,5 +16,5 @@ libcurl4-openssl-dev
 libssl-dev
 
 # Python modules
-python-numpy
-python-pandas
+python3-numpy
+python3-pandas
