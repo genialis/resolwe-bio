@@ -39,6 +39,7 @@ Fixed
 * Fix merging multiple expressions in ``DESeq`` process
 * Update Features and Mappings ElasticSearch indices building to be compatible
   with Resolwe 4.0
+* Fix ``resolwebio/rnaseq`` docker image readme
 
 
 ==================
