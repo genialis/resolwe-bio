@@ -18,3 +18,4 @@ libssl-dev
 # Python modules
 python3-numpy
 python3-pandas
+python3-sklearn

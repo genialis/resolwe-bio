@@ -20,6 +20,8 @@ Added
   ``reads`` descriptor schema
 * Add ``RNASeqT`` R library to ``resolwebio/rnaseq`` docker image
 * Add ``cufflinks`` to ``resolwebio/rnaseq`` docker image
+* Add ``pyarrow`` and ``sklearn`` python modules
+  to ``resolwebio/rnaseq`` docker image
 
 Changed
 -------
