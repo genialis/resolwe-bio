@@ -32,12 +32,13 @@ Changed
   from advanced options to regular options
 * Use resolwebio/rnaseq docker image in Cutadapt processes
 * Use additional adapter trimming option in ``cutadapt-custom-single/paired`` processes
-* Show antibody information in ``reads`` descriptor for ``ChIP-Seq``, 
+* Show antibody information in ``reads`` descriptor for ``ChIP-Seq``,
   ``ChIPmentation``, ``ChIP-Rx``,  ``eClIP``, ``MNase-Seq``,
   ``MeDIP-Seq``, ``RIP-Seq`` and ``ChIA-PET`` experiment types
 * **BACKWARD INCOMPATIBLE:** Substitute Python 2 with Python 3 in
   ``resolwebio/rnaseq`` docker image. The processes to be updated to this version
   of the docker image should also have their python scripts updated to Python 3.
+* Use ``resolwebio/dnaseq`` docker image in ``align-bwa-trim`` process
 
 Fixed
 -----

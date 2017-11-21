@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/dnaseq:1.1.0
     resources:
       memory: 32768
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 0.0.7
+  version: 0.1.0
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample
@@ -193,7 +193,7 @@
       echo "trimming primers"
       primerclip \
         "${NAME}_align_unsorted.sam" \
-        {{master_file.primers.file}} \
+        {{master_file.master_file.file}} \
         "${NAME}_ptrimd.sam" 2> "${NAME}_ptrim.log"
       re-checkrc
       re-progress 0.7
