@@ -1,132 +1,125 @@
-#!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
-# XXX: Refactor to a comand line tool and remove pylint disable
+#!/usr/bin/env python3
 """Principal components analysis."""
-from __future__ import absolute_import, division, print_function
 
 import argparse
 import json
-import sys
 
 import numpy as np  # pylint: disable=import-error
+import pandas as pd  # pylint: disable=import-error
 from sklearn.decomposition import PCA  # pylint: disable=import-error
 
-import utils
+from resolwe_runtime_utils import warning
 
 
-parser = argparse.ArgumentParser(description="PCA")
-parser.add_argument('--sample-files', nargs='+', help="All samples")
-parser.add_argument('--sample-ids', nargs='+', help="Sample IDs")
-parser.add_argument('--genes', nargs='+', help='filter genes')
-parser.add_argument('--filter', help="Filter genes with low expression", action="store_true")
-args = parser.parse_args()
+def get_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(description='PCA')
+    parser.add_argument('--sample-files', '-f', nargs='+', help='Sample file names', required=True)
+    parser.add_argument('--sample-ids', '-i', nargs='+', help='Sample IDs', required=True)
+    parser.add_argument('--gene-labels', '-g', nargs='+', help='Filter genes by label')
+    parser.add_argument('--components', '-c', help='Number of PCA components', type=int, default=2)
+    parser.add_argument('--skip-low-expressions', '-s', help='Skip genes with low expression', action='store_true')
+    parser.add_argument('--output-fn', '-o', help='Output file name')
+    return parser.parse_args()
 
 
-def isfloat(value):
-    """Check if value is float."""
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
-
-
-def isgzipped(f):
-    """Check if file f is gzipped."""
-    with open(f, 'rb') as rpkm_file:
-        magic = rpkm_file.read(2)
-
-    return magic == '\037\213'
-
-
-def component_top_factors(component):
+def component_top_factors(component, allgenes_array, max_size=20):
     """Return top 20 absolute factors."""
-    # 10x faster, but not supported in current numpy:
-    #   abs_component = np.abs(component)
-    #   unordered_ixs = np.argpartition(abs_component, -20)[-20:]
-    #   ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
-    ixs = np.argsort(np.abs(component))[:-21:-1]
-    if len(ixs) == 0:
+    abs_component = np.abs(component)
+    size = min(component.size, max_size)
+    unordered_ixs = np.argpartition(abs_component, -size)[-size:]
+    ixs = unordered_ixs[np.argsort(abs_component[unordered_ixs])[::-1]]
+    if ixs.size == 0:
         return []
-    return zip(allgenes_array[ixs].tolist(), component[ixs].tolist())
+    return list(zip(np.array(allgenes_array)[ixs].tolist(), component[ixs].tolist()))
 
 
-def save_pca(coordinates, explained_variance_ratios=[0, 0], components=[[], []], warning=None):
-    """Save json."""
-    data = {
-        'pca': {
-            'flot': {
-                'data': coordinates,
-                'xlabel': 'PC 1',
-                'ylabel': 'PC 2',
-                'sample_ids': sample_ids,
-            },
-            'zero_gene_symbols': list(zero_genes),
-        }
+def get_pca(expressions=pd.DataFrame(), n_components=2, gene_labels=[]):
+    """Compute PCA."""
+    if not gene_labels:
+        gene_labels = expressions.index
+    skipped_gene_labels = list(set(gene_labels).difference(expressions.index))
+
+    if expressions.shape[0] < 2 or expressions.shape[1] < 2:
+        coordinates = [[0, 0] for i in range(len(expressions))]
+        all_components = [[], []]
+        all_explained_variance_ratios = [0.0, 0.0]
+    else:
+        pca = PCA(n_components=n_components, whiten=True)
+        pca_expressions = pca.fit_transform(expressions.transpose())
+
+        coordinates = [t[:2].tolist() if len(t) > 1 else [t[0], 0.0] for t in pca_expressions]
+        all_components = [component_top_factors(component, gene_labels) for component in pca.components_]
+        all_explained_variance_ratios = pca.explained_variance_ratio_.tolist()
+
+    result = {
+        'coordinates': coordinates,
+        'all_components': all_components,
+        'all_explained_variance_ratios': all_explained_variance_ratios,
+        'skipped_gene_labels': skipped_gene_labels,
+        'warning': None
     }
-    data['pca']['all_components'] = [component_top_factors(component) for component in components]
-    data['pca']['all_explained_variance_ratios'] = explained_variance_ratios
-    data['pca']['components'] = data['pca']['all_components'][:10]
-    data['pca']['explained_variance_ratios'] = data['pca']['all_explained_variance_ratios'][:10]
-    if warning:
-        data['proc.warning'] = warning
-    print(json.dumps(data, separators=(',', ':'), allow_nan=False))
+
+    if expressions.empty:
+        print(warning('Gene selection and filtering resulted in no genes. Please select different samples or genes.'))
+
+    return result
 
 
-sample_files = args.sample_files
-sample_ids = args.sample_ids
+def save_pca(result={}, sample_ids=[], output_fn=None, max_size=10):
+    """Save PCA."""
+    data = {
+        'flot': {
+            'data': result['coordinates'],
+            'xlabel': 'PC 1',
+            'ylabel': 'PC 2',
+            'sample_ids': sample_ids,
+        },
+        'zero_gene_symbols': result['skipped_gene_labels'],
+        'components': result['all_components'][:max_size],
+        'all_components': result['all_components'],
+        'explained_variance_ratios': result['all_explained_variance_ratios'][:max_size],
+        'all_explained_variance_ratios': result['all_explained_variance_ratios'],
+    }
 
-if len(sample_files) != len(sample_ids):
-    print('{"rc":"1"}')
-    exit(1)
+    if output_fn:
+        with open(output_fn, 'w') as outfile:
+            json.dump(data, outfile, separators=(',', ':'), allow_nan=False)
+    else:
+        print(json.dumps(data, separators=(',', ':'), allow_nan=False))
 
-exp = []
-allgenes = set()
-zero_genes = set()
 
-for fname in sample_files:
-    myopen = utils.gzopen if isgzipped(fname) else open
+def read_csv(fname):
+    """Read CSV file and return Pandas DataFrame."""
+    dtype = {
+        'Gene': str,
+        'Expression': float,
+    }
+    csv = pd.read_csv(fname, sep='\t', header=0, dtype=dtype, low_memory=False)
+    return csv.set_index('Gene')
 
-    with myopen(fname) as f:
-        exp.append({gene_exp[0]: float(gene_exp[1]) for gene_exp in
-                    (l.split('\t') for l in f) if len(gene_exp) == 2 and isfloat(gene_exp[1])})
 
-        allgenes.update(exp[-1].keys())
+def get_csv(fnames):
+    """Read CSV files and return Pandas DataFrame."""
+    expressions = [read_csv(fname) for fname in fnames]
+    return pd.concat(expressions, axis=1, join='inner')
 
-if args.genes:
-    genes = set(args.genes)
-    zero_genes = genes.difference(allgenes)
-    allgenes = allgenes.intersection(args.genes)
 
-# Default expression value is 0.
-allgenes_array = np.array(list(allgenes))
-exp = np.array([[genemap.get(g, 0.) for g in allgenes_array] for genemap in exp])
+def main():
+    """Read data, run PCA, and output results."""
+    args = get_args()
+    expressions = get_csv(args.sample_files)
 
-if args.filter:
-    exp = np.transpose(exp)
-    f_exp = exp[np.sum(exp, axis=1) > exp.shape[1]]
-    exp = np.transpose(f_exp)
+    if args.gene_labels:
+        gene_labels = set(args.gene_labels).intersection(expressions.index)
+        expressions = expressions.loc[gene_labels]
 
-if exp.shape[1] == 0:
-    save_pca(
-        coordinates=[[0, 0] for i in range(exp.shape[0])],
-        warning='Expressions of all selected genes are 0. Please select different samples or genes.',
-    )
-    sys.exit(0)
+    if args.skip_low_expressions:
+        expressions = expressions.loc[expressions.sum(axis=1) > expressions.shape[1]]
 
-# select the number of components so that explained variance
-# is greater than the fraction specified by n_components
-pca = PCA(n_components=1.0 - sys.float_info.epsilon, whiten=True)
-transformed_data = pca.fit_transform(exp)
+    result = get_pca(expressions, args.components, args.gene_labels)
+    save_pca(result, args.sample_ids, args.output_fn)
 
-coordinates = [[t[0], t[1]] if len(t) > 1 else [t[0], 0] for t in transformed_data]
 
-if any(np.isnan(pca.explained_variance_ratio_)):
-    save_pca(coordinates=coordinates)
-    sys.exit(0)
-
-save_pca(
-    coordinates=coordinates,
-    explained_variance_ratios=pca.explained_variance_ratio_.tolist(),
-    components=pca.components_,
-)
+if __name__ == '__main__':
+    main()

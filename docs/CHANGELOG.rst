@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+* Improve ``PCA`` process performance
+
 
 ==================
 6.0.0 - 2017-11-28

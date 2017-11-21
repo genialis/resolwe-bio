@@ -25,17 +25,18 @@ class PcaProcessorTestCase(BioProcessTestCase):
         self.assertAlmostEqualGeneric(test_json['flot']['data'], saved_json['flot']['data'])
         self.assertAlmostEqualGeneric(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
         self.assertAlmostEqualGeneric(test_json['components'], saved_json['components'])
+        self.assertEqual(len(pca.process_warning), 0)
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],
             'genes': ['DPU_G0067098', 'DPU_G0067100', 'DPU_G0067104'],  # all zero
             'genes_source': 'DICTYBASE'
         }
-
         pca = self.run_process('pca', inputs)
+        self.assertEqual(len(pca.process_warning), 1)
         self.assertEqual(
             pca.process_warning[0],
-            'Expressions of all selected genes are 0. Please select different samples or genes.'
+            'Gene selection and filtering resulted in no genes. Please select different samples or genes.'
         )
 
     @tag_process('pca')
