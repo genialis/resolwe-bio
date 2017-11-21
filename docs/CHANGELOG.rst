@@ -22,6 +22,7 @@ Added
 * Add ``cufflinks`` to ``resolwebio/rnaseq`` docker image
 * Add ``pyarrow`` and ``sklearn`` python modules
   to ``resolwebio/rnaseq`` docker image
+* Add ``wigToBigWig`` tool to ``resolwebio/chipseq`` docker image
 
 Changed
 -------

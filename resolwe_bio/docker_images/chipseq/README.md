@@ -11,3 +11,4 @@ Included bioinformatics tools
 * MACS2 (v2.1.1.20160309)
 * BAMLIQUIDATOR (v1.3.4)
 * SAMTOOLS (v0.1.19)
+* WIGTOBIGWIG (no version)
