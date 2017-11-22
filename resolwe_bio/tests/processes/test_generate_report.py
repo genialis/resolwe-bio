@@ -32,7 +32,7 @@ class ReportProcessorTestCase(BioProcessTestCase):
             pcr_metrics = self.run_process('upload-picard-pcrmetrics', inputs)
 
             inputs = {
-                'annotation': '56GSID.lf.finalvars.txt',
+                'annotation': '56GSID.gatkHC.finalvars.txt',
                 'summary': '56GSID_1k.gatkHC_snpEff_summary.html',
                 'snpeff_genes': '56GSID_1k.gatkHC_snpEff_genes.txt'
             }

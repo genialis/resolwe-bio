@@ -220,13 +220,19 @@ if __name__ == '__main__':
         table_text = ''
         for vcf_file in args.vcf:
             header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'GEN[0].AD', 'SB', 'FS', 'EFF[*].GENE', 'ID']
-            vcf_table, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
+            vcf_table_tmp, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
 
             # Escape user inputs:
             common_columns = [_escape_latex(name) for name in common_columns]
             caption = _escape_latex(vcf_table_name(vcf_file))
-            vcf_table = [[_escape_latex(value) for value in line] for line in vcf_table if
-                         float(line[4]) >= float(args.afthreshold)]
+
+            vcf_table = []
+            for line_tmp in vcf_table_tmp:
+                alt_cell, af_cell = line_tmp[3], line_tmp[4]
+                # One line can contain two or more ALT values (and consequently two or more AF values)
+                for alt, af_ in zip(alt_cell.split(','), af_cell.split(',')):
+                    if float(af_) >= float(args.afthreshold):
+                        vcf_table.append(line_tmp[:3] + [alt] + [af_] + line_tmp[5:])
 
             # Insert space between SNP ID's and create hypelinks:
             vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]

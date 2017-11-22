@@ -49,6 +49,7 @@ Fixed
 * Update Features and Mappings ElasticSearch indices building to be compatible
   with Resolwe 4.0
 * Fix ``resolwebio/rnaseq`` docker image readme
+* Handle multiple ALT values in amplicon report
 
 
 ==================
