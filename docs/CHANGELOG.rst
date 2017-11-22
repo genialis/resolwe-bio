@@ -23,6 +23,7 @@ Added
 * Add ``pyarrow`` and ``sklearn`` python modules
   to ``resolwebio/rnaseq`` docker image
 * Add ``wigToBigWig`` tool to ``resolwebio/chipseq`` docker image
+* Add ``wigtobigwig.sh`` to ``resolwebio/chipseq`` docker image folder
 
 Changed
 -------
