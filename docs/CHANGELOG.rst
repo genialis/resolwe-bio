@@ -36,6 +36,8 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Rename ``genes_source`` input to ``source``.
   Add optional ``species`` input to PCA process
 * Remove obsolete bayseq differential expression process
+* Remove obsolete ``cuffmerge-gtf-to-gff3`` process
+
 
 Added
 -----
