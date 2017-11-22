@@ -1,0 +1,33 @@
+# ===============================================
+# Parent of all differential expression processes
+# ===============================================
+
+- slug: abstract-differentialexpression
+  name: Abstract differential expression process
+  version: 1.0.0
+  type: data:differentialexpression
+  category: abstract
+  output:
+    - name: raw
+      label: Differential expression (gene level)
+      type: basic:file
+    - name: de_json
+      label: Results table (JSON)
+      type: basic:json
+    - name: de_file
+      label: Results table (file)
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+  run:
+    program: exit 1

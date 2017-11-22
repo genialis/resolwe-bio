@@ -21,6 +21,12 @@ Added
   ``cutadapt-single`` and ``cutadapt-paired`` processes
 * Add ``FastQC``, ``igvtools``, and ``SRA Toolkit``
   to ``resolwebio/utils`` Docker image
+* Add abstract processes ``abstract-alignment``, ``abstract-annotation``,
+  ``abstract-expression``, ``abstract-differentialexpression`` and
+  ``abstract-bed``. With abstract processes, we are making sure that all
+  subtype processes have the input and output fields that are defined in the
+  abstract process. For users, it is much more clear and predictable if they
+  can expect the same set of outputs on all processes of the same type.
 
 Changed
 -------
