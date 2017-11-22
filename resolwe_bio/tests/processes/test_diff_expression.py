@@ -41,27 +41,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFields(cuffdiff, 'build', 'hg19')
         self.assertFields(cuffdiff, 'feature_type', 'gene')
 
-    @tag_process('differentialexpression-bcm')
-    def test_bayseq_bcm(self):
-        with self.preparation_stage():
-            expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
-            expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
-
-            mappa = self.run_process("upload-mappability", {"src": "purpureum_mappability_50.tab.gz"})
-
-        inputs = {
-            'name': "00vs20",
-            'case': [expression_1.id],
-            'control': [expression_2.id],
-            'replicates': ['1', '2'],
-            'mappability': mappa.id}
-        diff_exp = self.run_process('differentialexpression-bcm', inputs)
-        self.assertJSON(diff_exp, diff_exp.output['volcano_plot'], '', 'bayseq_volcano.json.gz')
-        self.assertFields(diff_exp, 'source', 'DICTYBASE')
-        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
-        self.assertFields(diff_exp, 'build', 'dd-05-2009')
-        self.assertFields(diff_exp, 'feature_type', 'gene')
-
     @tag_process('differentialexpression-deseq2')
     def test_deseq2_genes(self):
         with self.preparation_stage():

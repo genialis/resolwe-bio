@@ -35,7 +35,7 @@ Changed
   Add optional ``species`` input to clustering-hierarchical-samples/samples processors
 * **BACKWARD INCOMPATIBLE:** Rename ``genes_source`` input to ``source``.
   Add optional ``species`` input to PCA process
-
+* Remove obsolete bayseq differential expression process
 
 Added
 -----
