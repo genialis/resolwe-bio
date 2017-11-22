@@ -1,0 +1,37 @@
+# ==================================
+# Parent of all expression processes
+# ==================================
+
+- slug: abstract-expression
+  name: Abstract expression process
+  version: 1.0.0
+  type: data:expression
+  category: abstract
+  output:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+    - name: rc
+      label: Read counts
+      type: basic:file
+      required: false
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+  run:
+    program: exit 1

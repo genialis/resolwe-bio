@@ -1,0 +1,21 @@
+# ===================================
+# Parent of all processes of type bed
+# ===================================
+
+- slug: abstract-bed
+  name: Abstract bed process
+  version: 1.0.0
+  type: data:bed
+  category: abstract
+  output:
+    - name: bed
+      label: BED
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    program: exit 1
