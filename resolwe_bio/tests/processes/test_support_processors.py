@@ -81,7 +81,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
             annotation = self.prepare_annotation_gff()
 
         gff_to_gtf = self.run_process('gff-to-gtf', {'annotation': annotation.id})
-        self.assertFile(gff_to_gtf, 'gtf', 'gff_to_gtf_annotation.gtf')
+        self.assertFile(gff_to_gtf, 'annot', 'gff_to_gtf_annotation.gtf')
 
     @tag_process('archive-samples')
     def test_archive_samples(self):

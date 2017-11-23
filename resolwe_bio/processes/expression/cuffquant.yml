@@ -13,7 +13,7 @@
     resources:
       cores: 1
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -24,7 +24,7 @@
     - name: alignment
       label: Aligned reads
       type: data:alignment:bam
-    - name: gff
+    - name: annotation
       label: Annotation (GTF/GFF3)
       type: data:annotation
     - name: genome
@@ -84,10 +84,7 @@
         --library-type {{ library_type }} \
         --num-threads {{requirements.resources.cores}} \
         --quiet \
-        {% if gff.gtf.file %} {{ gff.gtf.file }} \
-        {% elif gff.gff.file %} {{ gff.gff.file }} \
-        {% elif gff.merged_gtf.file %} {{ gff.merged_gtf.file }} \
-        {% endif %} \
+        {{ annotation.annot.file }} \
         {{ alignment.bam.file }}
       re-checkrc "Cuffquant analysis failed."
 

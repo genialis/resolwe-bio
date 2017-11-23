@@ -41,6 +41,7 @@ Changed
 * Remove obsolete ``transdecoder`` process
 * Remove obsolete ``web-gtf-dictybase`` process
 * Remove obsolete ``upload-rmsk`` process
+* **BACKWARD INCOMPATIBLE:** Unify output fields of processes of type ``data:annotation``
 
 Added
 -----

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Variants annotation ({{ variants.vcf.file|basename|default('?') }})"
-  version: 1.0.16
+  version: 1.1.0
   type: data:variants:annotation
   category: analyses:variants
   flow_collection: sample
@@ -62,7 +62,7 @@
       echo "{\"proc.progress\":0.25,\"proc.rc\":$?}"
 
       # annotation
-      SNPdat.pl -i "${VARIANTS}_selected.vcf" -g {{gtf.gtf.file}} -f {{ genome.fasta.file }} -o "${OUTPUT}" -s "${SUMMARY}"
+      SNPdat.pl -i "${VARIANTS}_selected.vcf" -g {{gtf.annot.file}} -f {{ genome.fasta.file }} -o "${OUTPUT}" -s "${SUMMARY}"
       echo "{\"proc.progress\":0.8,\"proc.rc\":$?}"
       VCF_ad_extract.py "${VARIANTS}_selected.vcf" "${OUTPUT}" > "ad_column.txt"
       echo "{\"proc.progress\":0.9,\"proc.rc\":$?}"

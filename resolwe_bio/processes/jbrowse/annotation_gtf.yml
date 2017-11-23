@@ -14,7 +14,7 @@
     resources:
       memory: 16384
   data_name: 'Annotation track ({{ gtf.gtf.file|default("?") }})'
-  version: 1.0.7
+  version: 1.1.0
   type: data:jbrowse:annotation:gtf
   category: jbrowse
   persistence: CACHED
@@ -34,6 +34,6 @@
     runtime: polyglot
     language: bash
     program: |
-      flatfile-to-json.pl --gff {{gtf.gtf.file}} --out . --trackLabel "annotation"
+      flatfile-to-json.pl --gff {{ gtf.annot.file }} --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
       re-save-file annotation_track trackList.json tracks/annotation

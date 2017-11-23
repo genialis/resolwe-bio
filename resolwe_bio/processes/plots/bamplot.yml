@@ -11,7 +11,7 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: "bamplot"
-  version: 1.1.2
+  version: 1.2.0
   type: data:bam:plot:bamplot
   category: plotting
   persistence: CACHED
@@ -212,12 +212,12 @@
         {% endif %}
 
       {% elif input_gff %}
-        ln -s {{input_gff.gtf.file}} annotation.gff
+        ln -s {{input_gff.annot.file}} annotation.gff
         bamplot --input annotation.gff "${params[@]}"
 
         re-checkrc "bamplot failed."
 
-        NAME=`basename {{input_gff.gff.file}} .gff`
+        NAME=`basename {{input_gff.annot.file}} .gff`
 
         {% if multi_page %}
           {% if title != "output" %}

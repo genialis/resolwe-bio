@@ -91,7 +91,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads.id,
-            'gff': annotation.id,
+            'annotation': annotation.id,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
         aligned_reads = self.run_process('alignment-tophat2', inputs)
@@ -102,14 +102,12 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
-            'gff': annotation.id,
+            'annotation': annotation.id,
             'PE_options': {
                 'library_type': "fr-unstranded"}}
         aligned_reads = self.run_process('alignment-tophat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'tophat_paired_reads_report.txt')
 
-<<<<<<< Updated upstream
-=======
     @tag_process('alignment-star-index')
     def test_star_index(self):
         with self.preparation_stage():
@@ -125,7 +123,6 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
         self.run_process('alignment-star-index', inputs_gff3)
 
->>>>>>> Stashed changes
     @tag_process('alignment-star-index', 'alignment-star')
     def test_star(self):
         with self.preparation_stage():

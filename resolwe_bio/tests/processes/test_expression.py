@@ -17,14 +17,14 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'gff': annotation.pk,
+                'annotation': annotation.pk,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)
 
         inputs = {
             'alignment': aligned_reads.pk,
-            'gff': annotation.pk,
+            'annotation': annotation.pk,
             'genome': genome.pk}
         cuff_exp = self.run_process('cufflinks', inputs)
         self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
@@ -33,7 +33,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'alignment': aligned_reads.pk,
-            'gff': annotation.pk,
+            'annotation': annotation.pk,
             'genome': genome.pk}
         cuff_exp2 = self.run_process('cufflinks', inputs)
 
@@ -42,7 +42,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'gff': annotation.pk,
             'genome': genome.pk}
         cuff_merge = self.run_process('cuffmerge', inputs)
-        self.assertFile(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
+        self.assertFile(cuff_merge, 'annot', 'cuffmerge_transcripts.gtf')
         self.assertFields(cuff_merge, 'species', 'Dictyostelium discoideum')
         self.assertFields(cuff_merge, 'build', 'dd-05-2009')
 
@@ -65,7 +65,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'alignment': bam.id,
-            'gff': annotation.id}
+            'annotation': annotation.id}
         cuffquant = self.run_process('cuffquant', inputs)
         self.assertFields(cuffquant, 'species', 'Homo sapiens')
         self.assertFields(cuffquant, 'build', 'hg19')
@@ -113,7 +113,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'gff': annotation.pk,
+                'annotation': annotation.pk,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)
@@ -151,7 +151,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'gff': annotation.pk,
+                'annotation': annotation.pk,
                 'PE_options': {'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)
 
@@ -231,7 +231,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'gff': annotation.pk,
+                'annotation': annotation.pk,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)

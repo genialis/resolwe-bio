@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.0
+  version: 1.3.0
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -25,12 +25,19 @@
     - name: reads
       label: Reads
       type: data:reads:fastq
-    - name: gff
-      label: General feature format
+    - name: annotation
+      label: Annotation (GTF/GFF3)
       type: data:annotation
       required: false
       description: >
-        Supply TopHat with a set of gene model annotations and/or known transcripts, as a GTF 2.2 or GFF3 formatted file. If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped on the genome. The reads that did map on the transcriptome will be converted to genomic mappings (spliced as needed) and merged with the novel mappings and junctions in the final tophat output. Please note that the values in the first column of the provided GTF/GFF file (column which indicates the chromosome or contig on which the feature is located), must match the name of the reference sequence (exact same chromosome/contig names (case sensitive)) in the Bowtie index you are using with TopHat.
+        Supply TopHat with a set of gene model annotations and/or known transcripts, as a GTF 2.2 or GFF3 formatted file.
+        If this option is provided, TopHat will first extract the transcript sequences and use Bowtie to align reads to
+        this virtual transcriptome first. Only the reads that do not fully map to the transcriptome will then be mapped
+        on the genome. The reads that did map on the transcriptome will be converted to
+        genomic mappings (spliced as needed) and merged with the novel mappings and junctions in the final tophat output.
+        Please note that the values in the first column of the provided GTF/GFF file (column which indicates the chromosome
+        or contig on which the feature is located), must match the name of the reference sequence
+        (exact same chromosome/contig names (case sensitive)) in the Bowtie index you are using with TopHat.
     - name: threads
       label: Use this many threads to align reads
       type: basic:integer
@@ -42,7 +49,14 @@
       type: basic:boolean
       default: false
       description: >
-        Some of the reads spanning multiple exons may be mapped incorrectly as a contiguous alignment to the genome even though the correct alignment should be a spliced one - this can happen in the presence of processed pseudogenes that are rarely (if at all) transcribed or expressed. This option can direct TopHat to re-align reads for which the edit distance of an alignment obtained in a previous mapping step is above or equal to this option value. If you set this option to 0, TopHat will map every read in all the mapping steps (transcriptome if you provided gene annotations, genome, and finally splice variants detected by TopHat), reporting the best possible alignment found in any of these mapping steps. This may greatly increase the mapping accuracy at the expense of an increase in running time. The default value is set to 0.
+        Some of the reads spanning multiple exons may be mapped incorrectly as a contiguous alignment to the genome
+        even though the correct alignment should be a spliced one - this can happen in the presence of processed pseudogenes
+        that are rarely (if at all) transcribed or expressed. This option can direct TopHat to re-align reads for which the
+        edit distance of an alignment obtained in a previous mapping step is above or equal to this option value.
+        If you set this option to 0, TopHat will map every read in all the mapping steps (transcriptome if you provided
+        gene annotations, genome, and finally splice variants detected by TopHat), reporting the best possible alignment
+        found in any of these mapping steps. This may greatly increase the mapping accuracy at the expense of an increase
+        in running time. The default value is set to 0.
     - name: options
       label: Options
       group:
@@ -51,19 +65,28 @@
           type: basic:integer
           default: 20
           description: >
-            Instructs TopHat to allow up to this many alignments to the reference for a given read, and choose the alignments based on their alignment scores if there are more than this number. The default is 20 for read mapping. Unless you use --report-secondary-alignments, TopHat will report the alignments with the best alignment score. If there are more alignments with the same score than this number, TopHat will randomly report only this many alignments. In case of using --report-secondary-alignments, TopHat will try to report alignments up to this option value, and TopHat may randomly output some of the alignments with the same score to meet this number.
+            Instructs TopHat to allow up to this many alignments to the reference for a given read, and choose the
+            alignments based on their alignment scores if there are more than this number. The default is 20 for read
+            mapping. Unless you use --report-secondary-alignments, TopHat will report the alignments with the best
+            alignment score. If there are more alignments with the same score than this number, TopHat will randomly
+            report only this many alignments. In case of using --report-secondary-alignments, TopHat will try to report
+            alignments up to this option value, and TopHat may randomly output some of the alignments with the same
+            score to meet this number.
         - name: secondary_alignments
           label: Report secondary alignments
           type: basic:boolean
           default: false
           description: >
-            By default TopHat reports best or primary alignments based on alignment scores (AS). Use this option if you want to output additional or secondary alignments  (up to 20 alignments will be reported this way, this limit can be changed by using the -g/--max-multihits option above).
+            By default TopHat reports best or primary alignments based on alignment scores (AS). Use this option if you
+            want to output additional or secondary alignments  (up to 20 alignments will be reported this way, this
+            limit can be changed by using the -g/--max-multihits option above).
         - name: microexon_search
           label: Microexon search
           type: basic:boolean
           default: false
           description: >
-            With this option, the pipeline will attempt to find alignments incident to micro-exons. Works only for reads 50bp or longer.
+            With this option, the pipeline will attempt to find alignments incident to micro-exons.
+            Works only for reads 50bp or longer.
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -72,7 +95,8 @@
           type: basic:integer
           default: 50
           description: >
-            This is the expected (mean) inner distance between mate pairs. For, example, for paired end runs with fragments selected at 300bp, where each end is 50bp, you should set -r to be 200. The default is 50bp.
+            This is the expected (mean) inner distance between mate pairs. For, example, for paired end runs with
+            fragments selected at 300bp, where each end is 50bp, you should set -r to be 200. The default is 50bp.
         - name: mate_std_dev
           label: Standard deviation of inner distances between mate pairs
           type: basic:integer
@@ -83,7 +107,16 @@
           label: Library type
           type: basic:string
           description: >
-            The default is unstranded (fr-unstranded). If either fr-firststrand or fr-secondstrand is specified, every read alignment will have an XS attribute tag as explained below. Consider supplying library type options below to select the correct RNA-seq protocol: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+            The default is unstranded (fr-unstranded). If either fr-firststrand or fr-secondstrand is specified,
+            every read alignment will have an XS attribute tag as explained below. Consider supplying library type
+            options below to select the correct RNA-seq protocol: fr-unstranded - Reads from the left-most end of the
+            fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the
+            opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the
+            fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads).
+            Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced;
+            fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment
+            (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads).
+            Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
           default: fr-unstranded
           choices:
             - label: fr-unstranded
@@ -155,7 +188,7 @@
         tophat2 \
           --num-threads {{ threads }} \
           {% if realign %}--read-realign-edit-dist 0{% endif %} \
-          {% if gff.gtf.file %}--GTF {{ gff.gtf.file }} {% elif gff.gff.file %} --GTF {{ gff.gff.file }} {% endif %} \
+          --GTF {{ annotation.annot.file }} \
           --output-dir ./ \
           {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
           {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \
@@ -168,7 +201,7 @@
           --mate-std-dev {{ PE_options.mate_std_dev }} \
           --num-threads {{ threads }} \
           {% if realign %}--read-realign-edit-dist 0{% endif %} \
-          {% if gff.gtf.file %}--GTF {{ gff.gtf.file }} {% elif gff.gff.file %} --GTF {{ gff.gff.file }} {% endif %} \
+          --GTF {{ annotation.annot.file }} \
           --output-dir ./ \
           {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
           {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \

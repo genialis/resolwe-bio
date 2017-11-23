@@ -331,7 +331,7 @@
       memory: 32768
       cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.1.0
+  version: 1.2.0
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -421,6 +421,13 @@
       re-checkrc "At least one of genome/genome2 inputs must be given!"
 
       re-progress 0.1
+
+      {% if annotation|type|subtype('data:annotation:gtf') %}
+        ANNOT={{ annotation.annot.file }}
+      {% else %}
+        ANNOT='{{ annotation.annot.file }} --sjdbGTFtagExonParentTranscript Parent'
+      {% endif %}
+
       mkdir star_index
       STAR \
         --runThreadN {{requirements.resources.cores}} \
@@ -430,7 +437,7 @@
         {% if advanced.genomeSAsparseD %}--genomeSAsparseD {{ advanced.genomeSAsparseD }}{% endif %} \
         --genomeDir ./star_index/ \
         --genomeFastaFiles genome.fasta \
-        --sjdbGTFfile {% if annotation.gtf.file %} {{ annotation.gtf.file }} {% elif annotation.gff.file %} {{annotation.gff.file}} --sjdbGTFtagExonParentTranscript Parent {% else %} {{annotation.seg.file}} --sjdbGTFtagExonParentTranscript Parent {% endif %} \
+        --sjdbGTFfile ${ANNOT} \
         --sjdbOverhang {{ sjdbOverhang }} \
         --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       re-checkrc "Genome index build failed."

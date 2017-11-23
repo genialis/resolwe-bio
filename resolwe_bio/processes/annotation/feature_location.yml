@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Extract feature locations"
-  version: 1.0.5
+  version: 1.1.0
   type: data:featurelocation
   category: analyses
   persistence: CACHED
@@ -65,5 +65,5 @@
     runtime: polyglot
     language: bash
     program: |
-      feature_location.py --annotation {% if annotation.gff.file %} {{annotation.gff.file}} {% else %} {{annotation.gtf.file}} {% endif %} --feature_type {{feature_type}} --id_type {{id_type}} {% if summarize_exons %} --summarize_exons {% endif %}
+      feature_location.py --annotation {{annotation.annot.file}} --feature_type {{feature_type}} --id_type {{id_type}} {% if summarize_exons %} --summarize_exons {% endif %}
       re-checkrc "Parsing of annotation file failed."

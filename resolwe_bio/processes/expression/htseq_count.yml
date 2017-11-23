@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.1.0
+  version: 1.2.0
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -127,7 +127,7 @@
             --stranded={{ stranded }} \
             --mode={{mode}} \
             --type={{ feature_class }} \
-            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.annot.file }} \
             > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
@@ -140,7 +140,7 @@
             --stranded={{ stranded }} \
             --mode={{mode}} \
             --type={{ feature_class }} \
-            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.gtf.file }} \
+            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.annot.file }} \
             > "HTseq_rc.txt"
         fi
       {% else %}
@@ -150,7 +150,7 @@
           --stranded={{ stranded }} \
           --mode={{mode}} \
           --type={{ feature_class }} \
-          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.annot.file }} \
           > "HTseq_rc.txt"
       {% endif %}
 
@@ -158,7 +158,7 @@
       re-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R {{ gff.gtf.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
+      expression_fpkm_tpm.R {{ gff.annot.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 
@@ -195,7 +195,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.1.0
+  version: 1.2.0
   type: data:expression:htseq:raw
   category: analyses
   flow_collection: sample
@@ -311,7 +311,7 @@
             --stranded={{ stranded }} \
             --mode={{mode}} \
             --type={{ feature_class }} \
-            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+            --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.annot.file }} \
             > "HTseq_rc.txt"
         else
           echo "Name sorting aligned reads:"
@@ -324,7 +324,7 @@
             --stranded={{ stranded }} \
             --mode={{mode}} \
             --type={{ feature_class }} \
-            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.gtf.file }} \
+            --idattr={{ id_attribute }} "${NAME}_name_sorted.bam" {{ gff.annot.file }} \
             > "HTseq_rc.txt"
         fi
       {% else %}
@@ -334,7 +334,7 @@
           --stranded={{ stranded }} \
           --mode={{mode}} \
           --type={{ feature_class }} \
-          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.gtf.file }} \
+          --idattr={{ id_attribute }} {{ alignments.bam.file }} {{ gff.annot.file }} \
           > "HTseq_rc.txt"
       {% endif %}
 
@@ -342,7 +342,7 @@
       re-progress 0.8
 
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R {{ gff.gtf.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
+      expression_fpkm_tpm.R {{ gff.annot.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
 

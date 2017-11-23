@@ -11,7 +11,7 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: "Bamliquidator"
-  version: 0.0.12
+  version: 0.1.0
   type: data:bam:plot:bamliquidator
   category: analyses
   persistence: CACHED
@@ -181,7 +181,7 @@
 
       elif [ {{ analysis_type }} == "region" ]; then
 
-        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_gtf.gtf.file }} --region_format gff -m
+        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_gtf.annot.file }} --region_format gff -m
         re-checkrc "Bamliquidator failed."
 
         SAMPLE_NAMES=()
@@ -198,7 +198,7 @@
         re-save-file matrix output/matrix.txt
 
         zip -r output.zip output
-        GTF_NAME=`basename {{regions_gtf.gtf.file}} .gtf`
+        GTF_NAME=`basename {{regions_gtf.annot.file}} .gtf`
         mv output.zip "${GTF_NAME}".zip
         re-save-file output_dir "${GTF_NAME}".zip
 

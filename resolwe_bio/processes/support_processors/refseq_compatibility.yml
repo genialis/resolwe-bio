@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Compatibility check ({{reference.fasta.file}})"
-  version: 1.0.6
+  version: 1.1.0
   type: data:reports:compatibility
   category: analyses
   persistence: CACHED
@@ -28,7 +28,7 @@
       required: false
     - name: annot
       label: Annotation file
-      type: "data:annotation:"
+      type: data:annotation
       required: false
   output:
     - name: report_file
@@ -50,12 +50,6 @@
       echo "${BAM_HEADER}"
       {% endif %}
 
-      {% if annot|type == 'data:annotation:gff3:' %}
-        ANOT_FILE={{annot.gff.file}}
-      {% else %}
-        ANOT_FILE={{annot.gtf.file}}
-      {% endif %}
-
       echo "Compatibility check"
-      compatibilty_check.py --genome {{ reference.fasta.file }} {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf "${ANOT_FILE}" {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
+      compatibilty_check.py --genome {{ reference.fasta.file }} {% if bam %}--mapping "${BAM_HEADER}"{% endif %} {% if annot %}--gtf {{ annot.annot.file }} {% endif %} > "${GENOME_NAME}"_compatibility_report.txt
       re-save-file report_file ${GENOME_NAME}_compatibility_report.txt

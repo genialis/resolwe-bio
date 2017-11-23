@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Cuffdiff results'
-  version: 1.1.0
+  version: 1.2.0
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -168,16 +168,6 @@
       re-save build {{ (case|first).build }}
       re-save feature_type 'gene'
 
-      {% if annotation.merged_gtf.file %}
-        annotation={{ annotation.merged_gtf.file }}
-      {% elif  annotation.gtf.file %}
-        annotation={{ annotation.gtf.file }}
-      {% elif  annotation.gff.file %}
-        annotation={{ annotation.gff.file }}
-      {% else %}
-        re-error "Please provide a suitable annotation (GFF/GTF) file."
-      {% endif %}
-
       re-progress 0.1
 
       controls=$(join_by , "${controls[@]}")
@@ -195,7 +185,7 @@
         -library-norm-method {{ library_normalization }} \
         -dispersion-method {{ dispersion_method }} \
         -quiet \
-        "${annotation}" \
+        {{ annotation.annot.file }} \
         "${controls}" \
         "${cases}"
 

@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 2.0.0
+  version: 3.0.0
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -64,7 +64,7 @@
       label: Build
       type: basic:string
   output:
-    - name: gff
+    - name: annot
       label: Uploaded file
       type: basic:file
     - name: source
@@ -82,13 +82,13 @@
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "gff|gff3|gtf" "gff" 0.1
 
-      gt gff3validator ${NAME}.gff
+      gt gff3validator "${NAME}.gff"
       re-checkrc
       re-progress 0.2
-      re-save-file gff ${NAME}.gff
-      re-save source {{source}}
-      re-save species {{species}}
-      re-save build {{build}}
+      re-save-file annot "${NAME}.gff"
+      re-save source {{ source }}
+      re-save species {{ species }}
+      re-save build {{ build }}
 
 - slug: upload-gtf
   name: Annotation (GTF2.2)
@@ -100,7 +100,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 2.0.0
+  version: 3.0.0
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -153,7 +153,7 @@
       label: Build
       type: basic:string
   output:
-    - name: gtf
+    - name: annot
       label: Uploaded file
       type: basic:file
     - name: source
@@ -171,7 +171,7 @@
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "gtf|gff" "gtf" 0.3
 
-      re-save-file gtf ${NAME}.gtf
-      re-save source {{source}}
-      re-save species {{species}}
-      re-save build {{build}}
+      re-save-file annot "${NAME}.gtf"
+      re-save source {{ source }}
+      re-save species {{ species }}
+      re-save build {{ build }}

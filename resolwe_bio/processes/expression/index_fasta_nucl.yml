@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.1.0
+  version: 0.2.0
   type: data:index:expression
   persistence: CACHED
   description: >
@@ -115,13 +115,13 @@
             rsem/index
         {% else %}
           rsem-prepare-reference \
-            --gtf {{ annotation.gtf.file }} \
+            --gtf {{ annotation.annot.file }} \
             nucl.fasta \
             rsem/index
         {% endif %}
       {% else %}
         rsem-prepare-reference \
-          --gtf {{ annotation.gtf.file }} \
+          --gtf {{ annotation.annot.file }} \
           {{ genome.fasta.file }} \
           rsem/index
       {% endif %}

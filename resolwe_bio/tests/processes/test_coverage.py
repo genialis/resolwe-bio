@@ -35,7 +35,7 @@ class CoverageProcessorTestCase(BioProcessTestCase):
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'gff': annotation.pk,
+                'annotation': annotation.pk,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)

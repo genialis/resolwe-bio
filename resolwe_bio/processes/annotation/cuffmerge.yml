@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.1.0
+  version: 1.2.0
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -47,7 +47,7 @@
       description: >
         Use this many threads to align reads. The default is 1.
   output:
-    - name: merged_gtf
+    - name: annot
       label: Merged GTF file
       type: basic:file
     - name: source
@@ -79,21 +79,21 @@
       {% endfor %}
 
       {% for annotation in gtf %}
-        echo {{ annotation.gtf.file }} >> transcript_assembly_list.txt
+        echo {{ annotation.annot.file }} >> transcript_assembly_list.txt
         re-checkrc
       {% endfor %}
 
       re-progress 0.1
 
-      {% if gff.gff.file %}
-        gffread {{gff.gff.file}} -T -o reference_annotation.gtf
+      {% if gff.annot.file %}
+        gffread {{gff.annot.file}} -T -o reference_annotation.gtf
         re-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
       {% endif %}
 
       echo "Running Cuffmerge"
 
       cuffmerge \
-        {% if gff.gtf.file %} --ref-gtf {{ gff.gtf.file }} {% else %} --ref-gtf reference_annotation.gtf {% endif %} \
+        {% if gff.annot.file %} --ref-gtf {{ gff.annot.file }} {% else %} --ref-gtf reference_annotation.gtf {% endif %} \
         {% if genome %} --ref-sequence {{ genome.fasta.file }} {% endif %} \
         --num-threads {{ threads }} \
         -o ./ \
@@ -103,7 +103,7 @@
       re-progress 0.95
 
       mv merged.gtf cuffmerge_$(date +'%m-%d-%Y').gtf
-      re-save-file merged_gtf cuffmerge_$(date +'%m-%d-%Y').gtf
+      re-save-file annot cuffmerge_$(date +'%m-%d-%Y').gtf
 
       {% if expressions %}
         re-save source {{ (expressions|first).source }}

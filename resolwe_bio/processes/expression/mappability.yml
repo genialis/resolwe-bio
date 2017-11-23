@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
-  version: 1.0.13
+  version: 1.1.0
   type: data:mappability:bcm
   category: analyses
   persistence: CACHED
@@ -51,7 +51,7 @@
 
       cp {{ genome.fasta.file }} .
 
-      mappability.py "${GENOME_NAME}.fasta" {{ gff.gff.file }} {{length}}
+      mappability.py "${GENOME_NAME}.fasta" {{ gff.annot.file }} {{length}}
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       str="{\"proc.progress\":1"
@@ -60,7 +60,7 @@
         xtabcoverage.py \
           --tab {{ proc.data_dir }}"/"{{ proc.data_id }}"/${GENOME_NAME}_mappability_"{{length}}".tab" \
           --tab-coverage-col 4 \
-          --gff3 {{ gff.gff.file }} > tmp.bedgraph
+          --gff3 {{ gff.annot.file }} > tmp.bedgraph
         cat {{ genome.fai.file }} | cut -f -2 > chrom.sizes
         bedGraphToBigWig tmp.bedgraph chrom.sizes "${GENOME_NAME}_mappability_"{{length}}".tab.bw"
         rm tmp.bedgraph

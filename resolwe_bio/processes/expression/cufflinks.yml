@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.1.0
+  version: 1.2.0
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -22,7 +22,7 @@
     - name: alignment
       label: Aligned reads
       type: data:alignment:bam
-    - name: gff
+    - name: annotation
       label: Annotation (GTF/GFF3)
       type: data:annotation
       required: false
@@ -104,7 +104,14 @@
 
       re-progress 0.1
 
-      cufflinks {% if gff %} {{ annotation_usage }} {% if gff.gtf.file %} {{ gff.gtf.file }} {% elif gff.gff.file %} {{ gff.gff.file }} {% endif %} {% endif %} {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} {% if multi_read_correct %} --multi-read-correct {% endif %} {% if mask_file %} -M {{ mask_file.gtf.file }} {% endif %} --library-type {{ library_type }} --num-threads {{ threads }} --quiet {{ alignment.bam.file }}
+      cufflinks \
+        {% if annotation %} {{ annotation_usage }} {{ annotation.annot.file }} {% endif %} \
+        {% if genome %} --frag-bias-correct {{ genome.fasta.file }} {% endif %} \
+        {% if multi_read_correct %} --multi-read-correct {% endif %} \
+        {% if mask_file %} -M {{ mask_file.annot.file }} {% endif %} \
+        --library-type {{ library_type }} \
+        --num-threads {{ threads }} \
+        --quiet {{ alignment.bam.file }}
 
       re-checkrc
       re-progress 0.9

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Coverage report ({{ mapping.bam.file|basename|default('?') }})"
-  version: 2.0.8
+  version: 2.1.0
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -68,7 +68,7 @@
     runtime: polyglot
     language: bash
     program: |
-      garvan_coverage.py {{ filter }} {{ mapping.bam.file }} {{ gtf.gtf.file }} {% if variants %}--variants {{ variants.vcf.file }}{% endif %} {% for g in genes %}{{g}} {% endfor %}
+      garvan_coverage.py {{ filter }} {{ mapping.bam.file }} {{ gtf.annot.file }} {% if variants %}--variants {{ variants.vcf.file }}{% endif %} {% for g in genes %}{{g}} {% endfor %}
       re-checkrc
 
       re-save-file exon_coverage exons.txt.gz
