@@ -29,6 +29,7 @@ Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Drop Python 2 support, require Python 3.4 or 3.5
 * **BACKWARD INCOMPATIBLE:** Make species part of the feature primary key
+* Require Resolwe 5.x
 * Set maximum RAM requirement in ``bbduk`` process
 * Move `Assay type` input parameter in RNA-Seq descriptor schema
   from advanced options to regular options
