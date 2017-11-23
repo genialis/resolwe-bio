@@ -43,6 +43,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'genome': genome.pk}
         cuff_merge = self.run_process('cuffmerge', inputs)
         self.assertFile(cuff_merge, 'merged_gtf', 'cuffmerge_transcripts.gtf')
+        self.assertFields(cuff_merge, 'species', 'Dictyostelium discoideum')
+        self.assertFields(cuff_merge, 'build', 'dd-05-2009')
 
     @tag_process('cuffquant')
     def test_cuffquant(self):
