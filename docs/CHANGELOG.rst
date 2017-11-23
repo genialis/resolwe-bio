@@ -37,7 +37,10 @@ Changed
   Add optional ``species`` input to PCA process
 * Remove obsolete bayseq differential expression process
 * Remove obsolete ``cuffmerge-gtf-to-gff3`` process
-
+* Track ``species`` and ``build`` in ``cuffmerge`` process
+* Remove obsolete ``transdecoder`` process
+* Remove obsolete ``web-gtf-dictybase`` process
+* Remove obsolete ``upload-rmsk`` process
 
 Added
 -----
