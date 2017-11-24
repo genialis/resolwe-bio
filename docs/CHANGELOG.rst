@@ -58,6 +58,8 @@ Changed
   and ``feature_type`` in ``upload-expression-star`` process
 * The description text has been updated to better describe the difference
   between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
+* Remove ``gsize`` input from ``macs14`` process and automate genome
+  size selection
 
 Fixed
 -----

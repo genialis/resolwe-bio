@@ -180,56 +180,6 @@
           re-error "BAI should have the same name as BAM with .bai extension"
         fi
 
-- slug: upload-bam-primary
-  name: Primary hybrid BAM file
-  requirements:
-    expression-engine: jinja
-    executor:
-      docker:
-        image: resolwebio/rnaseq:1.1.0
-    resources:
-      network: true
-  data_name: '{{ src.file|default("?") }}'
-  version: 0.0.1
-  type: data:alignment:bam:primary
-  flow_collection: sample
-  category: upload
-  persistence: RAW
-  description: >
-    Upload a primary mapping file in BAM format.
-  input:
-    - name: bam
-      label: Hybrid bam
-      type: data:alignment:bam
-      required: false
-      description: >
-        Primary bam will be appended to the same sample where hybrid bam is.
-    - name: src
-      label: Mapping (BAM)
-      type: basic:file
-      description: >
-        A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
-      validate_regex: '\.(bam)$'
-  output:
-    - name: bam
-      label: Uploaded file
-      type: basic:file
-    - name: bai
-      label: Index BAI
-      type: basic:file
-  run:
-    runtime: polyglot
-    language: bash
-    program: |
-        re-import {{ src.file_temp }} {{ src.file }} "bam" "bam" 0.3 extract
-
-        samtools index "${NAME}.bam"
-        re-checkrc
-        re-progress 0.8
-
-        re-save-file bam "${NAME}.bam"
-        re-save-file bai "${NAME}.bam.bai"
-
 - slug: upload-bam-secondary
   name: Secondary hybrid BAM file
   requirements:
@@ -240,7 +190,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.1
+  version: 0.1.0
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: upload
@@ -260,6 +210,18 @@
       description: >
         A mapping file in BAM format. The file will be indexed on upload, so additional BAI files are not required.
       validate_regex: '\.(bam)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Drosophila melanogaster
+          value: Drosophila melanogaster
+    - name: build
+      label: Build
+      type: basic:string
   output:
     - name: bam
       label: Uploaded file
@@ -267,6 +229,12 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -279,3 +247,5 @@
 
         re-save-file bam "${NAME}.bam"
         re-save-file bai "${NAME}.bam.bai"
+        re-save species {{species}}
+        re-save build {{build}}

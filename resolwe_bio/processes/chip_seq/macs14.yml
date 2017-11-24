@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:1.1.0
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.1.0
+  version: 2.2.0
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -25,23 +25,6 @@
       label: BAM Background File
       type: data:alignment:bam
       required: false
-    - name: gsize
-      label: Effective genome size
-      type: basic:string
-      default: '2.7e9'
-      choices:
-        - label: Homo sapiens
-          value: '2.7e9'
-        - label: Mus musculus
-          value: '1.87e9'
-        - label: Caenorhabditis elegans
-          value: '9e7'
-        - label: Drosophila melanogaster
-          value: '1.2e8'
-        - label: Rattus norvegicus
-          value: '2e9'
-        - label: Dictyostelium discoideum
-          value: '3.4e7'
     - name: pvalue
       label: P-value
       type: basic:string
@@ -92,8 +75,31 @@
         re-error "BAM {{ treatment|name }} has {{ treatment.species }} while {{ control|name }} has {{ control.species }} species information.\n"
       {% endif %}
 
-      CONTROL='{% if control %}--control {{ control.bam.file }} {% endif %}'
-      macs --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50
+      {% set species_to_gsize = {
+        'Homo sapiens': '2.7e9',
+        'Mus musculus': '1.87e9',
+        'Dictyostelium discoideum': '3.4e7',
+        'Drosophila melanogaster': '1.2e8',
+        'Caenorhabditis elegans': '9e7',
+        'Rattus norvegicus': '2e9',
+        }
+      %}
+
+      {% set gsize = species_to_gsize[treatment.species] %}
+      {% if not gsize %}
+        re-error "{{ treatment.species }} is not a valid hybrid species. Accepted species are: {{ species_to_gsize.keys() | join(', ') }}"
+      {% endif %}
+
+      macs \
+        --treatment {{ treatment.bam.file }} \
+        {% if control %}--control {{ control.bam.file }}{% endif %} \
+        --format BAM \
+        --gsize {{ gsize }} \
+        --name $NAME \
+        --pvalue {{ pvalue }} \
+        --wig \
+        --single-profile \
+        --space=50
       re-checkrc
 
       zip -r ${NAME}_MACS_wiggle.zip ${NAME}_MACS_wiggle

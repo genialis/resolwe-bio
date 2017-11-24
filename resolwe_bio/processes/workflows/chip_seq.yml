@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.3
+  version: 0.1.0
   type: data:workflow:chipseq
   input:
     - name: reads
@@ -13,22 +13,6 @@
     - name: genome
       label: genome
       type: data:genome:fasta
-    - name: macs_gsize
-      label: Effective genome size
-      type: basic:string
-      choices:
-        - label: Homo sapiens
-          value: '2.7e9'
-        - label: Mus musculus
-          value: '1.87e9'
-        - label: Caenorhabditis elegans
-          value: '9e7'
-        - label: Drosophila melanogaster
-          value: '1.2e8'
-        - label: Rattus norvegicus
-          value: '2e9'
-        - label: Dictyostelium discoideum
-          value: '3.4e7'
     - name: rose_genome
       label: Genome build
       type: basic:string
@@ -53,7 +37,6 @@
         run: macs14
         input:
           treatment: '{{steps.bowtie2}}'
-          gsize: '{{input.macs_gsize}}'
       - id: rose2
         run: rose2
         input:
