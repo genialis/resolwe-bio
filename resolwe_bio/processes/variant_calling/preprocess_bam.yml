@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.2
+  version: 0.2.0
   type: data:alignment:bam:vc
   category: analyses:variants
   flow_collection: sample
@@ -45,6 +45,12 @@
     - name: stats
       label: Stats
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -77,3 +83,8 @@
       echo "{\"stats\":{\"file\":\"${SAMPLE_SLUG}_report.txt\"}}"
       echo "{\"bam\":{\"file\":\"${SAMPLE_SLUG}.realigned.bqsrCal.bam\"}}"
       echo "{\"bai\":{\"file\":\"${SAMPLE_SLUG}.realigned.bqsrCal.bai\"}}"
+
+      SPECIES={{ alignment.species }}
+      BUILD={{ alignment.build }}
+      echo "{\"species\":\"${SPECIES}\"}"
+      echo "{\"build\":\"${BUILD}\"}"

@@ -7,7 +7,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: '{{ alignment.bam.file|default("?") }}'
-  version: 0.0.3
+  version: 0.1.0
   type: data:alignment:bam:hsqutils
   category: analyses
   flow_collection: sample
@@ -38,6 +38,12 @@
     - name: probe_details
       label: Probe details
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -64,3 +70,5 @@
       re-save-file bai "${BAM_NAME}_dedup.bam.bai"
       re-save-file summary "HSQUtils_dedup_summary.txt"
       re-save-file probe_details "probe_details.txt"
+      re-save build {{ alignment.build }}
+      re-save species {{ alignment.species }}

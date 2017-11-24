@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.2
+  version: 0.2.0
   type: data:variants:vcf:gatk:hc
   category: analyses:variants
   flow_collection: sample
@@ -55,6 +55,12 @@
     - name: vcf
       label: Alignment file
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -71,3 +77,7 @@
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
       echo "{\"vcf\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf\",\"refs\":[\"${SAMPLE_SLUG}.gatkHC.vcf.bgz\", \"${SAMPLE_SLUG}.gatkHC.vcf.bgz.tbi\"]}}"
+      SPECIES={{ alignment.species }}
+      BUILD={{ alignment.build }}
+      echo "{\"species\":\"${SPECIES}\"}"
+      echo "{\"build\":\"${BUILD}\"}"

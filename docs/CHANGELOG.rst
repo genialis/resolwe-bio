@@ -43,6 +43,8 @@ Changed
 * Remove obsolete ``upload-rmsk`` process
 * **BACKWARD INCOMPATIBLE:** Unify output fields of processes of type ``data:annotation``
 * Remove obsolete ``snpdat`` process
+* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
+  in Variant Calling processes
 
 Added
 -----

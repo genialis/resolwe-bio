@@ -34,6 +34,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         }
         samtools_variants = self.run_process('vc-samtools', inputs)
         self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_vcf_variable)
+        self.assertFields(samtools_variants, 'build', 'dd-05-2009')
+        self.assertFields(samtools_variants, 'species', 'Dictyostelium discoideum')
 
     @tag_process('vc-chemut')
     def test_variant_calling_chemut(self):
@@ -72,12 +74,19 @@ class VariantCallingTestCase(BioProcessTestCase):
                 'DT': "2014-08-05"},
             'Varc_param': {'stand_emit_conf': 10, 'stand_call_conf': 30}}
 
-        self.run_process('vc-chemut', inputs)
+        variants = self.run_process('vc-chemut', inputs)
+        self.assertFields(variants, 'build', 'dd-05-2009')
+        self.assertFields(variants, 'species', 'Dictyostelium discoideum')
 
     @tag_process('filtering-chemut')
     def test_filtering_chemut(self):
         with self.preparation_stage():
-            variants = self.run_process('upload-variants-vcf', {'src': 'variant_calling_filtering.vcf.gz'})
+            vcf_input = {
+                'src': 'variant_calling_filtering.vcf.gz',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
+            variants = self.run_process('upload-variants-vcf', vcf_input)
 
         inputs = {
             'variants': variants.pk,
@@ -88,6 +97,8 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         filtered_variants = self.run_process('filtering-chemut', inputs)
         self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf')
+        self.assertFields(filtered_variants, 'build', 'dd-05-2009')
+        self.assertFields(filtered_variants, 'species', 'Dictyostelium discoideum')
 
     @tag_process('hsqutils-dedup')
     def test_hsqutils_dedup(self):
@@ -114,6 +125,8 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         hsqutils_dedup = self.run_process('hsqutils-dedup', inputs)
         self.assertFile(hsqutils_dedup, 'summary', 'HSQUtils_dedup_summary.txt')
+        self.assertFields(hsqutils_dedup, 'build', 'hg19')
+        self.assertFields(hsqutils_dedup, 'species', 'Homo sapiens')
 
     @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
@@ -132,11 +145,18 @@ class VariantCallingTestCase(BioProcessTestCase):
                 'build': 'b37'
             }
             genome = self.run_process('upload-genome', inputs)
-
-            inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
-            indels = self.run_process('upload-variants-vcf', inputs)
-
-            dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
+            vcf_input = {
+                'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            indels = self.run_process('upload-variants-vcf', vcf_input)
+            dbsnp_input = {
+                'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
         inputs = {
             'alignment': bam.id,
@@ -145,7 +165,9 @@ class VariantCallingTestCase(BioProcessTestCase):
             'known_vars': [dbsnp.id]
         }
 
-        self.run_process('vc-realign-recalibrate', inputs)
+        variants = self.run_process('vc-realign-recalibrate', inputs)
+        self.assertFields(variants, 'build', 'b37')
+        self.assertFields(variants, 'species', 'Homo sapiens')
 
     @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
@@ -196,7 +218,12 @@ class VariantCallingTestCase(BioProcessTestCase):
             genome = self.run_process('upload-genome', inputs)
 
             master_file = self.prepare_amplicon_master_file()
-            dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
+            dbsnp_input = {
+                'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
         inputs = {
             'alignment': alignment.id,
@@ -207,6 +234,8 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         gatk_vars = self.run_process('vc-gatk-hc', inputs)
         self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_vcf_variable)
+        self.assertFields(gatk_vars, 'build', 'b37')
+        self.assertFields(gatk_vars, 'species', 'Homo sapiens')
 
     @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
     @tag_process('lofreq')
@@ -237,12 +266,24 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         lofreq_vars = self.run_process('lofreq', inputs)
         self.assertFile(lofreq_vars, 'vcf', '56GSID_10k.lf.vcf', file_filter=filter_vcf_variable)
+        self.assertFields(lofreq_vars, 'build', 'b37')
+        self.assertFields(lofreq_vars, 'species', 'Homo sapiens')
 
     @tag_process('snpeff')
     def test_snpeff(self):
         with self.preparation_stage():
-            variants_lf = self.run_process('upload-variants-vcf', {'src': '56GSID_10k.lf.vcf'})
-            dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
+            lf_input = {
+                'src': '56GSID_10k.lf.vcf',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            variants_lf = self.run_process('upload-variants-vcf', lf_input)
+            dbsnp_input = {
+                'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
         inputs = {
             'variants': variants_lf.id,

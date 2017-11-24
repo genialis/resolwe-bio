@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/dnaseq:1.2.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.0.6
+  version: 1.1.0
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -101,6 +101,12 @@
       required: false
       description: >
         List mutants that carry mutations in individual genes.
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -117,6 +123,9 @@
       re-progress 0.9
 
       re-save-file summary "${NAME}.vcf_"{{read_depth}}"/summary.txt"
+
+      re-save species {{ variants.species }}
+      re-save build {{ variants.build }}
 
       if [ -f "${NAME}.vcf_"{{read_depth}}"/variants.vcf" ];
       then

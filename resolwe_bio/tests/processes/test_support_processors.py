@@ -97,7 +97,12 @@ class SupportProcessorTestCase(BioProcessTestCase):
             read_inputs = {'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz']}
             reads = self.run_process('upload-fastq-single', read_inputs)
 
-            vcf = self.run_process('upload-variants-vcf', {'src': 'igv_human.lf.vcf'})
+            vcf_input = {
+                'src': 'igv_human.lf.vcf',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            vcf = self.run_process('upload-variants-vcf', vcf_input)
 
         self.run_process('archive-samples', {
             'data': [txt_file.id, bam.id, reads.id, vcf.id],

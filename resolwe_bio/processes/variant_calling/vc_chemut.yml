@@ -11,7 +11,7 @@
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Called variants (CheMut)"
-  version: 1.0.7
+  version: 1.1.0
   type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
@@ -143,6 +143,12 @@
     - name: vcf
       label: Called variants file
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -293,3 +299,8 @@
         echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
         echo "{\"vcf\":{\"file\":\"GATKvariants_raw.vcf\",\"refs\":[\"GATKvariants_raw.vcf.bgz\", \"GATKvariants_raw.vcf.bgz.tbi\"]}}"
       fi
+
+      SPECIES={{ (parental_strains|first).species }}
+      BUILD={{ (parental_strains|first).build }}
+      echo "{\"species\":\"${SPECIES}\"}"
+      echo "{\"build\":\"${BUILD}\"}"

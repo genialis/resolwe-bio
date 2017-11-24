@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.16
+  version: 1.1.0
   type: data:variants:vcf
   category: upload
   persistence: RAW
@@ -27,10 +27,38 @@
         Variants in VCF format.
       required: true
       validate_regex: '\.(vcf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
   output:
     - name: vcf
       label: Uploaded file
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -40,4 +68,6 @@
       bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
       tabix -p vcf "${NAME}.vcf.bgz"
 
-      echo "{\"proc.progress\":0.1,\"proc.rc\":$?,\"vcf\":{\"file\":\"${NAME}.vcf\",\"refs\":[\"${NAME}.vcf.bgz\",\"${NAME}.vcf.bgz.tbi\"]}}"
+      re-save-file vcf "${NAME}.vcf" "${NAME}.vcf.bgz" "${NAME}.vcf.bgz.tbi"
+      re-save species {{ species }}
+      re-save build {{ build }}

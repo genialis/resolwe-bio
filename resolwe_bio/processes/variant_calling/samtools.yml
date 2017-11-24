@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.0.13
+  version: 1.1.0
   type: data:variants:vcf
   category: analyses:variants
   flow_collection: sample
@@ -62,6 +62,12 @@
     - name: vcf
       label: Called variants
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -110,3 +116,6 @@
       re-progress 0.95
 
       re-save-file vcf "${BAM_FILE}_filtered_variants.vcf" "${BAM_FILE}_filtered_variants.vcf.bgz" "${BAM_FILE}_filtered_variants.vcf.bgz.tbi"
+
+      re-save species {{ mapping.species }}
+      re-save build {{ mapping.build }}

@@ -26,10 +26,19 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
 
             master_file = self.prepare_amplicon_master_file()
 
-            inputs = {'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz'}
-            indels = self.run_process('upload-variants-vcf', inputs)
+            vcf_input = {
+                'src': '1000G_phase1.indels.b37_chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            indels = self.run_process('upload-variants-vcf', vcf_input)
 
-            dbsnp = self.run_process('upload-variants-vcf', {'src': 'dbsnp_138.b37.chr2_small.vcf.gz'})
+            dbsnp_input = {
+                'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            }
+            dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
             template = self.run_process('upload-file', {'src': 'report_template.tex'})
             logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
