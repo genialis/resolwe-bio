@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:1.1.0
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.0.5
+  version: 2.1.0
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -72,11 +72,25 @@
       label: Negative peaks (XLS)
       type: basic:file
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       NAME=`basename {{ treatment.bam.file }} .bam`
+
+      {% if treatment.build != control.build and control %}
+        re-warning "All BAM files must share the same genome build information."
+        re-error "BAM {{ treatment|name }} has {{ treatment.build }} while {{ control|name }} has {{ control.build }} build information.\n"
+      {% elif treatment.species != control.species and control %}
+        re-warning "All BAM files must share the same species information."
+        re-error "BAM {{ treatment|name }} has {{ treatment.species }} while {{ control|name }} has {{ control.species }} species information.\n"
+      {% endif %}
 
       CONTROL='{% if control %}--control {{ control.bam.file }} {% endif %}'
       macs --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50
@@ -99,3 +113,6 @@
       then
         re-save-file neg_peaks ${NAME}_negative_peaks.xls
       fi
+
+      re-save species {{ treatment.species }}
+      re-save build {{ treatment.build }}

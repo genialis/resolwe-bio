@@ -73,6 +73,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                   "control": control_bam.id}
         macs14 = self.run_process("macs14", inputs)
 
+        self.assertFields(macs14, 'species', 'Homo sapiens')
+        self.assertFields(macs14, 'build', 'hg19')
         self.assertFile(macs14, 'peaks_bed', 'macs14_peaks.bed')
 
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
