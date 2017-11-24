@@ -45,6 +45,8 @@ Changed
 * Remove obsolete ``snpdat`` process
 * **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
   in Variant Calling processes
+* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
+  in JBrowse processes
 
 Added
 -----

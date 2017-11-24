@@ -24,7 +24,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             }
             case_bam = self.run_process("upload-bam", inputs)
 
-            inputs = {'src': 'chip_seq.bed'}
+            inputs = {
+                'src': 'chip_seq.bed',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009'
+            }
             bed = self.run_process('upload-bed', inputs)
 
             inputs = {
@@ -89,7 +93,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             }
             control = self.run_process("upload-bam", inputs)
 
-            inputs = {'src': 'macs14_chr22.bed'}
+            inputs = {
+                'src': 'macs14_chr22.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
             macs_peaks = self.run_process('upload-bed', inputs)
 
         inputs = {"genome": 'HG19',

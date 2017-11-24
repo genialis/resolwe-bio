@@ -36,7 +36,12 @@ class PlotsProcessorTestCase(BioProcessTestCase):
     @tag_process('bamplot')
     def test_bamplot_gff(self):
         with self.preparation_stage():
-            bed = self.run_process('upload-bed', {'src': 'bamplot.bed'})
+            bed_input = {
+                'src': 'bamplot.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bed = self.run_process('upload-bed', bed_input)
 
             inputs = {
                 'src': 'bamplot.gff',

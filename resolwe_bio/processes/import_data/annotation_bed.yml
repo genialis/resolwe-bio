@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.8
+  version: 1.1.0
   type: data:bed
   category: upload
   persistence: RAW
@@ -27,10 +27,38 @@
         Upload BED file annotation track. The first three required BED fields are chrom, chromStart and chromEnd.
       required: true
       validate_regex: '\.(bed|narrowPeak)$'
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
   output:
     - name: BED
       label: BED file
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -39,3 +67,5 @@
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       re-checkrc "BED file format validation failed. Check file integrity."
       re-save-file BED "${NAME}.bed"
+      re-save species {{ species }}
+      re-save build {{ build }}

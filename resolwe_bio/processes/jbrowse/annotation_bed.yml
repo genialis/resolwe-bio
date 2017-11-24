@@ -12,7 +12,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'BED annotation track (JBrowse)'
-  version: 1.0.6
+  version: 1.1.0
   type: data:jbrowse:annotation:bed
   category: jbrowse
   flow_collection: sample
@@ -36,6 +36,12 @@
     - name: bed_track
       label: Annotation track (BED)
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -60,3 +66,5 @@
       {% endif %}
 
       re-save-file bed_track trackList.json tracks/bed
+      re-save species {{ bed.species }}
+      re-save build {{ bed.build }}

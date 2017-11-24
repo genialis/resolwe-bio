@@ -12,7 +12,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Coverage track ({{bam|sample_name}})"
-  version: 1.0.7
+  version: 1.1.0
   type: data:jbrowse:bigwig:coverage
   category: analyses
   flow_collection: sample
@@ -27,6 +27,12 @@
     - name: bigwig_track
       label: Genome coverage (BigWig)
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -49,3 +55,5 @@
       re-progress 0.90
 
       re-save-file bigwig_track ${BIGWIGOUT}.bw
+      re-save build {{ bam.build }}
+      re-save species {{ bam.species }}

@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:jbrowse:annotation:gff3
   category: jbrowse
   persistence: CACHED
@@ -30,6 +30,12 @@
     - name: annotation_track
       label: Annotation track (GFF3)
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -37,3 +43,5 @@
       flatfile-to-json.pl --gff {{ gff.annot.file }} --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
       re-save-file annotation_track trackList.json tracks/annotation
+      re-save build {{ gff.build }}
+      re-save species {{ gff.species }}

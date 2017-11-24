@@ -22,7 +22,12 @@ class HeatSeqWorkflowTestCase(BioProcessTestCase):
             genome = self.run_process('upload-genome', inputs)
 
             probe = self.run_process('upload-file', {'src': 'heat_seq_probe_info.txt'})
-            bed = self.run_process('upload-bed', {'src': 'heat_seq_capture_targets.bed'})
+            bed_input = {
+                'src': 'heat_seq_capture_targets.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            bed = self.run_process('upload-bed', bed_input)
 
         self.run_process(
             'workflow-heat-seq', {
