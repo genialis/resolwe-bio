@@ -118,10 +118,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
             index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
 
-            inputs = {'src': ['reads_rsem.fq.gz']}
+            inputs = {'src': ['reads rsem.fq.gz']}
             single_reads = self.run_process('upload-fastq-single', inputs)
 
-            inputs = {'src1': ['reads_rsem.fq.gz'], 'src2': ['reads_rsem2.fq.gz']}
+            inputs = {'src1': ['reads rsem.fq.gz'], 'src2': ['reads rsem2.fq.gz']}
             paired_reads = self.run_process('upload-fastq-paired', inputs)
 
         inputs = {

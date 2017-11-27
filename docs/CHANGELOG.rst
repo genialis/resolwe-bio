@@ -52,6 +52,7 @@ Fixed
   with Resolwe 4.0
 * Fix ``resolwebio/rnaseq`` docker image readme
 * Handle multiple ALT values in amplicon report
+* Fix BAM file input in ``rsem`` process
 
 
 ==================

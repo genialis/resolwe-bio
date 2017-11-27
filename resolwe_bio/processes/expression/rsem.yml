@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Quantification ({{ (alignments|sample_name) }})"
-  version: 0.0.2
+  version: 0.0.3
   type: data:expression:rsem
   category: analyses
   flow_collection: sample
@@ -84,7 +84,10 @@
       {% endif %}
 
       NAME=`basename {{ alignments.alignment_transcriptome.file }} .bam`
-      mv {{ alignments.alignment_transcriptome.file }} reads.bam
+
+      # Create a symlink to the input BAM file since RSEM cannot handle
+      # potential whitespace in the file name
+      ln -s {{ alignments.alignment_transcriptome.file }} reads.bam
 
       rsem-calculate-expression \
         --alignments \
@@ -119,7 +122,7 @@
 
       mv rsem.isoforms.results "${NAME}_isoforms.tab"
       gzip "${NAME}_isoforms.tab"
-      
+
       re-save-file rc "${NAME}_rc.tab.gz"
       re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
