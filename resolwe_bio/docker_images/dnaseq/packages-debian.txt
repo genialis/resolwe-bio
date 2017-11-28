@@ -3,3 +3,5 @@ bwa
 picard-tools
 python3-setuptools
 python3-wheel
+r-base-core
+tabix

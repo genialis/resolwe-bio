@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add R, tabix, and CheMut R library to ``resolwebio/dnaseq`` Docker image
+
 
 ==================
 6.1.0 - 2017-12-12
