@@ -6,53 +6,65 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+6.0.0 - 2017-11-28
+==================
 
 Added
 -----
-* Add Python package ``pandas`` to ``resolwebio/latex`` image
 * Add AF filter to amplicon report
 * Add number of samples to the output of expression aggregator
-* Add primerclip, samtools, picard-tools and bwa to resolwebio/dnaseq docker
 * Add ``ChIP-Rx``, ``ChIPmentation`` and ``eClIP`` experiment types to
   ``reads`` descriptor schema
-* Add ``RNASeqT`` R library to ``resolwebio/rnaseq`` docker image
-* Add ``cufflinks`` to ``resolwebio/rnaseq`` docker image
-* Add ``pyarrow`` and ``sklearn`` python modules
-  to ``resolwebio/rnaseq`` docker image
-* Add ``wigToBigWig`` tool to ``resolwebio/chipseq`` docker image
-* Add ``wigtobigwig.sh`` to ``resolwebio/chipseq`` docker image folder
+* Add ``pandas`` Python package to ``resolwebio/latex`` Docker image
+* Add primerclip, samtools, picard-tools and bwa to ``resolwebio/dnaseq``
+  Docker image
+* Add ``cufflinks``, ``RNASeqT`` R library, ``pyarrow`` and ``sklearn`` Python
+  packages to ``resolwebio/rnaseq`` Docker image
+* Add ``wigToBigWig`` tool to ``resolwebio/chipseq`` Docker image
 
 Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Drop Python 2 support, require Python 3.4 or 3.5
 * **BACKWARD INCOMPATIBLE:** Make species part of the feature primary key
+* **BACKWARD INCOMPATIBLE:** Substitute Python 2 with Python 3 in
+  ``resolwebio/rnaseq`` Docker image. The processes to be updated to this
+  version of the Docker image should also have their Python scripts updated to
+  Python 3.
 * Require Resolwe 5.x
 * Set maximum RAM requirement in ``bbduk`` process
-* Move `Assay type` input parameter in RNA-Seq descriptor schema
-  from advanced options to regular options
-* Use resolwebio/rnaseq docker image in Cutadapt processes
-* Use additional adapter trimming option in ``cutadapt-custom-single/paired`` processes
+* Move *Assay type* input parameter in RNA-Seq descriptor schema from advanced
+  options to regular options
+* Use ``resolwebio/rnaseq`` Docker image in Cutadapt processes
+* Use additional adapter trimming option in ``cutadapt-custom-single/paired``
+  processes
 * Show antibody information in ``reads`` descriptor for ``ChIP-Seq``,
-  ``ChIPmentation``, ``ChIP-Rx``,  ``eClIP``, ``MNase-Seq``,
-  ``MeDIP-Seq``, ``RIP-Seq`` and ``ChIA-PET`` experiment types
-* **BACKWARD INCOMPATIBLE:** Substitute Python 2 with Python 3 in
-  ``resolwebio/rnaseq`` docker image. The processes to be updated to this version
-  of the docker image should also have their python scripts updated to Python 3.
-* Use ``resolwebio/dnaseq`` docker image in ``align-bwa-trim`` process
-* Refactor ``resolwebio/chipseq`` docker image
+  ``ChIPmentation``, ``ChIP-Rx``,  ``eClIP``, ``MNase-Seq``, ``MeDIP-Seq``,
+  ``RIP-Seq`` and ``ChIA-PET`` experiment types
+* Use ``resolwebio/dnaseq`` Docker image in ``align-bwa-trim`` process
+* Refactor ``resolwebio/chipseq`` Docker image
+* Use Resolwe's Test Runner for running tests and add ability to only run a
+  partial test suite based on what proceses have Changed
+* Configure Jenkins to only run a partial test suite when testing a pull
+  request
 * Make tests use the live Resolwe API host instead of external server
 
 Fixed
 -----
-* Fix merging multiple expressions in ``DESeq`` process
-* Update Features and Mappings ElasticSearch indices building to be compatible
-  with Resolwe 4.0
-* Fix ``resolwebio/rnaseq`` docker image readme
+* Fix merging multiple expressions in DESeq process
+* Fix ``resolwebio/rnaseq`` Docker image's README
 * Handle multiple ALT values in amplicon report
 * Fix BAM file input in ``rsem`` process
+
+
+==================
+5.0.1 - 2017-11-14
+==================
+
+Fixed
+-----
+* Update Features and Mappings ElasticSearch indices building to be compatible
+  with Resolwe 4.0
 
 
 ==================
