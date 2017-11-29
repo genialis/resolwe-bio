@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwebio/chipseq:1.0.0"
+        image: resolwebio/chipseq:1.1.0
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.0.4
+  version: 2.0.5
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -79,7 +79,7 @@
       NAME=`basename {{ treatment.bam.file }} .bam`
 
       CONTROL='{% if control %}--control {{ control.bam.file }} {% endif %}'
-      macs14 --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50
+      macs --treatment {{ treatment.bam.file }} ${CONTROL} --format BAM --gsize {{ gsize }} --name $NAME --pvalue {{ pvalue }} --wig --single-profile --space=50
       re-checkrc
 
       zip -r ${NAME}_MACS_wiggle.zip ${NAME}_MACS_wiggle

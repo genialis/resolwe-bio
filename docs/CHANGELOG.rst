@@ -13,6 +13,8 @@ Unreleased
 Changed
 -------
 * Improve ``PCA`` process performance
+* Use the ``resolwebio/chipseq:1.1.0`` docker image in ``macs14``
+  process
 
 
 ==================
