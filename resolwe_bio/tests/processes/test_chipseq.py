@@ -51,7 +51,9 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
 
         inputs = {"treatment": case_bam.id,
                   "control": control_bam.id}
-        self.run_process("macs14", inputs)
+        macs14 = self.run_process("macs14", inputs)
+
+        self.assertFile(macs14, 'peaks_bed', 'macs14_peaks.bed')
 
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     @tag_process('rose2')
