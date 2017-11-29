@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 * Add ``amplicon-archive-multi-report`` process
+* Add ``upload-metabolic-pathway`` process
 
 Changed
 -------

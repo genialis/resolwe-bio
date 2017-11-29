@@ -1,0 +1,34 @@
+- slug: upload-metabolic-pathway
+  name: Metabolic Pathway File
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwe/base:ubuntu-17.04
+    resources:
+      network: true
+  data_name: Metabolic Pathway
+  version: 0.0.1
+  type: data:metabolicpathway
+  category: upload
+  persistence: RAW
+  scheduling_class: batch
+  description: >
+    Upload pathway json.
+  input:
+    - name: src
+      label: Pathway file
+      type: basic:file
+      description: >
+        JSON file. Supported extensions: '.json', '.json.gz'
+      validate_regex: '(\.json)(\.gz)?$'
+  output:
+    - name: pathway
+      label: Pathway json
+      type: basic:json
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      re-import {{ src.file_temp }} {{ src.file }} "json" "json" 0.5
+      re-save pathway "${NAME}.json"
