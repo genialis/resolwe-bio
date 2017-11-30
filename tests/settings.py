@@ -181,7 +181,8 @@ ELASTICSEARCH_PORT = int(os.environ.get('RESOLWE_ES_PORT', '59201'))
 
 TEST_RUNNER = 'resolwe.test_helpers.test_runner.ResolweRunner'
 TEST_PROCESS_REQUIRE_TAGS = True
-TEST_PROCESS_PROFILE = True
+# Don't profile unless set via the environment variable.
+TEST_PROCESS_PROFILE = strtobool(os.environ.get('RESOLWE_TEST_PROCESS_PROFILE', '0'))
 
 # Channels.
 

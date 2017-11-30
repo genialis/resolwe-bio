@@ -39,3 +39,6 @@ distribute*.tar.gz
 
 # Ignore virtualenv folder
 venv
+
+# Ignore profile files in tests
+tests/profile-resolwe-process-tests-*.json

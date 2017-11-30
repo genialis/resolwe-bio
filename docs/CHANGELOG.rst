@@ -23,6 +23,7 @@ Changed
   process
 * Change formatting of ``EFF[*].AA`` column in ``snpeff`` process
 * Save unmapped reads in ``aligment-hisat2`` process
+* Turn off test profiling
 
 Fixed
 -----
