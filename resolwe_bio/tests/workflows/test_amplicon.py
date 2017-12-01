@@ -26,6 +26,9 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
 
             template = self.run_process('upload-file', {'src': 'report_template.tex'})
             logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
+            template_html = self.run_process('upload-file', {'src': 'report_html_template.html'})
+            bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})
+            bokeh_js = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.js'})
 
         self.run_process(
             'workflow-accel', {
@@ -33,6 +36,9 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'genome': genome.id,
                 'master_file': master_file.id,
                 'adapters': adapters.id,
+                'template_html': template_html.id,
+                'bokeh_css': bokeh_css.id,
+                'bokeh_js': bokeh_js.id,
                 'preprocess_bam': {
                     'known_vars': [dbsnp.id],
                     'known_indels': [indels.id]
