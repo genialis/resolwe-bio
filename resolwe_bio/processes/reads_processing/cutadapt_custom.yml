@@ -79,7 +79,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
@@ -130,20 +130,18 @@
       cutadapt --trim-n -a GATCGGAAGAGCACACGTCTG -a AGAGCACACGTCTG in_fw_reads.fastq.gz 2> report.txt |
       cutadapt -u 3 -a A{100} --no-indels -e 0.16666666666666666 - 2>> report.txt |
       cutadapt -O 8 --match-read-wildcards -g GTTCAGAGTTCTACAGTCCGACGATCSSS \
-      -o "${NAME1}_trimmed.fastq.gz" - >> report.txt
+      -o trimmed_fw_reads.fastq.gz - >> report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.4
 
       # Run Cutadapt on reverse reads
       cutadapt --trim-n --match-read-wildcards -n 2 -g T{100} -a SSSGATCGTCGG \
-      -o "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz >> report.txt
+      -o trimmed_rw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.7
 
       # Run Cutadapt on both reads
-      mv "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq
-      mv "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq
-      cutadapt -m 18 -o "${NAME1}_trimmed.fastq.gz" -p "${NAME2}_trimmed.fastq.gz" in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
+      cutadapt -m 18 --pair-filter=any -o "${NAME1}_trimmed.fastq.gz" -p "${NAME2}_trimmed.fastq.gz" trimmed_fw_reads.fastq.gz trimmed_rw_reads.fastq.gz >> report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.8
 

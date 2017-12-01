@@ -27,6 +27,7 @@ Fixed
 -----
 * Fix pre-sorting in ``upload-master-file`` process
 * Revert `align-bwa-trim` process to use non-memory-optimized primerclip
+* Fix file processing in ``cutadapt-custom-paired`` process
 
 
 ==================
