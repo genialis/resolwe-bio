@@ -16,6 +16,10 @@ Changed
 * Use the ``resolwebio/chipseq:1.1.0`` docker image in ``macs14``
   process
 
+Fixed
+-----
+* Fix file processing in ``cutadapt-custom-paired`` process
+
 
 ==================
 6.0.0 - 2017-11-28
