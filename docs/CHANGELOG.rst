@@ -14,6 +14,7 @@ Added
 -----
 * Add ``amplicon-archive-multi-report`` process
 * Add ``upload-metabolic-pathway`` process
+* Add memory-optimized primerclip as a separate `align-bwa-trim2` process
 
 Changed
 -------
@@ -25,6 +26,7 @@ Changed
 Fixed
 -----
 * Fix pre-sorting in ``upload-master-file`` process
+* Revert `align-bwa-trim` process to use non-memory-optimized primerclip
 
 
 ==================
