@@ -10,11 +10,16 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add memory-optimized primerclip as a separate `align-bwa-trim2` process
+
 Changed
 -------
 * Improve ``PCA`` process performance
 * Use the ``resolwebio/chipseq:1.1.0`` docker image in ``macs14``
   process
+* Revert `align-bwa-trim` process to use non-memory-optimized primerclip
 
 
 ==================
