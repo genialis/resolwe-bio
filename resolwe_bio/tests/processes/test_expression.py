@@ -149,7 +149,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
         index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
 
-        self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem'})
+        self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem', 'total_size': 2875})
         self.assertFields(index_fasta_nucl, 'source', 'ENSEMBL')
 
     @tag_process('mergeexpressions')

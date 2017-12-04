@@ -12,7 +12,8 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
 
         refseq_track = self.run_process('jbrowse-refseq', {'refseq': genome.pk})
         self.assertFields(refseq_track, 'refseq_track', {'refs': ['seq'],
-                                                         'file': 'seq/refSeqs.json'})
+                                                         'file': 'seq/refSeqs.json',
+                                                         'total_size': 81})
 
     @tag_process('jbrowse-gff3')
     def test_gff3_track(self):
@@ -21,6 +22,8 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
             annotation = self.run_process('upload-gff3', inputs)
 
         gff = self.run_process('jbrowse-gff3', {'gff': annotation.pk})
+        del gff.output['annotation_track']['total_size']  # Non-deterministic output.
+
         self.assertFields(gff, 'annotation_track', {'refs': ['tracks/annotation'],
                                                     'file': 'trackList.json'})
 
@@ -31,7 +34,8 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
 
         gtf = self.run_process('jbrowse-gtf', {'gtf': annotation.pk})
         self.assertFields(gtf, 'annotation_track', {'refs': ['tracks/annotation'],
-                                                    'file': 'trackList.json'})
+                                                    'file': 'trackList.json',
+                                                    'total_size': 3815})
 
     @tag_process('jbrowse-bed')
     def test_bed_track(self):
@@ -40,6 +44,8 @@ class JbrowseProcessorTestCase(BioProcessTestCase):
             bed_file = self.run_process('upload-bed', inputs)
 
         bed = self.run_process('jbrowse-bed', {'bed': bed_file.pk})
+        del bed.output['bed_track']['total_size']  # Non-deterministic output.
+
         self.assertFields(bed, 'bed_track', {'refs': ['tracks/bed'],
                                              'file': 'trackList.json'})
 

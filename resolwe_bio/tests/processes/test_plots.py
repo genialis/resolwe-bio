@@ -63,7 +63,9 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'extension': 200}
 
         bamliquidator = self.run_process('bamliquidator', inputs)
-        self.assertFields(bamliquidator, 'summary', {'file': 'output/summary.html', 'size': 524296})
+        self.assertFields(bamliquidator, 'summary', {'file': 'output/summary.html',
+                                                     'size': 524296,
+                                                     'total_size': 3691420})
 
     @tag_process('bamliquidator')
     def test_bamliquidator_gff(self):
