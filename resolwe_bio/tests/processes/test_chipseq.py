@@ -43,10 +43,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
     @tag_process('macs14')
     def test_macs14(self):
         with self.preparation_stage():
-            inputs = {"src": "chip_seq_control.bam"}
+            inputs = {"src": "macs14_control.bam"}
             control_bam = self.run_process("upload-bam", inputs)
 
-            inputs = {"src": "chip_seq_case.bam"}
+            inputs = {"src": "macs14_case.bam"}
             case_bam = self.run_process("upload-bam", inputs)
 
         inputs = {"treatment": case_bam.id,
