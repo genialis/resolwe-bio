@@ -13,8 +13,8 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.4.0
-  type: data:expressionset:cuffnorm
+  version: 1.5.0
+  type: data:cuffnorm
   category: analyses
   persistence: CACHED
   description: >

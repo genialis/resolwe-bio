@@ -47,6 +47,7 @@ Changed
   in Variant Calling processes
 * **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
   in JBrowse processes
+* Change ``cuffnorm`` process type to ``data:cuffnorm``
 
 Added
 -----
