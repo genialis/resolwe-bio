@@ -13,7 +13,7 @@
     resources:
       memory: 32768
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 0.1.1
+  version: 0.2.0
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample
@@ -120,6 +120,12 @@
     - name: ptrimlog
       label: Primer trimm log
       type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -236,6 +242,8 @@
       re-progress 0.95
 
       re-save-file bai "${NAME}_RG.bam.bai"
+      re-save species {{ genome.species }}
+      re-save build {{ genome.build }}
 
 - slug: align-bwa-trim2
   name: Align (BWA) and trim adapters
@@ -247,7 +255,7 @@
     resources:
       memory: 16384
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:alignment:bam:bwatrim
   category: analyses
   flow_collection: sample
@@ -355,6 +363,12 @@
       label: Primer trimm log
       type: basic:file
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -482,3 +496,5 @@
       re-progress 0.95
 
       re-save-file bai "${NAME}_RG.bam.bai"
+      re-save species {{ genome.species }}
+      re-save build {{ genome.build }}

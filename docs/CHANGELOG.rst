@@ -48,6 +48,7 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
   in JBrowse processes
 * Change ``cuffnorm`` process type to ``data:cuffnorm``
+* Track ``species`` and ``build`` in ``align-bwa-trim`` process
 
 Added
 -----

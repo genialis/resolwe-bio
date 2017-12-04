@@ -32,6 +32,8 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
         bwa_trim = self.run_process('align-bwa-trim', inputs)
 
         self.assertFile(bwa_trim, 'stats', 'bwa_trim_stats.txt')
+        self.assertFields(bwa_trim, 'species', 'Homo sapiens')
+        self.assertFields(bwa_trim, 'build', 'b37')
 
     @tag_process('align-bwa-trim2')
     def test_bwa_trim2(self):
@@ -41,7 +43,13 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
                 'src2': ['56GSID_10k_mate2.fastq.gz']}
             reads = self.run_process('upload-fastq-paired', inputs)
 
-            genome = self.run_process('upload-genome', {'src': 'hs_b37_chr2_small.fasta.gz'})
+            genome = self.run_process(
+                'upload-genome', {
+                    'src': 'hs_b37_chr2_small.fasta.gz',
+                    'species': 'Homo sapiens',
+                    'build': 'b37'
+                }
+            )
             master_file = self.prepare_amplicon_master_file()
 
         inputs = {
@@ -52,6 +60,8 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
         bwa_trim = self.run_process('align-bwa-trim2', inputs)
 
         self.assertFile(bwa_trim, 'stats', 'bwa_trim_stats.txt')
+        self.assertFields(bwa_trim, 'species', 'Homo sapiens')
+        self.assertFields(bwa_trim, 'build', 'b37')
 
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     @tag_process('amplicon-table')
