@@ -197,3 +197,205 @@
         run: jbrowse-bam-coverage
         input:
           bam: '{{steps.bwa_trim}}'
+
+- slug: workflow-accel-2
+  category: workflow:primary
+  name: Accel Amplicon Pipeline
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  description: >
+    Alternative version of Accel-amplicon worklfow that uses memory-optimized primerclip tool.
+  type: data:workflow:amplicon
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq:paired
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: master_file
+      label: Experiment Master file
+      type: data:masterfile:amplicon
+    - name: adapters
+      label: Adapters
+      type: data:seq:nucleotide
+      description: >
+        Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
+    - name: template_html
+      label: HTML plot template
+      type: data:file
+    - name: bokeh_css
+      label: Bokeh css file
+      type: data:file
+    - name: bokeh_js
+      label: Bokeh js file
+      type: data:file
+    - name: preprocess_bam
+      label: Indel realignment and base recalibration options
+      group:
+        - name: known_indels
+          label: Known indels
+          type: list:data:variants:vcf
+        - name: known_vars
+          label: Known variants
+          type: list:data:variants:vcf
+    - name: gatk
+      label: GATK HaplotypeCaller options
+      group:
+        - name: dbsnp
+          label: dbSNP
+          type: data:variants:vcf
+        - name: mbq
+          label: Min Base Quality
+          type: basic:integer
+          default: 20
+          description: >
+            Minimum base quality required to consider a base for calling.
+        - name: stand_emit_conf
+          label: Emission confidence threshold
+          type: basic:integer
+          default: 20
+          description: >
+            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+    - name: lofreq
+      label: LoFreq options
+      group:
+        - name: min_bq
+          label: Min baseQ
+          type: basic:integer
+          description: Skip any base with baseQ smaller than the default value.
+          default: 20
+        - name: min_alt_bq
+          label: Min alternate baseQ
+          type: basic:integer
+          description: Skip alternate bases with baseQ smaller than the default value.
+          default: 20
+    - name: var_annot
+      label: Variant annotation options
+      group:
+        - name: known_vars_db
+          label: Known variants
+          type: list:data:variants:vcf
+    - name: report
+      label: Report parameters and input files
+      group:
+        - name: template
+          label: Template file (.tex)
+          type: data:file
+        - name: logo
+          label: Logo image (.pdf)
+          type: data:file
+        - name: af_threshold
+          label: Allele frequency threshold
+          type: basic:decimal
+          default: 0.01
+    - name: threads
+      label: CPU threads
+      type: basic:integer
+      default: 4
+  run:
+    language: workflow
+    program:
+      - id: trimmomatic_filtering
+        run: trimmomatic-paired
+        input:
+          reads: '{{input.reads}}'
+          adapters: '{{input.adapters}}'
+          illuminaclip:
+            seed_mismatches: 2
+            palindrome_clip_threshold: 30
+            simple_clip_threshold: 10
+          trailing: 3
+          minlen: 40
+          threads: '{{input.threads}}'
+      - id: bwa_trim
+        run: align-bwa-trim2
+        input:
+          master_file: '{{input.master_file}}'
+          genome: '{{input.genome}}'
+          reads: '{{steps.trimmomatic_filtering}}'
+          m: true
+          threads: '{{input.threads}}'
+          scoring:
+            unpaired_p: 17
+      - id: coveragebed
+        run: coveragebed
+        input:
+          alignment: '{{steps.bwa_trim}}'
+          master_file: '{{input.master_file}}'
+          template_html: '{{input.template_html}}'
+          bokeh_css: '{{input.bokeh_css}}'
+          bokeh_js: '{{input.bokeh_js}}'
+      - id: picard_target_pcr_metrics
+        run: picard-pcrmetrics
+        input:
+          alignment: '{{steps.bwa_trim}}'
+          master_file: '{{input.master_file}}'
+          genome: '{{input.genome}}'
+      - id: realign_recalibrate
+        run: vc-realign-recalibrate
+        input:
+          alignment: '{{steps.bwa_trim}}'
+          genome: '{{input.genome}}'
+          known_vars: '{{input.preprocess_bam.known_vars}}'
+          known_indels: '{{input.preprocess_bam.known_indels}}'
+          threads: '{{input.threads}}'
+      - id: gatk_hc
+        run: vc-gatk-hc
+        input:
+          alignment: '{{steps.realign_recalibrate}}'
+          genome: '{{input.genome}}'
+          intervals: '{{input.master_file}}'
+          dbsnp: '{{input.gatk.dbsnp}}'
+          mbq: '{{input.gatk.mbq}}'
+          stand_emit_conf: '{{input.gatk.stand_emit_conf}}'
+      - id: lofreq
+        run: lofreq
+        input:
+          alignment: '{{steps.realign_recalibrate}}'
+          genome: '{{input.genome}}'
+          intervals: '{{input.master_file}}'
+          min_bq: '{{input.lofreq.min_bq}}'
+          min_alt_bq: '{{input.lofreq.min_alt_bq}}'
+      - id: annotate_gatk
+        run: snpeff
+        input:
+          variants: '{{steps.gatk_hc}}'
+          known_vars_annot: '{{input.var_annot.known_vars_db}}'
+          var_source: 'gatk_hc'
+      - id: annotate_lofreq
+        run: snpeff
+        input:
+          variants: '{{steps.lofreq}}'
+          known_vars_annot: '{{input.var_annot.known_vars_db}}'
+          var_source: 'lofreq'
+      - id: report
+        run: amplicon-report
+        input:
+          pcr_metrics: '{{steps.picard_target_pcr_metrics}}'
+          coverage: '{{steps.coveragebed}}'
+          annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
+          template: '{{input.report.template}}'
+          logo: '{{input.report.logo}}'
+          master_file: '{{input.master_file}}'
+          af_threshold: '{{input.report.af_threshold}}'
+      - id: amplicon_table_variants
+        run: amplicon-table
+        input:
+          master_file: '{{input.master_file}}'
+          coverage: '{{steps.coveragebed}}'
+          annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
+      - id: amplicon_table_all
+        run: amplicon-table
+        input:
+          master_file: '{{input.master_file}}'
+          coverage: '{{steps.coveragebed}}'
+          annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
+          all_amplicons: true
+          table_name: All amplicons
+      - id: jbrowse_coverage
+        run: jbrowse-bam-coverage
+        input:
+          bam: '{{steps.bwa_trim}}'
