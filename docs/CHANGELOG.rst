@@ -49,6 +49,8 @@ Changed
   in JBrowse processes
 * Change ``cuffnorm`` process type to ``data:cuffnorm``
 * Track ``species`` and ``build`` in ``align-bwa-trim`` process
+* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
+  and ``feature_type`` in ``upload-expression-star`` process
 
 Added
 -----

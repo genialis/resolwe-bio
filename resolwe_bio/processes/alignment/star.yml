@@ -14,7 +14,7 @@
       memory: 32768
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -303,9 +303,9 @@
         re-export "${READS_NAME}_1.tab.gz"
         re-export "${READS_NAME}_2.tab.gz"
         re-export "${READS_NAME}_3.tab.gz"
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no","source":"{{genome.source}}"}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes","source":"{{genome.source}}"}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":"{{genome.source}}"}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
       {% endif %}
 
       mv Aligned.sortedByCoord.out.bam "${READS_NAME}.bam"

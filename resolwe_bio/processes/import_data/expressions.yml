@@ -279,7 +279,7 @@
     resources:
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'
-  version: 1.0.7
+  version: 1.1.0
   type: data:expression:star
   category: upload
   persistence: RAW
@@ -321,6 +321,42 @@
           value: NCBI
         - label: UCSC
           value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Build
+      type: basic:string
+      description: >
+        Genome build or annotation version.
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+      allow_custom_choice: true
+      default: gene
+      choices:
+        - label: gene
+          value: gene
+        - label: transcript
+          value: transcript
+        - label: exon
+          value: exon
   output:
     - name: rc
       label: Read counts (raw data)
@@ -338,6 +374,15 @@
     - name: source
       label: Gene ID source
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -347,13 +392,17 @@
       tail -n+5 "${NAME}.tab" > raw_rc.tab
       parse_star_expressions.py raw_rc.tab "${NAME}"
 
+      re-save exp_type "RC"
+      re-save source {{ source }}
+      re-save species {{ species }}
+      re-save build {{ build }}
+      re-save feature_type {{ feature_type }}
+
       if [ {{stranded}} = "no" ]; then
         gzip "${NAME}_rc_unstranded.tab"
         expression2storage.py "${NAME}_rc_unstranded.tab.gz"
         re-save-file rc "${NAME}_rc_unstranded.tab.gz"
         re-save-file exp "${NAME}_rc_unstranded.tab.gz"
-        re-save exp_type "RC"
-        re-save source {{source}}
       fi
 
       if [ {{stranded}} = "yes" ]; then
@@ -361,8 +410,6 @@
         expression2storage.py "${NAME}_rc_stranded.tab.gz"
         re-save-file rc "${NAME}_rc_stranded.tab.gz"
         re-save-file exp "${NAME}_rc_stranded.tab.gz"
-        re-save exp_type "RC"
-        re-save source {{source}}
       fi
 
       if [ {{stranded}} = "reverse" ]; then
@@ -370,6 +417,4 @@
         expression2storage.py "${NAME}_rc_stranded_reverse.tab.gz"
         re-save-file rc "${NAME}_rc_stranded_reverse.tab.gz"
         re-save-file exp "${NAME}_rc_stranded_reverse.tab.gz"
-        re-save exp_type "RC"
-        re-save source {{source}}
       fi

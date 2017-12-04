@@ -131,7 +131,12 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
                                                      mate2=['SRR2124780_2 1k.fastq.gz'])
             annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
                                                  species='Homo sapiens', build='hg19')
-            star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+            inputs = {
+                'src': 'HS_chr21_ensemble.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
             star_index = self.run_process('alignment-star-index', inputs)
@@ -156,6 +161,9 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
         self.assertFields(exp, 'source', 'UCSC')
+        self.assertFields(exp, 'species', 'Homo sapiens')
+        self.assertFields(exp, 'build', 'hg19')
+        self.assertFields(exp, 'feature_type', 'gene')
 
         inputs = {
             'genome': star_index.id,
