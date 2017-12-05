@@ -80,13 +80,29 @@ Running tests
 Manually
 --------
 
-Change directory to the Django test project::
+Change directory to the ``tests`` Django project::
 
     cd tests
 
 Run docker::
 
     docker-compose up
+
+.. note::
+    On Mac or Windows, Docker might complain about non-mounted volumes.
+    You can edit volumes in *Docker => Preferences => File Sharing*
+    The following volumes need to be shared:
+    
+    - /private
+    - /tmp
+    - /var/folders
+    
+
+    ``/private`` is shared by default. When you attempt to add ``/var/folders``
+    it might try to add ``/private/var/folders`` which will cause Docker complaining
+    about overlapping volumes. Here's a workaround: Change ``/private`` to
+    ``/var/folders`` and then add ``/private`` again.
+
 
 To run the tests, use::
 
