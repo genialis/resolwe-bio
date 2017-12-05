@@ -217,6 +217,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_report.txt')
+        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped.fastq.gz', compression='gzip')
         self.assertFileExists(aligned_reads, 'splice_junctions')
 
         inputs = {
@@ -224,6 +225,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_paired_report.txt')
+        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped_1.fastq.gz', compression='gzip')
+        self.assertFile(aligned_reads, 'unmapped_r', 'hisat2_unmapped_2.fastq.gz', compression='gzip')
         self.assertFileExists(aligned_reads, 'splice_junctions')
 
     @tag_process('alignment-subread')

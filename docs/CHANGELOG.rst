@@ -22,6 +22,7 @@ Changed
 * Use the ``resolwebio/chipseq:1.1.0`` docker image in ``macs14``
   process
 * Change formatting of ``EFF[*].AA`` column in ``snpeff`` process
+* Save unmapped reads in ``aligment-hisat2`` process
 
 Fixed
 -----

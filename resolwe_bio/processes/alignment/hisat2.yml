@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -64,6 +64,14 @@
     - name: splice_junctions
       label: Splice junctions
       type: basic:file
+    - name: unmapped_f
+      label: Unmapped reads (mate 1)
+      type: basic:file
+      required: false
+    - name: unmapped_r
+      label: Unmapped reads (mate 2)
+      type: basic:file
+      required: false
   run:
     runtime: polyglot
     language: bash
@@ -91,6 +99,8 @@
         {% if spliced_alignments.noncansplice %}--pen-noncansplice {{spliced_alignments.noncansplice}}{% endif %} \
         {% if softclip %}--no-softclip{% endif %} \
         {% if spliced_alignments.cufflinks %}--dta-cufflinks{% endif %} \
+        {% if reads|type|subtype('data:reads:fastq:single:') %}--un-gz "${NAME}_unmapped.out.mate1.fastq.gz"{% endif %} \
+        {% if reads|type|subtype('data:reads:fastq:paired:') %}--un-conc-gz "${NAME}_unmapped.out.mate%.fastq.gz"{% endif %} \
         --novel-splicesite-outfile "${NAME}_junctions.txt" \
         --summary-file "${NAME}_stats.txt"
       re-checkrc "HISAT2 alignment failed."
@@ -113,3 +123,13 @@
       re-save-file bai "${NAME}.bam.bai"
       re-save-file stats "${NAME}_stats.txt"
       re-save-file splice_junctions "${NAME}_junctions.txt"
+
+      if [ -s "${NAME}_unmapped.out.mate1.fastq.gz" ]
+        then
+          re-save-file unmapped_f "${NAME}_unmapped.out.mate1.fastq.gz"
+      fi
+
+      if [ -s "${NAME}_unmapped.out.mate2.fastq.gz" ]
+        then
+          re-save-file unmapped_r "${NAME}_unmapped.out.mate2.fastq.gz"
+      fi
