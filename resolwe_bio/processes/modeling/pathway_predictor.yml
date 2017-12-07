@@ -1,0 +1,35 @@
+- slug: pathways-predictor
+  name: Predict heterologous metabolic pathways
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: dddecaf/resolwe-pathway-predictor:latest
+    resources:
+      network: true
+      cores: 4
+  data_name: "Predict {{ n_pathways }} heterologous pathways for {{ model }} to produce {{ product }}"
+  version: 0.0.1
+  type: data:pathways
+  description: >
+    Predict heterologous metabolic pathways
+  input:
+    - name: model
+      label: Model
+      type: basic:string
+    - name: product
+      label: Product
+      type: basic:string
+    - name: n_pathways
+      label: Number of pathways
+      type: basic:integer
+  output:
+    - name: pathways
+      label: Pathways
+      type: basic:json
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      pathway_predictor.py {{ model }} {{ product }} {{ n_pathways }}
+      re-checkrc
