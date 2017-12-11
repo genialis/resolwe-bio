@@ -18,6 +18,8 @@ Changed
 -------
 * Move template and logo for multi-sample report into ``resolwebio/latex``
   Docker image
+* Refactor ``amplicon-report`` process to contain all relevant inputs for
+  ``amplicon-archive-multi-report``
 
 
 ==================

@@ -87,7 +87,7 @@
 {\lightfont {#PANEL#} | \today}
 
 \medskip
-\noindent Results have been filtered to exclude any putative variant detected below AF = {{#AF_THRESHOLD#}}\%. Variants below this threshold may be inspected manually in the unfiltered VCF files.
+\noindent Results have been filtered to exclude any putative variant detected below AF = {{#AF_THRESHOLD#}}. Variants below this threshold may be inspected manually in the unfiltered VCF files.
 
 \section{QC information}
 
@@ -101,11 +101,11 @@
 \begin{tabularx}{\columnwidth}{X l}
 
 Total reads: & \textbf{{#TOTAL_READS#}} \\
-Aligned reads: & \textbf{{#ALIGNED_READS#}} \textbf{({#PCT_ALIGNED_READS#}\%)} \\
-Aligned bases (on target):& \textbf{{#ALIGN_BASES_ONTARGET#}\%} \\
+Aligned reads: & \textbf{{#ALIGNED_READS#}} \textbf{({#PCT_ALIGNED_READS#})} \\
+Aligned bases (on target):& \textbf{{#ALIGN_BASES_ONTARGET#}} \\
 Mean coverage:& \textbf{{#COV_MEAN#}} \\
 Threshold coverage (20\% of Mean): & \textbf{{#COV_20#}} \\
-Coverage uniformity (\% bases covered above 20\% of Mean): & \textbf{{#COV_UNI#}}\%  \\
+Coverage uniformity (\% bases covered above 20\% of Mean): & \textbf{{#COV_UNI#}}  \\
 \end{tabularx}
 
 \columnbreak
@@ -120,7 +120,7 @@ Coverage uniformity (\% bases covered above 20\% of Mean): & \textbf{{#COV_UNI#}
 \begin{tabularx}{\columnwidth}{X l}
 
 No. of amplicons:& \textbf{{{#ALL_AMPLICONS#}}} \\
-No. of amplicons with 100\% coverage:& \textbf{{#COVERED_AMPLICONS#} ({#PCT_COV#}\%)} \\
+No. of amplicons with 100\% coverage:& \textbf{{#COVERED_AMPLICONS#} ({#PCT_COV#})} \\
 \end{tabularx}
 \end{multicols}
 

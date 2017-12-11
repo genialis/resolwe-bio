@@ -51,9 +51,9 @@ class ReportProcessorTestCase(BioProcessTestCase):
                 bokeh_js='bokeh-0.12.9.min.js',
                 target_pcr='56gsid_10k.targetPCRmetrics.txt',
                 target_cov='56gsid_10k.perTargetCov.txt',
-                annotations=['56GSID.lf.finalvars.txt'],
-                summaries=['56GSID_1k.gatkHC_snpEff_summary.html'],
-                snpeffs=['56GSID_1k.gatkHC_snpEff_genes.txt'],
+                annotations=['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'],
+                summaries=['56GSID_1k.gatkHC_snpEff_summary.html', '56GSID_1k.gatkHC_snpEff_summary.html'],
+                snpeffs=['56GSID_1k.gatkHC_snpEff_genes.txt', '56GSID_1k.gatkHC_snpEff_genes.txt'],
             )
 
         report_inputs = {
@@ -64,7 +64,13 @@ class ReportProcessorTestCase(BioProcessTestCase):
             'master_file': master_file.id,
             'annot_vars': annot_vars
         }
-        self.run_process('amplicon-report', report_inputs)
+        report = self.run_process('amplicon-report', report_inputs)
+
+        self.assertFileExists(report, 'report')
+        self.assertFields(report, 'panel_name', '56G panel, v2')
+        self.assertFileExists(report, 'stats')
+        self.assertFileExists(report, 'amplicon_cov')
+        self.assertFiles(report, 'variant_tables', ['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'])
 
     @tag_process('amplicon-archive-multi-report')
     def test_multisample_report(self):

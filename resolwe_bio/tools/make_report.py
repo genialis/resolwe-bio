@@ -1,11 +1,9 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """Generate amplicon report."""
-from __future__ import division
-
-import os
 import argparse
+import csv
+import os
 import subprocess
-
 
 DECIMALS = 2  # Decimal precision when presenting results:
 
@@ -15,14 +13,19 @@ parser.add_argument('--panel', help="Panel name")
 parser.add_argument('--covmetrics', help="Coverge metrics")
 parser.add_argument('--cov', help="Amplicon coverage")
 parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.")
-parser.add_argument('--vcf', help="File with VCF data.", nargs='+')
+parser.add_argument('--annot_vars', help="Annotated variant files.", nargs='+')
 parser.add_argument('--template', help="Report template file.")
 parser.add_argument('--logo', help="Logo.")
 parser.add_argument('--afthreshold', help="Allele Frequency lower threshold.")
 
 
-def _escape_latex(string):
-    """Format normal string to be LaTeX compliant."""
+def escape_latex(string):
+    """
+    Get string, where reserved LaTeX charachters are escaped.
+
+    For more info regarding LaTeX reserved charachters read this:
+    https://en.wikibooks.org/wiki/LaTeX/Basics#Reserved_Characters
+    """
     string = string.replace('\\', '\\\\')
     string = string.replace('&', '\&')
     string = string.replace('%', '\%')
@@ -36,41 +39,58 @@ def _escape_latex(string):
     return string
 
 
-def _remove_underscore(string):
-    """Remove underscore from the LaTeX compliant string and replaces it with white space."""
-    return string.replace('\_', ' ')
+def format_float(value, decimals=DECIMALS, to_percent=False):
+    """Round string representation of float to ``decimals`` decimal places.
+
+    If ``to_percent``==True, also multiply by 100 and add latex percent sign.
+    """
+    value = float(value) * 100 if to_percent else float(value)
+    out = '{0:g}'.format(round(value, decimals))
+    if to_percent:
+        out += '\\%'
+    return out
 
 
-def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None):
-    """Parse *.tsv file into list."""
-    table_data = []
-    header = None
-    with open(table_file, 'r') as tfile:
-        if has_header:
-            header = next(tfile).strip().split(delimiter)
-            common_columns = [x for x in pick_columns if x in header]
-            if pick_columns:
-                # Find indexes of selected columns
-                temp_header = {col: i for i, col in enumerate(header)}
-                pick_indexes = [temp_header[col] for col in common_columns]
-                header = common_columns
-        for line in tfile:
-            line_content = line.strip().split(delimiter)
-            if pick_columns:
-                # Select only specific columns and order them as in pick_columns:
-                temp_line_content = {i: col for i, col in enumerate(line_content)}
-                line_content = [temp_line_content[i] for i in pick_indexes]
-            table_data.append(line_content)
-    return table_data, header
+def parse_covmetrics(covmetrics_file, stats):
+    """
+    Parse covmetrics report and write content to ``stats``.
+
+    Covmetrics report is a one-line file with three colunmns::
+
+        mean_coverage   mean_coverage*0.2   coverage_uniformity
+
+    """
+    with open(covmetrics_file) as handle:
+        cov_data = handle.readline().strip().split('\t')
+        stats['mean_coverage'] = float(cov_data[0])
+        stats['mean_coverage_20'] = float(cov_data[1])
+        stats['coverage_uniformity'] = float(cov_data[2]) / 100  # Convert from percent to ratio
+
+
+def parse_target_pcr_metrics(metrics_report, stats):
+    """
+    Parse Picard PcrMetrics report file and save relevant data to ``stats``.
+
+    The are only two relevant lines: the one starting with CUSTOM_AMPLICON_SET
+    (containing labels) and the next one (containing coresponding values).
+    """
+    with open(metrics_report) as pcr_metrics:
+        for line in pcr_metrics:
+            if line.startswith('#'):
+                continue
+            if line.startswith('CUSTOM_AMPLICON_SET'):
+                labels = line.strip().split('\t')
+                values = next(pcr_metrics).strip().split('\t')
+
+        for lab, val in zip(labels, values):
+            stats[lab] = val
 
 
 def cut_to_pieces(string, piece_size):
     """Cut long string into smaller pieces."""
-    pieces = []
-    while len(string) > piece_size:
-        pieces.append(string[:piece_size])
-        string = string[piece_size:]
-    pieces.append(string)
+    assert isinstance(string, str)
+    string_size = len(string)
+    pieces = [string[i: i + piece_size] for i in range(0, string_size, piece_size)]
     return ' '.join(pieces)
 
 
@@ -89,9 +109,9 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     lines.append('\\begin{{longtable}}[l] {{ {} }}'.format('  '.join(column_alingnment)))
 
     if header:
+        header_formatted = ['\\leavevmode\\color{{white}}\\textbf{{{}}}'.format(hdr) for hdr in header]
         lines.append('\\rowcolor{darkblue1}')
-        lines.append('\\leavevmode\\color{white}\\textbf{' +
-                     '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
+        lines.append(' & '.join(header_formatted) + '\\\\')
         lines.append('\\endhead')
 
     for line in data:
@@ -112,7 +132,6 @@ def snp_href(snpid):
     """Create LaTeX hyperlink for given SNP ID."""
     if snpid.startswith('rs'):
         url = 'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
-        pass
     elif snpid.startswith('COSM'):
         url = 'http://grch37-cancer.sanger.ac.uk/cosmic/mutation/overview?id={}'.format(snpid.lstrip('COSM'))
     elif snpid.startswith('COSN'):
@@ -128,120 +147,100 @@ def gene_href(gene_name):
     return '\\href{{{}}}{{{}}}'.format(url, gene_name)
 
 
-def parse_target_pcr_metrics(metrics_report):
-    """Parse CollectTargetedPcrMetrics report file."""
-    with open(metrics_report) as pcr_metrics:
-        labels = []
+def make_variant_table(variant_file, header, af_threshold):
+    """Make variant table."""
+    var_table = []
+    with open(variant_file, 'r') as vfile:
+        for row_raw in csv.DictReader(vfile, delimiter='\t'):
+            # Reorder columns according to header
+            row = [row_raw[column_name] for column_name in header]
 
-        for line in pcr_metrics:
-            if line.startswith('#'):
-                continue
-            if len(labels) == 0:
-                if line.startswith('CUSTOM_AMPLICON_SET'):
-                    labels = line.strip().split('\t')
-            else:
-                values = line.strip().split('\t')
-                break
-
-        return dict(zip(labels, values))
-
-
-def vcf_table_name(vcf_file_name):
-    """Format VCF table caption."""
-    if 'gatkhc.finalvars' in vcf_file_name.lower():
-        return 'GATK HaplotypeCaller variant calls'
-    elif 'lf.finalvars' in vcf_file_name.lower():
-        return 'Lofreq variant calls'
-    else:
-        return os.path.basename(vcf_file_name)
+            gene_column = gene_href(row[-2])  # Create gene hypelinks
+            snp_column = ' '.join(map(snp_href, row[-1].split(';')))  # Create SNP hypelinks
+            # One line can contain two or more ALT values (and consequently two or more AF values)
+            # We need to split such "multiple" entries to one alt value per row
+            alt_cell, afq_cell = row[3], row[4]
+            for alt, afq in zip(alt_cell.split(','), afq_cell.split(',')):
+                if float(afq) >= af_threshold:
+                    var_table.append(row[:3] + [alt] + [afq] + row[5:-2] + [gene_column] + [snp_column])
+    return var_table
 
 
 if __name__ == '__main__':
     args = parser.parse_args()
 
-    # Open template ind fill it with data:
+    # Open template and fill it with data:
     with open(args.template, 'r') as template_in, open('report.tex', 'wt') as template_out:
+        stats = {}  # Container for all-reound report statistics.
+        parse_covmetrics(args.covmetrics, stats)
+        parse_target_pcr_metrics(args.metrics, stats)
+
         template = template_in.read()
         template = template.replace('{#LOGO#}', args.logo)
-        template = template.replace('{#SAMPLE_NAME#}', _escape_latex(args.sample))
-        template = template.replace('{#PANEL#}', _remove_underscore(_escape_latex(args.panel)))
+        template = template.replace('{#SAMPLE_NAME#}', escape_latex(args.sample))
+        template = template.replace('{#PANEL#}', escape_latex(args.panel))
+        template = template.replace('{#AF_THRESHOLD#}', format_float(args.afthreshold, to_percent=True))
+        template = template.replace('{#TOTAL_READS#}', stats['TOTAL_READS'])
+        template = template.replace('{#ALIGNED_READS#}', stats['PF_UQ_READS_ALIGNED'])
         template = template.replace(
-            '{#AF_THRESHOLD#}', '{{:.{}f}}'.format(DECIMALS).format(float(args.afthreshold) * 100))
-
-        # get coverage stats
-        with open(args.covmetrics) as covmetrics:
-            cov_data = covmetrics.readline().strip().split('\t')
-            mean_coverage = float(cov_data[0])
-            mean20 = float(cov_data[1])
-            cov_unif = float(cov_data[2])
-
-        # Produce results, metrics:
-        metrics = parse_target_pcr_metrics(args.metrics)
-
-        pct_aligned_reads = str('{0:g}'.format(round(float(metrics['PCT_PF_UQ_READS_ALIGNED']) * 100, DECIMALS)))
-        pct_amplified_bases = str('{0:g}'.format(round(float(metrics['PCT_AMPLIFIED_BASES']) * 100, DECIMALS)))
-
-        template = template.replace('{#TOTAL_READS#}', metrics['TOTAL_READS'])
-        template = template.replace('{#ALIGNED_READS#}', metrics['PF_UQ_READS_ALIGNED'])
-        template = template.replace('{#PCT_ALIGNED_READS#}', pct_aligned_reads)
-        template = template.replace('{#ALIGN_BASES_ONTARGET#}', pct_amplified_bases)
-        template = template.replace('{#COV_MEAN#}', str(round(mean_coverage, DECIMALS)))
-        template = template.replace('{#COV_20#}', str(round(mean20, DECIMALS)))
-        template = template.replace('{#COV_UNI#}', str(round(cov_unif, DECIMALS)))
-
-        # Parse *.cov file:
-        cov_list, _ = _tsv_to_list(args.cov)
-        amp_numb = list(range(len(cov_list)))
-        covered_amplicons = len([1 for line in cov_list if float(line[8]) >= 1])
-
-        # Produce LaTeX table for amplicons with insufficient coverage:
-        not_covered_amplicons = [
-            (_escape_latex(line[4]), '{:.1f}'.format(float(line[8]) * 100)) for line in cov_list if float(line[8]) < 1]
-        switch = 0  # switch used for adding the sentence about coverage
-
-        if not not_covered_amplicons:
-            switch = 1
-            not_covered_amplicons = [['/', '/']]
-        table_text = list_to_tex_table(not_covered_amplicons, header=['Amplicon name', '\% covered'],
-                                       caption='Amplicons with coverage $<$ 100\%')
-
-        template = template.replace('{#ALL_AMPLICONS#}', str(len(cov_list)))
-        template = template.replace('{#COVERED_AMPLICONS#}', str(covered_amplicons))
+            '{#PCT_ALIGNED_READS#}', format_float(stats['PCT_PF_UQ_READS_ALIGNED'], to_percent=True))
         template = template.replace(
-            '{#PCT_COV#}', str('{0:g}'.format(round(float(covered_amplicons) / len(cov_list) * 100, DECIMALS))))
-        if switch:
+            '{#ALIGN_BASES_ONTARGET#}', format_float(stats['PCT_AMPLIFIED_BASES'], to_percent=True))
+        template = template.replace('{#COV_MEAN#}', format_float(stats['mean_coverage']))
+        template = template.replace('{#COV_20#}', format_float(stats['mean_coverage_20']))
+        template = template.replace('{#COV_UNI#}', format_float(stats['coverage_uniformity'], to_percent=True))
+
+        # Parse *.cov file: a tabular file where each row represents an amplicon.
+        # Take only 5th (amplicon name) and 9th (ratio of amplicon covered) column.
+        # Produce ``uncovered_amplicons`` table for amplicons with < 100% coverage (ratio below 1).
+        uncovered_amplicons = []
+        amplicon_count = 0
+        with open(args.cov, 'r') as tfile:
+            for row in csv.reader(tfile, delimiter='\t'):
+                amplicon_count += 1
+                cov_ratio = float(row[8])
+                if cov_ratio < 1:
+                    uncovered_amplicons.append([
+                        escape_latex(row[4]),  # Amplicon name
+                        '{:.1f}'.format(cov_ratio * 100),  # Amplicon coverage (percentage)
+                    ])
+        stats['ALL_AMPLICONS'] = amplicon_count
+        stats['COVERED_AMPLICONS'] = amplicon_count - len(uncovered_amplicons)
+        stats['RATIO_COVERED_AMPLICONS'] = (amplicon_count - len(uncovered_amplicons)) / amplicon_count
+        template = template.replace('{#ALL_AMPLICONS#}', str(stats['ALL_AMPLICONS']))
+        template = template.replace('{#COVERED_AMPLICONS#}', str(stats['COVERED_AMPLICONS']))
+        template = template.replace('{#PCT_COV#}', format_float(stats['RATIO_COVERED_AMPLICONS'], to_percent=True))
+        sentence_text = ''
+        if not uncovered_amplicons:
+            uncovered_amplicons = [['/', '/']]
             message = 'All amplicons are completely covered with short reads.'
             sentence_text = '\\medskip \\noindent \n {{\\boldfont ' + message + '}} \n\n \\lightfont \n'
-            template = template.replace('{#BAD_AMPLICON_TABLE#}', sentence_text + table_text)
-        else:
-            template = template.replace('{#BAD_AMPLICON_TABLE#}', table_text)
+        caption = 'Amplicons with coverage $<$ 100\%'
+        table_text = list_to_tex_table(uncovered_amplicons, header=['Amplicon name', '\% covered'], caption=caption)
+        template = template.replace('{#BAD_AMPLICON_TABLE#}', sentence_text + table_text)
 
-        # Make VCF tables:
+        # Make tables with variants for each variant caller.
         table_text = ''
-        for vcf_file in args.vcf:
-            header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'GEN[0].AD', 'SB', 'FS', 'EFF[*].GENE', 'ID']
-            vcf_table_tmp, common_columns = _tsv_to_list(vcf_file, has_header=True, pick_columns=header)
+        af_threshold = float(args.afthreshold)
+        header_glossary = {'GEN[0].AD': 'AD', 'EFF[*].GENE': 'GENE', 'EFF[*].AA': 'AA'}
+        for variant_file in args.annot_vars:
+            # We have multiple (=2) variant files: this are NOT *.vcf files, but tabular files derived from them.
+            # The problem is that their columns (and header names) differ depending on the variant caller tool.
+            if 'gatkhc.finalvars' in variant_file.lower():
+                header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'GEN[0].AD', 'FS', 'EFF[*].GENE', 'ID']
+                caption = 'GATK HaplotypeCaller variant calls'
+            elif 'lf.finalvars' in variant_file.lower():
+                header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'SB', 'EFF[*].GENE', 'ID']
+                caption = 'Lofreq variant calls'
+            else:
+                raise ValueError('This variant caller is not supported for report generation')
 
-            # Escape user inputs:
-            common_columns = [_escape_latex(name) for name in common_columns]
-            caption = _escape_latex(vcf_table_name(vcf_file))
-
-            vcf_table = []
-            for line_tmp in vcf_table_tmp:
-                alt_cell, af_cell = line_tmp[3], line_tmp[4]
-                # One line can contain two or more ALT values (and consequently two or more AF values)
-                for alt, af_ in zip(alt_cell.split(','), af_cell.split(',')):
-                    if float(af_) >= float(args.afthreshold):
-                        vcf_table.append(line_tmp[:3] + [alt] + [af_] + line_tmp[5:])
-
-            # Insert space between SNP ID's and create hypelinks:
-            vcf_table = [line[:-1] + [' '.join(map(snp_href, line[-1].split(';')))] for line in vcf_table]
-
-            # Create gene hypelinks:
-            vcf_table = [line[:-2] + [gene_href(line[-2])] + [line[-1]] for line in vcf_table]
-
-            table_text += list_to_tex_table(vcf_table, header=common_columns, caption=caption, long_columns=[2, 3, -1])
+            var_table = make_variant_table(variant_file, header, af_threshold)
+            header = [escape_latex(header_glossary.get(col_name, col_name)) for col_name in header]
+            long_cls = [2, 3, -1]  # Potentially long columns are REF, ALT and ID
+            table_text += list_to_tex_table(var_table, header=header, caption=caption, long_columns=long_cls)
             table_text += '\n\\newpage\n'
+
         template = template.replace('{#VCF_TABLES#}', table_text)
 
         # Write template to 'report.tex'
@@ -251,5 +250,9 @@ if __name__ == '__main__':
     args = ['pdflatex', '-interaction=nonstopmode', 'report.tex']
     subprocess.call(args)
     subprocess.check_call(args)
+
+    with open('stats.txt', 'wt') as handle:
+        for key, value in sorted(stats.items()):
+            print('{}\t{}'.format(key, value), file=handle)
 
     print("Done.")
