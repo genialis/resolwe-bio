@@ -75,10 +75,10 @@ class ReportProcessorTestCase(BioProcessTestCase):
     @tag_process('amplicon-archive-multi-report')
     def test_multisample_report(self):
         with self.preparation_stage():
-            template = self.run_process('upload-file', {'src': 'multireport-template.tex'})
+            template = self.run_process('upload-file', {'src': 'report_template.tex'})
             logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
 
-            coverage1, pcr_metrics1, master_file1, annot_vars1 = self.prepare_report_inputs(
+            coverage, pcr_metrics, master_file, annot_vars = self.prepare_report_inputs(
                 bam_file='56GSID_10k_mate1_RG.bam',
                 mfile='56G_masterfile_test.txt',
                 pname='56G panel, v2',
@@ -87,29 +87,42 @@ class ReportProcessorTestCase(BioProcessTestCase):
                 bokeh_js='bokeh-0.12.9.min.js',
                 target_pcr='56gsid_10k.targetPCRmetrics.txt',
                 target_cov='56gsid_10k.perTargetCov.txt',
-                annotations=['56GSID.lf.finalvars.txt', '56GSID.gatkHC.finalvars.txt'],
+                annotations=['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'],
                 summaries=['56GSID_1k.gatkHC_snpEff_summary.html', '56GSID_1k.gatkHC_snpEff_summary.html'],
                 snpeffs=['56GSID_1k.gatkHC_snpEff_genes.txt', '56GSID_1k.gatkHC_snpEff_genes.txt'],
             )
-            coverage2, pcr_metrics2, master_file2, annot_vars2 = self.prepare_report_inputs(
-                bam_file='56GSID_10k_mate1_RG.bam',
-                mfile='56G_masterfile_test.txt',
-                pname='56G panel, v2',
-                template_html='report_html_template.html',
-                bokeh_css='bokeh-0.12.9.min.css',
-                bokeh_js='bokeh-0.12.9.min.js',
-                target_pcr='56gsid_10k.targetPCRmetrics.txt',
-                target_cov='56gsid_10k.perTargetCov.txt',
-                annotations=['56GSID.lf.finalvars.txt', '56GSID.gatkHC.finalvars.txt'],
-                summaries=['56GSID_1k.gatkHC_snpEff_summary.html', '56GSID_1k.gatkHC_snpEff_summary.html'],
-                snpeffs=['56GSID_1k.gatkHC_snpEff_genes.txt', '56GSID_1k.gatkHC_snpEff_genes.txt'],
-            )
+            report_inputs = {
+                'coverage': coverage.id,
+                'pcr_metrics': pcr_metrics.id,
+                'template': template.id,
+                'logo': logo.id,
+                'master_file': master_file.id,
+                'annot_vars': annot_vars,
+            }
+            report = self.run_process('amplicon-report', report_inputs)
 
-        report_inputs = {
-            'data': [coverage1.id, pcr_metrics1.id, master_file1.id] + annot_vars1 +
-                    [coverage2.id, pcr_metrics2.id, master_file2.id] + annot_vars2,
+        multireport_inputs = {
+            'data': [report.id, report.id],  # Pretend as there are two distinct reports/samples
             'fields': ['amplicon_cov'],
-            'template': template.id,
-            'logo': logo.id,
         }
-        self.run_process('amplicon-archive-multi-report', report_inputs)
+        multireport = self.run_process('amplicon-archive-multi-report', multireport_inputs)
+        self.assertFileExists(multireport, 'archive')
+
+        # Test handling of legacy data (legacy data didn't had outputs: stats, amplicon_cov, variant_tables):
+        # Process schema need to be changed too, or validation will fail during Data.save()
+        data_stats = report.output.pop('stats')
+        index = next((i for (i, output) in enumerate(report.process.output_schema) if output['name'] == 'stats'))
+        proc_stats = report.process.output_schema.pop(index)
+        report.process.save()
+        report.save()
+        try:
+            legacy = self.run_process('amplicon-archive-multi-report', multireport_inputs)
+            self.assertEqual(
+                legacy.process_warning,
+                ['You have selected samples with legacy reports that cannot be used to produce multi-sample report.']
+            )
+        finally:
+            report.process.output_schema.insert(index, proc_stats)
+            report.process.save()
+            report.output['stats'] = data_stats
+            report.save()

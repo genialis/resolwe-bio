@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate amplicon multireport."""
 import argparse
+import csv
 import math
 import re
 import subprocess
@@ -15,11 +16,10 @@ DECIMALS = 2
 
 parser = argparse.ArgumentParser(description="Fill data into tex template file.")
 parser.add_argument('--sample', help="Sample name.", nargs='+')
-parser.add_argument('--covmetrics', help="Coverge metrics", nargs='+')
-parser.add_argument('--cov', help="Amplicon coverage", nargs='+')
-parser.add_argument('--metrics', help="CollectTargetedPcrMetrics report file.", nargs='+')
-parser.add_argument('--vcfgatkhc', help="File with VCF GATK HaplotypeCaller data.", nargs='+')
-parser.add_argument('--vcflf', help="File with VCF Lofreq data.", nargs='+')
+parser.add_argument('--stats', help="Files with basic statistics file.", nargs='+')
+parser.add_argument('--cov', help="Amplicon coverage files.", nargs='+')
+parser.add_argument('--vcfgatkhc', help="Files with VCF GATK HaplotypeCaller data.", nargs='+')
+parser.add_argument('--vcflf', help="File with VCF LoFreq data.", nargs='+')
 parser.add_argument('--meancov', help="Mean amplicon coverage.", nargs='+')
 parser.add_argument('--template', help="Report template file.")
 parser.add_argument('--logo', help="Logo.")
@@ -98,8 +98,8 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, wide_
     for line in data:
         if long_columns:
             for col_index in long_columns:
-                # Insert spaces, so that wrapping can happen, for columns
-                # without hyperlinks or other specified uncut columns.
+                # Insert spaces, so that wrapping can happen,
+                # Don't insert spaces in columns with hyperlinks or other specified uncut columns.
                 if ('\href' in line[col_index] or col_index in uncut_columns):
                     new_val = line[col_index]
                 else:
@@ -136,59 +136,26 @@ def gene_href(gene_name):
     return '\\href{{{}}}{{{}}}'.format(url, gene_name)
 
 
-def parse_target_pcr_metrics(metrics_report):
-    """Parse CollectTargetedPcrMetrics report file."""
-    with open(metrics_report) as pcr_metrics:
-        labels = []
-
-        for line in pcr_metrics:
-            if line.startswith('#'):
-                continue
-            if len(labels) == 0:
-                if line.startswith('CUSTOM_AMPLICON_SET'):
-                    labels = line.strip().split('\t')
-            else:
-                values = line.strip().split('\t')
-                break
-
-        return dict(zip(labels, values))
+def parse_stats(stats_file):
+    """Parse stats file."""
+    stats = {}
+    with open(stats_file) as sfile:
+        for row_raw in sfile:
+            key, value = row_raw.strip().split('\t')
+            stats[key] = value
+    return stats
 
 
-def parse_covmetrics(covmetrics_report):
-    """Get coverage stats."""
-    with open(covmetrics_report) as covmetrics:
-        cov_data = covmetrics.readline().strip().split('\t')
-        mean_coverage = float(cov_data[0])
-        mean20 = float(cov_data[1])
-        cov_unif = float(cov_data[2])
-        return mean_coverage, mean20, cov_unif
-
-
-def parse_cov(cov_file_name):
+def parse_cov(cov_file):
     """Parse *.cov file."""
-    cov_list, _ = _tsv_to_list(cov_file_name)
-    covered_amplicons = len([1 for line in cov_list if float(line[8]) >= 1])
-    return cov_list, covered_amplicons
-
-
-def parse_mean_covd(covd_file_name):
-    """Parse *.covd file."""
-    covd_list, _ = _tsv_to_list(covd_file_name)
-    mean_amp_cov = {}
-    for line in covd_list:
-        mean_amp_cov[line[0]] = line[1]
-    return mean_amp_cov
-
-
-def samplelist_to_string(samplelist):
-    """Convert list of lists to a string, suitable for shared variants tables."""
-    samples = ['{} ({})'.format(item[0], round(float(item[1]), 3)) for item in samplelist]
-    return ', '.join(samples)
-
-
-def produce_warning(coverage, mean_20):
-    """Produce a string with warning if coverage is less than 20% of mean."""
-    return 'YES' if coverage < mean_20 else ' '
+    data = []
+    covered_amplicons = 0
+    with open(cov_file, 'r') as cfile:
+        for row in csv.reader(cfile, delimiter='\t'):
+            data.append(row)
+            if float(row[8]) >= 1:
+                covered_amplicons += 1
+    return data, covered_amplicons
 
 
 def make_heatmap(samples, variant_dict, fig_name):
@@ -344,7 +311,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Make a index list of sorted sample names (alphabetical order)
-    indexlist = [i[0] for i in sorted(enumerate(args.sample), key=lambda x: x[1])]
+    sorted_samples = list(sorted(enumerate(args.sample), key=lambda x: x[1]))
 
     # Open template and fill it with data:
     with open(args.template, 'r') as template_in, open('multireport.tex', 'wt') as template_out:
@@ -352,71 +319,73 @@ if __name__ == '__main__':
         template = template.replace('{#LOGO#}', args.logo)
         template = template.replace('{#AF_THRESHOLD#}', format_float(args.afthreshold, to_percent=True))
 
-        # create dict with metrics & coverage data
-        d = {}
-        for i, sample in enumerate(args.sample):
-            d[sample] = parse_target_pcr_metrics(args.metrics[i])
-            d[sample]['mean_coverage'], d[sample]['mean20'], d[sample]['cov_unif'] = \
-                parse_covmetrics(args.covmetrics[i])
-            # read .cov file
-            d[sample]['cov_list'], d[sample]['covered_amplicons'] = parse_cov(args.cov[i])
+        data = {}  # Container with data
+        for i, sample in sorted_samples:
+            data[sample] = {}
+            data[sample]['stats'] = parse_stats(args.stats[i])
+            data[sample]['cov_list'], data[sample]['stats']['covered_amplicons'] = parse_cov(args.cov[i])
 
-        # make QC information table
-        qc_header = ['Sample name', 'Total \\linebreak reads', 'Aligned \\linebreak reads',
-                     'Aligned \\linebreak bases\\footnote{on target}', 'Mean \\linebreak coverage',
-                     'Threshold \\linebreak coverage\\footnote{20\\% of mean}',
-                     'Coverage \\linebreak uniformity\\footnote{\\% bases covered 20\\% above mean}',
-                     'No. of \\linebreak amplicons', 'Amplicons with 100\\% coverage']
+        # Make QC information table
+        qc_header = [
+            'Sample name',
+            'Total \\linebreak reads',
+            'Aligned \\linebreak reads',
+            'Aligned \\linebreak bases\\footnote{on target}',
+            'Mean \\linebreak coverage',
+            'Threshold \\linebreak coverage\\footnote{20\\% of mean}',
+            'Coverage \\linebreak uniformity\\footnote{\\% bases covered 20\\% above mean}',
+            'No. of \\linebreak amplicons', 'Amplicons with 100\\% coverage',
+        ]
         qc_data = []
-        for i in indexlist:
-            sample = args.sample[i]
-            qc_data.append(
-                [
-                    _escape_latex(sample),
-                    d[sample]['TOTAL_READS'],
-                    format_float(d[sample]['PCT_PF_UQ_READS_ALIGNED'], to_percent=True),
-                    format_float(d[sample]['PCT_AMPLIFIED_BASES'], to_percent=True),
-                    format_float(d[sample]['mean_coverage']),
-                    format_float(d[sample]['mean20']),
-                    format_float(d[sample]['cov_unif']) + '\\%',
-                    str(len(d[sample]['cov_list'])),
-                    str(d[sample]['covered_amplicons'])
-                ]
-            )
-        qc_info = list_to_tex_table(
-            qc_data, header=qc_header, long_columns=[1, 2, 3, 4, 5, 6, 7, 8], caption='QC information')
-        template = template.replace('{#QCTABLE#}', qc_info)
+        for _, sample in sorted_samples:
+            qc_data.append([
+                _escape_latex(sample),
+                data[sample]['stats']['TOTAL_READS'],
+                format_float(data[sample]['stats']['PCT_PF_UQ_READS_ALIGNED'], to_percent=True),
+                format_float(data[sample]['stats']['PCT_AMPLIFIED_BASES'], to_percent=True),
+                format_float(data[sample]['stats']['mean_coverage']),
+                format_float(data[sample]['stats']['mean_coverage_20']),
+                format_float(data[sample]['stats']['coverage_uniformity'], to_percent=True),
+                str(len(data[sample]['cov_list'])),
+                str(data[sample]['stats']['covered_amplicons']),
+            ])
+        long_cls = [1, 2, 3, 4, 5, 6, 7, 8]
+        qc_table = list_to_tex_table(qc_data, header=qc_header, long_columns=long_cls, caption='QC information')
+        template = template.replace('{#QCTABLE#}', qc_table)
 
-        # Make Amplicons with coverage < 100% table
+        # Make table with amplicons that have < 100% coverage
         non_cov_header = ['Sample', 'Amplicon', '\% Covered', 'Less than 20\% of mean']
         non_cov_data = []
-        for i in indexlist:
-            amp_cov = parse_mean_covd(args.meancov[i])
-            for line in d[args.sample[i]]['cov_list']:
-                if float(line[8]) < 1:
+        for i, sample in sorted_samples:
+            for line in data[sample]['cov_list']:
+                cov_ratio = float(line[8])
+                mean_cov = float(line[9])
+                mean_cov_threshold = float(data[sample]['stats']['mean_coverage_20'])
+                if cov_ratio < 1:
                     non_cov_data.append((
-                        _escape_latex(args.sample[i]),
+                        _escape_latex(sample),
                         _escape_latex(line[4]),
-                        '{:.1f}'.format(float(line[8]) * 100),
-                        produce_warning(float(amp_cov[line[4]]), d[args.sample[i]]['mean20'])
+                        '{:.1f}'.format(cov_ratio * 100),
+                        'YES' if mean_cov < mean_cov_threshold else ' ',
                     ))
         if not non_cov_data:
             non_cov_data = [['/', '/']]
         non_cov_caption = 'Amplicons with coverage < 100\\%'
-        non_cov_text = list_to_tex_table(non_cov_data, header=non_cov_header, caption=non_cov_caption)
-        template = template.replace('{#BAD_AMPLICON_TABLE#}', non_cov_text)
+        non_cov_table = list_to_tex_table(non_cov_data, header=non_cov_header, caption=non_cov_caption)
+        template = template.replace('{#BAD_AMPLICON_TABLE#}', non_cov_table)
 
-        # Parse VCF files to get variant tables and dictionaries in the form {variant: samples}
+        # Parse VCF files to get variant tables
         table_text = ''
+        # Dictionaries to store variants in form {variant: samples} (will be needed for heatmaps)
         gatkhc_variants = {}
         lf_variants = {}
 
-        for i in indexlist:
+        for i, sample in sorted_samples:
 
             # Make GATK variants table:
             table_text += '\\renewcommand{\\thetable}{\\arabic{table}a}'  # Set different table counting (Na)
-            caption = _escape_latex('GATK HaplotypeCaller variant calls, sample {}'.format(args.sample[i]))
-            vcf_table, header = prepare_vcf_table(args.vcfgatkhc[i], args.sample[i], gatkhc_variants)
+            caption = _escape_latex('GATK HaplotypeCaller variant calls, sample {}'.format(sample))
+            vcf_table, header = prepare_vcf_table(args.vcfgatkhc[i], sample, gatkhc_variants)
             table_text += list_to_tex_table(
                 vcf_table, header=header, caption=caption, long_columns=[2, 3, -2, -1], uncut_columns=[-1])
             table_text += '{\n\\addtocounter{table}{-1}}'
@@ -424,8 +393,8 @@ if __name__ == '__main__':
 
             # Make LF variants table:
             table_text += '\\renewcommand{\\thetable}{\\arabic{table}b}'  # Set different table counting (Nb)
-            caption = _escape_latex('Lowfreq variant calls, sample {}'.format(args.sample[i]))
-            vcf_table, header = prepare_vcf_table(args.vcflf[i], args.sample[i], lf_variants)
+            caption = _escape_latex('LoFreq variant calls, sample {}'.format(sample))
+            vcf_table, header = prepare_vcf_table(args.vcflf[i], sample, lf_variants)
             table_text += list_to_tex_table(
                 vcf_table, header=header, caption=caption, long_columns=[2, 3, -2, -1], uncut_columns=[-1])
             table_text += '\n\\newpage\n'
@@ -434,16 +403,16 @@ if __name__ == '__main__':
         table_text += '\\renewcommand{\\thetable}{\\arabic{table}}'
         template = template.replace('{#VCF_TABLES#}', table_text)
 
-        # Crate heatmaps
-        make_heatmap(args.sample, gatkhc_variants, 'GATKHC variants')
-        make_heatmap(args.sample, lf_variants, 'Lowfreq variants')
-
         # Write template to 'report.tex'
         template_out.write(template)
 
     # Generate PDF. Call teh command two times since the first time
-    args = ['pdflatex', '-interaction=nonstopmode', 'multireport.tex']
-    subprocess.call(args)
-    subprocess.check_call(args)
+    cmd = ['pdflatex', '-interaction=nonstopmode', 'multireport.tex']
+    subprocess.call(cmd)
+    subprocess.check_call(cmd)
+
+    # Crate heatmaps
+    make_heatmap(args.sample, gatkhc_variants, 'GATKHC variants')
+    make_heatmap(args.sample, lf_variants, 'LoFreq variants')
 
     print("Done.")
