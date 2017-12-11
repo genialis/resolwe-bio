@@ -13,10 +13,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         filtered_reads = self.run_process('prinseq-lite-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_single.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'size': 314749,
-                                                          'total_size': 315915}])
+                                                          'size': 314749}])
 
     @tag_process('prinseq-lite-paired')
     def test_prinseq_paired(self):
@@ -30,14 +30,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('prinseq-lite-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_prinseq_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_prinseq_paired_rw.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA forw_fastqc'],
-                                                          'size': 347773,
-                                                          'total_size': 348915}])
+                                                          'size': 347773}])
+        del filtered_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'size': 340697,
-                                                           'total_size': 341839}])
+                                                           'size': 340697}])
 
     @tag_process('fastq-mcf-single')
     def test_fastqmcf_single(self):
@@ -48,10 +48,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('fastq-mcf-single', inputs)
 
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_fastqmcf_single.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'size': 305101,
-                                                          'total_size': 306267}])
+                                                          'size': 305101}])
 
     @tag_process('fastq-mcf-paired')
     def test_fastqmcf_paired(self):
@@ -65,14 +65,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_process('fastq-mcf-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_fastqmcf_paired_fw.fastq.gz'], compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_fastqmcf_paired_rw.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA forw_fastqc'],
-                                                          'size': 347791,
-                                                          'total_size': 348933}])
+                                                          'size': 347791}])
+        del filtered_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'size': 340715,
-                                                           'total_size': 341857}])
+                                                           'size': 340715}])
 
     @skipDockerFailure("Skip until Docker image with iCount is supported on Travis.")
     @tag_process('sortmerna-single')
@@ -139,10 +139,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         filtered_reads = self.run_processor('trimmomatic-single', inputs)
 
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_single.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/reads_fastqc'],
-                                                          'size': 206718,
-                                                          'total_size': 207404}])
+                                                          'size': 206718}])
 
     @tag_process('trimmomatic-paired')
     def test_trimmomatic_paired(self):
@@ -159,14 +159,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_trimmomatic_paired_rw.fastq.gz'],
                          compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                          'size': 352347,
-                                                          'total_size': 353489}])
+                                                          'size': 352347}])
+        del filtered_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'size': 340745,
-                                                           'total_size': 341887}])
+                                                           'size': 340745}])
 
     @tag_process('hsqutils-trim')
     def test_hsqutils_trim(self):
@@ -339,10 +339,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         filtered_reads = self.run_process('bbduk-single', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_bbduk_single.fastq.gz'], compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/bbduk test reads_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/bbduk test reads_fastqc'],
-                                                          'size': 303594,
-                                                          'total_size': 304775}])
+                                                          'size': 303594}])
 
         inputs = {
             'reads': reads.id,
@@ -380,11 +380,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
         self.assertFiles(filtered_reads, 'fastq2', ['filtered_reads_bbduk_rw.fastq.gz'],
                          compression='gzip')
+        del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                           'refs': ['fastqc/rRNA forw_fastqc'],
-                                                          'size': 255848,
-                                                          'total_size': 344425}])
+                                                          'size': 255848}])
+        del filtered_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                            'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'size': 244724,
-                                                           'total_size': 324496}])
+                                                           'size': 244724}])

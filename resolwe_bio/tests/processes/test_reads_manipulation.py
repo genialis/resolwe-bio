@@ -17,11 +17,11 @@ class ReadsProcessorTestCase(BioProcessTestCase):
         merged_reads = self.run_process('reads-merge', inputs)
         self.assertFiles(merged_reads, 'fastq', ['paired_end_forward.fastq.gz'], compression='gzip')
         self.assertFiles(merged_reads, 'fastq2', ['paired_end_reverse.fastq.gz'], compression='gzip')
+        del merged_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(merged_reads, "fastqc_url", [{'file': 'fastqc/fw_reads_fastqc/fastqc_report.html',
                                                         'refs': ['fastqc/fw_reads_fastqc'],
-                                                        'size': 311414,
-                                                        'total_size': 312580}])
+                                                        'size': 311414}])
+        del merged_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(merged_reads, "fastqc_url2", [{'file': 'fastqc/rw_reads_fastqc/fastqc_report.html',
                                                          'refs': ['fastqc/rw_reads_fastqc'],
-                                                         'size': 311414,
-                                                         'total_size': 312580}])
+                                                         'size': 311414}])

@@ -149,7 +149,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
         index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
 
-        self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem', 'total_size': 2875})
+        del index_fasta_nucl.output['rsem_index']['total_size']  # Non-deterministic output.
+        self.assertFields(index_fasta_nucl, 'rsem_index', {'dir': 'rsem'})
         self.assertFields(index_fasta_nucl, 'source', 'ENSEMBL')
 
     @tag_process('mergeexpressions')

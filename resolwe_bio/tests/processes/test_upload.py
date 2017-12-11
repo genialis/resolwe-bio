@@ -96,22 +96,22 @@ class UploadProcessorTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-paired', inputs)
         self.assertFiles(reads, 'fastq', ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
         self.assertFiles(reads, 'fastq2', ['00Hr.fastq.gz', '20Hr.fastq.gz'], compression='gzip')
+        del reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url'][1]['total_size']  # Non-deterministic output.
         self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA forw_fastqc'],
-                                                 'size': 343222,
-                                                 'total_size': 344364},
+                                                 'size': 343222},
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                 'size': 323297,
-                                                 'total_size': 324439}])
+                                                 'size': 323297}])
+        del reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url2'][1]['total_size']  # Non-deterministic output.
         self.assertFields(reads, 'fastqc_url2', [{'file': 'fastqc/00Hr_fastqc/fastqc_report.html',
                                                   'refs': ['fastqc/00Hr_fastqc'],
-                                                  'size': 327878,
-                                                  'total_size': 329044},
+                                                  'size': 327878},
                                                  {'file': 'fastqc/20Hr_fastqc/fastqc_report.html',
                                                   'refs': ['fastqc/20Hr_fastqc'],
-                                                  'size': 287245,
-                                                  'total_size': 288411}])
+                                                  'size': 287245}])
 
     @tag_process('upload-fastq-single')
     def test_upload_single_end_reads(self):
@@ -122,14 +122,14 @@ class UploadProcessorTestCase(BioProcessTestCase):
         reads = self.run_process('upload-fastq-single', inputs)
 
         self.assertFiles(reads, 'fastq', ['rRNA_forw_single.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
+        del reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url'][1]['total_size']  # Non-deterministic output.
         self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA forw_fastqc'],
-                                                 'size': 343222,
-                                                 'total_size': 344364},
+                                                 'size': 343222},
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                 'size': 323297,
-                                                 'total_size': 324439}])
+                                                 'size': 323297}])
 
     @tag_process('upload-diffexp')
     def test_upload_de(self):
@@ -174,11 +174,16 @@ class UploadProcessorTestCase(BioProcessTestCase):
                   "hisat2_index": "hisat2_index.tar.gz",
                   "subread_index": "subread_index.tar.gz"}
         genome = self.run_process('upload-genome', inputs)
-        self.assertFields(genome, "index_bt", {'dir': 'bowtie_index', 'total_size': 8392244})
-        self.assertFields(genome, "index_bt2", {'dir': 'bowtie2_index', 'total_size': 8396239})
-        self.assertFields(genome, "index_bwa", {'dir': 'BWA_index', 'total_size': 5323})
-        self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index', 'total_size': 4206959})
-        self.assertFields(genome, "index_subread", {'dir': 'subread_index', 'total_size': 3208670})
+        del genome.output['index_bt']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_bt", {'dir': 'bowtie_index'})
+        del genome.output['index_bt2']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_bt2", {'dir': 'bowtie2_index'})
+        del genome.output['index_bwa']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_bwa", {'dir': 'BWA_index'})
+        del genome.output['index_hisat2']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index'})
+        del genome.output['index_subread']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_subread", {'dir': 'subread_index'})
 
     @tag_process('upload-bed')
     def test_upload_bed(self):

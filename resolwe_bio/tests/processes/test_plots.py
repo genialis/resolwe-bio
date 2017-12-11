@@ -63,9 +63,9 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'extension': 200}
 
         bamliquidator = self.run_process('bamliquidator', inputs)
+        del bamliquidator.output['summary']['total_size']  # Non-deterministic output.
         self.assertFields(bamliquidator, 'summary', {'file': 'output/summary.html',
-                                                     'size': 524296,
-                                                     'total_size': 3691420})
+                                                     'size': 524296})
 
     @tag_process('bamliquidator')
     def test_bamliquidator_gff(self):
