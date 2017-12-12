@@ -1,0 +1,14 @@
+python3-dateutil
+python3-jinja2
+python3-markupsafe
+python3-numpy
+python3-pandas
+python3-setuptools
+python3-six
+python3-wheel
+python3-yaml
+texlive-latex-base
+texlive-latex-recommended
+texlive-fonts-recommended
+texlive-latex-extra
+zip

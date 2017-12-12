@@ -1,0 +1,2 @@
+cameo[all]==0.11.3
+python-libsbml==5.15.0
