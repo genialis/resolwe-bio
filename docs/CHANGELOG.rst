@@ -6,21 +6,21 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+6.1.0 - 2017-12-12
+==================
 
 Added
 -----
 * Add ``amplicon-archive-multi-report`` process
 * Add ``upload-metabolic-pathway`` process
-* Add memory-optimized primerclip as a separate `align-bwa-trim2` process
+* Add memory-optimized primerclip as a separate ``align-bwa-trim2`` process
+* Add ``workflow-accel-2`` workflow
 
 Changed
 -------
 * Improve ``PCA`` process performance
-* Use the ``resolwebio/chipseq:1.1.0`` docker image in ``macs14``
-  process
+* Use ``resolwebio/chipseq:1.1.0`` Docker image in ``macs14`` process
 * Change formatting of ``EFF[*].AA`` column in ``snpeff`` process
 * Save unmapped reads in ``aligment-hisat2`` process
 * Turn off test profiling
@@ -28,7 +28,7 @@ Changed
 Fixed
 -----
 * Fix pre-sorting in ``upload-master-file`` process
-* Revert `align-bwa-trim` process to use non-memory-optimized primerclip
+* Revert ``align-bwa-trim`` process to use non-memory-optimized primerclip
 * Fix file processing in ``cutadapt-custom-paired`` process
 
 
