@@ -1,0 +1,142 @@
+\documentclass[11pt, a4paper, landscape]{article}
+
+% Graphics, plotting, images:
+\usepackage{graphicx}
+
+% Tweaking text borders:
+\usepackage[top=0.89cm, bottom=4cm, left=1.27cm, right=1.31cm]{geometry}
+\setlength{\headsep}{0.6cm}
+
+% Making hyperlinks:
+\usepackage[colorlinks=true, urlcolor=hyperlinkblue, linkcolor=black]{hyperref}
+
+% Making headers/footers:
+\usepackage{fancyhdr}
+\setlength{\headheight}{100pt}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}% Remove header rule
+\fancyhead[LE,LO]{\includegraphics[width=35mm]{{#LOGO#}}\\\hrulefill\\~}
+\fancyhead[CE,CO]{~\\\hrulefill\\~}
+%\fancyhead[RE,RO]{ \nouppercase{\leftmark\ | Page \thepage\ of \pageref{LastPage}}\\\hrulefill\\ {\lightfont \fontsize{10pt}{10pt}\selectfont {#SAMPLE_NAME#} | {#PANEL#} | \today}}
+\fancyhead[RE,RO]{ \nouppercase{\leftmark\ | Page \thepage\ of \pageref{LastPage}}\\\hrulefill\\ {\lightfont \fontsize{10pt}{10pt}\selectfont \today}}
+
+
+% tables spanning multiple pages
+\usepackage{longtable}
+\usepackage{array}
+\newcolumntype{L}{>{\raggedright\arraybackslash}m{2.3cm}}
+\newcolumntype{W}{>{\arraybackslash}m{18cm}}
+
+\usepackage{booktabs}
+
+%font setup
+%\usepackage[sfdefault, medium]{roboto}
+\usepackage{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+\newcommand{\lightfont}{\fontseries{l}\selectfont}
+\newcommand{\thinfont}{\fontseries{t}\selectfont}
+\newcommand{\mediumfont}{\fontseries{m}\selectfont}
+\newcommand{\boldfont}{\fontseries{b}\selectfont}
+
+%colors
+\usepackage[table]{xcolor}
+\definecolor{gray1}{HTML}{EDEDED}
+\definecolor{gray2}{HTML}{EAEAEA}
+\definecolor{lightblue1}{HTML}{E0F1F5}
+\definecolor{darkblue1}{HTML}{2B8196}
+\definecolor{hyperlinkblue}{HTML}{1F759B}
+
+%tables
+\usepackage{tabularx}
+\usepackage{array}
+\renewcommand{\arraystretch}{1.5}
+
+\let\oldlongtable\longtable
+\let\endoldlongtable\endlongtable
+\renewenvironment{longtable}{\rowcolors{2}{lightblue1}{white}\oldlongtable} {
+\endoldlongtable} %sets color scheme for long tables
+
+%last page (for page count)
+\usepackage{lastpage}
+
+%change of caption styles
+\usepackage[font=small]{caption}
+\captionsetup{justification=raggedright,singlelinecheck=false}
+\captionsetup[table]{ labelfont=it,textfont={it}}
+\captionsetup[figure]{labelfont={it}}
+
+%change of chapter styles
+\usepackage{titlesec}
+\titleformat{\section}
+  {\normalfont \fontsize{16pt}{16pt}\selectfont}{\thesection}{1em}{}
+
+%footnote marker color
+\makeatletter
+\renewcommand\@makefnmark{\hbox{\@textsuperscript{\normalfont\color{white}\@thefnmark}}}
+\renewcommand\@makefntext[1]{%
+	\parindent 1em\noindent
+	\hb@xt@1.8em{%
+		\hss\@textsuperscript{\normalfont\@thefnmark}}#1}
+\makeatother
+
+\begin{document}
+
+\noindent
+{\fontsize{16pt}{16pt}\selectfont \color{darkblue1}{\textbf{Multi-sample Report}}}
+
+\medskip
+\noindent
+{\lightfont \today}
+
+\medskip
+\noindent Results have been filtered to exclude any putative variant detected below AF = {{#AF_THRESHOLD#}}. Variants below this threshold may be inspected manually in the unfiltered VCF files.
+
+\section{QC information}
+
+\footnotesize
+{{#QCTABLE#}}
+
+
+\normalsize
+{{#BAD_AMPLICON_TABLE#}}
+
+\newpage
+\section{Shared variants}
+
+\href{GATKHCvariants.html}{Click here} to view a matrix of all GATK HaplotypeCaller variants shared between samples.\\
+\href{LoFreqvariants.html}{Click here} to view a matrix of all LoFreq variants shared between samples.
+
+\renewcommand{\arraystretch}{1.4}
+\section{Annotated variants}
+\footnotesize
+
+{\captionof{table}{Legend}
+\noindent
+\rowcolors{2}{gray2}{white}
+\begin{oldlongtable}[l]{l W}
+\rowcolor{gray2}
+CHROM & Chromosome\\
+POS & Position\\
+ID & Variant identity\\
+REF & Reference base\\
+ALT & Alternative base (i.e., variant)\\
+QUAL & Phred-scaled quality score for the assertion made in ALT. i.e. -10log10 prob(call in ALT is wrong)\\
+DP & Filtered read depth\\
+AF & Allele frequency\\
+FS & FisherStrand (Phred-scaled p-value using Fisher's Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads.  More bias is indicative of false positive calls. Be wary of SNP with FS > 60.0 and an indel with FS > 200.0.)\\
+AD & Allele depth\\
+GENE & Affected gene\\
+SB & Strand bias\\
+DP4 & Number of 1) forward ref alleles; 2) reverse ref; 3) forward non-ref; 4) reverse non-ref alleles, used in variant calling. Sum can be smaller than DP because low-quality bases are not counted.\\
+AA & Amino acid change\\
+\end{oldlongtable}
+{
+\addtocounter{table}{-1}}}
+\newpage
+
+{{#VCF_TABLES#}}
+
+
+\end{document}

@@ -14,6 +14,11 @@ Added
 -----
 * Add R, tabix, and CheMut R library to ``resolwebio/dnaseq`` Docker image
 
+Changed
+-------
+* Move template and logo for multi-sample report into ``resolwebio/latex``
+  Docker image
+
 
 ==================
 6.1.0 - 2017-12-12
