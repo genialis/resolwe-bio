@@ -1,0 +1,12 @@
+File_name	Sample_name	md5sum	SE/PE	Read_length
+fw_reads_R1.fastq.gz	fw_reads	eaa3c759b7cf5cff1a94952828d2d413	PE	50
+fw_reads_R1.fastq.gz	fw_reads	0bca22b84ca5b82a571b0156e9fdd656	PE	50
+fw_reads_R2.fastq.gz	fw_reads	bbec38a66e06ac53ba2dfa4936cf2771	PE	50
+fw_reads_R2.fastq.gz	fw_reads	b62b291d441a12f57975cdd60be838c8	PE	50
+reads.fastq.gz	reads	889e4237c7d7efff8f105362c640870c	SE	35
+fw_reads.tab.gz	fw_reads	c088594fb7db74438427687b61908ac5	PE
+reads.tab.gz	reads	d053f7d14503eab1c407ea491b4082c4	SE
+
+Expression_type - TPM
+
+Genome_build - dd-05-2009

@@ -1,0 +1,267 @@
+# ===========
+# Prepare GEO
+# ===========
+---
+
+- slug: prepare-geo-chipseq
+  name: Prepare GEO - ChIP-Seq
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 1
+    executor:
+      docker:
+        image: resolwebio/base:ubuntu-17.10
+  data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
+  version: 0.0.1
+  type: data:other:geo:chipseq
+  category: analyses
+  persistence: CACHED
+  description: >
+    Prepare ChIP-Seq data for GEO upload.
+  input:
+    - name: reads
+      label: Reads
+      type: list:data:reads:fastq
+      description: >
+        List of reads objects. Fastq files will be used.
+    - name: macs14
+      label: Macs14
+      type: list:data:chipseq:macs14
+      description: >
+        List of macs14 objects. Wiggle files will be used.
+    - name: relations
+      label: Relations
+      type: list:basic:string
+      description: >
+        Sample to background mapper. Accepted format <sample name>:<background sample name>.
+    - name: name
+      label: Collection name
+      type: basic:string
+  output:
+    - name: tarball
+      label: GEO folder
+      type: basic:file
+    - name: table
+      label: Annotation table
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME={{ name }}_ChIP-Seq
+      mkdir "${NAME}"
+
+      {% set macs_first = macs14|first %}
+
+      declare -A SAMPLE_TO_PAIRED
+      declare -A SAMPLE_TO_BACKGROUND
+
+      {% for relation in relations %}
+        SAMPLE_TO_BACKGROUND[{{ relation.split(':')[0].split('.')[0] }}]={{ relation.split(':')[1].split('.')[0] }}
+      {% endfor %}
+
+      echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}".txt
+
+      {% for read in reads %}
+        SAMPLE_NAME=`basename {{ read|sample_name }} .fastq.gz`
+        PAIRED=SE
+        MATE1_LABEL=""
+        MATE2_LABEL=""
+        {% if read|type|subtype('data:reads:fastq:paired:') %}
+          PAIRED=PE
+          MATE1_LABEL=_R1
+          MATE2_LABEL=_R2
+        {% endif %}
+        SAMPLE_TO_PAIRED["${SAMPLE_NAME}"]=$PAIRED
+
+        {% for fastq in read.fastq %}
+          cp {{ fastq.file }} "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz"
+          MD5=($(md5sum "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz"))
+
+          # Take first 1000 reads
+          zcat "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz" |
+          head -n 4000 |
+          awk '(NR + 2) % 4 == 0' > subsample.txt
+
+          # Find the most occurance read length in subsample.txt
+          LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+
+          echo -e "${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+        {% endfor %}
+        {% if read|type|subtype('data:reads:fastq:paired:') %}
+          {% for fastq in read.fastq2 %}
+            cp {{ fastq.file }} "${NAME}/${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz"
+            MD5=($(md5sum "${NAME}/${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz"))
+
+            # Take first 1000 reads
+            zcat "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz" |
+            head -n 4000 |
+            awk '(NR + 2) % 4 == 0' > subsample.txt
+
+            # Find the most occurance read length in subsample.txt
+            LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+
+            echo -e "${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+
+      {% for macs in macs14 %}
+        {% if macs_first.species != macs.species %}
+          re-warning "All macs data objects must be of the same Species."
+          re-error "Macs {{ macs_first|name }} is {{ macs_first.species }}, while {{ macs|name }} is {{ macs.species }}."
+        {% elif macs_first.build != macs.build %}
+          re-warning "All macs data objects must share the same build information."
+          re-error "Macs {{ macs_first|name }} has {{ macs_first.build }}, while {{ macs|name }}  has {{ macs.build }} build information."
+        {% endif %}
+
+        SAMPLE_NAME=`basename {{ macs|sample_name }} .fastq.gz`
+
+        unzip -o {{ macs.wiggle.file }}
+
+        gzip -cd "`basename {{ macs.wiggle.file }} .zip`"/treat/*.gz > "${NAME}"/"${SAMPLE_NAME}".wig
+        MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.wig"))
+        echo -e "${SAMPLE_NAME}.wig\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}".txt
+
+        BACKGROUND="${SAMPLE_TO_BACKGROUND[${SAMPLE_NAME}]}"
+        if [ -n "${BACKGROUND}" ] && [ ! -e "${NAME}"/"${BACKGROUND}".wig ]; then
+          gzip -cd "`basename {{ macs.wiggle.file }} .zip`"/control/*.gz > "${NAME}"/"${BACKGROUND}".wig
+          MD5=($(md5sum "${NAME}"/"${BACKGROUND}".wig))
+          echo -e "${BACKGROUND}.wig\t${BACKGROUND}\t${MD5}\t${SAMPLE_TO_PAIRED[${BACKGROUND}]}" >> "${NAME}".txt
+        fi
+      {% endfor %}
+
+      tar -zcvf "${NAME}".tar.gz "${NAME}"
+
+      echo -e '\nGenome_build - {{ macs_first.build }}' >> "${NAME}".txt
+
+      re-save-file table "${NAME}".txt
+      re-save-file tarball "${NAME}".tar.gz
+
+- slug: prepare-geo-rnaseq
+  name: Prepare GEO - RNA-Seq
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 1
+    executor:
+      docker:
+        image: resolwebio/base:ubuntu-17.10
+  data_name: 'Prepare GEO ({{name}} - RNA-Seq)'
+  version: 0.0.1
+  type: data:other:geo:rnaseq
+  category: analyses
+  persistence: CACHED
+  description: >
+    Prepare RNA-Seq data for GEO upload.
+  input:
+    - name: reads
+      label: Reads
+      type: list:data:reads:fastq
+      description: >
+        List of reads objects. Fastq files will be used.
+    - name: expressions
+      label: Expressions
+      type: list:data:expression
+      description: >
+        Cuffnorm data object. Expression table will be used.
+    - name: name
+      label: Collection name
+      type: basic:string
+  output:
+    - name: tarball
+      label: GEO folder
+      type: basic:file
+    - name: table
+      label: Annotation table
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME={{ name }}_RNA-Seq
+      mkdir "${NAME}"
+      
+      {% set exp_first = expressions|first %}
+
+      declare -A SAMPLE_TO_PAIRED
+      
+      echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}".txt
+
+      {% for read in reads %}
+        SAMPLE_NAME=`basename {{ read|sample_name }} .fastq.gz`
+        PAIRED=SE
+        MATE1_LABEL=""
+        MATE2_LABEL=""
+        {% if read|type|subtype('data:reads:fastq:paired:') %}
+          PAIRED=PE
+          MATE1_LABEL=_R1
+          MATE2_LABEL=_R2
+        {% endif %}
+        SAMPLE_TO_PAIRED["${SAMPLE_NAME}"]=$PAIRED
+
+        {% for fastq in read.fastq %}
+          cp {{ fastq.file }} "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz"
+          MD5=($(md5sum "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz"))
+
+          # Take first 1000 reads
+          zcat "${NAME}/${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz" |
+          head -n 4000 |
+          awk '(NR + 2) % 4 == 0' > subsample.txt
+
+          # Find the most occurance read length in subsample.txt
+          LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+
+          echo -e ""${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz"\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+        {% endfor %}
+        {% if read|type|subtype('data:reads:fastq:paired:') %}
+          {% for fastq in read.fastq2 %}
+            cp {{ fastq.file }} "${NAME}/${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz"
+            MD5=($(md5sum "${NAME}/${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz"))
+
+            # Take first 1000 reads
+            zcat "${NAME}/${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz" |
+            head -n 4000 |
+            awk '(NR + 2) % 4 == 0' > subsample.txt
+
+            # Find the most occurance read length in subsample.txt
+            LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+
+            echo -e ""${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz"\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
+
+      {% for expression in expressions %}
+        {% if exp_first.exp_type != expression.exp_type %}
+          re-warning "All expressions must be of the same Expression type."
+          re-error "Expression {{ exp_first|name }} has {{ exp_first.exp_type }} expression type, while {{ expression|name }} has {{ expression.exp_type }} expression type."
+        {% elif exp_first.source != expression.source %}
+          re-warning "All expression data must be annotated by the same genome database."
+          re-error "Expression {{ exp_first|name }} has {{ exp_first.source }} gene IDs, while {{ expression|name }} has {{ expression.source }} gene IDs."
+        {% elif exp_first.species != expression.species %}
+          re-warning "All expressions must be of the same Species."
+          re-error "Expression {{ exp_first|name }} is {{ exp_first.species }}, while {{ expression|name }} is {{ expression.species }}."
+        {% elif exp_first.build != expression.build %}
+          re-warning "All expression data objects must share the same build information."
+          re-error "Expression {{ exp_first|name }} has {{ exp_first.build }}, while {{ expression|name }}  has {{ expression.build }} build information."
+        {% elif exp_first.feature_type != expression.feature_type %}
+          re-warning "All expressions must be of the same Feature type."
+          re-error "Expression {{ exp_first|name }} has {{ exp_first.feature_type }} feature type, while {{ expression|name }} has {{ expression.feature_type }} feature type."
+        {% endif %}
+
+        SAMPLE_NAME=`basename {{ expression|sample_name }} .fastq.gz`
+
+        cp {{expression.exp.file}} "${NAME}"/"${SAMPLE_NAME}".tab.gz
+        MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.tab.gz"))
+        echo -e ""${SAMPLE_NAME}".tab.gz\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}".txt
+      {% endfor %}
+
+      tar -zcvf "${NAME}".tar.gz "${NAME}"
+
+      echo -e '\nExpression_type - {{ exp_first.exp_type }}' >> "${NAME}".txt
+      echo -e '\nGenome_build - {{ exp_first.build }}' >> "${NAME}".txt
+
+      re-save-file table "${NAME}".txt
+      re-save-file tarball "${NAME}".tar.gz

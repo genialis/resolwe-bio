@@ -112,3 +112,66 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.run_process('archive-samples', {
             'data': [txt_file.id, bam.id, reads.id, vcf.id],
             'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf']})
+
+    @tag_process('prepare-geo-chipseq')
+    def test_prepare_geo_chipseq(self):
+        with self.preparation_stage():
+            reads_1 = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
+                                                mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_2 = self.prepare_reads()
+            reads_3 = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
+
+            case_bam = self.prepare_bam(fn='macs14_case.bam', species='Homo sapiens',
+                                        build='hg19')
+            control_bam = self.prepare_bam(fn='macs14_control.bam', species='Homo sapiens',
+                                           build='hg19')
+
+            inputs = {"treatment": case_bam.id,
+                      "control": control_bam.id}
+            macs14_1 = self.run_process("macs14", inputs)
+            reads_1.entity_set.first().data.add(macs14_1)
+
+            # Run macs14 without control/background sample
+            del inputs['control']
+            macs14_2 = self.run_process("macs14", inputs)
+            reads_3.entity_set.first().data.add(macs14_2)
+
+            sample_1 = reads_1.entity_set.last().name
+            sample_2 = reads_2.entity_set.last().name
+
+        inputs = {
+            "reads": [reads_1.id, reads_2.id, reads_3.id],
+            "macs14": [macs14_1.id, macs14_2.id],
+            "relations": ["{}:{}".format(sample_1, sample_2)],
+            "name": "prepare_geo"
+        }
+        prepare_geo_chipseq = self.run_process("prepare-geo-chipseq", inputs)
+
+        self.assertFile(prepare_geo_chipseq, 'table', 'prepare_geo_ChIP-Seq.txt')
+
+    @tag_process('prepare-geo-rnaseq')
+    def test_prepare_geo_rnaseq(self):
+        with self.preparation_stage():
+            reads_1 = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
+                                                mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_2 = self.prepare_reads()
+
+            expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
+            expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
+
+            # Delete expression samples
+            expression_1.entity_set.all().delete()
+            expression_2.entity_set.all().delete()
+
+            # Add expressions to reads samples
+            reads_1.entity_set.first().data.add(expression_1)
+            reads_2.entity_set.first().data.add(expression_2)
+
+        inputs = {
+            "reads": [reads_1.id, reads_2.id],
+            "expressions": [expression_1.pk, expression_2.pk],
+            "name": "prepare_geo"
+        }
+        prepare_geo_rnaseq = self.run_process("prepare-geo-rnaseq", inputs)
+
+        self.assertFile(prepare_geo_rnaseq, 'table', 'prepare_geo_RNA-Seq.txt')

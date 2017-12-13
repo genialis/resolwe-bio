@@ -29,6 +29,9 @@ Added
   can expect the same set of outputs on all processes of the same type.
 * Add ``requests`` Python package to ``resolwebio/utils`` Docker image
 * Add miRNA workflow
+* Add ``prepare-geo-chipseq`` and ``prepare-geo-rnaseq`` processes that
+  produce a tarball with necessary data and folder structure for GEO
+  upload
 
 Changed
 -------
