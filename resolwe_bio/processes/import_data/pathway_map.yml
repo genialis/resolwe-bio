@@ -8,7 +8,7 @@
     resources:
       network: true
   data_name: Metabolic Pathway
-  version: 0.0.1
+  version: 0.0.2
   type: data:metabolicpathway
   category: upload
   persistence: RAW
@@ -22,13 +22,36 @@
       description: >
         JSON file. Supported extensions: '.json', '.json.gz'
       validate_regex: '(\.json)(\.gz)?$'
+    - name: source
+      label: source
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: BIGG
+          value: BIGG
+    - name: species
+      label: Species
+      type: basic:string
+      choices:
+        - label: Homo Sapiens
+          value: Homo Sapiens
+        - label: Mus musculus
+          value: Mus musculus
   output:
     - name: pathway
       label: Pathway json
       type: basic:json
+    - name: source
+      label: source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "json" "json" 0.5
       re-save pathway "${NAME}.json"
+      re-save source {{ source }}
+      re-save species {{ species }}
