@@ -1,8 +1,9 @@
 # pylint: disable=missing-docstring
-from resolwe_bio.utils.test import BioProcessTestCase
-from resolwe_bio.models import Sample
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
+
+from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.models import Sample
 
 
 class AlignmentProcessorTestCase(BioProcessTestCase):

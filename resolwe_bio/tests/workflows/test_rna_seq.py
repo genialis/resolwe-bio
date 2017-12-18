@@ -4,9 +4,10 @@ from django.test import LiveServerTestCase
 
 from guardian.shortcuts import assign_perm
 
-from resolwe_bio.utils.test import BioProcessTestCase
 from resolwe.flow.models import Data
 from resolwe.test import with_resolwe_host, tag_process
+
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class RNASeqWorkflowTestCase(BioProcessTestCase):
