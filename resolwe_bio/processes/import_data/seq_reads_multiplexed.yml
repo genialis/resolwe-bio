@@ -4,7 +4,7 @@
 ---
 
 - name: import:upload:multiplexed
-  version: 1.0.13
+  version: 1.1.0
   label: Upload multiplexed NGS reads
   type: data:multiplexed:qseq:single
   category: upload
@@ -99,11 +99,14 @@
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.2
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+      re-checkrc
+
+      re-save-file qseq_reads "${READS_NAME}.qseq.gz"
+      re-save-file qseq_barcodes "${BARCODES_NAME}.qseq.gz"
 
 
 - name: import:upload:multiplexed-paired-end
-  version: 1.0.13
+  version: 1.1.0
   label: Upload paired-end multiplexed NGS reads
   type: data:multiplexed:qseq:paired
   category: upload
@@ -208,4 +211,8 @@
       echo "{\"proc.rc\":$?,\"annotation\":{\"file\":\"{{ annotation.file }}\", \"refs\":[\"temp\"]}}"
 
       demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "{{ annotation.file }}" --progress-start 0.22
-      echo "{\"proc.progress\":1.0,\"proc.rc\":$?}"
+      re-checkrc
+
+      re-save-file qseq_reads "${READS_NAME}.qseq.gz"
+      re-save-file qseq_reads2 "${READS_NAME2}.qseq.gz"
+      re-save-file qseq_barcodes "${BARCODES_NAME}.qseq.gz"
