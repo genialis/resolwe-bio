@@ -3,10 +3,9 @@
 
 from channels.routing import route_class
 
-from resolwe.flow.managers import manager
+from resolwe.flow.managers.consumer import ManagerConsumer
 
 
-manager.update_routing()
 channel_routing = [  # pylint: disable=invalid-name
-    route_class(type(manager)),
+    route_class(ManagerConsumer),
 ]
