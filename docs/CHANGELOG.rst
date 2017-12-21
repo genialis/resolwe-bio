@@ -21,6 +21,7 @@ Changed
 * Refactor ``amplicon-report`` process to contain all relevant inputs for
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
+* Use resolwebio/dnaseq:1.2.0 docker in filtering_chemut process
 
 
 ==================
