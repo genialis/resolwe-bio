@@ -21,6 +21,7 @@ Added
   ``cutadapt-single`` and ``cutadapt-paired`` processes
 * Add ``FastQC``, ``igvtools``, and ``SRA Toolkit``
   to ``resolwebio/utils`` Docker image
+* BaseSpace file download tool
 
 Changed
 -------
