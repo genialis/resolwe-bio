@@ -3,7 +3,7 @@ import six
 
 from django.core.exceptions import ValidationError
 
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Secret
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -400,3 +400,22 @@ class UploadProcessorTestCase(BioProcessTestCase):
         seq = self.run_process('upload-fasta-nucl', inputs)
         self.assertFile(seq, 'fasta', 'genome.fasta.gz', compression='gzip')
         self.assertFields(seq, 'species', 'Dictyostelium discoideum')
+
+    @tag_process('basespace-fastq-single')
+    def test_basespace_fastq_single(self):
+        # Token with limited scope preobtained from dedicated BaseSpace testing app.
+        handle = Secret.objects.create_secret('9bdf059c759a429f8af52ca084130060', self.admin)
+
+        inputs = {'file_ids': ['9461130722', '9461121664'], 'access_token_secret': {'handle': handle}}
+        reads = self.run_process('basespace-fastq-single', inputs)
+
+        self.assertFiles(reads, 'fastq', ['Test_S1_L001_R1_001.fastq.gz',
+                                          'Test_S1_L002_R1_001.fastq.gz'], compression='gzip')
+        del reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url'][1]['total_size']  # Non-deterministic output.
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/Test_S1_L001_R1_001_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/Test_S1_L001_R1_001_fastqc'],
+                                                 'size': 343222},
+                                                {'file': 'fastqc/Test_S1_L002_R1_001_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/Test_S1_L002_R1_001_fastqc'],
+                                                 'size': 343222}])

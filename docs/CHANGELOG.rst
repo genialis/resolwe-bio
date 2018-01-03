@@ -22,6 +22,7 @@ Added
 * Add ``FastQC``, ``igvtools``, and ``SRA Toolkit``
   to ``resolwebio/utils`` Docker image
 * BaseSpace file download tool
+* Process to import single-end reads from BaseSpace
 
 Changed
 -------
