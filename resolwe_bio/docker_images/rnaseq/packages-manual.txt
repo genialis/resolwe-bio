@@ -4,4 +4,5 @@ hisat2
 r-packages
 rsem
 samtools
+sra-toolkit
 star

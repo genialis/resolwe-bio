@@ -15,5 +15,6 @@ Included bioinformatics tools:
 * RSEM (v1.4.0)
 * rtracklayer (v1.38.0)
 * SAMtools (v1.5)
+* SRA Toolkit (v2.8.2-1)
 * STAR (v2.5.3a)
 * tximport (v1.6.0)

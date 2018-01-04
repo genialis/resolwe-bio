@@ -65,6 +65,7 @@ Added
 Added
 -----
 * Add R, tabix, and CheMut R library to ``resolwebio/dnaseq`` Docker image
+* Add ``SRA Toolkit`` to ``resolwebio/rnaseq`` Docker image
 
 Changed
 -------
