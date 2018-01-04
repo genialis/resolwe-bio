@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
@@ -82,6 +82,27 @@
       required: false
       description: >
         Drop the read if it is below a specified length
+    - name: match_read_wildcards
+      label: Match read wildcards
+      type: basic:boolean
+      required: false
+      default: false
+      description: >
+        Interpret IUPAC wildcards in reads.
+    - name: times
+      label: Times
+      type: basic:integer
+      required: false
+      default: 1
+      description: >
+        Remove up to COUNT adapters from each read.
+    - name: error_rate
+      label: Error rate
+      type: basic:decimal
+      required: false
+      default: 0.1
+      description: >
+        Maximum allowed error rate (no. of errors divided by the length of the matching region).
   output:
     - name: fastq
       label: Reads file
@@ -152,7 +173,11 @@
         {% if down_primers_file %}-a file:3_primers.fasta{% endif %} \
         {% if up_primers_file %}-g file:5_primers.fasta{% endif %} \
         {% if minlen %}-m {{minlen}}{% endif %} \
-        -O {{min_overlap}} -o "${NAME}_trimmed.fastq.gz" in_reads.fastq.gz > report.txt
+        {% if times %}--times {{ times }} {% endif %} \
+        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
+        -O {{min_overlap}} \
+        -o "${NAME}_trimmed.fastq.gz" in_reads.fastq.gz > report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.7
 
@@ -180,8 +205,8 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 0.1.0
-  type: data:reads:fastq:single:cutadapt
+  version: 0.1.1
+  type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
   persistence: CACHED
@@ -283,6 +308,27 @@
       required: false
       description: >
         Drop the read if it is below a specified length
+    - name: match_read_wildcards
+      label: Match read wildcards
+      type: basic:boolean
+      required: false
+      default: false
+      description: >
+        Interpret IUPAC wildcards in reads.
+    - name: times
+      label: Times
+      type: basic:integer
+      required: false
+      default: 1
+      description: >
+        Remove up to COUNT adapters from each read.
+    - name: error_rate
+      label: Error rate
+      type: basic:decimal
+      required: false
+      default: 0.1
+      description: >
+        Maximum allowed error rate (no. of errors divided by the length of the matching region).
   output:
     - name: fastq
       label: Reads file (forward)
@@ -389,7 +435,11 @@
         {% if up_primers_seq_fwd %}$up_primers_fwd{% endif %} \
         {% if down_primers_file_fwd %}-a file:3_primers_fwd.fasta{% endif %} \
         {% if up_primers_file_fwd %}-g file:5_primers_fwd.fasta{% endif %} \
-        -O {{min_overlap_fwd}} -o "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq.gz > report.txt
+        {% if times %}--times {{ times }} {% endif %} \
+        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
+        -O {{min_overlap_fwd}} \
+        -o "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq.gz > report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.4
 
@@ -404,7 +454,11 @@
         {% if up_primers_seq_rev %}$up_primers_rev{% endif %} \
         {% if down_primers_file_rev %}-a file:3_primers_rev.fasta{% endif %} \
         {% if up_primers_file_rev %}-g file:5_primers_rev.fasta{% endif %} \
-        -O {{min_overlap_rev}} -o "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz >> report.txt
+        {% if times %}--times {{ times }} {% endif %} \
+        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
+        -O {{min_overlap_rev}} \
+        -o "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz >> report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.7
 

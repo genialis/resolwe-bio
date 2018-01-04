@@ -18,6 +18,8 @@ Added
 * Mechanism to override the manager's control channel prefix from the
   environment
 * Expose additional parameters in ``alignment-star`` process
+* Expose additional parameters in ``cutadapt-single`` and ``cutadapt-paired``
+  processes
 
 Changed
 -------
