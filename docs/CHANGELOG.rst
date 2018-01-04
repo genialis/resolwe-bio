@@ -17,6 +17,7 @@ Added
   process
 * Mechanism to override the manager's control channel prefix from the
   environment
+* Expose additional parameters in ``alignment-star`` process
 
 Changed
 -------

@@ -14,7 +14,7 @@
       memory: 32768
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.1
+  version: 1.2.2
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -111,6 +111,12 @@
           required: false
           description: >
             Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
+        - name: outFilterScoreMin
+          label: --outFilterScoreMin
+          type: basic:integer
+          required: false
+          description: >
+            Alignment will be output only if its score is higher than or equal to this value (default: 0).
     - name: alignment
       label: Alignment and Seeding
       group:
@@ -144,6 +150,58 @@
           required: false
           description: >
             Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+        - name: alignEndsType
+          label: --alignEndsType
+          type: basic:string
+          required: false
+          description: >
+            Type of read ends alignment (default: Local).
+          default: Local
+          choices:
+            - label: Local
+              value: Local
+            - label: EndToEnd
+              value: EndToEnd
+            - label: Extend5pOfRead1
+              value: Extend5pOfRead1
+            - label: Extend5pOfReads12
+              value: Extend5pOfReads12
+    - name: output_sam_bam
+      label: Output SAM and BAM
+      group:
+        - name: outSAMunmapped
+          label: --outSAMunmapped
+          type: basic:string
+          description: >
+            Output of unmapped reads in the SAM format.
+          required: false
+          default: None
+          choices:
+            - label: None
+              value: None
+            - label: Within
+              value: Within
+        - name: outSAMattributes
+          label: --outSAMattributes
+          type: basic:string
+          description: >
+             a string of desired SAM attributes, in the order desired for the output SAM.
+          required: false
+          default: Standard
+          choices:
+            - label: None
+              value: None
+            - label: Standard
+              value: Standard
+            - label: All
+              value: All
+        - name: outSAMattrRGline
+          label: --outSAMattrRGline
+          type: basic:string
+          description: >
+            SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
+            e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
+          required: false
   output:
     - name: bam
       label: Alignment file
@@ -218,6 +276,7 @@
           --readFilesCommand zcat \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
+          --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
@@ -226,11 +285,16 @@
           {% if filtering.outFilterMultimapNmax %}--outFilterMultimapNmax {{filtering.outFilterMultimapNmax}}{% endif %} \
           {% if filtering.outFilterMismatchNmax %}--outFilterMismatchNmax {{filtering.outFilterMismatchNmax}}{% endif %} \
           {% if filtering.outFilterMismatchNoverLmax %}--outFilterMismatchNoverLmax {{filtering.outFilterMismatchNoverLmax}}{% endif %} \
+          {% if filtering.outFilterScoreMin %}--outFilterScoreMin {{filtering.outFilterScoreMin}}{% endif %} \
           {% if alignment.alignSJoverhangMin %}--alignSJoverhangMin {{alignment.alignSJoverhangMin}}{% endif %} \
           {% if alignment.alignSJDBoverhangMin %}--alignSJDBoverhangMin {{alignment.alignSJDBoverhangMin}}{% endif %} \
           {% if alignment.alignIntronMin %}--alignIntronMin {{alignment.alignIntronMin}}{% endif %} \
           {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
-          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
+          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %} \
+          {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
+          {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
+          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
+          {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
         if [ -f Unmapped.out.mate1 ]
@@ -248,6 +312,7 @@
           --readFilesCommand zcat \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
+          --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
@@ -256,11 +321,16 @@
           {% if filtering.outFilterMultimapNmax %}--outFilterMultimapNmax {{filtering.outFilterMultimapNmax}}{% endif %} \
           {% if filtering.outFilterMismatchNmax %}--outFilterMismatchNmax {{filtering.outFilterMismatchNmax}}{% endif %} \
           {% if filtering.outFilterMismatchNoverLmax %}--outFilterMismatchNoverLmax {{filtering.outFilterMismatchNoverLmax}}{% endif %} \
+          {% if filtering.outFilterScoreMin %}--outFilterScoreMin {{filtering.outFilterScoreMin}}{% endif %} \
           {% if alignment.alignSJoverhangMin %}--alignSJoverhangMin {{alignment.alignSJoverhangMin}}{% endif %} \
           {% if alignment.alignSJDBoverhangMin %}--alignSJDBoverhangMin {{alignment.alignSJDBoverhangMin}}{% endif %} \
           {% if alignment.alignIntronMin %}--alignIntronMin {{alignment.alignIntronMin}}{% endif %} \
           {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
-          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %}
+          {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %} \
+          {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
+          {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
+          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
+          {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
         if [ -f Unmapped.out.mate1 ]
