@@ -126,26 +126,19 @@ FLOW_EXECUTION_ENGINES = [
 ]
 
 FLOW_MANAGER = {
-    'NAME': 'resolwe.flow.managers.local',
+    'NAME': 'resolwe.flow.managers.workload_connectors.local',
     'REDIS_PREFIX': 'resolwe-bio.manager',
     'REDIS_CONNECTION': REDIS_CONNECTION,
 }
 
-# NOTE: Since FLOW_EXECUTOR['DATA_DIR'] and FLOW_EXECUTOR['UPLOAD_DIR'] are
-# shared among all containers they must use the shared SELinux label (z
-# option). Each Data object's subdirectory under FLOW_EXECUTOR['DATA_DIR'] can
-# use its unique SELinux label (Z option).
-FLOW_DOCKER_MAPPINGS = [
-    {'src': os.path.join(FLOW_EXECUTOR['DATA_DIR'], '{data_id}'),
-     'dest': '/data',
-     'mode': 'rw,Z'},
-    {'src': FLOW_EXECUTOR['DATA_DIR'],
-     'dest': '/data_all',
-     'mode': 'ro,z'},
-    {'src': FLOW_EXECUTOR['UPLOAD_DIR'],
-     'dest': '/upload',
-     'mode': 'rw,z'},
-]
+FLOW_DOCKER_VOLUME_EXTRA_OPTIONS = {
+    'data': 'Z',
+    'data_all': 'z',
+    'upload': 'z',
+    'secrets': 'Z',
+    'users': 'Z',
+    'tools': 'z',
+}
 
 # Don't pull Docker images if set via the environment variable.
 FLOW_DOCKER_DONT_PULL = strtobool(os.environ.get('RESOLWE_DOCKER_DONT_PULL', '0'))
