@@ -113,7 +113,7 @@ To run a specific test, use::
 For example, to run the ``test_macs14`` test of the
 ``ChipSeqProcessorTestCase`` class in the ``test_chipseq`` module, use::
 
-    ./manage.py test resolwe_bio.tests.test_chipseq.ChipSeqProcessorTestCase.test_macs14
+    ./manage.py test resolwe_bio.tests.processes.test_chipseq.ChipSeqProcessorTestCase.test_macs14
 
 Using Tox
 ---------
