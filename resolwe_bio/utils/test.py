@@ -143,6 +143,15 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
 
     """
 
+    # This is work-around since Django's LiveServerTestCase apparently doesn't
+    # properly honor Django settings set in tests/settings.py.
+    _overridden_settings = {
+        # If a process that uses the live Django server fails, we want to see
+        # full debugging output rather than just laconic message like
+        # "Server Error (500)".
+        'DEBUG': True,
+    }
+
     @classmethod
     def setUpClass(cls):
         """Set-up test gene information knowledge base."""

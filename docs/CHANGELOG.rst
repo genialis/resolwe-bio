@@ -24,6 +24,10 @@ Changed
 * Use resolwebio/dnaseq:1.2.0 docker in filtering_chemut process
 * Require Resolwe 6.x
 
+Fixed
+-----
+* Enable DEBUG setting in tests using Django's LiveServerTestCase
+
 
 ==================
 6.1.0 - 2017-12-12
