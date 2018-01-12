@@ -27,6 +27,7 @@ Changed
 Fixed
 -----
 * Enable DEBUG setting in tests using Django's LiveServerTestCase
+* Wait for ElasticSeach to index the data in KBBioProcessTestCase
 
 
 ==================
