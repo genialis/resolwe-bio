@@ -23,6 +23,7 @@ Added
   to ``resolwebio/utils`` Docker image
 * BaseSpace file download tool
 * Process to import single-end reads from BaseSpace
+* Process to import paired-end reads from BaseSpace
 
 Changed
 -------

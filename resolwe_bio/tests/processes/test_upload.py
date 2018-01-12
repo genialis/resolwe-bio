@@ -419,3 +419,36 @@ class UploadProcessorTestCase(BioProcessTestCase):
                                                 {'file': 'fastqc/Test_S1_L002_R1_001_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/Test_S1_L002_R1_001_fastqc'],
                                                  'size': 343222}])
+
+    @tag_process('basespace-fastq-paired')
+    def test_basespace_fastq_paired(self):
+        # Token with limited scope preobtained from dedicated BaseSpace testing app.
+        handle = Secret.objects.create_secret('d0728b8cceb7455786665453d28c7ebc', self.admin)
+
+        inputs = {
+            'upstream_file_ids': ['9864012319', '9863993106'],
+            'downstream_file_ids': ['9863999826', '9863993107'],
+            'access_token_secret': {'handle': handle}
+        }
+        reads = self.run_process('basespace-fastq-paired', inputs)
+
+        self.assertFiles(reads, 'fastq', ['TestPaired_S1_L001_R1_001.fastq.gz',
+                                          'TestPaired_S1_L002_R1_001.fastq.gz'], compression='gzip')
+        self.assertFiles(reads, 'fastq2', ['TestPaired_S1_L001_R2_001.fastq.gz',
+                                           'TestPaired_S1_L002_R2_001.fastq.gz'], compression='gzip')
+        del reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url'][1]['total_size']  # Non-deterministic output.
+        self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/TestPaired_S1_L001_R1_001_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/TestPaired_S1_L001_R1_001_fastqc'],
+                                                 'size': 347881},
+                                                {'file': 'fastqc/TestPaired_S1_L002_R1_001_fastqc/fastqc_report.html',
+                                                 'refs': ['fastqc/TestPaired_S1_L002_R1_001_fastqc'],
+                                                 'size': 347881}])
+        del reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
+        del reads.output['fastqc_url2'][1]['total_size']  # Non-deterministic output.
+        self.assertFields(reads, 'fastqc_url2', [{'file': 'fastqc/TestPaired_S1_L001_R2_001_fastqc/fastqc_report.html',
+                                                  'refs': ['fastqc/TestPaired_S1_L001_R2_001_fastqc'],
+                                                  'size': 351553},
+                                                 {'file': 'fastqc/TestPaired_S1_L002_R2_001_fastqc/fastqc_report.html',
+                                                  'refs': ['fastqc/TestPaired_S1_L002_R2_001_fastqc'],
+                                                  'size': 351553}])
