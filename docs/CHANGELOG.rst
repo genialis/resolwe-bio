@@ -10,9 +10,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add Ubuntu 17.10 base Docker image
+
 Changed
 -------
-
 * **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
   of lifetime and change all images to use new ubuntu 17.10 image
 * **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
@@ -52,10 +55,9 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
   and ``feature_type`` in ``upload-expression-star`` process
 
-Added
+Fixed
 -----
-
-* Add Ubuntu 17.10 base Docker image
+* Fix ``consensus_subreads`` input option in Subread process
 
 
 ==================
