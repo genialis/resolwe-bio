@@ -139,7 +139,6 @@ Fixed
 * Wait for ElasticSeach to index the data in ``KBBioProcessTestCase``
 * Remove unused parameters in TopHat (2.0.13) process and Chip-seq workflow
 
-
 ==================
 6.1.0 - 2017-12-12
 ==================
