@@ -28,6 +28,7 @@ Added
   abstract process. For users, it is much more clear and predictable if they
   can expect the same set of outputs on all processes of the same type.
 * Add ``requests`` Python package to ``resolwebio/utils`` Docker image
+* Add miRNA workflow
 
 Changed
 -------
