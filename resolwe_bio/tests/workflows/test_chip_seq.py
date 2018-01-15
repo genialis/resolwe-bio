@@ -10,13 +10,11 @@ class ChipSeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            annotation = self.prepare_annotation_gff()
 
         self.run_process(
             'workflow-chip-seq', {
                 'reads': reads.id,
                 'genome': genome.id,
-                'annotation': annotation.id,
                 'macs_gsize': '1.2e8',
                 'rose_genome': 'MM9'
             }

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -199,6 +199,7 @@
         tophat2 \
           --mate-inner-dist {{ PE_options.inner_distance }} \
           --mate-std-dev {{ PE_options.mate_std_dev }} \
+          --library-type {{ PE_options.library_type }} \
           --num-threads {{ threads }} \
           {% if realign %}--read-realign-edit-dist 0{% endif %} \
           --GTF {{ annotation.annot.file }} \

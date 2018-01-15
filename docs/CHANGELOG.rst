@@ -81,6 +81,7 @@ Fixed
 -----
 * Enable DEBUG setting in tests using Django's ``LiveServerTestCase``
 * Wait for ElasticSeach to index the data in ``KBBioProcessTestCase``
+* Remove unused parameters in TopHat (2.0.13) process and Chip-seq workflow
 
 
 ==================
