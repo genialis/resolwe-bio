@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -80,7 +80,7 @@
           label: Bases to trim
           type: basic:integer
           description: >
-            Number of bases to trimm from 3' end in each iteration.
+            Number of bases to trim from 3' end in each iteration.
           default: 2
         - name: trim_iter
           label: Iterations
@@ -308,7 +308,7 @@
     resources:
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -326,7 +326,7 @@
       label: Alignment mode
       type: basic:string
       description: >
-        end to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
+        End to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
         local: Bowtie 2 does not require that the entire read align from one end to the other. Rather, some characters may be omitted ("soft clipped") from the ends in order to achieve the greatest possible alignment score.
       default: --end-to-end
       choices:
@@ -408,7 +408,7 @@
           label: Bases to trim
           type: basic:integer
           description: >
-            Number of bases to trimm from 3' end in each iteration.
+            Number of bases to trim from 3' end in each iteration.
           default: 2
     - name: reporting
       label: Reporting
@@ -432,7 +432,7 @@
           label: Number of reports (for -k mode only)
           type: basic:integer
           description: >
-            searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.          default: 5
+            Searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.          default: 5
           default: 5
   output:
     - name: bam

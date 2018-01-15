@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.0.0
+  version: 3.0.1
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -84,7 +84,7 @@
           type: basic:file
           required: false
           description: >
-            subread index files. Supported extensions (*.tar.gz).
+            Subread index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
   output:
     - name: fastagz
