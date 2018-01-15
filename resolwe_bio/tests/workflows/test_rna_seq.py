@@ -116,6 +116,9 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
     @tag_process('workflow-custom-cutadapt-star-rsem-single', 'workflow-custom-cutadapt-star-rsem-paired')
     def test_custom_cutadapt_star_rsem_workflow(self):
         with self.preparation_stage():
+            single_reads = self.prepare_reads(['reads rsem.fq.gz'])
+            paired_reads = self.prepare_paired_reads(mate1=['reads rsem.fq.gz'], mate2=['reads rsem2.fq.gz'])
+
             inputs = {'src': 'genome_rsem.fa.gz'}
             genome = self.run_process('upload-fasta-nucl', inputs)
 
@@ -132,12 +135,6 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
 
             inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
             index_fasta_nucl = self.run_process('index-fasta-nucl', inputs)
-
-            inputs = {'src': ['reads rsem.fq.gz']}
-            single_reads = self.run_process('upload-fastq-single', inputs)
-
-            inputs = {'src1': ['reads rsem.fq.gz'], 'src2': ['reads rsem2.fq.gz']}
-            paired_reads = self.run_process('upload-fastq-paired', inputs)
 
         inputs = {
             'reads': single_reads.pk,
