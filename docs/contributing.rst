@@ -58,7 +58,7 @@ change directory::
 
 Prepare Resolwe Bioinformatics for development::
 
-    pip install -e .[docs,package,test]
+    pip install --pre -e .[docs,package,test]
 
 .. note::
 
