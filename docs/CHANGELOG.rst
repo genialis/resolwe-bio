@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+6.2.0 - 2018-01-17
+==================
 
 Added
 -----
@@ -16,18 +16,19 @@ Added
 
 Changed
 -------
+* Require Resolwe 6.x
+* Extend pathway map with species and source field
 * Move template and logo for multi-sample report into ``resolwebio/latex``
   Docker image
 * Refactor ``amplicon-report`` process to contain all relevant inputs for
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
-* Use resolwebio/dnaseq:1.2.0 docker in filtering_chemut process
-* Require Resolwe 6.x
+* Use ``resolwebio/dnaseq:1.2.0`` Docker image in ``filtering_chemut`` process
 
 Fixed
 -----
-* Enable DEBUG setting in tests using Django's LiveServerTestCase
-* Wait for ElasticSeach to index the data in KBBioProcessTestCase
+* Enable DEBUG setting in tests using Django's ``LiveServerTestCase``
+* Wait for ElasticSeach to index the data in ``KBBioProcessTestCase``
 
 
 ==================
