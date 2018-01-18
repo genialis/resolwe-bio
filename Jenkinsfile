@@ -26,8 +26,9 @@ throttle(["resolwe_bio"]) {
                 withEnv(["RESOLWE_POSTGRESQL_USER=postgres",
                          "RESOLWE_POSTGRESQL_PORT=55433",
                          "RESOLWE_ES_PORT=59201",
-                         // set database name to a unique value
+                         // set database and manager name to unique values
                          "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
+                         "RESOLWE_MANAGER_REDIS_PREFIX=resolwe-bio.manager.${env.BUILD_TAG}",
                          "RESOLWE_REDIS_PORT=56380",
                          "RESOLWE_DOCKER_COMMAND=sudo docker",
                          // limit the number of parallel Django test processes

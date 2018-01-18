@@ -125,9 +125,11 @@ FLOW_EXECUTION_ENGINES = [
     'resolwe.flow.execution_engines.workflow',
 ]
 
+# Check if any Manager settings are set via environment variables
+manager_prefix = os.environ.get('RESOLWE_MANAGER_REDIS_PREFIX', 'resolwe-bio.manager')
 FLOW_MANAGER = {
     'NAME': 'resolwe.flow.managers.workload_connectors.local',
-    'REDIS_PREFIX': 'resolwe-bio.manager',
+    'REDIS_PREFIX': manager_prefix,
     'REDIS_CONNECTION': REDIS_CONNECTION,
 }
 

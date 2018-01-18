@@ -15,6 +15,8 @@ Added
 * Add Ubuntu 17.10 base Docker image
 * Add ``species`` and ``genome build`` output fields to ``macs14``
   process
+* Mechanism to override the manager's control channel prefix from the
+  environment
 
 Changed
 -------
@@ -61,6 +63,8 @@ Changed
 * Remove ``gsize`` input from ``macs14`` process and automate genome
   size selection
 * Adjust bam-split process so it can be included in workflows
+* Add environment export for Jenkins so that the manager will use a
+  globally-unique channel name
 
 Fixed
 -----
