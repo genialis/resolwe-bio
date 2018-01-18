@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Expression aggregator"
-  version: 0.0.4
+  version: 0.0.6
   type: data:aggregator:expression
   category: analyses
   persistence: CACHED
@@ -44,11 +44,12 @@
     language: bash
     program: |
       {% for e in exps %}
-        {% if e.source != exps.0.source %}
-          re-error "All expressions must have the same source."
+        {% if e.source != (exps|first).source %}
+          re-warning "Genes in all expression data must be annotated by the same genome database."
+          re-error "Expression {{ exps|first|name }} has {{ (exps|first).source }} gene IDs, while expression {{ e|name }} has {{ e.source }} gene IDs."
         {% endif %}
         {% if e.exp_type != exps.0.exp_type %}
-          re-error "All expressions must be of the same type."
+          re-error "All expressions must be of the same type (TPM, FPKM,...)."
         {% endif %}
       {% endfor %}
 

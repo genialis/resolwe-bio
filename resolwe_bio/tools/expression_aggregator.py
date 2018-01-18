@@ -130,7 +130,7 @@ def load_json(fname):
 def check_aggregator(aggregator, source, expression_type, group_by):
     """Check aggregator fields."""
     if aggregator['source'] != source:
-        raise ValueError('All expressions must have the same source.')
+        raise ValueError('All expressions must be annotated by the same genome database (NCBI, UCSC, ENSEMBLE,...).')
     if aggregator['expression_type'] != expression_type:
         raise ValueError('All expressions must be of the same type.')
     if aggregator['group_by'] != group_by:

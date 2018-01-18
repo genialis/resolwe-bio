@@ -16,6 +16,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
   of lifetime and change all images to use new ubuntu 17.10 image
 
+* Display more informative Error messages
+
 Added
 -----
 
