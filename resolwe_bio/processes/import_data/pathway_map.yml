@@ -4,7 +4,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwe/base:ubuntu-17.04
+        image: resolwe/base:ubuntu-17.10
     resources:
       network: true
   data_name: Metabolic Pathway
