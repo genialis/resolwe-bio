@@ -10,6 +10,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+* Add Ubuntu 17.10 ``base`` and ``utils`` Docker image
+* Add ``FastQC`` and ``SRA Toolkit`` to ``resolwebio/utils`` Docker image
+* Add ``igvtools`` to ``resolwebio/utils`` Docker image
+
 Changed
 -------
 
@@ -51,11 +57,6 @@ Changed
 * Track ``species`` and ``build`` in ``align-bwa-trim`` process
 * **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
   and ``feature_type`` in ``upload-expression-star`` process
-
-Added
------
-
-* Add Ubuntu 17.10 base Docker image
 
 
 ==================
