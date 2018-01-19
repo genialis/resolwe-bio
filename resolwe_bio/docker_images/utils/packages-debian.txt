@@ -1,0 +1,5 @@
+python-pip
+
+# Required by FastQC
+default-jre
+libfindbin-libs-perl
