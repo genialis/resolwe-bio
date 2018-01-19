@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Differential expression (case vs. control)'
-  version: 0.0.5
+  version: 0.0.6
   type: data:differentialexpression:edger
   category: analyses
   persistence: CACHED
@@ -82,8 +82,9 @@
 
       {% for c in control %}
         {% for t in case %}
-          {% if control.0.source != c.source or c.source != t.source %}
-            re-error "DE analysis must be crated using the expression data from the same source."
+          {% if (control|first).source != c.source or c.source != t.source %}
+            re-warning "Genes in all expression data must be annotated by the same genome database."
+            re-error "Sample {{ c|name }} has {{ c.source }} gene IDs, while {{ t|name }} has {{ t.source }}."
           {% endif %}
         {% endfor %}
       {% endfor %}
