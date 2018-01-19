@@ -11,7 +11,7 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: ROSE2 analysis
-  version: 2.0.4
+  version: 2.0.5
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -111,12 +111,12 @@
       {% endif %}
 
       {% if input_upload %}
-        NAME=`basename {{ input_upload.BED.file }} .bed`
+        NAME=`basename {{ input_upload.bed.file }} .bed`
       {% else %}
         NAME=`basename {{ input.peaks_bed.file }} .bed`
       {% endif %}
 
-      INPUT='-i {% if input_upload %}{{ input_upload.BED.file }}{% else %}{{ input.peaks_bed.file }}{% endif%}'
+      INPUT='-i {% if input_upload %}{{ input_upload.bed.file }}{% else %}{{ input.peaks_bed.file }}{% endif%}'
       CONTROL='{% if control %}--control {{ control.bam.file }}{% endif %}'
       STITCH='{% if stitch %}--stitch {{ stitch }} {% endif %}'
       rose2 --genome {{ genome }} ${INPUT} --rankby {{ rankby.bam.file }} ${CONTROL} --tss {{ tss }} ${STITCH} --out .

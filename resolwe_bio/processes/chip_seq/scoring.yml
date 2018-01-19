@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:chipseq:peakscore
   category: analyses
   flow_collection: sample
@@ -33,7 +33,7 @@
     runtime: polyglot
     language: bash
     program: |
-      closest-features --dist {{ peaks.narrow_peaks.file }} {{ bed.BED.file }} > macs2_peakscore
+      closest-features --dist {{ peaks.narrow_peaks.file }} {{ bed.bed.file }} > macs2_peakscore
       re-checkrc
       re-progress 0.3
 

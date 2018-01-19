@@ -11,7 +11,7 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: "Bamliquidator"
-  version: 0.1.0
+  version: 0.1.1
   type: data:bam:plot:bamliquidator
   category: analyses
   persistence: CACHED
@@ -204,7 +204,7 @@
 
       elif [ {{ analysis_type }} == "bed" ]; then
 
-        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_bed.BED.file }} --region_format bed
+        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_bed.bed.file }} --region_format bed
         re-checkrc "Bamliquidator failed."
         zip -r output.zip output
         re-save-file output_dir output.zip

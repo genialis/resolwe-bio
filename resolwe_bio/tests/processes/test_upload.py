@@ -278,12 +278,12 @@ class UploadProcessorTestCase(BioProcessTestCase):
         bed = self.run_process('upload-bed', inputs, Data.STATUS_ERROR)
 
         inputs = {
-            'src': 'bad.bed',
+            'src': 'good.bed',
             'species': 'Homo sapiens',
             'build': 'hg19'
         }
         bed = self.run_process('upload-bed', inputs)
-        self.assertFile(bed, 'BED', 'good.bed')
+        self.assertFile(bed, 'bed', 'good.bed')
 
     @tag_process('upload-geneset')
     def test_upload_geneset(self):

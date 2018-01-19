@@ -11,7 +11,7 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: "bamplot"
-  version: 1.2.0
+  version: 1.2.1
   type: data:bam:plot:bamplot
   category: plotting
   persistence: CACHED
@@ -165,7 +165,7 @@
         params+=("--scale" {{scale}})
       {% endif %}
       {% if bed %}
-        params+=("--bed" {{bed|join(',', attribute='BED.file')}})
+        params+=("--bed" {{bed|join(',', attribute='bed.file')}})
       {% endif %}
       {% if stretch_input %}
         params+=("--stretch-input" {{stretch_input}})
