@@ -17,9 +17,9 @@ Added
   process
 * Mechanism to override the manager's control channel prefix from the
   environment
-* Expose additional parameters in ``alignment-star`` process
-* Expose additional parameters in ``cutadapt-single`` and ``cutadapt-paired``
-  processes
+* Expose additional parameters in ``alignment-star``,
+  ``cutadapt-single`` and ``cutadapt-paired`` processes
+* Add ``FastQC`` tool to ``resolwebio/utils`` Docker image
 
 Changed
 -------
