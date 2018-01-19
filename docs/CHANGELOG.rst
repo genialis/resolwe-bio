@@ -19,7 +19,7 @@ Added
   environment
 * Expose additional parameters in ``alignment-star``,
   ``cutadapt-single`` and ``cutadapt-paired`` processes
-* Add ``FastQC`` tool to ``resolwebio/utils`` Docker image
+* Add ``FastQC`` and ``SRA Toolkit`` to ``resolwebio/utils`` Docker image
 
 Changed
 -------
