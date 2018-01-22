@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Hierarchical clustering of samples'
-  version: 1.1.0
+  version: 1.1.1
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -123,21 +123,41 @@
     runtime: polyglot
     language: bash
     program: |
-      {% if genes %}
-        {% if exps|selectattr('source', 'equalto', source)|list|length != exps|length %}
-          re-error "Source of selected genes must be the same as the source of all expression files."
+
+      {% for e in exps %}
+
+        {% if e.source != (exps|first).source %}
+          re-warning "All expression data must be annotated by the same genome database."
+          re-error "Sample {{ exps|first|name }} has {{ (exps|first).source }} gene IDs, while sample {{ e|name }} has {{ e.source }} gene IDs."
         {% endif %}
-        {% if exps|selectattr('species', 'equalto', species)|list|length != exps|length %}
-          re-error "Selected genes Species must be the same as the Species field of all the expression files."
+
+        {% if e.species != (exps|first).species %}
+          re-warning "All expressions must be of the same Species."
+          re-error "Sample {{ exps|first|name }} is {{ (exps|first).species }}, while sample {{ e|name }} is {{ e.species }}."
         {% endif %}
-      {% else %}
-        {% if exps|selectattr('source', 'equalto', (exps|first).source)|list|length != exps|length %}
-          re-error "All expressions must have the same Source field value."
+
+        {% if e.exp_type != (exps|first).exp_type %}
+          re-warning "All expressions must be of the same Expression type."
+          re-error "Expression {{ exps|first|name }} has {{ (exps|first).exp_type }} expression type, while sample {{ e|name }} has {{ e.exp_type }} expression type."
         {% endif %}
-        {% if exps|selectattr('species', 'equalto', (exps|first).species)|list|length != exps|length %}
-          re-error "All expressions must have the same Species field value."
+
+        {% if e.exp_type != (exps|first).exp_type %}
+          re-warning "All expressions must be of the same Expression type."
+          re-error "Expression {{ exps|first|name }} has {{ (exps|first).feature_type }} feature type, while sample {{ e|name }} has {{ e.feature_type }} feature type."
         {% endif %}
-      {% endif %}
+
+        {% if genes %}
+          {%if e.source != source %}
+            re-warning "Selected genes must be annotated by the same genome database as all expression files."
+            re-error "Gene IDs are from {{ source }} database while sample {{ e|name }} has gene IDs from {{ e.source }} database."
+          {% endif %}
+          {%if e.species != species %}
+            re-warning "Selected genes must be from the same species as all expression files."
+            re-error "Selected genes are {{ species }}, while expression {{ e|name }} is {{ e.species }}"
+          {% endif %}
+        {% endif %}
+
+      {% endfor %}
 
       samplehcluster.py \
         --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \
@@ -167,7 +187,7 @@
     resources:
       memory: 16384
   data_name: 'Hierarchical clustering of genes'
-  version: 1.1.0
+  version: 1.1.1
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
@@ -279,21 +299,40 @@
     runtime: polyglot
     language: bash
     program: |
-      {% if genes %}
-        {% if exps|selectattr('source', 'equalto', source)|list|length != exps|length %}
-          re-error "Source of selected genes must be the same as the source of all expression files."
+      {% for e in exps %}
+
+        {% if e.source != (exps|first).source %}
+          re-warning "All expression data must be annotated by the same genome database."
+          re-error "Sample {{ exps|first|name }} has {{ (exps|first).source }} gene IDs, while sample {{ e|name }} has {{ e.source }} gene IDs."
         {% endif %}
-        {% if exps|selectattr('species', 'equalto', species)|list|length != exps|length %}
-          re-error "Selected genes Species must be the same as the Species field of all the expression files."
+
+        {% if e.species != (exps|first).species %}
+          re-warning "All expressions must be of the same Species."
+          re-error "Sample {{ exps|first|name }} is {{ (exps|first).species }}, while sample {{ e|name }} is {{ e.species }}."
         {% endif %}
-      {% else %}
-        {% if exps|selectattr('source', 'equalto', (exps|first).source)|list|length != exps|length %}
-          re-error "All expressions must have the same Source field value."
+
+        {% if e.exp_type != (exps|first).exp_type %}
+          re-warning "All expressions must be of the same Expression type."
+          re-error "Expression {{ exps|first|name }} has {{ (exps|first).exp_type }} expression type, while sample {{ e|name }} has {{ e.exp_type }} expression type."
         {% endif %}
-        {% if exps|selectattr('species', 'equalto', (exps|first).species)|list|length != exps|length %}
-          re-error "All expressions must have the same Species field value."
+
+        {% if e.exp_type != (exps|first).exp_type %}
+          re-warning "All expressions must be of the same Expression type."
+          re-error "Expression {{ exps|first|name }} has {{ (exps|first).feature_type }} feature type, while sample {{ e|name }} has {{ e.feature_type }} feature type."
         {% endif %}
-      {% endif %}
+
+        {% if genes %}
+          {%if e.source != source %}
+            re-warning "Selected genes must be annotated by the same genome database as all expression files."
+            re-error "Gene IDs are from {{ source }} database while sample {{ e|name }} has gene IDs from {{ e.source }} database."
+          {% endif %}
+          {%if e.species != species %}
+            re-warning "Selected genes must be from the same species as all expression files."
+            re-error "Selected genes are {{ species }}, while expression {{ e|name }} is {{ e.species }}"
+          {% endif %}
+        {% endif %}
+
+      {% endfor %}
 
       genehcluster.py \
         --sample_files {% for e in exps %} {{e.exp.file}} {% endfor %} \

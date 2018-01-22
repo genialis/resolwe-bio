@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.2.0
+  version: 1.2.1
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -67,8 +67,10 @@
 
       {% for e in expressions %}
         {% for annot in gtf %}
-          {% if expressions.0.source != e.source or e.source != annot.source %}
-            re-error "The input data must use Gene IDs from the same source."
+          {% if e.source != annot.source %}
+            re-warning "The input data must use gene IDs from the same genome database."
+            re-warning "Annotation file has gene IDs from {{ annot.source }} genome database."
+            re-error "Expression {{ expressions|first|name }} has gene IDs from {{ (expressions|first).source }}, while {{ e|name }} has gene IDs from {{ e.source }}"
           {% endif %}
         {% endfor %}
       {% endfor %}

@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.2.0
+  version: 0.2.1
   type: data:index:expression
   persistence: CACHED
   description: >
@@ -101,9 +101,11 @@
 
       {% if genome and annotation %}
         {% if genome.species != annotation.species %}
-          re-error "Genome and annotation files must share the same species information."
+          re-warning "Genome and annotation files must share the same species information."
+          re-error "Genome has {{ genome.species }}, while annotation has {{ annotation.species }} species information."
         {% elif genome.build != annotation.build %}
-          re-error "Genome and annotation files must share the same build information."
+          re-warning "Genome and annotation files must share the same build information."
+          re-error "Genome has {{ genome.build }}, while annotation has {{ annotation.build }} build information."
         {% endif %}
       {% endif %}
 

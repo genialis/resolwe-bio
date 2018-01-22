@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.1.0
+  version: 1.1.1
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -69,9 +69,14 @@
         re-error "Read counts are required when using DESeq2."
       {% endif %}
 
-      {% if expressions|selectattr('source', 'equalto', (case|first).source)|list|length != expressions|length %}
-        re-error "DE analysis must be crated using the expression data from the same source."
-      {% endif %}
+      {% for c in control %}
+        {% for t in case %}
+          {% if c.source != t.source %}
+            re-warning "Genes in all expression data must be annotated by the same genome database."
+            re-error "Sample {{ c|name }} has {{ c.source }} gene IDs, while {{ t|name }} has {{ t.source }}."
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
 
       {% if expressions|selectattr('species', 'equalto', (case|first).species)|list|length != expressions|length %}
         re-error "DE analysis must be crated using the expression data from the same species."
