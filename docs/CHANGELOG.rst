@@ -60,6 +60,7 @@ Changed
   between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
 * Remove ``gsize`` input from ``macs14`` process and automate genome
   size selection
+* Adjust bam-split process so it can be included in workflows
 
 Fixed
 -----
