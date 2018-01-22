@@ -30,24 +30,13 @@ throttle(["resolwe_bio"]) {
                          "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
                          "RESOLWE_REDIS_PORT=56380",
                          "RESOLWE_DOCKER_COMMAND=sudo docker",
+                         "TEST_SUITE=resolwe_bio.tests.processes.test_enrichment.EnrichmentProcessorTestCase.test_go_enrichment",
                          // limit the number of parallel Django test processes
                          "DJANGO_TEST_PROCESSES=6",
                          "TOX_WORKDIR=${tox_workdir}"]) {
                     // run non-test Tox environments first so that if any of them fails, developer
                     // will get the feedback right away (rather than having to wait for all
                     // ordinary tests to run)
-                    sh "tox -e docs ${tox_extra_args}"
-
-                    sh "tox -e linters ${tox_extra_args}"
-
-                    sh "tox -e packaging ${tox_extra_args}"
-
-                    sh "tox -e extra ${tox_extra_args}"
-
-                    sh "tox -e migrations ${tox_extra_args}"
-
-                    sh "echo 'Environment:' && python3.4 --version"
-
                     if (env.CHANGE_TARGET) {
                         // run partial test suite depending on detected changes to the target
                         // branch if we are testing a pull request
