@@ -11,9 +11,6 @@ PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
 SECRET_KEY = 'secret'
 
-# TODO: Support local Resolwe server in tests
-RESOLWE_HOST_URL = 'https://qa2.genialis.com'
-
 DEBUG = True
 
 MIDDLEWARE_CLASSES = (
