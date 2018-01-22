@@ -53,6 +53,10 @@ def main():
             print('{"proc.error":"Failed to map features."}')
             exit(1)
 
+        print("Number of features: ", len(features))
+        for f in features[:100]:
+            print(f.target_id)
+
         target_ids = [str(feature.target_id) for feature in features]
 
         if len(genes) > len(target_ids):
