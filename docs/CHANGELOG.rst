@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+* The description text has been updated to better describe the difference
+  between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
+
 
 ==================
 6.2.0 - 2018-01-17

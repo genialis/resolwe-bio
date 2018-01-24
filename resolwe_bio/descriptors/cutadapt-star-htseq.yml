@@ -1,6 +1,6 @@
 - slug: cutadapt-star-htseq
   name: RNA-seq workflow
-  version: 0.0.2
+  version: 0.0.3
   description: RNA-seq template
   schema:
     - name: organism
@@ -13,7 +13,7 @@
         - label: Mus musculus
           value: mm
     - name: level
-      label: Level of expression analysis
+      label: Analysis type
       type: basic:string
       default: gene
       choices:
@@ -22,7 +22,6 @@
         - label: Transcript
           value: transcript
       description: >
-        The gene-level expression analysis quantifies reads per gene using the HTSeq tool. The
-        transcript-level expression analysis quantifies reads per transcript using the RSEM tool.
-        Currently, the transcript-level analysis does not support differential expression analysis
-        and visualization module.
+        Gene-type analysis quantifies reads per gene using HTSeq tool. Transcript-type analysis quantifies reads per
+        transcript using RSEM tool. Currently, differential expression analysis and visualizations are not supported
+        for transcript-type analysis. These features are coming soon!
