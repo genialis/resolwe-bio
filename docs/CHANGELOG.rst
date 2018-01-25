@@ -65,6 +65,7 @@ Changed
 * Adjust bam-split process so it can be included in workflows
 * Add environment export for Jenkins so that the manager will use a
   globally-unique channel name
+* Speed-up management command for inserting mappings
 
 Fixed
 -----

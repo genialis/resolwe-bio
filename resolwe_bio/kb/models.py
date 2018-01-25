@@ -78,6 +78,8 @@ class Feature(models.Model):
         )
 
 
+# NOTE: Mappings are manually inserted in management command, so take
+#       care that it is synced with model definition.
 class Mapping(models.Model):
     """Describes a mapping between features from different sources."""
 
