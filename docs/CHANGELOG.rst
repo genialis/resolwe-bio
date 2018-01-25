@@ -20,6 +20,8 @@ Added
 * Expose additional parameters in ``alignment-star`` process
 * Expose additional parameters in ``cutadapt-single`` and ``cutadapt-paired``
   processes
+* Add ``genomebrowser-macs14`` process that creates a macs14 track for
+  the UCSC track hub
 
 Changed
 -------

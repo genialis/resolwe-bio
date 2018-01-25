@@ -1,0 +1,83 @@
+# ==============
+# UCSC track hub
+# ==============
+---
+
+- slug: genomebrowser-macs14
+  name: UCSC track hub (macs14)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: "resolwebio/chipseq:1.1.0"
+    resources:
+      network: true
+  data_name: "UCSC track hub ({{ name }})"
+  version: 0.0.1
+  type: data:genomebrowser:all:bigwig:macs14
+  category: genomebrowser
+  persistence: CACHED
+  description: >
+    Create UCSC track hub.
+  input:
+    - name: macs
+      label: MACS1.4
+      type: list:data:chipseq:macs14
+    - name: name
+      label: Track hub name
+      type: basic:string
+    - name: browser_url
+      label: Local UCSC genome browser URL
+      type: basic:string
+    - name: email
+      label: Email address
+      type: basic:string
+      required: false
+  output:
+    - name: url_link
+      label: UCSC track hub link
+      type: basic:url:view
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME={{ name }}
+      BUILD={{ (macs|first).build }}
+      ROOT=${PWD}
+
+      wget http://hgdownload.cse.ucsc.edu/goldenPath/${BUILD}/bigZips/${BUILD}.chrom.sizes
+      re-progress 0.2
+
+      mkdir /web/ucsc/${NAME}
+      mkdir /web/ucsc/${NAME}/${BUILD}
+
+      sample_names="" 
+      {% for mac in macs %}
+        {% set sample = mac|name %}
+        if [ {{ mac.build }} != $BUILD ]; then
+          re-warning "All MACS data objects must share the same genome build information."
+          re-error "MACS data object {{ mac|name }} has {{ mac.build }} while {{ macs|first|name }} has {{ (macs|first).build }} build information.\n"
+        fi
+
+        SAMPLE={{ sample.split('(')[1].strip(')') }}
+        unzip {{ mac.wiggle.file }}
+        cd `basename {{ mac.wiggle.file }} .zip`/treat
+        gzip -cd *.gz > "${SAMPLE}".wig
+
+        wigToBigWig -clip "${SAMPLE}".wig ${ROOT}/${BUILD}.chrom.sizes /web/ucsc/${NAME}/${BUILD}/"${SAMPLE}".bw
+        re-checkrc
+
+        sample_names+="${SAMPLE} "
+      {% endfor %}
+      re-progress 0.9
+
+      cd /web/ucsc/${NAME}
+      sample_names=${sample_names%?}
+      URL=`create_track_hubs.py \
+        --name ${sample_names} \
+        --track_hub_name "${NAME}" \
+        --build ${BUILD} \
+        --browser_url {{ browser_url }} \
+        --email {{ email }}`
+
+      re-save url_link "{\"name\":\"View\",\"url\":\"${URL}\"}"
