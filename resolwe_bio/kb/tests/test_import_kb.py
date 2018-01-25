@@ -13,10 +13,10 @@ class ImportKnowledgeBaseTestCase(TestCase):
     @mock.patch('resolwe_bio.kb.management.commands.insert_features.logger')
     def test_insert_features(self, mock_logger):
         call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features.tab'))
-        mock_logger.info.assert_called_with('Total features: 3. Inserted 3, updated 0, unchanged 0, failed 0.')
+        mock_logger.info.assert_called_with('Total features: 3. Inserted 3, updated 0, unchanged 0.')
 
         call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features_update.tab.gz'))
-        mock_logger.info.assert_called_with('Total features: 4. Inserted 1, updated 1, unchanged 2, failed 0.')
+        mock_logger.info.assert_called_with('Total features: 4. Inserted 1, updated 1, unchanged 2.')
 
     @mock.patch('resolwe_bio.kb.management.commands.insert_mappings.logger')
     def test_insert_mappings(self, mock_logger):

@@ -7,15 +7,16 @@ Insert Knowledge Base Features
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 import csv
+import json
 import logging
-from tqdm import tqdm
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
+from django.db import connection
 
 from resolwe.elastic.builder import index_builder
 from resolwe.utils import BraceMessage as __
 
-from resolwe_bio.kb.elastic_indexes import FeatureSearchIndex
 from resolwe_bio.kb.models import Feature
 from .utils import decompress
 
@@ -87,53 +88,106 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         """Command handle."""
-        count_inserted, count_updated, count_unchanged, count_failed = 0, 0, 0, 0
+        count_total, count_inserted, count_updated = 0, 0, 0
+        to_index = []
 
-        for tab_file_name, line_count, tab_file in decompress(options['file_name']):
-            logger.info(__("Importing features from \"{}\":", tab_file_name))
+        type_choices = list(zip(*Feature.TYPE_CHOICES))[0]
+        subtype_choices = list(zip(*Feature.SUBTYPE_CHOICES))[0]
 
-            reader = csv.DictReader(tab_file, delimiter=str('\t'))
-            bar_format = '{desc}{percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt} [{elapsed}<{remaining}]'
+        for tab_file_name, tab_file in decompress(options['file_name']):
+            logger.info(__("Importing features from \"{}\"...", tab_file_name))
 
-            for row in tqdm(reader, total=line_count, bar_format=bar_format):
+            features = []
+            unique_features = set()
+            for row in csv.DictReader(tab_file, delimiter=str('\t')):
+                sub_type = SUBTYPE_MAP.get(row['Gene type'], 'other')
+
+                if row['Type'] not in type_choices:
+                    raise ValidationError("Unknown type: {}".format(row['Type']))
+                if sub_type not in subtype_choices:
+                    raise ValidationError("Unknown subtype: {}".format(sub_type))
+
                 aliases_text = row['Aliases'].strip()
                 aliases = []
                 if aliases_text and aliases_text != '-':
                     aliases = aliases_text.split(',')
 
-                sub_type = SUBTYPE_MAP.get(row['Gene type'], 'other')
+                if (row['Source'], row['ID']) in unique_features:
+                    raise ValidationError(
+                        "Duplicated feature (source: '{}', id: '{}') found in '{}'".format(
+                            row['Source'], row['ID'], tab_file_name
+                        )
+                    )
 
-                values = {
-                    'type': row['Type'],
-                    'sub_type': sub_type,
-                    'name': row['Name'],
-                    'full_name': row['Full name'],
-                    'description': row['Description'],
-                    'aliases': aliases,
-                }
+                # NOTE: For performance reasons this is a list instead of a dict.
+                #       Make sure that any changes also reflect in the SQL query
+                #       below.
+                features.append([
+                    row['Source'],
+                    row['ID'],
+                    row['Species'],
+                    row['Type'],
+                    sub_type,
+                    row['Name'],
+                    row['Full name'],
+                    row['Description'],
+                    aliases,
+                ])
+                unique_features.add((row['Source'], row['ID']))
 
-                feature, created = Feature.objects.get_or_create(source=row['Source'],
-                                                                 feature_id=row['ID'],
-                                                                 species=row['Species'],
-                                                                 defaults=values)
-                if created:
-                    count_inserted += 1
-                else:
-                    is_update = False
-                    for attr, value in values.items():
-                        if getattr(feature, attr) != value:
-                            setattr(feature, attr, value)
-                            is_update = True
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    WITH tmp AS (
+                        INSERT INTO {table_name} (
+                            source, feature_id, species, type,
+                            sub_type, name, full_name, description,
+                            aliases
+                        )
+                        SELECT
+                            value->>0, value->>1, value->>2, value->>3,
+                            value->>4, value->>5, value->>6, value->>7,
+                            ARRAY(SELECT json_array_elements_text(value->8))
+                        FROM json_array_elements(%s)
+                        ON CONFLICT (species, source, feature_id) DO UPDATE
+                        SET
+                            type = EXCLUDED.type,
+                            sub_type = EXCLUDED.sub_type,
+                            name = EXCLUDED.name,
+                            full_name = EXCLUDED.full_name,
+                            description = EXCLUDED.description,
+                            aliases = EXCLUDED.aliases
+                        WHERE (
+                            {table_name}.type, {table_name}.sub_type, {table_name}.name,
+                            {table_name}.full_name, {table_name}.description, {table_name}.aliases
+                        ) IS DISTINCT FROM (
+                            EXCLUDED.type, EXCLUDED.sub_type, EXCLUDED.name,
+                            EXCLUDED.full_name, EXCLUDED.description, EXCLUDED.aliases
+                        )
+                        RETURNING id, xmax
+                    )
+                    SELECT
+                        COALESCE(array_agg(id), ARRAY[]::INTEGER[]) AS ids,
+                        COUNT(CASE WHEN xmax = 0 THEN 1 END) AS count_inserted,
+                        COUNT(CASE WHEN xmax != 0 THEN 1 END) AS count_updated
+                    FROM tmp;
+                    """.format(
+                        table_name=Feature._meta.db_table,  # pylint: disable=no-member,protected-access
+                    ),
+                    params=[json.dumps(features)]
+                )
+                result = cursor.fetchone()
 
-                    if is_update:
-                        feature.save()
-                        count_updated += 1
-                    else:
-                        count_unchanged += 1
+            to_index.extend(result[0])
 
-        index_builder.push(index=FeatureSearchIndex)
+            count_total += len(features)
+            count_inserted += result[1]
+            count_updated += result[2]
 
-        count_total = count_inserted + count_updated + count_unchanged + count_failed
-        logger.info("Total features: %d. Inserted %d, updated %d, "  # pylint: disable=logging-not-lazy
-                    "unchanged %d, failed %d." %
-                    (count_total, count_inserted, count_updated, count_unchanged, count_failed))
+        index_builder.build(queryset=Feature.objects.filter(id__in=to_index))
+
+        logger.info(  # pylint: disable=logging-not-lazy
+            "Total features: %d. Inserted %d, updated %d, unchanged %d." %
+            (count_total, count_inserted, count_updated,
+             count_total - count_inserted - count_updated)
+        )

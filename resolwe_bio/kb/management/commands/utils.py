@@ -25,7 +25,6 @@ def decompress(file_name):
     if not os.path.isfile(file_name):
         raise ValueError("Can not find file '{}'".format(file_name))
 
-    line_count = -1
     _, ext = os.path.splitext(file_name)
 
     _open = None
@@ -36,10 +35,8 @@ def decompress(file_name):
 
     if _open:
         with _open(file_name, 'rt') as tsv_file:
-            line_count = sum(1 for row in tsv_file)
+            yield (os.path.basename(file_name), tsv_file)
 
-        with _open(file_name, 'rt') as tsv_file:
-            yield (os.path.basename(file_name), line_count, tsv_file)
     elif ext == '.zip':
         with zipfile.ZipFile(file_name) as archive:
             for entry in archive.infolist():
@@ -50,9 +47,6 @@ def decompress(file_name):
                     continue
 
                 with archive.open(entry) as tsv_file:
-                    line_count = sum(1 for row in tsv_file)
-
-                with archive.open(entry) as tsv_file:
-                    yield (entry.filename, line_count, io.TextIOWrapper(tsv_file))
+                    yield (entry.filename, io.TextIOWrapper(tsv_file))
     else:
         raise ValueError("Unsupported file format")

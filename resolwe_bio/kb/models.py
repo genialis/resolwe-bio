@@ -11,6 +11,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 
 
+# NOTE: Feature are manually inserted in management command, so take
+#       care that it is synced with model definition.
 class Feature(models.Model):
     """Describes a feature in the knowledge base."""
 

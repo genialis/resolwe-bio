@@ -40,7 +40,7 @@ class Command(BaseCommand):
 
         relation_type_choices = list(zip(*Mapping.RELATION_TYPE_CHOICES))[0]
 
-        for tab_file_name, _, tab_file in decompress(options['file_name']):
+        for tab_file_name, tab_file in decompress(options['file_name']):
             logger.info(__("Importing mappings from \"{}\"...", tab_file_name))
 
             mappings = set()

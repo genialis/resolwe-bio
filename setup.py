@@ -52,7 +52,6 @@ setup(
         'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=12.0a1, ==12.*',
-        'tqdm>=4.1',
         'wrapt>=1.10.8',
         # XXX: djangorestframework-filters has too open requirement for
         # django-filter and doesn't work with the latest version, so we
