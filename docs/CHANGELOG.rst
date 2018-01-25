@@ -14,6 +14,7 @@ Changed
 -------
 * The description text has been updated to better describe the difference
   between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
+* Speed-up management command for inserting mappings
 
 
 ==================
