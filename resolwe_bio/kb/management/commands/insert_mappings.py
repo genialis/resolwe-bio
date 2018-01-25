@@ -90,15 +90,7 @@ class Command(BaseCommand):
                             value->>0, value->>1, value->>2, value->>3,
                             value->>4, value->>5, value->>6
                         FROM json_array_elements(%s)
-                        LEFT JOIN {table_name}
-                            ON value->>0 = {table_name}.relation_type
-                            AND value->>1 = {table_name}.source_db
-                            AND value->>2 = {table_name}.source_id
-                            AND value->>3 = {table_name}.source_species
-                            AND value->>4 = {table_name}.target_db
-                            AND value->>5 = {table_name}.target_id
-                            AND value->>6 = {table_name}.target_species
-                        WHERE {table_name}.relation_type IS NULL
+                        ON CONFLICT DO NOTHING -- conflict means that mapping is already present
                         RETURNING id
                     )
                     SELECT

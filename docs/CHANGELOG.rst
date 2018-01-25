@@ -22,8 +22,8 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Remove tools which are not used by any process:
   ``clustering_leaf_ordering.py``, ``go_genesets.py``, ``VCF_ad_extract.py``,
   ``volcanoplot.py``, ``xgff.py``, ``xgtf2gff.py``.
-* **BACKWARD INCOMPATIBLE:** Management command for inserting features requires
-  PostgreSQL version 9.5 or newer
+* **BACKWARD INCOMPATIBLE:** Management command for inserting features and
+  mappings requires PostgreSQL version 9.5 or newer
 * Update the meta data like name, description, category, etc. of most of the
   processes.
 * Speed-up management command for inserting mappings
