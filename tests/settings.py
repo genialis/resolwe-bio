@@ -203,3 +203,49 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+# Logging.
+
+# Set RESOLWEBIO_LOG_FILE environment variable to a file path to enable logging
+# debugging messages to to a file.
+log_file_path = os.environ.get('RESOLWEBIO_LOG_FILE', os.devnull)  # pylint: disable=invalid-name
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s - %(levelname)s - %(name)s[%(process)s]: %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'WARNING',
+            'formatter': 'standard',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': log_file_path,
+            'formatter': 'standard',
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'elasticsearch': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'urllib3': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    }
+}
