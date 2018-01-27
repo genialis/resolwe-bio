@@ -5,7 +5,7 @@
   requirements:
     expression-engine: jinja
   version: 0.0.2
-  type: data:workflow:rnaseq:cuffquant
+  type: data:workflow:chemut
   input:
     - name: analysis_type
       label: Analysis type

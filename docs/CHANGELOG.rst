@@ -93,6 +93,13 @@ Fixed
   output files and expand ``cuffnorm`` tests
 * **BACKWARD INCOMPATIBLE:** Fix ``import-sra`` process
   to work with ``resolwebio/utils`` Docker image and refactor inputs
+* The variant-calling process in the chemical mutagenesis workflow crashed
+  because Picard Tools was trying to use more memory than was available.
+  Therefore, we have explicitly set the process to request 16 GB of RAM, and 
+  limited Picard Tools to use no more than is requested.
+* The chemical mutagenesis workflow was erroneously categorized as
+  ``data:workflow:rnaseq:cuffquant`` type. This is switched to
+  ``data:workflow:chemut`` type.
 
 
 ==================

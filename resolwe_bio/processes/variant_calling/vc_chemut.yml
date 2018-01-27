@@ -6,12 +6,14 @@
 - slug: vc-chemut
   name: Variant calling (CheMut)
   requirements:
+    resources:
+      memory: 16384
     expression-engine: jinja
     executor:
       docker:
         image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
   data_name: "Called variants (CheMut)"
-  version: 1.1.0
+  version: 1.1.1
   type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
@@ -174,6 +176,7 @@
 
         echo "sorting, marking duplicates, indexing"
         java \
+          -Xmx{{ requirements.resources.memory // 1024 }}g \
           -jar /usr/gitc/picard.jar \
           MarkDuplicates \
           I={{ bam.bam.file }} \
