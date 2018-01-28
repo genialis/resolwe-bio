@@ -6,14 +6,14 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+6.2.1 - 2018-01-28
+==================
 
 Changed
 -------
-* The description text has been updated to better describe the difference
-  between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
+* Update description text of ``cutadapt-star-htseq`` descriptor schema to
+  better describe the difference between gene/transcript-type analyses
 * Speed-up management command for inserting mappings
 
 
