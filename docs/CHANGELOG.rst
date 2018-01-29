@@ -133,6 +133,7 @@ Changed
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
 * Use ``resolwebio/dnaseq:1.2.0`` Docker image in ``filtering_chemut`` process
+* Make ID attribute labels in featureCounts more informative
 
 Fixed
 -----

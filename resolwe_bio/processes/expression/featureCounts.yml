@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.3.0
+  version: 0.3.1
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -42,11 +42,11 @@
       default: gene_id
       allow_custom_choice: true
       choices:
-        - label: Gene id
+        - label: gene_id
           value: gene_id
-        - label: Transcript id
+        - label: transcript_id
           value: transcript_id
-        - label: Gene id (gff3)
+        - label: ID
           value: ID
         - label: geneid
           value: geneid
