@@ -79,6 +79,11 @@ Changed
 * Use the latest versions of the following Python packages in
   ``resolwebio/rnaseq`` docker image: Cutadapt 1.15,
   Apache Arrow 0.8.0, pysam 0.13, and xopen 0.3.2
+* Use the latest versions of the following Python packages in
+  ``resolwebio/dnaseq`` docker image: Bokeh 0.12.13, pandas 0.22.0,
+  Matplotlib 2.1.2, six 1.11.0, PyYAML 3.12, Jinja2 2.10, NumPy 1.14.0,
+  Tornado 4.5.3, and pytz 2017.3
+
 
 Fixed
 -----
