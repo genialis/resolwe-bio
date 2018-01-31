@@ -62,20 +62,28 @@ Changed
 * Track ``species`` and ``build`` in ``align-bwa-trim`` process
 * **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
   and ``feature_type`` in ``upload-expression-star`` process
-* The description text has been updated to better describe the difference
-  between gene/transcript-type analyses in `cutadapt-star-htseq` descriptor schema
 * Remove ``gsize`` input from ``macs14`` process and automate genome
   size selection
 * Adjust bam-split process so it can be included in workflows
 * Add environment export for Jenkins so that the manager will use a
   globally-unique channel name
-* Speed-up management command for inserting mappings
 
 Fixed
 -----
 * Fix ``consensus_subreads`` input option in Subread process
 * Fix ``cuffnorm`` process to correctly use sample names as labels in
   output files and expand ``cuffnorm`` tests
+
+
+==================
+6.2.1 - 2018-01-28
+==================
+
+Changed
+-------
+* Update description text of ``cutadapt-star-htseq`` descriptor schema to
+  better describe the difference between gene/transcript-type analyses
+* Speed-up management command for inserting mappings
 
 
 ==================
