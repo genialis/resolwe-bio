@@ -76,6 +76,9 @@ Changed
   globally-unique channel name
 * Require Resolwe 7.x
 * Set type of ``coverage-garvan`` process to ``data:exomecoverage``
+* Use the latest versions of the following Python packages in
+  ``resolwebio/rnaseq`` docker image: Cutadapt 1.15,
+  Apache Arrow 0.8.0, pysam 0.13, and xopen 0.3.2
 
 Fixed
 -----
