@@ -6,7 +6,7 @@ download_and_verify \
     kent \
     wigtobigwig \
     no_version \
-    69c1af385a8a767444f59838e5f2dde12319e4005f512b126801d0860038b216 \
+    9b3afbbdca5a0227cbc9d7d82de5f83017b04ab53524040c159fe6db8a726f71 \
     http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/wigToBigWig#.elf
 
 mv wigtobigwig wigToBigWig

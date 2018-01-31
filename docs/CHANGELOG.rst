@@ -83,7 +83,8 @@ Changed
   ``resolwebio/dnaseq`` docker image: Bokeh 0.12.13, pandas 0.22.0,
   Matplotlib 2.1.2, six 1.11.0, PyYAML 3.12, Jinja2 2.10, NumPy 1.14.0,
   Tornado 4.5.3, and pytz 2017.3
-
+* Use the latest version of ``wigToBigWig`` tool in
+  ``resolwebio/chipseq`` docker image
 
 Fixed
 -----
