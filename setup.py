@@ -49,7 +49,7 @@ setup(
         'djangorestframework~=3.7.0',
         'djangorestframework-filters~=0.10.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
-        'resolwe >=6.0a1, ==6.*',
+        'resolwe >=7.0a1, ==7.*',
         'tqdm>=4.1',
         'wrapt>=1.10.8',
         # XXX: djangorestframework-filters has too open requirement for
