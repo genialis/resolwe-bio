@@ -68,6 +68,7 @@ Changed
 * Add environment export for Jenkins so that the manager will use a
   globally-unique channel name
 * Require Resolwe 7.x
+* Set type of ``coverage-garvan`` process to ``data:exomecoverage``
 
 Fixed
 -----
