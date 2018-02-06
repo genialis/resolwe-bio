@@ -1,0 +1,44 @@
+- slug: basespace-file-import
+  name: BaseSpace File Import
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/utils:1.2.0
+    resources:
+      network: true
+      secrets: true
+  data_name: 'BaseSpace File Import ({{ file_id|default("?") }})'
+  version: 0.0.1
+  type: data:file
+  category: upload
+  persistence: RAW
+  description: >
+    Import file from Illumina BaseSpace.
+  input:
+    - name: file_id
+      label: BaseSpace file ID
+      type: basic:string
+    - name: access_token_secret
+      label: BaseSpace access token
+      type: basic:secret
+      description: >
+        BaseSpace access token secret handle needed to download the file.
+  output:
+    - name: file
+      label: File
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% set SECRET_PATH = '/secrets/' ~ access_token_secret.handle %}
+
+      FILE=$(basespace_download.py \
+        --file-id {{ file_id }} \
+        --access-token-secret-path {{ SECRET_PATH }} \
+        --output filename \
+      )
+      re-checkrc "Failed downloading files from BaseSpace."
+
+      re-save-file file "${FILE}"

@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Secret
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -41,3 +41,13 @@ class ImportProcessorTestCase(BioProcessTestCase):
         del import_sra.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(import_sra, 'fastqc_url2', [{'file': 'fastqc/SRR2124780_2_fastqc/fastqc_report.html',
                                                        'refs': ['fastqc/SRR2124780_2_fastqc']}])
+
+    @tag_process('basespace-file-import')
+    def external_test_basespace_import(self):
+        # Token with limited scope pre-obtained from dedicated BaseSpace testing app.
+        handle = Secret.objects.create_secret('9bdf059c759a429f8af52ca084130060', self.admin)
+
+        inputs = {'file_id': '9461130722', 'access_token_secret': {'handle': handle}}
+        file = self.run_process('basespace-file-import', inputs)
+
+        self.assertFile(file, 'file', 'Test_S1_L001_R1_001.fastq.gz', compression='gzip')

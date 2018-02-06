@@ -21,6 +21,7 @@ Added
 -----
 - Add CNVKit, LoFreq and GATK to ``resolwebio/dnaseq`` docker image
 - Add BaseSpace files download tool
+- Add process to import a file from BaseSpace
 
 Fixed
 -----
