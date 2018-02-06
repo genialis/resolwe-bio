@@ -8,3 +8,4 @@ Included tools:
 * FastQC (v0.11.7)
 * igvtools (v2.3.98)
 * SRA Toolkit (v2.8.2-1)
+* Requests (v2.18.4)
