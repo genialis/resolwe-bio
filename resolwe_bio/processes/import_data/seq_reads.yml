@@ -218,3 +218,248 @@
       re-save-file-list fastqc_archive2 "${RW_FASTQC[@]}"
       re-save-list fastqc_url "${FW_FASTQC_URL[@]}"
       re-save-list fastqc_url2 "${RW_FASTQC_URL[@]}"
+
+- slug: basespace-fastq-single
+  name: BaseSpace Reads (single-end)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
+    resources:
+      network: true
+      secrets: true
+  data_name: 'BaseSpace {{ file_ids.0|default("?") }}'
+  version: 0.0.1
+  type: data:reads:fastq:single
+  flow_collection: sample
+  category: upload
+  persistence: RAW
+  description: >
+    Import NGS reads in FASTQ format from BaseSpace.
+  input:
+    - name: file_ids
+      label: BaseSpace NGS reads (FASTQ) file IDs
+      type: list:basic:string
+    - name: access_token_secret
+      label: BaseSpace access token
+      type: basic:secret
+      description: >
+        BaseSpace access token secret handle needed to download the files.
+  output:
+    - name: fastq
+      label: Reads file
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% for file_id in file_ids %}
+        BASESPACE_FILE_ARGUMENT+='--file-id {{file_id}} '
+      {% endfor %}
+
+      SECRET_PATH=/secrets/{{ access_token_secret.handle }}
+      basespace_download.py ${BASESPACE_FILE_ARGUMENT} --access-token-secret-path ${SECRET_PATH}
+      re-checkrc "Failed downloading files from BaseSpace."
+
+      gzip -dk *.gz
+
+      FASTQ=(*.fastq)
+      echo "Postprocessing FastQC..."
+      mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
+      re-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        re-error "Failed while processing with FastQC."
+      fi
+
+      mv fastqc/*_fastqc.zip .
+
+      for report_dir in ./fastqc/*/
+      do
+        READS_NAME=`basename "${report_dir}" _fastqc`
+        ENCODING=`parse_encoding_type.py "${report_dir}fastqc_data.txt"`
+
+        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+          mv "${READS_NAME}.fastq" input_reads.fastq
+          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
+          mv reformated.fastq.gz "${READS_NAME}.fastq.gz"
+
+        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
+        fi
+      done
+
+      FASTQGZ=(*.fastq.gz)
+      re-save-file-list fastq "${FASTQGZ[@]}"
+
+      FASTQC=(*_fastqc.zip)
+      FASTQC_URL=()
+
+      for fqc in "${FASTQC[@]}"
+      do
+        NAME=`basename "$fqc" _fastqc.zip`
+        FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+      done
+
+      re-save-file-list fastqc_archive "${FASTQC[@]}"
+      re-save-list fastqc_url "${FASTQC_URL[@]}"
+
+- slug: basespace-fastq-paired
+  name: BaseSpace Reads (paired-end)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/legacy:latest
+    resources:
+      network: true
+      secrets: true
+  data_name: 'BaseSpace {{ upstream_file_ids.0|default("?") }}'
+  version: 0.0.1
+  type: data:reads:fastq:paired
+  category: upload
+  flow_collection: sample
+  persistence: RAW
+  description: >
+    Import paired-end reads in FASTQ format from BaseSpace.
+  input:
+    - name: upstream_file_ids
+      label: BaseSpace NGS upstream read (FASTQ) file IDs
+      type: list:basic:string
+    - name: downstream_file_ids
+      label: BaseSpace NGS downstream read (FASTQ) file IDs
+      type: list:basic:string
+    - name: access_token_secret
+      label: BaseSpace access token
+      type: basic:secret
+      description: >
+        BaseSpace access token secret handle needed to download the files.
+  output:
+    - name: fastq
+      label: Reads file (mate 1)
+      type: list:basic:file
+    - name: fastq2
+      label: Reads file (mate 2)
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC (Upstream)
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Quality control with FastQC (Downstream)
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive (Upstream)
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download FastQC archive (Downstream)
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      function extract_filename_from_output() {
+        echo $1 | sed -nE 's/^filename=(.+)/\1/p'
+      }
+
+      SECRET_PATH=/secrets/{{ access_token_secret.handle }}
+
+      FW_FASTQ=()
+      FW_FASTQGZ=()
+      FW_FASTQC=()
+      FW_FASTQC_URL=()
+
+      RW_FASTQ=()
+      RW_FASTQGZ=()
+      RW_FASTQC=()
+      RW_FASTQC_URL=()
+
+      {% for file_id in upstream_file_ids %}
+        BASESPACE_OUTPUT=`basespace_download.py --file-id {{file_id}} --access-token-secret-path ${SECRET_PATH}`
+        re-checkrc "Failed downloading files from BaseSpace."
+
+        GZ_FILE=`extract_filename_from_output ${BASESPACE_OUTPUT}`
+        gzip -dk "${GZ_FILE}"
+
+        NAME="${GZ_FILE%\.fastq\.gz}"
+
+        FW_FASTQ+=("${NAME}.fastq")
+        FW_FASTQGZ+=("${GZ_FILE}")
+        FW_FASTQC+=("${NAME}_fastqc.zip")
+        FW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+      {% endfor %}
+
+      {% for file_id in downstream_file_ids %}
+        BASESPACE_OUTPUT=`basespace_download.py --file-id {{file_id}} --access-token-secret-path ${SECRET_PATH}`
+        re-checkrc "Failed downloading files from BaseSpace."
+
+        GZ_FILE=`extract_filename_from_output ${BASESPACE_OUTPUT}`
+        gzip -dk "${GZ_FILE}"
+
+        NAME="${GZ_FILE%\.fastq\.gz}"
+
+        RW_FASTQ+=("${NAME}.fastq")
+        RW_FASTQGZ+=("${GZ_FILE}")
+        RW_FASTQC+=("${NAME}_fastqc.zip")
+        RW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+      {% endfor %}
+
+      FASTQ=(*.fastq)
+
+      echo "Postprocessing FastQC..."
+      mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
+      re-checkrc "Failed while processing with FastQC."
+      if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
+      then
+        re-error "Failed while processing with FastQC."
+      fi
+
+      mv fastqc/*_fastqc.zip .
+
+      for name in "${FW_FASTQ[@]}"; do
+        READS_NAME_FW=`basename "$name" .fastq`
+        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_FW}_fastqc/fastqc_data.txt"`
+
+        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+          mv "${READS_NAME_FW}.fastq" input_reads.fastq
+          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
+          mv reformated.fastq.gz "${READS_NAME_FW}.fastq.gz"
+
+        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
+        fi
+      done
+
+      for name in "${RW_FASTQ[@]}"; do
+        READS_NAME_RW=`basename "$name" .fastq`
+        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_RW}_fastqc/fastqc_data.txt"`
+
+        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
+
+          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
+          mv "${READS_NAME_RW}.fastq" input_reads.fastq
+          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
+          mv reformated.fastq.gz "${READS_NAME_RW}.fastq.gz"
+
+        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
+          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
+        fi
+      done
+
+      re-save-file-list fastq "${FW_FASTQGZ[@]}"
+      re-save-file-list fastq2 "${RW_FASTQGZ[@]}"
+      re-save-file-list fastqc_archive "${FW_FASTQC[@]}"
+      re-save-file-list fastqc_archive2 "${RW_FASTQC[@]}"
+      re-save-list fastqc_url "${FW_FASTQC_URL[@]}"
+      re-save-list fastqc_url2 "${RW_FASTQC_URL[@]}"
