@@ -91,6 +91,8 @@ Fixed
 * Fix ``consensus_subreads`` input option in Subread process
 * Fix ``cuffnorm`` process to correctly use sample names as labels in
   output files and expand ``cuffnorm`` tests
+* **BACKWARD INCOMPATIBLE:** Fix ``import-sra`` process
+  to work with ``resolwebio/utils`` Docker image and refactor inputs
 
 
 ==================
