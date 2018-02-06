@@ -27,6 +27,7 @@ Added
   subtype processes have the input and output fields that are defined in the
   abstract process. For users, it is much more clear and predictable if they
   can expect the same set of outputs on all processes of the same type.
+* ``requests`` Python package to ``resolwebio/utils`` Docker image
 
 Changed
 -------
