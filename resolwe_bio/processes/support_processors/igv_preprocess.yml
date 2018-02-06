@@ -1,0 +1,53 @@
+# ============
+# IGV preprocess
+# ============
+
+---
+
+- slug: igv-preprocess-gtf
+  name: Sort and index GTF files
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/utils
+  data_name: "Preprocessed GTF file for IGV"
+  version: 0.0.1
+  type: data:annotation:gtf
+  category: analyses
+  description: >
+    Sort and index largeGTF files with igvtools tool.
+  input:
+    - name: annotation
+      label: Annotation (GTF)
+      type: data:annotation:gtf
+      description: >
+        Annotation in GTF format.
+      validate_regex: '\.(gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: gtf
+      label: Sorted gtf file nad index
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      esho {{ annotation }}
+      NAME=`basename {{annotation.annot.file}} .gtf`
+      igvtools sort {{ annotation.annot.file }} "${NAME}"_sorted.gtf
+      igvtools index "${NAME}"_sorted.gtf
+
+      re-save-file gtf "${NAME}"_sorted.gtf "${NAME}"_sorted.gtf.idx
+      re-save source {{ annotation.source }}
+      re-save species {{ annotation.species }}
+      re-save build {{ annotation.build }}

@@ -112,3 +112,16 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.run_process('archive-samples', {
             'data': [txt_file.id, bam.id, reads.id, vcf.id],
             'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf']})
+
+    @tag_process('igv-preprocess-gtf')
+    def test_igv_preprocess(self):
+        with self.preparation_stage():
+            inputs = {'src': 'annotation_non_sorted.gtf',
+                      'source': 'ENSEMBL',
+                      'species': 'Homo sapines',
+                      'build': 'hg19'}
+            annotation = self.run_process('upload-gtf', inputs)
+
+        inputs = {'annotation': annotation.pk}
+        igv_preprocess_gtf = self.run_process('igv-preprocess-gtf', inputs)
+        self.assertFile(igv_preprocess_gtf, 'gtf', 'annotation_non_sorted_sorted.gtf')
