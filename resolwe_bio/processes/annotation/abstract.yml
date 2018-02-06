@@ -1,0 +1,24 @@
+# ==================================
+# Parent of all annotation processes
+# ==================================
+
+- slug: abstract-annotation
+  name: Abstract annotation process
+  version: 1.0.0
+  type: data:annotation
+  category: abstract
+  output:
+    - name: annot
+      label: Uploaded file
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    program: exit 1
