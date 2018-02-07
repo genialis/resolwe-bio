@@ -28,6 +28,7 @@ Added
   abstract process. For users, it is much more clear and predictable if they
   can expect the same set of outputs on all processes of the same type.
 * Add ``requests`` Python package to ``resolwebio/utils`` Docker image
+* Add miRNA workflow
 
 Changed
 -------
@@ -132,13 +133,13 @@ Changed
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
 * Use ``resolwebio/dnaseq:1.2.0`` Docker image in ``filtering_chemut`` process
+* Make ID attribute labels in featureCounts more informative
 
 Fixed
 -----
 * Enable DEBUG setting in tests using Django's ``LiveServerTestCase``
 * Wait for ElasticSeach to index the data in ``KBBioProcessTestCase``
 * Remove unused parameters in TopHat (2.0.13) process and Chip-seq workflow
-
 
 ==================
 6.1.0 - 2017-12-12
