@@ -89,6 +89,7 @@ Changed
   Tornado 4.5.3, and pytz 2017.3
 * Use the latest version of ``wigToBigWig`` tool in
   ``resolwebio/chipseq`` docker image
+* Make ID attribute labels in ``featureCounts`` more informative
 
 Fixed
 -----
@@ -136,13 +137,13 @@ Changed
   ``amplicon-archive-multi-report``
 * Refactor ``amplicon-archive-multi-report``
 * Use ``resolwebio/dnaseq:1.2.0`` Docker image in ``filtering_chemut`` process
-* Make ID attribute labels in featureCounts more informative
 
 Fixed
 -----
 * Enable DEBUG setting in tests using Django's ``LiveServerTestCase``
 * Wait for ElasticSeach to index the data in ``KBBioProcessTestCase``
 * Remove unused parameters in TopHat (2.0.13) process and Chip-seq workflow
+
 
 ==================
 6.1.0 - 2017-12-12
