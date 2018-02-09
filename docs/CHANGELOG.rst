@@ -32,9 +32,8 @@ Added
 * Add ``prepare-geo-chipseq`` and ``prepare-geo-rnaseq`` processes that
   produce a tarball with necessary data and folder structure for GEO
   upload
-* Add ``Salmon`` transcript quantification tool to
-  ``resolwebio/rnaseq`` Docker image
-* Add ``BBMap`` and ``Trimmomatic`` tool to ``resolwebio/rnaseq`` Docker image
+* Add ``BBMap``, ``Trimmomatic``, ``Subread``, and ``Salmon`` tool
+  to ``resolwebio/rnaseq`` Docker image
 
 Changed
 -------
