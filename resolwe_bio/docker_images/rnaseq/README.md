@@ -19,4 +19,5 @@ Included bioinformatics tools:
 * Salmon (0.7.2)
 * SRA Toolkit (v2.8.2-1)
 * STAR (v2.5.3a)
+* Trimmomatic (v0.36)
 * tximport (v1.6.0)

@@ -7,3 +7,4 @@ rsem
 samtools
 sra-toolkit
 star
+trimmomatic
