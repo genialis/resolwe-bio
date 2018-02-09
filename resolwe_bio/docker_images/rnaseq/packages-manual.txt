@@ -1,3 +1,4 @@
+bbmap
 cufflinks
 fastqc
 hisat2
