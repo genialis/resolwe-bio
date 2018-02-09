@@ -34,7 +34,7 @@ Added
   upload
 * Add ``Salmon`` transcript quantification tool to
   ``resolwebio/rnaseq`` Docker image
-* Add ``BBMap`` tool to ``resolwebio/rnaseq`` Docker image
+* Add ``BBMap`` and ``Trimmomatic`` tool to ``resolwebio/rnaseq`` Docker image
 
 Changed
 -------
