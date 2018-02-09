@@ -7,4 +7,5 @@ rsem
 samtools
 sra-toolkit
 star
+subread
 trimmomatic
