@@ -23,6 +23,7 @@ Added
 - Add BaseSpace files download tool
 - Add process to import a file from BaseSpace
 - Add process to convert files to single-end reads
+- Add process to convert files to paired-end reads
 
 Fixed
 -----
