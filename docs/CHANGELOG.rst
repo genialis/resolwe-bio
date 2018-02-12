@@ -20,6 +20,7 @@ Changed
 Added
 -----
 - Add CNVKit, LoFreq and GATK to ``resolwebio/dnaseq`` docker image
+- Add BaseSpace files download tool
 
 Fixed
 -----
