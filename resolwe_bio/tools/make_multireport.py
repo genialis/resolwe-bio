@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Generate amplicon multireport."""
 import argparse
+import collections
 import csv
 import math
 import re
@@ -93,7 +94,6 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, wide_
         lines.append('\\rowcolor{darkblue1}')
         lines.append('\\leavevmode\\color{white}\\textbf{' +
                      '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
-        lines.append('\\endhead')
 
     for line in data:
         if long_columns:
@@ -163,8 +163,14 @@ def make_heatmap(samples, variant_dict, fig_name):
     # Prepare data: keep only variants shared by at least one sample:
     shared_variants = {}
     for var_names, var_samples in variant_dict.items():
-        if len(var_samples) > 1:
+        # There may be many variants on same position in same sample, so count *distinct* samples for each variant
+        if len(set([sample_name for (sample_name, _) in var_samples])) > 1:
             shared_variants[var_names] = var_samples
+
+    if not shared_variants:
+        with open("{}.txt".format(fig_name.replace(" ", "")), 'wt') as ofile:
+            ofile.write('No shared variants for selected samples.\n')
+            return
 
     # Prepare data: make sample and variant list and NumPy array of AF.
     x_names = sorted(shared_variants.keys())
@@ -175,7 +181,7 @@ def make_heatmap(samples, variant_dict, fig_name):
             variant_index = x_names.index(k)
             sample_index = y_names.index(item[0])
             data[variant_index, sample_index] = '{0:g}'.format(round(float(item[1]) * 100, DECIMALS))
-    width = min(len(x_names) * 100, 1100)
+    width = min(len(x_names) * 100 + 200, 1100)
     height = max(min(len(y_names) * 100, 580), 300)
 
     # Create DataFrame and ColumnDataSource
@@ -205,7 +211,10 @@ def make_heatmap(samples, variant_dict, fig_name):
     p.xaxis.major_label_orientation = np.pi / 2
 
     palette = list(reversed(palettes.YlGnBu[9]))
-    mapper = LinearColorMapper(palette=palette, low=np.amin(data), high=np.amax(data))
+    low, high = np.amin(data), np.amax(data)
+    if low == high:
+        low, high = 0.0, 100.0
+    mapper = LinearColorMapper(palette=palette, low=low, high=high)
     p.rect('Variant', 'Sample', 1, 1, source=source,
            fill_color={'field': 'af', 'transform': mapper}, line_color=None, hover_line_color='black')
 
@@ -219,11 +228,11 @@ def make_heatmap(samples, variant_dict, fig_name):
         color_mapper=mapper,
         ticker=BasicTicker(desired_num_ticks=len(palette) + 1),
         formatter=PrintfTickFormatter(format="%d%%"),
-        major_tick_line_color='black',
-        major_tick_out=5, major_tick_in=0,
-        label_standoff=10, border_line_color=None, location=(0, 0),
-        title='Allele Frequency', title_text_font_size='7pt',
-        title_standoff=5
+        major_tick_line_color='black', major_tick_out=5, major_tick_in=0,
+        label_standoff=10,
+        border_line_color=None,
+        location=(0, 0),
+        title='Allele Frequency', title_text_font_size='7pt', title_standoff=5,
     )
 
     p.add_layout(color_bar, 'right')
@@ -282,9 +291,10 @@ def prepare_vcf_table(varfile, sample, variants):
         legacy_aa_data = get_legacy_aa_data(varfile)
         vcf_table_tmp = [line + [legacy_aa_data[i]] for i, line in enumerate(vcf_table_tmp)]
     # Escape user inputs and change header:
-    common_columns = [header_glossary[x] if (x in header_glossary) else x for x in common_columns]
+    common_columns = [header_glossary.get(x, x) for x in common_columns]
     vcf_table = []
     for line_tmp in vcf_table_tmp:
+        line_tmp = [_escape_latex(cell) for cell in line_tmp]
         alt_cell, af_cell = line_tmp[3], line_tmp[4]
         # One line can contain two or more ALT values (and consequently two or more AF values)
         for alt, af_ in zip(alt_cell.split(','), af_cell.split(',')):
@@ -307,11 +317,37 @@ def prepare_vcf_table(varfile, sample, variants):
     return vcf_table, common_columns
 
 
+def make_names_unique(names):
+    """
+    Make names unique by appending them (1), (2)... if there are duplicates.
+
+    Note: ``names`` is a list of tuples: (0, 'name0'), (1, 'name1'), (2, 'name2')...
+    """
+    new_names = []
+    counter = collections.Counter([name for (_, name) in names])
+    for i, name in names:
+        if name not in counter:
+            continue
+        new_names.append((i, name))
+
+        indexes = [j for (j, name_) in names if (name_ == name and j != i)]
+        for j, k in zip(indexes, range(1, counter[name])):
+            new_names.append((j, '{} ({})'.format(name, k)))
+        counter.pop(name)
+
+    # If still nt unique, repeat procedure recursively:
+    if len(set(new_names)) != len(new_names):
+        new_names = make_names_unique(names)
+    return new_names
+
+
 if __name__ == '__main__':
     args = parser.parse_args()
 
     # Make a index list of sorted sample names (alphabetical order)
     sorted_samples = list(sorted(enumerate(args.sample), key=lambda x: x[1]))
+    # Ensure unique sample names:
+    sorted_samples = make_names_unique(sorted_samples)
 
     # Open template and fill it with data:
     with open(args.template, 'r') as template_in, open('multireport.tex', 'wt') as template_out:
@@ -354,7 +390,7 @@ if __name__ == '__main__':
         template = template.replace('{#QCTABLE#}', qc_table)
 
         # Make table with amplicons that have < 100% coverage
-        non_cov_header = ['Sample', 'Amplicon', '\% Covered', 'Less than 20\% of mean']
+        non_cov_header = ['Sample', 'Amplicon', '\% Covered', '\% of mean coverage']
         non_cov_data = []
         for i, sample in sorted_samples:
             for line in data[sample]['cov_list']:
@@ -366,7 +402,7 @@ if __name__ == '__main__':
                         _escape_latex(sample),
                         _escape_latex(line[4]),
                         '{:.1f}'.format(cov_ratio * 100),
-                        'YES' if mean_cov < mean_cov_threshold else ' ',
+                        '\\color{{{}}} {}'.format('red' if mean_cov < mean_cov_threshold else 'black', mean_cov),
                     ))
         if not non_cov_data:
             non_cov_data = [['/', '/']]
@@ -411,8 +447,9 @@ if __name__ == '__main__':
     subprocess.call(cmd)
     subprocess.check_call(cmd)
 
-    # Crate heatmaps
-    make_heatmap(args.sample, gatkhc_variants, 'GATKHC variants')
-    make_heatmap(args.sample, lf_variants, 'LoFreq variants')
+    # Create heatmaps:
+    sample_names = [name for (_, name) in sorted_samples]
+    make_heatmap(sample_names, gatkhc_variants, 'GATKHC variants')
+    make_heatmap(sample_names, lf_variants, 'LoFreq variants')
 
     print("Done.")

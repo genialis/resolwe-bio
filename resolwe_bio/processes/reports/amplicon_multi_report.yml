@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.3
-  version: 0.1.0
+        image: resolwebio/latex:1.0.4
+  version: 0.2.0
   type: "data:archive:samples:amplicon"
   category: other
   persistence: TEMP
@@ -108,4 +108,11 @@
       fi
 
       zip -0 -r {% if j %}-j {% endif %} results.zip */
-      re-save-file archive results.zip
+
+      if [ -f multireport.tex ]; then
+        # Reference source file (multireport.tex) for the debugging purposes if it exists
+        re-save-file archive results.zip multireport.tex
+      else
+         re-save-file archive results.zip
+      fi
+
