@@ -1,0 +1,99 @@
+- slug: salmon-index
+  name: Salmon index
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 8
+      memory: 8192
+    executor:
+      docker:
+        image: resolwebio/rnaseq:2.1.0
+  data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
+  version: 0.0.1
+  type: data:index:salmon
+  persistence: CACHED
+  description: >
+    Generete index files for Salmon transcript quantification tool.
+  input:
+    - name: nucl
+      label: Nucleotide sequence
+      type: data:seq:nucleotide
+      description: >
+        A CDS sequence file in .fasta format.
+    - name: source
+      label: Source of attribute ID
+      type: basic:string
+      allow_custom_choice: true
+      choices:
+        - label: AFFY
+          value: AFFY
+        - label: DICTYBASE
+          value: DICTYBASE
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
+    - name: species
+      label: Species
+      type: basic:string
+      description: >
+        Species latin name.
+      allow_custom_choice: true
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+        - label: Dictyostelium discoideum
+          value: Dictyostelium discoideum
+        - label: Odocoileus virginianus texanus
+          value: Odocoileus virginianus texanus
+        - label: Solanum tuberosum
+          value: Solanum tuberosum
+    - name: build
+      label: Genome build
+      type: basic:string
+    - name: kmerlen
+      label: Size of k-mers
+      type: basic:integer
+      default: 31
+      description: >
+        The size of k-mers that should be used for the quasi index.
+        We find that a k of 31 seems to work well for reads of 75bp or longer,
+        but you might consider a smaller k if you plan to deal with shorter reads.
+  output:
+    - name: index
+      label: Salmon index
+      type: basic:dir
+    - name: source
+      label: Source of attribute ID
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      mkdir salmon_index
+
+      salmon index \
+        -t {{ nucl.fasta.file }} \
+        -i salmon_index \
+        -p {{ requirements.resources.cores }} \
+        --type quasi \
+        -k {{ kmerlen }}
+
+      re-checkrc 'Salmon index build failed.'
+
+      re-save-dir index salmon_index
+      re-save source {{ source }}
+      re-save species {{ species }}
+      re-save build {{ build }}

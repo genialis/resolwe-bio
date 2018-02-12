@@ -175,3 +175,37 @@ class SupportProcessorTestCase(BioProcessTestCase):
         prepare_geo_rnaseq = self.run_process("prepare-geo-rnaseq", inputs)
 
         self.assertFile(prepare_geo_rnaseq, 'table', 'prepare_geo_RNA-Seq.txt')
+
+    @tag_process('library-strandedness')
+    def test_library_strandedness(self):
+        with self.preparation_stage():
+            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+
+            inputs = {
+                'nucl': cds.id,
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            }
+            salmon_index = self.run_process('salmon-index', inputs)
+
+            single_reads = self.prepare_reads(['reads rsem.fq.gz'])
+            paired_reads = self.prepare_paired_reads(mate1=['reads rsem.fq.gz'], mate2=['reads rsem2.fq.gz'])
+
+        single_input = {
+            'reads': single_reads.id,
+            'salmon_index': salmon_index.id,
+        }
+
+        lib_strandedness_single = self.run_process('library-strandedness', single_input)
+        self.assertFields(lib_strandedness_single, 'strandedness', 'U')
+        self.assertFields(lib_strandedness_single, 'fragment_ratio', 1.0)
+
+        paired_input = {
+            'reads': paired_reads.id,
+            'salmon_index': salmon_index.id,
+        }
+
+        lib_strandedness_paired = self.run_process('library-strandedness', paired_input)
+        self.assertFields(lib_strandedness_paired, 'strandedness', 'IU')
+        self.assertFields(lib_strandedness_paired, 'fragment_ratio', 1.0)

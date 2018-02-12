@@ -342,3 +342,22 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertFields(expression, 'feature_type', 'gene')
+
+    @tag_process('salmon-index')
+    def test_salmon_index(self):
+        with self.preparation_stage():
+            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+
+        inputs = {
+            'nucl': cds.id,
+            'source': 'ENSEMBL',
+            'species': 'Homo sapiens',
+            'build': 'ens_90',
+        }
+        salmon_index = self.run_process('salmon-index', inputs)
+
+        del salmon_index.output['index']['total_size']  # Non-deterministic output.
+        self.assertFields(salmon_index, 'index', {'dir': 'salmon_index'})
+        self.assertFields(salmon_index, 'source', 'ENSEMBL')
+        self.assertFields(salmon_index, 'species', 'Homo sapiens')
+        self.assertFields(salmon_index, 'build', 'ens_90')

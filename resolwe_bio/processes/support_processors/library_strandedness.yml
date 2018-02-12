@@ -1,0 +1,92 @@
+- slug: library-strandedness
+  name: Detect library strandedness
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 8
+      memory: 8192
+    executor:
+      docker:
+        image: resolwebio/rnaseq:2.1.0
+  data_name: 'Library strandedness ({{ reads|sample_name }})'
+  version: 0.0.1
+  type: data:strandedness
+  persistence: CACHED
+  description: >
+    This process uses the Salmon transcript quantification tool to
+    automatically infer the NGS library strandedness. For more details, please
+    see the Salmon
+    [documentation](https://salmon.readthedocs.io/en/latest/library_type.html)
+  input:
+    - name: reads
+      label: Sequencing reads
+      type: data:reads:fastq
+      description: >
+        Sequencing reads in .fastq format. Both single and paired-end
+        libraries are supported
+    - name: read_number
+      label: Number of input reads
+      type: basic:integer
+      default: 50000
+      description: >
+        Number of sequencing reads that are subsampled from each of the
+        original .fastq files before library strand detection
+    - name: salmon_index
+      label: Transcriptome index file
+      type: data:index:salmon
+      description: >
+        Transcriptome index file created using the Salmon indexing tool.
+        CDS (transcriptome) sequences used for index file creation must be
+        derived from the same species as the input sequencing reads to
+        obtain the reliable analysis results
+  output:
+    - name: strandedness
+      label: Library strandedness type
+      type: basic:string
+      description: >
+        The predicted library strandedness type. The codes U and IU
+        indicate 'strand non-specific' library for single or paired-end
+        reads, respectively. Codes SF and ISF correspond to the
+        'strand-specific forward' library, for the single or paired-end
+        reads, respectively. For 'strand-specific reverse' library,
+        the corresponding codes are SR and ISR. For more details, please
+        see the Salmon
+        [documentation](https://salmon.readthedocs.io/en/latest/library_type.html)
+    - name: fragment_ratio
+      label: Compatible fragment ratio
+      type: basic:decimal
+      description: >
+        The ratio of fragments that support the predicted library
+        strandedness type
+    - name: log
+      label: Log file
+      type: basic:file
+      description: >
+        Analysis log file.
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% set lines = read_number * 4 %}
+
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+        gzip -cd {{ (reads.fastq|first).file }} | head -n {{ lines }} > reads.fastq
+        {% set reads_input = '-r reads.fastq' %}
+      {% else %}
+        gzip -cd {{ (reads.fastq|first).file }} | head -n {{ lines }} > mate1.fastq
+        gzip -cd {{ (reads.fastq2|first).file }} | head -n {{ lines }} > mate2.fastq
+        {% set reads_input = '-1 mate1.fastq -2 mate2.fastq' %}
+      {% endif %}
+
+      salmon quant \
+        -i {{ salmon_index.index.dir }} \
+        -l A \
+        {{ reads_input|safe }} \
+        -o results \
+        -p {{ requirements.resources.cores }}
+      re-checkrc "Automatic detection of strandedness failed"
+
+      re-save-file log results/lib_format_counts.json
+
+      parse_library_type.py results/lib_format_counts.json
+      re-checkrc

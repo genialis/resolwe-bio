@@ -34,6 +34,10 @@ Added
   upload
 * Add ``BBMap``, ``Trimmomatic``, ``Subread``, and ``Salmon`` tool
   to ``resolwebio/rnaseq`` Docker image
+* Add ``Salmon`` transcript quantification tool to
+  ``resolwebio/rnaseq`` Docker image
+* Add ``library-strandedness`` process which uses the ``Salmon`` tool built-in
+  functionality to detect the library strandedness information
 
 Changed
 -------
