@@ -32,6 +32,8 @@ Added
 * Add ``prepare-geo-chipseq`` and ``prepare-geo-rnaseq`` processes that
   produce a tarball with necessary data and folder structure for GEO
   upload
+* Add ``Salmon`` transcript quantification tool to
+  ``resolwebio/rnaseq`` Docker image
 
 Changed
 -------
@@ -100,7 +102,7 @@ Fixed
   to work with ``resolwebio/utils`` Docker image and refactor inputs
 * The variant-calling process in the chemical mutagenesis workflow crashed
   because Picard Tools was trying to use more memory than was available.
-  Therefore, we have explicitly set the process to request 16 GB of RAM, and 
+  Therefore, we have explicitly set the process to request 16 GB of RAM, and
   limited Picard Tools to use no more than is requested.
 * The chemical mutagenesis workflow was erroneously categorized as
   ``data:workflow:rnaseq:cuffquant`` type. This is switched to

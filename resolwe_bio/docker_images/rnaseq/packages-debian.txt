@@ -1,5 +1,6 @@
 python-pip
 r-base-core
+salmon
 
 # Required by FastQC
 default-jre
