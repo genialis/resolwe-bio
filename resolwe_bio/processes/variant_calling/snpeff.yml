@@ -13,7 +13,7 @@
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.5
+  version: 0.1.6
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample
@@ -82,7 +82,9 @@
       cut -f 1-11 annoFields.vcf > temp1
       echo "EFF[*].AA" > temp2
       awk 'FNR>1 { for(i=1;i<=NF;i++) { if($i~/p\./){printf "%s,", $i} } printf "\n"}' OFS="\t" annoFields.vcf  >> temp2
-      paste temp1 temp2 > "${VAR_NAME}.finalvars.txt"
+      paste temp1 temp2 > temp3
+      # Also substitute all commas in DP4 column (10th column) with semicolons:
+      awk 'FS="\t" {gsub(",",";",$10)} OFS="\t"' temp3 > "${VAR_NAME}.finalvars.txt"
 
       mv snpEff_genes.txt "${VAR_NAME}_snpEff_genes.txt"
       mv snpEff_summary.html "${VAR_NAME}_snpEff_summary.html"
