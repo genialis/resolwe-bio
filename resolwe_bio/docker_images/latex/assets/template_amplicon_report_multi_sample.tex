@@ -73,6 +73,9 @@
   {\normalfont \fontsize{16pt}{16pt}\selectfont}{\thesection}{1em}{}
 
 %footnote marker color
+%https://en.wikibooks.org/wiki/LaTeX/Footnotes_and_Margin_Notes
+%https://tex.stackexchange.com/questions/8351/what-do-makeatletter-and-makeatother-do
+%https://tex.stackexchange.com/questions/26693/change-the-color-of-footnote-marker-in-latex
 \makeatletter
 \renewcommand\@makefnmark{\hbox{\@textsuperscript{\normalfont\color{white}\@thefnmark}}}
 \renewcommand\@makefntext[1]{%
@@ -105,8 +108,9 @@
 \newpage
 \section{Shared variants}
 
-\href{GATKHCvariants.html}{Click here} to view a matrix of all GATK HaplotypeCaller variants shared between samples.\\
-\href{LoFreqvariants.html}{Click here} to view a matrix of all LoFreq variants shared between samples.
+\href{GATKHCvariants.html}{Click here}* to view a matrix of all GATK HaplotypeCaller variants shared between samples.\\
+\href{LoFreqvariants.html}{Click here}* to view a matrix of all LoFreq variants shared between samples. \\
+\scriptsize{*The interactive HTML links are compatible with most PDF viewers, but known issues arise with Preview on Mac OS. If using Preview, please instead open the links from the .html files found in the same download folder as this report.}
 
 \renewcommand{\arraystretch}{1.4}
 \section{Annotated variants}
