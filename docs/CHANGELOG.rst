@@ -38,6 +38,8 @@ Added
   ``resolwebio/rnaseq`` Docker image
 * Add ``library-strandedness`` process which uses the ``Salmon`` tool built-in
   functionality to detect the library strandedness information
+* Add ``pandas`` and ``lxml`` Python package and ``zip`` to ``resolwebio/utils``
+  Docker image
 
 Changed
 -------
