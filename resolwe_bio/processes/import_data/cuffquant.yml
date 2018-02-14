@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:cufflinks:cuffquant
   category: upload
   flow_collection: sample
@@ -29,7 +29,7 @@
       required: true
       validate_regex: '\.(cxb)$'
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
       allow_custom_choice: true
       choices:
@@ -81,7 +81,7 @@
       label: Cuffquant results
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

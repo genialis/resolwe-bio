@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Hierarchical clustering of samples'
-  version: 1.1.1
+  version: 1.1.2
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -27,7 +27,7 @@
       required: false
       placeholder: new gene id
     - name: source
-      label: Source of selected genes
+      label: Gene ID database of selected genes
       description: This field is required if gene subset is set.
       type: basic:string
       required: false
@@ -187,7 +187,7 @@
     resources:
       memory: 16384
   data_name: 'Hierarchical clustering of genes'
-  version: 1.1.1
+  version: 1.1.2
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
@@ -203,7 +203,7 @@
       required: false
       placeholder: new gene id
     - name: source
-      label: Source of selected genes
+      label: Gene ID database of selected genes
       description: This field is required if gene subset is set.
       type: basic:string
       required: false

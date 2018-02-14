@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -101,7 +101,7 @@
       label: Expression Type (default output)
       type: basic:string
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species
@@ -195,7 +195,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:expression:htseq:raw
   category: analyses
   flow_collection: sample
@@ -285,7 +285,7 @@
       label: Expression Type (default output)
       type: basic:string
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

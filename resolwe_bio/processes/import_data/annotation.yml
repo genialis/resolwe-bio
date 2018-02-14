@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 3.0.0
+  version: 3.0.1
   type: data:annotation:gff3
   category: upload
   persistence: RAW
@@ -27,7 +27,7 @@
         Annotation in GFF3 format. Supported extensions are: .gff, .gff3 and .gtf
       validate_regex: '\.(gff|gff3|gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
       allow_custom_choice: true
       choices:
@@ -68,7 +68,7 @@
       label: Uploaded file
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species
@@ -100,7 +100,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 3.0.0
+  version: 3.0.1
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -116,7 +116,7 @@
         Annotation in GTF format.
       validate_regex: '\.(gtf|gff)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
       allow_custom_choice: true
       choices:
@@ -157,7 +157,7 @@
       label: Uploaded file
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

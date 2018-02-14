@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.2.1
+  version: 0.2.2
   type: data:index:expression
   persistence: CACHED
   description: >
@@ -38,7 +38,7 @@
       hidden: "nucl && nucl_genome == 'ts'"
       required: false
     - name: source
-      label: Source of attribute ID
+      label: Gene ID database
       type: basic:string
       allow_custom_choice: true
       choices:
@@ -85,7 +85,7 @@
       label: RSEM index
       type: basic:dir
     - name: source
-      label: Source of attribute ID
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:1.3.0
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.5.1
+  version: 1.5.2
   type: data:cuffnorm
   category: analyses
   persistence: CACHED
@@ -117,7 +117,7 @@
       label: All R normalization data
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

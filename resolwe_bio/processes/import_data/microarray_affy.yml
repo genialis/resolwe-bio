@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ cel.file|default("?") }}'
-  version: 1.0.9
+  version: 1.0.10
   type: data:microarray:affy
   category: upload
   flow_collection: sample
@@ -32,7 +32,7 @@
       label: CEL file
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
   run:
     runtime: polyglot

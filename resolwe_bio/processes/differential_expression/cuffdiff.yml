@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Cuffdiff results'
-  version: 1.2.1
+  version: 1.2.2
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -34,7 +34,7 @@
       label: Annotation (GTF/GFF3)
       type: data:annotation
       description: >
-        A transcript annotation file produced by cufflinks, cuffcompare, or other source.
+        A transcript annotation file produced by cufflinks, cuffcompare, or other tool.
     - name: genome
       label: Run bias detection and correction algorithm
       type: data:genome:fasta
@@ -121,7 +121,7 @@
       label: Cuffdiff output
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

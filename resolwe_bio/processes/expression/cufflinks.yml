@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.2.0
+  version: 1.2.1
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -88,7 +88,7 @@
       label: Skipped loci
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species
