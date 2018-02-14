@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwebio/archive-samples"
-  version: 0.0.4
+        image: resolwebio/utils:1.2.0
+  version: 0.0.5
   type: "data:archive:samples"
   category: other
   persistence: TEMP
@@ -36,43 +36,46 @@
     language: bash
     program: |
 
-      IGV_FILES=()
-
+      # make folders with data
       {% for d in data %}
+        {% set species = d.species or 'other_data' %}
         {% for field in fields %}
           {% if d[field].file %}
-            mkdir -p {{d|sample_slug}}/{{field}}/
-            ln -s --backup=numbered {{ d[field].file }} {{d|sample_slug}}/{{field}}/{{ d[field].file|basename }}
+            mkdir -p {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/
+            ln -s --backup=numbered {{ d[field].file }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ d[field].file|basename }}
             {% for ref in d[field].refs %}
-              ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
+              ln -s --backup=numbered {{ ref }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
             {% endfor %}
           {% endif %}
           {% for file in d[field] %}
             {% if file.file %}
-              mkdir -p {{d|sample_slug}}/{{field}}/
-              ln -s --backup=numbered {{ file.file }} {{d|sample_slug}}/{{field}}/{{ file.file|basename }}
+              mkdir -p {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/
+              ln -s --backup=numbered {{ file.file }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ file.file|basename }}
               {% for ref in file.refs %}
-                ln -s --backup=numbered {{ ref }} {{d|sample_slug}}/{{field}}/{{ref|basename}}
+                ln -s --backup=numbered {{ ref }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
               {% endfor %}
             {% endif %}
           {% endfor %}
         {% endfor %}
 
-        if [[ {{ d|type }} == "data:alignment:bam"* ]]; then
-          mv {{d|sample_slug}}/bai/{{ d.bai.file|basename }} {{d|sample_slug}}/bam/{{ d.bai.file|basename }}
-          rm -r "{{d|sample_slug}}/bai"
-          IGV_FILES+=({{d|sample_slug}}/bam/{{ d.bam.file|basename }})
+        # select data for IGV
+        {% if (d|type).startswith('data:alignment:bam') %}
+          mv {{ species }}/{{ d.build }}/{{ d|sample_slug }}/bai/{{ d.bai.file|basename }} {{ species }}/{{ d.build }}/{{d|sample_slug}}/bam/{{ d.bai.file|basename }}
+          rm -r {{ species }}/{{ d.build }}/{{d|sample_slug}}/bai
+          echo {{ species }}/{{ d.build }}/{{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> {{ species }}_{{ d.build }}_temp_igv.txt
 
-        elif [[ {{ d|type }} == "data:variants:vcf"* ]]; then
-          IGV_FILES+=({{d|sample_slug}}/vcf/{{ d.vcf.file|basename }})
-        fi
-      {% endfor %}
+        {% elif (d|type).startswith('data:variants:vcf') %}
+          echo {{ species }}/{{ d.build }}/{{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> {{ species }}_{{ d.build }}_temp_igv.txt
+        {% endif %}
 
       make_igv_session_archive.py --files "${IGV_FILES[@]}" --genome hg19
 
-      if [ -d None ]; then
-        mv None other_data
-      fi
+      {% endfor %}
+
+      # create IGV for data from the same Species and Build
+      for txt_file in *temp_igv.txt; do
+        make_igv_session_archive.py --input_file "${txt_file}"
+      done
 
       mkdir igv
       mv 'igv_session.xml' 'igv/igv_session.xml'

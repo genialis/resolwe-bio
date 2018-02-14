@@ -89,13 +89,13 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.assertFile(gff_to_gtf, 'annot', 'gff_to_gtf_annotation.gtf')
 
     @tag_process('archive-samples')
-    def test_archive_samples(self):
+    def test_ars(self):
         with self.preparation_stage():
             txt_file = self.run_process('upload-file', {'src': '56G_masterfile_test.txt'})
             bam_input = {
                 'src': 'bamplot_alignment.bam',
-                'species': 'Homo sapiens',
-                'build': 'hg19'
+                'species': 'Mus musculus',
+                'build': 'mm10',
             }
             bam = self.run_process('upload-bam', bam_input)
 
@@ -105,13 +105,20 @@ class SupportProcessorTestCase(BioProcessTestCase):
             vcf_input = {
                 'src': 'igv_human.lf.vcf',
                 'species': 'Homo sapiens',
-                'build': 'b37'
+                'build': 'b37',
             }
             vcf = self.run_process('upload-variants-vcf', vcf_input)
 
+            expression_1 = self.prepare_expression(f_exp='exp_1_rc.tab.gz', f_type="RC")
+            expression_2 = self.prepare_expression(f_exp='exp_2_rc.tab.gz', f_type="RC")
+            expression_5 = self.prepare_expression(f_exp='exp_5_rc.tab.gz', f_type="RC")
+            expression_3 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
+            expression_4 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
+
         self.run_process('archive-samples', {
-            'data': [txt_file.id, bam.id, reads.id, vcf.id],
-            'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf']})
+            'data': [txt_file.id, bam.id, reads.id, vcf.id, expression_1.id, expression_2.id, expression_5.id,
+                     expression_4.id, expression_3.id],
+            'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf', 'exp']})
 
     @tag_process('prepare-geo-chipseq')
     def test_prepare_geo_chipseq(self):

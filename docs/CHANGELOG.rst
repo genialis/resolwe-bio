@@ -103,6 +103,8 @@ Changed
 * Change 'source' to 'gene ID database' in labes and descriptions
 * Change base Docker image of ``resolwebio/rnaseq`` to
   ``resolwebio/base:ubuntu-18.04``
+* Processor ``archive-samples`` to create different IGV session files for
+  ``build`` and ``species``
 
 Fixed
 -----
