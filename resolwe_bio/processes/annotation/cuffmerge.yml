@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.2.1
+  version: 1.2.2
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -51,7 +51,7 @@
       label: Merged GTF file
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

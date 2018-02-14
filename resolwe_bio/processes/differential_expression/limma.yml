@@ -12,7 +12,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: 'Differential expression (case vs. control)'
-  version: 1.1.1
+  version: 1.1.2
   type: data:differentialexpression:limma
   category: analyses
   persistence: CACHED
@@ -40,7 +40,7 @@
       label: Results table (file)
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

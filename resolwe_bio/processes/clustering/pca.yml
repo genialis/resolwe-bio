@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.4.0
   data_name: 'PCA'
-  version: 1.2.1
+  version: 1.2.2
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -27,7 +27,7 @@
       type: list:basic:string
       required: false
     - name: source
-      label: Source of selected genes
+      label: Gene ID database of selected genes
       description: This field is required if gene subset is set.
       type: basic:string
       required: false

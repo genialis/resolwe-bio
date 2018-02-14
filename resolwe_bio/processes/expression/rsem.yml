@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Quantification ({{ (alignments|sample_name) }})"
-  version: 0.1.0
+  version: 0.1.1
   type: data:expression:rsem
   category: analyses
   flow_collection: sample
@@ -73,7 +73,7 @@
       label: Type of expression
       type: basic:string
     - name: source
-      label: Source of transcript ID
+      label: Transcript ID database
       type: basic:string
     - name: species
       label: Species

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.1.1
+  version: 1.1.2
   type: data:differentialexpression:deseq2
   category: analyses
   persistence: CACHED
@@ -46,7 +46,7 @@
       label: Results table (file)
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

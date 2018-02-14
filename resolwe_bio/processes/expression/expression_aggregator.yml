@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Expression aggregator"
-  version: 0.0.5
+  version: 0.0.6
   type: data:aggregator:expression
   category: analyses
   persistence: CACHED
@@ -34,7 +34,7 @@
       label: Log box plot
       type: basic:json
     - name: source
-      label: Source
+      label: Gene ID database
       type: basic:string
     - name: exp_type
       label: Expression type
@@ -56,7 +56,7 @@
       expression_aggregator.py \
         --expressions {% for e in exps %} {{e.exp.file}} {% endfor %} \
         --descriptors {% for e in exps %} {{e | sample | descriptor(group_by)}} {% endfor %} \
-        --source {{exps.0.source}} \
+        --source {{(exps|first).source}} \
         --expression-type {{exps.0.exp_type}} \
         --group-by {{group_by}} \
         {% if expr_aggregator %} --aggregator {{expr_aggregator.exp_matrix.file}} {% endif %} \
@@ -67,5 +67,5 @@
       re-save-file exp_matrix exp_matrix.json.gz
       re-save box_plot box_plot.json
       re-save log_box_plot log_box_plot.json
-      re-save source {{exps.0.source}}
+      re-save source {{(exps|first).source}}
       re-save exp_type {{exps.0.exp_type}}

@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.1.0
+  version: 1.1.1
   type: data:differentialexpression:upload
   category: upload
   persistence: RAW
@@ -53,7 +53,7 @@
       type: basic:string
       required: false
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
       allow_custom_choice: true
       choices:
@@ -125,7 +125,7 @@
       label: Results table (file)
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

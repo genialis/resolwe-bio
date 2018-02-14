@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.3.1
+  version: 0.3.2
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -138,7 +138,7 @@
       description: >
         Read assignment results for each read (or fragment if paired end).
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species

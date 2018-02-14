@@ -98,6 +98,7 @@ Changed
 * Use the latest version of ``wigToBigWig`` tool in
   ``resolwebio/chipseq`` docker image
 * Make ID attribute labels in ``featureCounts`` more informative
+* Change 'source' to 'gene ID database' in labes and descriptions
 
 Fixed
 -----

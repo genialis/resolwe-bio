@@ -12,7 +12,7 @@
       docker:
         image: resolwebio/legacy:latest
   data_name: "Converted GFF3 to GTF file"
-  version: 0.1.0
+  version: 0.1.1
   type: data:annotation:gtf
   category: analyses
   description: >
@@ -29,7 +29,7 @@
       label: Converted gtf file
       type: basic:file
     - name: source
-      label: Gene ID source
+      label: Gene ID database
       type: basic:string
     - name: species
       label: Species
