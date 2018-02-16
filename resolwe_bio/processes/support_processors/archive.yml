@@ -68,7 +68,10 @@
           echo {{ species }}/{{ d.build }}/{{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> {{ species }}_{{ d.build }}_temp_igv.txt
         {% endif %}
 
-      make_igv_session_archive.py --files "${IGV_FILES[@]}" --genome hg19
+        # select expression files to merge expressions
+        {% if (d|type).startswith('data:expression') %}
+          echo {{ d.species }}/{{ d.build }}/{{ d|sample_slug }}/exp/{{ d.exp.file|basename }} >> {{ d.species }}_{{ d.build }}_{{ d.exp_type }}_expressions_temp.txt
+        {% endif %}
 
       {% endfor %}
 
@@ -78,7 +81,12 @@
       done
 
       mkdir igv
-      mv 'igv_session.xml' 'igv/igv_session.xml'
+      mv *.xml igv/
+
+      # merge expressions
+      for txt_file in *expressions_temp.txt; do
+        expressionmerge_archive.py --input_file "${txt_file}"
+      done
 
       zip -0 -r {% if j %}-j {% endif %}results.zip */
       re-save-file archive results.zip
