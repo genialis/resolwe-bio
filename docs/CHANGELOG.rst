@@ -12,7 +12,8 @@ Unreleased
 
 Added
 -----
-* Add Ubuntu 17.10 ``base`` and ``utils`` Docker image
+* Add Ubuntu 17.10 and Ubuntu 18.04 base Docker images
+* Add ``resolwebio/utils`` Docker image
 * Add ``species`` and ``genome build`` output fields to ``macs14``
   process
 * Mechanism to override the manager's control channel prefix from the
