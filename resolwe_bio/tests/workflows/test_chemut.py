@@ -39,7 +39,12 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
                 'analysis_type': 'snv',
                 'parental_strains': [align_parental.id],
                 'mutant_strains': [align_mut.id],
-                'genome': genome.id
+                'genome': genome.id,
+                'Vc': {
+                    'stand_emit_conf': 15,
+                    'stand_call_conf': 35,
+                    'rf': True},
+                'Vf': {'read_depth': 7},
             }
         )
 

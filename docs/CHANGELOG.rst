@@ -110,6 +110,7 @@ Changed
   ``resolwebio/base:ubuntu-18.04``
 * Processor ``archive-samples`` to create different IGV session files for
   ``build`` and ``species``
+* Expose advanced parameters in Chemical Mutagenesis workflow
 
 Fixed
 -----
