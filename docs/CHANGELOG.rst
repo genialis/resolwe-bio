@@ -36,8 +36,6 @@ Added
 * Add ``BBMap``, ``Trimmomatic``, ``Subread``, ``Salmon``, and
   ``dexseq_prepare_annotation2`` tools and ``DEXSeq`` and
   ``loadSubread`` R libraries to ``resolwebio/rnaseq`` Docker image
-* Add ``Salmon`` transcript quantification tool to
-  ``resolwebio/rnaseq`` Docker image
 * Add ``library-strandedness`` process which uses the ``Salmon`` tool built-in
   functionality to detect the library strandedness information
 * Add ``pandas`` and ``lxml`` Python package and ``zip`` to ``resolwebio/utils``

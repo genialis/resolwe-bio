@@ -6,7 +6,7 @@ salmon
 default-jre
 libfindbin-libs-perl
 
-# Required by HTSeq.
+# Required by HTSeq
 libbz2-dev
 libncurses5-dev
 liblzma-dev
