@@ -19,5 +19,6 @@ sed -e 's/^#.*$//g' -e '/^$/d' /var/cache/build/packages-r-bioconductor.txt | \
 # XXX: Use notary (https://github.com/ropenscilabs/notary) when ready.
 Rscript --slave --no-save --no-restore-history -e " \
   library(devtools); \
-  install_github('jkokosar/RNASeqT') \
+  install_github('jkokosar/RNASeqT'); \
+  install_github('jvrakor/Subread_to_DEXSeq', subdir = 'loadSubread'); \
 "
