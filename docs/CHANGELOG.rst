@@ -100,6 +100,8 @@ Changed
   ``resolwebio/chipseq`` docker image
 * Make ID attribute labels in ``featureCounts`` more informative
 * Change 'source' to 'gene ID database' in labes and descriptions
+* Change base Docker image of ``resolwebio/rnaseq`` to
+  ``resolwebio/base:ubuntu-18.04``
 
 Fixed
 -----
