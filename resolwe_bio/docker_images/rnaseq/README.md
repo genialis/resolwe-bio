@@ -10,6 +10,7 @@ Included bioinformatics tools:
 * Cufflinks (v2.2.1)
 * Cutadapt (v1.15)
 * DESeq2 (v1.16.1)
+* DEXSeq (v1.24.2)
 * FastQC (v0.11.5)
 * HISAT2 (v2.1.0)
 * HTSeq (v0.9.1)
