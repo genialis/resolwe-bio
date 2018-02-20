@@ -1,6 +1,6 @@
 - slug: rna-seq
   name: RNA-seq
-  version: 0.0.4
+  version: 0.0.5
   description: RNA-seq template
   schema:
     - name: genome_and_annotation
@@ -12,6 +12,8 @@
           value: hs
         - label: Mus musculus
           value: mm
+        - label: Rattus norvegicus
+          value: rn
     - name: stranded
       label: Assay type
       type: basic:string

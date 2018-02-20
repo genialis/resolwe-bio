@@ -40,6 +40,8 @@ Added
   functionality to detect the library strandedness information
 * Add ``pandas`` and ``lxml`` Python package and ``zip`` to ``resolwebio/utils``
   Docker image
+* Add Rattus norvegicus species choice to the ``rna-seq`` descriptor schema
+  to allow running RNA-seq workflow for this species from the Recipes
 
 Changed
 -------
