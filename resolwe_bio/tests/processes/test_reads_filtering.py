@@ -132,17 +132,39 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
     def test_trimmomatic_single(self):
         with self.preparation_stage():
             reads = self.prepare_reads()
+            adapters = self.run_process('upload-fasta-nucl', {'src': 'bbduk_adapters.fasta'})
 
-        inputs = {'reads': reads.pk,
-                  'trailing': 3,
-                  'crop': 5}
+        inputs = {
+            'reads': reads.pk,
+            'illuminaclip': {
+                'adapters': adapters.pk,
+                'seed_mismatches': 2,
+                'simple_clip_threshold': 10,
+            },
+            'maxinfo': {
+                'target_length': 10,
+                'strictness': 0.6,
+            },
+            'slidingwindow': {
+                'window_size': 4,
+                'required_quality': 15,
+            },
+            'trim_bases': {
+                'leading': 20,
+                'trailing': 20,
+                'crop': 40,
+                'headcrop': 3,
+            },
+            'reads_filtering': {
+                'minlen': 22,
+                'average_quality': 10,
+            }}
         filtered_reads = self.run_processor('trimmomatic-single', inputs)
 
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_single.fastq.gz'], compression='gzip')
         del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/reads_fastqc/fastqc_report.html',
-                                                          'refs': ['fastqc/reads_fastqc'],
-                                                          'size': 206718}])
+                                                          'refs': ['fastqc/reads_fastqc']}])
 
     @tag_process('trimmomatic-paired')
     def test_trimmomatic_paired(self):
@@ -153,7 +175,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             reads = self.run_processor('upload-fastq-paired', inputs)
 
         inputs = {'reads': reads.pk,
-                  'trailing': 3}
+                  'trim_bases': {'trailing': 3}}
+
         filtered_reads = self.run_processor('trimmomatic-paired', inputs)
         self.assertFiles(filtered_reads, 'fastq', ['filtered_reads_trimmomatic_paired_fw.fastq.gz'],
                          compression='gzip')
@@ -161,12 +184,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                          compression='gzip')
         del filtered_reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url", [{'file': 'fastqc/rRNA_forw_fastqc/fastqc_report.html',
-                                                          'refs': ['fastqc/rRNA_forw_fastqc'],
-                                                          'size': 352347}])
+                                                          'refs': ['fastqc/rRNA_forw_fastqc']}])
         del filtered_reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(filtered_reads, "fastqc_url2", [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
-                                                           'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                           'size': 340745}])
+                                                           'refs': ['fastqc/rRNA_rew_fastqc']}])
 
     @tag_process('hsqutils-trim')
     def test_hsqutils_trim(self):

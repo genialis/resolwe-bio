@@ -109,6 +109,8 @@ Changed
   process
 - Set the ``cooksCutoff`` parameter to ``FALSE`` in ``deseq.R`` tool
 - Rename 'Expressions (BCM)' to 'Dicty expressions'
+- **BACKWARD INCOMPATIBLE:** Refactor ``trimmomatic-single`` and ``trimmomatic-paired``
+  processes
 
 Added
 -----

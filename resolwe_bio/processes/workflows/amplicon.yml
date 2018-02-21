@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.1.4
+  version: 0.1.5
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -100,14 +100,15 @@
         run: trimmomatic-paired
         input:
           reads: '{{input.reads}}'
-          adapters: '{{input.adapters}}'
           illuminaclip:
+            adapters: '{{input.adapters}}'
             seed_mismatches: 2
             palindrome_clip_threshold: 30
             simple_clip_threshold: 10
-          trailing: 3
-          minlen: 40
-          threads: '{{input.threads}}'
+          trim_bases:
+            trailing: 3
+          reads_filtering:
+            minlen: 40
       - id: bwa_trim
         run: align-bwa-trim
         input:
@@ -204,7 +205,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   description: >
     Alternative version of Accel-amplicon worklfow that uses memory-optimized primerclip tool.
   type: data:workflow:amplicon
@@ -302,14 +303,15 @@
         run: trimmomatic-paired
         input:
           reads: '{{input.reads}}'
-          adapters: '{{input.adapters}}'
           illuminaclip:
+            adapters: '{{input.adapters}}'
             seed_mismatches: 2
             palindrome_clip_threshold: 30
             simple_clip_threshold: 10
-          trailing: 3
-          minlen: 40
-          threads: '{{input.threads}}'
+          trim_bases:
+            trailing: 3
+          reads_filtering:
+            minlen: 40
       - id: bwa_trim
         run: align-bwa-trim2
         input:
