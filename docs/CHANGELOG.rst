@@ -120,6 +120,8 @@ Fixed
 * The chemical mutagenesis workflow was erroneously categorized as
   ``data:workflow:rnaseq:cuffquant`` type. This is switched to
   ``data:workflow:chemut`` type.
+* Fix custom argument passing script for ``Trimmomatic`` in
+  ``resolwebio/rnaseq`` Docker image
 
 
 ==================

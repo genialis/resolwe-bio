@@ -10,12 +10,19 @@ download_and_verify \
     http://www.usadellab.org/cms/uploads/supplementary/Trimmomatic/Trimmomatic-\${version}.zip \
     Trimmomatic-\${version}
 
-cat >trimmomatic.sh <<EOL
+cat <<'EOF' >TrimmomaticSE
 #!/bin/bash
 
-java -jar /opt/usadellab/trimmomatic/trimmomatic-0.36.jar "$@"
-EOL
-chmod +x trimmomatic.sh
+java -jar /opt/usadellab/trimmomatic/trimmomatic-0.36.jar SE "$@"
+EOF
+chmod +x TrimmomaticSE
+
+cat <<'EOF' >TrimmomaticPE
+#!/bin/bash
+
+java -jar /opt/usadellab/trimmomatic/trimmomatic-0.36.jar PE "$@"
+EOF
+chmod +x TrimmomaticPE
 
 add_binary_path \
     usadellab \
