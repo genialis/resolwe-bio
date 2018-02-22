@@ -105,8 +105,6 @@ Changed
 Fixed
 -----
 * Fix ``consensus_subreads`` input option in Subread process
-* Fix ``cuffnorm`` process to correctly use sample names as labels in
-  output files and expand ``cuffnorm`` tests
 * **BACKWARD INCOMPATIBLE:** Fix ``import-sra`` process
   to work with ``resolwebio/utils`` Docker image and refactor inputs
 * The variant-calling process in the chemical mutagenesis workflow crashed
@@ -116,6 +114,16 @@ Fixed
 * The chemical mutagenesis workflow was erroneously categorized as
   ``data:workflow:rnaseq:cuffquant`` type. This is switched to
   ``data:workflow:chemut`` type.
+
+
+==================
+6.2.2 - 2018-02-21
+==================
+
+Fixed
+-----
+* Fix ``cuffnorm`` process to correctly use sample names as labels in output
+  files and expand ``cuffnorm`` tests
 
 
 ==================
