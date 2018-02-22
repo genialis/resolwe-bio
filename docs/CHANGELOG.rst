@@ -122,6 +122,8 @@ Fixed
   ``data:workflow:chemut`` type.
 * Fix custom argument passing script for ``Trimmomatic`` in
   ``resolwebio/rnaseq`` Docker image
+* Fix installation errors for ``dexseq-prepare-annotation2`` in
+  ``resolwebio/rnaseq`` Docker image
 
 
 ==================
