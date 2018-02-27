@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: 'Differential expression (case vs. control)'
   version: 0.1.2
   type: data:differentialexpression:edger

@@ -4,7 +4,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
   version: 0.0.4
   type: data:reads:fastq:paired:cutadapt

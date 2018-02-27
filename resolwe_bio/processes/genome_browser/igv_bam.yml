@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "IGV {{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
   version: 1.0.3
   type: data:igv:bam

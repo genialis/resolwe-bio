@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       memory: 32768
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"

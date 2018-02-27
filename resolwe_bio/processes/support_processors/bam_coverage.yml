@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "BigWig ({{bam.bam.file}})"
   version: 1.0.8
   type: data:reads:coverage

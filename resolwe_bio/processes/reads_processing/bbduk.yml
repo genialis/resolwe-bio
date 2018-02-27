@@ -11,7 +11,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
   version: 0.0.6
   type: data:reads:fastq:single:bbduk
@@ -347,7 +347,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
   version: 0.0.6
   type: data:reads:fastq:paired:bbduk

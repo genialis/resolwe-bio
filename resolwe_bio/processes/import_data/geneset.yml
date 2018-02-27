@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
@@ -91,7 +91,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: Gene set
   version: 0.1.0
   type: data:geneset
@@ -170,7 +170,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: Gene set (Venn)

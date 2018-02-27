@@ -10,7 +10,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Converted GFF3 to GTF file"
   version: 0.1.1
   type: data:annotation:gtf

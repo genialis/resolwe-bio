@@ -11,7 +11,7 @@
       network: true
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: '{{ src.file|default("?") }}'
   version: 1.1.0
   type: data:seq:nucleotide

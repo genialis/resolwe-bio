@@ -10,7 +10,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: 'RefSeq track ({{ refseq.fasta.file|default("?") }})'
   version: 1.1.0
   type: data:jbrowse:refseq:genome

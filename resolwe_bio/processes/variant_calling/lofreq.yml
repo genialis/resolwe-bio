@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
   version: 0.2.0
   type: data:variants:vcf:lofreq

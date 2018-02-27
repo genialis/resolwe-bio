@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
   version: 1.2.0
   type: data:alignment:bam:bwamem
@@ -226,7 +226,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
   version: 1.1.0
   type: data:alignment:bam:bwasw
@@ -367,7 +367,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
   version: 1.1.0
   type: data:alignment:bam:bwaaln

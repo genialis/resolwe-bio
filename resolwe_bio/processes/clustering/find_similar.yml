@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Expression of genes similar to {{gene}}"
   version: 1.0.11
   type: data:similarexpression

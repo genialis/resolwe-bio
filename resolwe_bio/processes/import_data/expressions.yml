@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: '{{ exp_name }}'
@@ -194,7 +194,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: '{{ exp.file|default("?") }}'
@@ -275,7 +275,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'

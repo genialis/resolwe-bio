@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: '{{ src.0.file|default("?") }}'
@@ -94,7 +94,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
     resources:
       network: true
   data_name: '{{ src1.0.file|default("?") }}'

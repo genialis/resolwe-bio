@@ -12,7 +12,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: 'Annotation track ({{ gff.gff.file|default("?") }})'
   version: 1.2.0
   type: data:jbrowse:annotation:gff3

@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "ABySS assembly ({{ options.name }})"
   version: 1.0.8
   type: data:abyss

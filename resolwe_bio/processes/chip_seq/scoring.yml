@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
   version: 1.0.9
   type: data:chipseq:peakscore
@@ -49,7 +49,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: "Gene score ({{ peakscore.peak_score.file|basename|default('?') }})"
   version: 1.0.6
   type: data:chipseq:genescore

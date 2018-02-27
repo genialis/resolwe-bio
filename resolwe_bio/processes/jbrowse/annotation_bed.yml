@@ -10,7 +10,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:latest
+        image: resolwebio/legacy:1.0.0
   data_name: 'BED annotation track (JBrowse)'
   version: 1.1.1
   type: data:jbrowse:annotation:bed
