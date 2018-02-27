@@ -6,12 +6,15 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Expression aggregator"
-  version: 0.0.6
+  version: 0.0.7
   type: data:aggregator:expression
   category: analyses
   persistence: CACHED
   description: >
     Collect expression data from samples grouped by sample descriptor field.
+    The _Expression aggregator_ process should __not__ be run in Batch Mode, as this will create
+    redundant outputs. Rather, select multiple samples below for which you wish to aggregate the
+    expression matrix.
   input:
     - name: exps
       label: Expressions

@@ -43,6 +43,7 @@ Added
 * Add Rattus norvegicus species choice to the ``rna-seq`` descriptor schema
   to allow running RNA-seq workflow for this species from the Recipes
 * Add ``merge expressions`` to ``archive-samples`` process
+* Add description of batch mode to ``Expression aggregator`` process
 
 
 Changed
