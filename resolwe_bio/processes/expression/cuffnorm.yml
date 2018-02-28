@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:2.1.1
   data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.6.0
+  version: 1.6.1
   type: data:cuffnorm
   category: analyses
   persistence: CACHED
@@ -129,6 +129,25 @@
     runtime: polyglot
     language: bash
     program: |
+
+      {% for c in cuffquant %}
+        {% if c.source != annotation.source %}
+          re-warning "All samples must be annotated by the genome database the annotation file belongs to."
+          re-error "Sample {{ c|sample_name }} has {{ c.source }} gene IDs, while annotation {{ annotation|name }} has {{ annotation.source }} gene IDs."
+        {% endif %}
+
+        {% if c.species != annotation.species %}
+          re-warning "All samples must be the same species as the annotation."
+          re-error "Sample {{ c|sample_name }} is {{ c.species }}, while annotation {{ annotation|name }} is a(n) {{ annotation.species }} annotation."
+        {% endif %}
+
+        {% if c.build != annotation.build %}
+          re-warning "All samples must share the same genome build information as the annotation."
+          re-error "Sample {{ c|sample_name }} has {{ c.build }}, while annotation {{ annotation|name }} has {{ annotation.build }} build information."
+        {% endif %}
+
+      {% endfor %}
+
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
       experiment=${experiment%?} #removes comma at the end
 
@@ -211,5 +230,5 @@
       {% endif %}
       re-save-file R_data R_data.zip
       re-save source {{annotation.source}}
-      re-save species {{cuffquant.species}}
-      re-save build {{cuffquant.build}}
+      re-save species {{ (cuffquant|first).species }}
+      re-save build {{ (cuffquant|first).build }}

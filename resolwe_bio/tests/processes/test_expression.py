@@ -132,6 +132,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(cuffnorm, 'fpkm_means', 'cuffnorm_all_fpkm_means.txt')
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
         self.assertFileExists(cuffnorm, 'raw_scatter')
+        self.assertFields(cuffnorm, 'source', 'UCSC')
+        self.assertFields(cuffnorm, 'species', 'Homo sapiens')
+        self.assertFields(cuffnorm, 'build', 'hg19')
 
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')

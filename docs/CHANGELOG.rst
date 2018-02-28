@@ -44,6 +44,9 @@ Added
   to allow running RNA-seq workflow for this species from the Recipes
 * Add ``merge expressions`` to ``archive-samples`` process
 * Add description of batch mode to ``Expression aggregator`` process
+* Add error and warning messages to the ``cuffnorm`` process. The
+  process will now fail if the inputs do not have the same build,
+  species, or source information
 
 Changed
 -------
@@ -144,6 +147,8 @@ Fixed
 * Fix ``cuffnorm`` process to work with samples containing dashes in
   their name and dispense prefixing sample names starting with numbers
   with 'X' in the ``cuffnorm`` normalization outputs
+* Fix ``cuffnorm`` process' outputs to correctlly track species and
+  build information
 
 
 ==================
