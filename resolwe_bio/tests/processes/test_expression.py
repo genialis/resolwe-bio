@@ -90,7 +90,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             sample_2 = self.run_process("upload-cxb", inputs)
 
             inputs = {
-                'src': 'cuffquant_3.cxb',
+                'src': '3-cuffquant.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'
@@ -98,7 +98,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             sample_3 = self.run_process("upload-cxb", inputs)
 
             inputs = {
-                'src': 'cuffquant_4.cxb',
+                'src': '4-cuffquant.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'
@@ -106,7 +106,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             sample_4 = self.run_process("upload-cxb", inputs)
 
             inputs = {
-                'src': 'cuffquant_5.cxb',
+                'src': '5-cuffquant.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'
@@ -114,7 +114,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             sample_5 = self.run_process("upload-cxb", inputs)
 
             inputs = {
-                'src': 'cuffquant_6.cxb',
+                'src': '6-cuffquant.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'

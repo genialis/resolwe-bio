@@ -141,6 +141,9 @@ Fixed
   ``resolwebio/rnaseq`` Docker image
 * Fix handling of NA values in Differential expression results table. NA values
   were incorrectly replaced with value 0 instead of 1
+* Fix ``cuffnorm`` process to work with samples containing dashes in
+  their name and dispense prefixing sample names starting with numbers
+  with 'X' in the ``cuffnorm`` normalization outputs
 
 
 ==================

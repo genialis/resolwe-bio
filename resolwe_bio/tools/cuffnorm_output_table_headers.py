@@ -1,8 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Rename cuffnorm output tables headers."""
-from __future__ import absolute_import, division, print_function
 
 import argparse
 from operator import itemgetter
@@ -21,7 +20,7 @@ reps_samples = dict(zip(sample_names, replicates))
 samples_files = dict(zip(file_names, sample_names))
 
 files_ids = {}
-with open('samples.table', 'rb') as samples_table:
+with open('samples.table', 'r') as samples_table:
     samples_table.readline()
     lines = samples_table.readlines()
     for line in lines:
