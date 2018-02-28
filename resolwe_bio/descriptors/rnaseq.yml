@@ -1,19 +1,19 @@
 - slug: rna-seq
   name: RNA-seq
-  version: 0.0.5
+  version: 1.0.0
   description: RNA-seq template
   schema:
-    - name: genome_and_annotation
-      label: Organism
+    - name: species
+      label: Species
       type: basic:string
-      default: hs
+      default: Homo sapiens
       choices:
         - label: Homo sapiens
-          value: hs
+          value: Homo sapiens
         - label: Mus musculus
-          value: mm
+          value: Mus musculus
         - label: Rattus norvegicus
-          value: rn
+          value: Rattus norvegicus
     - name: stranded
       label: Assay type
       type: basic:string
