@@ -31,7 +31,7 @@ def main():
 
     de_data = pd.read_csv(args.raw_file, sep='\t')
     de_data.rename(columns={'Unnamed: 0': 'gene_id'}, inplace=True)
-    de_data.fillna(value=0, inplace=True)
+    de_data.fillna(value=1, inplace=True)
     columns = {}
     col_order = []
 

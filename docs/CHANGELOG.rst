@@ -132,6 +132,8 @@ Fixed
   ``resolwebio/rnaseq`` Docker image
 * Fix installation errors for ``dexseq-prepare-annotation2`` in
   ``resolwebio/rnaseq`` Docker image
+* Fix handling of NA values in Differential expression results table. NA values
+  were incorrectly replaced with value 0 instead of 1
 
 
 ==================
