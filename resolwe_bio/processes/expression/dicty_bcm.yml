@@ -1,25 +1,26 @@
-# ================
-# Expression - BCM
-# ================
+# ==================
+# Expression - Dicty
+# ==================
 ---
 
-- slug: expression-bcm
-  name: Expression (BCM)
+- slug: expression-dicty
+  name: Dictyostelium expressions
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.2.1
+  version: 1.2.2
   type: data:expression:polya
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    Compute gene expression profile. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,
-    University of Ljubljana, Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics, Baylor College of
-    Medicine, Houston, TX, USA.
+    Dictyostelium-specific pipeline. Developed by Bioinformatics Laboratory,
+    Faculty of Computer and Information Science, University of Ljubljana,
+    Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics,
+    Baylor College of Medicine, Houston, TX, USA.
   input:
     - name: alignment
       label: Aligned sequence

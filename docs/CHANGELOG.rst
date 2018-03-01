@@ -121,6 +121,7 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Refactor ``featureCounts`` process
 * Use resolwebio/rnaseq:3.0.0 docker image in `goenrichment`, `upload-gaf`
   and `upload-obo` processors
+* Rename 'Expressions (BCM)' to 'Dicty expressions'
 
 Fixed
 -----

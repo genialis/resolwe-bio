@@ -136,8 +136,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')
 
-    @tag_process('expression-bcm', 'etc-bcm')
-    def test_expression_bcm(self):
+    @tag_process('expression-dicty', 'etc-bcm')
+    def test_expression_dicty(self):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
@@ -157,7 +157,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'alignment': aligned_reads.pk,
             'gff': annotation.pk,
             'mappable': mappa.pk}
-        expression = self.run_process('expression-bcm', inputs)
+        expression = self.run_process('expression-dicty', inputs)
         self.assertFile(expression, 'rpkm', 'expression_bcm_rpkm.tab.gz', compression='gzip')
         self.assertFields(expression, "source", "DICTYBASE")
         self.assertFields(expression, 'species', 'Dictyostelium discoideum')
@@ -276,7 +276,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'gff': annotation.pk,
                 'mappable': mappa.pk}
 
-            expression = self.run_process('expression-bcm', inputs)
+            expression = self.run_process('expression-dicty', inputs)
 
             inputs = {'expressions': [expression.pk, expression.pk]}
             etc = self.run_process('etc-bcm', inputs)
