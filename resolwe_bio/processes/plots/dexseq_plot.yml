@@ -1,0 +1,78 @@
+# =============
+# Plot - DEXSeq
+# =============
+---
+
+- slug: plot-dexeq
+  name: DEXSeq - Plot
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:3.1.0
+  data_name: 'Plot - DEXSeq ({{ gene }})'
+  version: 0.0.1
+  type: data:plot:dexseq
+  category: analyses
+  persistence: TEMP
+  scheduling_class: interactive
+  description: >
+    Visualise DEXSeq results.
+  input:
+    - name: dexseq
+      label: DEXSeq data object
+      type: data:differentialexpression:dexseq
+    - name: gene
+      label: Gene
+      type: basic:string
+    - name: transcript
+      label: Visualize transcript models
+      type: basic:boolean
+      default: False
+      description: >
+        Include the transcript model in the plot.
+    - name: sample
+      label: Plot individual samples
+      type: basic:boolean
+      default: False
+      description: >
+        Plot expression values for individual samples.
+    - name: exon
+      label: Plot exon expression
+      type: basic:boolean
+      default: False
+      description: >
+        Plot changes in the expression of individual exons.
+  output:
+    - name: pdf 
+      label: DEXSeq visualisation
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% if sample and exon %}
+        re-error "Either 'Plot individual samples' or 'Plot exon expression' may be chosen, not both."
+      {% endif %}
+
+      FLAGS=""
+      {% if transcript %}
+        FLAGS+=" -t"
+      {% endif %}
+
+      {% if sample %}
+        FLAGS+=" -s"
+      {% elif exon %}
+        FLAGS+=" -e"
+      {% endif %}
+
+      plot_dexseq.R \
+        --dxr {{ dexseq.dxr.file }} \
+        --gene {{ gene }} \
+        ${FLAGS}
+
+      re-checkrc "Error plotting differential expression data (DEXSeq)."
+
+      mv Rplots.pdf dexseq-plot-{{ gene }}.pdf
+
+      re-save-file pdf dexseq-plot-{{ gene }}.pdf

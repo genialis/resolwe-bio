@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+from resolwe.flow.models import Process
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -128,3 +129,59 @@ class PlotsProcessorTestCase(BioProcessTestCase):
                   'extension': 200, }
 
         self.run_process('bamliquidator', inputs)
+
+    @tag_process('plot-dexeq')
+    def test_dexseq_plot(self):
+        with self.preparation_stage():
+            # Mock upload dexseq process
+            process = Process.objects.create(
+                name='Upload dexseq mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:differentialexpression:dexseq:',
+                input_schema=[
+                    {
+                        'name': 'dxr',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'dxr',
+                        'type': 'basic:file:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ dxr.file_temp|default(dxr.file) }} {{ dxr.file }} "RData" "RData" 0.1
+re-save-file dxr "${NAME}".RData
+"""
+                }
+            )
+
+            inputs = {
+                'dxr': 'dxr.RData',
+            }
+            dexseq = self.run_process(process.slug, inputs)
+
+        inputs = {
+            'dexseq': dexseq.pk,
+            'gene': 'ENSMUSG00000024831',
+            'transcript': True,
+            'sample': True,
+        }
+
+        dexseq_plot = self.run_process('plot-dexeq', inputs)
+
+        self.assertFileExists(dexseq_plot, 'pdf')
