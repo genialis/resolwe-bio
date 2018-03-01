@@ -216,3 +216,18 @@ class SupportProcessorTestCase(BioProcessTestCase):
         lib_strandedness_paired = self.run_process('library-strandedness', paired_input)
         self.assertFields(lib_strandedness_paired, 'strandedness', 'IU')
         self.assertFields(lib_strandedness_paired, 'fragment_ratio', 1.0)
+
+    @tag_process('prepare-annotation-dexseq')
+    def test_prepare_dexseq_gtf(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'annotation_ensembl_mus_musculus_short.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Mus musculus',
+                'build': 'GRCm38.p5',
+            }
+            annotation = self.run_process('upload-gtf', inputs)
+
+        inputs = {'annotation': annotation.pk}
+        prepare_dexseq = self.run_process('prepare-annotation-dexseq', inputs)
+        self.assertFileExists(prepare_dexseq, 'annot')

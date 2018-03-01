@@ -1,0 +1,56 @@
+# ====================================
+# Prepare DEXSeq and featureCounts GTF
+# ====================================
+---
+
+- slug: prepare-annotation-dexseq
+  name: Prepare annotation (DEXSeq)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:3.1.0
+  data_name: 'DEXSeq annotation'
+  version: 0.0.1
+  type: data:annotation:gtf
+  category: analyses
+  description: >
+    Convert ENSEMBL GTF to DEXSeq and featureCounts readable GTF to be used in differential exon usage analyses.
+  input:
+    - name: annotation
+      label: Annotation (GTF)
+      type: data:annotation:gtf
+      description: >
+        Annotation from ENSEMBL in GTF format.
+      validate_regex: '\.(gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
+  output:
+    - name: annot
+      label: Converted GTF file
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: source
+      label: Gene ID source
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% if annotation.source != "ENSEMBL" %}
+        re-error "Annotation file must be from ENSEMBL."
+      {% endif %}
+
+      NAME=`basename {{ annotation.annot.file }} .gtf`
+
+      dexseq_prepare_annotation2 -f "${NAME}_dexseq.gtf" {{ annotation.annot.file }} "${NAME}_dexseq.gff"
+
+      re-checkrc "Error preparing DEXSeq GTF."
+
+      re-save-file annot "${NAME}_dexseq.gtf"
+      re-save source ENSEMBL
+      re-save species {{ annotation.species }}
+      re-save build {{ annotation.build }}

@@ -44,6 +44,7 @@ Added
 - Add FastQC option ``nogroup`` to ``bbduk-single`` and ``bbduk-paired`` processes
 - Add CPM normalization to ``htseq-count-raw`` process
 - Add ``workflow-bbduk-star-htseq-paired``
+- Add ``prepare-annotation-dexseq`` process
 
 Fixed
 -----
