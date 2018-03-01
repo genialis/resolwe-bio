@@ -1,0 +1,152 @@
+# ================================
+# Differential Expression - DEXSeq
+# ================================
+---
+
+- slug: differentialexpression-dexseq
+  name: DEXSeq
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:3.1.0
+  data_name: 'Differential expression (case vs. control)'
+  version: 0.0.1
+  type: data:differentialexpression:dexseq
+  category: analyses
+  persistence: CACHED
+  description: >
+    Find differentially expressed exons.
+  input:
+    - name: case
+      label: Case
+      type: list:data:expression:featurecounts
+      description: >
+        Case samples (replicates).
+    - name: control
+      label: Control
+      type: list:data:expression:featurecounts
+      description: >
+        Control samples (replicates).
+    - name: annotation
+      label: Annotation GFF
+      type: data:annotation
+      description: >
+        DEXSeq readable annotation file.
+  output:
+    - name: raw 
+      label: Differential expression
+      type: basic:file
+    - name: de_json
+      label: Results table (JSON)
+      type: basic:json
+    - name: de_file
+      label: Results table (file)
+      type: basic:file
+    - name: dxr
+      label: DEXSeq object
+      type: basic:file
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% set expressions = control + case %}
+
+      {% for e in expressions %}
+
+        {% if e.source != annotation.source %}
+          re-warning "All samples must be annotated by the genome database the annotation file belongs to."
+          re-error "Sample {{ e|sample_name }} has {{ e.source }} gene IDs, while annotation {{ annotation|name }} has {{ annotation.source }} gene IDs."
+        {% endif %}
+
+        {% if e.species != annotation.species %}
+          re-warning "All samples must be the same species as the annotation."
+          re-error "Sample {{ e|sample_name }} is {{ e.species }}, while annotation {{ annotation|name }} is a(n) {{ annotation.species }} annotation."
+        {% endif %}
+
+        {% if e.build != annotation.build %}
+          re-warning "All samples must share the same genome build information as the annotation."
+          re-error "Sample {{ e|sample_name }} has {{ e.build }}, while annotation {{ annotation|name }} has {{ annotation.build }} build information."
+        {% endif %}
+
+        {% if e.feature_type != (expressions|first).feature_type %}
+          re-warning "DE analysis must be created using the expression data of the same feature type (gene, transcript, etc.)."
+          re-error "Sample {{ expressions|first|sample_name }} has {{ (expressions|first).feature_type }}, while {{ e|sample_name }} has {{ e.feature_type }} feature type."
+        {% endif %}
+
+      {% endfor %}
+
+      {% for t in case %}
+        {% if t in control %}
+          re-warning "DE analysis failed. Case and Control groups must contain unique samples."
+          re-error " Sample {{ t|sample_name }} is in both Case and Control group."
+        {% endif %}
+      {% endfor %}
+
+      re-progress 0.1
+
+      # Merge featureCounts outputs to get an equivalent output to 
+      # if featureCounts was ran on multiple bams at once
+      {% for exp in expressions %}
+        zcat '{{ exp.feature_counts_output.file }}' > expression
+        {% if loop.index == 1 %}
+          head -n 1 expression > header
+          tail -n +2 expression > content
+        {% else %}
+          head -n 1 expression | rev | cut -d ' ' -f2 | rev > header1
+          paste -d ' ' header header1 > header2
+          mv header2 header
+          tail -n +2 expression | cut -d $'\t' -f7 > content1
+          paste -d $'\t' content content1 > content2
+          mv content2 content
+        {% endif %}
+      {% endfor %}
+
+      cat header content > merged_exp.out
+
+      re-progress 0.5
+
+      dexseq.R \
+        --cases {% for c in case %} {{ c|sample_name }} {% endfor %} \
+        --controls {% for c in control %} {{ c|sample_name }} {% endfor %} \
+        --expressions merged_exp.out \
+        --annotation  {{ annotation.annot.file }}
+
+      re-checkrc "Error computing differential expression (DEXSeq)."
+
+      re-progress 0.95
+
+      parse_diffexp.py \
+        diffexp_dexseq.tab \
+        de_data.json \
+        de_file.tab.gz \
+        --gene_id gene_id \
+        --fdr padj \
+        --pvalue pvalue \
+        --logfc log2fold_control_case \
+        --stat stat
+
+      re-checkrc "Error parsing differential expression table."
+
+      gzip diffexp_dexseq.tab
+
+      re-save-file raw diffexp_dexseq.tab.gz
+      re-save de_json de_data.json
+      re-save-file de_file de_file.tab.gz
+      re-save-file dxr dxr.RData
+      re-save source {{ (case|first).source }}
+      re-save species {{ (case|first).species }}
+      re-save build {{ (case|first).build }}
+      re-save feature_type {{ (case|first).feature_type }}

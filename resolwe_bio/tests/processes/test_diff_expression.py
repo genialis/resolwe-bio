@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Process
 from resolwe.test import tag_process
 
 from resolwe_bio.utils.test import BioProcessTestCase
@@ -128,3 +128,100 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
         self.assertFields(diff_exp, 'build', 'dd-05-2009')
         self.assertFields(diff_exp, 'feature_type', 'gene')
+
+    @tag_process('differentialexpression-dexseq')
+    def test_dexseq(self):
+        with self.preparation_stage():
+            # Mock upload featureCounts process
+            process = Process.objects.create(
+                name='Upload featureCounts mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                data_name='{{ fc.file|default("?") }}',
+                type='data:expression:featurecounts:',
+                flow_collection="sample",
+                input_schema=[
+                    {
+                        'name': 'fc',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'feature_counts_output',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'source',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'feature_type',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ fc.file_temp|default(fc.file) }} {{ fc.file }} "txt" "txt" 0.1 compress
+re-save-file feature_counts_output "${NAME}".txt.gz
+re-save source 'ENSEMBL'
+re-save species 'Mus musculus'
+re-save build 'GRCm38.p5'
+re-save feature_type 'exon'
+"""
+                }
+            )
+
+            inputs = {'fc': 'mus_musculus_short_fCount1.txt.gz'}
+            featurecounts_1 = self.run_process(process.slug, inputs)
+
+            inputs['fc'] = 'mus_musculus_short_fCount2.txt.gz'
+            featurecounts_2 = self.run_process(process.slug, inputs)
+
+            inputs['fc'] = 'mus_musculus_short_fCount3.txt.gz'
+            featurecounts_3 = self.run_process(process.slug, inputs)
+
+            inputs['fc'] = 'mus_musculus_short_fCount4.txt.gz'
+            featurecounts_4 = self.run_process(process.slug, inputs)
+
+            annotation = self.prepare_annotation(
+                fn='annotation_ensembl_mus_musculus_short_dexseq.gtf.gz',
+                source='ENSEMBL',
+                species='Mus musculus',
+                build='GRCm38.p5',
+            )
+
+        inputs = {
+            'case': [featurecounts_1.pk, featurecounts_2.pk],
+            'control': [featurecounts_3.pk, featurecounts_4.pk],
+            'annotation': annotation.pk,
+        }
+
+        diff_exp = self.run_process('differentialexpression-dexseq', inputs)
+
+        self.assertFileExists(diff_exp, 'raw')
+        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'dexseq.json.gz')
+        self.assertFileExists(diff_exp, 'dxr')
+        self.assertFields(diff_exp, 'source', 'ENSEMBL')
+        self.assertFields(diff_exp, 'species', 'Mus musculus')
+        self.assertFields(diff_exp, 'build', 'GRCm38.p5')
+        self.assertFields(diff_exp, 'feature_type', 'exon')
