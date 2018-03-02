@@ -115,6 +115,7 @@ Changed
   ``bam-split`` process
 * Set ``scheduling_class`` of gene and sample hierarchical clustering
   to ``interactive``
+* Set the cooksCutoff parameter to FALSE in ``deseq.R``
 
 Fixed
 -----

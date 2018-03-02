@@ -35,6 +35,6 @@ if (args$format == 'rsem') {
 dds <- dds[rowSums(counts(dds)) >= args$min_count_sum, ]
 dds = DESeq(dds)
 
-result = results(dds)
+result = results(dds, cooksCutoff=FALSE)
 result = result[order(result$padj), ]
 write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=FALSE, col.names=NA)
