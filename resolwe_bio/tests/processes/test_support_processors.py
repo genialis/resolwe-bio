@@ -28,7 +28,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
     def test_bam_split(self):
         with self.preparation_stage():
             bam = self.prepare_bam(fn='hybrid.bam', species='Mus musculus',
-                                   build='mm10/dm6')
+                                   build='mm10_dm6')
 
             header = self.run_process('upload-header-sam', {'src': 'mm10_header.sam'})
             header2 = self.run_process('upload-header-sam', {'src': 'dm6_header.sam'})

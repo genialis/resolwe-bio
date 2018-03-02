@@ -111,6 +111,8 @@ Changed
 * Processor ``archive-samples`` to create different IGV session files for
   ``build`` and ``species``
 * Expose advanced parameters in Chemical Mutagenesis workflow
+* Change expected genome build formatting for hybrid genomes in
+  ``bam-split`` process
 
 Fixed
 -----

@@ -10,14 +10,14 @@
     executor:
       docker:
         image: resolwebio/rnaseq:1.1.0
-  data_name: "{{ bam.bam.file.split('.')[0] }}_{{ bam.build.split('/')[0] }}.bam"
-  version: 0.1.0
+  data_name: "{{ bam.bam.file.split('.')[0] }}_{{ bam.build.split('_')[0] }}.bam"
+  version: 0.1.1
   type: data:alignment:bam:primary
   flow_collection: sample
   category: other
   persistence: CACHED
   description: >
-    Split hybrid bam file into two bam files
+    Split hybrid bam file into two bam files.
   input:
     - name: bam
       label: Hybrid alignment bam
@@ -58,8 +58,8 @@
       BAM={{ bam.bam.file }}
       NAME=`basename {{ bam.bam.file }} .bam`
       BUILD={{ bam.build }}
-      BUILD1=${BUILD%/*}
-      BUILD2=${BUILD##*/}
+      BUILD1=${BUILD%_*}
+      BUILD2=${BUILD##*_}
 
       {% set build_to_species = {
         'dm6': 'Drosophila melanogaster',
@@ -67,9 +67,9 @@
       %}
 
       {% set species1 = bam.species %}
-      {% set species2 = build_to_species[bam.build.split('/')[1]] %}
+      {% set species2 = build_to_species[bam.build.split('_')[1]] %}
       {% if not species2 %}
-        re-error "${BUILD} is not a valid hybrid genome build. Accepted builds are: \"mm10/dm6\", \"hg19/dm6\"."
+        re-error "${BUILD} is not a valid hybrid genome build. Accepted builds are: \"mm10_dm6\", \"hg19_dm6\"."
       {% endif %}
 
       samtools view -h -o "${NAME}.sam" "${BAM}"
