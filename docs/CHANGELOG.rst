@@ -106,8 +106,8 @@ Changed
   ``resolwebio/chipseq`` docker image
 * Make ID attribute labels in ``featureCounts`` more informative
 * Change 'source' to 'gene ID database' in labes and descriptions
-* Change base Docker image of ``resolwebio/rnaseq`` to
-  ``resolwebio/base:ubuntu-18.04``
+* Change base Docker images of ``resolwebio/rnaseq`` and ``resolwebio/dnaseq``
+  to ``resolwebio/base:ubuntu-18.04``
 * Processor ``archive-samples`` to create different IGV session files for
   ``build`` and ``species``
 * Expose advanced parameters in Chemical Mutagenesis workflow
