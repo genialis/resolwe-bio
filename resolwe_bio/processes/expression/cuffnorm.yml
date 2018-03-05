@@ -12,8 +12,8 @@
     executor:
       docker:
         image: resolwebio/rnaseq:2.1.1
-  data_name: 'Cuffnorm ({{cuffquant|map("sample_name")|join(", ")|default("?")}})'
-  version: 1.6.1
+  data_name: 'Cuffnorm ({{ cuffquant|map("sample_name")|join(", ")|default("?") }})'
+  version: 1.6.2
   type: data:cuffnorm
   category: analyses
   persistence: CACHED
@@ -151,10 +151,10 @@
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
       experiment=${experiment%?} #removes comma at the end
 
-      replicates='{% for r in replicates %}{{r}},{% endfor %}'
+      replicates='{% for r in replicates %}{{ r }},{% endfor %}'
       replicates=${replicates%?}
 
-      sample_names='{% for cq in cuffquant %}{{cq|sample_name}},{% endfor %}'
+      sample_names='{% for cq in cuffquant %}{{ cq|sample_name }},{% endfor %}'
       sample_names=${sample_names%?}
 
       labels=`cuffnorm_group_labels.py ${replicates}` #construction of group labels
@@ -164,7 +164,7 @@
 
       re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads {{requirements.resources.cores}} {{ annotation.annot.file }} ${experiments}
+      cuffnorm --output-dir ./ --num-threads {{ requirements.resources.cores }} {{ annotation.annot.file }} ${experiments}
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
 
@@ -178,26 +178,26 @@
           geneFPKMFile='genes.fpkm_table', \
           name='cuffnorm', \
           groupString='${labels}', \
-          useERCC='"{{useERCC|yesno("TRUE", "FALSE")}}"' \
+          useERCC='"{{ useERCC|yesno("TRUE", "FALSE") }}"' \
         ) \
       "
       re-checkrc 'normalizeRNASeq failed.'
 
       {% if useERCC %}
         {% for exp in cuffquant %}
-          S_NAME={{exp|sample_name}}
-          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{loop.index0}} -n
+          S_NAME={{ exp|sample_name }}
+          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt {{ loop.index0 }} -n
           mv expression.tab ${S_NAME}_expression.tab
           re-export "${S_NAME}_expression.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{exp|id}},"exp":'\"${S_NAME}_expression.tab\"'}}'
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{ exp|id }},"exp":'\"${S_NAME}_expression.tab\"'}}'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          S_NAME={{exp|sample_name}}
-          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_raw.txt {{loop.index0}} -n
+          S_NAME={{ exp|sample_name }}
+          parse_cuffnorm.py cuffnorm_all_fpkm_exprs_raw.txt {{ loop.index0 }} -n
           mv expression.tab ${S_NAME}_expression.tab
           re-export "${S_NAME}_expression.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{exp|id}},"exp":'\"${S_NAME}_expression.tab\"'}}'
+          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{ exp|id }},"exp":'\"${S_NAME}_expression.tab\"'}}'
         {% endfor %}
       {% endif %}
 
@@ -229,6 +229,6 @@
         re-save-file spike_norm cuffnorm_spike_norm.pdf
       {% endif %}
       re-save-file R_data R_data.zip
-      re-save source {{annotation.source}}
+      re-save source {{ annotation.source }}
       re-save species {{ (cuffquant|first).species }}
       re-save build {{ (cuffquant|first).build }}
