@@ -1,19 +1,19 @@
 - slug: bcm-workflow-rnaseq
   name: RNA-Seq workflow
-  version: 0.0.3
+  version: 0.1.0
   description:  RNA-Seq workflow runs HISAT2 and Cuffquant.
   schema:
-    - name: genome_and_annotation
-      label: Select organism
+    - name: species
+      label: Select species
       type: basic:string
-      default: hs
+      default: Homo sapiens
       choices:
         - label: Homo sapiens
-          value: hs
+          value: Homo sapiens
         - label: Mus musculus
-          value: mm
+          value: Mus musculus
         - label: Rattus norvegicus
-          value: rn
+          value: Rattus norvegicus
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
       type: basic:string
@@ -26,20 +26,20 @@
 
 - slug: bcm-workflow-chipseq
   name: RNA-Seq workflow
-  version: 0.0.3
+  version: 0.1.0
   description:  Chip-Seq workflow runs Bowtie 2.2.3, Macs 1.4 and Rose 2.
   schema:
-    - name: genome_and_annotation
-      label: Select organism
+    - name: species
+      label: Select species
       type: basic:string
-      default: hs
+      default: Homo sapiens
       choices:
         - label: Homo sapiens
-          value: hs
+          value: Homo sapiens
         - label: Mus musculus
-          value: mm
+          value: Mus musculus
         - label: Rattus norvegicus
-          value: rn
+          value: Rattus norvegicus
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
       type: basic:string
@@ -52,20 +52,20 @@
 
 - slug: bcm-workflow-wgbs
   name: RNA-Seq workflow
-  version: 0.0.3
+  version: 0.1.0
   description:  Whole genome bisulfite sequencing runs Bsmap and Mcall.
   schema:
-    - name: genome_and_annotation
-      label: Select organism
+    - name: species
+      label: Select species
       type: basic:string
-      default: hs
+      default: Homo sapiens
       choices:
         - label: Homo sapiens
-          value: hs
+          value: Homo sapiens
         - label: Mus musculus
-          value: mm
+          value: Mus musculus
         - label: Rattus norvegicus
-          value: rn
+          value: Rattus norvegicus
     - name: ercc_spike_in
       label: Were ERCC spike-in used in experiment?
       type: basic:string

@@ -42,8 +42,6 @@ Added
   Docker image
 * Add Rattus norvegicus species choice to the ``rna-seq`` descriptor schema
   to allow running RNA-seq workflow for this species from the Recipes
-* **BACKWARD INCOMPATIBLE:** Rename the organism field names to species in
-  ``rna-seq`` and ``cutadapt-star-htseq`` descriptor schemas
 * Add ``merge expressions`` to ``archive-samples`` process
 * Add description of batch mode to ``Expression aggregator`` process
 
@@ -116,6 +114,11 @@ Changed
 * Set ``scheduling_class`` of gene and sample hierarchical clustering
   to ``interactive``
 * Set the cooksCutoff parameter to FALSE in ``deseq.R``
+* **BACKWARD INCOMPATIBLE:** Rename the organism field names to species in
+  ``rna-seq`` and ``cutadapt-star-htseq`` descriptor schemas
+* **BACKWARD INCOMPATIBLE:** Rename the ``genome_and_annotation`` field name
+  to ``species`` in ``bcm-*`` descriptor schemas and use the full species name
+  for the ``species`` field values
 
 Fixed
 -----
