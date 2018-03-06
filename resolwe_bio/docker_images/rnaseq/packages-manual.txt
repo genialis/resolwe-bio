@@ -6,7 +6,6 @@ gotea
 r-packages
 rsem
 samtools
-sra-toolkit
 star
 subread
 trimmomatic
