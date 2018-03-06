@@ -21,7 +21,7 @@ Included bioinformatics tools:
 * rtracklayer (v1.38.0)
 * SAMtools (v1.5)
 * Salmon (0.7.2)
-* STAR (v2.5.3a)
+* STAR (v2.5.4b)
 * Subread (v1.6.0)
 * Trimmomatic (v0.36)
 * tximport (v1.6.0)

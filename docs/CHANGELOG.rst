@@ -125,6 +125,7 @@ Changed
 * Use resolwebio/rnaseq:3.0.0 docker image in `goenrichment`, `upload-gaf`
   and `upload-obo` processors
 * Rename 'Expressions (BCM)' to 'Dicty expressions'
+* Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 
 Fixed
 -----
