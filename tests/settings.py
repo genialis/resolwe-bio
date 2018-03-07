@@ -142,6 +142,8 @@ FLOW_DOCKER_VOLUME_EXTRA_OPTIONS = {
     'tools': 'z',
 }
 
+FLOW_PROCESS_MAX_CORES = 1
+
 # Don't pull Docker images if set via the environment variable.
 FLOW_DOCKER_DONT_PULL = strtobool(os.environ.get('RESOLWE_DOCKER_DONT_PULL', '0'))
 
