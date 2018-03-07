@@ -4,112 +4,353 @@
 ---
 
 - slug: feature_counts
-  name: FeatureCounts
+  name: featureCounts
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
-  data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 0.3.2
+        image: resolwebio/rnaseq:2.1.1
+    resources:
+      cores: 10
+  data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
+  version: 0.4.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    A highly efficient and accurate read summarization program.
+    An ultrafast and accurate read summarization program. First samtools are
+    used to determine, if aligned reads are single or paired-end. After that
+    the featureCounts tool produces expressions according to the parameters
+    set in the process inputs. Finally, raw expression counts are normalized
+    by computing TPM and FPKM values. See
+    [the official website](http://bioinf.wehi.edu.au/featureCounts/) and
+    [the introductory paper](https://academic.oup.com/bioinformatics/article/30/7/923/232889)
+    for more information.
   input:
-    - name: alignments
-      label: Aligned reads
-      type: data:alignment:bam
+    - name: alignment
+      label: Alignment
+      group:
+        - name: aligned_reads
+          label: Aligned reads
+          type: data:alignment:bam
+        - name: assay_type
+          label: Assay type
+          type: basic:string
+          default: non_specific
+          description: >
+            Indicate if strand-specific read counting should be performed. For
+            paired-end reads, strand of the first read is taken as the strand
+            of the whole fragment. FLAG field is used to tell if a read is
+            first or second read in a pair.
+          choices:
+            - label: Strand non-specific
+              value: non_specific
+            - label: Strand-specific forward
+              value: forward
+            - label: Strand-specific reverse
+              value: reverse
     - name: annotation
-      label: Annotation (GTF/GFF3)
-      type: data:annotation
-    - name: feature_type
-      label: Feature type
-      type: basic:string
-      default: gene
-      choices:
-        - label: gene
-          value: gene
-        - label: transcript
-          value: transcript
-      description: >
-        The type of feature the quantification program summarizes over (e.g. gene or transcript-level analysis).
-    - name: id_attribute
-      label: ID attribute
-      type: basic:string
-      default: gene_id
-      allow_custom_choice: true
-      choices:
-        - label: gene_id
-          value: gene_id
-        - label: transcript_id
-          value: transcript_id
-        - label: ID
-          value: ID
-        - label: geneid
-          value: geneid
-      description: >
-        GTF or GFF attribute to be used as feature ID.
-        Several GTF lines with the same feature ID will be considered as parts of the same feature.
-        The feature ID is used to identity the counts in the output table.
-    - name: feature_class
-      label: Feature class
-      type: basic:string
-      default: exon
-      description: >
-        Feature class (3rd column in GFF file) to be used. All other features will be ignored.
-    - name: count_multi_mapping_reads
-      label: Count multi mapping reads
+      label: Annotation
+      group:
+        - name: annotation
+          label: Annotation
+          type: data:annotation
+          description: >
+            GTF and GFF3 annotation formats are supported.
+        - name: feature_class
+          label: Feature class
+          type: basic:string
+          default: exon
+          description: >
+            Feature class (3rd column in GTF/GFF3 file) to be used. All other
+            features will be ignored.
+        - name: feature_type
+          label: Feature type
+          type: basic:string
+          default: gene
+          choices:
+            - label: gene
+              value: gene
+            - label: transcript
+              value: transcript
+          description: >
+            The type of feature the quantification program summarizes over
+            (e.g. gene or transcript-level analysis). The value of this
+            parameter needs to be chosen in line with 'ID attribute' below.
+        - name: id_attribute
+          label: ID attribute
+          type: basic:string
+          default: gene_id
+          allow_custom_choice: true
+          choices:
+            - label: gene_id
+              value: gene_id
+            - label: transcript_id
+              value: transcript_id
+            - label: ID
+              value: ID
+            - label: geneid
+              value: geneid
+          description: >
+            GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
+            with the same feature ID will be considered as parts of the same
+            feature. The feature ID is used to identity the counts in the
+            output table. In GTF files this is usually 'gene_id', in GFF3 files
+            this is often 'ID', and 'transcript_id' is frequently a valid
+            choice for both annotation formats.
+    - name: show_advanced
+      label: Show advanced options
       type: basic:boolean
-      required: false
       default: false
       description: >
-        If specified, multi-mapping reads/fragments will be counted.
-    - name: min_mqs
-      label: Minimal mapping quality score
-      type: basic:integer
-      required: false
-      default: 0
-      description: >
-        The minimum mapping quality score a read must satisfy in order to be counted. For paired-end reads, at least one end should satisfy this criteria.
-    - name: strand_specific
-      label: Strand specific read counting
-      type: basic:integer
-      required: false
-      default: 0
-      description: >
-        Indicate if strand-specific read counting should be performed.
-      choices:
-        - label: unstranded
-          value: 0
-        - label: stranded
-          value: 1
-        - label: reversely stranded
-          value: 2
-    - name: PE_options
-      label: Paired end alignment options
+        Inspect and modify parameters
+    - name: advanced
+      label: Advanced
+      hidden: '!show_advanced'
       group:
-        - name: is_paired_end
-          label: Is paired end
-          type: basic:boolean
-          required: false
-          default: false
-          description: >
-            If specified, fragments (or templates) will be counted instead of reads. This option is only applicable for paired-end reads.
-        - name: require_both_ends_mapped
-          label: Require both ends mapped
-          type: basic:boolean
-          required: false
-          description: >
-            If specified, only fragments that have both ends successfully aligned will be considered for summarization.
-        - name: count_chimeric_fragments
-          label: Count chimeric fragments
-          type: basic:boolean
-          required: false
-          description: >
-           If specified, the chimeric fragments (those fragments that have their two ends aligned to different chromosomes) will NOT be counted.
+        - name: summarization_level
+          label: Level of summarization
+          group:
+            - name: count_features
+              label: Perform read counting at feature level
+              type: basic:boolean
+              default: false
+              description: >
+                Count reads for exons rather than genes.
+        - name: overlap
+          label: Overlap between reads and features
+          group:
+            - name: allow_multi_overlap
+              label: >
+                Assign reads to all their overlapping features or meta-features
+              type: basic:boolean
+              default: false
+            - name: min_overlap
+              label: >
+                Minimum number of overlapping bases in a read that is required
+                for read assignment
+              type: basic:integer
+              default: 1
+              description: >
+                Number of overlapping bases is counted from both reads if
+                paired-end. If a negative value is provided, then a gap of up
+                to specified size will be allowed between read and the feature
+                that the read is assigned to.
+            - name: frac_overlap
+              label: >
+                Minimum fraction of overlapping bases in a read that is
+                required for read assignment
+              type: basic:decimal
+              default: 0.0
+              description: >
+                Value should be within range [0, 1]. Number of overlapping
+                bases is counted from both reads if paired end. Both this
+                option and 'Minimum number of overlapping bases in a read
+                that is required for read assignment' need to be satisfied
+                for read assignment.
+            - name: frac_overlap_feature
+              label: >
+                Minimum fraction of overlapping bases included in a feature
+                that is required for overlapping with a read or a read pair
+              type: basic:decimal
+              default: 0.0
+              description: >
+                Value should be within range [0, 1].
+            - name: largest_overlap
+              label: >
+                Assign reads to a feature or meta-feature that has the largest
+                number of overlapping bases
+              type: basic:boolean
+              default: false
+            - name: read_extension_5
+              label: >
+                Number of bases to extend reads upstream by from their 5' end
+              type: basic:integer
+              default: 0
+            - name: read_extension_3
+              label: >
+                Number of bases to extend reads upstream by from their 3' end
+              type: basic:integer
+              default: 0
+            - name: read_to_pos
+              label: Reduce reads to their 5'-most or 3'-most base
+              type: basic:integer
+              required: false
+              description: >
+                Read counting is performed based on the single base the read
+                is reduced to.
+        - name: multi_mapping_reads
+          label: Multi-mapping reads
+          group:
+            - name: count_multi_mapping_reads
+              label: Count multi-mapping reads
+              type: basic:boolean
+              default: false
+              description: >
+                For a multi-mapping read, all its reported alignments will be
+                counted. The 'NH' tag in BAM input is used to detect
+                multi-mapping reads.
+        - name: fractional_counting
+          label: Fractional counting
+          group:
+            - name: fraction
+              label: Assign fractional counts to features
+              type: basic:boolean
+              default: false
+              disabled: >
+                !advanced.multi_mapping_reads.count_multi_mapping_reads &&
+                !advanced.overlap.allow_multi_overlap
+              required: false
+              description: >
+                This option must be used together with 'Count multi-mapping
+                reads' or 'Assign reads to all their overlapping features or
+                meta-features' or both. When 'Count multi-mapping reads' is
+                checked, each reported alignment from a multi-mapping read
+                (identified via 'NH' tag) will carry a count of 1 / x, instead
+                of 1 (one), where x is the total number of alignments reported
+                for the same read. When 'Assign reads to all their overlapping
+                features or meta-features' is checked, each overlapping
+                feature will receive a count of 1 / y, where y is the total
+                number of features overlapping with the read. When both 'Count
+                multi-mapping reads' and 'Assign reads to all their overlapping
+                features or meta-features' are specified, each alignment will
+                carry a count of 1 / (x * y).
+        - name: read_filtering
+          label: Read filtering
+          group:
+            - name: min_mqs
+              label: Minimum mapping quality score
+              type: basic:integer
+              default: 0
+              description: >
+                The minimum mapping quality score a read must satisfy in order
+                to be counted. For paired-end reads, at least one end should
+                satisfy this criterion.
+            - name: split_only
+              label: Count only split alignments
+              type: basic:boolean
+              default: false
+            - name: non_split_only
+              label: Count only non-split alignments
+              type: basic:boolean
+              default: false
+            - name: primary
+              label: Count only primary alignments
+              type: basic:boolean
+              default: false
+              description: >
+                Primary alignments are identified using bit 0x100 in BAM
+                FLAG field.
+            - name: ignore_dup
+              label: Ignore duplicate reads in read counting
+              type: basic:boolean
+              default: false
+              description: >
+                Duplicate reads are identified using bit Ox400 in BAM FLAG
+                field. The whole read pair is ignored if one of the reads is a
+                duplicate read for paired-end data.
+        - name: exon_exon_junctions
+          label: Exon-exon junctions
+          group:
+            - name: junc_counts
+              label: Count number of reads supporting each exon-exon junction
+              type: basic:boolean
+              default: false
+              description: >
+                Junctions are identified from those exon-spanning reads in
+                input (containing 'N' in CIGAR string).
+            - name: genome
+              label: Genome
+              type: data:genome
+              disabled: '!advanced.exon_exon_junctions.junc_counts'
+              required: false
+              description: >
+                Reference sequences used in read mapping that produced the
+                provided BAM files. This optional argument can be used to
+                improve read counting for junctions.
+        - name: paired_end
+          label: Parameters specific to paired-end reads
+          group:
+            - name: is_paired_end
+              label: Count fragments (or templates) instead of reads
+              type: basic:boolean
+              default: false
+            - name: require_both_ends_mapped
+              label: Count only read pairs that have both ends aligned
+              type: basic:boolean
+              default: false
+            - name: check_frag_length
+              label: >
+                Check fragment length when assigning fragments to meta-features
+                or features
+              type: basic:boolean
+              description: >
+                Use minimum and maximum fragment/template length to set
+                thresholds.
+              default: false
+            - name: min_frag_length
+              label: Minimum fragment/template length
+              type: basic:integer
+              default: 50
+              disabled: '!advanced.paired_end.check_frag_length'
+              required: false
+            - name: max_frag_length
+              label: Maximum fragment/template length
+              type: basic:integer
+              default: 600
+              disabled: '!advanced.paired_end.check_frag_length'
+              required: false
+            - name: do_not_count_chimeric_fragments
+              label: Do not count chimeric fragments
+              type: basic:boolean
+              default: false
+              description: >
+                Do not count read pairs that have their two ends mapped to
+                different chromosomes or mapped to same chromosome but on
+                different strands.
+            - name: do_not_sort
+              label: Do not sort reads in BAM input
+              type: basic:boolean
+              default: false
+        - name: read_groups
+          label: Read groups
+          group:
+            - name: by_read_group
+              label: Assign reads by read group
+              type: basic:boolean
+              default: false
+              description: >
+                RG tag is required to be present in the input BAM files.
+        - name: long_reads
+          label: Long reads
+          group:
+            - name: count_long_reads
+              label: Count long reads such as Nanopore and PacBio reads
+              type: basic:boolean
+              default: false
+        - name: miscellaneous
+          label: Miscellaneous
+          group:
+            - name: report_reads
+              label: >
+                Output detailed assignment results for each read or read pair
+              type: basic:boolean
+              default: false
+            - name: max_mop
+              label: Maximum number of 'M' operations allowed in a CIGAR string
+              type: basic:integer
+              default: 10
+              description: >
+                Both 'X' and '=' are treated as 'M' and adjacent 'M' operations
+                are merged in the CIGAR string.
+            - name: verbose
+              label: Output verbose information
+              type: basic:boolean
+              default: false
+              description: >
+                Output verbose information for debugging, such as unmatched
+                chromosome / contig names.
   output:
     - name: rc
       label: Read counts
@@ -135,6 +376,7 @@
     - name: read_assignments
       label: Read assignments
       type: basic:file
+      required: false
       description: >
         Read assignment results for each read (or fragment if paired end).
     - name: source
@@ -153,54 +395,121 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename {{ alignments.bam.file}} .bam`
+      {% if not alignment.aligned_reads.species == annotation.annotation.species %}
+        re-error \
+          {{ ('Species of aligned reads (%s) and annotation (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same species.')
+             |format(alignment.aligned_reads.species, annotation.annotation.species) }}
+      {% endif %}
 
-      COUNT_MULTI_MAPPING_READS="{% if count_multi_mapping_reads %} -M{% endif %}"
+      {% if not alignment.aligned_reads.build == annotation.annotation.build %}
+        re-error \
+          {{ ('Builds of aligned reads (%s) and annotation (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same build.')
+             |format(alignment.aligned_reads.build, annotation.annotation.build) }}
+      {% endif %}
 
-      IS_PAIRED_END="{% if PE_options.is_paired_end %} -p{% endif %}"
-      REQUIRE_BOTH_ENDS_MAPPED="{% if PE_options.require_both_ends_mapped %} -B{% endif %}"
-      COUNT_CHIMERIC_FRAGMENTS="{% if PE_options.count_chimeric_fragments %} -C{% endif %}"
+      {% set alignment_fn = alignment.aligned_reads.bam.file|basename %}
+      {% set name = alignment_fn[:-4]
+         if alignment_fn.endswith('.bam')
+         else alignment_fn %}
+      {% set annotation_fmt = 'gtf'
+         if annotation.annotation|type|subtype('data:annotation:gtf')
+         else 'gff3' %}
+      {% set strandedness = {'non_specific': 0, 'forward': 1, 'reverse': 2} %}
 
-      # Check if reads are paired or single-ended.
-      if [[ $(samtools view -c -f 1 {{ alignments.bam.file }}) != 0 ]]; then
+      if [[ $(samtools view -c -f 1 {{ alignment.aligned_reads.bam.file }}) == 0 ]]
+      then
         featureCounts \
-          -a {{annotation.annot.file}} \
-          -o "featureCounts_rc.txt" \
-          -g {{ id_attribute }} \
-          ${COUNT_MULTI_MAPPING_READS} \
-          -Q {{ min_mqs }} \
-          -s {{ strand_specific }} \
-          -t {{ feature_class }} \
-          ${REQUIRE_BOTH_ENDS_MAPPED} \
-          ${COUNT_CHIMERIC_FRAGMENTS} \
-          ${IS_PAIRED_END} \
-          -R {{ alignments.bam.file }}
+          -a {{ annotation.annotation.annot.file }} \
+          -o featureCounts_rc.txt \
+          -F GTF \
+          -t {{ annotation.feature_class }} \
+          -g {{ annotation.id_attribute }} \
+          {% if advanced.summarization_level.count_features %} -f {% endif %} \
+          {% if advanced.overlap.allow_multi_overlap %} \
+            -O \
+          {% endif %} \
+          --minOverlap {{ advanced.overlap.min_overlap }} \
+          --fracOverlap {{ advanced.overlap.frac_overlap }} \
+          --fracOverlapFeature {{ advanced.overlap.frac_overlap_feature }} \
+          {% if advanced.overlap.largest_overlap %} --largestOverlap {% endif %} \
+          --readExtension5 {{ advanced.overlap.read_extension_5 }} \
+          --readExtension3 {{ advanced.overlap.read_extension_3 }} \
+          {% if advanced.overlap.read_to_pos %} --read2pos {{ advanced.overlap.read_to_pos }} {% endif %} \
+          {% if advanced.multi_mapping_reads.count_multi_mapping_reads %} -M {% endif %} \
+          {% if advanced.fractional_counting.fraction %} --fraction {% endif %} \
+          -Q {{ advanced.read_filtering.min_mqs }} \
+          {% if advanced.read_filtering.split_only %} --countSplitAlignmentsOnly {% endif %} \
+          {% if advanced.read_filtering.non_split_only %} --countNonSplitAlignmentsOnly {% endif %} \
+          {% if advanced.read_filtering.primary %} --primary {% endif %} \
+          {% if advanced.read_filtering.ignore_dup %} --ignoreDup {% endif %} \
+          -s {{ strandedness[alignment.assay_type] }} \
+          {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
+          {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
+             -G {{ advanced.exon_exon_junctions.genome.src.file }} \
+          {% endif %} \
+          -T {{ requirements.resources.cores }} \
+          {% if advanced.read_groups.by_read_group %} --byReadGroup {% endif %} \
+          {% if advanced.long_reads.count_long_reads %} -L {% endif %} \
+          {% if advanced.miscellaneous.report_reads %} -R CORE {% endif %} \
+          --maxMOp {{ advanced.miscellaneous.max_mop }} \
+          {% if advanced.miscellaneous.verbose %} --verbose {% endif %} \
+          {{ alignment.aligned_reads.bam.file }}
       else
         featureCounts \
-          -a {{annotation.annot.file}} \
-          -o "featureCounts_rc.txt" \
-          -g {{ id_attribute }} \
-          ${COUNT_MULTI_MAPPING_READS} \
-          -Q {{ min_mqs }} \
-          -s {{ strand_specific }} \
-          -t {{ feature_class }} \
-          -R {{ alignments.bam.file }}
+          -a {{ annotation.annotation.annot.file }} \
+          -o featureCounts_rc.txt \
+          -F GTF \
+          -t {{ annotation.feature_class }} \
+          -g {{ annotation.id_attribute }} \
+          {% if advanced.summarization_level.count_features %} -f {% endif %} \
+          {% if advanced.overlap.allow_multi_overlap %} \
+            -O \
+          {% endif %} \
+          --minOverlap {{ advanced.overlap.min_overlap }} \
+          --fracOverlap {{ advanced.overlap.frac_overlap }} \
+          --fracOverlapFeature {{ advanced.overlap.frac_overlap_feature }} \
+          {% if advanced.overlap.largest_overlap %} --largestOverlap {% endif %} \
+          --readExtension5 {{ advanced.overlap.read_extension_5 }} \
+          --readExtension3 {{ advanced.overlap.read_extension_3 }} \
+          {% if advanced.overlap.read_to_pos %} --read2pos {{ advanced.overlap.read_to_pos }} {% endif %} \
+          {% if advanced.multi_mapping_reads.count_multi_mapping_reads %} -M {% endif %} \
+          {% if advanced.fractional_counting.fraction %} --fraction {% endif %} \
+          -Q {{ advanced.read_filtering.min_mqs }} \
+          {% if advanced.read_filtering.split_only %} --countSplitAlignmentsOnly {% endif %} \
+          {% if advanced.read_filtering.non_split_only %} --countNonSplitAlignmentsOnly {% endif %} \
+          {% if advanced.read_filtering.primary %} --primary {% endif %} \
+          {% if advanced.read_filtering.ignore_dup %} --ignoreDup {% endif %} \
+          -s {{ strandedness[alignment.assay_type] }} \
+          {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
+          {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
+            -G {{ advanced.exon_exon_junctions.genome.src.file }} \
+          {% endif %} \
+          {% if advanced.paired_end.is_paired_end %} -p {% endif %} \
+          {% if advanced.paired_end.require_both_ends_mapped %} -B {% endif %} \
+          {% if advanced.paired_end.check_frag_length %} -P {% endif %} \
+          {% if advanced.paired_end.check_frag_length %} -d {{ advanced.paired_end.min_frag_length }} {% endif %} \
+          {% if advanced.paired_end.check_frag_length %} -D {{ advanced.paired_end.max_frag_length }} {% endif %} \
+          {% if advanced.paired_end.do_not_count_chimeric_fragments %} -C {% endif %} \
+          {% if advanced.paired_end.do_not_sort %} --donotsort {% endif %} \
+          -T {{ requirements.resources.cores }} \
+          {% if advanced.read_groups.by_read_group %} --byReadGroup {% endif %} \
+          {% if advanced.long_reads.count_long_reads %} -L {% endif %} \
+          {% if advanced.miscellaneous.report_reads %} -R CORE {% endif %} \
+          --maxMOp {{ advanced.miscellaneous.max_mop }} \
+          {% if advanced.miscellaneous.verbose %} --verbose {% endif %} \
+          {{ alignment.aligned_reads.bam.file }}
       fi
       re-checkrc "featureCounts failed"
 
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
 
-      {% if annotation|type|subtype('data:annotation:gtf') %}
-        ANNOTATION_FORMAT=gtf
-      {% else %}
-        ANNOTATION_FORMAT=gff3
-      {% endif %}
-
       expression_fpkm_tpm.R  \
-        {{ annotation.annot.file }} \
-        ${ANNOTATION_FORMAT} \
-        {{ feature_class }} \
-        {{ id_attribute }} \
+        {{ annotation.annotation.annot.file }} \
+        {{ annotation_fmt }} \
+        {{ annotation.feature_class }} \
+        {{ annotation.id_attribute }} \
         'rc_wo_header.txt'
       re-checkrc
       re-progress 0.9
@@ -209,24 +518,26 @@
       add_header.py fpkm_wo_header.tab fpkm.tab
       add_header.py tpm_wo_header.tab tpm.tab
 
-      gzip -c featureCounts_rc.txt > "${NAME}_featureCounts_rc.txt.gz"
-      gzip -c rc.txt > "${NAME}_rc.tab.gz"
-      gzip -c fpkm.tab > "${NAME}_fpkm.tab.gz"
-      gzip -c tpm.tab > "${NAME}_tpm.tab.gz"
+      gzip -c featureCounts_rc.txt > {{ name ~ '_featureCounts_rc.txt.gz' }}
+      gzip -c rc.txt > {{ name ~ '_rc.tab.gz' }}
+      gzip -c fpkm.tab > {{ name ~ '_fpkm.tab.gz' }}
+      gzip -c tpm.tab > {{ name ~ '_tpm.tab.gz' }}
 
-      expression2storage.py --output json.txt "${NAME}_tpm.tab.gz"
+      expression2storage.py --output json.txt {{ name ~ '_tpm.tab.gz' }}
       re-checkrc
       re-save exp_json json.txt
       re-progress 0.95
 
-      re-save-file feature_counts_output "${NAME}_featureCounts_rc.txt.gz"
-      re-save-file counts_summary "featureCounts_rc.txt.summary"
-      re-save-file read_assignments "${NAME}.bam.featureCounts"
-      re-save-file rc "${NAME}_rc.tab.gz"
-      re-save-file fpkm "${NAME}_fpkm.tab.gz"
-      re-save-file exp "${NAME}_tpm.tab.gz"
+      re-save-file feature_counts_output {{ name ~ '_featureCounts_rc.txt.gz' }}
+      re-save-file counts_summary featureCounts_rc.txt.summary
+      {% if advanced.miscellaneous.report_reads %}
+        re-save-file read_assignments {{ name ~ '.bam.featureCounts' }}
+      {% endif %}
+      re-save-file rc {{ name ~ '_rc.tab.gz' }}
+      re-save-file fpkm {{ name ~ '_fpkm.tab.gz' }}
+      re-save-file exp {{ name ~ '_tpm.tab.gz' }}
       re-save exp_type 'TPM'
-      re-save source {{annotation.source}}
-      re-save species {{alignments.species}}
-      re-save build {{alignments.build}}
-      re-save feature_type {{feature_type}}
+      re-save source {{ annotation.annotation.source }}
+      re-save species {{ alignment.aligned_reads.species }}
+      re-save build {{ alignment.aligned_reads.build }}
+      re-save feature_type {{ annotation.feature_type }}

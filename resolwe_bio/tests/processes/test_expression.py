@@ -316,13 +316,19 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             bam_paired = self.run_process('upload-bam', inputs)
 
         inputs = {
-            'alignments': bam_paired.id,
-            'annotation': annotation_gtf.id,
-            'id_attribute': 'transcript_id',
-            'PE_options': {
-                'is_paired_end': True,
-                'require_both_ends_mapped': True
-            }
+            'alignment': {
+                'aligned_reads': bam_paired.id,
+            },
+            'annotation': {
+                'annotation': annotation_gtf.id,
+                'id_attribute': 'transcript_id',
+            },
+            'advanced': {
+                'paired_end': {
+                    'is_paired_end': True,
+                    'require_both_ends_mapped': True,
+                },
+            },
         }
 
         expression = self.run_process('feature_counts', inputs)
@@ -334,9 +340,14 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(expression, 'feature_type', 'gene')
 
         inputs = {
-            'alignments': bam_single.id,
-            'annotation': annotation_gff3.id,
-            'id_attribute': 'Parent'}
+            'alignment': {
+                'aligned_reads': bam_single.id,
+            },
+            'annotation': {
+                'annotation': annotation_gff3.id,
+                'id_attribute': 'Parent',
+            },
+        }
         expression = self.run_process('feature_counts', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')

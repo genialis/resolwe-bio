@@ -45,7 +45,6 @@ Added
 * Add ``merge expressions`` to ``archive-samples`` process
 * Add description of batch mode to ``Expression aggregator`` process
 
-
 Changed
 -------
 * **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
@@ -119,6 +118,7 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Rename the ``genome_and_annotation`` field name
   to ``species`` in ``bcm-*`` descriptor schemas and use the full species name
   for the ``species`` field values
+* **BACKWARD INCOMPATIBLE:** Refactor ``featureCounts`` process
 
 Fixed
 -----

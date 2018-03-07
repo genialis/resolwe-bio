@@ -23,7 +23,8 @@ class MicroRNATestCase(BioProcessTestCase):
             }
             genome = self.run_process('upload-genome', inputs)
             single_reads = self.prepare_reads(['reads rsem.fq.gz'])
-            annotation = self.prepare_annotation('annotation_rsem.gtf.gz')
+            annotation = self.prepare_annotation('annotation_rsem.gtf.gz', species='Homo sapiens',
+                                                 build='fake_genome_RSEM')
 
         inputs = {
             'genome': genome.pk,
