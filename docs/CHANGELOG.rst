@@ -119,6 +119,8 @@ Changed
   to ``species`` in ``bcm-*`` descriptor schemas and use the full species name
   for the ``species`` field values
 * **BACKWARD INCOMPATIBLE:** Refactor ``featureCounts`` process
+* Use resolwebio/rnaseq:3.0.0 docker image in `goenrichment`, `upload-gaf`
+  and `upload-obo` processors
 
 Fixed
 -----
