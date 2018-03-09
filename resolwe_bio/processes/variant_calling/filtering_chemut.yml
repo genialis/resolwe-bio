@@ -25,7 +25,7 @@
       label: Analysis type
       type: basic:string
       description: >
-        Choice of the analysis type. Use "SNV" or "INDEL" options for the analysis of VCF files prepared by using GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively. Choose options SNV_CHR2 or INDEL_CHR2 if duplication of CHR2 was considered as diploidy when running GATK analysis (-ploidy 2 -L chr2:2263132-3015703).
+        Choice of the analysis type. Use "SNV" or "INDEL" options for the analysis of haploid VCF files prepared by using GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively. Choose options SNV_CHR2 or INDEL_CHR2 to run the GATK analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
       choices:
         - label: SNV
           value: snv
