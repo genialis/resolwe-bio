@@ -1,12 +1,8 @@
-#!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name
-# XXX: Refactor to a comand line tool and remove pylint disable
+#!/usr/bin/env python3
 """Merge Bowtie statistics."""
-from __future__ import division
 
 import os
 import sys
-
 
 if len(sys.argv) < 2:
     sys.stderr.write('No stats file given.\n')
@@ -48,11 +44,15 @@ for i in range(1, len(sys.argv), 2):
         stats.append((trimmed, processed, onevalid, failed, suppressed, mapped))
 
 with open('stats.tab', 'w') as f:
-    f.write("Trim3 size\tReads processed\tReads with at least one reported alignment\t"
-            "Reads that failed to align\tReads with alignments suppressed due to -m\tMapped (%)\n")
+    f.write("Trim3 size\tReads processed\t"
+            "Reads with at least one reported alignment\t"
+            "Reads that failed to align\t"
+            "Reads with alignments suppressed due to -m\tMapped (%)\n")
     for vals in stats:
         f.write("\t".join(map(str, vals)) + "\n")
 
     tmapped = round((tonevalid / stats[0][1]) * 100, 1)
 
-    f.write("\t".join(map(str, ("Total", stats[0][1], tonevalid, stats[-1][3], stats[-1][4], tmapped))) + "\n")
+    f.write("\t".join(map(str, (
+        "Total", stats[0][1], tonevalid,
+        stats[-1][3], stats[-1][4], tmapped))) + "\n")

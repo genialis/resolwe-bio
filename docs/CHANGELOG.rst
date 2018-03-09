@@ -23,6 +23,7 @@ Fixed
 -----
 - Use name-ordered BAM file for counting reads in ``HTSeq-count`` process
   by default to avoid buffer overflow with large BAM files
+- Fix iterative trimming in ``bowtie`` and ``bowtie2`` processes
 
 
 ==================

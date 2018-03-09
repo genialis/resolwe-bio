@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.1
+  version: 1.2.0
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -155,72 +155,52 @@
 
       {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
         cat "${fw_reads[@]}" "${rw_reads[@]}" > reads.fastq
+        fw_reads="reads.fastq"
+      {% else %}
+        fw_reads=$(join_by , "${fw_reads[@]}")
+        rw_reads=$(join_by , "${rw_reads[@]}")
       {% endif %}
 
       re-progress 0.3
-
-      fw_reads=$(join_by , "${fw_reads[@]}")
-      rw_reads=$(join_by , "${rw_reads[@]}")
 
       FW_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       STATS="0 ${FW_NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
       {% if reads|type|subtype('data:reads:fastq:single:') or use_se %}
-        {% if use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-          bowtie \
-            --un "${FW_NAME}_unmapped1.fq" \
-            --trim5 {{start_trimming.trim_5}} \
-            --trim3 {{start_trimming.trim_3}} \
-            --chunkmbs 200 {{ mode }} {{ m }} \
-            -l {{ l }} ${reporting} \
-            --sam "${INDEX}" \
-            reads.fastq 1>"${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
-          re-checkrc
-        {% else %}
-          bowtie \
-            --un "${FW_NAME}_unmapped1.fq" \
-            --trim5 {{start_trimming.trim_5}} \
-            --trim3 {{start_trimming.trim_3}} \
-            --chunkmbs 200 {{ mode }} {{ m }} \
-            -l {{ l }} ${reporting} \
-            --sam "${INDEX}" \
-            "${fw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
-          re-checkrc
-        {% endif %}
+        bowtie \
+          --un "${FW_NAME}_unmapped1.fq" \
+          --trim5 {{start_trimming.trim_5}} \
+          --trim3 {{start_trimming.trim_3}} \
+          --chunkmbs 200 {{ mode }} {{ m }} \
+          -l {{ l }} ${reporting} \
+          --sam "${INDEX}" \
+          "${fw_reads}" 1>"${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
+        re-checkrc
 
+        cp "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+        
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
-          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
-            do
-              bowtie \
-                $encoding \
-                --un "${FW_NAME}_unmapped$((c+1)).fq" \
-                --trim5 {{start_trimming.trim_5}} \
-                --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
-                --chunkmbs 200 {{ mode }} {{ m }} \
-                -l {{ l }} ${reporting} \
-                --sam "${GENOME_NAME}_index" \
-                "${FW_NAME}_unmapped$((c)).fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
+          {% for c in range(1, trimming.trim_iter + 1) %}
+            bowtie \
+              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
+              --trim5 {{start_trimming.trim_5}} \
+              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
+              --chunkmbs 200 {{ mode }} {{ m }} \
+              -l {{ l }} ${reporting} \
+              --sam "${INDEX}" \
+              "${FW_NAME}_unmapped"{{ c }}".fq" 1>"${FW_NAME}_new_mapped"{{ c+1 }}".sam" 2>"${FW_NAME}_new_mapped"{{ c+1 }}".stats"
 
-              samtools \
-                view \
-                -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
+            samtools \
+              view \
+              -bS "${FW_NAME}_new_mapped"{{ c+1 }}".sam" > "${FW_NAME}_new_mapped"{{ c+1 }}".bam"
 
-              STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
-            done
-          mv \
-            "${FW_NAME}_unmapped$((c)).fq" \
-            "${FW_NAME}_unmapped.fastq" \
-            && \
-            gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
-        {% else %}
-          mv \
-            "${FW_NAME}_unmapped1.fq" \
-            "${FW_NAME}_unmapped.fastq" \
-            && \
-            gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
+            STATS="$STATS "{{ c * trimming.trim_nucl }}" ${FW_NAME}_new_mapped"{{ c+1 }}".stats"
+            cp "${FW_NAME}_unmapped"{{ c+1 }}".fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+          {% endfor %}
         {% endif %}
+
       {% else %}
         re-progress 0.4
         bowtie \
@@ -233,36 +213,35 @@
           -1 "${fw_reads}" \
           -2 "${rw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
         re-checkrc
+        
+        cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
 
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
-          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
-            do
-              bowtie \
-                --un "${FW_NAME}_unmapped$((c+1)).fq" \
-                --trim5 {{start_trimming.trim_5}} \
-                --trim3 $(($c* {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
-                --chunkmbs 200 {{ mode }} {{ m }} \
-                -l {{ l }} ${reporting} \
-                --sam "${GENOME_NAME}_index" \
-                -1 "${FW_NAME}_unmapped$((c))_1.fq" \
-                -2 "${FW_NAME}_unmapped$((c))_2.fq" 1>"${FW_NAME}_new_mapped$((c+1)).sam" 2>"${FW_NAME}_new_mapped$((c+1)).stats"
-              re-checkrc
+          {% for c in range(1, trimming.trim_iter + 1) %}
+            bowtie \
+              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
+              --trim5 {{start_trimming.trim_5}} \
+              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
+              --chunkmbs 200 {{ mode }} {{ m }} \
+              -l {{ l }} ${reporting} \
+              --sam "${INDEX}" \
+              -1 "${FW_NAME}_unmapped"{{ c }}"_1.fq" \
+              -2 "${FW_NAME}_unmapped"{{ c }}"_2.fq" 1>"${FW_NAME}_new_mapped"{{ c+1 }}".sam" 2>"${FW_NAME}_new_mapped"{{ c+1 }}".stats"
+            re-checkrc
 
-              samtools \
-                view \
-                -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
+            samtools \
+              view \
+              -bS "${FW_NAME}_new_mapped"{{ c+1 }}".sam" > "${FW_NAME}_new_mapped"{{ c+1 }}".bam"
 
-              STATS="$STATS $(($c * {{ trimming.trim_nucl }} )) ${FW_NAME}_new_mapped$((c+1)).stats"
-            done
-          cat "${FW_NAME}_unmapped$((c))_1.fq" "${FW_NAME}_unmapped$((c))_2.fq" | gzip -c - > "${FW_NAME}_unmapped.fastq.gz"
-        {% else %}
-          cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+            STATS="$STATS "{{ c * trimming.trim_nucl }}" ${FW_NAME}_new_mapped"{{ c+1 }}".stats"
+            cat "${FW_NAME}_unmapped"{{ c }}"_1.fq" "${FW_NAME}_unmapped"{{ c }}"_2.fq" | gzip -c - > "${FW_NAME}_unmapped.fastq.gz"
+          {% endfor %}
         {% endif %}
       {% endif %}
-      re-progress 0.5
 
-      echo "Formating, merging and sorting reads:"
+      re-progress 0.5
+      echo "Formatting, merging, and sorting reads:"
       samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
       re-checkrc
 
@@ -284,8 +263,8 @@
       echo -e "\nINDEXING bam:"
       samtools index "${FW_NAME}_mapped.bam" "${FW_NAME}_mapped.bam.bai"
       re-checkrc
-
       mergebowtiestats.py $STATS
+      re-checkrc
       gzip stats.tab
 
       re-save-file bam "${FW_NAME}_mapped.bam"
@@ -294,7 +273,7 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
-      if [ -f "${NAME}_unmapped.bam" ]; then
+      if [ -f "${FW_NAME}_unmapped.bam" ]; then
         re-save-file unmapped "${FW_NAME}_unmapped.fastq.gz"
       fi
 
@@ -308,7 +287,7 @@
     resources:
       cores: 1
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.1
+  version: 1.2.0
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -502,74 +481,51 @@
 
       {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
         cat "${fw_reads[@]}" "${rw_reads[@]}" > reads.fastq
+        fw_reads="reads.fastq"
+      {% else %}
+        fw_reads=$(join_by , "${fw_reads[@]}")
+        rw_reads=$(join_by , "${rw_reads[@]}")
       {% endif %}
-
-      fw_reads=$(join_by , "${fw_reads[@]}")
-      rw_reads=$(join_by , "${rw_reads[@]}")
 
       echo "ALIGNING with bowtie2:"
       {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_se %}
-        {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
-          bowtie2 \
-            {{mode}} $a_mode $s_mode \
-            -p {{requirements.resources.cores}} \
-            --trim5 {{start_trimming.trim_5}} \
-            --trim3 {{start_trimming.trim_3}} \
-            -x "${INDEX}" \
-            -U reads.fastq \
-            -S "${FW_NAME}_align_unsorted.sam" \
-            --un "${FW_NAME}_unmapped1.fq" 2> report.txt
-          re-checkrc
-        {% else %}
-          bowtie2 \
-            {{mode}} $a_mode $s_mode \
-            -p {{requirements.resources.cores}} \
-            --trim5 {{start_trimming.trim_5}} \
-            --trim3 {{start_trimming.trim_3}} \
-            -x "${INDEX}" \
-            -U "${fw_reads}" \
-            -S "${FW_NAME}_align_unsorted.sam" \
-            --un "${FW_NAME}_unmapped1.fq" 2> report.txt
-          re-checkrc
-        {% endif %}
+        bowtie2 \
+          {{mode}} $a_mode $s_mode \
+          -p {{requirements.resources.cores}} \
+          --trim5 {{start_trimming.trim_5}} \
+          --trim3 {{start_trimming.trim_3}} \
+          -x "${INDEX}" \
+          -U "${fw_reads}" \
+          -S "${FW_NAME}_align_unsorted.sam" \
+          --un "${FW_NAME}_unmapped1.fq" 2> report.txt
+        re-checkrc
+
+        cp "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+        cp "report.txt" "${FW_NAME}_report.txt"
+        
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
-          for (( c=1; c<={{ trimming.trim_iter }}; c++ ))
-            do
-            echo -e "\nTrimming iteration $c ($(($c * {{ trimming.trim_nucl }} )) bases trimmed)" >> "report.txt"
+          {% for c in range(1, trimming.trim_iter + 1) %}
+            echo -e "\nTrimming iteration "{{ c }}"; "{{ c * trimming.trim_nucl }}" bases trimmed" >> "report.txt"
             bowtie2 \
               {{mode}} $a_mode $s_mode \
               -x "${INDEX}" \
               -p {{requirements.resources.cores}} \
               --trim5 {{start_trimming.trim_5}} \
-              --trim3 $(($c * {{ trimming.trim_nucl }} + {{start_trimming.trim_3}} )) \
-              -U "${NAME}_unmapped$((c)).fq" \
-              -S "${FW_NAME}_new_mapped$((c+1)).sam" \
-              --un "${FW_NAME}_unmapped$((c+1)).fq" 2>> "report.txt"
+              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
+              -U "${FW_NAME}_unmapped"{{ c }}".fq" \
+              -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
+              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" 2>> "report.txt"
 
             re-checkrc
-            samtools view -bS "${FW_NAME}_new_mapped$((c+1)).sam" > "${FW_NAME}_new_mapped$((c+1)).bam"
+            samtools view -bS "${FW_NAME}_new_mapped"{{ c+1 }}".sam" > "${FW_NAME}_new_mapped"{{ c+1 }}".bam"
             re-checkrc
             mergebowtie2stats.py "report.txt"
             re-checkrc
-            mv stats.tab "${NAME}_report.txt"
-          done
-          mv "${FW_NAME}_unmapped$((c)).fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
-        {% else %}
-          mv "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" && gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
-          mv "report.txt" "${FW_NAME}_report.txt"
-        {% endif %}
-
-        echo "Formating, merging and sorting reads:"
-        samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
-        {%  if trimming.trim_iter >= 1 %}
-          samtools merge -h "${FW_NAME}_align_unsorted.sam" "${FW_NAME}_align_merged_unsorted.bam" ${FW_NAME}_*.bam
-          re-checkrc
-          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_merged_unsorted.bam"
-          re-checkrc
-        {% else %}
-          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
-          re-checkrc
+            
+            mv stats.tab "${FW_NAME}_report.txt"
+            cp "${FW_NAME}_unmapped"{{ c+1 }}".fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+          {% endfor %}
         {% endif %}
 
       {% else %}
@@ -585,22 +541,57 @@
           --maxins {{ PE_options.maxins}} \
           -1 "${fw_reads}" \
           -2 "${rw_reads}" \
-          -S "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_report.txt"
+          -S "${FW_NAME}_align_unsorted.sam" \
+          --un-conc "${FW_NAME}_unmapped1_%.fq" 2> "report.txt"
 
-        re-checkrc
-        samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
-        re-checkrc
-        samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
-        re-checkrc
-        samtools view -u  -f 4 -F 264 "${FW_NAME}_align.bam" > "${FW_NAME}_unmapped.bam"
-        re-checkrc
-        bamToFastq -i "${FW_NAME}_unmapped.bam" -fq "${FW_NAME}_unmapped.fastq"
-        re-checkrc
-        gzip -c "${FW_NAME}_unmapped.fastq" > "${FW_NAME}_unmapped.fastq.gz"
+        cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+        cp "report.txt" "${FW_NAME}_report.txt"
+        
+        {% if trimming.trim_iter >= 1 %}
+          echo "iterative alignment of unmapped reads:"
+          {% for c in range(1, trimming.trim_iter + 1) %}
+            echo -e "\nTrimming iteration "{{ c }}"; "{{ c * trimming.trim_nucl }}" bases trimmed" >> "report.txt"
+            bowtie2 \
+              {{mode}} $a_mode $s_mode \
+              -x "${INDEX}" \
+              -p {{requirements.resources.cores}} \
+              --trim5 {{start_trimming.trim_5}} \
+              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
+              {% if not PE_options.discordantly %}--no-discordant{% endif %} \
+              {% if not PE_options.rep_se %}--no-mixed{% endif %} \
+              --minins {{ PE_options.minins}} \
+              --maxins {{ PE_options.maxins}} \
+              -1 "${FW_NAME}_unmapped"{{ c }}"_1.fq" \
+              -2 "${FW_NAME}_unmapped"{{ c }}"_2.fq" \
+              -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
+              --un-conc "${FW_NAME}_unmapped"{{ c+1 }}"_%.fq" 2>> "report.txt"
 
+            re-checkrc
+            samtools view -bS "${FW_NAME}_new_mapped"{{ c+1 }}".sam" > "${FW_NAME}_new_mapped"{{ c+1 }}".bam"
+            re-checkrc
+            mergebowtie2stats_paired.py "report.txt"
+            re-checkrc
+            
+            mv stats.tab "${FW_NAME}_report.txt"
+            cat "${FW_NAME}_unmapped"{{ c+1 }}"_1.fq" "${FW_NAME}_unmapped"{{ c+1 }}"_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
+  
+          {% endfor %}
+        {% endif %}
       {% endif %}
 
       re-progress 0.5
+
+      echo "Formatting, merging, and sorting reads:"
+        samtools view -bS "${FW_NAME}_align_unsorted.sam" > "${FW_NAME}_align_unsorted.bam"
+        {%  if trimming.trim_iter >= 1 %}
+          samtools merge -h "${FW_NAME}_align_unsorted.sam" "${FW_NAME}_align_merged_unsorted.bam" ${FW_NAME}_*.bam
+          re-checkrc
+          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_merged_unsorted.bam"
+          re-checkrc
+        {% else %}
+          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
+          re-checkrc
+        {% endif %}
 
       samtools view -b -F 4 "${FW_NAME}_align.bam" > "${FW_NAME}.bam"
 

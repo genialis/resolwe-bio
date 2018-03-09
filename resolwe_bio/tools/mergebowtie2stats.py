@@ -1,10 +1,7 @@
-#!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name
-# XXX: Refactor to a comand line tool and remove pylint disable
-"""Merge Bowtie statistics."""
-from __future__ import division
-import sys
+#!/usr/bin/env python3
+"""Merge Bowtie2 statistics."""
 
+import sys
 
 if len(sys.argv) < 2:
     sys.stderr.write('No stats file given.\n')
@@ -14,7 +11,8 @@ stats = []
 t_unique, t_multiple = 0, 0
 
 with open(sys.argv[1]) as f:
-    iteration, processed, not_aligned, unique, multiple, mapped = 'Initial alignment', 0, 0, 0, 0, 0
+    iteration, processed, not_aligned, unique, multiple, mapped = (
+        'Initial alignment', 0, 0, 0, 0, 0)
     for line in f:
         vals = line.strip().split(' ')
 
@@ -37,15 +35,19 @@ with open(sys.argv[1]) as f:
 
         if 'overall alignment rate' in line:
             mapped = float(vals[0].strip('%'))
-            stats.append((iteration, processed, not_aligned, unique, multiple, mapped))
+            stats.append((
+                iteration, processed, not_aligned, unique, multiple, mapped))
             processed, not_aligned, unique, multiple, mapped = 0, 0, 0, 0, 0
 
 with open('stats.tab', 'w') as f:
     f.write("Alignment\tReads processed\tReads aligned 0 times\t"
-            "Reads aligned exactly 1 time\tReads aligned >1 times\tOverall alignment rate (%)\n")
+            "Reads aligned exactly 1 time\tReads aligned >1 times\t"
+            "Overall alignment rate (%)\n")
     for vals in stats:
         f.write("\t".join(map(str, vals)) + "\n")
 
     t_mapped = round(((t_unique + t_multiple) / stats[0][1]) * 100, 1)
 
-    f.write("\t".join(map(str, ("Total", stats[0][1], stats[-1][2], t_unique, t_multiple, t_mapped))) + "\n")
+    f.write("\t".join(map(str, (
+        "Total", stats[0][1], stats[-1][2],
+        t_unique, t_multiple, t_mapped))) + "\n")

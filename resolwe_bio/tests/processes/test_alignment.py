@@ -19,6 +19,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_single.id,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'r': "-a -m 1 --best --strata"}
         }
         alignment = self.run_process('alignment-bowtie', inputs)
@@ -29,6 +30,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'r': "-a -m 1 --best --strata"},
             'use_se': True
         }
@@ -38,6 +40,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'r': "-a -m 1 --best --strata"}
         }
         alignment = self.run_process('alignment-bowtie', inputs)
@@ -54,6 +57,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.pk,
             'reads': reads.pk,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'rep_mode': "def"}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
@@ -64,6 +68,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'rep_mode': "def"}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
@@ -72,6 +77,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
+            'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'rep_mode': "def"},
             'PE_options': {'use_se': True}
         }

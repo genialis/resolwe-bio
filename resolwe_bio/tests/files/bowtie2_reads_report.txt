@@ -1,6 +1,5 @@
-20 reads; of these:
-  20 (100.00%) were unpaired; of these:
-    2 (10.00%) aligned 0 times
-    17 (85.00%) aligned exactly 1 time
-    1 (5.00%) aligned >1 times
-90.00% overall alignment rate
+Alignment	Reads processed	Reads aligned 0 times	Reads aligned exactly 1 time	Reads aligned >1 times	Overall alignment rate (%)
+Initial alignment	20	2	17	1	90.0
+Trimming iteration 1; 4 bases trimmed	2	2	0	0	0.0
+Trimming iteration 2; 8 bases trimmed	2	2	0	0	0.0
+Total	20	2	17	1	90.0
