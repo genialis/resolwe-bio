@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:1.2.0
+        image: resolwebio/dnaseq:3.0.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED

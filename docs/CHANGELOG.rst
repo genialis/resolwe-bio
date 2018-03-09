@@ -125,6 +125,7 @@ Changed
 * Use resolwebio/rnaseq:3.0.0 docker image in `goenrichment`, `upload-gaf`
   and `upload-obo` processors
 * Rename 'Expressions (BCM)' to 'Dicty expressions'
+* Use ``resolwebio/dnaseq:3.0.0`` Docker image in ``filtering_chemut`` process
 
 Fixed
 -----
