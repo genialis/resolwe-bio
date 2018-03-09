@@ -127,6 +127,8 @@ Changed
 * Rename 'Expressions (BCM)' to 'Dicty expressions'
 * Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 * Use ``resolwebio/dnaseq:3.0.0`` Docker image in ``filtering_chemut`` process
+* Clarify some descriptions in the ``filtering_chemut`` process and ``chemut``
+  workflow
 
 Fixed
 -----

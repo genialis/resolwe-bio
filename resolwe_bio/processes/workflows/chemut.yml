@@ -4,14 +4,14 @@
   data_name: 'CheMut'
   requirements:
     expression-engine: jinja
-  version: 0.0.3
+  version: 0.0.4
   type: data:workflow:chemut
   input:
     - name: analysis_type
       label: Analysis type
       type: basic:string
       description: >
-        Choice of the analysis type. Choose options SNV_CHR2 or INDEL_CHR2 to run the GATK analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
+        Choice of the analysis type. Use "SNV" or "INDEL" options to run the GATK analysis only on the haploid portion of the dicty genome. Choose options SNV_CHR2 or INDEL_CHR2 to run the analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
       choices:
         - label: SNV
           value: snv
@@ -102,6 +102,8 @@
           default: 5
           required: false
           hidden: "Vf.advanced === false"
+          description: >
+            The minimum number of replicate reads required for a variant site to be included. 
   run:
     language: workflow
     program:
