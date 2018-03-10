@@ -1,3 +1,4 @@
 primerclip
 r-packages
 samtools
+gatk

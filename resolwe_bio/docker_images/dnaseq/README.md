@@ -8,6 +8,7 @@ Included bioinformatics tools:
 * bedtools (v2.26.0+dfsg-5)
 * bwa (v0.7.17-1)
 * CheMut
+* GATK (4.0.2.1)
 * Picard Tools (v2.8.1+dfsg-3)
 * Primerclip (v171018)
 * Rsamtools (v1.30.0)

@@ -1,6 +1,7 @@
 bedtools
 bwa
 picard-tools
+python
 python3-setuptools
 python3-wheel
 r-base-core
