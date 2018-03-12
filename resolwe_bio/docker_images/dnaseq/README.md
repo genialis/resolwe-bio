@@ -9,6 +9,7 @@ Included bioinformatics tools:
 * bwa (v0.7.17-1)
 * CheMut
 * GATK (4.0.2.1)
+* LoFreq (2.1.3.1)
 * Picard Tools (v2.8.1+dfsg-3)
 * Primerclip (v171018)
 * Rsamtools (v1.30.0)
