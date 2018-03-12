@@ -10,8 +10,10 @@
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
+    resources:
+      cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.2.0
+  version: 2.0.0
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -95,10 +97,6 @@
         default: 30
         description: >
           Don't output alignment with score lower than defined number. This option only affects output.
-    - name: threads
-      label: Number of threads
-      type: basic:integer
-      default: 1
   output:
     - name: bam
       label: Alignment file
@@ -165,7 +163,7 @@
           -L {{scoring.clipping}} \
           -T {{ reporting.report_tr }} \
           {% if m %}-M{% endif %} \
-          -t {{threads}} \
+          -t {{ requirements.resources.cores }} \
           "${INDEX}" \
           fw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% else %}
@@ -183,7 +181,7 @@
           -L {{scoring.clipping}} \
           -T {{ reporting.report_tr }} \
           {% if m %}-M{% endif %} \
-          -t {{threads}} \
+          -t {{ requirements.resources.cores }} \
           "${INDEX}" \
           fw_reads.fastq \
           rw_reads.fastq 1> "${NAME}_align_unsorted.sam"

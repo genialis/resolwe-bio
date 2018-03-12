@@ -27,7 +27,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             'annotation': annotation.pk,
             'genome': genome.pk}
         cuff_exp = self.run_process('cufflinks', inputs)
-        self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf')
+        self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf', sort=True)
         self.assertFields(cuff_exp, 'species', 'Dictyostelium discoideum')
         self.assertFields(cuff_exp, 'build', 'dd-05-2009')
 

@@ -239,7 +239,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-bwa-mem', inputs)
         self.assertFile(aligned_reads, 'stats', 'bwa_mem_paired_reads_report.txt')
-        self.assertFile(aligned_reads, 'unmapped', 'bwa_mem_unmapped_reads.fastq.gz', compression='gzip')
+        self.assertFile(aligned_reads, 'unmapped', 'bwa_mem_unmapped_reads.fastq.gz', compression='gzip', sort=True)
         self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
         self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
@@ -262,7 +262,7 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_report.txt')
-        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped.fastq.gz', compression='gzip')
+        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped.fastq.gz', compression='gzip', sort=True)
         self.assertFileExists(aligned_reads, 'splice_junctions')
 
         inputs = {
@@ -270,8 +270,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_paired_report.txt')
-        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped_1.fastq.gz', compression='gzip')
-        self.assertFile(aligned_reads, 'unmapped_r', 'hisat2_unmapped_2.fastq.gz', compression='gzip')
+        self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped_1.fastq.gz', compression='gzip', sort=True)
+        self.assertFile(aligned_reads, 'unmapped_r', 'hisat2_unmapped_2.fastq.gz', compression='gzip', sort=True)
         self.assertFileExists(aligned_reads, 'splice_junctions')
         self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
         self.assertFields(aligned_reads, 'build', 'dd-05-2009')

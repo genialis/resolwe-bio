@@ -12,9 +12,9 @@
         image: resolwebio/legacy:1.0.0
     resources:
       memory: 32768
-      cores: 1
+      cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.2
+  version: 1.2.3
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample

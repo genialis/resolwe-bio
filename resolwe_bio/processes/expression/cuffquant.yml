@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
-      cores: 1
+      cores: 10
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.2.1
+  version: 1.2.2
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample

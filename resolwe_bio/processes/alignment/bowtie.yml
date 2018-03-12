@@ -179,7 +179,7 @@
         re-checkrc
 
         cp "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
-        
+
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
           {% for c in range(1, trimming.trim_iter + 1) %}
@@ -213,7 +213,7 @@
           -1 "${fw_reads}" \
           -2 "${rw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
         re-checkrc
-        
+
         cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
 
         {% if trimming.trim_iter >= 1 %}
@@ -285,9 +285,10 @@
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
-      cores: 1
+      memory: 8192
+      cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -502,7 +503,7 @@
 
         cp "${FW_NAME}_unmapped1.fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
         cp "report.txt" "${FW_NAME}_report.txt"
-        
+
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
           {% for c in range(1, trimming.trim_iter + 1) %}
@@ -522,7 +523,7 @@
             re-checkrc
             mergebowtie2stats.py "report.txt"
             re-checkrc
-            
+
             mv stats.tab "${FW_NAME}_report.txt"
             cp "${FW_NAME}_unmapped"{{ c+1 }}".fq" "${FW_NAME}_unmapped.fastq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
           {% endfor %}
@@ -546,7 +547,7 @@
 
         cat "${FW_NAME}_unmapped1_1.fq" "${FW_NAME}_unmapped1_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
         cp "report.txt" "${FW_NAME}_report.txt"
-        
+
         {% if trimming.trim_iter >= 1 %}
           echo "iterative alignment of unmapped reads:"
           {% for c in range(1, trimming.trim_iter + 1) %}
@@ -571,10 +572,10 @@
             re-checkrc
             mergebowtie2stats_paired.py "report.txt"
             re-checkrc
-            
+
             mv stats.tab "${FW_NAME}_report.txt"
             cat "${FW_NAME}_unmapped"{{ c+1 }}"_1.fq" "${FW_NAME}_unmapped"{{ c+1 }}"_2.fq" | gzip -c - >"${FW_NAME}_unmapped.fastq.gz"
-  
+
           {% endfor %}
         {% endif %}
       {% endif %}
@@ -586,10 +587,18 @@
         {%  if trimming.trim_iter >= 1 %}
           samtools merge -h "${FW_NAME}_align_unsorted.sam" "${FW_NAME}_align_merged_unsorted.bam" ${FW_NAME}_*.bam
           re-checkrc
-          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_merged_unsorted.bam"
+          samtools sort \
+            -@ {{ requirements.resources.cores }} \
+            -m {{ (requirements.resources.memory * 1024 * 1024 / requirements.resources.cores * 0.8) | int }} \
+            -o "${FW_NAME}_align.bam" \
+            "${FW_NAME}_align_merged_unsorted.bam"
           re-checkrc
         {% else %}
-          samtools sort -o "${FW_NAME}_align.bam" "${FW_NAME}_align_unsorted.bam"
+          samtools sort \
+            -@ {{ requirements.resources.cores }} \
+            -m {{ (requirements.resources.memory * 1024 * 1024 / requirements.resources.cores * 0.8) | int }} \
+            -o "${FW_NAME}_align.bam" \
+            "${FW_NAME}_align_unsorted.bam"
           re-checkrc
         {% endif %}
 

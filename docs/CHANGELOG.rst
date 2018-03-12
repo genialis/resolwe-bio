@@ -22,6 +22,15 @@ Changed
   to an original VCF file anymore, but stored in a separate ``tbi`` output field
 - **BACKWARD INCOMPATIBLE:** Remove an obsolete ``workflow-accel-2`` workflow
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 5.x
+- **BACKWARD INCOMPATIBLE:** Parallelize execution of the following processes:
+  - ``alignment-bowtie2``
+  - ``alignment-bwa-mem``
+  - ``alignment-hisat2``
+  - ``alignment-star``
+  - ``alignment-tophat2``
+  - ``cuffdiff``
+  - ``cufflinks``
+  - ``cuffquant``
 - Require Resolwe 8.x
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image

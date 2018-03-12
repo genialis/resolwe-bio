@@ -10,8 +10,10 @@
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
+    resources:
+      cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.2.1
+  version: 2.0.0
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -68,12 +70,6 @@
       default: false
       description: >
         Run an initial estimation procedure that weights reads mapping to multiple locations more accurately.
-    - name: threads
-      label: Use this many processor threads
-      type: basic:integer
-      default: 1
-      description: >
-        Use this many threads to align reads. The default is 1.
   output:
     - name: transcripts
       label: Assembled transcript isoforms
@@ -110,7 +106,7 @@
         {% if multi_read_correct %} --multi-read-correct {% endif %} \
         {% if mask_file %} -M {{ mask_file.annot.file }} {% endif %} \
         --library-type {{ library_type }} \
-        --num-threads {{ threads }} \
+        --num-threads {{ requirements.resources.cores }} \
         --quiet {{ alignment.bam.file }}
 
       re-checkrc
