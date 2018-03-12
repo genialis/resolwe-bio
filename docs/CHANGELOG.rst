@@ -13,6 +13,11 @@ Unreleased
 Changed
 -------
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
+- Bump Primerclip version in ``resolwebio/dnaseq`` docker image
+
+Added
+-----
+- Add CNVKit, LoFreq and GATK to ``resolwebio/dnaseq`` docker image
 
 
 ==================
