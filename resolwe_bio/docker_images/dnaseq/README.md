@@ -11,7 +11,7 @@ Included bioinformatics tools:
 * GATK (4.0.2.1)
 * LoFreq (2.1.3.1)
 * Picard Tools (v2.8.1+dfsg-3)
-* Primerclip (v171018)
+* Primerclip (v180308)
 * Rsamtools (v1.30.0)
 * SAMtools (v1.7)
 * tabix (v1.7-2)
