@@ -152,6 +152,8 @@ Fixed
   with 'X' in the ``cuffnorm`` normalization outputs
 * Fix ``cuffnorm`` process' outputs to correctlly track species and
   build information
+* Fix typos and sync parameter description common to ``featureCounts``
+  and ``miRNA`` workflow
 
 
 ==================

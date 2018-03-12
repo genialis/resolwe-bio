@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 0.4.0
+  version: 0.4.1
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -95,7 +95,7 @@
           description: >
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID will be considered as parts of the same
-            feature. The feature ID is used to identity the counts in the
+            feature. The feature ID is used to identify the counts in the
             output table. In GTF files this is usually 'gene_id', in GFF3 files
             this is often 'ID', and 'transcript_id' is frequently a valid
             choice for both annotation formats.

@@ -4,7 +4,7 @@
   data_name: "miRNA pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:mirna
   input:
       # this set of parameters is for bowtie2
@@ -35,11 +35,12 @@
         - label: geneid
           value: geneid
       description: >
-        GTF attribute to be used as feature ID. Several GTF lines with the
-        same feature ID will be considered as parts of the same feature. The
-        feature ID is used to identity the counts in the output table. If
-        you want to count by "ID" and are using GFF3 format, make sure you
-        select "Gene id (gff3)" option.
+        GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
+        with the same feature ID will be considered as parts of the same
+        feature. The feature ID is used to identify the counts in the
+        output table. In GTF files this is usually 'gene_id', in GFF3 files
+        this is often 'ID', and 'transcript_id' is frequently a valid
+        choice for both annotation formats.
     # this next option could perhaps be hidden and hard-coded into the workflow
     - name: feature_class
       label: Feature class
@@ -47,7 +48,7 @@
       default: miRNA
       description: >
         Feature class (3rd column in GFF file) to be used, all features of other
-        type are ignored.
+        types are ignored.
   run:
     language: workflow
     program:
