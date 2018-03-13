@@ -5,6 +5,7 @@ Django settings for running tests for Resolwe package.
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
+import re
 from distutils.util import strtobool  # pylint: disable=import-error,no-name-in-module
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -127,6 +128,8 @@ FLOW_EXECUTION_ENGINES = [
 
 # Check if any Manager settings are set via environment variables
 manager_prefix = os.environ.get('RESOLWE_MANAGER_REDIS_PREFIX', 'resolwe-bio.manager')
+# Ensure Manager channel prefix is a valid Django Channels name.
+manager_prefix = re.sub('[^0-9a-zA-Z.-]', '-', manager_prefix)
 FLOW_MANAGER = {
     'NAME': 'resolwe.flow.managers.workload_connectors.local',
     'REDIS_PREFIX': manager_prefix,
