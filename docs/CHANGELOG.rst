@@ -10,142 +10,146 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
-Added
------
-* Add Ubuntu 17.10 and Ubuntu 18.04 base Docker images
-* Add ``resolwebio/utils`` Docker image
-* Add ``species`` and ``genome build`` output fields to ``macs14``
-  process
-* Mechanism to override the manager's control channel prefix from the
-  environment
-* Expose additional parameters in ``alignment-star``,
-  ``cutadapt-single`` and ``cutadapt-paired`` processes
-* Add ``FastQC``, ``igvtools``, and ``SRA Toolkit``
-  to ``resolwebio/utils`` Docker image
-* Add abstract processes ``abstract-alignment``, ``abstract-annotation``,
-  ``abstract-expression``, ``abstract-differentialexpression`` and
-  ``abstract-bed``. With abstract processes, we are making sure that all
-  subtype processes have the input and output fields that are defined in the
-  abstract process. For users, it is much more clear and predictable if they
-  can expect the same set of outputs on all processes of the same type.
-* Add ``requests`` Python package to ``resolwebio/utils`` Docker image
-* Add miRNA workflow
-* Add ``prepare-geo-chipseq`` and ``prepare-geo-rnaseq`` processes that
-  produce a tarball with necessary data and folder structure for GEO
-  upload
-* Add ``BBMap``, ``Trimmomatic``, ``Subread``, ``Salmon``, and
-  ``dexseq_prepare_annotation2`` tools and ``DEXSeq`` and
-  ``loadSubread`` R libraries to ``resolwebio/rnaseq`` Docker image
-* Add ``library-strandedness`` process which uses the ``Salmon`` tool built-in
-  functionality to detect the library strandedness information
-* Add ``pandas`` and ``lxml`` Python package and ``zip`` to ``resolwebio/utils``
-  Docker image
-* Add Rattus norvegicus species choice to the ``rna-seq`` descriptor schema
-  to allow running RNA-seq workflow for this species from the Recipes
-* Add ``merge expressions`` to ``archive-samples`` process
-* Add description of batch mode to ``Expression aggregator`` process
-* Add error and warning messages to the ``cuffnorm`` process. The
-  process will now fail if the inputs do not have the same build,
-  species, or source information
+Changed
+-------
+* Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
+
+
+==================
+7.0.0 - 2018-03-13
+==================
 
 Changed
 -------
-* **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image due to end
-  of lifetime and change all images to use new ubuntu 17.10 image
-* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
-  inputs in ``upload-genome`` process
-* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
-  inputs in ``upload-gtf`` and ``upload-gff3`` process
-* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
-  information in aligner processes
-* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build``
-  inputs in ``upload-bam`` and ``upload-bam-indexed`` process
-* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
-  and ``feature_type`` in quantification processes
-* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
-  and ``feature_type`` in differential expression processes
-* **BACKWARD INCOMPATIBLE:** Track ``species`` in gene set (Venn) processes
-* **BACKWARD INCOMPATIBLE:** Track ``species`` in ``goenrichment`` process
-* Remove Dictyostelium-specific ncRNA quantification processors
-* Remove obsolete ``go-geneset`` process
-* **BACKWARD INCOMPATIBLE:** Rename ``genes_source`` input to ``source``.
-  Add optional ``species`` input to clustering-hierarchical-samples/samples processors
-* **BACKWARD INCOMPATIBLE:** Rename ``genes_source`` input to ``source``.
-  Add optional ``species`` input to PCA process
-* Remove obsolete bayseq differential expression process
-* Remove obsolete ``cuffmerge-gtf-to-gff3`` process
-* Track ``species`` and ``build`` in ``cuffmerge`` process
-* Remove obsolete ``transdecoder`` process
-* Remove obsolete ``web-gtf-dictybase`` process
-* Remove obsolete ``upload-rmsk`` process
-* **BACKWARD INCOMPATIBLE:** Unify output fields of processes of type ``data:annotation``
-* Remove obsolete ``snpdat`` process
-* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
-  in Variant Calling processes
-* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build``
-  in JBrowse processes
-* Change ``cuffnorm`` process type to ``data:cuffnorm``
-* Track ``species`` and ``build`` in ``align-bwa-trim`` process
-* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build``
-  and ``feature_type`` in ``upload-expression-star`` process
-* Remove ``gsize`` input from ``macs14`` process and automate genome
-  size selection
-* Adjust bam-split process so it can be included in workflows
-* Add environment export for Jenkins so that the manager will use a
-  globally-unique channel name
-* Require Resolwe 7.x
-* Set type of ``coverage-garvan`` process to ``data:exomecoverage``
-* Use the latest versions of the following Python packages in
-  ``resolwebio/rnaseq`` docker image: Cutadapt 1.15,
-  Apache Arrow 0.8.0, pysam 0.13, and xopen 0.3.2
-* Use the latest versions of the following Python packages in
-  ``resolwebio/dnaseq`` docker image: Bokeh 0.12.13, pandas 0.22.0,
-  Matplotlib 2.1.2, six 1.11.0, PyYAML 3.12, Jinja2 2.10, NumPy 1.14.0,
-  Tornado 4.5.3, and pytz 2017.3
-* Use the latest version of ``wigToBigWig`` tool in
-  ``resolwebio/chipseq`` docker image
-* Make ID attribute labels in ``featureCounts`` more informative
-* Change 'source' to 'gene ID database' in labes and descriptions
-* Change base Docker images of ``resolwebio/rnaseq`` and ``resolwebio/dnaseq``
-  to ``resolwebio/base:ubuntu-18.04``
-* Processor ``archive-samples`` to create different IGV session files for
-  ``build`` and ``species``
-* Expose advanced parameters in Chemical Mutagenesis workflow
-* Change expected genome build formatting for hybrid genomes in
-  ``bam-split`` process
-* Set ``scheduling_class`` of gene and sample hierarchical clustering
-  to ``interactive``
-* Set the cooksCutoff parameter to FALSE in ``deseq.R``
+* **BACKWARD INCOMPATIBLE:** Remove Ubuntu 17.04 base Docker image since it has
+  has reached its end of life and change all images to use the new ubuntu 17.10
+  base image
+* **BACKWARD INCOMPATIBLE:** Require ``species`` and ``build`` inputs in the
+  following processes:
+
+  - ``upload-genome``
+  - ``upload-gtf``
+  - ``upload-gff3``
+  - ``upload-bam``
+  - ``upload-bam-indexed``
+* **BACKWARD INCOMPATIBLE:** Track ``species`` and ``build`` information in the
+  following processes:
+
+  - ``cuffmerge``
+  - alignment processes
+  - variant calling processes
+  - JBrowse processes
+* **BACKWARD INCOMPATIBLE:** Track ``species``, ``build`` and ``feature_type``
+  in the following processes:
+
+  - ``upload-expression-star``
+  - quantification processes
+  - differential expression processes
+* **BACKWARD INCOMPATIBLE:** Track ``species`` in gene set (Venn) and
+  ``goenrichment`` processes
+* **BACKWARD INCOMPATIBLE:** Rename ``genes_source`` input to ``source`` in
+  hierarchical clustering and PCA processes
+* **BACKWARD INCOMPATIBLE:** Remove the following obsolete processes:
+
+  - Dictyostelium-specific ncRNA quantification
+  - ``go-geneset``
+  - bayseq differential expression
+  - ``cuffmerge-gtf-to-gff3``
+  - ``transdecoder``
+  - ``web-gtf-dictybase``
+  - ``upload-rmsk``
+  - ``snpdat``
+* **BACKWARD INCOMPATIBLE:** Unify output fields of processes of type
+  ``data:annotation``
 * **BACKWARD INCOMPATIBLE:** Rename the organism field names to species in
   ``rna-seq`` and ``cutadapt-star-htseq`` descriptor schemas
 * **BACKWARD INCOMPATIBLE:** Rename the ``genome_and_annotation`` field name
   to ``species`` in ``bcm-*`` descriptor schemas and use the full species name
   for the ``species`` field values
 * **BACKWARD INCOMPATIBLE:** Refactor ``featureCounts`` process
-* Use resolwebio/rnaseq:3.0.0 docker image in `goenrichment`, `upload-gaf`
-  and `upload-obo` processors
-* Rename 'Expressions (BCM)' to 'Dicty expressions'
-* Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
+* **BACKWARD INCOMPATIBLE:** Change ``import-sra`` process to work with
+  ``resolwebio/utils`` Docker image and refactor its inputs
+* Require Resolwe 7.x
+* Add environment export for Jenkins so that the manager will use a
+  globally-unique channel name
+* Set ``scheduling_class`` of gene and sample hierarchical clustering processes
+  to ``interactive``
+* Change base Docker images of ``resolwebio/rnaseq`` and ``resolwebio/dnaseq``
+  to ``resolwebio/base:ubuntu-18.04``
+* Use the latest versions of the following Python packages in
+  ``resolwebio/rnaseq`` Docker image: Cutadapt 1.15, Apache Arrow 0.8.0,
+  pysam 0.13, and xopen 0.3.2
+* Use the latest versions of the following Python packages in
+  ``resolwebio/dnaseq`` Docker image: Bokeh 0.12.13, pandas 0.22.0,
+  Matplotlib 2.1.2, six 1.11.0, PyYAML 3.12, Jinja2 2.10, NumPy 1.14.0,
+  Tornado 4.5.3, and pytz 2017.3
+* Use the latest version of ``wigToBigWig`` tool in ``resolwebio/chipseq``
+  Docker image
+* Use ``resolwebio/rnaseq:3.0.0`` Docker image in ``goenrichment``,
+  ``upload-gaf`` and ``upload-obo`` processes
 * Use ``resolwebio/dnaseq:3.0.0`` Docker image in ``filtering_chemut`` process
+* Change ``cuffnorm`` process type to ``data:cuffnorm``
+* Set type of ``coverage-garvan`` process to ``data:exomecoverage``
+* Remove ``gsize`` input from ``macs14`` process and automate genome size
+  selection
+* Adjust ``bam-split`` process so it can be included in workflows
+* Make ID attribute labels in ``featureCounts`` more informative
+* Change 'source' to 'gene ID database' in labes and descriptions
+* Change ``archive-samples`` process to create different IGV session files for
+  ``build`` and ``species``
+* Expose advanced parameters in Chemical Mutagenesis workflow
 * Clarify some descriptions in the ``filtering_chemut`` process and ``chemut``
   workflow
+* Change expected genome build formatting for hybrid genomes in ``bam-split``
+  process
+* Set the ``cooksCutoff`` parameter to ``FALSE`` in ``deseq.R`` tool
+* Rename 'Expressions (BCM)' to 'Dicty expressions'
+
+Added
+-----
+* Mechanism to override the manager's control channel prefix from the
+  environment
+* Add Ubuntu 17.10 and Ubuntu 18.04 base Docker images
+* Add ``resolwebio/utils`` Docker image
+* Add ``BBMap``, ``Trimmomatic``, ``Subread``, ``Salmon``, and
+  ``dexseq_prepare_annotation2`` tools and ``DEXSeq`` and ``loadSubread`` R
+  libraries to ``resolwebio/rnaseq`` Docker image
+* Add abstract processes that ensure that all processes that inherit from them
+  have the input and output fields that are defined in them:
+
+  - ``abstract-alignment``
+  - ``abstract-annotation``
+  - ``abstract-expression``
+  - ``abstract-differentialexpression``
+  - ``abstract-bed``
+* Add miRNA workflow
+* Add ``prepare-geo-chipseq`` and ``prepare-geo-rnaseq`` processes that produce
+  a tarball with necessary data and folder structure for GEO upload
+* Add ``library-strandedness`` process which uses the ``Salmon`` tool built-in
+  functionality to detect the library strandedness information
+* Add ``species`` and ``genome build`` output fields to ``macs14`` process
+* Expose additional parameters in ``alignment-star``, ``cutadapt-single`` and
+  ``cutadapt-paired`` processes
+* Add ``merge expressions`` to ``archive-samples`` process
+* Add description of batch mode to Expression aggregator process
+* Add error and warning messages to the ``cuffnorm`` process
+* Add optional ``species`` input to hierarchical clustering and PCA processes
+* Add Rattus norvegicus species choice to the ``rna-seq`` descriptor schema
+  to allow running RNA-seq workflow for this species from the Recipes
 
 Fixed
 -----
-* Fix ``consensus_subreads`` input option in Subread process
-* **BACKWARD INCOMPATIBLE:** Fix ``import-sra`` process
-  to work with ``resolwebio/utils`` Docker image and refactor inputs
-* The variant-calling process in the chemical mutagenesis workflow crashed
-  because Picard Tools was trying to use more memory than was available.
-  Therefore, we have explicitly set the process to request 16 GB of RAM, and
-  limited Picard Tools to use no more than is requested.
-* The chemical mutagenesis workflow was erroneously categorized as
-  ``data:workflow:rnaseq:cuffquant`` type. This is switched to
-  ``data:workflow:chemut`` type.
 * Fix custom argument passing script for ``Trimmomatic`` in
   ``resolwebio/rnaseq`` Docker image
 * Fix installation errors for ``dexseq-prepare-annotation2`` in
   ``resolwebio/rnaseq`` Docker image
+* Fix ``consensus_subreads`` input option in Subread process
+* Limit variant-calling process in the chemical mutagenesis workflow and the
+  Picard tools run inside to 16 GB of memory to prevent them from crashing
+  because they try to use too much memory
+* The chemical mutagenesis workflow was erroneously categorized as
+  ``data:workflow:rnaseq:cuffquant`` type. This is switched to
+  ``data:workflow:chemut`` type.
 * Fix handling of NA values in Differential expression results table. NA values
   were incorrectly replaced with value 0 instead of 1
 * Fix ``cuffnorm`` process to work with samples containing dashes in
