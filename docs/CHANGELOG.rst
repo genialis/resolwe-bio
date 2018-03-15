@@ -14,6 +14,9 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Refactor ``trimmomatic-single`` and
   ``trimmomatic-paired`` processes
+- **BACKWARD INCOMPATIBLE:** Merge ``align-bwa-trim`` and ``align-bwa-trim2``
+  process functionality. Retain only the refactored process under slug
+  ``align-bwa-trim``
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
 
