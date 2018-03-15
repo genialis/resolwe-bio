@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/dnaseq:3.1.0
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.2.0
+  version: 0.3.0
   type: data:variants:vcf:lofreq
   category: analyses:variants
   flow_collection: sample
@@ -42,7 +42,10 @@
       description: Skip alternate bases with baseQ smaller than the default value.
   output:
     - name: vcf
-      label: Alignment file
+      label: Variants
+      type: basic:file
+    - name: tbi
+      label: Tabix index
       type: basic:file
     - name: species
       label: Species
@@ -56,21 +59,29 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
-      lofreq call -q {{min_bq}} -Q {{min_alt_bq}} --call-indels -f {{genome.fasta.file}} {{alignment.bam.file}} -l {{intervals.bedfile.file}} -o variants_raw.lf.vcf
+      lofreq call \
+        -q {{ min_bq }} \
+        -Q {{ min_alt_bq }} \
+        --call-indels \
+        -f {{ genome.fasta.file }} \
+        {{ alignment.bam.file }} \
+        -l {{ intervals.bedfile.file }} \
+        -o variants_raw.lf.vcf
       re-checkrc
       re-progress 0.8
 
       lofreq2_indel_ovlp.py variants_raw.lf.vcf "${SAMPLE_SLUG}.lf.vcf"
       re-checkrc
 
-      bgzip -c "${SAMPLE_SLUG}.lf.vcf" > "${SAMPLE_SLUG}.lf.vcf.bgz"
+      bgzip -c "${SAMPLE_SLUG}.lf.vcf" > "${SAMPLE_SLUG}.lf.vcf.gz"
       re-checkrc
       re-progress 0.9
 
-      tabix -p vcf "${SAMPLE_SLUG}.lf.vcf.bgz"
+      tabix -p vcf "${SAMPLE_SLUG}.lf.vcf.gz"
       re-checkrc
       re-progress 0.95
 
-      re-save-file vcf "${SAMPLE_SLUG}.lf.vcf" "${SAMPLE_SLUG}.lf.vcf.bgz" "${SAMPLE_SLUG}.lf.vcf.bgz.tbi"
+      re-save-file vcf "${SAMPLE_SLUG}.lf.vcf.gz"
+      re-save-file tbi "${SAMPLE_SLUG}.lf.vcf.gz.tbi"
       re-save build {{ alignment.build }}
       re-save species {{ alignment.species }}

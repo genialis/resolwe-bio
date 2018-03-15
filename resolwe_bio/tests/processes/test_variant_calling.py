@@ -265,7 +265,10 @@ class VariantCallingTestCase(BioProcessTestCase):
         }
 
         lofreq_vars = self.run_process('lofreq', inputs)
-        self.assertFile(lofreq_vars, 'vcf', '56GSID_10k.lf.vcf', file_filter=filter_vcf_variable)
+        self.assertFile(
+            lofreq_vars, 'vcf', '56GSID_10k.lf.vcf.gz',
+            file_filter=filter_vcf_variable, compression='gzip'
+            )
         self.assertFields(lofreq_vars, 'build', 'b37')
         self.assertFields(lofreq_vars, 'species', 'Homo sapiens')
 
