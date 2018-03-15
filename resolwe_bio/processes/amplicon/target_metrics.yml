@@ -9,15 +9,16 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+        image: resolwebio/dnaseq:3.1.0
   data_name: "CollectTargetedPcrMetrics ({{ alignment|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:picard:coverage
   category: analyses:variants
   flow_collection: sample
   persistence: CACHED
   description: >
-    Run Picard CollectTargetedPcrMetrics.
+    Calculate PCR-related metrics from targeted sequencing data using
+    the Picard CollectTargetedPcrMetrics tool
   input:
     - name: alignment
       label: Alignment file (BAM)
@@ -42,12 +43,22 @@
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
       # make intervals file for CollectTargetedPcrMetrics
-      samtools view -H {{alignment.bam.file}} > header.txt
-      cat header.txt {{master_file.bedfile.file}} > fullintervals.txt
-      cat header.txt {{master_file.bedfile.file}} > noprimerintervals.txt
+      samtools view -H {{ alignment.bam.file }} > header.txt
+      re-checkrc
+      cat header.txt {{ master_file.bedfile.file }} > fullintervals.txt
+      cat header.txt {{ master_file.bedfile.file }} > noprimerintervals.txt
 
-      java -jar /usr/gitc/picard.jar CollectTargetedPcrMetrics I={{alignment.bam.file}} O="${SAMPLE_SLUG}.targetPCRmetrics.txt" AI=fullintervals.txt TI=noprimerintervals.txt R={{genome.fasta.file}} PER_TARGET_COVERAGE="${SAMPLE_SLUG}.perTargetCov.txt"
-      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+      picard-tools \
+        CollectTargetedPcrMetrics \
+          I={{ alignment.bam.file }} \
+          O="${SAMPLE_SLUG}.targetPCRmetrics.txt" \
+          AI=fullintervals.txt \
+          TI=noprimerintervals.txt \
+          R={{ genome.fasta.file }} \
+          PER_TARGET_COVERAGE="${SAMPLE_SLUG}.perTargetCov.txt"
 
-      echo "{\"target_pcr_metrics\":{\"file\":\"${SAMPLE_SLUG}.targetPCRmetrics.txt\"}}"
-      echo "{\"target_coverage\":{\"file\":\"${SAMPLE_SLUG}.perTargetCov.txt\"}}"
+      re-checkrc "Picard CollectTargetedPcrMetrics analysis failed."
+      re-progress 0.9
+
+      re-save-file target_pcr_metrics "${SAMPLE_SLUG}.targetPCRmetrics.txt"
+      re-save-file target_coverage "${SAMPLE_SLUG}.perTargetCov.txt"

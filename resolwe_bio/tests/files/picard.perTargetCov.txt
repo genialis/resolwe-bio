@@ -1,0 +1,2 @@
+chrom	start	end	length	name	%gc	mean_coverage	normalized_coverage	min_normalized_coverage	max_normalized_coverage	min_coverage	max_coverage	pct_0x	read_count
+2	1559	1883	325	MSH6_exon5_F1/2,MSH6_exon5_F2/2,MSH6_exon5_F3/2,MSH6_exon5_F4/2	0.424615	59.113846	1	0.219915	2.18223	13	129	0	156

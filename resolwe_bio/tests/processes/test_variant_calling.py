@@ -169,7 +169,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(variants, 'build', 'b37')
         self.assertFields(variants, 'species', 'Homo sapiens')
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     @tag_process('picard-pcrmetrics')
     def test_collecttargetedpcrmetrics(self):
@@ -195,7 +194,8 @@ class VariantCallingTestCase(BioProcessTestCase):
             'genome': genome.id
         }
 
-        self.run_process('picard-pcrmetrics', inputs)
+        pcrmetrics = self.run_process('picard-pcrmetrics', inputs)
+        self.assertFile(pcrmetrics, 'target_coverage', 'picard.perTargetCov.txt')
 
     @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')

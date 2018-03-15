@@ -19,6 +19,7 @@ Changed
   ``align-bwa-trim``
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
+- Use ``resolwebio/dnaseq`` Docker image in ``picard-pcrmetrics`` process
 
 Added
 -----
