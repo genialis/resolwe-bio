@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/dnaseq:3.1.0
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 2.0.0
   type: data:variants:vcf
   category: upload
   persistence: RAW
@@ -53,6 +53,9 @@
     - name: vcf
       label: Uploaded file
       type: basic:file
+    - name: tbi
+      label: Tabix index
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -63,11 +66,14 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import {{ src.file_temp }} {{ src.file }} "vcf" "vcf" 0.3
+      re-import {{ src.file_temp }} {{ src.file }} "vcf" "vcf" 0.3 extract
 
-      bgzip -c "${NAME}.vcf" > "${NAME}.vcf.bgz"
-      tabix -p vcf "${NAME}.vcf.bgz"
+      bgzip -c "${NAME}.vcf" > "${NAME}.vcf.gz"
+      re-checkrc
+      tabix -p vcf "${NAME}.vcf.gz"
+      re-checkrc
 
-      re-save-file vcf "${NAME}.vcf" "${NAME}.vcf.bgz" "${NAME}.vcf.bgz.tbi"
+      re-save-file vcf "${NAME}.vcf.gz"
+      re-save-file tbi "${NAME}.vcf.gz.tbi"
       re-save species {{ species }}
       re-save build {{ build }}

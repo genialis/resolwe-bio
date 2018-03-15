@@ -400,3 +400,15 @@ class UploadProcessorTestCase(BioProcessTestCase):
         seq = self.run_process('upload-fasta-nucl', inputs)
         self.assertFile(seq, 'fasta', 'genome.fasta.gz', compression='gzip')
         self.assertFields(seq, 'species', 'Dictyostelium discoideum')
+
+    @tag_process('upload-variants-vcf')
+    def test_upload_vcf(self):
+        vcf = self.run_process('upload-variants-vcf', {
+            'src': 'igv_human.lf.vcf',
+            'species': 'Homo sapiens',
+            'build': 'b37',
+        })
+        self.assertFile(vcf, 'vcf', 'igv_human.lf.vcf.gz', compression='gzip')
+        self.assertFileExists(vcf, 'tbi')
+        self.assertFields(vcf, 'species', 'Homo sapiens')
+        self.assertFields(vcf, 'build', 'b37')
