@@ -134,7 +134,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(hsqutils_dedup, 'build', 'hg19')
         self.assertFields(hsqutils_dedup, 'species', 'Homo sapiens')
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     @tag_process('vc-realign-recalibrate')
     def test_vc_preprocess_bam(self):

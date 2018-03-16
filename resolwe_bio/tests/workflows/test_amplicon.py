@@ -2,12 +2,11 @@
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
-from resolwe_bio.utils.test import skipDockerFailure, BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
-    @skipDockerFailure("Processor requires a custom Docker image.")
-    @tag_process('workflow-accel')
+    @tag_process('workflow-accel', 'workflow-accel-gatk4')
     def test_amplicon_workflow(self):
         with self.preparation_stage():
             inputs = {
@@ -62,7 +61,7 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'gatk': {
                     'dbsnp': dbsnp.id,
                     'mbq': 20,
-                    'stand_emit_conf': 20
+                    'stand_call_conf': 20
                 },
                 'lofreq': {
                     'min_bq': 20,
@@ -75,7 +74,38 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                     'template': template.id,
                     'logo': logo.id,
                 },
-                'threads': 2
+            }
+        )
+
+        self.run_process(
+            'workflow-accel-gatk4', {
+                'reads': reads.id,
+                'genome': genome.id,
+                'master_file': master_file.id,
+                'adapters': adapters.id,
+                'template_html': template_html.id,
+                'bokeh_css': bokeh_css.id,
+                'bokeh_js': bokeh_js.id,
+                'preprocess_bam': {
+                    'known_vars': [dbsnp.id],
+                    'known_indels': [indels.id]
+                },
+                'gatk': {
+                    'dbsnp': dbsnp.id,
+                    'mbq': 20,
+                    'stand_call_conf': 20
+                },
+                'lofreq': {
+                    'min_bq': 20,
+                    'min_alt_bq': 20
+                },
+                'var_annot': {
+                    'known_vars_db': [dbsnp.id]
+                },
+                'report': {
+                    'template': template.id,
+                    'logo': logo.id,
+                },
             }
         )
 

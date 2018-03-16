@@ -4,7 +4,20 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.1.5
+  version: 1.0.0
+  description: >
+    Processing pipeline to analyse the Accel-Amplicon NGS panel data.
+    The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
+    The quality of the raw and trimmed data is assesed using the FASTQC tool.
+    Quality trimmed reads are aligned to a reference genome using BWA mem.
+    Sequencing primers are removed from the aligned reads using Primerclip.
+    Amplicon performance stats are calculated using Bedtools coveragebed
+    and Picard CollectTargetedPcrMetrics programs. Prior to variant calling, the
+    alignment file is preprocessed using the GATK IndelRealigner and
+    BaseRecalibrator tools. GATK HaplotypeCaller and Lofreq tools are used to
+    call germline variants. Called variants are annotated using the SnpEff tool.
+    Finally, the amplicon performance metrics and identified variants data
+    are used to generate the PDF analysis report.
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -51,12 +64,12 @@
           default: 20
           description: >
             Minimum base quality required to consider a base for calling.
-        - name: stand_emit_conf
-          label: Emission confidence threshold
+        - name: stand_call_conf
+          label: Min call confidence threshold
           type: basic:integer
           default: 20
           description: >
-            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+            The minimum phred-scaled confidence threshold at which variants should be called.
     - name: lofreq
       label: LoFreq options
       group:
@@ -89,10 +102,6 @@
           label: Allele frequency threshold
           type: basic:decimal
           default: 0.01
-    - name: threads
-      label: CPU threads
-      type: basic:integer
-      default: 4
   run:
     language: workflow
     program:
@@ -116,7 +125,6 @@
           genome: '{{input.genome}}'
           reads: '{{steps.trimmomatic_filtering}}'
           m: true
-          threads: '{{input.threads}}'
           scoring:
             unpaired_p: 17
       - id: coveragebed
@@ -140,7 +148,6 @@
           genome: '{{input.genome}}'
           known_vars: '{{input.preprocess_bam.known_vars}}'
           known_indels: '{{input.preprocess_bam.known_indels}}'
-          threads: '{{input.threads}}'
       - id: gatk_hc
         run: vc-gatk-hc
         input:
@@ -149,7 +156,7 @@
           intervals: '{{input.master_file}}'
           dbsnp: '{{input.gatk.dbsnp}}'
           mbq: '{{input.gatk.mbq}}'
-          stand_emit_conf: '{{input.gatk.stand_emit_conf}}'
+          stand_call_conf: '{{input.gatk.stand_call_conf}}'
       - id: lofreq
         run: lofreq
         input:
@@ -199,15 +206,26 @@
         input:
           bam: '{{steps.bwa_trim}}'
 
-- slug: workflow-accel-2
+- slug: workflow-accel-gatk4
   category: workflow:primary
-  name: Accel Amplicon Pipeline
+  name: Accel Amplicon Pipeline (GATK4)
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.1
   description: >
-    Alternative version of Accel-amplicon worklfow that uses memory-optimized primerclip tool.
+    Processing pipeline to analyse the Accel-Amplicon NGS panel data.
+    The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
+    The quality of the raw and trimmed data is assesed using the FASTQC tool.
+    Quality trimmed reads are aligned to a reference genome using BWA mem.
+    Sequencing primers are removed from the aligned reads using Primerclip.
+    Amplicon performance stats are calculated using Bedtools coveragebed
+    and Picard CollectTargetedPcrMetrics programs. Prior to variant calling, the
+    alignment file is preprocessed using the GATK IndelRealigner and
+    BaseRecalibrator tools. GATK HaplotypeCaller and Lofreq tools are used to
+    call germline variants. Called variants are annotated using the SnpEff tool.
+    Finally, the amplicon performance metrics and identified variants data
+    are used to generate the PDF analysis report.
   type: data:workflow:amplicon
   input:
     - name: reads
@@ -254,12 +272,12 @@
           default: 20
           description: >
             Minimum base quality required to consider a base for calling.
-        - name: stand_emit_conf
-          label: Emission confidence threshold
+        - name: stand_call_conf
+          label: Min call confidence threshold
           type: basic:integer
           default: 20
           description: >
-            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+            The minimum phred-scaled confidence threshold at which variants should be called.
     - name: lofreq
       label: LoFreq options
       group:
@@ -292,10 +310,6 @@
           label: Allele frequency threshold
           type: basic:decimal
           default: 0.01
-    - name: threads
-      label: CPU threads
-      type: basic:integer
-      default: 4
   run:
     language: workflow
     program:
@@ -313,13 +327,12 @@
           reads_filtering:
             minlen: 40
       - id: bwa_trim
-        run: align-bwa-trim2
+        run: align-bwa-trim
         input:
           master_file: '{{input.master_file}}'
           genome: '{{input.genome}}'
           reads: '{{steps.trimmomatic_filtering}}'
           m: true
-          threads: '{{input.threads}}'
           scoring:
             unpaired_p: 17
       - id: coveragebed
@@ -343,16 +356,15 @@
           genome: '{{input.genome}}'
           known_vars: '{{input.preprocess_bam.known_vars}}'
           known_indels: '{{input.preprocess_bam.known_indels}}'
-          threads: '{{input.threads}}'
       - id: gatk_hc
-        run: vc-gatk-hc
+        run: vc-gatk4-hc
         input:
           alignment: '{{steps.realign_recalibrate}}'
           genome: '{{input.genome}}'
           intervals: '{{input.master_file}}'
           dbsnp: '{{input.gatk.dbsnp}}'
           mbq: '{{input.gatk.mbq}}'
-          stand_emit_conf: '{{input.gatk.stand_emit_conf}}'
+          stand_call_conf: '{{input.gatk.stand_call_conf}}'
       - id: lofreq
         run: lofreq
         input:

@@ -20,9 +20,12 @@ Changed
 - **BACKWARD INCOMPATIBLE:** In processes handling VCF files, the output
   VCF files are stored in bgzip-compressed form. Tabix index is not referenced
   to an original VCF file anymore, but stored in a separate ``tbi`` output field
+- **BACKWARD INCOMPATIBLE:** Remove an obsolete ``workflow-accel-2`` workflow
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
 - Use ``resolwebio/dnaseq`` Docker image in ``picard-pcrmetrics`` process
+- Run ``vc-realign-recalibrate`` process using multiple cpu cores to optimize
+  the processing time
 
 Added
 -----
@@ -33,6 +36,8 @@ Added
 - Add process to convert files to paired-end reads
 - Add ``vc-gatk4-hc`` process which implements GATK4 HaplotypeCaller
   variant calling tool
+- Add ``workflow-accel-gatk4`` pipeline that uses GATK4 HaplotypeCaller as an
+  alternative to GATK3 used in ``workflow-accel`` pipeline
 
 Fixed
 -----

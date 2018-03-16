@@ -9,9 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+        image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
+    resources:
+      memory: 16384
+      cores: 10
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 0.2.0
+  version: 1.0.0
   type: data:alignment:bam:vc
   category: analyses:variants
   flow_collection: sample
@@ -31,10 +34,6 @@
     - name: known_indels
       label: Known indels
       type: list:data:variants:vcf
-    - name: threads
-      label: CPU threads
-      type: basic:integer
-      default: 1
   output:
     - name: bam
       label: Alignment file
@@ -57,23 +56,46 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
-      cp {{alignment.bam.file}} alignment.RG.bam
-      cp {{alignment.bai.file}} alignment.RG.bam.bai
+      ln -s {{ alignment.bam.file }} alignment.RG.bam
+      ls -s {{ alignment.bai.file }} alignment.RG.bam.bai
 
       echo "Create target interval for Indelrealigner"
-      java -jar /usr/gitc/GATK36.jar -T RealignerTargetCreator -R {{genome.fasta.file}} -I alignment.RG.bam {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} -o forIndelRealigner.intervals
+      java -jar /usr/gitc/GATK36.jar \
+        -T RealignerTargetCreator \
+          -R {{ genome.fasta.file }} \
+          -I alignment.RG.bam \
+          {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} \
+          -nt {{ requirements.resources.cores }} \
+          -o forIndelRealigner.intervals
       echo "{\"proc.progress\":0.40,\"proc.rc\":$?}"
 
       echo "GATK Indel Realignment"
-      java -jar /usr/gitc/GATK36.jar -T IndelRealigner -R {{genome.fasta.file}} -I alignment.RG.bam {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} --targetIntervals forIndelRealigner.intervals -o realigned.bam
+      java -jar /usr/gitc/GATK36.jar \
+        -T IndelRealigner \
+          -R {{ genome.fasta.file }} \
+          -I alignment.RG.bam \
+          {% for indelx in known_indels %} -known {{ indelx.vcf.file }} {% endfor %} \
+          --targetIntervals forIndelRealigner.intervals \
+          -o realigned.bam
       echo "{\"proc.progress\":0.60,\"proc.rc\":$?}"
 
       echo "GATK Base Recalibration"
-      java -jar /usr/gitc/GATK36.jar -T BaseRecalibrator -R {{genome.fasta.file}} -I realigned.bam {% for known_var in known_indels + known_vars %} --knownSites {{ known_var.vcf.file }} {% endfor %} -nct {{threads}} -o recal_data.table
+      java -jar /usr/gitc/GATK36.jar \
+        -T BaseRecalibrator \
+          -R {{ genome.fasta.file }} \
+          -I realigned.bam \
+          {% for known_var in known_indels + known_vars %} --knownSites {{ known_var.vcf.file }} {% endfor %} \
+          -nct {{ requirements.resources.cores }} \
+          -o recal_data.table
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
       echo "generate Recalibrated bam"
-      java -jar /usr/gitc/GATK36.jar -T PrintReads -R {{genome.fasta.file}} -I realigned.bam -BQSR recal_data.table -o "${SAMPLE_SLUG}.realigned.bqsrCal.bam"
+      java -jar /usr/gitc/GATK36.jar \
+        -T PrintReads \
+          -R {{ genome.fasta.file }} \
+          -I realigned.bam \
+          -BQSR recal_data.table \
+          -o "${SAMPLE_SLUG}.realigned.bqsrCal.bam"
       echo "{\"proc.rc\":$?}"
 
       echo "Calculating statistics"
