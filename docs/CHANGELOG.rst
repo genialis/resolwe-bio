@@ -28,6 +28,8 @@ Added
 - Add process to import a file from BaseSpace
 - Add process to convert files to single-end reads
 - Add process to convert files to paired-end reads
+- Add ``vc-gatk4-hc`` process which implements GATK4 HaplotypeCaller
+  variant calling tool
 
 Fixed
 -----

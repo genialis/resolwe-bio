@@ -197,9 +197,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         pcrmetrics = self.run_process('picard-pcrmetrics', inputs)
         self.assertFile(pcrmetrics, 'target_coverage', 'picard.perTargetCov.txt')
 
-    @skipDockerFailure("Processor requires a custom Docker image.")
     @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
-    @tag_process('vc-gatk-hc')
+    @tag_process('vc-gatk-hc', 'vc-gatk4-hc')
     def test_gatk_haplotypecaller(self):
         with self.preparation_stage():
             alignment = self.run_process(
@@ -225,17 +224,37 @@ class VariantCallingTestCase(BioProcessTestCase):
             }
             dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
-        inputs = {
+        gatk3_vars = self.run_process('vc-gatk-hc', {
             'alignment': alignment.id,
             'intervals': master_file.id,
             'genome': genome.id,
             'dbsnp': dbsnp.id
-        }
+        })
+        self.assertFile(
+            gatk3_vars,
+            'vcf',
+            '56GSID_10k.gatkHC.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
+        self.assertFields(gatk3_vars, 'build', 'b37')
+        self.assertFields(gatk3_vars, 'species', 'Homo sapiens')
 
-        gatk_vars = self.run_process('vc-gatk-hc', inputs)
-        self.assertFile(gatk_vars, 'vcf', '56GSID_10k.gatkHC.vcf', file_filter=filter_vcf_variable)
-        self.assertFields(gatk_vars, 'build', 'b37')
-        self.assertFields(gatk_vars, 'species', 'Homo sapiens')
+        gatk4_vars = self.run_process('vc-gatk4-hc', {
+            'alignment': alignment.id,
+            'intervals': master_file.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        })
+        self.assertFile(
+            gatk4_vars,
+            'vcf',
+            '56GSID_10k.gatkHC4.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
+        self.assertFields(gatk4_vars, 'build', 'b37')
+        self.assertFields(gatk4_vars, 'species', 'Homo sapiens')
 
     @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
     @tag_process('lofreq')

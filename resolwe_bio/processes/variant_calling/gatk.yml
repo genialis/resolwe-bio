@@ -4,14 +4,14 @@
 ---
 
 - slug: vc-gatk-hc
-  name: GATK (HaplotypeCaller)
+  name: GATK3 (HaplotypeCaller)
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+        image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.2.0
+  version: 0.3.0
   type: data:variants:vcf:gatk:hc
   category: analyses:variants
   flow_collection: sample
@@ -44,16 +44,19 @@
       type: basic:integer
       default: 20
       description: >
-          The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+        The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
     - name: mbq
       label: Min Base Quality
       type: basic:integer
       default: 20
       description: >
-       Minimum base quality required to consider a base for calling.
+        Minimum base quality required to consider a base for calling.
   output:
     - name: vcf
       label: Alignment file
+      type: basic:file
+    - name: tbi
+      label: Tabix index
       type: basic:file
     - name: species
       label: Species
@@ -67,17 +70,127 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
-      java -jar /usr/gitc/GATK36.jar -T HaplotypeCaller -R {{genome.fasta.file}} -I {{alignment.bam.file}} -stand_call_conf {{stand_call_conf}} -stand_emit_conf {{stand_emit_conf}} -mbq {{mbq}} --dbsnp {{ dbsnp.vcf.file }} -L {{intervals.bedfile.file}} -o "${SAMPLE_SLUG}.gatkHC.vcf"
+      java -jar /usr/gitc/GATK36.jar \
+        -T HaplotypeCaller \
+        -R {{genome.fasta.file}} \
+        -I {{alignment.bam.file}} \
+        -stand_call_conf {{stand_call_conf}} \
+        -stand_emit_conf {{stand_emit_conf}} \
+        -mbq {{mbq}} \
+        --dbsnp {{ dbsnp.vcf.file }} \
+        -L {{intervals.bedfile.file}} \
+        -o "${SAMPLE_SLUG}.gatkHC.vcf"
+
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
 
-      /usr/gitc/bgzip -c "${SAMPLE_SLUG}.gatkHC.vcf" > "${SAMPLE_SLUG}.gatkHC.vcf.bgz"
+      /usr/gitc/bgzip -c "${SAMPLE_SLUG}.gatkHC.vcf" > "${SAMPLE_SLUG}.gatkHC.vcf.gz"
       echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
 
-      /usr/gitc/tabix -p vcf "${SAMPLE_SLUG}.gatkHC.vcf.bgz"
+      /usr/gitc/tabix -p vcf "${SAMPLE_SLUG}.gatkHC.vcf.gz"
       echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
 
-      echo "{\"vcf\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf\",\"refs\":[\"${SAMPLE_SLUG}.gatkHC.vcf.bgz\", \"${SAMPLE_SLUG}.gatkHC.vcf.bgz.tbi\"]}}"
+      echo "{\"vcf\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf.gz\"}}"
+      echo "{\"tbi\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf.gz.tbi\"}}"
+
       SPECIES={{ alignment.species }}
       BUILD={{ alignment.build }}
       echo "{\"species\":\"${SPECIES}\"}"
       echo "{\"build\":\"${BUILD}\"}"
+
+- slug: vc-gatk4-hc
+  name: GATK4 (HaplotypeCaller)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/dnaseq:3.1.0
+    resources:
+      memory: 16384
+      cores: 4
+  data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:variants:vcf:gatk:hc
+  category: analyses:variants
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    GATK HaplotypeCaller Variant Calling
+  input:
+    - name: alignment
+      label: Alignment file (BAM)
+      type: data:alignment:bam
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: intervals
+      label: Intervals (from master file)
+      type: data:masterfile:amplicon
+      description: >
+        Use this option to perform the analysis over only part of the genome.
+    - name: dbsnp
+      label: dbSNP file
+      type: data:variants:vcf
+    - name: stand_call_conf
+      label: Min call confidence threshold
+      type: basic:integer
+      default: 20
+      description: >
+        The minimum phred-scaled confidence threshold at which variants should be called.
+    - name: mbq
+      label: Min Base Quality
+      type: basic:integer
+      default: 20
+      description: >
+        Minimum base quality required to consider a base for calling.
+    - name: max_reads
+      label: Max reads per aligment start site
+      type: basic:integer
+      default: 50
+      description: >
+        Maximum number of reads to retain per alignment start position.
+        Reads above this threshold will be downsampled. Set to 0 to disable.
+  output:
+    - name: vcf
+      label: Variants
+      type: basic:file
+    - name: tbi
+      label: Tabix index
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      SAMPLE_SLUG={{ alignment|sample_slug }}
+
+      gatk HaplotypeCaller \
+        -R {{genome.fasta.file}} \
+        -I {{alignment.bam.file}} \
+        -mbq {{ mbq }} \
+        --stand-call-conf {{ stand_call_conf }} \
+        --max-reads-per-alignment-start {{ max_reads }} \
+        --dbsnp {{ dbsnp.vcf.file }} \
+        -L {{intervals.bedfile.file}} \
+        -O "${SAMPLE_SLUG}.gatkHC.vcf"
+
+      re-checkrc "GATK HaplotypeCaller failed."
+      re-progress 0.8
+
+      bgzip -c "${SAMPLE_SLUG}.gatkHC.vcf" > "${SAMPLE_SLUG}.gatkHC.vcf.gz"
+      re-checkrc
+      re-progress 0.9
+
+      tabix -p vcf "${SAMPLE_SLUG}.gatkHC.vcf.gz"
+      re-checkrc
+      re-progress 0.95
+
+      re-save-file vcf ${SAMPLE_SLUG}.gatkHC.vcf.gz
+      re-save-file tbi ${SAMPLE_SLUG}.gatkHC.vcf.gz.tbi
+
+      re-save species {{ alignment.species }}
+      re-save build {{ alignment.build }}
