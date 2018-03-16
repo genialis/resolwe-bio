@@ -8,12 +8,13 @@
   requirements:
     resources:
       memory: 16384
+      cores: 10
     expression-engine: jinja
     executor:
       docker:
-        image: "broadinstitute/genomes-in-the-cloud:2.2.4-1469632282"
+        image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "Called variants (CheMut)"
-  version: 1.1.1
+  version: 1.2.0
   type: data:variants:vcf:chemut
   category: analyses:variants
   persistence: CACHED
@@ -145,6 +146,9 @@
     - name: vcf
       label: Called variants file
       type: basic:file
+    - name: tbi
+      label: Tabix index
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -232,7 +236,8 @@
             -I "${BAM_FILE}_indh.bam" \
             -R {{ genome.fasta.file }} \
             -o indel_interval.bed \
-            {% if known_indels %}-known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %}
+            {% if known_indels %}-known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %} \
+            -nt {{ requirements.resources.cores }}
           echo "{\"proc.rc\":$?}"
 
           java \
@@ -252,7 +257,8 @@
             -I "${BAM_FILE}_noncal.bam" \
             -R {{ genome.fasta.file }} \
             -o recal_data.table \
-            -knownSites {{ known_sites.vcf.file }}
+            -knownSites {{ known_sites.vcf.file }} \
+            -nct {{ requirements.resources.cores }}
           echo "{\"proc.rc\":$?}"
 
           java \
@@ -290,17 +296,19 @@
         -stand_call_conf {{ Varc_param.stand_call_conf }} \
         -stand_emit_conf {{ Varc_param.stand_emit_conf }} \
         {% if Varc_param.intervals %}{% for l in Varc_param.intervals %} -L {{l}} {% endfor %}{% endif %} \
-        {% if Varc_param.rf %}-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60{% endif %}
+        {% if Varc_param.rf %}-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60{% endif %} \
+        -nct {{ requirements.resources.cores }}
       echo "{\"proc.rc\":$?}"
       echo "{\"proc.progress\":0.80}"
 
       if [ -f GATKvariants_raw.vcf ];
       then
-        /usr/gitc/bgzip -c GATKvariants_raw.vcf > GATKvariants_raw.vcf.bgz
+        /usr/gitc/bgzip -c GATKvariants_raw.vcf > GATKvariants_raw.vcf.gz
         echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
-        /usr/gitc/tabix -p vcf GATKvariants_raw.vcf.bgz
+        /usr/gitc/tabix -p vcf GATKvariants_raw.vcf.gz
         echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
-        echo "{\"vcf\":{\"file\":\"GATKvariants_raw.vcf\",\"refs\":[\"GATKvariants_raw.vcf.bgz\", \"GATKvariants_raw.vcf.bgz.tbi\"]}}"
+        echo "{\"vcf\":{\"file\":\"GATKvariants_raw.vcf.gz\"}}"
+        echo "{\"tbi\":{\"file\":\"GATKvariants_raw.vcf.gz.tbi\"}}"
       fi
 
       SPECIES={{ (parental_strains|first).species }}

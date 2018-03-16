@@ -2,6 +2,7 @@
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
+from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
@@ -43,8 +44,10 @@ class HeatSeqWorkflowTestCase(BioProcessTestCase):
 
         variants = Data.objects.last()
 
-        def filter_version(line):
-            if line.startswith(b"##samtoolsVersion") or line.startswith(b"##reference") or b"/data_all/" in line:
-                return True
-
-        self.assertFile(variants, 'vcf', 'heat-seq.vcf', file_filter=filter_version)
+        self.assertFile(
+            variants,
+            'vcf',
+            'heat-seq.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )

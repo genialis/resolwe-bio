@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/dnaseq:3.0.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.1.1
+  version: 1.2.0
   type: data:variants:vcf:filtering
   category: analyses:variants
   persistence: CACHED
@@ -59,6 +59,9 @@
       type: basic:file
       description: >
         A genome VCF file of variants that passed the filters.
+    - name: tbi
+      label: Tabix index
+      type: basic:file
     - name: variants_filtered
       label: Variants filtered
       type: basic:file
@@ -111,10 +114,10 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename {{ variants.vcf.file }} .vcf`
+      NAME=`basename {{ variants.vcf.file }} .vcf.gz`
       re-progress 0.05
 
-      cp {{variants.vcf.file}} .
+      gzip -cd {{variants.vcf.file}} > "${NAME}.vcf"
 
       Rscript \
         -e 'library(chemut)' \
@@ -129,13 +132,10 @@
 
       if [ -f "${NAME}.vcf_"{{read_depth}}"/variants.vcf" ];
       then
-        bgzip -c "${NAME}.vcf_"{{read_depth}}"/variants.vcf" > "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz"
-        tabix -p vcf "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz"
-        re-save-file \
-          vcf \
-          "${NAME}.vcf_"{{read_depth}}"/variants.vcf" \
-          "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz" \
-          "${NAME}.vcf_"{{read_depth}}"/variants.vcf.bgz.tbi"
+        bgzip -c "${NAME}.vcf_"{{read_depth}}"/variants.vcf" > "${NAME}.vcf_"{{read_depth}}"/variants.vcf.gz"
+        tabix -p vcf "${NAME}.vcf_"{{read_depth}}"/variants.vcf.gz"
+        re-save-file vcf "${NAME}.vcf_"{{read_depth}}"/variants.vcf.gz"
+        re-save-file tbi "${NAME}.vcf_"{{read_depth}}"/variants.vcf.gz.tbi"
       else
         re-error "No variants have passed the filters. VCF file was not created."
       fi

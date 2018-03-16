@@ -17,6 +17,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Merge ``align-bwa-trim`` and ``align-bwa-trim2``
   process functionality. Retain only the refactored process under slug
   ``align-bwa-trim``
+- **BACKWARD INCOMPATIBLE:** In processes handling VCF files, the output
+  VCF files are stored in bgzip-compressed form. Tabix index is not referenced
+  to an original VCF file anymore, but stored in a separate ``tbi`` output field
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
 - Use ``resolwebio/dnaseq`` Docker image in ``picard-pcrmetrics`` process

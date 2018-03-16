@@ -3,7 +3,7 @@ from os.path import join
 
 from resolwe.test import tag_process
 from resolwe_bio.utils.filter import filter_vcf_variable
-from resolwe_bio.utils.test import skipDockerFailure, skipUnlessLargeFiles, BioProcessTestCase
+from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
 
 class VariantCallingTestCase(BioProcessTestCase):
@@ -33,7 +33,13 @@ class VariantCallingTestCase(BioProcessTestCase):
             }
         }
         samtools_variants = self.run_process('vc-samtools', inputs)
-        self.assertFile(samtools_variants, 'vcf', 'variant_calling_samtools.vcf', file_filter=filter_vcf_variable)
+        self.assertFile(
+            samtools_variants,
+            'vcf',
+            'variant_calling_samtools.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
         self.assertFields(samtools_variants, 'build', 'dd-05-2009')
         self.assertFields(samtools_variants, 'species', 'Dictyostelium discoideum')
 
@@ -96,7 +102,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             'read_depth': 5}
 
         filtered_variants = self.run_process('filtering-chemut', inputs)
-        self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf')
+        self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf.gz', compression='gzip')
         self.assertFields(filtered_variants, 'build', 'dd-05-2009')
         self.assertFields(filtered_variants, 'species', 'Dictyostelium discoideum')
 
@@ -285,9 +291,12 @@ class VariantCallingTestCase(BioProcessTestCase):
 
         lofreq_vars = self.run_process('lofreq', inputs)
         self.assertFile(
-            lofreq_vars, 'vcf', '56GSID_10k.lf.vcf.gz',
-            file_filter=filter_vcf_variable, compression='gzip'
-            )
+            lofreq_vars,
+            'vcf',
+            '56GSID_10k.lf.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
         self.assertFields(lofreq_vars, 'build', 'b37')
         self.assertFields(lofreq_vars, 'species', 'Homo sapiens')
 

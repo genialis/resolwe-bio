@@ -52,4 +52,10 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
 
         variants = Data.objects.last()
-        self.assertFile(variants, 'vcf', 'chemut.vcf', file_filter=filter_vcf_variable)
+        self.assertFile(
+            variants,
+            'vcf',
+            'chemut.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )

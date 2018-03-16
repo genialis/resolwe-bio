@@ -13,7 +13,7 @@
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.6
+  version: 0.1.7
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample
@@ -56,16 +56,17 @@
     runtime: polyglot
     language: bash
     program: |
-      VAR_NAME=`basename {{variants.vcf.file}} .vcf`
+      VAR_NAME=`basename {{variants.vcf.file}} .vcf.gz`
 
       snpEff {{database}} {{variants.vcf.file}} > tmp_0.vcf
       re-checkrc
 
       {% for kv in known_vars_annot %}
         OUT_VCF=tmp_{{loop.index}}.vcf
-        NAME=`basename {{kv.vcf.file}} .vcf`
-        ln -s {{ kv.vcf.file }} "${NAME}.vcf"
-        SnpSift annotate "${NAME}.vcf" tmp_{{loop.index0}}.vcf > tmp_{{loop.index}}.vcf
+        NAME=`basename {{kv.vcf.file}} .vcf.gz`
+        ln -s {{ kv.vcf.file }} "${NAME}.vcf.gz"
+        ln -s {{ kv.tbi.file }} "${NAME}.vcf.gz.tbi"
+        SnpSift annotate "${NAME}.vcf.gz" tmp_{{loop.index0}}.vcf > tmp_{{loop.index}}.vcf
         re-checkrc
       {% endfor %}
 
