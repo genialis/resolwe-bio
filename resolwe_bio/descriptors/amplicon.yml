@@ -9,7 +9,7 @@
 
 - slug: amplicon-panel-advanced
   name: Amplicon panel selection
-  version: 0.0.4
+  version: 1.0.0
   description: Advanced amplicon panel selection
   schema:
     - name: panel
@@ -18,12 +18,12 @@
     - name: gatk
       label: GATK (HaplotypeCaller) options
       group:
-        - name: stand_emit_conf
-          label: Emission confidence threshold
+        - name: stand_call_conf
+          label: Min call confidence threshold
           type: basic:integer
           default: 20
           description: >
-            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+            The minimum phred-scaled confidence threshold at which variants should be called.
         - name: mbq
           label: Min Base Quality
           type: basic:integer
@@ -43,3 +43,20 @@
           type: basic:integer
           default: 20
           description: Skip alternate bases with baseQ smaller than the default value.
+
+- slug: amplicon-master-file
+  name: Amplicon panel master-file information
+  version: 0.0.1
+  description: Panel type choice
+  schema:
+    - name: panel_type
+      label: Panel type
+      type: basic:string
+      description: >
+        Accel Amplicon panel type
+      default: basic
+      choices:
+        - label: Basic
+          value: basic
+        - label: Plus
+          value: plus

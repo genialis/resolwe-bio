@@ -38,6 +38,7 @@ Added
   variant calling tool
 - Add ``workflow-accel-gatk4`` pipeline that uses GATK4 HaplotypeCaller as an
   alternative to GATK3 used in ``workflow-accel`` pipeline
+- Add ``amplicon-master-file`` descriptor schema
 
 Fixed
 -----
