@@ -9,15 +9,16 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:1.2.0
+        image: resolwebio/rnaseq:3.0.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.1
+  version: 1.2.2
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    Count the number of reads that map to a genomic feature (e.g. gene)
+    Count the number of reads that map to a genomic feature (e.g. gene). For computationally
+    efficient quantification consider using featureCounts instead of HTSeq-count.
   input:
     - name: alignments
       label: Aligned reads
@@ -77,10 +78,11 @@
     - name: name_ordered
       label: Use name-ordered BAM file for counting reads
       type: basic:boolean
-      default: false
-      required: false
+      default: true
       description: >
-        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM files, but requires more computational time.
+        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM
+        files, but requires more computational time. Setting this to false may cause the process
+        to fail for large BAM files due to buffer overflow.
   output:
     - name: htseq_output
       label: HTseq-count output
@@ -193,15 +195,16 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:1.2.0
+        image: resolwebio/rnaseq:3.0.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.1
+  version: 1.2.2
   type: data:expression:htseq:raw
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    Count the number of reads that map to a genomic feature (e.g. gene)
+    Count the number of reads that map to a genomic feature (e.g. gene). For computationally
+    efficient quantification consider using featureCounts instead of HTSeq-count.
   input:
     - name: alignments
       label: Aligned reads
@@ -261,10 +264,11 @@
     - name: name_ordered
       label: Use name-ordered BAM file for counting reads
       type: basic:boolean
-      default: false
-      required: false
+      default: true
       description: >
-        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM files, but requires more computational time.
+        Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM
+        files, but requires more computational time. Setting this to false may cause the process
+        to fail for large BAM files due to buffer overflow.
   output:
     - name: htseq_output
       label: HTseq-count output

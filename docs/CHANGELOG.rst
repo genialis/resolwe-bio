@@ -19,6 +19,11 @@ Added
 -----
 - Add CNVKit, LoFreq and GATK to ``resolwebio/dnaseq`` docker image
 
+Fixed
+-----
+- Use name-ordered BAM file for counting reads in ``HTSeq-count`` process
+  by default to avoid buffer overflow with large BAM files
+
 
 ==================
 7.0.0 - 2018-03-13
