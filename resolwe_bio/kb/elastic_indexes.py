@@ -104,7 +104,6 @@ class MappingSearchDocument(BaseDocument):
     target_db = dsl.Keyword()
     target_id = dsl.Keyword()
     target_species = dsl.Keyword()
-    relation_type = dsl.Keyword()
 
     class Meta:
         """Meta class for mapping search document."""
