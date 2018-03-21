@@ -107,7 +107,7 @@ class FeatureViewSet(mixins.ListModelMixin,
     filter_backends = [DjangoFilterBackend]
     queryset = Feature.objects.all()
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         """Instead of failing, update existing features with a custom create."""
         try:
             feature = Feature.objects.get(
@@ -115,9 +115,9 @@ class FeatureViewSet(mixins.ListModelMixin,
                 feature_id=request.data['feature_id']
             )
             self.kwargs[self.lookup_field] = feature.pk
-            return super(FeatureViewSet, self).update(request)  # pylint: disable=no-member
+            return super(FeatureViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
         except (Feature.DoesNotExist, KeyError):  # pylint: disable=no-member
-            return super(FeatureViewSet, self).create(request)  # pylint: disable=no-member
+            return super(FeatureViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member
 
 
 class MappingSearchViewSet(ElasticSearchBaseViewSet):
@@ -181,7 +181,7 @@ class MappingViewSet(mixins.ListModelMixin,
     filter_class = MappingFilter
     queryset = Mapping.objects.all()
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         """Instead of failing, update existing mappings using a custom create."""
         try:
             mapping = Mapping.objects.get(
@@ -193,6 +193,6 @@ class MappingViewSet(mixins.ListModelMixin,
                 target_species=request.data['target_species'],
             )
             self.kwargs[self.lookup_field] = mapping.pk
-            return super(MappingViewSet, self).update(request)  # pylint: disable=no-member
+            return super(MappingViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
         except (Mapping.DoesNotExist, KeyError):  # pylint: disable=no-member
-            return super(MappingViewSet, self).create(request)  # pylint: disable=no-member
+            return super(MappingViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member
