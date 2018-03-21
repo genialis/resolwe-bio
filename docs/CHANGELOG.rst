@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Fixed
+-----
+* Use name-ordered BAM file for counting reads in ``HTSeq-count`` process by
+  default to avoid buffer overflow with large BAM files
+
 
 ==================
 7.0.0 - 2018-03-13
