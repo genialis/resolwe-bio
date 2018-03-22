@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.2.2
+  version: 1.2.3
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -88,8 +88,8 @@
         {{ alignment.bam.file }}
       re-checkrc "Cuffquant analysis failed."
 
-      mv abundances.cxb ${NAME}.cxb
-      re-save-file cxb ${NAME}.cxb
+      mv abundances.cxb "${NAME}.cxb"
+      re-save-file cxb "${NAME}.cxb"
       re-save source {{gff.source}}
       re-save species {{alignment.species}}
       re-save build {{alignment.build}}

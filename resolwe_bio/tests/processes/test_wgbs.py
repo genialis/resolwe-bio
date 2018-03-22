@@ -9,8 +9,8 @@ class WgbsProcessorTestCase(BioProcessTestCase):
     def test_bsmap(self):
         with self.preparation_stage():
             genome = self.prepare_genome()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz'])
 
         inputs = {
             'genome': genome.id,

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -140,14 +140,14 @@
       reporting={{reporting.r}}
 
       {% for r in reads.fastq %}
-        READS_NAME=`basename {{ r.file }} .fastq.gz`
+        READS_NAME={{ r.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
         fw_reads+=("${READS_NAME}.fastq")
         gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
       {% endfor %}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename {{ r.file }} .fastq.gz`
+          READS_NAME={{ r.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
           rw_reads+=("${READS_NAME}.fastq")
           gzip -cd {{ r.file }} > "${READS_NAME}.fastq"
         {% endfor %}
@@ -163,7 +163,7 @@
 
       re-progress 0.3
 
-      FW_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      FW_NAME={{ reads.fastq.0.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
       STATS="0 ${FW_NAME}_align_unsorted.stats"
 
       echo "ALIGNING with bowtie:"
@@ -478,7 +478,7 @@
         {% endfor %}
       {% endif %}
 
-      FW_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      FW_NAME={{ reads.fastq.0.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
 
       {% if PE_options.use_se and reads|type|subtype('data:reads:fastq:paired:') %}
         cat "${fw_reads[@]}" "${rw_reads[@]}" > reads.fastq

@@ -104,7 +104,7 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {'src': fn}
         return self.run_process('upload-fastq-single', inputs)
 
-    def prepare_paired_reads(self, mate1=['fw_reads.fastq.gz'], mate2=['rw_reads.fastq.gz']):
+    def prepare_paired_reads(self, mate1=['fw reads.fastq.gz'], mate2=['rw reads.fastq.gz']):
         """Prepare NGS reads FASTQ."""
         inputs = {'src1': mate1, 'src2': mate2}
         return self.run_process('upload-fastq-paired', inputs)

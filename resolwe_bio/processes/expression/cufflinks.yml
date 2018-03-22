@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.0.0
+  version: 2.0.1
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -112,15 +112,15 @@
       re-checkrc
       re-progress 0.9
 
-      mv transcripts.gtf ${NAME}_transcripts.gtf
-      mv isoforms.fpkm_tracking ${NAME}_isoforms_fpkm_tracking.txt
-      mv genes.fpkm_tracking ${NAME}_genes_fpkm_tracking.txt
-      mv skipped.gtf ${NAME}_skipped.gtf
+      mv transcripts.gtf "${NAME}_transcripts.gtf"
+      mv isoforms.fpkm_tracking "${NAME}_isoforms_fpkm_tracking.txt"
+      mv genes.fpkm_tracking "${NAME}_genes_fpkm_tracking.txt"
+      mv skipped.gtf "${NAME}_skipped.gtf"
 
-      re-save-file transcripts ${NAME}_transcripts.gtf
-      re-save-file isoforms_fpkm_tracking ${NAME}_isoforms_fpkm_tracking.txt
-      re-save-file genes_fpkm_tracking ${NAME}_genes_fpkm_tracking.txt
-      re-save-file skipped_loci ${NAME}_skipped.gtf
+      re-save-file transcripts "${NAME}_transcripts.gtf"
+      re-save-file isoforms_fpkm_tracking "${NAME}_isoforms_fpkm_tracking.txt"
+      re-save-file genes_fpkm_tracking "${NAME}_genes_fpkm_tracking.txt"
+      re-save-file skipped_loci "${NAME}_skipped.gtf"
       re-save source {{gff.source}}
       re-save species {{alignment.species}}
       re-save build {{alignment.build}}

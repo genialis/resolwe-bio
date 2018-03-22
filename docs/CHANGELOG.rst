@@ -59,6 +59,13 @@ Fixed
 - Fix iterative trimming in ``bowtie`` and ``bowtie2`` processes
 - Fix ``archive-samples`` to use sample names for headers when merging expressions
 - Improve ``goea.py`` tool to handle duplicated mapping results
+- Handle filenames with spaces in the following processes:
+  - ``alignment-hisat2``
+  - ``alignment-bowtie``
+  - ``prepare-geo-chipseq``
+  - ``prepare-geo-rnaseq``
+  - ``cufflinks``
+  - ``cuffquant``
 
 
 ==================

@@ -13,8 +13,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads_single = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {
             'genome': genome.id,
@@ -51,8 +51,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {
             'genome': genome.pk,
@@ -89,8 +89,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
             annotation = self.prepare_annotation_gff()
 
@@ -191,8 +191,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-bwa-aln', inputs)
@@ -209,8 +209,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-bwa-sw', inputs)
@@ -229,8 +229,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-bwa-mem', inputs)
@@ -251,8 +251,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             sample = Sample.objects.get(data=reads)
             sample.name = 'Single reads'
             sample.save()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
             sample_paired = Sample.objects.get(data=reads_paired)
             sample_paired.name = 'Paired-end reads'
             sample_paired.save()
@@ -289,8 +289,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             genome_2 = self.run_process('upload-genome', inputs)
 
             reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                     mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-subread', inputs)

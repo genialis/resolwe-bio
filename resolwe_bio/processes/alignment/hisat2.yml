@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.4.1
+  version: 1.4.2
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -85,11 +85,25 @@
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
 
-      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      NAME={{ reads.fastq.0.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
 
       re-progress 0.1
 
-      FW_READS={{ reads.fastq|join(',', attribute='file') }}
+      FW_READS=()
+      RW_READS=()
+
+      {% for r in reads.fastq %}
+        FW_READS+=({{ r.file }})
+      {% endfor %}
+
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
+
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
+        {% for r in reads.fastq2 %}
+          RW_READS+=({{ r.file }})
+        {% endfor %}
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
+      {% endif %}
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         RW_READS={{ reads.fastq2|join(',', attribute='file') }}
@@ -99,8 +113,8 @@
         -p {{requirements.resources.cores}} \
         --no-unal \
         -x ${INDEX} \
-        {% if reads|type|subtype('data:reads:fastq:single:') %}-U ${FW_READS}{% endif %} \
-        {% if reads|type|subtype('data:reads:fastq:paired:') %}-1 ${FW_READS} -2 ${RW_READS}{% endif %} \
+        {% if reads|type|subtype('data:reads:fastq:single:') %}-U fw_reads.fastq.gz{% endif %} \
+        {% if reads|type|subtype('data:reads:fastq:paired:') %}-1 fw_reads.fastq.gz -2 rw_reads.fastq.gz{% endif %} \
         -S alignment_unsorted.sam \
         {% if spliced_alignments.noncansplice %}--pen-noncansplice {{spliced_alignments.noncansplice}}{% endif %} \
         {% if softclip %}--no-softclip{% endif %} \

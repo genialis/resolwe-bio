@@ -123,8 +123,8 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('prepare-geo-chipseq')
     def test_prepare_geo_chipseq(self):
         with self.preparation_stage():
-            reads_1 = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_1 = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
             reads_2 = self.prepare_reads()
             reads_3 = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
 
@@ -159,8 +159,8 @@ class SupportProcessorTestCase(BioProcessTestCase):
     @tag_process('prepare-geo-rnaseq')
     def test_prepare_geo_rnaseq(self):
         with self.preparation_stage():
-            reads_1 = self.prepare_paired_reads(mate1=['fw_reads.fastq.gz', 'fw_reads_2.fastq.gz'],
-                                                mate2=['rw_reads.fastq.gz', 'rw_reads_2.fastq.gz'])
+            reads_1 = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                                                mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
             reads_2 = self.prepare_reads()
 
             expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
