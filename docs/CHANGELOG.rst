@@ -14,6 +14,11 @@ Changed
 -------
 - Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
 
+Added
+-----
+- Add ``template_amplicon_report.tex`` to ``resolwebio/latex`` Docker image
+  assets
+
 Fixed
 -----
 - Fix manual installation of packages in Docker images to handle dots and
