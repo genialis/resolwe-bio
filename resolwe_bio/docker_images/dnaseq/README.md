@@ -14,5 +14,6 @@ Included bioinformatics tools:
 * Picard Tools (v2.8.1+dfsg-3)
 * Primerclip (v180308)
 * Rsamtools (v1.30.0)
+* SnpEff (4.3T)
 * SAMtools (v1.7)
 * tabix (v1.7-2)

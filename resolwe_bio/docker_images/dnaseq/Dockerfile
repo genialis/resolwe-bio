@@ -4,3 +4,6 @@ MAINTAINER Resolwe Bioinformatics authors https://github.com/genialis/resolwe-bi
 
 # Force matplotlib backend to a headless one.
 ENV MPLBACKEND Agg
+
+# Additional files:
+COPY assets/ /opt/resolwebio/assets/
