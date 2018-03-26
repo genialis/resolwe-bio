@@ -24,6 +24,7 @@ Fixed
 - Use name-ordered BAM file for counting reads in ``HTSeq-count`` process
   by default to avoid buffer overflow with large BAM files
 - Fix iterative trimming in ``bowtie`` and ``bowtie2`` processes
+- Fix ``archive-samples`` to use sample names for headers when merging expressions
 
 
 ==================
@@ -168,7 +169,7 @@ Fixed
 - Fix ``cuffnorm`` process to work with samples containing dashes in
   their name and dispense prefixing sample names starting with numbers
   with 'X' in the ``cuffnorm`` normalization outputs
-- Fix ``cuffnorm`` process' outputs to correctlly track species and
+- Fix ``cuffnorm`` process' outputs to correctly track species and
   build information
 - Fix typos and sync parameter description common to ``featureCounts``
   and ``miRNA`` workflow

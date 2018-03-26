@@ -6,7 +6,7 @@
     executor:
       docker:
         image: resolwebio/utils:1.2.0
-  version: 0.0.5
+  version: 0.1.0
   type: "data:archive:samples"
   category: other
   persistence: TEMP
@@ -36,57 +36,72 @@
     language: bash
     program: |
 
-      # make folders with data
+      FILE_PATH=()
+      SAMPLE_NAMES=()
+      BUILD=()
+      SPECIES=()
+      EXP_TYPE=()
+
       {% for d in data %}
-        {% set species = d.species or 'other_data' %}
         {% for field in fields %}
           {% if d[field].file %}
-            mkdir -p {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/
-            ln -s --backup=numbered {{ d[field].file }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ d[field].file|basename }}
+            mkdir -p {{ d|sample_slug }}/{{ field }}/
+            ln -s --backup=numbered {{ d[field].file }} {{ d|sample_slug }}/{{ field }}/{{ d[field].file|basename }}
             {% for ref in d[field].refs %}
-              ln -s --backup=numbered {{ ref }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
+              ln -s --backup=numbered {{ ref }} {{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
             {% endfor %}
           {% endif %}
           {% for file in d[field] %}
             {% if file.file %}
-              mkdir -p {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/
-              ln -s --backup=numbered {{ file.file }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ file.file|basename }}
+              mkdir -p {{ d|sample_slug }}/{{ field }}/
+              ln -s --backup=numbered {{ file.file }} {{ d|sample_slug }}/{{ field }}/{{ file.file|basename }}
               {% for ref in file.refs %}
-                ln -s --backup=numbered {{ ref }} {{ species }}/{{ d.build }}/{{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
+                ln -s --backup=numbered {{ ref }} {{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
               {% endfor %}
             {% endif %}
           {% endfor %}
         {% endfor %}
 
-        # select data for IGV
+        # Select data for IGV and organize by species / build.
         {% if (d|type).startswith('data:alignment:bam') %}
-          mv {{ species }}/{{ d.build }}/{{ d|sample_slug }}/bai/{{ d.bai.file|basename }} {{ species }}/{{ d.build }}/{{d|sample_slug}}/bam/{{ d.bai.file|basename }}
-          rm -r {{ species }}/{{ d.build }}/{{d|sample_slug}}/bai
-          echo {{ species }}/{{ d.build }}/{{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> {{ species }}_{{ d.build }}_temp_igv.txt
+          mv {{ d|sample_slug }}/bai/{{ d.bai.file|basename }} {{d|sample_slug}}/bam/{{ d.bai.file|basename }}
+          rm -r {{d|sample_slug}}/bai
+          echo {{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> {{ d.species }}_{{ d.build }}_temp_igv.txt
 
         {% elif (d|type).startswith('data:variants:vcf') %}
-          echo {{ species }}/{{ d.build }}/{{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> {{ species }}_{{ d.build }}_temp_igv.txt
+          echo {{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> {{ d.species }}_{{ d.build }}_temp_igv.txt
         {% endif %}
 
-        # select expression files to merge expressions
+        # Store expression files and the corresponding info (sample names, build, species and expression type).
         {% if (d|type).startswith('data:expression') %}
-          echo {{ d.species }}/{{ d.build }}/{{ d|sample_slug }}/exp/{{ d.exp.file|basename }} >> {{ d.species }}_{{ d.build }}_{{ d.exp_type }}_expressions_temp.txt
+          FILE_PATH+=({{ d|sample_slug }}/exp/{{ d.exp.file|basename }})
+          SAMPLE_NAMES+=({{ d|sample_name }})
+          BUILD+=({{ d.build }})
+          SPECIES+=({{ d.species }})
+          EXP_TYPE+=({{ d.exp_type }})
+
         {% endif %}
 
       {% endfor %}
 
-      # create IGV for data from the same Species and Build
+      # Create IGV for data from the same Species and Build.
       for txt_file in *temp_igv.txt; do
         make_igv_session_archive.py --input_file "${txt_file}"
       done
 
-      mkdir igv
+      mkdir
       mv *.xml igv/
 
-      # merge expressions
-      for txt_file in *expressions_temp.txt; do
-        expressionmerge_archive.py --input_file "${txt_file}"
-      done
+      expressionmerge_archive.py \
+        --file_path "${FILE_PATH[@]}" \
+        --sample_names "${SAMPLE_NAMES[@]}" \
+        --build "${BUILD[@]}" \
+        --species "${SPECIES[@]}" \
+        --exp_type "${EXP_TYPE[@]}"
 
-      zip -0 -r {% if j %}-j {% endif %}results.zip */
+      if [ -d None ]; then
+        mv None other_data
+      fi
+
+      zip -0 -r {% if j %}-j {% endif %}results.zip */ *all_expressions.txt
       re-save-file archive results.zip
