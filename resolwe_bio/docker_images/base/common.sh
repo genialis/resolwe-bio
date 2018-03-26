@@ -48,12 +48,8 @@ download_and_verify() {
             mv "${name}.${extension}" "${name}/${name}"
             chmod +x "${name}/${name}"
             ;;
-        *.cdf|cdf)
-            mv "${name}.${extension}" "${name}/"
-            ;;
         *)
-            >&2 echo "ERROR: Unknown archive format '${extension}'."
-            exit 1
+            mv "${name}.${extension}" "${name}/"
     esac
 
     rm -f "${name}.${extension}"

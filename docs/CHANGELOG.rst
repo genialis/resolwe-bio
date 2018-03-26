@@ -20,6 +20,8 @@ Changed
 
   - Salmon to 0.9.1
   - FastQC to 0.11.7
+- Generalize the no-extraction-needed use-case in ``resolwebio/base`` Docker image
+  ``download_and_verify`` script
 
 Added
 -----
