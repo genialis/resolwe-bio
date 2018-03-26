@@ -89,9 +89,6 @@
         make_igv_session_archive.py --input_file "${txt_file}"
       done
 
-      mkdir
-      mv *.xml igv/
-
       expressionmerge_archive.py \
         --file_path "${FILE_PATH[@]}" \
         --sample_names "${SAMPLE_NAMES[@]}" \
