@@ -21,11 +21,19 @@ Added
 
 Fixed
 -----
-- Use name-ordered BAM file for counting reads in ``HTSeq-count`` process
-  by default to avoid buffer overflow with large BAM files
 - Fix iterative trimming in ``bowtie`` and ``bowtie2`` processes
 - Fix ``archive-samples`` to use sample names for headers when merging expressions
 - Improve ``goea.py`` tool to handle duplicated mapping results
+
+
+==================
+7.0.1 - 2018-03-27
+==================
+
+Fixed
+-----
+* Use name-ordered BAM file for counting reads in ``HTSeq-count`` process by
+  default to avoid buffer overflow with large BAM files
 
 
 ==================
