@@ -12,6 +12,8 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Refactor ``trimmomatic-single`` and
+  ``trimmomatic-paired`` processes
 - Bump STAR aligner version in ``resolwebio/rnaseq`` docker image to 2.5.4b
 - Bump Primerclip version in ``resolwebio/dnaseq`` docker image
 
@@ -125,8 +127,6 @@ Changed
   process
 - Set the ``cooksCutoff`` parameter to ``FALSE`` in ``deseq.R`` tool
 - Rename 'Expressions (BCM)' to 'Dicty expressions'
-- **BACKWARD INCOMPATIBLE:** Refactor ``trimmomatic-single`` and ``trimmomatic-paired``
-  processes
 
 Added
 -----
