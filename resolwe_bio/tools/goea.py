@@ -6,6 +6,8 @@ import argparse
 import tempfile
 import resdk
 
+from resolwe_runtime_utils import error, warning  # pylint: disable=import-error
+
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -33,27 +35,36 @@ def main():
     org_features = res.feature.filter(source=args.source_db, species=args.species, feature_id=genes)
 
     if len(org_features) == 0:
-        print('{"proc.error":"No genes were fetched from the knowledge base."}')
+        print(error("No genes were fetched from the knowledge base."))
         exit(1)
 
     if args.source_db == args.target_db:
         target_ids = genes
     else:
-        features = res.mapping.filter(
+        mapping_res = res.mapping.filter(
             source_db=args.source_db,
             source_species=args.species,
             target_db=args.target_db,
             target_species=args.species,
-            source_id=genes)
+            source_id=genes,
+        )
 
-        if len(features) == 0:
-            print('{"proc.error":"Failed to map features."}')
+        if len(mapping_res) == 0:
+            print(error("Failed to map features."))
             exit(1)
 
-        target_ids = [str(feature.target_id) for feature in features]
+        mappings = {}
+        for m in mapping_res:
+            if m.source_id in genes:
+                if m.source_id not in mappings:
+                    mappings[m.source_id] = m.target_id
+                else:
+                    print(warning("Mapping {} returned multiple times.".format(m)))
 
-        if len(genes) > len(target_ids):
-            print('{"proc.warning":"Not all features could be mapped."}')
+        if len(genes) > len(mappings):
+            print(warning("Not all features could be mapped."))
+
+        target_ids = mappings.values()
 
     with tempfile.NamedTemporaryFile() as input_genes:
         input_genes.write(' '.join(target_ids).encode("UTF-8"))
