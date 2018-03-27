@@ -15,7 +15,7 @@ class FeatureAdmin(admin.ModelAdmin):
 
     model = Feature
     search_fields = ['name']
-    list_display = ('__unicode__', 'name', 'source', 'feature_id')
+    list_display = ('__str__', 'name', 'source', 'feature_id')
 
 
 class MappingAdmin(admin.ModelAdmin):

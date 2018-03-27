@@ -69,7 +69,7 @@ class Feature(models.Model):
             ('source', 'feature_id', 'species'),
         )
 
-    def __unicode__(self):
+    def __str__(self):
         """Represent a feature instance as a string."""
         return "{source}: {feature_id} ({species})".format(
             source=self.source,
@@ -113,7 +113,7 @@ class Mapping(models.Model):
             ['target_db', 'target_id', 'target_species']
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         """Represent a feature instance as a string."""
         return "{src_db}: {src_id} ({src_species}) -> {dst_db}: {dst_id} ({dst_species})".format(
             src_db=self.source_db,
