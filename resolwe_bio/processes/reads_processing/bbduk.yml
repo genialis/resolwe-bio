@@ -11,84 +11,147 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
-  data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.6
+        image: resolwebio/rnaseq:3.0.0
+    resources:
+      cores: 10
+      memory: 2048
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 1.0.0
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    BBduk is capable of quality-trimming and filtering, adapter-trimming, contaminant-filtering via
-    kmer matching, sequence masking, GC-filtering, length filtering, entropy-filtering, format
-    conversion, histogram generation, subsampling, quality-score recalibration, kmer cardinality
-    estimation, and various other operations in a single pass.
+    BBDuk combines most common data-quality-related trimming, filtering, and masking operations into
+    a single high-performance tool. It is capable of quality-trimming and filtering,
+    adapter-trimming, contaminant-filtering via kmer matching, sequence masking, GC-filtering,
+    length filtering, entropy-filtering, and various other operations in a single pass. See [the
+    official website](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
+    for more information.
   input:
     - name: reads
       label: Reads
       type: data:reads:fastq:single
-    - name: adapters
-      label: Adapters
+    - name: min_length
+      label: Minimum length [minlength=10]
+      type: basic:integer
+      default: 10
+      description: >
+        Reads shorter than the minimum length will be discarded after trimming.
+    - name: show_advanced
+      label: Show advanced parameters
+      type: basic:boolean
+      default: false
+    - name: reference
+      label: Reference
+      hidden: '!show_advanced'
       group:
-        - name: bbduk_adapters
-          label: bbduk files with adapters
-          type: basic:string
-          required: false
-          choices:
-            - label: Illumina Truseq DNA adapters.
-              value: truseq
-            - label: Illumina Truseq RNA adapters.
-              value: truseq_rna
-        - name: reference
-          label: List of reference files
+        - name: sequences
+          label: Sequences [ref]
           type: list:data:seq:nucleotide
           required: false
-        - name: literal_reference
-          label: List of literal reference sequences
+          description: >
+            Reference sequences include adapters, contaminants, and degenerate sequences. They can
+            be provided in a multi-sequence FASTA file or as a set of literal sequences below.
+        - name: literal_sequences
+          label: Literal sequences [literal]
           type: list:basic:string
           required: false
+          default: []
           description: >
-            Comma-delimited list of literal reference sequences.
-          allow_custom_choice: true
-          choices:
-            - label: Poly A
-              value: 'AAAAAAAAAAAAAAAAAAAAAA'
-    - name: processing_par
-      label: Procession parameters
+            Literal sequences can be specified by inputting them one by one and pressing Enter
+            after each sequence.
+    - name: processing
+      label: Processing parameters
+      hidden: '!show_advanced'
       group:
-        - name: k
-          label: Kmer length
+        - name: kmer_length
+          label: Kmer length [k=27]
           type: basic:integer
           default: 27
           description: >
-            Kmer length used for finding contaminants.  Contaminants shorter than k will not be found.
-            k must be at least 1.
-        - name: rcomp
-          label: Reverse-complements.
+            Kmer length used for finding contaminants. Contaminants shorter than Kmer length will
+            not be found. Kmer length must be at least 1.
+        - name: check_reverse_complements
+          label: Look for reverse complements of kmers in addition to forward kmers [rcomp=t]
           type: basic:boolean
           default: true
-          description: >
-            Look for reverse-complements of kmers in addition to forward kmers.
-        - name: minkmerhits
-          label: Minimal number of kmer hits
+        - name: mask_middle_base
+          label: >
+            Treat the middle base of a kmer as a wildcard to increase sensitivity in the presence of
+            errors [maskmiddle=t]
+          type: basic:boolean
+          default: true
+        - name: min_kmer_hits
+          label: Minimum number of kmer hits [minkmerhits=1]
           type: basic:integer
           default: 1
           description: >
-            Reads need at least this many matching kmers to be considered as matching the reference.
-        - name: useshortkmers
-          label: Use short kmers
-          type: basic:boolean
-          required: false
-    - name: trimming_par
-      label: Trimming/Filtering/Masking parameters
-      group:
-        - name: ktrim
-          label: Ktrim
-          type: basic:string
-          required: False
+            Reads need at least this many matching kmers to be considered matching the reference.
+        - name: min_kmer_fraction
+          label: Minimum kmer fraction [minkmerfraction=0.0]
+          type: basic:decimal
+          default: 0.0
           description: >
-            Trim reads to remove bases matching reference kmers. If trimming from right and left,
-            the mink option needs to be diabled.
+            A read needs at least this fraction of its total kmers to hit a reference in order to
+            be considered a match. If this and 'Minimum number of kmer hits' are set, the greater is
+            used.
+        - name: min_coverage_fraction
+          label: Minimum coverage fraction [mincovfraction=0.0]
+          type: basic:decimal
+          default: 0.0
+          description: >
+            A read needs at least this fraction of its total bases to be covered by reference kmers
+            to be considered a match. If specified, 'Minimum coverage fraction' overrides 'Minimum
+            number of kmer hits' and 'Minimum kmer fraction'.
+        - name: hamming_distance
+          label: Maximum Hamming distance for kmers (substitutions only) [hammingdistance=0]
+          type: basic:integer
+          default: 0
+        - name: query_hamming_distance
+          label: Hamming distance for query kmers [qhdist=0]
+          type: basic:integer
+          default: 0
+        - name: edit_distance
+          label: >
+            Maximum edit distance from reference kmers (substitutions and indels) [editdistance=0]
+          type: basic:integer
+          default: 0
+        - name: hamming_distance2
+          label: >
+            Hamming distance for short kmers when looking for shorter kmers [hammingdistance2=0]
+          type: basic:integer
+          default: 0
+        - name: query_hamming_distance2
+          label: Hamming distance for short query kmers when looking for shorter kmers [qhdist2=0]
+          type: basic:integer
+          default: 0
+        - name: edit_distance2
+          label: >
+            Maximum edit distance from short reference kmers (substitutions and indels) when looking
+            for shorter kmers [editdistance2=0]
+          type: basic:integer
+          default: 0
+        - name: forbid_N
+          label: >
+            Forbid matching of read kmers containing N [forbidn=f]
+          type: basic:boolean
+          default: false
+          description: >
+            By default, these will match a reference 'A' if 'Maximum Hamming distance for kmers' > 0
+            or 'Maximum edit distance from reference kmers' > 0, to increase sensitivity.
+        - name: find_best_match
+          label: >
+            If multiple matches, associate read with sequence sharing most kmers [findbestmatch=f]
+          type: basic:boolean
+          default: true
+    - name: operations
+      label: Trimming, filtering, and masking parameters
+      hidden: '!show_advanced'
+      group:
+        - name: k_trim
+          label: Trimming protocol to remove bases matching reference kmers from reads [ktrim=f]
+          type: basic:string
           choices:
             - label: Don't trim
               value: f
@@ -96,136 +159,233 @@
               value: r
             - label: Trim to the left
               value: l
-            - label: Trim to the right and left.
-              value: rl
-            - label: Masks the kmers with "N"
-              value: n
-        - name: kmask
-          label: Kmask
+          default: f
+        - name: k_mask
+          label: Symbol to replace bases matching reference kmers [kmask=f]
           type: basic:string
-          required: False
+          default: f
           description: >
-             Replace bases matching ref kmers with another symbol. Allows any non-whitespace
-             character other than t or f, and processes short kmers on both ends.
-          allow_custom_choice: true
-          choices:
-            - label: Convert masked bases to lowercase
-              value: lc
-        - name: mink
-          label: mink
-          type: basic:integer
-          required: False
-          description: >
-            Look for shorter kmers at read tips down to this length, when k-trimming or masking.
-            Should be between 1 and 31. Default is 4. Negative numbers disable it.
-        - name: maskfullycovered
-          label: Mask fully covered
+             Allows any non-whitespace character other than t or f. Processes short kmers on both
+             ends.
+        - name: mask_fully_covered
+          label: Only mask bases that are fully covered by kmers [maskfullycovered=f]
           type: basic:boolean
-          required: False
+          default: false
+        - name: min_k
+          label: >
+            Look for shorter kmers at read tips down to this length when k-trimming or masking
+            [mink=0]
+          type: basic:integer
+          default: -1
           description: >
-            Only mask bases that are fully covered by kmers.
-        - name: qtrim
-          label: Quality trim
+            -1 means disabled. Enabling this will disable treating the middle base of a kmer as a
+            wildcard to increase sensitivity in the presence of errors.
+        - name: quality_trim
+          label: >
+            Trimming protocol to remove bases with quality below the minimum average region quality
+            from read ends [qtrim=f]
           type: basic:string
-          required: False
-          description: >
-            Trim read ends to remove bases with quality below trimq. Performed after looking for kmers.
+          default: f
           choices:
+            - label: Trim neither end
+              value: f
             - label: Trim both ends
               value: rl
-            - label: Neither end
-              value: f
-            - label: Right end only
+            - label: Trim only right end
               value: r
-            - label: Left end only
+            - label: Trim only left end
               value: l
-            - label: Sliding window
+            - label: Use sliding window
               value: w
-        - name: trimq
-          label: Trim below defined quality.
+          description: >
+            Performed after looking for kmers. If enabled, set also 'Average quality below which to
+            trim region'.
+        - name: trim_quality
+          label: Average quality below which to trim region [trimq=6]
           type: basic:integer
           default: 6
-          description: >
-            Regions with average quality below this will be trimmed.
-        - name: minlength
-          label: Minlength
+          disabled: "operations.quality_trim == 'f'"
+          description: Set trimming protocol to enable this parameter.
+        - name: trim_poly_A
+          label: >
+            Minimum length of poly-A or poly-T tails to trim on either end of reads [trimpolya=0]
           type: basic:integer
-          default: 10
+          default: 0
+        - name: min_length_fraction
+          label: Minimum length fraction [mlf=0]
+          type: basic:decimal
+          default: 0.0
           description: >
-            Reads shorter than this after trimming will be discarded.
-        - name: maxlength
-          label: Maxlength
+            Reads shorter than this fraction of original length after trimming will be discarded.
+        - name: max_length
+          label: Maximum length [maxlength]
           type: basic:integer
           required: false
           description: >
             Reads longer than this after trimming will be discarded.
-        - name: minavgquality
-          label: Minavgquality
+        - name: min_average_quality
+          label: Minimum average quality [minavgquality=0]
           type: basic:integer
           default: 0
           description: >
               Reads with average quality (after trimming) below this will be discarded.
-        - name: minoverlap
-          label: Minoverlap
+        - name: min_average_quality_bases
+          label: Number of initial bases to calculate minimum average quality from [maqb=0]
+          type: basic:integer
+          default: 0
+          description: >
+            Used only if positive.
+        - name: min_base_quality
+          label: >
+            Minimum base quality below which reads are discarded after trimming [minbasequality=0]
+          type: basic:integer
+          default: 0
+        - name: min_consecutive_bases
+          label: Minimum number of consecutive called bases [mcb=0]
+          type: basic:integer
+          default: 0
+        - name: trim_pad
+          label: Number of bases to trim around matching kmers [tp=0]
+          type: basic:integer
+          default: 0
+        - name: min_overlap
+          label: Minimum number of overlapping bases [minoverlap=14]
           type: basic:integer
           default: 14
           description: >
             Require this many bases of overlap for detection.
-        - name: mininsert
-          label: Mininsert
+        - name: min_insert
+          label: Minimum insert size [mininsert=40]
           type: basic:integer
           default: 40
           description: >
-            Require insert size of at least this for overlap. Should be reduced to 16 for small RNA sequencing.
-        - name: forcetrimleft
-          label: Forcetrim left
+            Require insert size of at least this for overlap. Should be reduced to 16 for small RNA
+            sequencing.
+        - name: force_trim_left
+          label: Position from which to trim bases to the left [forcetrimleft=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_right
+          label: Position from which to trim bases to the right [forcetrimright=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_right2
+          label: Number of bases to trim from the right end [forcetrimright2=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_mod
+          label: Modulo to right-trim reads [forcetrimmod=0]
           type: basic:integer
           default: 0
           description: >
-            If positive, trim bases to the left of this position (exclusive, 0-based).
-        - name: forcetrimright
-          label: Forcetrim right
+            Trim reads to the largest multiple of modulo.
+        - name: restrict_left
+          label: Number of leftmost bases to look in for kmer matches [restrictleft=0]
           type: basic:integer
           default: 0
+        - name: restrict_right
+          label: Number of rightmosot bases to look in for kmer matches [restricright=0]
+          type: basic:integer
+          default: 0
+        - name: min_GC
+          label: Minimum GC content [mingc=0.0]
+          type: basic:decimal
+          default: 0.0
           description: >
-            If positive, trim bases to the right of this position (exclusive, 0-based).
-    - name: barcode_par
-      label: Header-parsing parameters
-      description: >
-        Following parameters require Illumina headers
-      group:
-        - name: barcodefilter
-          label: Barcode filter
+            Discard reads with lower GC content.
+        - name: max_GC
+          label: Maximum GC content [maxgc=1.0]
+          type: basic:decimal
+          default: 1.0
+          description: >
+            Discard reads with higher GC content.
+        - name: toss_junk
+          label: Discard reads with invalid characters as bases [tossjunk=f]
           type: basic:boolean
           default: false
-          description: >
-            Remove reads with unexpected barcodes if barcodes is set, or barcodes containing 'N' otherwise.
-            A barcode must be the last part of the read header.
+    - name: header_parsing
+      label: Header-parsing parameters
+      hidden: '!show_advanced'
+      group:
+        - name: chastity_filter
+          label: Discard reads that fail Illumina chastity filtering [chastityfilter=f]
+          type: basic:boolean
+          default: false
+          description: Discard reads with id containing ' 1:Y:' or ' 2:Y:'.
+        - name: barcode_filter
+          label: >
+            Remove reads with unexpected barcodes if barcodes are set, or barcodes containing 'N'
+            otherwise [barcodefilter=f]
+          type: basic:boolean
+          default: false
+          description: A barcode must be the last part of the read header.
         - name: barcode_files
-          label: List of files of barcodes
+          label: Barcode sequences [barcodes]
           type: list:data:seq:nucleotide
           required: false
-          description: >
-            Comma-delimited list of files of barcodes.
-        - name: barcode_seq
-          label: List of barcodes.
+        - name: barcode_sequences
+          label: Literal barcode sequences [barcodes]
           type: list:basic:string
           required: false
+          default: []
           description: >
-            Comma-delimited list of barcodes.
-    - name: threads
-      label: Number of threads
-      type: basic:integer
-      required: false
-      description: >
-        Set number of threads to use; default is number of logical processors.
+            Literal barcode sequences can be specified by inputting them one by one and pressing
+            Enter after each sequence.
+        - name: x_min
+          label: Minimum X coordinate [xmin=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a smaller X coordinate.
+        - name: y_min
+          label: Minimum Y coordinate [ymin=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a smaller Y coordinate.
+        - name: x_max
+          label: Maximum X coordinate [xmax=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a larger X coordinate.
+        - name: y_max
+          label: Maximum Y coordinate [ymax=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a larger Y coordinate.
+    - name: complexity
+      label: Complexity parameters
+      hidden: '!show_advanced'
+      group:
+        - name: entropy
+          label: Minimum entropy [entropy=-1]
+          type: basic:decimal
+          default: -1.0
+          description: >
+            Set between 0 and 1 to filter reads with entropy below that value. Higher is more
+            stringent.
+        - name: entropy_window
+          label: Length of sliding window used to calculate entropy [entropywindow=50]
+          type: basic:integer
+          default: 50
+          description: To use the sliding window set minimum entropy in range between 0.0 and 1.0.
+        - name: entropy_k
+          label: Length of kmers used to calcuate entropy [entropyk=5]
+          type: basic:integer
+          default: 5
+        - name: entropy_mask
+          label: Mask low-entropy parts of sequences with N instead of discarding [entropymask=f]
+          type: basic:boolean
+          default: false
+        - name: min_base_frequency
+          label: Minimum base frequency [minbasefrequency=0]
+          type: basic:integer
+          default: 0
   output:
     - name: fastq
-      label: Reads file
+      label: Remaining reads
       type: list:basic:file
-    - name: stats
-      label: Statistic trimmomatic single
-      type: basic:file
+    - name: statistics
+      label: Statistics
+      type: list:basic:file
     - name: fastqc_url
       label: Quality control with FastQC
       type: list:basic:file:html
@@ -236,110 +396,129 @@
     runtime: polyglot
     language: bash
     program: |
+      {% set input_reads = 'input_reads.fastq.gz' %}
+      {% set input_references = 'input_references.fasta.gz' %}
+      {% set input_barcodes = 'input_barcodes.fasta.gz' %}
+      {% set output_reads = 'output_reads.fastq' %}
+      {% set output_statistics = 'output_statistics.txt' %}
+      {% set name = ((reads.fastq|first).file|basename)[:-9] %}
+      {% set final_reads = name + '_preprocessed.fastq.gz' %}
+      {% set final_statistics = name + '_statistics.txt.gz' %}
+      {% set bool = {true: 't', false: 'f'} %}
 
-      {% if barcode_par.barcode_seq and barcode_par.barcode_files %}
-        re-error "Specify only list of barcode files or list of barcode strings."
+      {% for read in reads.fastq %}
+        cat {{ read.file }} >>{{ input_reads }}
+      {% endfor %}
+      {% for ref in reference.sequences %}
+        cat {{ ref.fasta.file }} >>{{ input_references }}
+      {% endfor %}
+      {% for barc in header_parsing.barcode_files %}
+        cat {{ barc.fasta.file }} >>{{ input_barcodes }}
+      {% endfor %}
+
+      {% if header_parsing.barcode_files %}
+        {% set barcodes = [input_barcodes] + header_parsing.barcode_sequences %}
+      {% else %}
+        {% set barcodes = header_parsing.barcode_sequences %}
       {% endif %}
 
-      BBDUK_BASE_DIR=$(dirname $(which bbduk.sh))
-      BBDUK_RESOURCE_DIR="${BBDUK_BASE_DIR}/resources"
-
-      echo "Preparing reads file..."
-      re-progress 0.1
-
-      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
-      READS={{ reads.fastq|join(' ', attribute='file') }}
-      cat "${READS}" > in_reads.fastq.gz
-
-      echo "Removing adapters and filtering data..."
-
-      {% if adapters.reference %}
-        echo "Preparing reference file..."
-        {% for r in adapters.reference %}
-          REFERENCE_NAME=`basename {{ r.fasta.file }} .fasta.gz`
-          REFERENCE=${REFERENCE}"${REFERENCE_NAME}.fasta,"
-          gzip -cd {{ r.fasta.file }} > "${REFERENCE_NAME}.fasta"
-        {% endfor %}
-      {% endif %}
-
-      {% if adapters.reference and not adapters.bbduk_adapters %}
-        REFERENCE_PAR=ref="${REFERENCE}"
-      {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR="ref=${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa.gz"
-      {% elif adapters.bbduk_adapters and adapters.reference %}
-        cp "${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa.gz" def_adapters.fasta
-        REFERENCE=${REFERENCE}def_adapters.fasta
-        REFERENCE_PAR=ref="${REFERENCE}"
-      {% endif %}
-
-      re-progress 0.3
-
-      LITERAL_REF="{% if adapters.literal_reference %} literal={% for seq in adapters.literal_reference %}"{{seq}}",{% endfor %}{% endif %}"
-
-      {% if barcode_par.barcode_file %}
-       echo "Preparing barcode file..."
-       {% for b in barcode_par.barcode_file %}
-         BARCODE_NAME=`basename {{ b.fasta.file }} .fasta.gz`
-         BARCODE=${BARCODE}"${BARCODE_NAME}.fasta,"
-         gzip -cd {{ b.file }} > "${BARCODE_NAME}.fasta"
-       {% endfor %}
-      {% endif %}
-
-      BARCODE_SEQ="{% if barcode_par.barcode_seq %}barcode={% for bar in barcode_par.barcode_seq %}"{{bar}}",{% endfor %}{% endif %}"
-
-      PROCESSING_PAR="k="{{processing_par.k}}" rcomp="{{processing_par.rcomp}}" minkmerhits="{{processing_par.minkmerhits}}" {% if useshortkmers %}useshortkmers="{{processing_par.useshortkmers}}"{% endif %}"
-
-      KTRIM_PAR="{% if trimming_par.ktrim %}ktrim="{{trimming_par.ktrim}}"{% endif %}"
-      KMASK_PAR="{% if trimming_par.kmask %}kmask="{{trimming_par.kmask}}"{% endif %}"
-      MINK_PAR="{% if trimming_par.mink %}mink="{{trimming_par.mink}}"{% endif %}"
-      MASKFULLYCOVERD_PAR="{%if trimming_par.maskfullycovered %}maskfullycovered="{{trimming_par.maskfullycovered}}"{% endif %}"
-      QTRIM_PAR="{% if trimming_par.qtrim %}qtrim="{{trimming_par.qtrim}}" trimq="{{trimming_par.trimq}}"{% endif %}"
-      MAXLENGTH_PAR="{% if trimming_par.maxlength %}maxlength="{{trimming_par.maxlength}}"{% endif %}"
-
-      TRIMMING_PAR="${KTRIM_PAR} ${KMASK_PAR} ${MINK_PAR} ${MASKFULLYCOVERD_PAR} ${QTRIM_PAR} ${MAXLENGTH_PAR} minavgquality="{{trimming_par.minavgquality}}" minoverlap="{{trimming_par.minoverlap}}" mininsert="{{trimming_par.mininsert}}" forcetrimleft="{{trimming_par.forcetrimleft}}" forcetrimright="{{trimming_par.forcetrimright}}
-
-      BARCODE_PAR="{% if barcode_par.barcode_seq %}${BARCODE_SEQ}{% elif barcode_par.barcode_file %}barcodes=${BARCODE}{% endif %} {% if barcode_par.barcodefilter %}barcodefilter="{{barcode_par.barcodefilter}}"{% endif %}"
-
-      echo "Processing bbduk..."
       bbduk.sh \
-        in=in_reads.fastq.gz \
-        ${REFERENCE_PAR} \
-        ${LITERAL_REF} \
-        ${PROCESSING_PAR} \
-        ${TRIMMING_PAR} \
-        ${BARCODE_PAR} \
-        {% if threads %}threads={{threads}}{% endif %} \
-        out=out_reads.fastq \
-        stats=stats.txt \
+        in={{ input_reads }} \
+        {% if reference.sequences %} \
+          ref={{ input_references }} \
+        {% endif %} \
+        {% if reference.literal_sequences %} \
+          literal={{ reference.literal_sequences|join(',') }} \
+        {% endif %} \
+        out={{ output_reads }} \
+        stats={{ output_statistics }} \
         statscolumns=5 \
-        -Xmx1g
+        k={{ processing.kmer_length }} \
+        rcomp={{ bool[processing.check_reverse_complements] }} \
+        maskmiddle={{ bool[processing.mask_middle_base] }} \
+        minkmerhits={{ processing.min_kmer_hits }} \
+        minkmerfraction={{ processing.min_kmer_fraction }} \
+        mincovfraction={{ processing.min_coverage_fraction }} \
+        hammingdistance={{ processing.hamming_distance }} \
+        qhdist={{ processing.query_hamming_distance }} \
+        editdistance={{ processing.edit_distance }} \
+        hammingdistance2={{ processing.hamming_distance2 }} \
+        qhdist2={{ processing.query_hamming_distance2 }} \
+        editdistance2={{ processing.edit_distance2 }} \
+        forbidn={{ bool[processing.forbid_N] }} \
+        findbestmatch={{ bool[processing.find_best_match] }} \
+        {% if operations.k_trim != 'f' %} \
+          ktrim={{ operations.k_trim }} \
+        {% endif %} \
+        {% if operations.k_mask != 'f' and operations.k_mask != 't' %} \
+          kmask={{ operations.k_mask }} \
+        {% endif %} \
+        maskfullycovered={{ bool[operations.mask_fully_covered] }} \
+        mink={{ operations.min_k }} \
+        {% if operations.quality_trim != 'f' %} \
+          qtrim={{ operations.quality_trim }} \
+        {% endif %} \
+        trimq={{ operations.trim_quality }} \
+        trimpolya={{ operations.trim_poly_A }} \
+        minlength={{ min_length }} \
+        minlengthfraction={{ operations.min_length_fraction }} \
+        {% if operations.max_length %} \
+          maxlength={{ operations.max_length }} \
+        {% endif %} \
+        minavgquality={{ operations.min_average_quality }} \
+        maqb={{ operations.min_average_quality_bases }} \
+        minbasequality={{ operations.min_base_quality }} \
+        minconsecutivebases={{ operations.min_consecutive_bases }} \
+        trimpad={{ operations.trim_pad }} \
+        minoverlap={{ operations.min_overlap }} \
+        mininsert={{ operations.min_insert }} \
+        forcetrimleft={{ operations.force_trim_left }} \
+        forcetrimright={{ operations.force_trim_right }} \
+        forcetrimright2={{ operations.force_trim_right2 }} \
+        forcetrimmod={{ operations.force_trim_mod }} \
+        restrictleft={{ operations.restrict_left }} \
+        restrictright={{ operations.restrict_right }} \
+        mingc={{ operations.min_GC }} \
+        maxgc={{ operations.max_GC }} \
+        tossjunk={{ bool[operations.toss_junk] }} \
+        chastityfilter={{ bool[header_parsing.chastity_filter] }} \
+        barcodefilter={{ bool[header_parsing.barcode_filter] }} \
+        {% if barcodes %} \
+          barcodes={{ barcodes|join(',') }} \
+        {% endif %} \
+        xmin={{ header_parsing.x_min }} \
+        ymin={{ header_parsing.y_min }} \
+        xmax={{ header_parsing.x_max }} \
+        ymax={{ header_parsing.y_max }} \
+        entropy={{ complexity.entropy }} \
+        entropywindow={{ complexity.entropy_window }} \
+        entropyk={{ complexity.entropy_k }} \
+        minbasefrequency={{ complexity.min_base_frequency }} \
+        entropymask={{ bool[complexity.entropy_mask] }} \
+        threads={{ requirements.resources.cores }} \
+        -Xmx{{ (0.85 * requirements.resources.memory)|int }}m
+      re-checkrc "Processing with BBDuk failed."
 
-      re-checkrc "Failed while processing with bbduk.sh"
+      gzip {{ output_reads }}
+      gzip {{ output_statistics }}
 
-      mv out_reads.fastq "${NAME}_filtered.fastq"
-      mv stats.txt "${NAME}_stats.txt"
+      mv {{ output_reads + '.gz' }} {{ final_reads }}
+      mv {{ output_statistics + '.gz' }} {{ final_statistics }}
 
-      gzip "${NAME}_filtered.fastq"
-      re-save-file-list fastq "${NAME}_filtered.fastq.gz"
-      re-save-file stats "${NAME}_stats.txt"
-      re-progress 0.75
+      re-save-file-list fastq {{ final_reads }}
+      re-save-file-list statistics {{ final_statistics }}
 
-      echo "Postprocessing FastQC..."
-      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME}_filtered.fastq.gz" --extract --outdir="fastqc" >&2
-      re-checkrc "Failed while processing with FastQC."
-      re-progress 0.9
+      fastqc.sh {{ final_reads }} fastqc fastqc_archive fastqc_url
 
-      FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
-
-      mv "fastqc/${NAME}_filtered_fastqc" "fastqc/${NAME}_fastqc"
-      mv "fastqc/${NAME}_filtered_fastqc.zip" "${NAME}_fastqc.zip"
-      re-progress 0.95
-
-
-      re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
-      re-save-list fastqc_url "$FASTQC_URL"
-
+      {% if operations.k_trim == 'f'
+        and operations.quality_trim == 'f'
+        and not reference.sequences
+        and not reference.literal_sequences
+        and operations.min_average_quality <= 0 %}
+        {% set message = 'Reference sequences, trimming mode, and minimum average quality are ' +
+          'unspecified. Only filtering of reads by length is applied.' %}
+        re-warning {{ message }}
+      {% endif %}
 
 - slug: bbduk-paired
   name: BBDuk (paired-end)
@@ -347,82 +526,158 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
-  data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 0.0.6
+        image: resolwebio/rnaseq:3.0.0
+    resources:
+      cores: 10
+      memory: 2048
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 1.0.0
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    BBduk is capable of quality-trimming and filtering, adapter-trimming, contaminant-filtering via
-    kmer matching, sequence masking, GC-filtering, length filtering, entropy-filtering, format
-    conversion, histogram generation, subsampling, quality-score recalibration, kmer cardinality
-    estimation, and various other operations in a single pass.
+    BBDuk combines the most common data-quality-related trimming, filtering, and masking operations
+    into a single high-performance tool. It is capable of quality-trimming and filtering,
+    adapter-trimming, contaminant-filtering via kmer matching, sequence masking, GC-filtering,
+    length filtering, entropy-filtering, format conversion, histogram generation, subsampling,
+    quality-score recalibration, kmer cardinality estimation, and various other operations in a
+    single pass. See
+    [the official website](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
+    for more information.
   input:
     - name: reads
       label: Reads
       type: data:reads:fastq:paired
-    - name: adapters
-      label: Adapters
+    - name: min_length
+      label: Minimum length [minlength=10]
+      type: basic:integer
+      default: 10
+      description: >
+        Reads shorter than the minimum length will be discarded after trimming.
+    - name: show_advanced
+      label: Show advanced parameters
+      type: basic:boolean
+      default: false
+    - name: reference
+      label: Reference
+      hidden: '!show_advanced'
       group:
-        - name: bbduk_adapters
-          label: Default bbduk file with adapters (adapters.fa)
-          type: basic:string
-          required: false
-          choices:
-            - label: Default adapters
-              value: adapters
-        - name: reference
-          label: List of reference files
+        - name: sequences
+          label: Sequences [ref]
           type: list:data:seq:nucleotide
           required: false
-        - name: literal_reference
-          label: List of literal reference sequences
+          description: >
+            Reference sequences include adapters, contaminants, and degenerate sequences. They can
+            be provided in a multi-sequence FASTA file or as a set of literal sequences below.
+        - name: literal_sequences
+          label: Literal sequences [literal]
           type: list:basic:string
           required: false
+          default: []
           description: >
-            Comma-delimited list of literal reference sequences.
-          allow_custom_choice: true
-          choices:
-            - label: Poly A
-              value: 'AAAAAAAAAAAAAAAAAAAAAA'
-    - name: processing_par
-      label: Procession parameters
+            Literal sequences can be specified by inputting them one by one and pressing Enter
+            after each sequence.
+    - name: processing
+      label: Processing parameters
+      hidden: '!show_advanced'
       group:
-        - name: k
-          label: Kmer length
+        - name: kmer_length
+          label: Kmer length [k=27]
           type: basic:integer
           default: 27
           description: >
-            Kmer length used for finding contaminants.  Contaminants shorter than k will not be found.
-            k must be at least 1.
-        - name: rcomp
-          label: Reverse-complements.
+            Kmer length used for finding contaminants. Contaminants shorter than kmer length will
+            not be found. Kmer length must be at least 1.
+        - name: check_reverse_complements
+          label: Look for reverse complements of kmers in addition to forward kmers [rcomp=t]
           type: basic:boolean
           default: true
-          description: >
-            Look for reverse-complements of kmers in addition to forward kmers.
-        - name: minkmerhits
-          label: Minimal number of kmer hits
+        - name: mask_middle_base
+          label: >
+            Treat the middle base of a kmer as a wildcard to increase sensitivity in the presence of
+            errors [maskmiddle=t]
+          type: basic:boolean
+          default: true
+        - name: min_kmer_hits
+          label: Minimum number of kmer hits [minkmerhits=1]
           type: basic:integer
           default: 1
           description: >
             Reads need at least this many matching kmers to be considered as matching the reference.
-        - name: useshortkmers
-          label: Use short kmers
-          type: basic:boolean
-          required: false
-    - name: trimming_par
-      label: Trimming/Filtering/Masking parameters
-      group:
-        - name: ktrim
-          label: Ktrim
-          type: basic:string
-          required: False
+        - name: min_kmer_fraction
+          label: Minimum kmer fraction [minkmerfraction=0.0]
+          type: basic:decimal
+          default: 0.0
           description: >
-            Trim reads to remove bases matching reference kmers. If trimming from right and left,
-            the mink option needs to be diabled.
+            A read needs at least this fraction of its total kmers to hit a reference in order to
+            be considered a match. If this and 'Minimum number of kmer hits' are set, the greater is
+            used.
+        - name: min_coverage_fraction
+          label: Minimum coverage fraction [mincovfraction=0.0]
+          type: basic:decimal
+          default: 0.0
+          description: >
+            A read needs at least this fraction of its total bases to be covered by reference kmers
+            to be considered a match. If specified, 'Minimum coverage fraction' overrides 'Minimum
+            number of kmer hits' and 'Minimum kmer fraction'.
+        - name: hamming_distance
+          label: Maximum Hamming distance for kmers (substitutions only) [hammingdistance=0]
+          type: basic:integer
+          default: 0
+        - name: query_hamming_distance
+          label: Hamming distance for query kmers [qhdist=0]
+          type: basic:integer
+          default: 0
+        - name: edit_distance
+          label: >
+            Maximum edit distance from reference kmers (substitutions and indels) [editdistance=0]
+          type: basic:integer
+          default: 0
+        - name: hamming_distance2
+          label: >
+            Hamming distance for short kmers when looking for shorter kmers [hammingdistance2=0]
+          type: basic:integer
+          default: 0
+        - name: query_hamming_distance2
+          label: Hamming distance for short query kmers when looking for shorter kmers [qhdist2=0]
+          type: basic:integer
+          default: 0
+        - name: edit_distance2
+          label: >
+            Maximum edit distance from short reference kmers (substitutions and indels) when looking
+            for shorter kmers [editdistance2=0]
+          type: basic:integer
+          default: 0
+        - name: forbid_N
+          label: Forbid matching of read kmers containing N [forbidn=f]
+          type: basic:boolean
+          default: false
+          description: >
+            By default, these will match a reference 'A' if 'Maximum Hamming distance for kmers' > 0
+            or 'Maximum edit distance from reference kmers' > 0, to increase sensitivity.
+        - name: remove_if_either_bad
+          label: >
+            Remove both sequences of a paired-end read, if either of them is to be removed
+            [removeifeitherbad=t]
+          type: basic:boolean
+          default: true
+        - name: find_best_match
+          label: >
+            If multiple matches, associate read with sequence sharing most kmers [findbestmatch=t]
+          type: basic:boolean
+          default: true
+        - name: perform_error_correction
+          label: Perform error correction with BBMerge prior to kmer operations [ecco=f]
+          type: basic:boolean
+          default: false
+    - name: operations
+      label: Trimming, filtering, and masking parameters
+      hidden: '!show_advanced'
+      group:
+        - name: k_trim
+          label: Trimming protocol to remove bases matching reference kmers from reads [ktrim=f]
+          type: basic:string
           choices:
             - label: Don't trim
               value: f
@@ -430,270 +685,404 @@
               value: r
             - label: Trim to the left
               value: l
-            - label: Trim to the right and left.
-              value: rl
-            - label: Masks the kmers with "N"
-              value: n
-        - name: kmask
-          label: Kmask
+          default: f
+        - name: k_mask
+          label: Symbol to replace bases matching reference kmers [kmask=f]
           type: basic:string
-          required: False
+          default: f
           description: >
-             Replace bases matching ref kmers with another symbol. Allows any non-whitespace
-             character other than t or f, and processes short kmers on both ends.
-          allow_custom_choice: true
-          choices:
-            - label: Convert masked bases to lowercase
-              value: lc
-        - name: mink
-          label: mink
-          type: basic:integer
-          required: False
-          description: >
-            Look for shorter kmers at read tips down to this length, when k-trimming or masking.
-            Should be between 1 and 31. Default is 4. Negative numbers disable it.
-        - name: maskfullycovered
-          label: Mask fully covered
+             Allows any non-whitespace character other than t or f. Processes short kmers on both
+             ends.
+        - name: mask_fully_covered
+          label: Only mask bases that are fully covered by kmers [maskfullycovered=f]
           type: basic:boolean
-          required: False
+          default: false
+        - name: min_k
+          label: >
+            Look for shorter kmers at read tips down to this length when k-trimming or masking
+            [mink=0]
+          type: basic:integer
+          default: -1
           description: >
-            Only mask bases that are fully covered by kmers.
-        - name: qtrim
-          label: Quality trim
+            -1 means disabled. Enabling this will disable treating the middle base of a kmer as a
+            wildcard to increase sensitivity in the presence of errors.
+        - name: quality_trim
+          label: >
+            Trimming protocol to remove bases with quality below the minimum average region quality
+            from read ends [qtrim=f]
           type: basic:string
-          required: False
-          description: >
-            Trim read ends to remove bases with quality below trimq. Performed after looking for kmers.
+          default: f
           choices:
+            - label: Trim neither end
+              value: f
             - label: Trim both ends
               value: rl
-            - label: Neither end
-              value: f
-            - label: Right end only
+            - label: Trim only right end
               value: r
-            - label: Left end only
+            - label: Trim only left end
               value: l
-            - label: Sliding window
+            - label: Use sliding window
               value: w
-        - name: trimq
-          label: Trim below defined quality.
+          description: >
+            Performed after looking for kmers. If enabled, set also 'Average quality below which to
+            trim region'.
+        - name: trim_quality
+          label: Average quality below which to trim region [trimq=6]
           type: basic:integer
           default: 6
-          description: >
-            Regions with average quality below this will be trimmed.
-        - name: minlength
-          label: Minlength
+          disabled: "operations.quality_trim == 'f'"
+          description: Set trimming protocol to enable this parameter.
+        - name: trim_poly_A
+          label: >
+            Minimum length of poly-A or poly-T tails to trim on either end of reads [trimpolya=0]
           type: basic:integer
-          default: 10
+          default: 0
+        - name: min_length_fraction
+          label: Minimum length fraction [mlf=0.0]
+          type: basic:decimal
+          default: 0.0
           description: >
-            Reads shorter than this after trimming will be discarded.
-        - name: maxlength
-          label: Maxlength
+            Reads shorter than this fraction of original length after trimming will be discarded.
+        - name: max_length
+          label: Maximum length [maxlength]
           type: basic:integer
           required: false
           description: >
             Reads longer than this after trimming will be discarded.
-        - name: minavgquality
-          label: Minavgquality
+        - name: min_average_quality
+          label: Minimum average quality [minavgquality=0]
           type: basic:integer
           default: 0
           description: >
               Reads with average quality (after trimming) below this will be discarded.
-        - name: minoverlap
-          label: Minoverlap
+        - name: min_average_quality_bases
+          label: Number of initial bases to calculate minimum average quality from [maqb=0]
+          type: basic:integer
+          default: 0
+          description: >
+            Used only if positive.
+        - name: min_base_quality
+          label: >
+            Minimum base quality below which reads are discarded after trimming [minbasequality=0]
+          type: basic:integer
+          default: 0
+        - name: min_consecutive_bases
+          label: Minimum number of consecutive called bases [mcb=0]
+          type: basic:integer
+          default: 0
+        - name: trim_pad
+          label: Number of bases to trim around matching kmers [tp=0]
+          type: basic:integer
+          default: 0
+        - name: trim_by_overlap
+          label: Trim adapters based on where paired-end reads overlap [tbo=f]
+          type: basic:boolean
+          default: false
+        - name: strict_overlap
+          label: >
+            Adjust sensitivity in 'Trim adapters based on where paired-end reads overlap' mode
+            [strictoverlap=t]
+          type: basic:boolean
+          default: true
+        - name: min_overlap
+          label: Minimum number of overlapping bases [minoverlap=14]
           type: basic:integer
           default: 14
           description: >
             Require this many bases of overlap for detection.
-        - name: mininsert
-          label: Mininsert
+        - name: min_insert
+          label: Minimum insert size [mininsert=40]
           type: basic:integer
           default: 40
           description: >
-            Require insert size of at least this for overlap. Should be reduced to 16 for small RNA sequencing.
-        - name: forcetrimleft
-          label: Forcetrim left
-          type: basic:integer
-          default: 0
-          description: >
-            If positive, trim bases to the left of this position (exclusive, 0-based).
-        - name: forcetrimright
-          label: Forcetrim right
-          type: basic:integer
-          default: 0
-          description: >
-            If positive, trim bases to the right of this position (exclusive, 0-based).
-    - name: barcode_par
-      label: Header-parsing parameters
-      description: >
-        Following parameters require Illumina headers
-      group:
-        - name: barcodefilter
-          label: Barcode filter
+            Require insert size of at least this for overlap. Should be reduced to 16 for small RNA
+            sequencing.
+        - name: trim_pairs_evenly
+          label: >
+            Trim both sequences of paired-end reads to the minimum length of either sequence [tpe=f]
           type: basic:boolean
           default: false
+        - name: force_trim_left
+          label: Position from which to trim bases to the left [forcetrimleft=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_right
+          label: Position from which to trim bases to the right [forcetrimright=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_right2
+          label: Number of bases to trim from the right end [forcetrimright2=0]
+          type: basic:integer
+          default: 0
+        - name: force_trim_mod
+          label: Modulo to right-trim reads [forcetrimmod=0]
+          type: basic:integer
+          default: 0
           description: >
-            Remove reads with unexpected barcodes if barcodes is set, or barcodes containing 'N' otherwise.
-            A barcode must be the last part of the read header.
+            Trim reads to the largest multiple of modulo.
+        - name: restrict_left
+          label: Number of leftmost bases to look in for kmer matches [restrictleft=0]
+          type: basic:integer
+          default: 0
+        - name: restrict_right
+          label: Number of rightmosot bases to look in for kmer matches [restrictright=0]
+          type: basic:integer
+          default: 0
+        - name: min_GC
+          label: Minimum GC content [mingc=0.0]
+          type: basic:decimal
+          default: 0.0
+          description: >
+            Discard reads with lower GC content.
+        - name: max_GC
+          label: Maximum GC content [maxgc=1.0]
+          type: basic:decimal
+          default: 1.0
+          description: >
+            Discard reads with higher GC content.
+        - name: toss_junk
+          label: Discard reads with invalid characters as bases [tossjunk=f]
+          type: basic:boolean
+          default: false
+    - name: header_parsing
+      label: Header-parsing parameters
+      hidden: '!show_advanced'
+      group:
+        - name: chastity_filter
+          label: Discard reads that fail Illumina chastity filtering [chastityfilter=f]
+          type: basic:boolean
+          default: false
+          description: Discard reads with id containing ' 1:Y:' or ' 2:Y:'.
+        - name: barcode_filter
+          label: >
+            Remove reads with unexpected barcodes if barcodes are set, or barcodes containing 'N'
+            otherwise [barcodefilter=f]
+          type: basic:boolean
+          default: false
+          description: A barcode must be the last part of the read header.
         - name: barcode_files
-          label: List of files of barcodes
+          label: Barcode sequences [barcodes]
           type: list:data:seq:nucleotide
           required: false
-          description: >
-            Comma-delimited list of files of barcodes.
-        - name: barcode_seq
-          label: List of barcodes.
+        - name: barcode_sequences
+          label: Literal barcode sequences [barcodes]
           type: list:basic:string
           required: false
+          default: []
           description: >
-            Comma-delimited list of barcodes.
-    - name: threads
-      label: Number of threads
-      type: basic:integer
-      required: false
-      description: >
-        Set number of threads to use; default is number of logical processors.
+            Literal barcode sequences can be specified by inputting them one by one and pressing
+            Enter after each sequence.
+        - name: x_min
+          label: Minimum X coordinate [xmin=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a smaller X coordinate.
+        - name: y_min
+          label: Minimum Y coordinate [ymin=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a smaller Y coordinate.
+        - name: x_max
+          label: Maximum X coordinate [xmax=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a larger X coordinate.
+        - name: y_max
+          label: Maximum Y coordinate [ymax=-1]
+          type: basic:integer
+          default: -1
+          description: If positive, discard reads with a larger Y coordinate.
+    - name: complexity
+      label: Complexity parameters
+      hidden: '!show_advanced'
+      group:
+        - name: entropy
+          label: Minimum entropy [entropy=-1.0]
+          type: basic:decimal
+          default: -1.0
+          description: >
+            Set between 0 and 1 to filter reads with entropy below that value. Higher is more
+            stringent.
+        - name: entropy_window
+          label: Length of sliding window used to calculate entropy [entropywindow=50]
+          type: basic:integer
+          default: 50
+          description: To use the sliding window set minimum entropy in range between 0.0 and 1.0.
+        - name: entropy_k
+          label: Length of kmers used to calcuate entropy [entropyk=5]
+          type: basic:integer
+          default: 5
+        - name: entropy_mask
+          label: Mask low-entropy parts of sequences with N instead of discarding [entropymask=f]
+          type: basic:boolean
+          default: false
+        - name: min_base_frequency
+          label: Minimum base frequency [minbasefrequency=0]
+          type: basic:integer
+          default: 0
   output:
     - name: fastq
-      label: Reads file
+      label: Remaining upstream reads
       type: list:basic:file
     - name: fastq2
-      label: Reads file (mate 2)
+      label: Remaining downstream reads
       type: list:basic:file
-    - name: stats
-      label: Statistic trimmomatic single
-      type: basic:file
+    - name: statistics
+      label: Statistics
+      type: list:basic:file
     - name: fastqc_url
-      label: Quality control with FastQC (Upstream)
+      label: Upstream quality control with FastQC
       type: list:basic:file:html
     - name: fastqc_url2
-      label: Quality control with FastQC (Downstream)
+      label: Downstream quality control with FastQC
       type: list:basic:file:html
     - name: fastqc_archive
-      label: Download FastQC archive (Upstream)
+      label: Download upstream FastQC archive
       type: list:basic:file
     - name: fastqc_archive2
-      label: Download FastQC archive (Downstream)
+      label: Download downstream FastQC archive
       type: list:basic:file
   run:
     runtime: polyglot
     language: bash
     program: |
+      {% set input_fw_reads = 'input_fw_reads.fastq.gz' %}
+      {% set input_rv_reads = 'input_rv_reads.fastq.gz' %}
+      {% set input_references = 'input_references.fasta.gz' %}
+      {% set input_barcodes = 'input_barcodes.fasta.gz' %}
+      {% set output_fw_reads = 'output_fw_reads.fastq' %}
+      {% set output_rv_reads = 'output_rv_reads.fastq' %}
+      {% set output_statistics = 'output_statistics.txt' %}
+      {% set name_fw = ((reads.fastq|first).file|basename)[:-9] %}
+      {% set name_rv = ((reads.fastq2|first).file|basename)[:-9] %}
+      {% set final_fw_reads = name_fw + '_preprocessed.fastq.gz' %}
+      {% set final_rv_reads = name_rv + '_preprocessed.fastq.gz' %}
+      {% set final_statistics = name_fw + '_statistics.txt.gz' %}
+      {% set bool = {true: 't', false: 'f'} %}
 
-      {% if barcode_par.barcode_seq and barcode_par.barcode_files %}
-        re-error "Specify only list of barcode files or list of barcode strings."
+      {% for read in reads.fastq %}
+        cat {{ read.file }} >>{{ input_fw_reads }}
+      {% endfor %}
+      {% for read in reads.fastq2 %}
+        cat {{ read.file }} >>{{ input_rv_reads }}
+      {% endfor %}
+      {% for ref in reference.sequences %}
+        cat {{ ref.fasta.file }} >>{{ input_references }}
+      {% endfor %}
+      {% for barc in header_parsing.barcode_files %}
+        cat {{ barc.fasta.file }} >>{{ input_barcodes }}
+      {% endfor %}
+
+      {% if header_parsing.barcode_files %}
+        {% set barcodes = [input_barcodes] + header_parsing.barcode_sequences %}
+      {% else %}
+        {% set barcodes = header_parsing.barcode_sequences %}
       {% endif %}
 
-      BBDUK_BASE_DIR=$(dirname $(which bbduk.sh))
-      BBDUK_RESOURCE_DIR="${BBDUK_BASE_DIR}/resources"
-
-      echo "Preparing reads file..."
-      re-progress 0.1
-
-      NAME1=`basename {{reads.fastq.0.file}} .fastq.gz`
-      NAME2=`basename {{reads.fastq2.0.file}} .fastq.gz`
-
-      FW_READS={{ reads.fastq|join(' ', attribute='file') }}
-      cat "${FW_READS}" > fw.fastq.gz
-      RW_READS={{ reads.fastq2|join(' ', attribute='file') }}
-      cat "${RW_READS}" > rw.fastq.gz
-
-
-      re-progress 0.1
-
-      echo "Removing adapters and filtering data..."
-
-      {% if adapters.reference %}
-        echo "Preparing reference file..."
-        {% for r in adapters.reference %}
-          REFERENCE_NAME=`basename {{ r.fasta.file }} .fasta.gz`
-          REFERENCE=${REFERENCE}"${REFERENCE_NAME}.fasta,"
-          gzip -cd {{ r.fasta.file }} > "${REFERENCE_NAME}.fasta"
-        {% endfor %}
-      {% endif %}
-
-       {% if adapters.reference and not adapters.bbduk_adapters %}
-        REFERENCE_PAR="ref="${REFERENCE}""
-      {% elif adapters.bbduk_adapters and not adapters.reference %}
-        REFERENCE_PAR="ref=${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa"
-      {% elif adapters.bbduk_adapters and adapters.reference %}
-        cp "${BBDUK_RESOURCE_DIR}/"{{adapters.bbduk_adapters}}".fa" def_adapters.fasta
-        REFERENCE=${REFERENCE}def_adapters.fasta
-        REFERENCE_PAR=ref="${REFERENCE}"
-      {% endif %}
-
-      re-progress 0.3
-
-      LITERAL_REF="{% if adapters.literal_reference %} literal={% for seq in adapters.literal_reference %}"{{seq}}",{% endfor %}{% endif %}"
-
-      {% if barcode_par.barcode_file %}
-       echo "Preparing barcode file..."
-       {% for b in barcode_par.barcode_file %}
-         BARCODE_NAME=`basename {{ b.fasta.file }} .fasta.gz`
-         BARCODE=${BARCODE}"${BARCODE_NAME}.fasta,"
-         gzip -cd {{ b.file }} > "${BARCODE_NAME}.fasta"
-       {% endfor %}
-      {% endif %}
-
-      BARCODE_SEQ="{% if barcode_par.barcode_seq %} barcode={% for bar in barcode_par.barcode_seq %}"{{bar}}",{% endfor %}{% endif %}"
-
-      PROCESSING_PAR="k="{{processing_par.k}}" rcomp="{{processing_par.rcomp}}" minkmerhits="{{processing_par.minkmerhits}}" {% if useshortkmers %}useshortkmers="{{processing_par.useshortkmers}}"{% endif %}"
-
-      KTRIM_PAR="{% if trimming_par.ktrim %}ktrim="{{trimming_par.ktrim}}"{% endif %}"
-      KMASK_PAR="{% if trimming_par.kmask %}kmask="{{trimming_par.kmask}}"{% endif %}"
-      MINK_PAR="{% if trimming_par.mink %}mink="{{trimming_par.mink}}"{% endif %}"
-      MASKFULLYCOVERD_PAR="{%if trimming_par.maskfullycovered %}maskfullycovered="{{trimming_par.maskfullycovered}}"{% endif %}"
-      QTRIM_PAR="{% if trimming_par.qtrim %}qtrim="{{trimming_par.qtrim}}" trimq="{{trimming_par.trimq}}"{% endif %}"
-      MAXLENGTH_PAR="{% if trimming_par.maxlength %}maxlength="{{trimming_par.maxlength}}"{% endif %}"
-
-      TRIMMING_PAR="${KTRIM_PAR} ${KMASK_PAR} ${MINK_PAR} ${MASKFULLYCOVERD_PAR} ${QTRIM_PAR} ${MAXLENGTH_PAR} minavgquality="{{trimming_par.minavgquality}}" minoverlap="{{trimming_par.minoverlap}}" mininsert="{{trimming_par.mininsert}}" forcetrimleft="{{trimming_par.forcetrimleft}}" forcetrimright="{{trimming_par.forcetrimright}}
-
-      BARCODE_PAR="{% if barcode_par.barcode_seq %}${BARCODE_SEQ}{% elif barcode_par.barcode_file %}barcodes=${BARCODE}{% endif %} {% if barcode_par.barcodefilter %}barcodefilter="{{barcode_par.barcodefilter}}"{% endif %}"
-
-      echo "Processing bbduk..."
       bbduk.sh \
-        in=fw.fastq.gz \
-        in2=rw.fastq.gz \
-        ${REFERENCE_PAR} \
-        ${LITERAL_REF} \
-        ${PROCESSING_PAR} \
-        ${TRIMMING_PAR} \
-        "${BARCODE_PAR}" \
-        {% if threads %}threads={{threads}}{% endif %} \
-        out=fw_paired_filtered.fastq \
-        out2=rw_paired_filtered.fastq \
-        stats=bbduk_stats.txt \
+        in={{ input_fw_reads }} \
+        in2={{ input_rv_reads }} \
+        {% if reference.sequences %} \
+          ref={{ input_references }} \
+        {% endif %} \
+        {% if reference.literal_sequences %} \
+          literal={{ reference.literal_sequences|join(',') }} \
+        {% endif %} \
+        out={{ output_fw_reads }} \
+        out2={{ output_rv_reads }} \
+        stats={{ output_statistics }} \
         statscolumns=5 \
-        -Xmx1g
-      re-checkrc "Failed while processing with bbduk.sh"
-      mv fw_paired_filtered.fastq "${NAME1}_paired_filtered.fastq"
-      gzip "${NAME1}_paired_filtered.fastq"
-      mv rw_paired_filtered.fastq "${NAME2}_paired_filtered.fastq"
-      gzip "${NAME2}_paired_filtered.fastq"
+        k={{ processing.kmer_length }} \
+        rcomp={{ bool[processing.check_reverse_complements] }} \
+        maskmiddle={{ bool[processing.mask_middle_base] }} \
+        minkmerhits={{ processing.min_kmer_hits }} \
+        minkmerfraction={{ processing.min_kmer_fraction }} \
+        mincovfraction={{ processing.min_coverage_fraction }} \
+        hammingdistance={{ processing.hamming_distance }} \
+        qhdist={{ processing.query_hamming_distance }} \
+        editdistance={{ processing.edit_distance }} \
+        hammingdistance2={{ processing.hamming_distance2 }} \
+        qhdist2={{ processing.query_hamming_distance2 }} \
+        editdistance2={{ processing.edit_distance2 }} \
+        forbidn={{ bool[processing.forbid_N] }} \
+        removeifeitherbad={{ bool[processing.remove_if_either_bad] }} \
+        findbestmatch={{ bool[processing.find_best_match] }} \
+        ecco={{ bool[processing.perform_error_correction] }} \
+        {% if operations.k_trim != 'f' %} \
+          ktrim={{ operations.k_trim }} \
+        {% endif %} \
+        {% if operations.k_mask != 't' and operations.k_mask != 'f' %} \
+          kmask={{ operations.k_mask }} \
+        {% endif %} \
+        maskfullycovered={{ bool[operations.mask_fully_covered] }} \
+        mink={{ operations.min_k }} \
+        {% if operations.quality_trim != 'f' %} \
+          qtrim={{ operations.quality_trim }} \
+        {% endif %} \
+        trimq={{ operations.trim_quality }} \
+        trimpolya={{ operations.trim_poly_A }} \
+        minlength={{ min_length }} \
+        minlengthfraction={{ operations.min_length_fraction }} \
+        {% if operations.max_length %} \
+          maxlength={{ operations.max_length }} \
+        {% endif %} \
+        minavgquality={{ operations.min_average_quality }} \
+        maqb={{ operations.min_average_quality_bases }} \
+        minbasequality={{ operations.min_base_quality }} \
+        minconsecutivebases={{ operations.min_consecutive_bases }} \
+        trimpad={{ operations.trim_pad }} \
+        trimbyoverlap={{ bool[operations.trim_by_overlap] }} \
+        minoverlap={{ operations.min_overlap }} \
+        mininsert={{ operations.min_insert }} \
+        trimpairsevenly={{ bool[operations.trim_pairs_evenly] }} \
+        forcetrimleft={{ operations.force_trim_left }} \
+        forcetrimright={{ operations.force_trim_right }} \
+        forcetrimright2={{ operations.force_trim_right2 }} \
+        forcetrimmod={{ operations.force_trim_mod }} \
+        restrictleft={{ operations.restrict_left }} \
+        restrictright={{ operations.restrict_right }} \
+        mingc={{ operations.min_GC }} \
+        maxgc={{ operations.max_GC }} \
+        tossjunk={{ bool[operations.toss_junk] }} \
+        chastityfilter={{ bool[header_parsing.chastity_filter] }} \
+        barcodefilter={{ bool[header_parsing.barcode_filter] }} \
+        {% if barcodes %} \
+          barcodes={{ barcodes|join(',') }} \
+        {% endif %} \
+        xmin={{ header_parsing.x_min }} \
+        ymin={{ header_parsing.y_min }} \
+        xmax={{ header_parsing.x_max }} \
+        ymax={{ header_parsing.y_max }} \
+        entropy={{ complexity.entropy }} \
+        entropywindow={{ complexity.entropy_window }} \
+        entropyk={{ complexity.entropy_k }} \
+        minbasefrequency={{ complexity.min_base_frequency }} \
+        entropymask={{ bool[complexity.entropy_mask] }} \
+        threads={{ requirements.resources.cores }} \
+        -Xmx{{ (0.85 * requirements.resources.memory)|int }}m
+      re-checkrc "Processing with BBDuk failed."
 
-      re-save-file-list fastq "${NAME1}_paired_filtered.fastq.gz"
-      re-save-file-list fastq2 "${NAME2}_paired_filtered.fastq.gz"
-      re-save-file stats bbduk_stats.txt
+      gzip {{ output_fw_reads }}
+      gzip {{ output_rv_reads }}
+      gzip {{ output_statistics }}
 
-      re-progress 0.75
+      mv {{ output_fw_reads + '.gz' }} {{ final_fw_reads }}
+      mv {{ output_rv_reads + '.gz' }} {{ final_rv_reads }}
+      mv {{ output_statistics + '.gz' }} {{ final_statistics }}
 
-      echo "Postprocessing FastQC..."
-      # http://www.bioinformatics.babraham.ac.uk/projects/fastqc/
-      mkdir "fastqc" && fastqc "${NAME1}_paired_filtered.fastq.gz" "${NAME2}_paired_filtered.fastq.gz" --extract --outdir="fastqc" >&2
-      re-checkrc "Failed while processing with FastQC."
-      re-progress 0.9
+      re-save-file-list fastq {{ final_fw_reads }}
+      re-save-file-list fastq2 {{ final_rv_reads }}
+      re-save-file-list statistics {{ final_statistics }}
 
-      mv "fastqc/${NAME1}_paired_filtered_fastqc" "fastqc/${NAME1}_fastqc"
-      mv "fastqc/${NAME2}_paired_filtered_fastqc" "fastqc/${NAME2}_fastqc"
-      mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" "${NAME1}_fastqc.zip"
-      mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" "${NAME2}_fastqc.zip"
+      fastqc.sh {{ final_fw_reads }} fastqc fastqc_archive fastqc_url
+      fastqc.sh {{ final_rv_reads }} fastqc fastqc_archive2 fastqc_url2
 
-      FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
-      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
-
-      re-progress 0.95
-
-      re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
-      re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
-      re-save-list fastqc_url "$FASTQC_URL"
-      re-save-list fastqc_url2 "$FASTQC_URL2"
+      {% if operations.k_trim == 'f'
+        and operations.quality_trim == 'f'
+        and not reference.sequences
+        and not reference.literal_sequences
+        and operations.min_average_quality <= 0 %}
+        {% set message = 'Reference sequences, trimming mode, and minimum average quality are ' +
+          'unspecified. Only filtering of reads by length is applied.' %}
+        re-warning {{ message }}
+      {% endif %}

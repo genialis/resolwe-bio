@@ -41,6 +41,7 @@ setup(
             'processes/**/*.yml',
             'tools/*.py',
             'tools/*.R',
+            'tools/*.sh',
         ]
     },
     zip_safe=False,

@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.3
+  version: 0.0.4
   type: data:workflow:rnaseq:htseq
   input:
     - name: reads
@@ -28,32 +28,31 @@
         - label: QuantSeq FWD Library
           value: 'yes'
         - label: QuantSeq REV Library
-          value: 'reverse'
+          value: reverse
   run:
     language: workflow
     program:
       - id: bbduk_filtering
         run: bbduk-single
         input:
-          reads: '{{input.reads}}'
-          adapters:
-            reference: '{{input.bbduk_adapters}}'
-          processing_par:
-            k: 13
-            useshortkmers: True
-          trimming_par:
-            ktrim: 'r'
-            mink: 5
-            qtrim: rl
-            trimq: 10
-            minlength: 20
+          reads: '{{ input.reads }}'
+          min_length: 20
+          reference:
+            sequences: '{{ input.bbduk_adapters }}'
+          processing:
+            kmer_length: 13
+          operations:
+            k_trim: r
+            min_k: 5
+            quality_trim: rl
+            trim_quality: 10
       - id: star
         run: alignment-star
         input:
-          genome: '{{input.star_index}}'
-          reads: '{{steps.bbduk_filtering}}'
+          genome: '{{ input.star_index }}'
+          reads: '{{ steps.bbduk_filtering }}'
           filtering:
-            outFilterType: 'BySJout'
+            outFilterType: BySJout
             outFilterMultimapNmax: 20
             outFilterMismatchNmax: 999
           alignment:
@@ -65,7 +64,7 @@
       - id: htseq_count
         run: htseq-count-raw
         input:
-          alignments: '{{steps.star}}'
-          gff: '{{input.annotation}}'
-          mode: 'intersection-nonempty'
-          stranded: '{{input.stranded}}'
+          alignments: '{{ steps.star }}'
+          gff: '{{ input.annotation }}'
+          mode: intersection-nonempty
+          stranded: '{{ input.stranded }}'
