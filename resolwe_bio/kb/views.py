@@ -78,14 +78,18 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
 
     def custom_filter(self, search):
         """Support autocomplete query using the 'query' attribute."""
+        query = self.get_query_param('query', '')
         return search.query(
             'bool',
             should=[
-                Q('match', autocomplete=self.get_query_param('query', '')),
-                # Boost exact name and feature_id matches. Use the 'lower' subfield in order
-                # to compare against lowercased terms.
-                Q('match', **{'feature_id.lower': {'query': self.get_query_param('query', ''), 'boost': 2}}),
-                Q('match', **{'name.lower': {'query': self.get_query_param('query', ''), 'boost': 2}}),
+                # Exact matches of name and feature_id.
+                Q('match', **{'feature_id.lower': {'query': query, 'boost': 10}}),
+                Q('match', **{'name.lower': {'query': query, 'boost': 10}}),
+                # Partial matches of name and feature_id.
+                Q('match', **{'feature_id.ngrams': {'query': query, 'boost': 5}}),
+                Q('match', **{'name.ngrams': {'query': query, 'boost': 5}}),
+                # Aliases.
+                Q('match', **{'aliases.ngrams': {'query': query}}),
             ]
         )
 
