@@ -37,6 +37,7 @@ Changed
 - Use ``resolwebio/dnaseq`` Docker image in ``picard-pcrmetrics`` process
 - Run ``vc-realign-recalibrate`` process using multiple cpu cores to optimize
   the processing time
+- Use ``resolwebio/rnaseq`` Docker image in ``alignment-star`` process
 
 Added
 -----
