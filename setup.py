@@ -50,7 +50,7 @@ setup(
         'djangorestframework-filters~=0.10.0',
         'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
-        'resolwe >=7.0a1, ==7.*',
+        'resolwe >=8.0a1, ==8.*',
         'tqdm>=4.1',
         'wrapt>=1.10.8',
         # XXX: djangorestframework-filters has too open requirement for
