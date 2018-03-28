@@ -8,7 +8,7 @@ Included bioinformatics tools:
 * affy (v1.56.0)
 * BBMap (v37.90)
 * Cufflinks (v2.2.1)
-* Cutadapt (v1.15)
+* Cutadapt (v1.16)
 * DESeq2 (v1.16.1)
 * DEXSeq (v1.24.2)
 * dexseq_prepare_annotation2 (v1.0.0)

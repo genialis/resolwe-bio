@@ -10,6 +10,19 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Use the latest versions of the following Python packages in
+  ``resolwebio/rnaseq`` docker image: Cutadapt 1.16,
+  Apache Arrow 0.9.0, pysam 0.14.1, requests 2.18.4, appdirs 1.4.3,
+  wrapt 1.10.11, PyYAML 3.12
+
+Added
+-----
+- Add the following Python packages to ``resolwebio/rnaseq`` docker
+  image: six 1.11.0, chardet 3.0.4, urllib3 1.22, idna 2.6,
+  and certifi 2018.1.18
+
 
 ==================
 8.0.0 - 2018-04-11
