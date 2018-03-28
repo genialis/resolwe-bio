@@ -68,6 +68,42 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_reads_rc.tab.gz', compression='gzip')
 
+    @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired')
+    def test_bbduk_star_featurecounts_workflow(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
+            paired_reads = self.prepare_paired_reads(['SRR2124780_1 1k.fastq.gz'], ['SRR2124780_2 1k.fastq.gz'])
+            annotation = self.prepare_annotation('HS_chr21_short.gtf.gz')
+            star_index_fasta = self.prepare_adapters('HS_chr21_ensemble.fa.gz')
+            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            star_index = self.run_process('alignment-star-index', inputs)
+            adapters = self.prepare_adapters()
+
+        inputs = {
+            'preprocessing': {
+                'reads': reads.id,
+                'adapters': [adapters.id],
+            },
+            'alignment': {
+                'genome': star_index.id,
+            },
+            'quantification': {
+                'annotation': annotation.id,
+            },
+        }
+        self.run_process('workflow-bbduk-star-featurecounts-single', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_ccshs.tab.gz', compression='gzip')
+
+        inputs['preprocessing']['reads'] = paired_reads.id
+        self.run_process('workflow-bbduk-star-featurecounts-paired', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_ccshp.tab.gz', compression='gzip')
+
     @tag_process('workflow-custom-cutadapt-star-htseq-single', 'workflow-custom-cutadapt-star-htseq-paired')
     def test_custom_cutadapt_star_htseq_workflow(self):
         with self.preparation_stage():
