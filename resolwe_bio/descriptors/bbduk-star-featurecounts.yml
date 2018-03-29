@@ -1,0 +1,66 @@
+- slug: rna-seq-bbduk-star-featurecounts
+  name: "Pipeline: BBDuk - STAR - featureCounts"
+  version: 0.0.1
+  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
+    quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3’-end, and discards reads that are too short after trimming.
+    Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
+    preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
+    considered a state-of-the-art tool that consistently produces accurate results from diverse sets
+    of reads, and performs well even with default settings. For more information see [this
+    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106).\n\nFinally, aligned
+    reads are summarized to genes by __featureCounts__. Gaining wide adoption among the
+    bioinformatics community, featureCounts yields expressions in a computationally efficient
+    manner.\n\nAll three tools in this workflow support parallelization to accelerate the analysis."
+  schema:
+    - name: species
+      label: Species
+      type: basic:string
+      default: Homo sapiens
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+    - name: assay_type
+      label: Assay type
+      type: basic:string
+      default: non_specific
+      choices:
+        - label: Strand non-specific
+          value: non_specific
+        - label: Strand-specific forward
+          value: forward
+        - label: Strand-specific reverse
+          value: reverse
+      description: >
+        In strand non-specific assay a read is considered overlapping with a
+        feature regardless of whether it is mapped to the same or the opposite
+        strand as the feature. In strand-specific forward assay and single
+        reads, the read has to be mapped to the same strand as the feature.
+        For paired-end reads, the first read has to be on the same strand and
+        the second read on the opposite strand. In strand-specific reverse
+        assay these rules are reversed.
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
+    - name: trailing
+      label: Trailing quality
+      type: basic:integer
+      default: 28
+      hidden: '!advanced'
+      description: >
+        The minimum quality required to keep a base. Bases with lower quality
+        will be removed from the right end of reads.
+    - name: min_length
+      label: Minimum read length
+      type: basic:integer
+      default: 10
+      hidden: '!advanced'
+      description: >
+        Trimmed reads shorter than the minimum read length will be discarded.

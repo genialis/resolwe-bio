@@ -52,6 +52,7 @@ Added
   alternative to GATK3 used in ``workflow-accel`` pipeline
 - Add ``amplicon-master-file`` descriptor schema
 - Add ``workflow-bbduk-star-featurecounts`` pipeline
+- Add ``rna-seq-bbduk-star-featurecounts`` RNA-seq descriptor schema
 
 Fixed
 -----
