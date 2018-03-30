@@ -77,9 +77,9 @@ throttle(["resolwe_bio"]) {
                         withEnv([
                             // NOTE: These ports are set to telnet's port (23) to ensure the
                             // following Tox environments don't require access to these services.
-                            "RESOLWE_POSTGRESQL_PORT=1",
-                            "RESOLWE_ES_PORT=1",
-                            "RESOLWE_REDIS_PORT=1"
+                            "RESOLWE_POSTGRESQL_PORT=23",
+                            "RESOLWE_ES_PORT=23",
+                            "RESOLWE_REDIS_PORT=23"
                         ]) {
                             sh "tox -e docs ${tox_extra_args}"
 
