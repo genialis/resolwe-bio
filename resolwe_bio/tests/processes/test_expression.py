@@ -382,3 +382,43 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(salmon_index, 'source', 'ENSEMBL')
         self.assertFields(salmon_index, 'species', 'Homo sapiens')
         self.assertFields(salmon_index, 'build', 'ens_90')
+
+    @tag_process('feature_counts')
+    def test_featurecounts_strandedness(self):
+        with self.preparation_stage():
+            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+
+            salmon_index = self.run_process('salmon-index', {
+                'nucl': cds.id,
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
+
+            annotation = self.run_process('upload-gtf', {
+                'src': 'annotation_rsem.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
+
+            aligned_reads = self.run_process('upload-bam', {
+                'src': 'feature_counts_detect_strandedness.bam',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
+
+        inputs = {
+            'alignment': {
+                'aligned_reads': aligned_reads.id,
+                'assay_type': 'auto',
+                'cdna_index': salmon_index.id,
+                'sampling_rate': 1,
+            },
+            'annotation': {
+                'annotation': annotation.id,
+            },
+        }
+
+        expression = self.run_process('feature_counts', inputs)
+        self.assertFile(expression, 'exp', 'auto_detect_strand_tpm.tab.gz', compression='gzip')

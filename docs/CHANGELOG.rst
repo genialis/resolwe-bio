@@ -24,6 +24,7 @@ Added
 - Add ``template_amplicon_report.tex`` to ``resolwebio/latex`` Docker image
   assets
 - Add SnpEff tool and bokeh assets to ``resolwebio/dnaseq`` Docker image
+- Add automated library strand detection to ``feature_counts`` quantification process
 
 Fixed
 -----

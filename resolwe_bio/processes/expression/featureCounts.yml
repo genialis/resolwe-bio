@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:2.1.1
+        image: resolwebio/rnaseq:3.1.0
     resources:
       cores: 10
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 0.4.1
+  version: 0.5.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -42,7 +42,10 @@
             Indicate if strand-specific read counting should be performed. For
             paired-end reads, strand of the first read is taken as the strand
             of the whole fragment. FLAG field is used to tell if a read is
-            first or second read in a pair.
+            first or second read in a pair. Automated strand detection is enabled
+            using the [Salmon](https://salmon.readthedocs.io/en/latest/library_type.html)
+            tool's build-in functionality. To use this option, cDNA (transcriptome)
+            index file crated using the Salmon indexing tool must be provided.
           choices:
             - label: Strand non-specific
               value: non_specific
@@ -50,6 +53,28 @@
               value: forward
             - label: Strand-specific reverse
               value: reverse
+            - label: Detect automatically
+              value: auto
+        - name: cdna_index
+          label: cDNA index file
+          type: data:index:salmon
+          required: false
+          hidden: "alignment.assay_type != 'auto'"
+          description: >
+            Transcriptome index file created using the Salmon indexing tool.
+            cDNA (transcriptome) sequences used for index file creation must be
+            derived from the same species as the input sequencing reads to
+            obtain the reliable analysis results.
+        - name: sampling_rate
+          label: Alignment file sampling rate
+          type: basic:decimal
+          default: 0.01
+          hidden: "alignment.assay_type != 'auto'"
+          description: >
+            Alignment (.bam) file sampling rate. Increase the sampling rate
+            to use the larger proportion of aligned reads for automated strand
+            detection. The sampling rate should be higher if the number of aligned
+            reads in the sample is low.
     - name: annotation
       label: Annotation
       group:
@@ -379,6 +404,10 @@
       required: false
       description: >
         Read assignment results for each read (or fragment if paired end).
+    - name: strandedness_report
+      label: Strandedness report file
+      type: basic:file
+      required: false
     - name: source
       label: Gene ID database
       type: basic:string
@@ -395,6 +424,9 @@
     runtime: polyglot
     language: bash
     program: |
+      declare -A strandedness
+      strandedness=(['non_specific']=0 ['forward']=1 ['reverse']=2)
+
       {% if not alignment.aligned_reads.species == annotation.annotation.species %}
         re-error \
           {{ ('Species of aligned reads (%s) and annotation (%s) do not match. ' ~
@@ -409,6 +441,30 @@
              |format(alignment.aligned_reads.build, annotation.annotation.build) }}
       {% endif %}
 
+      {% if alignment.assay_type == 'auto' and not alignment.cdna_index %}
+        re-error 'cDNA sequence index must be provided to automatically detect strandedness.'
+      {% endif %}
+
+      {% if alignment.assay_type == 'auto' and alignment.cdna_index %}
+        {% if alignment.aligned_reads.species != alignment.cdna_index.species %}
+          re-error \
+            {{ ('Species of aligned reads (%s) and cDNA index (%s) do not match. ' ~
+              'Please provide aligned reads and cDNA index with the same species.')
+              |format(alignment.aligned_reads.species, alignment.cdna_index.species) }}
+        {% endif %}
+      {% endif %}
+
+      {% if alignment.assay_type == 'auto' %}
+        . detect_strandedness.sh \
+          {{ alignment.aligned_reads.bam.file }} \
+          {{ alignment.sampling_rate }} \
+          {{ alignment.cdna_index.index.dir }} \
+          {{ requirements.resources.cores }} \
+          strandedness_report
+      {% else %}
+        STRANDEDNESS=${strandedness[{{ alignment.assay_type }}]}
+      {% endif %}
+
       {% set alignment_fn = alignment.aligned_reads.bam.file|basename %}
       {% set name = alignment_fn[:-4]
          if alignment_fn.endswith('.bam')
@@ -416,7 +472,6 @@
       {% set annotation_fmt = 'gtf'
          if annotation.annotation|type|subtype('data:annotation:gtf')
          else 'gff3' %}
-      {% set strandedness = {'non_specific': 0, 'forward': 1, 'reverse': 2} %}
 
       if [[ $(samtools view -c -f 1 {{ alignment.aligned_reads.bam.file }}) == 0 ]]
       then
@@ -444,7 +499,7 @@
           {% if advanced.read_filtering.non_split_only %} --countNonSplitAlignmentsOnly {% endif %} \
           {% if advanced.read_filtering.primary %} --primary {% endif %} \
           {% if advanced.read_filtering.ignore_dup %} --ignoreDup {% endif %} \
-          -s {{ strandedness[alignment.assay_type] }} \
+          -s ${STRANDEDNESS} \
           {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
           {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
              -G {{ advanced.exon_exon_junctions.genome.src.file }} \
@@ -481,7 +536,7 @@
           {% if advanced.read_filtering.non_split_only %} --countNonSplitAlignmentsOnly {% endif %} \
           {% if advanced.read_filtering.primary %} --primary {% endif %} \
           {% if advanced.read_filtering.ignore_dup %} --ignoreDup {% endif %} \
-          -s {{ strandedness[alignment.assay_type] }} \
+          -s ${STRANDEDNESS} \
           {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
           {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
             -G {{ advanced.exon_exon_junctions.genome.src.file }} \

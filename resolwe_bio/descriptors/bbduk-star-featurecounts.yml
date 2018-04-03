@@ -1,6 +1,6 @@
 - slug: rna-seq-bbduk-star-featurecounts
   name: "Pipeline: BBDuk - STAR - featureCounts"
-  version: 0.0.2
+  version: 0.1.0
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
@@ -27,8 +27,10 @@
     - name: assay_type
       label: Assay type
       type: basic:string
-      default: non_specific
+      default: auto
       choices:
+        - label: Detect automatically
+          value: auto
         - label: Strand non-specific
           value: non_specific
         - label: Strand-specific forward

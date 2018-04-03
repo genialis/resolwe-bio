@@ -4,7 +4,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -273,6 +273,8 @@
               value: forward
             - label: Strand-specific reverse
               value: reverse
+            - label: Detect automatically
+              value: auto
           description: >
             In strand non-specific assay a read is considered overlapping with a
             feature regardless of whether it is mapped to the same or the opposite
@@ -281,6 +283,26 @@
             For paired-end reads, the first read has to be on the same strand and
             the second read on the opposite strand. In strand-specific reverse
             assay these rules are reversed.
+        - name: cdna_index
+          label: cDNA index file
+          type: data:index:salmon
+          required: false
+          hidden: "quantification.assay_type != 'auto'"
+          description: >
+            Transcriptome index file created using the Salmon indexing tool.
+            cDNA (transcriptome) sequences used for index file creation must be
+            derived from the same species as the input sequencing reads to
+            obtain the reliable analysis results.
+        - name: sampling_rate
+          label: Alignment file sampling rate
+          type: basic:decimal
+          default: 0.01
+          hidden: "quantification.assay_type != 'auto'"
+          description: >
+            Alignment (.bam) file sampling rate. Increase the sampling rate
+            to use the larger proportion of aligned reads for automated strand
+            detection. The sampling rate should be higher if the number of aligned
+            reads in the sample is low.
         - name: feature_class
           label: Feature class
           type: basic:string
@@ -381,6 +403,8 @@
           alignment:
             aligned_reads: '{{ steps.alignment }}'
             assay_type: '{{ input.quantification.assay_type }}'
+            cdna_index: '{{ input.quantification.cdna_index }}'
+            sampling_rate: '{{ input.quantification.sampling_rate }}'
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             feature_class: '{{ input.quantification.feature_class }}'
@@ -393,7 +417,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -662,6 +686,8 @@
               value: forward
             - label: Strand-specific reverse
               value: reverse
+            - label: Detect automatically
+              value: auto
           description: >
             In strand non-specific assay a read is considered overlapping with a
             feature regardless of whether it is mapped to the same or the opposite
@@ -670,6 +696,26 @@
             For paired-end reads, the first read has to be on the same strand and
             the second read on the opposite strand. In strand-specific reverse
             assay these rules are reversed.
+        - name: cdna_index
+          label: cDNA index file
+          type: data:index:salmon
+          required: false
+          hidden: "quantification.assay_type != 'auto'"
+          description: >
+            Transcriptome index file created using the Salmon indexing tool.
+            cDNA (transcriptome) sequences used for index file creation must be
+            derived from the same species as the input sequencing reads to
+            obtain the reliable analysis results.
+        - name: sampling_rate
+          label: Alignment file sampling rate
+          type: basic:decimal
+          default: 0.01
+          hidden: "quantification.assay_type != 'auto'"
+          description: >
+            Alignment (.bam) file sampling rate. Increase the sampling rate
+            to use the larger proportion of aligned reads for automated strand
+            detection. The sampling rate should be higher if the number of aligned
+            reads in the sample is low.
         - name: feature_class
           label: Feature class
           type: basic:string
@@ -772,6 +818,8 @@
           alignment:
             aligned_reads: '{{ steps.alignment }}'
             assay_type: '{{ input.quantification.assay_type }}'
+            cdna_index: '{{ input.quantification.cdna_index }}'
+            sampling_rate: '{{ input.quantification.sampling_rate }}'
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             feature_class: '{{ input.quantification.feature_class }}'

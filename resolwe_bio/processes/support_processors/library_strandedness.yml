@@ -7,9 +7,9 @@
       memory: 8192
     executor:
       docker:
-        image: resolwebio/rnaseq:2.1.0
+        image: resolwebio/rnaseq:3.1.0
   data_name: 'Library strandedness ({{ reads|sample_name }})'
-  version: 0.0.1
+  version: 0.0.2
   type: data:strandedness
   persistence: CACHED
   description: >
@@ -36,7 +36,7 @@
       type: data:index:salmon
       description: >
         Transcriptome index file created using the Salmon indexing tool.
-        CDS (transcriptome) sequences used for index file creation must be
+        cDNA (transcriptome) sequences used for index file creation must be
         derived from the same species as the input sequencing reads to
         obtain the reliable analysis results
   output:
@@ -78,12 +78,13 @@
         {% set reads_input = '-1 mate1.fastq -2 mate2.fastq' %}
       {% endif %}
 
-      salmon quant \
+      salmon --no-version-check quant \
         -i {{ salmon_index.index.dir }} \
         -l A \
         {{ reads_input|safe }} \
         -o results \
-        -p {{ requirements.resources.cores }}
+        -p {{ requirements.resources.cores }} \
+        --minAssignedFrags 1
       re-checkrc "Automatic detection of strandedness failed"
 
       re-save-file log results/lib_format_counts.json
