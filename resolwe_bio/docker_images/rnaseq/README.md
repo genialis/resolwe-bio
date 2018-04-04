@@ -12,6 +12,7 @@ Included bioinformatics tools:
 * DESeq2 (v1.16.1)
 * DEXSeq (v1.24.2)
 * dexseq_prepare_annotation2 (v1.0.0)
+* edgeR (v3.20.9)
 * FastQC (v0.11.5)
 * gotea (v0.0.4)
 * HISAT2 (v2.1.0)

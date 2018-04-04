@@ -60,6 +60,7 @@ Added
 - Add the following Python packages to ``resolwebio/rnaseq`` docker
   image: six 1.11.0, chardet 3.0.4, urllib3 1.22, idna 2.6,
   and certifi 2018.1.18
+- Add ``edgeR`` R library to ``resolwebio/rnaseq`` docker image
 
 Fixed
 -----

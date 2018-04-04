@@ -1,5 +1,6 @@
 affy
 DESeq2
 DEXSeq
+edgeR
 rtracklayer
 tximport
