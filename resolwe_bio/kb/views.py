@@ -38,6 +38,12 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     ordering_fields = ('name',)
     ordering = 'name'
 
+    def get_always_allowed_arguments(self):
+        """Return query arguments which are always allowed."""
+        return super().get_always_allowed_arguments() + [
+            'query',
+        ]
+
     def custom_filter_feature_id(self, value, search):
         """Support exact feature_id queries."""
         if not isinstance(value, list):
@@ -75,6 +81,12 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
     serializer_class = FeatureSerializer
 
     filtering_fields = ('source', 'species')
+
+    def get_always_allowed_arguments(self):
+        """Return query arguments which are always allowed."""
+        return super().get_always_allowed_arguments() + [
+            'query',
+        ]
 
     def custom_filter(self, search):
         """Support autocomplete query using the 'query' attribute."""
@@ -147,6 +159,13 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     filtering_fields = ('source_db', 'source_species', 'target_db', 'target_species', 'relation_type')
     ordering_fields = ('source_id',)
     ordering = 'source_id'
+
+    def get_always_allowed_arguments(self):
+        """Return query arguments which are always allowed."""
+        return super().get_always_allowed_arguments() + [
+            'source_id',
+            'target_id',
+        ]
 
     def custom_filter(self, search):
         """Support correct searching by ``source_id`` and ``target_id``."""

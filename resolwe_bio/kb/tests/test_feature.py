@@ -1,7 +1,4 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from rest_framework import status
@@ -183,14 +180,12 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Authenticate as normal user.
-        normal_user = User.objects.create_user('tester', 'tester@genialis.com', 'tester')
-        self.client.force_authenticate(user=normal_user)
+        self.client.force_authenticate(user=self.contributor)
         response = self.client.get(reverse('resolwebio-api:feature-list'), format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Authenticate as admin.
-        admin_user = User.objects.create_superuser('admin', 'admin@genialis.com', 'admin')
-        self.client.force_authenticate(user=admin_user)
+        self.client.force_authenticate(user=self.admin)
 
         # Test listing and detailed access features.
         response = self.client.get(reverse('resolwebio-api:feature-list'), format='json')

@@ -2,7 +2,6 @@
 import os
 import unittest
 import sys
-import time
 
 import wrapt
 
@@ -191,14 +190,9 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
         'DEBUG': True,
     }
 
-    @classmethod
-    def setUpClass(cls):
+    def setUp(self):
         """Set-up test gene information knowledge base."""
-        super(KBBioProcessTestCase, cls).setUpClass()
+        super().setUp()
+
         call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features_gsea.tab.zip'))
         call_command('insert_mappings', os.path.join(TEST_FILES_DIR, 'mappings_gsea.tab.zip'))
-
-        # Wait for ElasticSearch to index the data.
-        # TODO: Better solution for ES5:
-        #       https://github.com/elastic/elasticsearch/pull/17986
-        time.sleep(2)
