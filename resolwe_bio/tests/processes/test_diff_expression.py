@@ -77,26 +77,6 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
 
         self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
 
-    @tag_process('differentialexpression-limma')
-    def test_limma(self):
-        with self.preparation_stage():
-            expression_1 = self.prepare_expression(f_exp='exp_limma_1.tab.gz', f_type="Log2")
-            expression_2 = self.prepare_expression(f_exp='exp_limma_2.tab.gz', f_type="Log2")
-            expression_3 = self.prepare_expression(f_exp='exp_limma_3.tab.gz', f_type="Log2")
-            expression_4 = self.prepare_expression(f_exp='exp_limma_4.tab.gz', f_type="Log2")
-
-        inputs = {
-            'case': [expression_1.pk, expression_2.pk],
-            'control': [expression_3.pk, expression_4.pk]
-        }
-
-        diff_exp = self.run_process('differentialexpression-limma', inputs)
-        self.assertFile(diff_exp, "raw", 'diffexp_limma.tab.gz', compression='gzip')
-        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'limma.json.gz')
-        self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
-        self.assertFields(diff_exp, 'build', 'dd-05-2009')
-        self.assertFields(diff_exp, 'feature_type', 'gene')
-
     @tag_process('differentialexpression-edger')
     def test_edger(self):
         with self.preparation_stage():

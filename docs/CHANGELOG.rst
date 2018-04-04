@@ -24,6 +24,7 @@ Changed
   - ``cufflinks``
   - ``cuffnorm``
   - ``cuffquant``
+- Remove ``differentialexpression-limma`` process
 
 Added
 -----
