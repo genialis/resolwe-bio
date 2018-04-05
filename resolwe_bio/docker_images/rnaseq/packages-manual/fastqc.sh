@@ -5,8 +5,8 @@
 download_and_verify \
     babraham \
     fastqc \
-    0.11.5 \
-    dd7a5ad80ceed2588cf6d6ffe35e0f161c0d9977ed08355f5e4d9473282cbd66 \
+    0.11.7 \
+    59cf50876bbe5f363442eb989e43ae3eaab8d932c49e8cff2c1a1898dd721112 \
     http://www.bioinformatics.babraham.ac.uk/projects/fastqc/fastqc_v\${version}.zip \
     FastQC
 

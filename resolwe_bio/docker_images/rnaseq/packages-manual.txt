@@ -1,10 +1,12 @@
 bbmap
+bedtools
 cufflinks
 fastqc
 hisat2
 gotea
 r-packages
 rsem
+salmon
 samtools
 star
 subread
