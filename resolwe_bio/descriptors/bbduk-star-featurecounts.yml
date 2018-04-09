@@ -1,9 +1,9 @@
 - slug: rna-seq-bbduk-star-featurecounts
   name: "Pipeline: BBDuk - STAR - featureCounts"
-  version: 0.0.1
+  version: 0.0.2
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
-    reads for quality from the 3’-end, and discards reads that are too short after trimming.
+    reads for quality from the 3'-end, and discards reads that are too short after trimming.
     Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
     preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
     considered a state-of-the-art tool that consistently produces accurate results from diverse sets
