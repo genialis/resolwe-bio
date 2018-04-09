@@ -30,7 +30,8 @@ class ExtendedDataViewSet(object):
 
     filtering_fields = ('source', 'species', 'build', 'feature_type')
 
-    def text_filter(self, value):
+    @staticmethod
+    def text_filter(value):
         """Extend full-text data filter."""
         return [
             Q('match', species={'query': value, 'operator': 'and', 'boost': 2.0}),

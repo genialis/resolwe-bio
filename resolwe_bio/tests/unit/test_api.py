@@ -87,3 +87,10 @@ class TestDataViewSetFilters(TestCase):
     def test_filter_feature_type(self):
         self._check_filter({'feature_type': 'gene'}, self.data[:5])
         self._check_filter({'feature_type': 'foo'}, self.data[5:])
+
+    def test_filter_text(self):
+        self._check_filter({'text': 'data'}, self.data)
+        self._check_filter({'text': 'mus'}, self.data[:5])
+        self._check_filter({'text': 'sapiens'}, self.data[5:])
+        self._check_filter({'text': 'contributor'}, self.data)
+        self._check_filter({'text': 'blablabla'}, [])
