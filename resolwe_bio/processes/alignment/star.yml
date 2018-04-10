@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.2.3
+  version: 1.2.4
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -250,7 +250,7 @@
       INDEX={{genome.index.dir}}
 
       FW_READS=()
-      RW_READS=()
+      RV_READS=()
 
       {% for r in reads.fastq %}
         FW_READS+=({{ r.file }})
@@ -260,10 +260,10 @@
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          READS_NAME=`basename {{ r.file }} .fastq.gz`
-          RW_READS+=({{ r.file }})
+          RV_READS_NAME=`basename {{ r.file }} .fastq.gz`
+          RV_READS+=({{ r.file }})
         {% endfor %}
-        cat "${RW_READS[@]}" > rw_reads.fastq.gz
+        cat "${RV_READS[@]}" > rv_reads.fastq.gz
       {% endif %}
 
       re-progress 0.05
@@ -308,7 +308,7 @@
         STAR \
           --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
-          --readFilesIn fw_reads.fastq.gz rw_reads.fastq.gz \
+          --readFilesIn fw_reads.fastq.gz rv_reads.fastq.gz \
           --readFilesCommand zcat \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
@@ -342,9 +342,9 @@
 
         if [ -f Unmapped.out.mate2 ]
         then
-          mv "Unmapped.out.mate2" "${READS_NAME}_unmapped.out.mate2.fastq"
-          gzip "${READS_NAME}_unmapped.out.mate2.fastq"
-          re-save-file unmapped_r "${READS_NAME}_unmapped.out.mate2.fastq.gz"
+          mv "Unmapped.out.mate2" "${RV_READS_NAME}_unmapped.out.mate2.fastq"
+          gzip "${RV_READS_NAME}_unmapped.out.mate2.fastq"
+          re-save-file unmapped_r "${RV_READS_NAME}_unmapped.out.mate2.fastq.gz"
         fi
 
       {% endif %}
@@ -401,7 +401,7 @@
       memory: 32768
       cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:genomeindex:star
   persistence: CACHED
   description: >
@@ -492,12 +492,6 @@
 
       re-progress 0.1
 
-      {% if annotation|type|subtype('data:annotation:gtf') %}
-        ANNOT={{ annotation.annot.file }}
-      {% else %}
-        ANNOT='{{ annotation.annot.file }} --sjdbGTFtagExonParentTranscript Parent'
-      {% endif %}
-
       mkdir star_index
       STAR \
         --runThreadN {{requirements.resources.cores}} \
@@ -507,7 +501,8 @@
         {% if advanced.genomeSAsparseD %}--genomeSAsparseD {{ advanced.genomeSAsparseD }}{% endif %} \
         --genomeDir ./star_index/ \
         --genomeFastaFiles genome.fasta \
-        --sjdbGTFfile ${ANNOT} \
+        --sjdbGTFfile {{ annotation.annot.file }} \
+        {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
         --sjdbOverhang {{ sjdbOverhang }} \
         --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
       re-checkrc "Genome index build failed."

@@ -31,6 +31,16 @@ Added
 - Add ``edgeR`` R library to ``resolwebio/rnaseq`` docker image
 - Add Bedtools to ``resolwebio/rnaseq`` docker image
 
+Fixed
+-----
+- Handle filenames with spaces in the following processes:
+
+  - ``alignment-star-index``
+  - ``alignment-tophat2``
+  - ``cuffmerge``
+  - ``index-fasta-nucl``
+  - ``upload-fasta-nucl``
+
 
 ==================
 8.0.0 - 2018-04-11

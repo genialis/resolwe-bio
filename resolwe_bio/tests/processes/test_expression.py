@@ -12,19 +12,20 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             reads = self.prepare_reads()
-            annotation = self.prepare_annotation_gff()
+            annotation_gtf = self.prepare_annotation('annotation dicty.gff.gz')
+            annotation_gff3 = self.prepare_annotation_gff()
 
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'annotation': annotation.pk,
+                'annotation': annotation_gtf.pk,
                 'PE_options': {
                     'library_type': "fr-unstranded"}}
             aligned_reads = self.run_process('alignment-tophat2', inputs)
 
         inputs = {
             'alignment': aligned_reads.pk,
-            'annotation': annotation.pk,
+            'annotation': annotation_gtf.pk,
             'genome': genome.pk}
         cuff_exp = self.run_process('cufflinks', inputs)
         self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf', sort=True)
@@ -33,18 +34,24 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'alignment': aligned_reads.pk,
-            'annotation': annotation.pk,
+            'annotation': annotation_gtf.pk,
             'genome': genome.pk}
         cuff_exp2 = self.run_process('cufflinks', inputs)
 
         inputs = {
             'expressions': [cuff_exp.pk, cuff_exp2.pk],
-            'gff': annotation.pk,
+            'gff': annotation_gff3.pk,
             'genome': genome.pk}
-        cuff_merge = self.run_process('cuffmerge', inputs)
-        self.assertFile(cuff_merge, 'annot', 'cuffmerge_transcripts.gtf')
-        self.assertFields(cuff_merge, 'species', 'Dictyostelium discoideum')
-        self.assertFields(cuff_merge, 'build', 'dd-05-2009')
+        cuff_merge_gff3 = self.run_process('cuffmerge', inputs)
+        self.assertFile(cuff_merge_gff3, 'annot', 'cuffmerge_transcripts.gtf')
+        self.assertFields(cuff_merge_gff3, 'species', 'Dictyostelium discoideum')
+        self.assertFields(cuff_merge_gff3, 'build', 'dd-05-2009')
+
+        inputs['gff'] = annotation_gtf.pk
+        cuff_merge_gtf = self.run_process('cuffmerge', inputs)
+        self.assertFile(cuff_merge_gtf, 'annot', 'cuffmerge_transcripts.gtf')
+        self.assertFields(cuff_merge_gtf, 'species', 'Dictyostelium discoideum')
+        self.assertFields(cuff_merge_gtf, 'build', 'dd-05-2009')
 
     @tag_process('cuffquant')
     def test_cuffquant(self):
@@ -177,7 +184,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             genome = self.prepare_genome()
             reads = self.prepare_reads()
             inputs = {
-                'src': 'annotation.gtf.gz',
+                'src': 'annotation dicty.gtf.gz',
                 'source': 'DICTYBASE',
                 'species': 'Dictyostelium discoideum',
                 'build': 'dd-05-2009'
@@ -208,11 +215,11 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
     @tag_process('index-fasta-nucl')
     def test_index_fasta_nucl(self):
         with self.preparation_stage():
-            inputs = {'src': 'HS_chr21_ensemble.fa.gz'}
+            inputs = {'src': 'HS chr21_ensembl.fa.gz'}
             genome = self.run_process('upload-fasta-nucl', inputs)
 
             inputs = {
-                'src': 'HS_chr21_short.gtf.gz',
+                'src': 'HS chr21_short.gtf.gz',
                 'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens_90'
@@ -296,7 +303,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
     def test_feature_counts(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'annotation.gtf.gz',
+                'src': 'annotation dicty.gtf.gz',
                 'source': 'DICTYBASE',
                 'species': 'Dictyostelium discoideum',
                 'build': 'dd-05-2009'

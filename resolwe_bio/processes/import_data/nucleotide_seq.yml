@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:seq:nucleotide
   category: upload
   persistence: RAW
@@ -74,17 +74,17 @@
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "fasta|fa|fna" "fasta" 1.0 compress
-      NUMBER=$(zcat ${NAME}.fasta.gz | grep -c "^>")
+      NUMBER=$(zcat "${NAME}.fasta.gz" | grep -c "^>")
       re-checkrc
 
-      gzip -dk ${NAME}.fasta.gz
-      samtools faidx ${NAME}.fasta
+      gzip -dk "${NAME}.fasta.gz"
+      samtools faidx "${NAME}.fasta"
       FAI=$(ls *.fai)
       re-checkrc
 
       re-save number ${NUMBER}
-      re-save-file fasta ${NAME}.fasta.gz
-      re-save-file fai $FAI
+      re-save-file fasta "${NAME}.fasta.gz"
+      re-save-file fai "${FAI}"
 
       {% if species %} re-save species {{species}} {% endif %}
       {% if build %} re-save build {{ build }} {% endif %}

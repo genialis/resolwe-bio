@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.0.0
+  version: 2.0.1
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -180,11 +180,13 @@
 
       NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
 
+      ln -s {{ annotation.annot.file }} annotation
+
       {% if reads|type|subtype('data:reads:fastq:single:') %}
         tophat2 \
           --num-threads {{ requirements.resources.cores }} \
           {% if realign %}--read-realign-edit-dist 0{% endif %} \
-          --GTF {{ annotation.annot.file }} \
+          --GTF annotation \
           --output-dir ./ \
           {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
           {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \
@@ -198,7 +200,7 @@
           --library-type {{ PE_options.library_type }} \
           --num-threads {{ requirements.resources.cores }} \
           {% if realign %}--read-realign-edit-dist 0{% endif %} \
-          --GTF {{ annotation.annot.file }} \
+          --GTF annotation \
           --output-dir ./ \
           {% if options.max_multihits %}-g {{options.max_multihits}}{% endif %} \
           {% if options.secondary_alignments %}--report-secondary-alignments{% endif %} \

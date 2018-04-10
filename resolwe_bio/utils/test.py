@@ -130,7 +130,7 @@ class BioProcessTestCase(ProcessTestCase):
         }
         return self.run_process('upload-gtf', inputs)
 
-    def prepare_annotation_gff(self, fn='annotation.gff.gz', source='DICTYBASE',
+    def prepare_annotation_gff(self, fn='annotation dicty.gff.gz', source='DICTYBASE',
                                species='Dictyostelium discoideum', build='dd-05-2009'):
         """Prepare annotation GFF3."""
         inputs = {

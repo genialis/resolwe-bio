@@ -117,9 +117,9 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
     @tag_process('alignment-star-index')
     def test_star_index(self):
         with self.preparation_stage():
-            annotation_gtf = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
+            annotation_gtf = self.prepare_annotation(fn='HS chr21_short.gtf.gz', source='UCSC',
                                                      species='Homo sapiens', build='hg19')
-            star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+            star_index_fasta = self.prepare_adapters(fn='HS chr21_ensembl.fa.gz')
             genome = self.prepare_genome()
             annotation_gff3 = self.prepare_annotation_gff()
 
@@ -135,10 +135,10 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
             paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
                                                      mate2=['SRR2124780_2 1k.fastq.gz'])
-            annotation = self.prepare_annotation(fn='HS_chr21_short.gtf.gz', source='UCSC',
+            annotation = self.prepare_annotation(fn='HS chr21_short.gtf.gz', source='UCSC',
                                                  species='Homo sapiens', build='hg19')
             inputs = {
-                'src': 'HS_chr21_ensemble.fa.gz',
+                'src': 'HS chr21_ensembl.fa.gz',
                 'species': 'Homo sapiens',
                 'build': 'hg19'
             }

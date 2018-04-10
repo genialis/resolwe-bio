@@ -35,14 +35,14 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             inputs = {'src': ['workflow_bbduk_star test.fastq.gz']}
             reads = self.run_processor('upload-fastq-single', inputs)
 
-            inputs = {'src': 'HS_chr21_ensemble.fa.gz'}
+            inputs = {'src': 'HS chr21_ensembl.fa.gz'}
             star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
 
             inputs = {'src': 'poly_A.fa.gz'}
             adapters1 = self.run_process('upload-fasta-nucl', inputs)
 
             inputs = {
-                'src': 'HS_chr21_short.gtf.gz',
+                'src': 'HS chr21_short.gtf.gz',
                 'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens_90'
@@ -73,8 +73,8 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
             paired_reads = self.prepare_paired_reads(['SRR2124780_1 1k.fastq.gz'], ['SRR2124780_2 1k.fastq.gz'])
-            annotation = self.prepare_annotation('HS_chr21_short.gtf.gz')
-            star_index_fasta = self.prepare_adapters('HS_chr21_ensemble.fa.gz')
+            annotation = self.prepare_annotation('HS chr21_short.gtf.gz')
+            star_index_fasta = self.prepare_adapters('HS chr21_ensembl.fa.gz')
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
             star_index = self.run_process('alignment-star-index', inputs)
             adapters = self.prepare_adapters()
@@ -111,12 +111,12 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             paired_reads = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
                                                      mate2=['SRR2124780_2 1k.fastq.gz'])
             annotation = self.prepare_annotation(
-                fn='HS_chr21_short.gtf.gz',
+                fn='HS chr21_short.gtf.gz',
                 source='UCSC',
                 species='Homo sapiens',
                 build='hg19'
             )
-            star_index_fasta = self.prepare_adapters(fn='HS_chr21_ensemble.fa.gz')
+            star_index_fasta = self.prepare_adapters(fn='HS chr21_ensembl.fa.gz')
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
             star_index = self.run_process('alignment-star-index', inputs)
@@ -209,7 +209,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             single_reads = self.prepare_reads()
-            annotation = self.prepare_annotation('annotation.gtf.gz')
+            annotation = self.prepare_annotation('annotation dicty.gtf.gz')
             adapters = self.prepare_adapters()
 
         self.run_process('workflow-rnaseq-single', {
@@ -252,7 +252,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         with self.preparation_stage():
             genome = self.prepare_genome()
             paired_reads = self.prepare_paired_reads()
-            annotation = self.prepare_annotation('annotation.gtf.gz')
+            annotation = self.prepare_annotation('annotation dicty.gtf.gz')
             adapters = self.prepare_adapters()
 
         self.run_process('workflow-rnaseq-paired', {
@@ -304,7 +304,7 @@ class RNASeqDSSTestCase(BioProcessTestCase, LiveServerTestCase):
             genome.slug = 'genome-mm10'
             genome.save()
             assign_perm('view_data', AnonymousUser(), genome)
-            annotation = self.prepare_annotation('annotation.gtf.gz')
+            annotation = self.prepare_annotation('annotation dicty.gtf.gz')
             annotation.slug = 'annotation-mm10'
             annotation.save()
             assign_perm('view_data', AnonymousUser(), annotation)

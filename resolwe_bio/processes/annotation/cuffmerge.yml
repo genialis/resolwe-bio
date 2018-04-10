@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.2.2
+  version: 1.2.3
   type: data:annotation:cuffmerge
   category: analyses
   persistence: CACHED
@@ -87,15 +87,17 @@
 
       re-progress 0.1
 
-      {% if gff.annot.file %}
-        gffread {{gff.annot.file}} -T -o reference_annotation.gtf
+      {% if gff|type|subtype('data:annotation:gff3') %}
+        gffread {{ gff.annot.file }} -T -o reference_annotation.gtf
         re-checkrc "Gffread failure. GFF3 to GTF format conversion failed."
+      {% else %}
+        ln -s {{ gff.annot.file }} reference_annotation.gtf
       {% endif %}
 
       echo "Running Cuffmerge"
 
       cuffmerge \
-        {% if gff.annot.file %} --ref-gtf {{ gff.annot.file }} {% else %} --ref-gtf reference_annotation.gtf {% endif %} \
+        --ref-gtf reference_annotation.gtf \
         {% if genome %} --ref-sequence {{ genome.fasta.file }} {% endif %} \
         --num-threads {{ threads }} \
         -o ./ \
