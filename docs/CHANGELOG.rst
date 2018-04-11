@@ -45,6 +45,10 @@ Changed
 - Run ``vc-realign-recalibrate`` process using multiple cpu cores to optimize
   the processing time
 - Use ``resolwebio/rnaseq`` Docker image in ``alignment-star`` process
+- Use the latest versions of the following Python packages in
+  ``resolwebio/rnaseq`` docker image: Cutadapt 1.16,
+  Apache Arrow 0.9.0, pysam 0.14.1, requests 2.18.4, appdirs 1.4.3,
+  wrapt 1.10.11, PyYAML 3.12
 
 Added
 -----
@@ -60,6 +64,10 @@ Added
 - Add ``amplicon-master-file`` descriptor schema
 - Add ``workflow-bbduk-star-featurecounts`` pipeline
 - Add ``rna-seq-bbduk-star-featurecounts`` RNA-seq descriptor schema
+- Add the following Python packages to ``resolwebio/rnaseq`` docker
+  image: six 1.11.0, chardet 3.0.4, urllib3 1.22, idna 2.6,
+  and certifi 2018.1.18
+- Add ``edgeR`` R library to ``resolwebio/rnaseq`` docker image
 
 Fixed
 -----
