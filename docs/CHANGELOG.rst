@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+8.0.0 - 2018-04-11
+==================
 
 Changed
 -------
@@ -19,10 +19,12 @@ Changed
   ``align-bwa-trim``
 - **BACKWARD INCOMPATIBLE:** In processes handling VCF files, the output
   VCF files are stored in bgzip-compressed form. Tabix index is not referenced
-  to an original VCF file anymore, but stored in a separate ``tbi`` output field
+  to an original VCF file anymore, but stored in a separate ``tbi`` output
+  field
 - **BACKWARD INCOMPATIBLE:** Remove an obsolete ``workflow-accel-2`` workflow
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 5.x
 - **BACKWARD INCOMPATIBLE:** Parallelize execution of the following processes:
+
   - ``alignment-bowtie2``
   - ``alignment-bwa-mem``
   - ``alignment-hisat2``
@@ -46,8 +48,8 @@ Added
 - Add process to import a file from BaseSpace
 - Add process to convert files to single-end reads
 - Add process to convert files to paired-end reads
-- Add ``vc-gatk4-hc`` process which implements GATK4 HaplotypeCaller
-  variant calling tool
+- Add ``vc-gatk4-hc`` process which implements GATK4 HaplotypeCaller variant
+  calling tool
 - Add ``workflow-accel-gatk4`` pipeline that uses GATK4 HaplotypeCaller as an
   alternative to GATK3 used in ``workflow-accel`` pipeline
 - Add ``amplicon-master-file`` descriptor schema
@@ -57,9 +59,11 @@ Added
 Fixed
 -----
 - Fix iterative trimming in ``bowtie`` and ``bowtie2`` processes
-- Fix ``archive-samples`` to use sample names for headers when merging expressions
+- Fix ``archive-samples`` to use sample names for headers when merging
+  expressions
 - Improve ``goea.py`` tool to handle duplicated mapping results
 - Handle filenames with spaces in the following processes:
+
   - ``alignment-hisat2``
   - ``alignment-bowtie``
   - ``prepare-geo-chipseq``
