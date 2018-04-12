@@ -40,6 +40,7 @@ Fixed
   - ``cuffmerge``
   - ``index-fasta-nucl``
   - ``upload-fasta-nucl``
+- Fix COSMIC url template in (multisample) amplicon reports
 
 
 ==================

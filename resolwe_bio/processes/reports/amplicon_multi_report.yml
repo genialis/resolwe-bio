@@ -6,7 +6,7 @@
     executor:
       docker:
         image: resolwebio/latex:1.0.4
-  version: 0.2.0
+  version: 0.2.1
   type: "data:archive:samples:amplicon"
   category: other
   persistence: TEMP

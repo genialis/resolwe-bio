@@ -122,9 +122,9 @@ def snp_href(snpid):
     if snpid.startswith('rs'):
         url = 'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
     elif snpid.startswith('COSM'):
-        url = 'http://grch37-cancer.sanger.ac.uk/cosmic/mutation/overview?id={}'.format(snpid.lstrip('COSM'))
+        url = 'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
     elif snpid.startswith('COSN'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?id={}'.format(snpid.lstrip('COSN'))
+        url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
     return '\\href{{{}}}{{{}}}'.format(url, snpid)
