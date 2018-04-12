@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """Parse Diff Exp output files."""
-from __future__ import absolute_import, division, print_function
 
 import argparse
 import json

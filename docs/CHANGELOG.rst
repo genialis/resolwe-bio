@@ -25,6 +25,11 @@ Changed
   - ``cuffnorm``
   - ``cuffquant``
 - Remove ``differentialexpression-limma`` process
+- Use ``resolwebio/rnaseq:3.1.0`` docker image in:
+
+  - ``cuffdiff``
+  - ``differentialexpression-deseq2``
+  - ``differentialexpression-edger``
 
 Added
 -----
