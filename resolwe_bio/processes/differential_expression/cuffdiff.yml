@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.1.0
+  version: 2.1.1
   type: data:differentialexpression:cuffdiff
   category: analyses
   persistence: CACHED
@@ -136,6 +136,34 @@
       controls=()
       labels=()
 
+      {% set cuffquants = case + control %}
+
+      {% for c in cuffquants %}
+
+        {% if c.source != (cuffquants|first).source %}
+          re-warning "All samples must be annotated by the same genome database."
+          re-error "Sample {{ c|sample_name }} has {{ c.source }} gene IDs, while {{ (cuffquants|first)|name }} has {{ (cuffquants|first).source }} gene IDs."
+        {% endif %}
+
+        {% if c.species != (cuffquants|first).species %}
+          re-warning "All samples must be the same species."
+          re-error "Sample {{ c|sample_name }} is {{ c.species }}, while {{ (cuffquants|first)|name }} is a(n) {{ (cuffquants|first).species }}."
+        {% endif %}
+
+        {% if c.build != (cuffquants|first).build %}
+          re-warning "All samples must share the same genome build information."
+          re-error "Sample {{ c|sample_name }} has {{ c.build }}, while {{ (cuffquants|first)|name }} has {{ (cuffquants|first).build }} build information."
+        {% endif %}
+
+      {% endfor %}
+
+      {% for t in case %}
+        {% if t in control %}
+          re-warning "DE analysis failed. Case and Control groups must contain unique samples."
+          re-error " Sample {{ t|sample_name }} is in both Case and Control group."
+        {% endif %}
+      {% endfor %}
+
       # TODO: This should be made available in common runtime.
       function join_by { local IFS="$1"; shift; echo "$*"; }
 
@@ -149,15 +177,6 @@
 
       {% for label in labels %}
         labels+=({{ label }})
-      {% endfor %}
-
-      {% for c in control %}
-        {% for t in case %}
-          {% if c.source != t.source %}
-            re-warning "Genes in all expression data must be annotated by the same genome database."
-            re-error "Sample {{ c|name }} has {{ c.source }} gene IDs, while {{ t|name }} has {{ t.source }}."
-          {% endif %}
-        {% endfor %}
       {% endfor %}
 
       re-save source {{ (case|first).source }}

@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:3.1.0
   data_name: 'Differential expression (case vs. control)'
-  version: 0.2.0
+  version: 0.2.1
   type: data:differentialexpression:edger
   category: analyses
   persistence: CACHED
@@ -85,17 +85,35 @@
           cases+=({{t.rc.file}})
           sample_conditions+=('case')
         {% else %}
-          re-error "DE analysis failed. Case and Control groups must contain unique samples."
+          re-warning "DE analysis failed. Case and Control groups must contain unique samples."
+          re-error " Sample {{ t|sample_name }} is in both Case and Control group."
         {% endif %}
       {% endfor %}
 
-      {% for c in control %}
-        {% for t in case %}
-          {% if c.source != t.source %}
-            re-warning "Genes in all expression data must be annotated by the same genome database."
-            re-error "Sample {{ c|name }} has {{ c.source }} gene IDs, while {{ t|name }} has {{ t.source }}."
-          {% endif %}
-        {% endfor %}
+      {% set expressions = case + control %}
+
+      {% for e in expressions %}
+
+        {% if e.source != (expressions|first).source %}
+          re-warning "All samples must be annotated by the same genome database."
+          re-error "Sample {{ e|sample_name }} has {{ e.source }} gene IDs, while {{ (expressions|first)|name }} has {{ (expressions|first).source }} gene IDs."
+        {% endif %}
+
+        {% if e.species != (expressions|first).species %}
+          re-warning "All samples must be the same species."
+          re-error "Sample {{ e|sample_name }} is {{ e.species }}, while {{ (expressions|first)|name }} is a(n) {{ (expressions|first).species }}."
+        {% endif %}
+
+        {% if e.build != (expressions|first).build %}
+          re-warning "All samples must share the same genome build information."
+          re-error "Sample {{ e|sample_name }} has {{ e.build }}, while {{ (expressions|first)|name }} has {{ (expressions|first).build }} build information."
+        {% endif %}
+
+        {% if e.feature_type != (expressions|first).feature_type %}
+          re-warning "DE analysis must be created using the expression data of the same feature type (gene, transcript, etc.)."
+          re-error "Sample {{ expressions|first|sample_name }} has {{ (expressions|first).feature_type }}, while {{ e|sample_name }} has {{ e.feature_type }} feature type."
+        {% endif %}
+
       {% endfor %}
 
       sample_files=("${controls[@]}" "${cases[@]}")
