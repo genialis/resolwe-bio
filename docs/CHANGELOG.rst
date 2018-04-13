@@ -6,6 +6,11 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+
 ==================
 8.1.0 - 2018-04-13
 ==================
@@ -24,9 +29,8 @@ Changed
 
 Added
 -----
-- Add the following Python packages to ``resolwebio/rnaseq`` docker
-  image: six 1.11.0, chardet 3.0.4, urllib3 1.22, idna 2.6,
-  and certifi 2018.1.18
+- Add the following Python packages to ``resolwebio/rnaseq`` docker image: six
+  1.11.0, chardet 3.0.4, urllib3 1.22, idna 2.6, and certifi 2018.1.18
 - Add ``edgeR`` R library to ``resolwebio/rnaseq`` docker image
 - Add Bedtools to ``resolwebio/rnaseq`` docker image
 
