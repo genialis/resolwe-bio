@@ -6,22 +6,21 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+==================
+8.1.0 - 2018-04-13
+==================
 
 Changed
 -------
 - Use the latest versions of the following Python packages in
-  ``resolwebio/rnaseq`` docker image: Cutadapt 1.16,
-  Apache Arrow 0.9.0, pysam 0.14.1, requests 2.18.4, appdirs 1.4.3,
-  wrapt 1.10.11, PyYAML 3.12
+  ``resolwebio/rnaseq`` docker image: Cutadapt 1.16, Apache Arrow 0.9.0, pysam
+  0.14.1, requests 2.18.4, appdirs 1.4.3, wrapt 1.10.11, PyYAML 3.12
 - Bump tools version in ``resolwebio/rnaseq`` docker image:
 
   - Salmon to 0.9.1
   - FastQC to 0.11.7
-- Generalize the no-extraction-needed use-case in ``resolwebio/base`` Docker image
-  ``download_and_verify`` script
+- Generalize the no-extraction-needed use-case in ``resolwebio/base`` Docker
+  image ``download_and_verify`` script
 
 Added
 -----
