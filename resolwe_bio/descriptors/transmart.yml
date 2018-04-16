@@ -1,6 +1,7 @@
 - slug: transmart
   name: TranSMART Annotation
   description: Annotation for tranSMART import.
+  version: 1.0.0
   schema:
     - name: group
       label: Group
@@ -31,7 +32,7 @@
           value: C
         - label: D
           value: D
-    - name: "gold stage"
+    - name: gold_stage
       label: Gold Stage
       type: basic:string
       choices:
@@ -43,6 +44,6 @@
           value: "Stage III"
         - label: "Stage IV"
           value: "Stage IV"
-    - name: "hyb date"
+    - name: hyb_date
       label: Hyb Date
       type: basic:string

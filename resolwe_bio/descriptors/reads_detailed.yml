@@ -1,6 +1,7 @@
 - slug: reads-detailed
   name: Reads annotation (detailed)
   description: Annotation of raw sequencing data
+  version: 0.0.1
   schema:
     - name: experiment_type
       label: Experiment type
@@ -105,7 +106,7 @@
         - name: sort_date
           label: Sort date
           type: basic:date
-          default: 'N/A'
+          default: '1900-01-01'
           required: false
         - name: ip_tag
           label: IP Tag
