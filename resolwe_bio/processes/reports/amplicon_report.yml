@@ -8,9 +8,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.1
+        image: resolwebio/latex:1.0.5
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 0.2.1
+  version: 1.0.0
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample
@@ -27,12 +27,6 @@
     - name: master_file
       label: Amplicon master file
       type: data:masterfile:amplicon
-    - name: template
-      label: Report template
-      type: data:file
-    - name: logo
-      label: Logo
-      type: data:file
     - name: annot_vars
       label: Annotated variants (snpEff)
       type: list:data:snpeff
@@ -67,8 +61,8 @@
         --cov {{coverage.amplicon_cov.file}} \
         --covmetrics {{coverage.cov_metrics.file}} \
         --metrics {{pcr_metrics.target_pcr_metrics.file}} \
-        --template {{template.file.file}} \
-        --logo {{logo.file.file}} \
+        --template "/opt/resolwebio/assets/template_amplicon_report.tex" \
+        --logo "/opt/resolwebio/assets/logo_genialis.pdf" \
         --annot_vars {% for vars in annot_vars %}{{ vars.annotation.file }} {% endfor %} \
         --panel {{master_file.panel_name}} \
         --afthreshold {{af_threshold}}

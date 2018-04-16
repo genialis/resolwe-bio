@@ -44,9 +44,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
     @tag_process('amplicon-report')
     def test_amplicon_report(self):
         with self.preparation_stage():
-            template = self.run_process('upload-file', {'src': 'report_template.tex'})
-            logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
-
             coverage, pcr_metrics, master_file, annot_vars = self.prepare_report_inputs(
                 bam_file='56GSID_10k_mate1_RG.bam',
                 mfile='56G_masterfile_test.txt',
@@ -64,8 +61,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
         report_inputs = {
             'coverage': coverage.id,
             'pcr_metrics': pcr_metrics.id,
-            'template': template.id,
-            'logo': logo.id,
             'master_file': master_file.id,
             'annot_vars': annot_vars
         }
@@ -80,9 +75,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
     @tag_process('amplicon-archive-multi-report')
     def test_multisample_report(self):
         with self.preparation_stage():
-            template = self.run_process('upload-file', {'src': 'report_template.tex'})
-            logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
-
             coverage, pcr_metrics, master_file, annot_vars = self.prepare_report_inputs(
                 bam_file='56GSID_10k_mate1_RG.bam',
                 mfile='56G_masterfile_test.txt',
@@ -99,8 +91,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
             report_inputs = {
                 'coverage': coverage.id,
                 'pcr_metrics': pcr_metrics.id,
-                'template': template.id,
-                'logo': logo.id,
                 'master_file': master_file.id,
                 'annot_vars': annot_vars,
             }

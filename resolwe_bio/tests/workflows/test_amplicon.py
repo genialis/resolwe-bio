@@ -39,8 +39,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
             }
             dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
 
-            template = self.run_process('upload-file', {'src': 'report_template.tex'})
-            logo = self.run_process('upload-file', {'src': 'genialis_logo.pdf'})
             template_html = self.run_process('upload-file', {'src': 'report_html_template.html'})
             bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})
             bokeh_js = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.js'})
@@ -70,10 +68,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'var_annot': {
                     'known_vars_db': [dbsnp.id]
                 },
-                'report': {
-                    'template': template.id,
-                    'logo': logo.id,
-                },
             }
         )
 
@@ -101,10 +95,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 },
                 'var_annot': {
                     'known_vars_db': [dbsnp.id]
-                },
-                'report': {
-                    'template': template.id,
-                    'logo': logo.id,
                 },
             }
         )

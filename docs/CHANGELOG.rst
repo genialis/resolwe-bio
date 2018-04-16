@@ -12,6 +12,8 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Simplify the ``amplicon-report`` process inputs
+  by using Latex report template from the ``resolwebio/latex`` Docker image assets
 - Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
 
 Added
