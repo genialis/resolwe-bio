@@ -71,10 +71,6 @@ class CoverageProcessorTestCase(BioProcessTestCase):
     @tag_process('coveragebed')
     def test_amplicon_coverage(self):
         with self.preparation_stage():
-            template = self.run_process('upload-file', {'src': 'report_html_template.html'})
-            bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})
-            bokeh_js = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.js'})
-
             bam_input = {
                 'src': join('large', '56GSID_10k_mate1_RG.bam'),
                 'species': 'Homo sapiens',
@@ -86,9 +82,6 @@ class CoverageProcessorTestCase(BioProcessTestCase):
         coverage = self.run_process('coveragebed', {
             'alignment': bam.id,
             'master_file': master_file.id,
-            'template_html': template.id,
-            'bokeh_css': bokeh_css.id,
-            'bokeh_js': bokeh_js.id,
         })
         self.assertFile(coverage, 'cov_metrics', '56GSID_10k_covMetrics.txt')
         self.assertFile(coverage, 'mean_cov', '56GSID_10k_ampmeancov.covd')

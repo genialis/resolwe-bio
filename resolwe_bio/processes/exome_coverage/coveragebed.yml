@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:1.0.0
+        image: resolwebio/dnaseq:3.2.0
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 3.0.0
+  version: 4.0.0
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -25,15 +25,6 @@
     - name: master_file
       label: Master file
       type: data:masterfile:amplicon
-    - name: template_html
-      label: HTML plot template
-      type: data:file
-    - name: bokeh_css
-      label: Bokeh css file
-      type: data:file
-    - name: bokeh_js
-      label: Bokeh js file
-      type: data:file
   output:
     - name: cov_metrics
       label: Coverage metrics
@@ -108,11 +99,11 @@
         > "${SAMPLE_SLUG}_ampmeancov.tmp"
 
       mkdir htmlplot
-      cp -p {{bokeh_css.file.file}} htmlplot/
-      cp -p {{bokeh_js.file.file}} htmlplot/
+      cp -p "/opt/bokeh/assets/bokeh-0.12.9.min.css" htmlplot/
+      cp -p "/opt/bokeh/assets/bokeh-0.12.9.min.js" htmlplot/
       plotcoverage_html.py \
         --infile "${SAMPLE_SLUG}_ampmeancov.tmp" \
-        --template {{template_html.file.file}} \
+        --template "/opt/resolwebio/assets/amplicon_html_template.html" \
         --outfile "htmlplot/${SAMPLE_SLUG}_coverageplot.html"
       re-checkrc
 

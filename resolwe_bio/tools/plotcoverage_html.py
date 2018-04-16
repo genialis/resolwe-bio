@@ -49,8 +49,8 @@ def main():
         labels.extend(list(group.amplicon))
         # Elements in the same group should have the same color. Cycle between colors in COLOR_CYCLE:
         colors.extend([COLOR_CYCLE[i % len(COLOR_CYCLE)]] * len(list(group.index)))
-    data = ColumnDataSource(data=dict(x=xvals, y=yvals, names=labels))
-    fig.circle('x', 'y', size=10, source=data, color=colors)
+    data = ColumnDataSource(data=dict(x=xvals, y=yvals, names=labels, colors=colors))
+    fig.circle(x='x', y='y', color='colors', size=10, source=data)
 
     # Make span lines on 0.05, 0.1, 0.2, 1 and 5 mutiples of mean amplicon coverage:
     mean_coverage = df.offsetcov.mean()

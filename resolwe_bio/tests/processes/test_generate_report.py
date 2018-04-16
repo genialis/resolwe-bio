@@ -7,7 +7,7 @@ from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
 class ReportProcessorTestCase(BioProcessTestCase):
 
-    def prepare_report_inputs(self, bam_file, mfile, pname, template_html, bokeh_css, bokeh_js, target_pcr, target_cov,
+    def prepare_report_inputs(self, bam_file, mfile, pname, target_pcr, target_cov,
                               annotations, summaries, snpeffs):
         """Prepare report inputs."""
         bam_input = {
@@ -17,15 +17,9 @@ class ReportProcessorTestCase(BioProcessTestCase):
         }
         bam = self.run_process('upload-bam', bam_input)
         master_file = self.prepare_amplicon_master_file(mfile=mfile, pname=pname)
-        template_html = self.run_process('upload-file', {'src': template_html})
-        bokeh_css = self.run_process('upload-file', {'src': bokeh_css})
-        bokeh_js = self.run_process('upload-file', {'src': bokeh_js})
         coverage = self.run_process('coveragebed', {
             'alignment': bam.id,
             'master_file': master_file.id,
-            'template_html': template_html.id,
-            'bokeh_css': bokeh_css.id,
-            'bokeh_js': bokeh_js.id,
         })
 
         inputs = {'target_pcr_metrics': target_pcr, 'target_coverage': target_cov}
@@ -48,9 +42,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
                 bam_file='56GSID_10k_mate1_RG.bam',
                 mfile='56G_masterfile_test.txt',
                 pname='56G panel, v2',
-                template_html='report_html_template.html',
-                bokeh_css='bokeh-0.12.9.min.css',
-                bokeh_js='bokeh-0.12.9.min.js',
                 target_pcr='56gsid_10k.targetPCRmetrics.txt',
                 target_cov='56gsid_10k.perTargetCov.txt',
                 annotations=['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'],
@@ -79,9 +70,6 @@ class ReportProcessorTestCase(BioProcessTestCase):
                 bam_file='56GSID_10k_mate1_RG.bam',
                 mfile='56G_masterfile_test.txt',
                 pname='56G panel, v2',
-                template_html='report_html_template.html',
-                bokeh_css='bokeh-0.12.9.min.css',
-                bokeh_js='bokeh-0.12.9.min.js',
                 target_pcr='56gsid_10k.targetPCRmetrics.txt',
                 target_cov='56gsid_10k.perTargetCov.txt',
                 annotations=['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'],

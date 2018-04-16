@@ -47,16 +47,10 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
                 }
             )
             master_file = self.prepare_amplicon_master_file()
-            template = self.run_process('upload-file', {'src': 'report_html_template.html'})
-            bokeh_css = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.css'})
-            bokeh_js = self.run_process('upload-file', {'src': 'bokeh-0.12.9.min.js'})
 
             coverage = self.run_process('coveragebed', {
                 'alignment': bam.id,
                 'master_file': master_file.id,
-                'template_html': template.id,
-                'bokeh_css': bokeh_css.id,
-                'bokeh_js': bokeh_js.id,
             })
 
             inputs = {

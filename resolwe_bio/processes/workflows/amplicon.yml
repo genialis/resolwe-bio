@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 3.0.0
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
     The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
@@ -34,15 +34,6 @@
       type: data:seq:nucleotide
       description: >
         Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
-    - name: template_html
-      label: HTML plot template
-      type: data:file
-    - name: bokeh_css
-      label: Bokeh css file
-      type: data:file
-    - name: bokeh_js
-      label: Bokeh js file
-      type: data:file
     - name: preprocess_bam
       label: Indel realignment and base recalibration options
       group:
@@ -126,9 +117,6 @@
         input:
           alignment: '{{steps.bwa_trim}}'
           master_file: '{{input.master_file}}'
-          template_html: '{{input.template_html}}'
-          bokeh_css: '{{input.bokeh_css}}'
-          bokeh_js: '{{input.bokeh_js}}'
       - id: picard_target_pcr_metrics
         run: picard-pcrmetrics
         input:
@@ -204,7 +192,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 2.0.0
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
     The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
@@ -234,15 +222,6 @@
       type: data:seq:nucleotide
       description: >
         Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
-    - name: template_html
-      label: HTML plot template
-      type: data:file
-    - name: bokeh_css
-      label: Bokeh css file
-      type: data:file
-    - name: bokeh_js
-      label: Bokeh js file
-      type: data:file
     - name: preprocess_bam
       label: Indel realignment and base recalibration options
       group:
@@ -326,9 +305,6 @@
         input:
           alignment: '{{steps.bwa_trim}}'
           master_file: '{{input.master_file}}'
-          template_html: '{{input.template_html}}'
-          bokeh_css: '{{input.bokeh_css}}'
-          bokeh_js: '{{input.bokeh_js}}'
       - id: picard_target_pcr_metrics
         run: picard-pcrmetrics
         input:
