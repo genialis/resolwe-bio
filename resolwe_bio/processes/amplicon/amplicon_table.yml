@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "{{table_name}}"
-  version: 0.0.4
+  version: 0.0.5
   type: data:varianttable:amplicon
   category: analyses:variants
   flow_collection: sample
