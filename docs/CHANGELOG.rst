@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Fixed
+-----
+- Fix manual installation of packages in Docker images to handle dots and
+  spaces in file names correctly
+
 
 ==================
 8.1.0 - 2018-04-13
