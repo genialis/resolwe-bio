@@ -8,7 +8,7 @@
     resources:
       network: true
   data_name: Metabolic Pathway
-  version: 0.0.3
+  version: 0.0.4
   type: data:metabolicpathway
   category: upload
   persistence: RAW
@@ -53,5 +53,5 @@
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "json" "json" 0.5
       re-save pathway "${NAME}.json"
-      re-save source {{ source }}
+      re-save source {{ source }}
       re-save species {{ species }}
