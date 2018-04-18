@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
+
 Fixed
 -----
 - Fix manual installation of packages in Docker images to handle dots and

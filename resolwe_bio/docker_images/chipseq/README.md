@@ -5,10 +5,10 @@ https://hub.docker.com/r/resolwebio/base/) image.
 
 Included bioinformatics tools
 -----------------------------
-* ROSE2 (v1.0.5)
+* BAMLIQUIDATOR (v1.3.4)
 * BAMPLOT (v0.9.0)
 * MACS (v1.4.3)
 * MACS2 (v2.1.1.20160309)
-* BAMLIQUIDATOR (v1.3.4)
+* ROSE2 (v1.0.5)
 * SAMTOOLS (v0.1.19)
-* WIGTOBIGWIG (no version)
+* wigToBigWig (kent-v363)
