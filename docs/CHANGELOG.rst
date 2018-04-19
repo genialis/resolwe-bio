@@ -17,6 +17,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Simplify the ``coveragebed`` process inputs
   by using Bokeh assets from the ``resolwebio/dnaseq`` Docker image
 - Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
+- Require Resolwe 9.x
 
 Added
 -----
