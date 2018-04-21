@@ -95,7 +95,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
             bam_input = {
                 'src': 'bamplot_alignment.bam',
                 'species': 'Mus musculus',
-                'build': 'mm10',
+                'build': 'GRCh38 _ens90',
             }
             bam = self.run_process('upload-bam', bam_input)
 

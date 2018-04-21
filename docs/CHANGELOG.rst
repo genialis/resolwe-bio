@@ -31,6 +31,7 @@ Fixed
 - Fix manual installation of packages in Docker images to handle dots and
   spaces in file names correctly
 - Fix COSMIC url template in ``amplicon-table`` process
+- Fix Create IGV session in Archive samples process
 
 
 ==================

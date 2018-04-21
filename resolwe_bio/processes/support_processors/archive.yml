@@ -6,7 +6,7 @@
     executor:
       docker:
         image: resolwebio/utils:1.2.0
-  version: 0.1.0
+  version: 0.1.1
   type: "data:archive:samples"
   category: other
   persistence: TEMP
@@ -63,13 +63,23 @@
         {% endfor %}
 
         # Select data for IGV and organize by species / build.
+        IGV_FILE={{ d.species }}_{{ d.build }}_temp_igv.txt
+
         {% if (d|type).startswith('data:alignment:bam') %}
           mv {{ d|sample_slug }}/bai/{{ d.bai.file|basename }} {{d|sample_slug}}/bam/{{ d.bai.file|basename }}
           rm -r {{d|sample_slug}}/bai
-          echo {{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> {{ d.species }}_{{ d.build }}_temp_igv.txt
+          # In the first line of _temp_igv.txt file add build information and in the following lines add paths to bam files.
+          if [[ ! -f "$IGV_FILE" ]]; then
+            echo {{ d.build }} > "$IGV_FILE"
+          fi
+          echo {{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> "$IGV_FILE"
 
         {% elif (d|type).startswith('data:variants:vcf') %}
-          echo {{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> {{ d.species }}_{{ d.build }}_temp_igv.txt
+          # In the first line of _temp_igv.txt file add build information and in the following lines add paths to vcf files.
+          if [[ ! -f "$IGV_FILE" ]]; then
+            echo {{ d.build }} > "$IGV_FILE"
+          fi
+          echo {{ d|sample_slug }}/vcf/{{ d.vcf.file|basename }} >> "$IGV_FILE"
         {% endif %}
 
         # Store expression files and the corresponding info (sample names, build, species and expression type).
@@ -86,7 +96,9 @@
 
       # Create IGV for data from the same Species and Build.
       for txt_file in *temp_igv.txt; do
+        [[ -f ${txt_file} ]] || continue
         make_igv_session_archive.py --input_file "${txt_file}"
+        re-checkrc "Crating IGV session failed"
       done
 
       expressionmerge_archive.py \
@@ -95,6 +107,8 @@
         --build "${BUILD[@]}" \
         --species "${SPECIES[@]}" \
         --exp_type "${EXP_TYPE[@]}"
+
+      re-checkrc "Merging expression files failed"
 
       if [ -d None ]; then
         mv None other_data

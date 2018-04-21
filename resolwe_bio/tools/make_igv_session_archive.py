@@ -22,7 +22,9 @@ def get_build_info(input_file):
         'mm9': ['MGSCv37'],
         'rn6': ['Rnor_6.0'], }
 
-    _, build, _, _ = input_file.split('_')
+    with open(input_file, 'r') as tfile:
+        build = tfile.readline().strip()
+
     new_build = [k for k, v in build_dict.items() if k == build or build.startswith(tuple(v))]
     if new_build:
         return new_build[0]
@@ -40,6 +42,7 @@ def make_xml_tree(input_file):
     resources = etree.SubElement(global_, 'Resources')  # pylint: disable=no-member
 
     with open(input_file, 'r') as tfile:
+        next(tfile)  # Skip the line with the build.
         for filename in tfile:
             filename = filename.rstrip()
             #  replace None (dir folder if species and build are not defined) with other_data
