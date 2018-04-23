@@ -38,6 +38,7 @@ Added
   assets
 - Add SnpEff tool and bokeh assets to ``resolwebio/dnaseq`` Docker image
 - Add automated library strand detection to ``feature_counts`` quantification process
+- Add FastQC option ``nogroup`` to ``bbduk-single`` and ``bbduk-paired`` processes
 
 Fixed
 -----

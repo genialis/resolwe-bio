@@ -16,7 +16,7 @@
       cores: 10
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:single:bbduk
   category: analyses
   flow_collection: sample
@@ -379,6 +379,17 @@
           label: Minimum base frequency [minbasefrequency=0]
           type: basic:integer
           default: 0
+    - name: fastqc
+      label: FastQC parameters
+      hidden: '!show_advanced'
+      group:
+        - name: nogroup
+          label: Disable grouping of bases for reads >50bp [nogroup]
+          type: basic:boolean
+          default: false
+          description: >
+            All reports will show data for every base in the read. Using this option will cause
+            fastqc to crash and burn if you use it on really long reads.
   output:
     - name: fastq
       label: Remaining reads
@@ -508,7 +519,7 @@
       re-save-file-list fastq {{ final_reads }}
       re-save-file-list statistics {{ final_statistics }}
 
-      fastqc.sh {{ final_reads }} fastqc fastqc_archive fastqc_url
+      fastqc.sh {{ final_reads }} fastqc fastqc_archive fastqc_url {% if fastqc.nogroup %} --nogroup {% endif %}
 
       {% if operations.k_trim == 'f'
         and operations.quality_trim == 'f'
@@ -531,7 +542,7 @@
       cores: 10
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:paired:bbduk
   category: analyses
   flow_collection: sample
@@ -920,6 +931,17 @@
           label: Minimum base frequency [minbasefrequency=0]
           type: basic:integer
           default: 0
+    - name: fastqc
+      label: FastQC parameters
+      hidden: '!show_advanced'
+      group:
+        - name: nogroup
+          label: Disable grouping of bases for reads >50bp [nogroup]
+          type: basic:boolean
+          default: false
+          description: >
+            All reports will show data for every base in the read. Using this option will cause
+            fastqc to crash and burn if you use it on really long reads.
   output:
     - name: fastq
       label: Remaining upstream reads
@@ -1074,8 +1096,8 @@
       re-save-file-list fastq2 {{ final_rv_reads }}
       re-save-file-list statistics {{ final_statistics }}
 
-      fastqc.sh {{ final_fw_reads }} fastqc fastqc_archive fastqc_url
-      fastqc.sh {{ final_rv_reads }} fastqc fastqc_archive2 fastqc_url2
+      fastqc.sh {{ final_fw_reads }} fastqc fastqc_archive fastqc_url {% if fastqc.nogroup %} --nogroup {% endif %}
+      fastqc.sh {{ final_rv_reads }} fastqc fastqc_archive2 fastqc_url2 {% if fastqc.nogroup %} --nogroup {% endif %}
 
       {% if operations.k_trim == 'f'
         and operations.quality_trim == 'f'
