@@ -26,18 +26,22 @@ counts[,1] <- NULL
 lib_size=colSums(counts)
 ncounts=t(t(counts)/lib_size)
 
+# obtain CPM
+cpm=ncounts*1e6
+
 # normalise counts by gene length
 common_genes=intersect(row.names(ncounts), names(gene_lengths))
 subset_ncounts=ncounts[row.names(ncounts) %in% common_genes,]
 gene_lengths=gene_lengths[names(gene_lengths) %in% common_genes]
-ncounts=subset_ncounts/gene_lengths
+ncounts_length_norm=subset_ncounts/gene_lengths
 
 # obtain RPKMs
-rpkm=ncounts*1e9
+rpkm=ncounts_length_norm*1e9
 
 # obtain TPM
 tpm = exp(log(rpkm) - log(sum(rpkm)) + log(1e6))
 
 # write data tables
+write.table(cpm, file="cpm_wo_header.tab", sep="\t", na="0", quote = FALSE, col.names = FALSE)
 write.table(rpkm, file="fpkm_wo_header.tab", sep="\t", na="0", quote = FALSE, col.names = FALSE)
 write.table(tpm, file="tpm_wo_header.tab", sep="\t", na="0", quote = FALSE, col.names = FALSE)

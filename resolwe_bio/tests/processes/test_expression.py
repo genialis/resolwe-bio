@@ -216,6 +216,35 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(expression, 'build', 'dd-05-2009')
         self.assertFields(expression, 'feature_type', 'gene')
 
+    @tag_process('htseq-count-raw')
+    def test_expression_htseq_cpm(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'annotation dicty.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
+            annotation = self.run_process('upload-gtf', inputs)
+
+            bam = {
+                'src': 'reads.bam',
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
+            }
+            bam = self.run_process('upload-bam', bam)
+            inputs = {
+                'alignments': bam.pk,
+                'gtf': annotation.pk,
+                'stranded': 'no',
+                'id_attribute': 'transcript_id',
+            }
+        expression = self.run_process('htseq-count-raw', inputs)
+        self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'reads_cpm.tab.gz', compression='gzip')
+        self.assertFields(expression, 'species', 'Dictyostelium discoideum')
+        self.assertFields(expression, 'build', 'dd-05-2009')
+
     @tag_process('index-fasta-nucl')
     def test_index_fasta_nucl(self):
         with self.preparation_stage():
