@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/dnaseq:3.2.0
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 4.0.0
+  version: 4.0.1
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -99,8 +99,11 @@
         > "${SAMPLE_SLUG}_ampmeancov.tmp"
 
       mkdir htmlplot
-      cp -p "/opt/bokeh/assets/bokeh-0.12.9.min.css" htmlplot/
-      cp -p "/opt/bokeh/assets/bokeh-0.12.9.min.js" htmlplot/
+      cp -p "/opt/bokeh/assets/bokeh-0.12.13.min.css" htmlplot/
+      re-checkrc
+      cp -p "/opt/bokeh/assets/bokeh-0.12.13.min.js" htmlplot/
+      re-checkrc
+
       plotcoverage_html.py \
         --infile "${SAMPLE_SLUG}_ampmeancov.tmp" \
         --template "/opt/resolwebio/assets/amplicon_html_template.html" \
