@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.1.0
     resources:
       cores: 10
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.2.3
+  version: 1.2.4
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample

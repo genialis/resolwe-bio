@@ -18,6 +18,12 @@ Changed
   by using Bokeh assets from the ``resolwebio/dnaseq`` Docker image
 - Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
 - Require Resolwe 9.x
+- Use ``resolwebio/rnaseq:3.1.0`` Docker image in the following
+  processes:
+
+  - ``cufflinks``
+  - ``cuffnorm``
+  - ``cuffquant``
 
 Added
 -----
