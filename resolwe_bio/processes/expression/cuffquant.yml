@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.2.4
+  version: 1.2.5
   type: data:cufflinks:cuffquant
   category: analyses
   flow_collection: sample
@@ -90,6 +90,6 @@
 
       mv abundances.cxb "${NAME}.cxb"
       re-save-file cxb "${NAME}.cxb"
-      re-save source {{gff.source}}
-      re-save species {{alignment.species}}
-      re-save build {{alignment.build}}
+      re-save source {{ annotation.source }}
+      re-save species {{ alignment.species }}
+      re-save build {{ alignment.build }}

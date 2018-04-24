@@ -31,6 +31,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(cuff_exp, 'transcripts', 'cufflinks_transcripts.gtf', sort=True)
         self.assertFields(cuff_exp, 'species', 'Dictyostelium discoideum')
         self.assertFields(cuff_exp, 'build', 'dd-05-2009')
+        self.assertFields(cuff_exp, 'source', 'DICTYBASE')
 
         inputs = {
             'alignment': aligned_reads.pk,
@@ -46,12 +47,14 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(cuff_merge_gff3, 'annot', 'cuffmerge_transcripts.gtf')
         self.assertFields(cuff_merge_gff3, 'species', 'Dictyostelium discoideum')
         self.assertFields(cuff_merge_gff3, 'build', 'dd-05-2009')
+        self.assertFields(cuff_exp, 'source', 'DICTYBASE')
 
         inputs['gff'] = annotation_gtf.pk
         cuff_merge_gtf = self.run_process('cuffmerge', inputs)
         self.assertFile(cuff_merge_gtf, 'annot', 'cuffmerge_transcripts.gtf')
         self.assertFields(cuff_merge_gtf, 'species', 'Dictyostelium discoideum')
         self.assertFields(cuff_merge_gtf, 'build', 'dd-05-2009')
+        self.assertFields(cuff_exp, 'source', 'DICTYBASE')
 
     @tag_process('cuffquant')
     def test_cuffquant(self):
@@ -76,6 +79,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         cuffquant = self.run_process('cuffquant', inputs)
         self.assertFields(cuffquant, 'species', 'Homo sapiens')
         self.assertFields(cuffquant, 'build', 'hg19')
+        self.assertFields(cuffquant, 'source', 'UCSC')
 
     @tag_process('cuffnorm')
     def test_cuffnorm(self):

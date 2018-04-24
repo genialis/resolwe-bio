@@ -38,6 +38,7 @@ Fixed
   spaces in file names correctly
 - Fix COSMIC url template in ``amplicon-table`` process
 - Fix Create IGV session in Archive samples process
+- Fix ``source`` tracking in ``cufflinks`` and ``cuffquant`` processes
 
 
 ==================

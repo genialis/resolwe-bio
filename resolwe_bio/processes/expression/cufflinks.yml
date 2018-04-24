@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.0.2
+  version: 2.0.3
   type: data:cufflinks:cufflinks
   category: analyses
   flow_collection: sample
@@ -121,6 +121,6 @@
       re-save-file isoforms_fpkm_tracking "${NAME}_isoforms_fpkm_tracking.txt"
       re-save-file genes_fpkm_tracking "${NAME}_genes_fpkm_tracking.txt"
       re-save-file skipped_loci "${NAME}_skipped.gtf"
-      re-save source {{gff.source}}
-      re-save species {{alignment.species}}
-      re-save build {{alignment.build}}
+      re-save source {% if annotation %}{{ annotation.source }}{% else %}cufflinks{% endif %}
+      re-save species {{ alignment.species }}
+      re-save build {{ alignment.build }}
