@@ -33,6 +33,7 @@ Changed
   - ``differentialexpression-edger``
 - Update ``workflow-bbduk-star-htseq``
 - Update ``quantseq`` descriptor schema
+- Assert species and build in ``htseq-count-normalized`` process
 
 Added
 -----

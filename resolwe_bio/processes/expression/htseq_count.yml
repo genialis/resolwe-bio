@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.0.0
+        image: resolwebio/rnaseq:3.1.0
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.2
+  version: 1.2.3
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -120,6 +120,20 @@
     program: |
       NAME=`basename {{ alignments.bam.file }} .bam`
       re-progress 0.1
+
+      {% if not alignments.species == gff.species %}
+        re-error \
+          {{ ('Species of aligned reads (%s) and annotation (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same species.')
+             |format(alignments.species, gff.species) }}
+      {% endif %}
+
+      {% if not alignments.build == gff.build %}
+        re-error \
+          {{ ('Builds of aligned reads (%s) and annotation (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same build.')
+             |format(alignments.build, gff.build) }}
+      {% endif %}
 
       {% if name_ordered %}
         if samtools view -H {{ alignments.bam.file }} | grep SO:queryname; then

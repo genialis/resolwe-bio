@@ -191,22 +191,42 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
                 'src': 'annotation dicty.gtf.gz',
                 'source': 'DICTYBASE',
                 'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
+                'build': 'dd-05-2009',
             }
-            annotation = self.run_process('upload-gtf', inputs)
+            annotation_correct = self.run_process('upload-gtf', inputs)
+
+            inputs = {
+                'src': 'annotation dicty.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Homo sapiens',
+                'build': 'dd-05-2009',
+            }
+            annotation_wrong_species = self.run_process('upload-gtf', inputs)
+
+            inputs = {
+                'src': 'annotation dicty.gtf.gz',
+                'source': 'DICTYBASE',
+                'species': 'Dictyostelium discoideum',
+                'build': 'wrong build',
+            }
+            annotation_wrong_build = self.run_process('upload-gtf', inputs)
 
             inputs = {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'annotation': annotation.pk,
-                'PE_options': {'library_type': "fr-unstranded"}}
+                'annotation': annotation_correct.pk,
+                'PE_options': {
+                    'library_type': 'fr-unstranded',
+                },
+            }
             aligned_reads = self.run_process('alignment-tophat2', inputs)
 
         inputs = {
             'alignments': aligned_reads.pk,
-            'gff': annotation.pk,
-            'stranded': "no",
-            'id_attribute': 'transcript_id'}
+            'gff': annotation_correct.pk,
+            'stranded': 'no',
+            'id_attribute': 'transcript_id',
+        }
         expression = self.run_process('htseq-count', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
@@ -215,6 +235,12 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(expression, 'species', 'Dictyostelium discoideum')
         self.assertFields(expression, 'build', 'dd-05-2009')
         self.assertFields(expression, 'feature_type', 'gene')
+
+        inputs['gff'] = annotation_wrong_species.pk
+        expression = self.run_process('htseq-count', inputs, Data.STATUS_ERROR)
+
+        inputs['gff'] = annotation_wrong_build.pk
+        expression = self.run_process('htseq-count', inputs, Data.STATUS_ERROR)
 
     @tag_process('htseq-count-raw')
     def test_expression_htseq_cpm(self):
