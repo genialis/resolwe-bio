@@ -32,6 +32,7 @@ Changed
   - ``differentialexpression-deseq2``
   - ``differentialexpression-edger``
 - Update ``workflow-bbduk-star-htseq``
+- Update ``quantseq`` descriptor schema
 
 Added
 -----

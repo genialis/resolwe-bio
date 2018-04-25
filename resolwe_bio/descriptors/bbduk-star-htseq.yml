@@ -1,17 +1,28 @@
 - slug: quantseq
-  name: QuantSeq workflow
-  version: 0.0.2
+  name: Pipeline for reads prepared with FWD or REV QuantSeq Kit by Lexogen
+  version: 0.0.3
   description: QuantSeq workflow selection template
   schema:
     - name: stranded
-      label: Were samples processed with QuantSeq FWD or REV Library?
+      label: Select the QuantSeq kit used for library preparation.
       type: basic:string
       default: 'yes'
       choices:
-        - label: QuantSeq FWD Library
+        - label: QuantSeq FWD
           value: 'yes'
-        - label: QuantSeq REV Library
+        - label: QuantSeq REV
           value: 'reverse'
+    - name: species
+      label: Species
+      type: basic:string
+      default: Homo sapiens
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
 
 - slug: rna-seq-quantseq
   name: RNA-Seq
