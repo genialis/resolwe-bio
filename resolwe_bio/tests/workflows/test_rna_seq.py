@@ -30,19 +30,17 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
 
     @tag_process('workflow-bbduk-star-htseq')
-    def test_bbduk_star_htseq_workflow(self):
+    def test_bbduk_star_htseq_single_workflow(self):
         with self.preparation_stage():
-            inputs = {'src': ['workflow_bbduk_star test.fastq.gz']}
+            inputs = {'src': ['hs_single bbduk_star_htseq_reads_single.fastq.gz']}
             reads = self.run_processor('upload-fastq-single', inputs)
 
-            inputs = {'src': 'HS chr21_ensembl.fa.gz'}
+            inputs = {'src': 'hs genome.fasta.gz'}
             star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
-
-            inputs = {'src': 'poly_A.fa.gz'}
-            adapters1 = self.run_process('upload-fasta-nucl', inputs)
+            adapters = self.prepare_adapters()
 
             inputs = {
-                'src': 'HS chr21_short.gtf.gz',
+                'src': 'hs annotation.gtf.gz',
                 'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens_90'
@@ -56,7 +54,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             'workflow-bbduk-star-htseq', {
                 'reads': reads.id,
                 'star_index': star_index.id,
-                'bbduk_adapters': [adapters1.id],
+                'adapters': [adapters.id],
                 'annotation': annotation.id,
                 'stranded': 'yes'
             }
@@ -66,7 +64,45 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
 
         workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'workflow_reads_rc.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'rc', 'workflow_bbduk_star_htseq_single_rc.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'exp', 'workflow_bbduk_star_htseq_single_cpm.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'exp_type', 'CPM')
+        self.assertFields(workflow, 'source', 'ENSEMBL')
+        self.assertFields(workflow, 'species', 'Homo sapiens')
+
+    @tag_process('workflow-bbduk-star-htseq-paired')
+    def test_bbduk_star_htseq_paired_workflow(self):
+        with self.preparation_stage():
+            paired_reads = self.prepare_paired_reads(['hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz'],
+                                                     ['hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz'])
+            inputs = {
+                'src': 'hs annotation.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            }
+            annotation = self.run_process('upload-gtf', inputs)
+
+            star_index_fasta = self.prepare_adapters('hs genome.fasta.gz')
+            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            star_index = self.run_process('alignment-star-index', inputs)
+            adapters = self.prepare_adapters()
+
+        inputs = {
+            'reads': paired_reads.id,
+            'adapters': [adapters.id],
+            'star_index': star_index.id,
+            'annotation': annotation.id,
+            'stranded': 'reverse',
+        }
+        self.run_process('workflow-bbduk-star-htseq-paired', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        workflow = Data.objects.last()
+        self.assertFile(workflow, 'rc', 'workflow_bbduk_star_htseq_paired_rc.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'exp', 'workflow_bbduk_star_htseq_paired_cpm.tab.gz', compression='gzip')
+        self.assertFields(workflow, 'source', 'ENSEMBL')
+        self.assertFields(workflow, 'species', 'Homo sapiens')
 
     @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired')
     def test_bbduk_star_featurecounts_workflow(self):

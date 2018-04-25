@@ -1,33 +1,40 @@
 - slug: workflow-bbduk-star-htseq
   category: workflow:primary
-  name: Workflow with bbduk star and Htseq-count-raw
+  name: "Pipeline for QuantSeq single-end reads"
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.4
-  type: data:workflow:rnaseq:htseq
+  version: 0.0.5
+  type: data:workflow:rnaseq:htseq:single
+  description: "This pipeline is design to process single-end reads prepared with __FWD or REV Lexogen
+    QuantSeq 3' mRNA-Seq Library Prep Kit__. Workflow consists of three steps: preprocessing with BBDuk,
+    alignment with STAR, and quantification with HTSeq.\n\nPipeline is closely following recommended
+    [data analysis workflow by Lexogen](https://www.lexogen.com/quantseq-data-analysis/)."
   input:
     - name: reads
-      label: Input reads
+      label: Input single-end reads
       type: data:reads:fastq:single
     - name: star_index
       label: Star index
       type: data:genomeindex:star
-    - name: bbduk_adapters
-      label: bbduk adapters
-      type: list:data:seq:nucleotide
       description: >
-            Provide a list of sequencing adapters files (.fasta) with adapters to be removed by bbduk.
+        Genome index prepared by STAR aligner indexing tool.
+    - name: adapters
+      label: Adapters
+      type: list:data:seq:nucleotide
+      required: false
+      description: >
+        Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
     - name: annotation
       label: annotation
       type: data:annotation
     - name: stranded
-      label: Is data from QuantSeq FWD or REV Library?
+      label: Select the QuantSeq kit used for library preparation.
       type: basic:string
       choices:
-        - label: QuantSeq FWD Library
+        - label: QuantSeq FWD
           value: 'yes'
-        - label: QuantSeq REV Library
+        - label: QuantSeq REV
           value: reverse
   run:
     language: workflow
@@ -38,14 +45,16 @@
           reads: '{{ input.reads }}'
           min_length: 20
           reference:
-            sequences: '{{ input.bbduk_adapters }}'
+            sequences: '{{ input.adapters }}'
           processing:
             kmer_length: 13
           operations:
             k_trim: r
-            min_k: 5
-            quality_trim: rl
+            min_k: 6
+            quality_trim: r
             trim_quality: 10
+          fastqc:
+            nogroup: true
       - id: star
         run: alignment-star
         input:
@@ -55,6 +64,7 @@
             outFilterType: BySJout
             outFilterMultimapNmax: 20
             outFilterMismatchNmax: 999
+            outFilterMismatchNoverLmax: 0.6
           alignment:
             alignSJoverhangMin: 8
             alignSJDBoverhangMin: 1
@@ -65,6 +75,87 @@
         run: htseq-count-raw
         input:
           alignments: '{{ steps.star }}'
-          gff: '{{ input.annotation }}'
+          gtf: '{{ input.annotation }}'
+          mode: intersection-nonempty
+          stranded: '{{ input.stranded }}'
+
+- slug: workflow-bbduk-star-htseq-paired
+  category: workflow:primary
+  name: "Pipeline for QuantSeq paired-end reads"
+  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:rnaseq:htseq:paired
+  description: "This pipeline is made to process paired-end reads prepared with __FWD or REV Lexogen
+    QuantSeq 3' mRNA-Seq Library Prep Kit__. Workflow consists of three steps: preprocessing with BBDuk,
+    alignment with STAR, and quantification with HTSeq.\n\nPipeline is closely following recommended
+    [data analysis workflow by Lexogen](https://www.lexogen.com/quantseq-data-analysis/)."
+  input:
+    - name: reads
+      label: Paired-end reads
+      type: data:reads:fastq:paired
+    - name: star_index
+      label: Star index
+      type: data:genomeindex:star
+      description: >
+        Genome index prepared by STAR aligner indexing tool.
+    - name: adapters
+      label: Adapters
+      type: list:data:seq:nucleotide
+      required: false
+      description: >
+        Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
+    - name: annotation
+      label: Annotation
+      type: data:annotation
+    - name: stranded
+      label: Select the QuantSeq kit used for library preparation.
+      type: basic:string
+      choices:
+        - label: QuantSeq FWD
+          value: 'yes'
+        - label: QuantSeq REV
+          value: reverse
+  run:
+    language: workflow
+    program:
+      - id: bbduk_filtering
+        run: bbduk-paired
+        input:
+          reads: '{{ input.reads }}'
+          min_length: 20
+          reference:
+            sequences: '{{ input.adapters }}'
+          processing:
+            kmer_length: 13
+          operations:
+            k_trim: r
+            min_k: 6
+            quality_trim: r
+            trim_quality: 10
+          fastqc:
+            nogroup: true
+      - id: star
+        run: alignment-star
+        input:
+          genome: '{{ input.star_index }}'
+          reads: '{{ steps.bbduk_filtering }}'
+          filtering:
+            outFilterType: BySJout
+            outFilterMultimapNmax: 20
+            outFilterMismatchNmax: 999
+            outFilterMismatchNoverLmax: 0.6
+          alignment:
+            alignSJoverhangMin: 8
+            alignSJDBoverhangMin: 1
+            alignIntronMin: 20
+            alignIntronMax: 1000000
+            alignMatesGapMax: 1000000
+      - id: htseq_count
+        run: htseq-count-raw
+        input:
+          alignments: '{{ steps.star }}'
+          gtf: '{{ input.annotation }}'
           mode: intersection-nonempty
           stranded: '{{ input.stranded }}'

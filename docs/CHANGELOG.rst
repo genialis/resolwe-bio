@@ -31,6 +31,7 @@ Changed
   - ``cuffdiff``
   - ``differentialexpression-deseq2``
   - ``differentialexpression-edger``
+- Update ``workflow-bbduk-star-htseq``
 
 Added
 -----
@@ -40,6 +41,7 @@ Added
 - Add automated library strand detection to ``feature_counts`` quantification process
 - Add FastQC option ``nogroup`` to ``bbduk-single`` and ``bbduk-paired`` processes
 - Add CPM normalization to ``htseq-count-raw`` process
+- Add ``workflow-bbduk-star-htseq-paired``
 
 Fixed
 -----
