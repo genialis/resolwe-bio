@@ -364,18 +364,19 @@ class UploadProcessorTestCase(BioProcessTestCase):
         }
         master_file = self.run_process('upload-master-file', inputs, Data.STATUS_ERROR)
 
-        inputs = {
-            'src': 'amplicon_master_file_merged.bed',
-            'panel_name': '56G panel, v2'
-        }
+        # Check for non-unique amplicon names
+        inputs['src'] = '56G masterfile_dup_amplicon_names.txt.gz'
+        master_file = self.run_process('upload-master-file', inputs, Data.STATUS_ERROR)
 
+        inputs['src'] = 'amplicon_master_file_merged.bed'
         with self.assertRaises(ValidationError):
             self.run_process('upload-master-file', inputs)
 
-        inputs = {
-            'src': '56G_masterfile_170113.txt.gz',
-            'panel_name': '56G panel, v2'
-        }
+        # Check if primer sequences are allowed also in lowercase
+        inputs['src'] = '56G masterfile_lowercase_bases.txt.gz'
+        self.run_process('upload-master-file', inputs)
+
+        inputs['src'] = '56G_masterfile_170113.txt.gz'
         master_file = self.run_process('upload-master-file', inputs)
 
         self.assertFile(master_file, 'bedfile', 'amplicon_master_file_merged.bed')

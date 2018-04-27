@@ -52,6 +52,9 @@ Fixed
 - Fix COSMIC url template in ``amplicon-table`` process
 - Fix Create IGV session in Archive samples process
 - Fix ``source`` tracking in ``cufflinks`` and ``cuffquant`` processes
+- Fix amplicon master file validation script. Check and report error if
+  duplicated amplicon names are included. Validation will now pass also
+  for primer sequences in lowercase.
 
 
 ==================

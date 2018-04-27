@@ -4,6 +4,8 @@
 import argparse
 import csv
 
+from resolwe_runtime_utils import error
+
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -14,25 +16,30 @@ def parse_arguments():
 
 def check_dna_sequence(sequence):
     """Check if a given sequence contains only the allowed letters A, C, T, G."""
-    return len(sequence) != 0 and all(base in ['A', 'C', 'T', 'G'] for base in sequence)
+    return len(sequence) != 0 and all(base.upper() in ['A', 'C', 'T', 'G'] for base in sequence)
 
 
 def main():
     """Invoke when run directly as a program."""
     args = parse_arguments()
 
+    amplicon_names = set()
+
     with open(args.master_file, newline='') as masterfile:
         reader = csv.reader(masterfile, delimiter='\t')
         for row in reader:
             if len(row) != 12:
-                print('{"proc.error":"Uploaded master file must contain exactly 12 columns."}')
-                exit(1)
+                print(error('Uploaded master file must contain exactly 12 columns.'))
             if not check_dna_sequence(row[10]):
-                print('{"proc.error":"11th column must contain a DNA sequence."}')
-                exit(1)
+                print(error('11th column must contain a DNA sequence.'))
             if not check_dna_sequence(row[11]):
-                print('{"proc.error":"12th column must contain a DNA sequence."}')
-                exit(1)
+                print(error('12th column must contain a DNA sequence.'))
+
+            amp_name = row[3]
+            if amp_name not in amplicon_names:
+                amplicon_names.add(amp_name)
+            else:
+                print(error('Amplicon names must be unique. Amplicon {} is seen multiple times.'.format(amp_name)))
 
 
 if __name__ == "__main__":
