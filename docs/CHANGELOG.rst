@@ -44,6 +44,7 @@ Added
 - Add FastQC option ``nogroup`` to ``bbduk-single`` and ``bbduk-paired`` processes
 - Add CPM normalization to ``htseq-count-raw`` process
 - Add ``workflow-bbduk-star-htseq-paired``
+- Add legend to amplicon report template in ``resolwebio/latex`` Docker image
 
 Fixed
 -----

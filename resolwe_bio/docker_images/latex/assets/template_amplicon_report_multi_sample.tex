@@ -123,17 +123,16 @@
 \rowcolor{gray2}
 CHROM & Chromosome\\
 POS & Position\\
-ID & Variant identity\\
 REF & Reference base\\
 ALT & Alternative base (i.e., variant)\\
-QUAL & Phred-scaled quality score for the assertion made in ALT. i.e. -10log10 prob(call in ALT is wrong)\\
+AF & Allele frequency, also called "variant frequency". For the GATK caller, empirical AF is computed as the ratio of allele depth (AD) to read depth (DP). LoFreq similarly computes AF as the frequency of variant reads. \\
 DP & Filtered read depth\\
-AF & Allele frequency\\
-FS & FisherStrand (Phred-scaled p-value using Fisher's Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads.  More bias is indicative of false positive calls. Be wary of SNP with FS > 60.0 and an indel with FS > 200.0.)\\
 AD & Allele depth\\
-GENE & Affected gene\\
-SB & Strand bias\\
+FS & FisherStrand (Phred-scaled p-value using Fisher's Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads.  More bias is indicative of false positive calls. Be wary of SNP with FS > 60.0 and an indel with FS > 200.0.)\\
 DP4 & Number of 1) forward ref alleles; 2) reverse ref; 3) forward non-ref; 4) reverse non-ref alleles, used in variant calling. Sum can be smaller than DP because low-quality bases are not counted.\\
+SB & Strand bias\\
+GENE & Affected gene\\
+ID & Variant identity\\
 AA & Amino acid change\\
 \end{oldlongtable}
 {
