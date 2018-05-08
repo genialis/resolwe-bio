@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.4
-  version: 0.2.1
+        image: resolwebio/latex:1.0.6
+  version: 0.2.2
   type: "data:archive:samples:amplicon"
   category: other
   persistence: TEMP
@@ -115,4 +115,3 @@
       else
          re-save-file archive results.zip
       fi
-

@@ -3,6 +3,7 @@
 import argparse
 import csv
 import os
+import re
 import subprocess
 
 DECIMALS = 2  # Decimal precision when presenting results:
@@ -138,13 +139,26 @@ def snp_href(snpid):
         url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
-    return '\\href{{{}}}{{{}}}'.format(url, snpid)
+    return '\\href{{{}}}{{{}}}'.format(url, escape_latex(snpid))
 
 
 def gene_href(gene_name):
     """Create LaTeX hyperlink for given GENE ID."""
     url = 'http://www.ncbi.nlm.nih.gov/gene/?term={}'.format(gene_name)
-    return '\\href{{{}}}{{{}}}'.format(url, gene_name)
+    return '\\href{{{}}}{{{}}}'.format(url, escape_latex(gene_name))
+
+
+def format_aa_change(aa_list):
+    """Create Amino Acid Change information."""
+    output = set()
+    if aa_list:
+        for aa in aa_list:
+            match_obj = re.match(r'p\.([A-Za-z]*)[0-9]*([A-Za-z]*)', aa)
+            if match_obj and match_obj.group(1) == match_obj.group(2):
+                output.add('Synon')
+            else:
+                output.add(escape_latex(aa))
+    return output
 
 
 def make_variant_table(variant_file, header, af_threshold):
@@ -155,14 +169,16 @@ def make_variant_table(variant_file, header, af_threshold):
             # Reorder columns according to header
             row = [row_raw[column_name] for column_name in header]
 
-            gene_column = gene_href(row[-2])  # Create gene hypelinks
-            snp_column = ' '.join(map(snp_href, row[-1].split(';')))  # Create SNP hypelinks
+            row[-3] = ' '.join(map(gene_href, row[-3].split(',')))  # Create gene hypelinks
+            row[-2] = ' '.join(map(snp_href, row[-2].split(';')))  # Create SNP hypelinks
+            row[-1] = ' '.join(format_aa_change(row[-1].split(',')))  # Create amino acid column
+
             # One line can contain two or more ALT values (and consequently two or more AF values)
             # We need to split such "multiple" entries to one alt value per row
             alt_cell, afq_cell = row[3], row[4]
             for alt, afq in zip(alt_cell.split(','), afq_cell.split(',')):
                 if float(afq) >= af_threshold:
-                    var_table.append(row[:3] + [alt] + [afq] + row[5:-2] + [gene_column] + [snp_column])
+                    var_table.append(row[:3] + [alt] + [afq] + row[5:])
     return var_table
 
 
@@ -226,18 +242,19 @@ if __name__ == '__main__':
         for variant_file in args.annot_vars:
             # We have multiple (=2) variant files: this are NOT *.vcf files, but tabular files derived from them.
             # The problem is that their columns (and header names) differ depending on the variant caller tool.
+            COMMON_FIELDS = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP']
             if 'gatkhc.finalvars' in variant_file.lower():
-                header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'GEN[0].AD', 'FS', 'EFF[*].GENE', 'ID']
+                header = COMMON_FIELDS + ['GEN[0].AD', 'FS', 'EFF[*].GENE', 'ID', 'EFF[*].AA']
                 caption = 'GATK HaplotypeCaller variant calls'
             elif 'lf.finalvars' in variant_file.lower():
-                header = ['CHROM', 'POS', 'REF', 'ALT', 'AF', 'DP', 'DP4', 'SB', 'EFF[*].GENE', 'ID']
+                header = COMMON_FIELDS + ['DP4', 'SB', 'EFF[*].GENE', 'ID', 'EFF[*].AA']
                 caption = 'Lofreq variant calls'
             else:
                 raise ValueError('This variant caller is not supported for report generation')
 
             var_table = make_variant_table(variant_file, header, af_threshold)
             header = [escape_latex(header_glossary.get(col_name, col_name)) for col_name in header]
-            long_cls = [2, 3, -1]  # Potentially long columns are REF, ALT and ID
+            long_cls = [2, 3, -2, -1]  # Potentially long columns are REF, ALT, ID and AA
             table_text += list_to_tex_table(var_table, header=header, caption=caption, long_columns=long_cls)
             table_text += '\n\\newpage\n'
 

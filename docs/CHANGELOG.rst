@@ -56,6 +56,7 @@ Fixed
 - Fix amplicon master file validation script. Check and report error if
   duplicated amplicon names are included. Validation will now pass also
   for primer sequences in lowercase.
+- Fix allele frequency (AF) calculation in ``snpeff`` process
 
 
 ==================

@@ -302,24 +302,34 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process('snpeff')
     def test_snpeff(self):
         with self.preparation_stage():
-            lf_input = {
+            variants_lf = self.run_process('upload-variants-vcf', {
                 'src': '56GSID_10k.lf.vcf',
                 'species': 'Homo sapiens',
-                'build': 'b37'
-            }
-            variants_lf = self.run_process('upload-variants-vcf', lf_input)
-            dbsnp_input = {
+                'build': 'b37',
+            })
+            variants_gatk = self.run_process('upload-variants-vcf', {
+                'src': '56GSID_10k0.gatkHC.vcf',
+                'species': 'Homo sapiens',
+                'build': 'b37',
+            })
+            dbsnp = self.run_process('upload-variants-vcf', {
                 'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
                 'species': 'Homo sapiens',
-                'build': 'b37'
-            }
-            dbsnp = self.run_process('upload-variants-vcf', dbsnp_input)
+                'build': 'b37',
+            })
 
-        inputs = {
+        final_var_lf = self.run_process('snpeff', {
             'variants': variants_lf.id,
             'known_vars_annot': [dbsnp.id],
-            'var_source': 'lofreq'
-        }
-
-        final_var_lf = self.run_process('snpeff', inputs)
+            'var_source': 'lofreq',
+        })
         self.assertFile(final_var_lf, 'annotation', '56GSID.lf.finalvars.txt')
+        # pylint: disable=deprecated-method
+        self.assertRegex(final_var_lf.process_warning[0], r'Inconsistency for entry .*')
+
+        final_var_gatk = self.run_process('snpeff', {
+            'variants': variants_gatk.id,
+            'known_vars_annot': [dbsnp.id],
+            'var_source': 'gatk_hc',
+        })
+        self.assertFile(final_var_gatk, 'annotation', '56GSID.gatk.finalvars.txt')

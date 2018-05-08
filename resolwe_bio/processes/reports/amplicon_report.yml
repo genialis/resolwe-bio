@@ -8,9 +8,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.5
+        image: resolwebio/latex:1.0.6
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.0.1
   type: data:report:amplicon
   category: analyses:variants
   flow_collection: sample

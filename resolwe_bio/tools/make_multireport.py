@@ -127,13 +127,13 @@ def snp_href(snpid):
         url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
-    return '\\href{{{}}}{{{}}}'.format(url, snpid)
+    return '\\href{{{}}}{{{}}}'.format(url, _escape_latex(snpid))
 
 
 def gene_href(gene_name):
     """Create LaTeX hyperlink for given GENE ID."""
     url = 'http://www.ncbi.nlm.nih.gov/gene/?term={}'.format(gene_name)
-    return '\\href{{{}}}{{{}}}'.format(url, gene_name)
+    return '\\href{{{}}}{{{}}}'.format(url, _escape_latex(gene_name))
 
 
 def parse_stats(stats_file):
@@ -243,15 +243,15 @@ def make_heatmap(samples, variant_dict, fig_name):
 
 def format_aa_change(aa_list):
     """Create Amino Acid Change information."""
+    output = set()
     if aa_list:
-        aa = aa_list[0]
-        match_obj = re.match(r'p\.([A-Za-z]*)[0-9]*([A-Za-z]*)', aa)
-        if match_obj and match_obj.group(1) == match_obj.group(2):
-            return 'Synon'
-        else:
-            return aa
-    else:
-        return ''
+        for aa in aa_list:
+            match_obj = re.match(r'p\.([A-Za-z]*)[0-9]*([A-Za-z]*)', aa)
+            if match_obj and match_obj.group(1) == match_obj.group(2):
+                output.add('Synon')
+            else:
+                output.add(_escape_latex(aa))
+    return output
 
 
 def format_float(value, decimals=DECIMALS, to_percent=False):
@@ -294,7 +294,6 @@ def prepare_vcf_table(varfile, sample, variants):
     common_columns = [header_glossary.get(x, x) for x in common_columns]
     vcf_table = []
     for line_tmp in vcf_table_tmp:
-        line_tmp = [_escape_latex(cell) for cell in line_tmp]
         alt_cell, af_cell = line_tmp[3], line_tmp[4]
         # One line can contain two or more ALT values (and consequently two or more AF values)
         for alt, af_ in zip(alt_cell.split(','), af_cell.split(',')):
@@ -309,9 +308,9 @@ def prepare_vcf_table(varfile, sample, variants):
     # Create hyperlink, and format amino acid changes:
     vcf_table = [
         line[:-3] +
-        [gene_href(line[-3])] +
+        [' '.join(map(gene_href, line[-3].split(',')))] +
         [' '.join(map(snp_href, line[-2].split(';')))] +
-        [format_aa_change(line[-1].split(','))]
+        [' '.join(format_aa_change(line[-1].split(',')))]
         for line in vcf_table
     ]
     return vcf_table, common_columns

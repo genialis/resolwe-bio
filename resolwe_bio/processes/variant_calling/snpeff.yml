@@ -13,7 +13,7 @@
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.7
+  version: 0.1.8
   type: data:snpeff
   category: analyses:variants
   flow_collection: sample
@@ -66,30 +66,29 @@
         NAME=`basename {{kv.vcf.file}} .vcf.gz`
         ln -s {{ kv.vcf.file }} "${NAME}.vcf.gz"
         ln -s {{ kv.tbi.file }} "${NAME}.vcf.gz.tbi"
-        SnpSift annotate "${NAME}.vcf.gz" tmp_{{loop.index0}}.vcf > tmp_{{loop.index}}.vcf
+        SnpSift annotate "${NAME}.vcf.gz" tmp_{{loop.index0}}.vcf > "${OUT_VCF}"
         re-checkrc
       {% endfor %}
 
+      mv snpEff_genes.txt "${VAR_NAME}_snpEff_genes.txt"
+      re-save-file snpeff_genes "${VAR_NAME}_snpEff_genes.txt"
+      mv snpEff_summary.html "${VAR_NAME}_snpEff_summary.html"
+      re-save-file summary "${VAR_NAME}_snpEff_summary.html"
+
+      # Extract relevant fields from the vcf file
       {% if var_source == 'lofreq' %}
         FIELDS='CHROM POS ID REF ALT QUAL DP AF SB DP4'
       {% elif var_source == 'gatk_hc' %}
         FIELDS='CHROM POS ID REF ALT QUAL DP AF FS GEN[0].AD'
       {% endif %}
-
-      #extract relevant fields from the vcf
-      SnpSift extractFields ${OUT_VCF} ${FIELDS} "EFF[*].GENE" "EFF[*].AA" > annoFields.vcf
+      SnpSift extractFields ${OUT_VCF} ${FIELDS} "EFF[*].GENE" "EFF[*].AA" > extracted_tmp.txt
       re-checkrc
 
-      cut -f 1-11 annoFields.vcf > temp1
-      echo "EFF[*].AA" > temp2
-      awk 'FNR>1 { for(i=1;i<=NF;i++) { if($i~/p\./){printf "%s,", $i} } printf "\n"}' OFS="\t" annoFields.vcf  >> temp2
-      paste temp1 temp2 > temp3
-      # Also substitute all commas in DP4 column (10th column) with semicolons:
-      awk 'FS="\t" {gsub(",",";",$10)} OFS="\t"' temp3 > "${VAR_NAME}.finalvars.txt"
-
-      mv snpEff_genes.txt "${VAR_NAME}_snpEff_genes.txt"
-      mv snpEff_summary.html "${VAR_NAME}_snpEff_summary.html"
+      # Post-process extracted_tmp.txt
+      postprocess_snpeff.py \
+        --infile extracted_tmp.txt \
+        --var-source {{var_source}} \
+        --outfile "${VAR_NAME}.finalvars.txt"
+      re-checkrc
 
       re-save-file annotation "${VAR_NAME}.finalvars.txt"
-      re-save-file snpeff_genes "${VAR_NAME}_snpEff_genes.txt"
-      re-save-file summary "${VAR_NAME}_snpEff_summary.html"
