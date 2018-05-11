@@ -57,6 +57,11 @@ Fixed
   duplicated amplicon names are included. Validation will now pass also
   for primer sequences in lowercase.
 - Fix allele frequency (AF) calculation in ``snpeff`` process
+- Fix bug in script for calculating FPKM. Because genes of raw counts from
+  ``featureCounts`` were not lexicographically sorted, division of normalized counts
+  was done with values from other, incorrect, genes. Results from ``featureCounts``,
+  but not ``HTSeq-count`` process, were affected.
+
 
 
 ==================
