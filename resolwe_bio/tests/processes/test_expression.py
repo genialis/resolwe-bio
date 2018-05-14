@@ -362,10 +362,10 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
     def test_feature_counts(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'annotation dicty.gtf.gz',
-                'source': 'DICTYBASE',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
+                'src': 'feature_counts hs.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38_ens90',
             }
             annotation_gtf = self.run_process('upload-gtf', inputs)
             annotation_gff3 = self.prepare_annotation_gff()
@@ -378,9 +378,9 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             bam_single = self.run_process('upload-bam', bam_single_inputs)
 
             inputs = {
-                'src': 'feature_counts_paired.bam',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
+                'src': 'feature_counts hs_paired.bam',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38_ens90',
             }
             bam_paired = self.run_process('upload-bam', inputs)
 
@@ -390,7 +390,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             },
             'annotation': {
                 'annotation': annotation_gtf.id,
-                'id_attribute': 'transcript_id',
+                'id_attribute': 'gene_id',
             },
             'advanced': {
                 'paired_end': {
@@ -404,8 +404,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'rc', 'feature_counts_out_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'feature_counts_out_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'feature_counts_out_tpm.tab.gz', compression='gzip')
-        self.assertFields(expression, 'species', 'Dictyostelium discoideum')
-        self.assertFields(expression, 'build', 'dd-05-2009')
+        self.assertFields(expression, 'species', 'Homo sapiens')
+        self.assertFields(expression, 'build', 'GRCh38_ens90')
         self.assertFields(expression, 'feature_type', 'gene')
 
         inputs = {
