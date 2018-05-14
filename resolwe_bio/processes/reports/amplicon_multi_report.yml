@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/latex:1.0.6
-  version: 0.2.2
+        image: resolwebio/latex:1.0.7
+  version: 0.2.3
   type: "data:archive:samples:amplicon"
   category: other
   persistence: TEMP

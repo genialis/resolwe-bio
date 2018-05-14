@@ -297,7 +297,9 @@ def prepare_vcf_table(varfile, sample, variants):
         alt_cell, af_cell = line_tmp[3], line_tmp[4]
         # One line can contain two or more ALT values (and consequently two or more AF values)
         for alt, af_ in zip(alt_cell.split(','), af_cell.split(',')):
-            if float(af_) >= float(args.afthreshold):
+            af_ = float(af_)
+            if af_ >= float(args.afthreshold):
+                af_ = '{:.3f}'.format(af_)
                 vcf_table.append(line_tmp[:3] + [alt] + [af_] + line_tmp[5:])
 
     # Fill variants dict with the variants that are shared
@@ -422,7 +424,7 @@ if __name__ == '__main__':
             caption = _escape_latex('GATK HaplotypeCaller variant calls, sample {}'.format(sample))
             vcf_table, header = prepare_vcf_table(args.vcfgatkhc[i], sample, gatkhc_variants)
             table_text += list_to_tex_table(
-                vcf_table, header=header, caption=caption, long_columns=[2, 3, -2, -1], uncut_columns=[-1])
+                vcf_table, header=header, caption=caption, long_columns=[2, 3, -3, -2, -1], uncut_columns=[-1])
             table_text += '{\n\\addtocounter{table}{-1}}'
             table_text += '\n\\newpage\n'
 
@@ -431,7 +433,7 @@ if __name__ == '__main__':
             caption = _escape_latex('LoFreq variant calls, sample {}'.format(sample))
             vcf_table, header = prepare_vcf_table(args.vcflf[i], sample, lf_variants)
             table_text += list_to_tex_table(
-                vcf_table, header=header, caption=caption, long_columns=[2, 3, -2, -1], uncut_columns=[-1])
+                vcf_table, header=header, caption=caption, long_columns=[2, 3, -3, -2, -1], uncut_columns=[-1])
             table_text += '\n\\newpage\n'
 
         # Set table counter back to normal (N) for further tables

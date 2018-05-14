@@ -95,7 +95,7 @@ def cut_to_pieces(string, piece_size):
     return ' '.join(pieces)
 
 
-def list_to_tex_table(data, header=None, caption=None, long_columns=False):
+def list_to_tex_table(data, header=None, caption=None, long_columns=False, uncut_columns=[]):
     """Make a TeX table from python list."""
     lines = []
     column_alingnment = ['l' for h in header]
@@ -118,8 +118,12 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False):
     for line in data:
         if long_columns:
             for col_index in long_columns:
-                # If hyperlink line, don't do a thing. Otherwise, insert spaces, so that wrapping can happen:
-                new_val = line[col_index] if '\href' in line[col_index] else cut_to_pieces(line[col_index], 8)
+                if ('\href' in line[col_index] or col_index in uncut_columns):
+                    # If hyperlink line or `uncut_columns`, don't do a thing.
+                    new_val = line[col_index]
+                else:
+                    # Otherwise, insert spaces, so that wrapping can happen:
+                    new_val = cut_to_pieces(line[col_index], 8)
                 line[col_index] = '\\multicolumn{{1}}{{m{{2.3cm}}}}{{{}}}'.format(new_val)
 
         lines.append(' & '.join(line) + ' \\\\')
@@ -177,7 +181,9 @@ def make_variant_table(variant_file, header, af_threshold):
             # We need to split such "multiple" entries to one alt value per row
             alt_cell, afq_cell = row[3], row[4]
             for alt, afq in zip(alt_cell.split(','), afq_cell.split(',')):
-                if float(afq) >= af_threshold:
+                afq = float(afq)
+                if afq >= af_threshold:
+                    afq = '{:.3f}'.format(afq)
                     var_table.append(row[:3] + [alt] + [afq] + row[5:])
     return var_table
 
@@ -254,8 +260,9 @@ if __name__ == '__main__':
 
             var_table = make_variant_table(variant_file, header, af_threshold)
             header = [escape_latex(header_glossary.get(col_name, col_name)) for col_name in header]
-            long_cls = [2, 3, -2, -1]  # Potentially long columns are REF, ALT, ID and AA
-            table_text += list_to_tex_table(var_table, header=header, caption=caption, long_columns=long_cls)
+            long_cls = [2, 3, -3, -2, -1]  # Potentially long columns are REF, ALT, GENE, ID and AA
+            table_text += list_to_tex_table(
+                var_table, header=header, caption=caption, long_columns=long_cls, uncut_columns=[-1])
             table_text += '\n\\newpage\n'
 
         template = template.replace('{#VCF_TABLES#}', table_text)
