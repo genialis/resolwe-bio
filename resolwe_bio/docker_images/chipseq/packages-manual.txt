@@ -1,3 +1,4 @@
 bamliquidator
+bedgraphtobigwig
 bedops
 wigtobigwig
