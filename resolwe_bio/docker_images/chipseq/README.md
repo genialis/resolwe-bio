@@ -15,4 +15,4 @@ Included bioinformatics tools
 * ROSE2 (v1.0.5)
 * SAMTOOLS (v0.1.19)
 * Tabix (v1.8)
-* wigToBigWig (kent-v363)
+* wigToBigWig (kent-v364)

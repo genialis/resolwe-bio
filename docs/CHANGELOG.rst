@@ -20,6 +20,11 @@ Added
   - ``bedGraphToBigWig (kent-v364)``
   - ``bedToBigBed (kent-v364)``
 
+Changed
+-------
+- Update ``wigToBigWig`` to kent-v364 version  in ``resolwebio/chipseq``
+  Docker image
+
 
 ==================
 9.0.0 - 2018-05-15
