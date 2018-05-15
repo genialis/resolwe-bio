@@ -39,6 +39,7 @@ Changed
 
 Added
 -----
+- Support Python 3.6
 - Add ``template_amplicon_report.tex`` to ``resolwebio/latex`` Docker image
   assets
 - Add SnpEff tool and bokeh assets to ``resolwebio/dnaseq`` Docker image
