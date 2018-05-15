@@ -53,6 +53,7 @@ Added
   - ``Tabix (v1.8)``
   - ``python3-pandas``
   - ``bedGraphToBigWig (kent-v364)``
+  - ``bedToBigBed (kent-v364)``
 
 Fixed
 -----
