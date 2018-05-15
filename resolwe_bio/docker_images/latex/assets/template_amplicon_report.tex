@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[11pt, a4paper, landscape]{article}
 
 \pdfobjcompresslevel=0
 
@@ -21,9 +21,6 @@
 \fancyhead[LE,LO]{\includegraphics[width=35mm]{{#LOGO#}}\\\hrulefill\\~}
 \fancyhead[CE,CO]{~\\\hrulefill\\~}
 \fancyhead[RE,RO]{ \nouppercase{\leftmark\ | Page \thepage\ of \pageref{LastPage}}\\\hrulefill\\ {\lightfont \fontsize{10pt}{10pt}\selectfont {#SAMPLE_NAME#} | {#PANEL#} | \today}}
-
-% Make only a subset of pages in landscape mode
-\usepackage{pdflscape}
 
 % tables spanning multiple pages
 \usepackage{longtable}
@@ -133,38 +130,33 @@ No. of amplicons with 100\% coverage:& \textbf{{#COVERED_AMPLICONS#} ({#PCT_COV#
 \newgeometry{left=1.23cm, bottom=1.01cm, right=1.27cm, top=3.74cm}
 \setlength{\headsep}{0.5cm}
 
-\begin{landscape}
 \renewcommand{\arraystretch}{1.4}
-    \section{Annotated variants}
-    \footnotesize
+\section{Annotated variants}
+\footnotesize
 
-    {\captionof{table}{Legend}
-    \noindent
-    \rowcolors{2}{gray2}{white}
-    \begin{oldlongtable}[l]{l W}
-    \rowcolor{gray2}
-    CHROM & Chromosome\\
-    POS & Position\\
-    REF & Reference base\\
-    ALT & Alternative base (i.e., variant)\\
-    AF & Allele frequency, also called "variant frequency". For the GATK caller, empirical AF is computed as the ratio of allele depth (AD) to read depth (DP). LoFreq similarly computes AF as the frequency of variant reads. \\
-    DP & Filtered read depth\\
-    AD & Allele depth\\
-    FS & FisherStrand (Phred-scaled p-value using Fisher's Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads.  More bias is indicative of false positive calls. Be wary of SNP with FS > 60.0 and an indel with FS > 200.0.)\\
-    DP4 & Number of 1) forward ref alleles; 2) reverse ref; 3) forward non-ref; 4) reverse non-ref alleles, used in variant calling. Sum can be smaller than DP because low-quality bases are not counted.\\
-    SB & Strand bias\\
-    GENE & Affected gene\\
-    ID & Variant identity\\
-    AA & Amino acid change\\
-    \end{oldlongtable}
-    {
-    \addtocounter{table}{-1}}}
-    \newpage
+{\captionof{table}{Legend}
+\noindent
+\rowcolors{2}{gray2}{white}
+\begin{oldlongtable}[l]{l W}
+\rowcolor{gray2}
+CHROM & Chromosome\\
+POS & Position\\
+REF & Reference base\\
+ALT & Alternative base (i.e., variant)\\
+AF & Allele frequency, also called "variant frequency". For the GATK caller, empirical AF is computed as the ratio of allele depth (AD) to read depth (DP). LoFreq similarly computes AF as the frequency of variant reads. \\
+DP & Filtered read depth\\
+AD & Allele depth\\
+FS & FisherStrand (Phred-scaled p-value using Fisher's Exact Test to detect strand bias (the variation being seen on only the forward or only the reverse strand) in the reads.  More bias is indicative of false positive calls. Be wary of SNP with FS > 60.0 and an indel with FS > 200.0.)\\
+DP4 & Number of 1) forward ref alleles; 2) reverse ref; 3) forward non-ref; 4) reverse non-ref alleles, used in variant calling. Sum can be smaller than DP because low-quality bases are not counted.\\
+SB & Strand bias\\
+GENE & Affected gene\\
+ID & Variant identity\\
+AA & Amino acid change\\
+\end{oldlongtable}
+{
+\addtocounter{table}{-1}}}
+\newpage
 
-    {#VCF_TABLES#}
-\end{landscape}
-
-
-
+{#VCF_TABLES#}
 
 \end{document}

@@ -34,6 +34,8 @@ Changed
 - Update ``workflow-bbduk-star-htseq``
 - Update ``quantseq`` descriptor schema
 - Assert species and build in ``htseq-count-normalized`` process
+- Set amplicon report template in ``resolwebio/latex`` Docker image to
+  landscape mode
 
 Added
 -----
