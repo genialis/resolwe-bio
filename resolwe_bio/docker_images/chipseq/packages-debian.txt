@@ -1,6 +1,7 @@
 python
 python-pip
 samtools
+tabix
 
 # required for bokeh (required for bamliquidator)
 python-flask

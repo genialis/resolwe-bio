@@ -15,6 +15,7 @@ Added
 - Add to ``resolwebio/chipseq`` Docker image:
 
   - ``Bedops (v2.4.32)``
+  - ``Tabix (v1.8)``
 
 
 ==================
