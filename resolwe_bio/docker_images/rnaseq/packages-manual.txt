@@ -6,6 +6,7 @@ hisat2
 gotea
 genome-tools
 igvtools
+jbrowse
 r-packages
 rsem
 salmon
