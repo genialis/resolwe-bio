@@ -7,6 +7,7 @@ Included bioinformatics tools
 -----------------------------
 * BAMLIQUIDATOR (v1.3.4)
 * BAMPLOT (v0.9.0)
+* Bedops (v2.4.32)
 * MACS (v1.4.3)
 * MACS2 (v2.1.1.20160309)
 * ROSE2 (v1.0.5)

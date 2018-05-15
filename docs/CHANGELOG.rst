@@ -10,6 +10,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add to ``resolwebio/chipseq`` Docker image:
+
+  - ``Bedops (v2.4.32)``
+
 
 ==================
 9.0.0 - 2018-05-15
