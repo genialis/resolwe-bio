@@ -19,6 +19,7 @@ Included bioinformatics tools:
 * genometools (1.5.9)
 * HISAT2 (v2.1.0)
 * HTSeq (v0.9.1)
+* igvtools (v2.3.98)
 * loadSubread (0.0.1)
 * RSEM (v1.4.0)
 * rtracklayer (v1.38.0)

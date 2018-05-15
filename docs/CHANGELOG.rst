@@ -59,6 +59,7 @@ Added
 - Add to ``resolwebio/rnaseq`` Docker image:
 
   - ``genometools (1.5.9)``
+  - ``igvtools (v2.3.98)``
 
 Fixed
 -----
