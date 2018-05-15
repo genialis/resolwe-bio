@@ -47,6 +47,9 @@ Added
 - Add CPM normalization to ``htseq-count-raw`` process
 - Add ``workflow-bbduk-star-htseq-paired``
 - Add legend to amplicon report template in ``resolwebio/latex`` Docker image
+- Add to ``resolwebio/chipseq`` Docker image:
+
+  - ``Bedops (v2.4.32)``
 
 Fixed
 -----
