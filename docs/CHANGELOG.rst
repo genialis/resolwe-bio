@@ -36,6 +36,8 @@ Changed
 - Assert species and build in ``htseq-count-normalized`` process
 - Set amplicon report template in ``resolwebio/latex`` Docker image to
   landscape mode
+- Update ``wigToBigWig`` to kent-v364 version  in ``resolwebio/chipseq``
+  Docker image
 
 Added
 -----
