@@ -8,6 +8,7 @@ python-flask
 python-requests
 python-tornado
 python-pandas
+python3-pandas
 python-jinja2
 python-colorama
 python-markdown
