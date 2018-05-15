@@ -5,6 +5,7 @@ fastqc
 hisat2
 gotea
 genome-tools
+igvtools
 r-packages
 rsem
 salmon
