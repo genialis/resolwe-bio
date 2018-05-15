@@ -12,4 +12,5 @@ Included bioinformatics tools
 * MACS2 (v2.1.1.20160309)
 * ROSE2 (v1.0.5)
 * SAMTOOLS (v0.1.19)
+* Tabix (v1.8)
 * wigToBigWig (kent-v363)
