@@ -16,6 +16,7 @@ Included bioinformatics tools:
 * edgeR (v3.20.9)
 * FastQC (v0.11.7)
 * gotea (v0.0.4)
+* genometools (1.5.9)
 * HISAT2 (v2.1.0)
 * HTSeq (v0.9.1)
 * loadSubread (0.0.1)

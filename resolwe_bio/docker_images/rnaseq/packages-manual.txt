@@ -4,6 +4,7 @@ cufflinks
 fastqc
 hisat2
 gotea
+genome-tools
 r-packages
 rsem
 salmon

@@ -19,6 +19,9 @@ Added
   - ``python3-pandas``
   - ``bedGraphToBigWig (kent-v364)``
   - ``bedToBigBed (kent-v364)``
+- Add to ``resolwebio/rnaseq`` Docker image:
+
+  - ``genometools (1.5.9)``
 
 Changed
 -------
