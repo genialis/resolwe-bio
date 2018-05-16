@@ -10,14 +10,19 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+
+==================
+9.0.0 - 2018-05-15
+==================
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Simplify the ``amplicon-report`` process inputs
   by using Latex report template from the ``resolwebio/latex`` Docker image assets
 - **BACKWARD INCOMPATIBLE:** Simplify the ``coveragebed`` process inputs
   by using Bokeh assets from the ``resolwebio/dnaseq`` Docker image
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 9.x
 - Update ``wigToBigWig`` tool in ``resolwebio/chipseq`` Docker image
-- Require Resolwe 9.x
 - Use ``resolwebio/rnaseq:3.1.0`` Docker image in the following
   processes:
 
@@ -41,6 +46,7 @@ Changed
 
 Added
 -----
+- Support Python 3.6
 - Add ``template_amplicon_report.tex`` to ``resolwebio/latex`` Docker image
   assets
 - Add SnpEff tool and bokeh assets to ``resolwebio/dnaseq`` Docker image
@@ -77,7 +83,6 @@ Fixed
   ``featureCounts`` were not lexicographically sorted, division of normalized counts
   was done with values from other, incorrect, genes. Results from ``featureCounts``,
   but not ``HTSeq-count`` process, were affected.
-
 
 
 ==================
