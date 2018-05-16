@@ -29,6 +29,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Drop support for Python 3.4 and 3.5
 - Update ``wigToBigWig`` to kent-v364 version  in ``resolwebio/chipseq``
   Docker image
 

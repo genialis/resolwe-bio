@@ -5,8 +5,8 @@ Contributing
 Installing prerequisites
 ========================
 
-Make sure you have Python_ (3.4 or 3.5) installed on your system. If you don't
-have it yet, follow `these instructions
+Make sure you have Python_ 3.6 installed on your system. If you don't have it
+yet, follow `these instructions
 <https://docs.python.org/3/using/index.html>`__.
 
 Resolwe Bioinformatics requires PostgreSQL_ (9.4+). Many Linux distributions
@@ -92,11 +92,11 @@ Run docker::
     On Mac or Windows, Docker might complain about non-mounted volumes.
     You can edit volumes in *Docker => Preferences => File Sharing*
     The following volumes need to be shared:
-    
+
     - /private
     - /tmp
     - /var/folders
-    
+
 
     ``/private`` is shared by default. When you attempt to add ``/var/folders``
     it might try to add ``/private/var/folders`` which will cause Docker complaining

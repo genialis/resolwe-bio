@@ -59,7 +59,7 @@ setup(
         # have to pin it
         'django-filter~=1.0.0',
     ),
-    python_requires='>=3.4, <3.7',
+    python_requires='>=3.6, <3.7',
     extras_require = {
         'docs':  [
             # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't work with our custom
@@ -87,7 +87,7 @@ setup(
     test_suite='resolwe_bio.tests',
 
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         'Environment :: Web Environment',
         'Framework :: Django',
@@ -101,8 +101,6 @@ setup(
 
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
     ],
     keywords='bioinformatics resolwe bio pipelines dataflow django',
