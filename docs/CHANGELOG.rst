@@ -23,6 +23,7 @@ Added
 
   - ``genometools (1.5.9)``
   - ``igvtools (v2.3.98)``
+  - ``jbrowse (v1.12.0)``
 
 Changed
 -------
