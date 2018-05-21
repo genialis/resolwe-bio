@@ -10,23 +10,31 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Converted GFF3 to GTF file"
-  version: 0.1.1
+  version: 0.2.0
   type: data:annotation:gtf
   category: analyses
   description: >
     Convert gff3 to gtf format.
   input:
     - name: annotation
-      label: Annotation (GFF)
+      label: Annotation (GFF3)
       type: data:annotation:gff3
       description: >
         Annotation in GFF3 format.
-      validate_regex: '\.(gff|gff3)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:
     - name: annot
-      label: Converted gtf file
+      label: Converted GTF file
+      type: basic:file
+    - name: annot_sorted
+      label: Sorted GTF file
+      type: basic:file
+    - name: annot_sorted_idx_igv
+      label: Igv index for sorted GTF file
+      type: basic:file
+    - name: annot_sorted_track_jbrowse
+      label: Jbrowse track for sorted GTF
       type: basic:file
     - name: source
       label: Gene ID database
@@ -41,10 +49,24 @@
     runtime: polyglot
     language: bash
     program: |
-      NAME=`basename {{annotation.annot.file}} .gff`
-      gff3_to_gtf.py {{ annotation.annot.file }} "${NAME}.gtf"
 
-      re-save-file annot "${NAME}.gtf"
+      {% set name = ((annotation.annot.file|basename) | replace(".gff3","") | replace(".gff","")) %}
+      gff3_to_gtf.py {{ annotation.annot.file }} {{name}}.gtf
+      re-checkrc "Converting GFF3 to GTF failed."
+
+      igvtools sort {{name}}.gtf {{name}}_sorted.gtf
+      re-checkrc "Sorting with igvtools failed."
+      igvtools index {{name}}_sorted.gtf
+      re-checkrc "Indexing with igvtools failed."
+
+      flatfile-to-json.pl --gff {{name}}_sorted.gtf --out . --trackLabel "annotation"
+      re-checkrc "Annotation track processing for JBrowse failed."
+
+      re-save-file annot {{name}}.gtf
+      re-save-file annot_sorted {{name}}_sorted.gtf
+      re-save-file annot_sorted_idx_igv {{name}}_sorted.gtf.idx
+      re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation
+
       re-save source {{ annotation.source }}
       re-save species {{ annotation.species }}
       re-save build {{ annotation.build }}

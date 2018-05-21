@@ -87,6 +87,9 @@ class SupportProcessorTestCase(BioProcessTestCase):
 
         gff_to_gtf = self.run_process('gff-to-gtf', {'annotation': annotation.id})
         self.assertFile(gff_to_gtf, 'annot', 'gff_to_gtf_annotation.gtf')
+        del gff_to_gtf.output['annot_sorted_track_jbrowse']['total_size']  # Non-deterministic output.
+        self.assertFields(gff_to_gtf, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
+                                                                     'file': 'trackList.json'})
 
     @tag_process('archive-samples')
     def test_ars(self):

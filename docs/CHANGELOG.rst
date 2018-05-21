@@ -49,6 +49,7 @@ Added
 
   - ``upload-gff3``
   - ``upload-gtf``
+  - ``gff-to-gtf``
 
 Changed
 -------
