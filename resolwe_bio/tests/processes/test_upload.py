@@ -287,6 +287,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         }
         bed = self.run_process('upload-bed', inputs)
         self.assertFile(bed, 'bed', 'good.bed')
+        self.assertFile(bed, 'tbi_jbrowse', 'good.bed.gz.tbi')
 
     @tag_process('upload-geneset')
     def test_upload_geneset(self):

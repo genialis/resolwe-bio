@@ -50,6 +50,8 @@ Added
   - ``upload-gff3``
   - ``upload-gtf``
   - ``gff-to-gtf``
+- Add Tabix index for Jbrowse to ``upload-bed`` processor and use ``reslowebio/rnaseq``
+  Docker image
 
 Changed
 -------
@@ -122,6 +124,7 @@ Fixed
 - Fix output ``covplot_html`` of ``coveragebed`` process
 - Fix process ``archive-samples`` and ``amplicon-archive-multi-report`` to
   correctly handle nested file paths
+
 
 ==================
 9.0.0 - 2018-05-15

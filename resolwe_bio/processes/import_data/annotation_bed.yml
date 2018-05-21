@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/chipseq:2.1.0
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.1
+  version: 1.2.0
   type: data:bed
   category: upload
   persistence: RAW
@@ -53,6 +53,12 @@
     - name: bed
       label: BED file
       type: basic:file
+    - name: bed_jbrowse
+      label: Bgzip bed file for JBrowse
+      type: basic:file
+    - name: tbi_jbrowse
+      label: Bed file index for Jbrowse
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -66,6 +72,12 @@
       re-import {{ src.file_temp }} {{ src.file }} "bed|narrowPeak" "bed" 1.0
       bedops --ec --everything "${NAME}.bed" 1> /dev/null
       re-checkrc "BED file format validation failed. Check file integrity."
+
+      bgzip -c "${NAME}.bed" > "${NAME}.bed.gz"
+      tabix -p bed "${NAME}.bed.gz"
+
       re-save-file bed "${NAME}.bed"
+      re-save-file bed_jbrowse "${NAME}.bed.gz"
+      re-save-file tbi_jbrowse "${NAME}.bed.gz.tbi"
       re-save species {{ species }}
       re-save build {{ build }}
