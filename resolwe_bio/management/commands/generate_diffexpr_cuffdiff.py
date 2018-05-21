@@ -128,8 +128,18 @@ class Command(BaseCommand):
             with open(os.path.join(self.data_dir, str(ann.id), filename[:-3]), 'wb') as outfile:
                 shutil.copyfileobj(gzfile, outfile)
 
+        with open(os.path.join(self.data_dir, str(ann.id), 'trackList.json'), 'w'):
+            pass  # Create empty file for tests.
+
+        os.makedirs(os.path.join(self.data_dir, str(ann.id), 'tracks', 'annotation'))
+
         ann.output = {
             'annot': {'file': filename[:-3]},
+            'annot_sorted': {'file': filename[:-3]},
+            'annot_sorted_track_jbrowse': {
+                'file': 'trackList.json',
+                'refs': [],
+            },
             'source': 'UCSC',
             'species': 'Homo sapiens',
             'build': 'hg19'

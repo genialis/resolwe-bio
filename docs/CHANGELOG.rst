@@ -44,6 +44,11 @@ Added
   - ``alignment-hisat2``
   - ``alignment-star``
 - Add Jbrowse track output field to ``upload-genome`` processor.
+- Use ``reslowebio/rnaseq`` Docker image and add Jbrowse track and IGV
+  sorting and indexing to following processes:
+
+  - ``upload-gff3``
+  - ``upload-gtf``
 
 Changed
 -------
@@ -116,7 +121,6 @@ Fixed
 - Fix output ``covplot_html`` of ``coveragebed`` process
 - Fix process ``archive-samples`` and ``amplicon-archive-multi-report`` to
   correctly handle nested file paths
-
 
 ==================
 9.0.0 - 2018-05-15

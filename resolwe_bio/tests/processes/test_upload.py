@@ -270,6 +270,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         del genome.output['fasta_track_jbrowse']['total_size']  # Non-deterministic output.
         self.assertFields(genome, 'fasta_track_jbrowse', {'refs': ['seq'],
                                                           'file': 'seq/refSeqs.json'})
+
     @tag_process('upload-bed')
     def test_upload_bed(self):
         inputs = {
@@ -415,3 +416,39 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(vcf, 'tbi')
         self.assertFields(vcf, 'species', 'Homo sapiens')
         self.assertFields(vcf, 'build', 'b37')
+
+    @tag_process('upload-gff3')
+    def test_upload_gff3(self):
+        inputs = {
+            'src': 'PGSC upload.gff3',
+            'build': 'ST',
+            'source': 'PGSC',
+            'species': 'Solanum tuberosum',
+        }
+        upload_gff3 = self.run_process('upload-gff3', inputs)
+        del upload_gff3.output['annot_sorted_track_jbrowse']['total_size']  # Non-deterministic output.
+        self.assertFile(upload_gff3, 'annot_sorted', 'PGSC upload_sorted.gff3')
+        self.assertFields(upload_gff3, 'annot_sorted_idx_igv', {'file': 'PGSC upload_sorted.gff3.idx',
+                                                                'total_size': 126})
+        self.assertFields(upload_gff3, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
+                                                                      'file': 'trackList.json'})
+        self.assertFields(upload_gff3, 'species', 'Solanum tuberosum')
+        self.assertFields(upload_gff3, 'build', 'ST')
+
+    @tag_process('upload-gtf')
+    def test_upload_gtf(self):
+        inputs = {
+            'src': 'Hs GRCh38_86 upload.gtf',
+            'build': 'hg19',
+            'source': 'ENSEMBL',
+            'species': 'Homo Sapiens',
+        }
+        upload_gtf = self.run_process('upload-gtf', inputs)
+        del upload_gtf.output['annot_sorted_track_jbrowse']['total_size']  # Non-deterministic output.
+        self.assertFile(upload_gtf, 'annot_sorted', 'Hs GRCh38_86 upload_sorted.gtf')
+        self.assertFields(upload_gtf, 'annot_sorted_idx_igv', {'file': 'Hs GRCh38_86 upload_sorted.gtf.idx',
+                                                               'total_size': 116})
+        self.assertFields(upload_gtf, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
+                                                                     'file': 'trackList.json'})
+        self.assertFields(upload_gtf, 'species', 'Homo Sapiens')
+        self.assertFields(upload_gtf, 'build', 'hg19')
