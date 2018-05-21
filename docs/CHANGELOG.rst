@@ -43,6 +43,7 @@ Added
   - ``alignment-bwa-aln``
   - ``alignment-hisat2``
   - ``alignment-star``
+- Add Jbrowse track output field to ``upload-genome`` processor.
 
 Changed
 -------

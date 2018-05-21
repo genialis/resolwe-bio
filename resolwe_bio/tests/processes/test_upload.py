@@ -267,7 +267,9 @@ class UploadProcessorTestCase(BioProcessTestCase):
         self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index'})
         del genome.output['index_subread']['total_size']  # Non-deterministic output.
         self.assertFields(genome, "index_subread", {'dir': 'subread_index'})
-
+        del genome.output['fasta_track_jbrowse']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, 'fasta_track_jbrowse', {'refs': ['seq'],
+                                                          'file': 'seq/refSeqs.json'})
     @tag_process('upload-bed')
     def test_upload_bed(self):
         inputs = {

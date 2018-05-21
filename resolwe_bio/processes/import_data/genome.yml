@@ -14,7 +14,7 @@
       cores: 10
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.0.2
+  version: 3.1.0
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -115,6 +115,10 @@
     - name: dict
       label: Fasta dict
       type: basic:file
+    - name: fasta_track_jbrowse
+      label: Jbrowse track
+      type: basic:file
+      hidden: true
     - name: species
       label: Species
       type: basic:string
@@ -144,10 +148,15 @@
       picard-tools CreateSequenceDictionary R="${FASTA_NAME}.fasta" O="${FASTA_NAME}.dict"
       re-checkrc
 
+      # Create JBrowse track
+      prepare-refseqs.pl --fasta "${FASTA_NAME}".fasta.gz --out .
+      re-checkrc "Reference sequence processing for JBrowse failed."
+
       re-save-file fastagz "${FASTA_NAME}.fasta.gz"
       re-save-file fasta "${FASTA_NAME}.fasta"
       re-save-file fai "${FASTA_NAME}.fasta.fai"
       re-save-file dict "${FASTA_NAME}.dict"
+      re-save-file fasta_track_jbrowse seq/refSeqs.json seq
 
       re-save species {{species}}
       re-save build {{build}}
