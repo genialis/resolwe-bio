@@ -52,6 +52,8 @@ Added
   - ``gff-to-gtf``
 - Add Tabix index for Jbrowse to ``upload-bed`` processor and use ``reslowebio/rnaseq``
   Docker image
+- Add BigWig, BigBed and JBrowse track outputs to ``macs14`` process
+- Add Species and Build outputs to ``rose2`` process
 
 Changed
 -------
@@ -124,6 +126,7 @@ Fixed
 - Fix output ``covplot_html`` of ``coveragebed`` process
 - Fix process ``archive-samples`` and ``amplicon-archive-multi-report`` to
   correctly handle nested file paths
+- Change ``rose2`` to work with ``.bed`` or ``.bed.gz`` input file
 
 
 ==================

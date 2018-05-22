@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:1.1.0
+        image: resolwebio/chipseq:2.1.0
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.2.0
+  version: 2.3.0
   type: data:chipseq:macs14
   category: analyses
   persistence: CACHED
@@ -38,14 +38,35 @@
     - name: peaks_bed
       label: Peaks (BED)
       type: basic:file
+    - name: summits_bed
+      label: Summits (BED)
+      type: basic:file
     - name: peaks_xls
       label: Peaks (XLS)
       type: basic:file
     - name: wiggle
       label: Wiggle
       type: basic:file
-    - name: summits_bed
-      label: Summits (BED)
+    - name: control_bigwig
+      label: Control (bigWig)
+      type: basic:file
+      required: false
+    - name: treat_bigwig
+      label: Treat (bigWig)
+      type: basic:file
+    - name: peaks_bigbed_igv_ucsc
+      label: Peaks (bigBed)
+      type: basic:file
+      required: false
+    - name: summits_bigbed_igv_ucsc
+      label: Summits (bigBed)
+      type: basic:file
+      required: false
+    - name: peaks_tbi_jbrowse
+      label: JBrowse track peaks file
+      type: basic:file
+    - name: summits_tbi_jbrowse
+      label: JBrowse track summits file
       type: basic:file
     - name: model
       label: Model
@@ -95,29 +116,91 @@
         {% if control %}--control {{ control.bam.file }}{% endif %} \
         --format BAM \
         --gsize {{ gsize }} \
-        --name $NAME \
+        --name "${NAME}" \
         --pvalue {{ pvalue }} \
         --wig \
         --single-profile \
         --space=50
       re-checkrc
 
-      zip -r ${NAME}_MACS_wiggle.zip ${NAME}_MACS_wiggle
-      re-checkrc
+      # Get chromosome sizes for wigToBigWig transformation
+      samtools idxstats {{ treatment.bam.file }} | cut -f -2 | head -n -1 > chrom.sizes
 
-      re-save-file peaks_bed ${NAME}_peaks.bed
-      re-save-file peaks_xls ${NAME}_peaks.xls
-      re-save-file wiggle ${NAME}_MACS_wiggle.zip
-      re-save-file summits_bed ${NAME}_summits.bed
+      # Create BigWig files for IGV and UCSC genome browsers
+      wigToBigWig "${NAME}"_MACS_wiggle/treat/*.wig* chrom.sizes "${NAME}_treat_afterfiting_all.bw"
+      re-checkrc "Creating BigWig for treat sample have failed."
+      re-save-file treat_bigwig "${NAME}_treat_afterfiting_all.bw"
 
-      if [ -f ${NAME}_model.r ]
-      then
-        re-save-file model ${NAME}_model.r
+      #  When exists create BigWig files for control wigg file
+      if [ -d "${NAME}_MACS_wiggle"/control ]; then
+        wigToBigWig "${NAME}"_MACS_wiggle/control/*.wig* chrom.sizes "${NAME}_control_afterfiting_all.bw"
+        re-checkrc "Creating BigWig for control sample have failed."
+        re-save-file control_bigwig "${NAME}_control_afterfiting_all.bw"
       fi
 
-      if [ -f ${NAME}_negative_peaks.xls ]
+      zip -r "${NAME}_MACS_wiggle.zip" "${NAME}_MACS_wiggle"
+      re-checkrc
+
+      # if summits.bed file is not empty create BigBed file
+      if [[ -s "${NAME}_summits.bed" ]]; then
+
+        # Restrict all scores to the maximal value of 1000
+        bed_file_corrections_genome_browsers.py -f "${NAME}_summits.bed"
+        re-checkrc "Summits Bed file corrections for Genome Browsers failed."
+
+        # Create BigBed files for IGV and UCSC genome browsers
+        bedToBigBed "corrected_${NAME}_summits.bed" chrom.sizes "${NAME}_summits.bb"
+        re-checkrc "Creating bigBed from summits.bed file failed."
+
+        re-save-file summits_bigbed_igv_ucsc "${NAME}_summits.bb"
+
+      else
+        re-warning "BigBed index can't be created because summits.bed file is empty."
+
+      fi
+
+      # if peaks.bed file is not empty
+      if [[ -s "${NAME}_peaks.bed" ]]; then
+
+        # Restrict all scores to the maximal value of 1000
+        bed_file_corrections_genome_browsers.py -f "${NAME}_peaks.bed"
+        re-checkrc "Peaks Bed file corrections for Genome Browsers failed."
+
+        # Create BigBed files for IGV and UCSC genome browsers
+        bedToBigBed "corrected_${NAME}_peaks.bed" chrom.sizes "${NAME}_peaks.bb"
+        re-checkrc "Creating bigBed from peaks.bed file failed."
+
+        re-save-file peaks_bigbed_igv_ucsc "${NAME}_peaks.bed"
+
+      else
+        re-warning "BigBed index can't be created because peaks.bed file is empty."
+      fi
+
+      # Create tabix index of peaks and summits files for JBrowse
+      bgzip -c "${NAME}_peaks.bed" > "${NAME}_peaks.bed.gz"
+      tabix -p bed "${NAME}_peaks.bed.gz"
+      re-checkrc "Peaks.bed tabix processing for JBrowse failed."
+
+      bgzip -c "${NAME}_summits.bed" > "${NAME}_summits.bed.gz"
+      tabix -p bed "${NAME}_summits.bed.gz"
+      re-checkrc "Summits.bed tabix processing for JBrowse failed."
+
+      re-save-file peaks_bed "${NAME}_peaks.bed.gz"
+      re-save-file summits_bed "${NAME}_summits.bed.gz"
+      re-save-file peaks_xls "${NAME}_peaks.xls"
+      re-save-file wiggle "${NAME}_MACS_wiggle.zip"
+
+      re-save-file peaks_tbi_jbrowse "${NAME}_peaks.bed.gz.tbi"
+      re-save-file summits_tbi_jbrowse "${NAME}_summits.bed.gz.tbi"
+
+      if [ -f "${NAME}_model.r" ]
       then
-        re-save-file neg_peaks ${NAME}_negative_peaks.xls
+        re-save-file model "${NAME}_model.r"
+      fi
+
+      if [ -f "${NAME}_negative_peaks.xls" ]
+      then
+        re-save-file neg_peaks "${NAME}_negative_peaks.xls"
       fi
 
       re-save species {{ treatment.species }}

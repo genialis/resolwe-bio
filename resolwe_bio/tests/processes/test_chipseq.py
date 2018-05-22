@@ -75,7 +75,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
 
         self.assertFields(macs14, 'species', 'Homo sapiens')
         self.assertFields(macs14, 'build', 'hg19')
-        self.assertFile(macs14, 'peaks_bed', 'macs14_peaks.bed')
+        self.assertFile(macs14, 'peaks_bed', 'macs14_peaks.bed.gz')
+        self.assertFile(macs14, 'peaks_bigbed_igv_ucsc', 'macs14_peaks.bb')
+        self.assertFile(macs14, 'peaks_tbi_jbrowse', 'macs14_peaks.gz.tbi')
+        self.assertFile(macs14, 'summits_tbi_jbrowse', 'macs14_summits.gz.tbi')
+        self.assertFile(macs14, 'treat_bigwig', 'macs14_treat.bw')
 
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     @tag_process('rose2')

@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwebio/chipseq:1.0.0"
+        image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 2.0.5
+  version: 2.1.0
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -98,6 +98,12 @@
     - name: scatter_plot
       label: Super-Enhancer plot
       type: basic:json
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
@@ -110,30 +116,59 @@
         re-error "Please provide only one .bed peaks file."
       {% endif %}
 
-      {% if input_upload %}
-        NAME=`basename {{ input_upload.bed.file }} .bed`
-      {% else %}
-        NAME=`basename {{ input.peaks_bed.file }} .bed`
+      {% if input and input.species != rankby.species %}
+        re-error \
+          {{ ('Species of rankby bam file (%s) and input bed file (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same species.')
+             |format(input.species, rankby.species) }}
       {% endif %}
 
-      INPUT='-i {% if input_upload %}{{ input_upload.bed.file }}{% else %}{{ input.peaks_bed.file }}{% endif%}'
+      {% if input_upload and input_upload.species != rankby.species %}
+        re-error \
+          {{ ('Species of rankby bam file (%s) and upload bed file (%s) do not match. ' ~
+             'Please provide aligned reads and annotation with the same species.')
+             |format(input_upload.species, rankby.species) }}
+      {% endif %}
+
+      {% if input_upload %}
+        {% if (input_upload.bed.file|basename)[-4:] == '.bed' %}
+          NAME=`basename {{ input_upload.bed.file }} .bed`
+          cp {{ input_upload.bed.file }} "${NAME}.bed"
+        {% else %}
+          NAME=`basename {{ input_upload.bed.file }} .bed.gz`
+          bgzip -cd {{ input_upload.bed.file }} > "${NAME}".bed
+        {% endif %}
+
+      {% else %}
+        {% if (input.peaks_bed.file|basename)[-4:] == '.bed' %}
+          NAME=`basename {{ input.peaks_bed.file }} .bed`
+          cp {{ input.peaks_bed.file }} "${NAME}".bed
+        {% else %}
+          NAME=`basename {{ input.peaks_bed.file }} .bed.gz`
+          bgzip -cd {{ input.peaks_bed.file }} > "${NAME}".bed
+        {% endif %}
+      {% endif %}
+
       CONTROL='{% if control %}--control {{ control.bam.file }}{% endif %}'
       STITCH='{% if stitch %}--stitch {{ stitch }} {% endif %}'
-      rose2 --genome {{ genome }} ${INPUT} --rankby {{ rankby.bam.file }} ${CONTROL} --tss {{ tss }} ${STITCH} --out .
+      rose2 --genome {{ genome }} -i "${NAME}.bed" --rankby {{ rankby.bam.file }} ${CONTROL} --tss {{ tss }} ${STITCH} --out .
       re-checkrc "Rose2 run failed."
 
-      re-save-file all_enhancers ${NAME}_AllEnhancers.table.txt
-      re-save-file enhancers_with_super ${NAME}_Enhancers_withSuper.bed
-      re-save-file plot_points ${NAME}_Plot_points.png
-      re-save-file plot_panel ${NAME}_Plot_panel.png
-      re-save-file enhancer_gene ${NAME}_SuperEnhancers_ENHANCER_TO_GENE.txt
-      re-save-file enhancer_top_gene ${NAME}_SuperEnhancers_ENHANCER_TO_TOP_GENE.txt
-      re-save-file gene_enhancer ${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt
-      re-save-file stich_parameter ${NAME}_stitch_parameter.pdf
+      re-save-file all_enhancers "${NAME}_AllEnhancers.table.txt"
+      re-save-file enhancers_with_super "${NAME}_Enhancers_withSuper.bed"
+      re-save-file plot_points "${NAME}_Plot_points.png"
+      re-save-file plot_panel "${NAME}_Plot_panel.png"
+      re-save-file enhancer_gene "${NAME}_SuperEnhancers_ENHANCER_TO_GENE.txt"
+      re-save-file enhancer_top_gene "${NAME}_SuperEnhancers_ENHANCER_TO_TOP_GENE.txt"
+      re-save-file gene_enhancer "${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt"
+      re-save-file stich_parameter "${NAME}_stitch_parameter.pdf"
 
       plot_enhancers.py ${NAME}_AllEnhancers.table.txt scatter_plot.json {% if control %} -c {% endif %}
       re-checkrc
 
-      zip ${NAME}_output_all.zip ${NAME}_*
+      zip "${NAME}"_output_all.zip "${NAME}"_*
       re-save-file all_output ${NAME}_output_all.zip
       re-save scatter_plot scatter_plot.json
+
+      re-save species {{ rankby.species }}
+      re-save build {{ rankby.build }}
