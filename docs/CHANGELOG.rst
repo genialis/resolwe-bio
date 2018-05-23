@@ -30,6 +30,7 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Drop support for Python 3.4 and 3.5
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 10.x
 - Update ``wigToBigWig`` to kent-v364 version  in ``resolwebio/chipseq``
   Docker image
 
