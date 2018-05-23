@@ -30,9 +30,9 @@
 download_and_verify \
     kent \
     wigToBigWig \
-    kent-v364 \
-    e2743e9c15f911e882e8453be8141b7c0b80cf891ff02d96d93d51b1effe24b5 \
-    http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/wigToBigWig#.elf
+    kent-v365 \
+    278a7da9210b1b82c20dbce33c263094cd7f14b20fdc7f5dbe330bf709ddd04e \
+    https://drive.google.com/uc?id=19M6SZmS0xxaKe3srxt01d0FrdaIYWnHe#.elf
 
 add_binary_path \
     kent \

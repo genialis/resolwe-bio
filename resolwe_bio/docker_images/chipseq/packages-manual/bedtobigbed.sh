@@ -31,9 +31,9 @@
 download_and_verify \
     kent \
     bedToBigBed \
-    kent-v364 \
-    f20ec4f9cb2d740191554a68fefe86610aed998ec1cdc90b6016c3954e825846 \
-    http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bedToBigBed#.elf
+    kent-v365 \
+    a66027e1a51f803fef6bf234b90d0e4d6deee6027acfe2c0a65712f3157cca5d \
+    https://drive.google.com/uc?id=1N2pUaJuHgCUS4gztTcoybrRWw1m8WNtv#.elf
 
 wget https://raw.githubusercontent.com/ENCODE-DCC/kentUtils/master/src/hg/lib/encode/narrowPeak.as
 

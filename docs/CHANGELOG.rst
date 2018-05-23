@@ -17,8 +17,8 @@ Added
   - ``Bedops (v2.4.32)``
   - ``Tabix (v1.8)``
   - ``python3-pandas``
-  - ``bedGraphToBigWig (kent-v364)``
-  - ``bedToBigBed (kent-v364)``
+  - ``bedGraphToBigWig (kent-v365)``
+  - ``bedToBigBed (kent-v365)``
 - Add to ``resolwebio/rnaseq`` Docker image:
 
   - ``genometools (1.5.9)``
@@ -26,12 +26,11 @@ Added
   - ``jbrowse (v1.12.0)``
 - Support filtering by type on feature API endpoint
 
-
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Drop support for Python 3.4 and 3.5
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 10.x
-- Update ``wigToBigWig`` to kent-v364 version  in ``resolwebio/chipseq``
+- Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
 
 

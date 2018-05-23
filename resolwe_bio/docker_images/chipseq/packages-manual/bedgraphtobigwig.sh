@@ -31,9 +31,9 @@
 download_and_verify \
     kent \
     bedGraphToBigWig \
-    kent-v364 \
-    296caadb7e60645cdc689df13f55a8bd07991dd597de75574f929d399d6cbbf7 \
-    http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/bedGraphToBigWig#.elf
+    kent-v365 \
+    6dc7daaf18bd7b14933eb32cbbee559f5cd69d636578caf2b29e13996f9445c1 \
+    https://drive.google.com/uc?id=1GjBuK1JxSHrxWZhHnrTZmMsxwX6xGUWs#.elf
 
 add_binary_path \
     kent \
