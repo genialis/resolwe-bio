@@ -24,6 +24,8 @@ Added
   - ``genometools (1.5.9)``
   - ``igvtools (v2.3.98)``
   - ``jbrowse (v1.12.0)``
+- Support filtering by type on feature API endpoint
+
 
 Changed
 -------

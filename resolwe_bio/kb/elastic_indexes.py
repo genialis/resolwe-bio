@@ -41,7 +41,7 @@ class FeatureSearchDocument(BaseDocument):
         },
     )
     species = dsl.Keyword()
-    type = dsl.Keyword(index=False)  # pylint: disable=invalid-name
+    type = dsl.Keyword()  # pylint: disable=invalid-name
     sub_type = dsl.Keyword(index=False)
     name = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.

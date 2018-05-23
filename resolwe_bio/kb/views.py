@@ -34,7 +34,7 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('name', 'source', 'species', 'feature_id')
+    filtering_fields = ('name', 'source', 'species', 'feature_id', 'type')
     ordering_fields = ('name',)
     ordering = 'name'
 
@@ -80,7 +80,7 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('source', 'species')
+    filtering_fields = ('source', 'species', 'type')
 
     def get_always_allowed_arguments(self):
         """Return query arguments which are always allowed."""
