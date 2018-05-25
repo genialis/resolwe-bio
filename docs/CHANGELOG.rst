@@ -35,6 +35,10 @@ Changed
 - Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker
   image
 
+Fixed
+-----
+- Fix output ``covplot_html`` of ``coveragebed`` process
+
 
 ==================
 9.0.0 - 2018-05-15

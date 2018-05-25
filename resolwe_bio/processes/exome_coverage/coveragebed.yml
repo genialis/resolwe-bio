@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:3.2.0
+        image: resolwebio/dnaseq:3.2.1
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 4.0.1
+  version: 4.0.2
   type: data:coverage
   category: analyses
   flow_collection: sample
@@ -109,8 +109,9 @@
         --template "/opt/resolwebio/assets/amplicon_html_template.html" \
         --outfile "htmlplot/${SAMPLE_SLUG}_coverageplot.html"
       re-checkrc
+      mv "htmlplot/${SAMPLE_SLUG}_coverageplot.html" "${SAMPLE_SLUG}_coverageplot.html"
 
       re-save-file cov_metrics "${SAMPLE_SLUG}_covMetrics.txt"
       re-save-file mean_cov "${SAMPLE_SLUG}_ampmeancov.covd"
       re-save-file amplicon_cov "${SAMPLE_SLUG}_amplicon_coverage.cov"
-      re-save-file covplot_html "htmlplot/${SAMPLE_SLUG}_coverageplot.html" htmlplot
+      re-save-file covplot_html "${SAMPLE_SLUG}_coverageplot.html" htmlplot
