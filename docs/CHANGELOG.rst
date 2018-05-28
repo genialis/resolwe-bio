@@ -32,6 +32,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 10.x
 - Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
+- Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker
+  image
 
 
 ==================
