@@ -3,6 +3,7 @@ bowtie2
 bwa
 python-pip
 r-base-core
+tophat
 
 # Required by FastQC
 default-jre

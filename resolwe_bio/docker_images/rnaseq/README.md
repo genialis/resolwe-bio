@@ -31,5 +31,6 @@ Included bioinformatics tools:
 * Salmon (0.9.1)
 * STAR (v2.5.4b)
 * Subread (v1.6.0)
+* TopHat (v2.1.1)
 * Trimmomatic (v0.36)
 * tximport (v1.6.0)
