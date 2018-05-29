@@ -8,6 +8,7 @@ Included bioinformatics tools:
 * affy (v1.56.0)
 * BBMap (v37.90)
 * Bedtools (2.27.1)
+* Bowtie (v1.2.2)
 * Cufflinks (v2.2.1)
 * Cutadapt (v1.16)
 * DESeq2 (v1.16.1)

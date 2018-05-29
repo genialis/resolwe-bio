@@ -19,11 +19,14 @@ Added
   - ``python3-pandas``
   - ``bedGraphToBigWig (kent-v365)``
   - ``bedToBigBed (kent-v365)``
-- Add to ``resolwebio/rnaseq`` Docker image:
+- Add to ``resolwebio/rnaseq:3.1.0`` Docker image:
 
   - ``genometools (1.5.9)``
   - ``igvtools (v2.3.98)``
   - ``jbrowse (v1.12.0)``
+- Add to ``resolwebio/rnaseq:3.2.0`` Docker image:
+
+  - ``Bowtie (v1.2.2)``
 - Support filtering by type on feature API endpoint
 
 Changed
