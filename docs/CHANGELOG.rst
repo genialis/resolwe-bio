@@ -90,6 +90,8 @@ Fixed
 -----
 - Make management commands use a private random generator instance
 - Fix output ``covplot_html`` of ``coveragebed`` process
+- Fix process ``archive-samples`` and ``amplicon-archive-multi-report`` to
+  correctly handle nested file paths
 
 
 ==================

@@ -6,7 +6,7 @@
     executor:
       docker:
         image: resolwebio/latex:1.0.7
-  version: 0.2.3
+  version: 0.2.4
   type: "data:archive:samples:amplicon"
   category: other
   persistence: TEMP
@@ -45,18 +45,24 @@
       {% for d in data %}
         {% for field in fields %}
           {% if d[field].file %}
-            mkdir -p {{ d|sample_slug }}/{{ field }}/
-            ln -s --backup=numbered {{ d[field].file }} {{ d|sample_slug }}/{{ field }}/{{ d[field].file|basename }}
+            {% set link = d|sample_slug|string + '/' + field|string + '/' + d[field] | relative_path %}
+            mkdir -p {{ link | dirname }}
+            ln -s --backup=numbered {{ d[field].file }} {{ link }}
             {% for ref in d[field].refs %}
-              ln -s --backup=numbered {{ ref }} {{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
+              {% set ref_link = d|sample_slug|string + '/' + field|string + '/' + ref | relative_path %}
+              mkdir -p {{ ref_link | dirname }}
+              ln -s --backup=numbered {{ ref }} {{ ref_link }}
             {% endfor %}
           {% endif %}
           {% for file in d[field] %}
             {% if file.file %}
-              mkdir -p {{ d|sample_slug }}/{{ field }}/
-              ln -s --backup=numbered {{ file.file }} {{ d|sample_slug }}/{{ field }}/{{ file.file|basename }}
+              {% set link = d|sample_slug|string + '/' + field|string + '/' + file | relative_path %}
+              mkdir -p {{ link | dirname }}
+              ln -s --backup=numbered {{ d[field].file }} {{ link }}
               {% for ref in file.refs %}
-                ln -s --backup=numbered {{ ref }} {{ d|sample_slug }}/{{ field }}/{{ ref|basename }}
+                {% set ref_link = d|sample_slug|string + '/' + field|string + '/' + ref | relative_path %}
+                mkdir -p {{ ref_link | dirname }}
+                ln -s --backup=numbered {{ ref }} {{ ref_link }}
               {% endfor %}
             {% endif %}
           {% endfor %}

@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 from os.path import join
 
+from resolwe.flow.models import Process
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
@@ -65,6 +66,15 @@ class ReportProcessorTestCase(BioProcessTestCase):
 
     @tag_process('amplicon-archive-multi-report')
     def test_multisample_report(self):
+        # Modify covergebed process to also test for nested files.
+        process = Process.objects.filter(slug='coveragebed').order_by('-version')[0]
+        process.run['program'] = process.run['program'][:-70]
+        process.run['program'] += 'mv htmlplot htmlplot_cp\n'
+        process.run['program'] += 'mkdir htmlplot\n'
+        process.run['program'] += 'mv "${SAMPLE_SLUG}_coverageplot.html" htmlplot\n'
+        process.run['program'] += 're-save-file covplot_html "htmlplot/${SAMPLE_SLUG}_coverageplot.html" htmlplot_cp\n'
+        process.save()
+
         with self.preparation_stage():
             coverage, pcr_metrics, master_file, annot_vars = self.prepare_report_inputs(
                 bam_file='56GSID_10k_mate1_RG.bam',
@@ -85,8 +95,8 @@ class ReportProcessorTestCase(BioProcessTestCase):
             report = self.run_process('amplicon-report', report_inputs)
 
         multireport_inputs = {
-            'data': [report.id, report.id],  # Pretend as there are two distinct reports/samples
-            'fields': ['amplicon_cov'],
+            'data': [report.id, report.id, coverage.id],  # Pretend as there are two distinct reports/samples
+            'fields': ['amplicon_cov', 'covplot_html'],
         }
         multireport = self.run_process('amplicon-archive-multi-report', multireport_inputs)
         self.assertFileExists(multireport, 'archive')
