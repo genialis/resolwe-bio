@@ -27,6 +27,7 @@ Added
 - Add to ``resolwebio/rnaseq:3.2.0`` Docker image:
 
   - ``Bowtie (v1.2.2)``
+  - ``Bowtie2 (v2.3.4.1)``
 - Support filtering by type on feature API endpoint
 
 Changed
