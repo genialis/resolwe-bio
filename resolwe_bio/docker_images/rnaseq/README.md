@@ -10,6 +10,7 @@ Included bioinformatics tools:
 * Bedtools (2.27.1)
 * Bowtie (v1.2.2)
 * Bowtie2 (v2.3.4.1)
+* BWA (v0.7.17-r1188)
 * Cufflinks (v2.2.1)
 * Cutadapt (v1.16)
 * DESeq2 (v1.16.1)

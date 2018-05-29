@@ -1,5 +1,6 @@
 bowtie
 bowtie2
+bwa
 python-pip
 r-base-core
 

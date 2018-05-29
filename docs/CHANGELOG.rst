@@ -28,6 +28,7 @@ Added
 
   - ``Bowtie (v1.2.2)``
   - ``Bowtie2 (v2.3.4.1)``
+  - ``BWA (0.7.17-r1188)``
 - Support filtering by type on feature API endpoint
 
 Changed
