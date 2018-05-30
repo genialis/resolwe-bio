@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.1
+  version: 1.3.0
   type: data:alignment:bam:bowtie1
   category: analyses:alignment
   flow_collection: sample
@@ -118,6 +118,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -273,6 +276,8 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
+      bamtobigwig.sh "${FW_NAME}_mapped.bam"
+
       if [ -f "${FW_NAME}_unmapped.bam" ]; then
         re-save-file unmapped "${FW_NAME}_unmapped.fastq.gz"
       fi
@@ -283,12 +288,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
     resources:
       memory: 8192
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.1
+  version: 1.3.0
   type: data:alignment:bam:bowtie2
   category: analyses:alignment
   flow_collection: sample
@@ -428,6 +433,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -617,3 +625,5 @@
       re-save-file bai "${FW_NAME}.bam.bai"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
+
+      bamtobigwig.sh "${FW_NAME}.bam"

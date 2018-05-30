@@ -33,6 +33,10 @@ Added
 - Support filtering by type on feature API endpoint
 - Add Debian package ``file`` (1:5.32-2) to ``resolwebio/rnaseq:3.3.0``
   Docker image
+- Add BigWig output field to following processes:
+
+  - ``alignment-bowtie``
+  - ``alignment-bowtie2``
 
 Changed
 -------
@@ -85,6 +89,11 @@ Changed
   image
 - Move assay type input in BBDuk - STAR - featureCounts pipeline descriptor
   schema to advanced options
+- Use ``resolwebio/rnaseq:3.2.0`` Docker image with updated versions of tools
+  instead of ``resolwebio/legacy:1.0.0`` Docker image in following processes:
+
+  - ``alignment-bowtie`` with Bowtie (v1.2.2) instead of Bowtie (v1.1.2)
+  - ``alignment-bowtie2`` with Bowtie2 (v2.3.4.1) instead of Bowtie2 (v2.2.6)
 
 Fixed
 -----
