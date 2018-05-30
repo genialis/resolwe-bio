@@ -4,16 +4,16 @@
 ---
 
 - slug: alignment-bwa-mem
-  name: BWA MEM (0.7.5a)
+  name: BWA MEM
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -111,6 +111,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -214,19 +217,21 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
+      bamtobigwig.sh "${NAME}.bam"
+
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
 - slug: alignment-bwa-sw
-  name: BWA SW (0.7.5a)
+  name: BWA SW
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.2.0
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -270,6 +275,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -355,19 +363,21 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
+      bamtobigwig.sh "${NAME}.bam"
+
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
 - slug: alignment-bwa-aln
-  name: BWA ALN (0.7.5a)
+  name: BWA ALN
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.2.0
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -425,6 +435,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -525,6 +538,8 @@
       re-save-file stats "${NAME}_report.txt"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
+
+      bamtobigwig.sh "${NAME}.bam"
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"

@@ -38,6 +38,10 @@ Added
   - ``alignment-bowtie``
   - ``alignment-bowtie2``
   - ``alignment-tophat2``
+  - ``alignment-bwa-mem``
+  - ``alignment-bwa-sw``
+  - ``alignment-bwa-aln``
+
 
 Changed
 -------
@@ -96,6 +100,8 @@ Changed
   - ``alignment-bowtie`` with Bowtie (v1.2.2) instead of Bowtie (v1.1.2)
   - ``alignment-bowtie2`` with Bowtie2 (v2.3.4.1) instead of Bowtie2 (v2.2.6)
   - ``alignment-tophat2`` with TopHat (v2.1.1) instead of TopHat (v2.1.0)
+  - ``alignment-bwa-mem``, ``alignment-bwa-sw` and ``alignment-bwa-aln``
+    with BWA (v0.7.17-r1188) instead of BWA (v0.7.12-r1039)
 
 Fixed
 -----
