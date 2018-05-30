@@ -87,7 +87,10 @@ Changed
   - ``files-to-fastq-paired``
   - ``trimmomatic-single``
   - ``trimmomatic-paired``.
-
+- **BACKWARD INCOMPATIBLE:** Change Docker image in ``alignment-subread``
+  from ``resolwebio/legacy:1.0.0`` with Subread (v1.5.1) to ``resolwebio/rnaseq:3.2.0``
+  with Subread (v1.6.0). ``--multiMapping`` option was added instead of
+  ``--unique_reads``. By default aligner report uniquely mapped reads only.
 - Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
 - Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker

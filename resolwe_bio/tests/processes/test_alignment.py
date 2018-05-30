@@ -295,9 +295,11 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         inputs = {'genome': genome.id, 'reads': reads.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_reads_report.txt')
+        self.assertFile(aligned_reads, 'bam', 'subread_single.bam')
         self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
         self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
         inputs = {'genome': genome_2.id, 'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')
+        self.assertFile(aligned_reads, 'bam', 'subread_paired.bam')

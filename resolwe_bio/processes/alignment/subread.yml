@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.0.0
+  version: 2.0.0
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample
@@ -56,12 +56,12 @@
           default: 1
           description: >
             Specify the number of threads/CPUs used for mapping
-        - name: unique_reads
-          label: Output uniquely mapped reads
+        - name: multi_mapping
+          label: Report multi-mapping reads in addition to uniquely mapped reads.
           type: basic:boolean
           required: false
           description: >
-            Reads that were found to have more than one best mapping location will not be reported.
+            Reads that were found to have more than one best mapping location are going to be reported.
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -100,6 +100,9 @@
       required: false
     - name: stats
       label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: BigWig file
       type: basic:file
     - name: species
       label: Species
@@ -144,8 +147,6 @@
 
       re-progress 0.3
 
-      UNIQUE_READS="{% if options.unique_reads %}-u {% endif %}"
-
       echo "Align with subread:"
       {% if reads|type|subtype('data:reads:fastq:single:') %}
         subread-align \
@@ -157,7 +158,7 @@
           -m {{ options.consensus }} \
           -M {{ options.mis_matched_bp }} \
           -T {{ options.cpu_number }} \
-          ${UNIQUE_READS}
+          {% if options.multi_mapping %}--multiMapping{% endif %}
       {% else %}
         subread-align \
           -i "${INDEX}" \
@@ -169,7 +170,7 @@
           -m {{ options.consensus }} \
           -M {{ options.mis_matched_bp }} \
           -T {{ options.cpu_number }} \
-          ${UNIQUE_READS} \
+          {% if options.multi_mapping %}--multiMapping{% endif %} \
           -S {{ PE_options.reads_orientation }} \
           -p {{ PE_options.consensus_subreads }}
       {% endif %}
@@ -201,6 +202,8 @@
       re-save-file stats "${NAME}_report.txt"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
+
+      bamtobigwig.sh "${NAME}.bam"
 
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
