@@ -12,9 +12,9 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/rnaseq:1.1.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.4.2
+  version: 1.5.0
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -72,6 +72,9 @@
       label: Unmapped reads (mate 2)
       type: basic:file
       required: false
+    - name: bigwig
+      label: BigWig file
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -129,7 +132,7 @@
       samtools view -bS alignment_unsorted.sam > alignment_unsorted.bam
       re-checkrc
       re-progress 0.7
-      samtools sort alignment_unsorted.bam alignment
+      samtools sort alignment_unsorted.bam -o alignment.bam
       re-checkrc
       re-progress 0.8
       samtools index alignment.bam alignment.bam.bai
@@ -153,6 +156,8 @@
         then
           re-save-file unmapped_r "${NAME}_unmapped.out.mate2.fastq.gz"
       fi
+
+      bamtobigwig.sh "${NAME}.bam"
 
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}

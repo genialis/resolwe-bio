@@ -41,7 +41,7 @@ Added
   - ``alignment-bwa-mem``
   - ``alignment-bwa-sw``
   - ``alignment-bwa-aln``
-
+  - ``alignment-hisat2``
 
 Changed
 -------
@@ -102,6 +102,7 @@ Changed
   - ``alignment-tophat2`` with TopHat (v2.1.1) instead of TopHat (v2.1.0)
   - ``alignment-bwa-mem``, ``alignment-bwa-sw` and ``alignment-bwa-aln``
     with BWA (v0.7.17-r1188) instead of BWA (v0.7.12-r1039)
+  - ``alignment-hisat2`` with HISAT2 (v2.1.0) instead of HISAT2 (v2.0.3-beta)
 
 Fixed
 -----
