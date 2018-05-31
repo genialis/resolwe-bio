@@ -54,6 +54,8 @@ Added
   Docker image
 - Add BigWig, BigBed and JBrowse track outputs to ``macs14`` process
 - Add Species and Build outputs to ``rose2`` process
+- Add Species, Build, BigWig, BigBed and JBrowse track outputs to ``macs2``
+  process
 
 Changed
 -------
@@ -126,7 +128,8 @@ Fixed
 - Fix output ``covplot_html`` of ``coveragebed`` process
 - Fix process ``archive-samples`` and ``amplicon-archive-multi-report`` to
   correctly handle nested file paths
-- Change ``rose2`` to work with ``.bed`` or ``.bed.gz`` input file
+- Change ``rose2`` and ``chipseq-peakscore`` to work with ``.bed`` or
+  ``.bed.gz`` input files
 
 
 ==================

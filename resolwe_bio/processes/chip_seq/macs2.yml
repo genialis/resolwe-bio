@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwebio/chipseq:1.0.0"
+        image: resolwebio/chipseq:2.1.0
   data_name: "MACS2 analysis ({{ case.bam.file|basename|default('?') }})"
-  version: 1.0.10
+  version: 1.1.0
   type: data:chipseq:macs2:callpeak
   category: analyses
   flow_collection: sample
@@ -32,7 +32,13 @@
         - name: gsize
           label: Mappable genome size
           type: basic:string
-          placeholder: '3.4e7'
+          choices:
+            - label: "hs"
+              value: "2.7e9"
+            - label: "mm"
+              value: "1.87e9"
+            - label: "Dicty"
+              value: "3.4e7"
           required: false
           description: >
             It's the mappable genome size or effective genome size which is defined as the genome size which can be sequenced. Because of the repetitive features on the chromsomes, the actual mappable genome size will be smaller than the original size, about 90% or 70% of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is recommended for Dicty genome.
@@ -138,7 +144,7 @@
             When this flag is on, MACS will try to composite broad regions in BED12 ( a gene-model-like format ) by putting nearby highly enriched regions into a broad region with loose cutoff. The broad region is controlled by another cutoff through --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
         - name: broad_cutoff
           label: Broad cutoff
-          type: basic:integer
+          type: basic:decimal
           required: false
           disabled: "settings.call_summits === true"
           description: >
@@ -151,8 +157,20 @@
       label: Narrow peaks
       type: basic:file
       required: false
+    - name: narrow_peaks_bigbed_igv_ucsc
+      label: Narrow peaks (BigBed)
+      type: basic:file
+      required: false
     - name: summits
       label: Peak summits
+      type: basic:file
+      required: false
+    - name: summits_tbi_jbrowse
+      label: Peak summits tbi index for JBrowse
+      type: basic:file
+      required: false
+    - name: summits_bigbed_igv_ucsc
+      label: Summits (bigBed)
       type: basic:file
       required: false
     - name: broad_peaks
@@ -167,20 +185,46 @@
       label: Treatment pileup (bedGraph)
       type: basic:file
       required: false
+    - name: treat_pileup_bigwig
+      label: Treatment pileup (bigWig)
+      type: basic:file
+      required: false
     - name: control_lambda
       label: Control lambda (bedGraph)
+      type: basic:file
+      required: false
+    - name: control_lambda_bigwig
+      label: Control lambda (bigwig)
       type: basic:file
       required: false
     - name: model
       label: Model
       type: basic:file
       required: false
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
   run:
     runtime: polyglot
     language: bash
     program: |
       {% if settings.broad and settings.call_summits %}
         re-error "--broad can't be combined with --call-summits!"
+      {% endif %}
+
+      {% if control and case.build != control.build %}
+        re-error \
+          {{ ('All BAM files must share the same genome build information. ' ~
+             'BAM %s has %s while %s has %s build information.')
+             |format(case|name, case.build, control|name, control.build) }}
+      {% elif control and case.species != control.species %}
+        re-error \
+          {{ ('All BAM files must share the same species information. ' ~
+             'BAM %s has %s while %s has %s species information.')
+             |format(case|name, case.species, control|name, control.species) }}
       {% endif %}
 
       NAME=`basename {{ case.bam.file }} .bam`
@@ -200,11 +244,14 @@
       EXTSIZE='{% if settings.extsize %} --extsize {{settings.extsize}} {% endif %}'
       SHIFT='{% if settings.shift %} --shift {{settings.shift}} {% endif %}'
       BAND_WIDTH='{% if settings.band_width %} --bw {{settings.band_width}} {% endif %}'
-      BROAD_CUTOFF='{% if settings.broad_cutoff %} --broad-cutoff {{settings.broad_cutoff}} {% endif %}'
-      BROAD='{% if settings.broad and not settings.call_summits %} --broad ${BROAD_CUTOFF} {% endif %}'
       DOWN_SAMPLE='{% if settings.down_sample %} --down-sample {% endif %}'
       BEDGRAPH='{% if settings.bedgraph %} -B {% endif %}'
       CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
+
+      {% if settings.broad and not settings.call_summits %}
+        BROAD=' --broad {% if settings.broad_cutoff %} --broad-cutoff {{settings.broad_cutoff}}{% endif %}'
+      {% endif %}
+
 
       macs2 callpeak -t {{ case.bam.file }} ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
       re-checkrc "MACS2 processing failed"
@@ -220,19 +267,60 @@
         re-save-file model ${NAME}_model.pdf
       fi
 
-      re-progress 0.9
+      re-progress 0.7
 
       re-save-file called_peaks ${NAME}_peaks.xls
+
+      # Get chormosome sizes filr for bed to BigBed transformation
+      samtools idxstats {{ case.bam.file }} | cut -f -2 | head -n -1 > chrom.sizes
 
       {% if settings.broad and not settings.call_summits %}
         re-save-file broad_peaks ${NAME}_peaks.broadPeak
         re-save-file gappedPeak ${NAME}_peaks.gappedPeak
       {% else %}
-        re-save-file narrow_peaks ${NAME}_peaks.narrowPeak
-        re-save-file summits ${NAME}_summits.bed
+        # Maximize 5th column of narrowPeak and summits files to 1000.
+        bed_file_corrections_genome_browsers.py -f "${NAME}_peaks.narrowPeak"
+        re-checkrc "Peaks Bed file corrections for Genome Browsers failed."
+        bed_file_corrections_genome_browsers.py -f "${NAME}_summits.bed"
+        re-checkrc "Summits Bed file corrections for Genome Browsers failed."
+
+        # Create BigBed for IGV and UCSC genome browsers from narrowPeak file
+        bedToBigBed as=/opt/kent/bedToBigBed/narrowPeak.as -type=bed6+4 "corrected_${NAME}_peaks.narrowPeak" chrom.sizes "${NAME}_peaks_narrowPeak.bb"
+        re-checkrc "Creating BigBed from narrowPeak file failed."
+
+        # Create BigBed for IGV and UCSC genome browsers from summits file
+        bedToBigBed "corrected_${NAME}_summits.bed" chrom.sizes "${NAME}_summits.bb"
+        re-checkrc "Creating bigBed from summits.bed file failed."
+
+        # Create tabix index for summits.bed file for JBrowse
+        bgzip -c "${NAME}_summits.bed" > "${NAME}_summits.bed.gz"
+        tabix -p bed "${NAME}_summits.bed.gz"
+        re-checkrc "Summits.bed tabix processing for JBrowse failed."
+
+        re-save-file narrow_peaks "${NAME}_peaks.narrowPeak"
+        re-save-file narrow_peaks_bigbed_igv_ucsc "${NAME}_peaks_narrowPeak.bb"
+        re-save-file summits "${NAME}_summits.bed.gz"
+        re-save-file summits_tbi_jbrowse "${NAME}_summits.bed.gz.tbi"
+        re-save-file summits_bigbed_igv_ucsc "${NAME}_summits.bb"
       {% endif %}
 
       {% if settings.bedgraph %}
-        re-save-file treat_pileup ${NAME}_treat_pileup.bdg
-        re-save-file control_lambda ${NAME}_control_lambda.bdg
+        # case sensitive sorting
+        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_treat_pileup.bdg" > "${NAME}_treat_pileup_sorted.bdg"
+        # Create BigWig file for IGV and UCSC genome browsers
+        bedGraphToBigWig "${NAME}_treat_pileup_sorted.bdg" chrom.sizes "${NAME}_treat_pileup.bw"
+        re-checkrc "Creating bigWig from treat_pileup.bgd bedGraph failed."
+        re-save-file treat_pileup "${NAME}_treat_pileup.bdg"
+        re-save-file treat_pileup_bigwig "${NAME}_treat_pileup.bw"
+
+        # case sensitive sorting
+        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_control_lambda.bdg" > "${NAME}_control_lambda_sorted.bdg"
+        # Create BigWig file for IGV and UCSC genome browsers
+        bedGraphToBigWig "${NAME}_control_lambda_sorted.bdg" chrom.sizes "${NAME}_control_lambda.bw"
+        re-checkrc "Creating bigWig from control_lambda.bgd bedGraph failed."
+        re-save-file control_lambda "${NAME}_control_lambda.bdg"
+        re-save-file control_lambda_bigwig "${NAME}_control_lambda.bw"
       {% endif %}
+
+      re-save build {{ case.build }}
+      re-save species {{ case.species }}
