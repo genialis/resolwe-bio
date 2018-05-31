@@ -45,6 +45,7 @@ Changed
 
 Fixed
 -----
+- Make management commands use a private random generator instance
 - Fix output ``covplot_html`` of ``coveragebed`` process
 
 
