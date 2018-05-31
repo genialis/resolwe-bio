@@ -12,7 +12,6 @@ import gzip
 import json
 import logging
 import os
-import random
 import string
 import datetime
 
@@ -24,7 +23,7 @@ from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
 
-from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_descriptor
+from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_descriptor, rng
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -54,7 +53,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_random_word(length):
         """Generate a random word."""
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+        return ''.join(rng.choice(string.ascii_lowercase) for _ in range(length))
 
     def get_name(self, de_name):
         """Generate a random name."""
@@ -72,7 +71,7 @@ class Command(BaseCommand):
             with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
-                    expression = random.gammavariate(1, 100)
+                    expression = rng.gammavariate(1, 100)
                     csvwriter.writerow((gene, expression))
                     genes[gene] = expression
 
@@ -85,7 +84,7 @@ class Command(BaseCommand):
         sample_name = 'Deseq2_{}'.format(self.get_random_word(4))
 
         for i in range(num):
-            expression_file = 'exp_{}.tab.gz'.format(random.choice([1, 2, 3]))
+            expression_file = 'exp_{}.tab.gz'.format(rng.choice([1, 2, 3]))
 
             # Create expressios
             started = timezone.now()
@@ -150,12 +149,12 @@ class Command(BaseCommand):
         with gzip.open(gene_ids, mode='rt') as gene_ids:
             all_genes = [line.strip() for line in gene_ids]
             de_data[''] = all_genes
-            de_data['baseMean'] = [random.uniform(5, 500) for _ in all_genes]
-            de_data['log2FoldChange'] = [random.uniform(-10, 10) for _ in all_genes]
-            de_data['lfcSE'] = [random.uniform(0, 1) for _ in all_genes]
-            de_data['stat'] = [random.uniform(-10, 10) for _ in all_genes]
-            de_data['pvalue'] = [random.uniform(0, 1) for _ in all_genes]
-            de_data['padj'] = [random.uniform(0, 1) for _ in all_genes]
+            de_data['baseMean'] = [rng.uniform(5, 500) for _ in all_genes]
+            de_data['log2FoldChange'] = [rng.uniform(-10, 10) for _ in all_genes]
+            de_data['lfcSE'] = [rng.uniform(0, 1) for _ in all_genes]
+            de_data['stat'] = [rng.uniform(-10, 10) for _ in all_genes]
+            de_data['pvalue'] = [rng.uniform(0, 1) for _ in all_genes]
+            de_data['padj'] = [rng.uniform(0, 1) for _ in all_genes]
 
             rows = zip(de_data[''], de_data['baseMean'], de_data['log2FoldChange'],
                        de_data['lfcSE'], de_data['stat'], de_data['pvalue'], de_data['padj'])
@@ -266,6 +265,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command handle."""
         if options['rseed']:
-            random.seed(42)
+            rng.seed(42)
         for _ in range(options['n_diffexps']):
             self.generate_diffexp_data(options['group_size'])

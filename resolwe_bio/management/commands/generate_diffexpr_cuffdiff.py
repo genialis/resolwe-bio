@@ -12,7 +12,6 @@ import gzip
 import json
 import logging
 import os
-import random
 import shutil
 import string
 import datetime
@@ -25,7 +24,7 @@ from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
 from resolwe_bio.models import Sample
 
-from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_descriptor
+from .utils import get_descriptorschema, get_process, get_superuser, generate_sample_descriptor, rng
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -55,7 +54,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_random_word(length):
         """Generate a random word."""
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+        return ''.join(rng.choice(string.ascii_lowercase) for _ in range(length))
 
     def get_name(self, de_name):
         """Generate a random name."""
@@ -67,7 +66,7 @@ class Command(BaseCommand):
         sample_name = 'Cuffdiff_{}'.format(self.get_random_word(4))
 
         for i in range(num):
-            cuffquant_file = 'cuffquant_{}.cxb'.format(random.choice([1, 2]))
+            cuffquant_file = 'cuffquant_{}.cxb'.format(rng.choice([1, 2]))
 
             # Create expressios
             exp = Data.objects.create(
@@ -165,13 +164,13 @@ class Command(BaseCommand):
             de_data['sample_1'] = ['control'] * n_of_genes
             de_data['sample_2'] = ['case'] * n_of_genes
             de_data['status'] = ['OK'] * n_of_genes
-            de_data['value_1'] = [random.gammavariate(1, 100) for _ in all_genes]
-            de_data['value_2'] = [random.gammavariate(1, 100) for _ in all_genes]
-            de_data['log2(fold_change)'] = [random.uniform(-10, 10) for _ in all_genes]
-            de_data['test_stat'] = [random.uniform(-3, 3) for _ in all_genes]
-            de_data['p_value'] = [random.uniform(0, 1) for _ in all_genes]
-            de_data['q_value'] = [random.uniform(0, 1) for _ in all_genes]
-            de_data['significant'] = [random.choice(['yes', 'no']) for _ in all_genes]
+            de_data['value_1'] = [rng.gammavariate(1, 100) for _ in all_genes]
+            de_data['value_2'] = [rng.gammavariate(1, 100) for _ in all_genes]
+            de_data['log2(fold_change)'] = [rng.uniform(-10, 10) for _ in all_genes]
+            de_data['test_stat'] = [rng.uniform(-3, 3) for _ in all_genes]
+            de_data['p_value'] = [rng.uniform(0, 1) for _ in all_genes]
+            de_data['q_value'] = [rng.uniform(0, 1) for _ in all_genes]
+            de_data['significant'] = [rng.choice(['yes', 'no']) for _ in all_genes]
 
             rows = zip(de_data['test_id'], de_data['gene_id'], de_data['gene'],
                        de_data['locus'], de_data['sample_1'], de_data['sample_2'],
@@ -295,6 +294,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command handle."""
         if options['rseed']:
-            random.seed(42)
+            rng.seed(42)
         for _ in range(options['n_diffexps']):
             self.generate_diffexp_data(options['group_size'])

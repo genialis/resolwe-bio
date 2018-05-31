@@ -12,7 +12,6 @@ import gzip
 import json
 import logging
 import os
-import random
 import string
 import datetime
 
@@ -22,7 +21,7 @@ from django.utils import timezone
 
 from resolwe.flow.models import Data, Storage
 from resolwe.utils import BraceMessage as __
-from .utils import get_descriptorschema, get_process, get_superuser
+from .utils import get_descriptorschema, get_process, get_superuser, rng
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
@@ -50,7 +49,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_random_word(length):
         """Generate a random word."""
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+        return ''.join(rng.choice(string.ascii_lowercase) for _ in range(length))
 
     @staticmethod
     def generate_geneset_file(gene_ids, num, path):
@@ -59,7 +58,7 @@ class Command(BaseCommand):
             csvwriter = csv.writer(f, delimiter=str('\t'), lineterminator='\n')
             with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
-                geneset = sorted(set([random.choice(all_genes) for _ in range(num)]))
+                geneset = sorted(set([rng.choice(all_genes) for _ in range(num)]))
                 for gene in geneset:
                     csvwriter.writerow([gene])
 
@@ -71,7 +70,7 @@ class Command(BaseCommand):
         """Create gene set object."""
         started = timezone.now()
         geneset = Data.objects.create(
-            name='GeneSet_{}_{}'.format(random.choice(['Hs', 'Mm']), self.get_random_word(3)),
+            name='GeneSet_{}_{}'.format(rng.choice(['Hs', 'Mm']), self.get_random_word(3)),
             process=get_process('upload-geneset'),
             contributor=get_superuser(),
             started=started,
@@ -85,7 +84,7 @@ class Command(BaseCommand):
 
         os.mkdir(os.path.join(self.data_dir, str(geneset.id)))
         self.generate_geneset_file(mouse_genes,
-                                   random.randint(15, 150),
+                                   rng.randint(15, 150),
                                    os.path.join(self.data_dir, str(geneset.id)))
 
         json_object = Storage.objects.create(
@@ -115,6 +114,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command handle."""
         if options['rseed']:
-            random.seed(42)
+            rng.seed(42)
         for _ in range(options['n_geneset']):
             self.create_geneset()

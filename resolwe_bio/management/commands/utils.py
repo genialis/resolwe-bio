@@ -15,6 +15,33 @@ from django.contrib.auth import get_user_model
 from resolwe.flow.models import DescriptorSchema, Process
 
 
+class RandomProxy:
+    """Proxy class for routing random method calls.
+
+    The class diverts calls either to the system module, or to a private
+    :class:`~random.Random` instance.
+    """
+
+    def __init__(self):
+        """Construct an instance."""
+        self._rng = None
+
+    def __getattr__(self, name):
+        """Get the named attribute."""
+        if self._rng:
+            return getattr(self._rng, name)
+        else:
+            return getattr(random, name)
+
+    def seed(self, seed):
+        """Set random seed."""
+        self._rng = random.Random()
+        return self._rng.seed(seed)
+
+
+rng = RandomProxy()  # pylint: disable=invalid-name
+
+
 def get_process(slug):
     """Get process by slug."""
     process_qs = Process.objects.filter(slug=slug)
@@ -49,9 +76,9 @@ def generate_sample_descriptor(organism_name):
         descriptor = {
             'sample': {
                 'organism': 'Dictyostelium discoideum',
-                'annotator': random.choice(annotator),
-                'strain': random.choice(['AX2', 'AX4']),
-                'genotype': random.choice(['wildtype', 'tirA-']),
+                'annotator': rng.choice(annotator),
+                'strain': rng.choice(['AX2', 'AX4']),
+                'genotype': rng.choice(['wildtype', 'tirA-']),
                 'molecule': 'polyA RNA',
                 'description': 'Expression profiling'
             }
@@ -61,10 +88,10 @@ def generate_sample_descriptor(organism_name):
         descriptor = {
             'sample': {
                 'organism': 'Homo sapiens',
-                'annotator': random.choice(annotator),
+                'annotator': rng.choice(annotator),
                 'source': 'Primary tumor',
-                'cell_type': random.choice(['neuron', 'glia']),
-                'genotype': random.choice(['wildtype', 'CDK6-/-']),
+                'cell_type': rng.choice(['neuron', 'glia']),
+                'genotype': rng.choice(['wildtype', 'CDK6-/-']),
                 'molecule': 'polyA RNA',
                 'optional_char': ['Cell line: DBTRG-05MG'],
                 'description': "Human brain study. Expression profiling."
@@ -75,10 +102,10 @@ def generate_sample_descriptor(organism_name):
         descriptor = {
             'sample': {
                 'organism': 'Mus musculus',
-                'annotator': random.choice(annotator),
+                'annotator': rng.choice(annotator),
                 'source': 'Primary tumor',
-                'genotype': random.choice(['wildtype', 'CDK6-/-']),
-                'cell_type': random.choice(['neuron', 'microglia']),
+                'genotype': rng.choice(['wildtype', 'CDK6-/-']),
+                'cell_type': rng.choice(['neuron', 'microglia']),
                 'molecule': 'polyA RNA',
                 'optional_char': ['Cell line: EOC 2'],
                 'description': "Mouse brain study. Expression profiling."
