@@ -192,10 +192,11 @@ TEST_PROCESS_PROFILE = strtobool(os.environ.get('RESOLWE_TEST_PROCESS_PROFILE', 
 
 # Channels.
 
+ASGI_APPLICATION = 'tests.routing.channel_routing'
+
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'asgi_redis.RedisChannelLayer',
-        'ROUTING': 'tests.routing.channel_routing',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
             'hosts': [(REDIS_CONNECTION['host'], REDIS_CONNECTION['port'])],
             'expiry': 3600,
