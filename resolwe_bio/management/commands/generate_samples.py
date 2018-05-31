@@ -31,6 +31,7 @@ from .utils import (get_descriptorschema, get_process, get_superuser,
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+rng = random.Random()  # pylint: disable=invalid-name
 
 SPECIES_MAP = {
     'Dd': {
@@ -67,15 +68,15 @@ class Command(BaseCommand):
     @staticmethod
     def get_random_word(length):
         """Generate a random word."""
-        return ''.join(random.choice(string.ascii_lowercase) for _ in range(length))
+        return ''.join(rng.choice(string.ascii_lowercase) for _ in range(length))
 
     def set_name(self):
         """Set sample name."""
-        organism = random.choice(['Dictyostelium discoideum', 'Mus musculus', 'Homo sapiens'])
-        replicate = random.choice(['rep1', 'rep2', 'rep3', 'rep4', 'rep5'])
-        hour = random.choice(range(36))
-        kit = random.choice(['RiboZero', 'Nugen'])
-        group = random.choice(['treatment', 'control'])
+        organism = rng.choice(['Dictyostelium discoideum', 'Mus musculus', 'Homo sapiens'])
+        replicate = rng.choice(['rep1', 'rep2', 'rep3', 'rep4', 'rep5'])
+        hour = rng.choice(range(36))
+        kit = rng.choice(['RiboZero', 'Nugen'])
+        group = rng.choice(['treatment', 'control'])
         if organism == 'Dictyostelium discoideum':
             return 'Dd_{}_{}_hr_{}'.format(kit, replicate, hour)
         if organism == 'Mus musculus':
@@ -95,7 +96,7 @@ class Command(BaseCommand):
             with gzip.open(gene_ids, mode='rt') as gene_ids:
                 all_genes = [line.strip() for line in gene_ids]
                 for gene in all_genes:
-                    expression = round(random.gammavariate(1, 100), 2)
+                    expression = round(rng.gammavariate(1, 100), 2)
                     csvwriter.writerow((gene, expression))
                     genes[gene] = expression
 
@@ -259,7 +260,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command handle."""
         if options['rseed']:
-            random.seed(42)
+            rng.seed(42)
         for _ in range(options['n_samples']):
             self.create_data(annotated=True)
         for _ in range(options['n_presamples']):

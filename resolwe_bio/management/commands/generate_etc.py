@@ -20,6 +20,9 @@ from resolwe.flow.models import Data, Storage
 from .utils import get_descriptorschema, get_process, get_superuser
 
 
+rng = random.Random()  # pylint: disable=invalid-name
+
+
 class Command(BaseCommand):
     """Generate ETC objects."""
 
@@ -47,7 +50,7 @@ class Command(BaseCommand):
         with gzip.open(gene_ids, mode='rt') as gene_ids:
             all_genes = [line.strip() for line in gene_ids]
             for gene in all_genes:
-                etc = tuple(round(random.gammavariate(1, 100), 2) for _ in range(len(times)))
+                etc = tuple(round(rng.gammavariate(1, 100), 2) for _ in range(len(times)))
                 gene_etcs[gene] = etc
 
         json_dump = json.dumps({'etc': {'genes': gene_etcs, 'timePoints': times}}, indent=4, sort_keys=True)
@@ -63,13 +66,13 @@ class Command(BaseCommand):
                    ('3.', 'GtaC: WT vs. mutants'),
                    ('4.', 'lncRNA transcriptome')]
 
-        projct_number, project_name = random.choice(project)
+        projct_number, project_name = rng.choice(project)
 
         annotation = {'projectNumber': projct_number,
                       'project': project_name,
                       'citation': {'name': 'Rosengarten et. al.',
                                    'url': 'http://bmcgenomics.biomedcentral.com/articles/10.1186/s12864-015-1491-7'},
-                      'treatment': random.choice(['cAMP Pulses', 'Filter Development']),
+                      'treatment': rng.choice(['cAMP Pulses', 'Filter Development']),
                       'parental_strain': 'AX4',
                       'growth': 'K. pneumoniae'}
 
@@ -122,6 +125,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Command handle."""
         if options['rseed']:
-            random.seed(42)
+            rng.seed(42)
         for _ in range(options['n_etc']):
             self.create_data()
