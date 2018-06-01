@@ -9,11 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
     resources:
+      cores: 10
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.0.1
+  version: 3.0.2
   type: data:genome:fasta
   category: upload
   persistence: RAW
@@ -157,7 +158,10 @@
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie_index
       {% else %}
         mkdir bowtie_index
-        bowtie-build "${FASTA_NAME}.fasta" "bowtie_index/${FASTA_NAME}_index"
+        bowtie-build \
+          "${FASTA_NAME}.fasta" \
+          "bowtie_index/${FASTA_NAME}_index" \
+          --threads {{ requirements.resources.cores }}
         re-checkrc
         re-progress 0.6
       {% endif %}
@@ -170,7 +174,10 @@
         format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie2_index
       {% else %}
         mkdir bowtie2_index
-        bowtie2-build "$FASTA_NAME.fasta" "bowtie2_index/${FASTA_NAME}_index"
+        bowtie2-build \
+          "$FASTA_NAME.fasta" \
+          "bowtie2_index/${FASTA_NAME}_index" \
+          --threads {{ requirements.resources.cores }}
         re-checkrc
         re-progress 0.7
       {% endif %}
