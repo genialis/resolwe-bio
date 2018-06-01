@@ -390,13 +390,6 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
             },
             'annotation': {
                 'annotation': annotation_gtf.id,
-                'id_attribute': 'gene_id',
-            },
-            'advanced': {
-                'paired_end': {
-                    'is_paired_end': True,
-                    'require_both_ends_mapped': True,
-                },
             },
         }
 

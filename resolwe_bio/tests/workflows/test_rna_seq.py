@@ -107,11 +107,14 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
     @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired')
     def test_bbduk_star_featurecounts_workflow(self):
         with self.preparation_stage():
-            reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
-            paired_reads = self.prepare_paired_reads(['SRR2124780_1 1k.fastq.gz'], ['SRR2124780_2 1k.fastq.gz'])
-            annotation = self.prepare_annotation('HS chr21_short.gtf.gz')
-            star_index_fasta = self.prepare_adapters('HS chr21_ensembl.fa.gz')
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            reads = self.prepare_reads(['hs sim_reads_single.fastq.gz'])
+            paired_reads = self.prepare_paired_reads(['hs sim_reads1.fastq.gz'], ['hs sim_reads2.fastq.gz'])
+            annotation = self.prepare_annotation('hs annotation.gtf.gz')
+            star_index_fasta = self.prepare_adapters('hs genome.fasta.gz')
+            inputs = {
+                'annotation': annotation.id,
+                'genome2': star_index_fasta.id,
+            }
             star_index = self.run_process('alignment-star-index', inputs)
             adapters = self.prepare_adapters()
 
@@ -131,14 +134,14 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'workflow_ccshs.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'rc', 'feature_counts_rc_single.tab.gz', compression='gzip')
 
         inputs['preprocessing']['reads'] = paired_reads.id
         self.run_process('workflow-bbduk-star-featurecounts-paired', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'workflow_ccshp.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
 
     @tag_process('workflow-custom-cutadapt-star-htseq-single', 'workflow-custom-cutadapt-star-htseq-paired')
     def test_custom_cutadapt_star_htseq_workflow(self):

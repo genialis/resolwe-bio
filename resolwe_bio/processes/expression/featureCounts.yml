@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 0.5.0
+  version: 1.0.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -26,7 +26,8 @@
     by computing TPM and FPKM values. See
     [the official website](http://bioinf.wehi.edu.au/featureCounts/) and
     [the introductory paper](https://academic.oup.com/bioinformatics/article/30/7/923/232889)
-    for more information.
+    for more information. Count fragments (or templates) instead of reads
+    is enabled by default for paired-end data.
   input:
     - name: alignment
       label: Alignment
@@ -300,7 +301,7 @@
             - name: is_paired_end
               label: Count fragments (or templates) instead of reads
               type: basic:boolean
-              default: false
+              default: true
             - name: require_both_ends_mapped
               label: Count only read pairs that have both ends aligned
               type: basic:boolean

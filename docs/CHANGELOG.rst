@@ -39,6 +39,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Upgrade to Django Channels 2
 - **BACKWARD INCOMPATIBLE:** Drop support for Python 3.4 and 3.5
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 10.x
+- **BACKWARD INCOMPATIBLE:** Count fragments (or templates) instead of reads by
+  default in ``featureCounts`` process and ``BBDuk - STAR - featureCounts``
+  pipeline. The change applies only to paired-end data.
 - Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
 - Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker
