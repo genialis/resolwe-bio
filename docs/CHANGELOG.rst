@@ -42,6 +42,43 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Count fragments (or templates) instead of reads by
   default in ``featureCounts`` process and ``BBDuk - STAR - featureCounts``
   pipeline. The change applies only to paired-end data.
+- **BACKWARD INCOMPATIBLE:** Use ``resolwebio/rnaseq:3.2.0`` Docker image
+  in the following processes that output reads:
+
+  - ``upload-fastq-single``
+  - ``upload-fastq-paired``
+  - ``files-to-fastq-single``
+  - ``files-to-fastq-paired``
+  - ``reads-merge``
+  - ``bbduk-single``
+  - ``bbduk-paired``
+  - ``cutadapt-single``
+  - ``cutadapt-paired``
+  - ``cutadapt-custom-single``
+  - ``cutadapt-custom-paired``
+  - ``trimmomatic-single``
+  - ``trimmomatic-paired``.
+
+  This change unifies the version of ``FastQC`` tool (0.11.7) used for
+  quality control of reads in the aforementioned processes. The new Docker image
+  comes with an updated version of Cutadapt (1.16) which affects
+  the following processes:
+
+  - ``cutadapt-single``
+  - ``cutadapt-paired``
+  - ``cutadapt-custom-single``
+  - ``cutadapt-custom-paired``.
+
+  The new Docker image includes also an updated version of Trimmomatic (0.36)
+  used in the following processes:
+
+  - ``upload-fastq-single``
+  - ``upload-fastq-paired``
+  - ``files-to-fastq-single``
+  - ``files-to-fastq-paired``
+  - ``trimmomatic-single``
+  - ``trimmomatic-paired``.
+
 - Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
 - Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker

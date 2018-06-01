@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.2.0
   data_name: "Merged reads"
-  version: 1.0.10
+  version: 2.0.0
   type: data:reads:fastq:paired
   flow_collection: sample
   persistence: CACHED
