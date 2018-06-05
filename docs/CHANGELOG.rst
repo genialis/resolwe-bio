@@ -130,6 +130,8 @@ Changed
   - ``pandas`` (v0.23.0)
 - Replace ``bedgraphtobigwig`` with ``deepTools`` in ``resolwebio/rnaseq``
   Docker image, due to faster performance
+- Use ``resolwebio/rnaseq:3.3.0`` Docker image in ``alignment-star-index``
+  with STAR (v2.5.4b)
 
 Fixed
 -----

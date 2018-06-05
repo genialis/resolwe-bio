@@ -127,7 +127,8 @@ class AlignmentProcessorTestCase(BioProcessTestCase):
         self.run_process('alignment-star-index', inputs_gtf)
 
         inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
-        self.run_process('alignment-star-index', inputs_gff3)
+        star_index = self.run_process('alignment-star-index', inputs_gff3)
+        self.assertAlmostEqual(star_index.output['index']['size'], 1566163829, delta=5)
 
     @tag_process('alignment-star-index', 'alignment-star')
     def test_star(self):

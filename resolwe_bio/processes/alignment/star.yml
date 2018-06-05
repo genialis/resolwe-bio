@@ -401,12 +401,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.3.0
     resources:
       memory: 32768
       cores: 1
   data_name: "STAR genome index ({{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }})"
-  version: 1.2.1
+  version: 1.3.0
   type: data:genomeindex:star
   persistence: CACHED
   description: >
