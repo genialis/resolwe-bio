@@ -42,6 +42,7 @@ Added
   - ``alignment-bwa-sw``
   - ``alignment-bwa-aln``
   - ``alignment-hisat2``
+  - ``alignment-star``
 
 Changed
 -------
