@@ -1,6 +1,7 @@
 bowtie
 bowtie2
 bwa
+file
 picard-tools
 python-pip
 r-base-core

@@ -33,6 +33,8 @@ Added
   - ``Picard Tools (v2.18.5)``
   - ``bedGraphToBigWig (kent-v365)``
 - Support filtering by type on feature API endpoint
+- Add Debian package ``file`` (1:5.32-2) to ``resolwebio/rnaseq:3.3.0``
+  Docker image
 
 Changed
 -------
