@@ -1,6 +1,6 @@
 - slug: rna-seq-bbduk-star-featurecounts
   name: "Pipeline: BBDuk - STAR - featureCounts"
-  version: 0.1.0
+  version: 0.1.1
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
@@ -24,10 +24,17 @@
           value: Mus musculus
         - label: Rattus norvegicus
           value: Rattus norvegicus
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
     - name: assay_type
       label: Assay type
       type: basic:string
       default: auto
+      hidden: '!advanced'
       choices:
         - label: Detect automatically
           value: auto
@@ -45,12 +52,6 @@
         For paired-end reads, the first read has to be on the same strand and
         the second read on the opposite strand. In strand-specific reverse
         assay these rules are reversed.
-    - name: advanced
-      label: Show advanced options
-      type: basic:boolean
-      default: false
-      description: >
-        Inspect and modify parameters.
     - name: trailing
       label: Trailing quality
       type: basic:integer

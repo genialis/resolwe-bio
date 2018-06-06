@@ -85,6 +85,8 @@ Changed
   Docker image
 - Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker
   image
+- Move assay type input in BBDuk - STAR - featureCounts pipeline descriptor
+  schema to advanced options
 
 Fixed
 -----
