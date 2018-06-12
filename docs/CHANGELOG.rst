@@ -123,6 +123,10 @@ Changed
   - ``upload-genome``
 - Use ``resolwebio/base:ubuntu-18.04`` Docker image as a base image in
   ``resolwebio/utils`` Docker image
+- Update Python 3 packages in ``resolwebio/utils`` Docker image:
+
+  - ``numpy`` (v1.14.4)
+  - ``pandas`` (v0.23.0)
 
 Fixed
 -----
