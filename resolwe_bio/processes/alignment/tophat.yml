@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.2.0
+        image: resolwebio/rnaseq:3.4.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.1.1
+  version: 2.1.2
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -234,7 +234,7 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
-      bamtobigwig.sh "${NAME}.bam"
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50
 
       if [ -f "${NAME}_unmapped.bam" ]; then
         re-save-file unmapped "${NAME}_unmapped.bam"

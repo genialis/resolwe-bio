@@ -143,6 +143,8 @@ Fixed
   ``.bed.gz`` input files
 - Fix the ``expression-aggregator`` process so that it tracks the
   ``species`` of the input expression data
+- Fix ``bamtobigwig.sh`` to use ``deepTools`` instead of ``bedtools`` with
+  ``bedgraphToBigWig`` due to better time performance
 
 
 ==================

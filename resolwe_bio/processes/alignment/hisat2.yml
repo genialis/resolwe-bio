@@ -12,9 +12,9 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/rnaseq:3.2.0
+        image: resolwebio/rnaseq:3.4.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.5.0
+  version: 1.5.1
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -157,7 +157,7 @@
           re-save-file unmapped_r "${NAME}_unmapped.out.mate2.fastq.gz"
       fi
 
-      bamtobigwig.sh "${NAME}.bam"
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50
 
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}

@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.2.0
+        image: resolwebio/rnaseq:3.4.0
     resources:
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -167,7 +167,7 @@
             - label: Extend5pOfReads12
               value: Extend5pOfReads12
     - name: output_sam_bam
-      label: Output SAM and BAM
+      label: Output SAM, BAM and BigWig
       group:
         - name: outSAMunmapped
           label: --outSAMunmapped
@@ -202,6 +202,11 @@
             SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
             e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
           required: false
+        - name: bin_size_bigwig
+          label: Bin Size for the output of BigWig
+          type: basic:integer
+          default: 50
+          description: Size of the bins, in bases, for the output of the bigwig
   output:
     - name: bam
       label: Alignment file
@@ -385,7 +390,7 @@
       mv Log.final.out "${READS_NAME}_stats.txt"
       mv SJ.out.tab "${READS_NAME}_SJ.out.tab"
 
-      bamtobigwig.sh "${READS_NAME}.bam"
+      bamtobigwig.sh "${READS_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }}
 
       re-save-file bam "${READS_NAME}.bam"
       re-save-file bai "${READS_NAME}.bam.bai"
