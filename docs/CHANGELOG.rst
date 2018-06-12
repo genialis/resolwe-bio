@@ -128,6 +128,8 @@ Changed
 
   - ``numpy`` (v1.14.4)
   - ``pandas`` (v0.23.0)
+- Replace ``bedgraphtobigwig`` with ``deepTools`` in ``resolwebio/rnaseq``
+  Docker image, due to faster performance
 
 Fixed
 -----

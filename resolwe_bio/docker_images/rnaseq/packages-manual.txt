@@ -1,5 +1,4 @@
 bbmap
-bedgraphtobigwig
 bedtools
 cufflinks
 fastqc
