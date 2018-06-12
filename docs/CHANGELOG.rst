@@ -56,6 +56,7 @@ Added
 - Add Species and Build outputs to ``rose2`` process
 - Add Species, Build, BigWig, BigBed and JBrowse track outputs to ``macs2``
   process
+- Add ``scipy`` (v1.1.0) Python 3 package to ``resolwebio/utils`` Docker image
 
 Changed
 -------
