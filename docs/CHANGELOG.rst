@@ -130,6 +130,8 @@ Fixed
   correctly handle nested file paths
 - Change ``rose2`` and ``chipseq-peakscore`` to work with ``.bed`` or
   ``.bed.gz`` input files
+- Fix the ``expression-aggregator`` process so that it tracks the
+  ``species`` of the input expression data
 
 
 ==================

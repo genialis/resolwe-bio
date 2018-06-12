@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Expression aggregator"
-  version: 0.0.7
+  version: 0.1.0
   type: data:aggregator:expression
   category: analyses
   persistence: CACHED
@@ -39,6 +39,9 @@
     - name: source
       label: Gene ID database
       type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
     - name: exp_type
       label: Expression type
       type: basic:string
@@ -51,10 +54,22 @@
           re-warning "Genes in all expression data must be annotated by the same genome database."
           re-error "Expression {{ exps|first|name }} has {{ (exps|first).source }} gene IDs, while expression {{ e|name }} has {{ e.source }} gene IDs."
         {% endif %}
-        {% if e.exp_type != exps.0.exp_type %}
-          re-error "All expressions must be of the same type (TPM, FPKM,...)."
+        {% if e.species != (exps|first).species %}
+          re-warning "All samples must be derived from the same species."
+          re-error "Sample {{ e|sample_name }} is {{ e.species }}, while {{ (exps|first)|name }} is a(n) {{ (exps|first).species }}."
+        {% endif %}
+        {% if e.exp_type != (exps|first).exp_type %}
+          re-warning "All expressions must be of the same type (TPM, FPKM,...)."
+          re-error "Sample {{ e|sample_name }} is of {{ e.exp_type }} expresssion type, while {{ (exps|first)|name }} is {{ (exps|first).exp_type }}."
         {% endif %}
       {% endfor %}
+
+      {% if expr_aggregator %}
+        {% if expr_aggregator.species != (exps|first).species %}
+          re-warning "Cannot append expression data to the existing Expression Aggregator object that is of different species."
+          re-error "{{ expr_aggregator|name }} is {{ expr_aggregator.species }}, while {{ (exps|first)|name }} is a(n) {{ (exps|first).species }}."
+        {% endif %}
+      {% endif %}
 
       expression_aggregator.py \
         --expressions {% for e in exps %} {{e.exp.file}} {% endfor %} \
@@ -71,4 +86,5 @@
       re-save box_plot box_plot.json
       re-save log_box_plot log_box_plot.json
       re-save source {{(exps|first).source}}
-      re-save exp_type {{exps.0.exp_type}}
+      re-save exp_type {{(exps|first).exp_type}}
+      re-save species {{(exps|first).species}}
