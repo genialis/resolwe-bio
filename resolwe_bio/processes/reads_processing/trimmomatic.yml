@@ -15,7 +15,7 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:single:trimmomatic
   category: analyses
   flow_collection: sample
@@ -185,7 +185,7 @@
         FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
         re-save-file-list fastq "${NAME}.fastq.gz"
-        re-save-fisle-list fastqc_archive "${NAME}_fastqc.zip"
+        re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
         re-save-list fastqc_url "${FASTQC_URL}"
 
       {% else %}
