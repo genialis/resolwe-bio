@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+10.0.0 - 2018-06-19
+===================
 
 Added
 -----
@@ -30,9 +30,8 @@ Added
   - ``TopHat (v2.1.1)``
   - ``Picard Tools (v2.18.5)``
   - ``bedGraphToBigWig (kent-v365)``
+- Add Debian package ``file`` to ``resolwebio/rnaseq:3.3.0`` Docker image
 - Support filtering by type on feature API endpoint
-- Add Debian package ``file`` (1:5.32-2) to ``resolwebio/rnaseq:3.3.0``
-  Docker image
 - Add BigWig output field to following processes:
 
   - ``alignment-bowtie``
@@ -50,8 +49,8 @@ Added
   - ``upload-gff3``
   - ``upload-gtf``
   - ``gff-to-gtf``
-- Add Tabix index for Jbrowse to ``upload-bed`` processor and use ``reslowebio/rnaseq``
-  Docker image
+- Add Tabix index for Jbrowse to ``upload-bed`` processor and use
+  ``reslowebio/rnaseq`` Docker image
 - Add BigWig, BigBed and JBrowse track outputs to ``macs14`` process
 - Add Species and Build outputs to ``rose2`` process
 - Add Species, Build, BigWig, BigBed and JBrowse track outputs to ``macs2``
@@ -60,12 +59,13 @@ Added
 
 Changed
 -------
-- **BACKWARD INCOMPATIBLE:** Upgrade to Django Channels 2
 - **BACKWARD INCOMPATIBLE:** Drop support for Python 3.4 and 3.5
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 10.x
-- **BACKWARD INCOMPATIBLE:** Count fragments (or templates) instead of reads by
-  default in ``featureCounts`` process and ``BBDuk - STAR - featureCounts``
-  pipeline. The change applies only to paired-end data.
+- **BACKWARD INCOMPATIBLE:** Upgrade to Django Channels 2
+- **BACKWARD INCOMPATIBLE:** Count fragments (or templates) instead of reads
+  by default in ``featureCounts`` process and
+  ``BBDuk - STAR - featureCounts`` pipeline. The change applies only to
+  paired-end data.
 - **BACKWARD INCOMPATIBLE:** Use ``resolwebio/rnaseq:3.2.0`` Docker image
   in the following processes that output reads:
 
@@ -84,8 +84,8 @@ Changed
   - ``trimmomatic-paired``.
 
   This change unifies the version of ``FastQC`` tool (0.11.7) used for
-  quality control of reads in the aforementioned processes. The new Docker image
-  comes with an updated version of Cutadapt (1.16) which affects
+  quality control of reads in the aforementioned processes. The new Docker
+  image comes with an updated version of Cutadapt (1.16) which affects
   the following processes:
 
   - ``cutadapt-single``
@@ -103,13 +103,14 @@ Changed
   - ``trimmomatic-single``
   - ``trimmomatic-paired``.
 - **BACKWARD INCOMPATIBLE:** Change Docker image in ``alignment-subread``
-  from ``resolwebio/legacy:1.0.0`` with Subread (v1.5.1) to ``resolwebio/rnaseq:3.2.0``
-  with Subread (v1.6.0). ``--multiMapping`` option was added instead of
-  ``--unique_reads``. By default aligner report uniquely mapped reads only.
+  from ``resolwebio/legacy:1.0.0`` with Subread (v1.5.1) to
+  ``resolwebio/rnaseq:3.2.0`` with Subread (v1.6.0). ``--multiMapping`` option
+  was added instead of ``--unique_reads``. By default aligner report uniquely
+  mapped reads only.
 - Update ``wigToBigWig`` to kent-v365 version  in ``resolwebio/chipseq``
   Docker image
-- Change paths in HTML amplicon report template in ``resolwebio/dnaseq`` Docker
-  image
+- Change paths in HTML amplicon report template in ``resolwebio/dnaseq``
+  Docker image
 - Move assay type input in BBDuk - STAR - featureCounts pipeline descriptor
   schema to advanced options
 - Use ``resolwebio/rnaseq:3.2.0`` Docker image with updated versions of tools
