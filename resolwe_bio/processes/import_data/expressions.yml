@@ -194,11 +194,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.4.0
     resources:
       network: true
   data_name: '{{ exp.file|default("?") }}'
-  version: 1.2.0
+  version: 1.3.0
   type: data:expression
   category: upload
   persistence: RAW
@@ -234,6 +234,12 @@
     - name: exp_type
       label: Expression type
       type: basic:string
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
+      type: basic:json
     - name: source
       label: Gene ID source
       type: basic:string
@@ -254,18 +260,27 @@
         re-error "Please provide normalization type together with normalized expressions."
       {% elif exp and exp_type and cxb %}
         re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" "tab" 0.1 compress
-        EXP_NAME=${NAME}
-        EXP_TYPE={{exp_type}}
-        re-save exp_type ${EXP_TYPE}
-        re-save-file exp ${EXP_NAME}.tab.gz
-        re-save source {{cxb.source}}
-        re-save species {{cxb.species}}
-        re-save build {{cxb.build}}
+        re-save exp_type {{ exp_type }}
+        re-save-file exp "${NAME}.tab.gz"
+        re-save source {{ cxb.source }}
+        re-save species {{ cxb.species }}
+        re-save build {{ cxb.build }}
         # Cuffnorm process spawns an upload of gene-level expression files
         re-save feature_type gene
         expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt
+
+        create_expression_set.py \
+          --expressions "${NAME}.tab.gz" \
+          --source_db {{ cxb.source }} \
+          --species {{ cxb.species }} \
+          --output_name "${NAME}_expressions" \
+          --expressions_type {{ exp_type }}
+        re-checkrc
+
+        re-save-file exp_set "${NAME}_expressions.txt.gz"
+        re-save exp_set_json "${NAME}_expressions.json"
       {% endif %}
 
 
@@ -275,11 +290,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.4.0
     resources:
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:expression:star
   category: upload
   persistence: RAW
@@ -371,6 +386,12 @@
     - name: exp_type
       label: Expression type
       type: basic:string
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
+      type: basic:json
     - name: source
       label: Gene ID source
       type: basic:string
@@ -418,3 +439,13 @@
         re-save-file rc "${NAME}_rc_stranded_reverse.tab.gz"
         re-save-file exp "${NAME}_rc_stranded_reverse.tab.gz"
       fi
+
+      create_expression_set.py \
+        --expressions "${NAME}"_rc_*.tab.gz \
+        --source_db {{ source }} \
+        --species {{ species }} \
+        --output_name "${NAME}_expressions"
+      re-checkrc
+
+      re-save-file exp_set "${NAME}_expressions.txt.gz"
+      re-save exp_set_json "${NAME}_expressions.json"

@@ -10,6 +10,17 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add `exp_set` and `exp_set_json` output fields to expression processes:
+
+  - ``feature_counts``
+  - ``htseq-count``
+  - ``htseq-count-raw``
+  - ``rsem``
+  - ``upload-expression-cuffnorm``
+  - ``upload-expression-star``
+
 Fixed
 -----
 - Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after

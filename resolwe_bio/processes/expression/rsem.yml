@@ -8,12 +8,13 @@
   requirements:
     expression-engine: jinja
     resources:
-      cores: 1
+      cores: 4
+      network: true
     executor:
       docker:
-        image: resolwebio/rnaseq:1.2.0
+        image: resolwebio/rnaseq:3.4.0
   data_name: "Quantification ({{ (alignments|sample_name) }})"
-  version: 0.1.1
+  version: 0.2.0
   type: data:expression:rsem
   category: analyses
   flow_collection: sample
@@ -59,6 +60,12 @@
       type: basic:file
     - name: exp_json
       label: TPM (json)
+      type: basic:json
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
       type: basic:json
     - name: genes
       label: Results grouped by gene
@@ -132,14 +139,25 @@
       mv rsem.isoforms.results "${NAME}_isoforms.tab"
       gzip "${NAME}_isoforms.tab"
 
+      create_expression_set.py \
+        --expressions "${NAME}_rc.tab.gz" \
+        --source_db {{ expression_index.source }} \
+        --species {{ alignments.species }} \
+        --output_name "${NAME}_expressions" \
+        --norm_expressions "${NAME}_fpkm.tab.gz" "${NAME}_tpm.tab.gz" \
+        --norm_expressions_type FPKM TPM
+      re-checkrc
+
       re-save-file rc "${NAME}_rc.tab.gz"
       re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save exp_json "${NAME}_tpm.json"
+      re-save-file exp_set "${NAME}_expressions.txt.gz"
+      re-save exp_set_json "${NAME}_expressions.json"
       re-save exp_type 'TPM'
       re-save source {{ expression_index.source }}
-      re-save species {{alignments.species}}
-      re-save build {{alignments.build}}
+      re-save species {{ alignments.species }}
+      re-save build {{ alignments.build }}
       re-save feature_type transcript
       re-save-file log "${NAME}.log.gz"
       re-save-file genes "${NAME}_genes.tab.gz"

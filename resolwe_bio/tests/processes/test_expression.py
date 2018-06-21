@@ -2,10 +2,10 @@
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class ExpressionProcessorTestCase(BioProcessTestCase):
+class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('cufflinks', 'cuffmerge')
     def test_cufflinks(self):
@@ -81,6 +81,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(cuffquant, 'build', 'hg19')
         self.assertFields(cuffquant, 'source', 'UCSC')
 
+    @with_resolwe_host
     @tag_process('cuffnorm')
     def test_cuffnorm(self):
         with self.preparation_stage():
@@ -149,6 +150,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
 
         exp = Data.objects.last()
         self.assertFile(exp, 'exp', 'cuffnorm_expression.tab.gz', compression='gzip')
+        self.assertFile(exp, 'exp_set', 'cuffnorm_out_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(exp, exp.output['exp_set_json'], '', 'cuffnorm_exp_set.json.gz')
 
     @tag_process('expression-dicty', 'etc-bcm')
     def test_expression_dicty(self):
@@ -182,6 +185,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         etc = self.run_process('etc-bcm', inputs)
         self.assertJSON(etc, etc.output['etc'], '', 'etc.json.gz')
 
+    @with_resolwe_host
     @tag_process('htseq-count')
     def test_expression_htseq(self):
         with self.preparation_stage():
@@ -232,6 +236,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_json'], '', 'expression_htseq.json.gz')
+        self.assertFile(expression, 'exp_set', 'htseq_count_out_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(expression, expression.output['exp_set_json'], '', 'htseq_count_exp_set.json.gz')
         self.assertFields(expression, 'species', 'Dictyostelium discoideum')
         self.assertFields(expression, 'build', 'dd-05-2009')
         self.assertFields(expression, 'feature_type', 'gene')
@@ -242,6 +248,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         inputs['gff'] = annotation_wrong_build.pk
         expression = self.run_process('htseq-count', inputs, Data.STATUS_ERROR)
 
+    @with_resolwe_host
     @tag_process('htseq-count-raw')
     def test_expression_htseq_cpm(self):
         with self.preparation_stage():
@@ -268,6 +275,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         expression = self.run_process('htseq-count-raw', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_cpm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp_set', 'htseq_cpm_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(expression, expression.output['exp_set_json'], '', 'htseq_cpm_exp_set.json.gz')
         self.assertFields(expression, 'species', 'Dictyostelium discoideum')
         self.assertFields(expression, 'build', 'dd-05-2009')
 
@@ -358,6 +367,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         etcmerge = self.run_process('mergeetc', inputs)
         self.assertFile(etcmerge, "expset", "merged_etc.tab.gz", compression='gzip')
 
+    @with_resolwe_host
     @tag_process('feature_counts')
     def test_feature_counts(self):
         with self.preparation_stage():
@@ -397,6 +407,8 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFile(expression, 'rc', 'feature_counts_out_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'feature_counts_out_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'feature_counts_out_tpm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp_set', 'feature_counts_out_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(expression, expression.output['exp_set_json'], '', 'feature_counts_exp_set.json.gz')
         self.assertFields(expression, 'species', 'Homo sapiens')
         self.assertFields(expression, 'build', 'GRCh38_ens90')
         self.assertFields(expression, 'feature_type', 'gene')
@@ -435,6 +447,7 @@ class ExpressionProcessorTestCase(BioProcessTestCase):
         self.assertFields(salmon_index, 'species', 'Homo sapiens')
         self.assertFields(salmon_index, 'build', 'ens_90')
 
+    @with_resolwe_host
     @tag_process('feature_counts')
     def test_featurecounts_strandedness(self):
         with self.preparation_stage():

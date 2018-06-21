@@ -12,8 +12,9 @@
         image: resolwebio/rnaseq:3.1.0
     resources:
       cores: 10
+      network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 1.0.0
+  version: 1.1.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -393,6 +394,12 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
+      type: basic:json
     - name: feature_counts_output
       label: featureCounts output
       type: basic:file
@@ -584,6 +591,15 @@
       re-save exp_json json.txt
       re-progress 0.95
 
+      create_expression_set.py \
+        --expressions {{ name ~ '_rc.tab.gz' }} \
+        --source_db {{ annotation.annotation.source }} \
+        --species {{ alignment.aligned_reads.species }} \
+        --output_name {{ name ~ '_expressions' }} \
+        --norm_expressions {{ name ~ '_fpkm.tab.gz' }} {{ name ~ '_tpm.tab.gz' }} \
+        --norm_expressions_type FPKM TPM
+      re-checkrc
+
       re-save-file feature_counts_output {{ name ~ '_featureCounts_rc.txt.gz' }}
       re-save-file counts_summary featureCounts_rc.txt.summary
       {% if advanced.miscellaneous.report_reads %}
@@ -592,6 +608,8 @@
       re-save-file rc {{ name ~ '_rc.tab.gz' }}
       re-save-file fpkm {{ name ~ '_fpkm.tab.gz' }}
       re-save-file exp {{ name ~ '_tpm.tab.gz' }}
+      re-save-file exp_set {{ name ~ '_expressions.txt.gz' }}
+      re-save exp_set_json {{ name ~ '_expressions.json' }}
       re-save exp_type 'TPM'
       re-save source {{ annotation.annotation.source }}
       re-save species {{ alignment.aligned_reads.species }}

@@ -5,10 +5,10 @@ from django.core.exceptions import ValidationError
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class UploadProcessorTestCase(BioProcessTestCase):
+class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('upload-bam', 'upload-bam-indexed')
     def test_bam_upload(self):
@@ -136,6 +136,7 @@ class UploadProcessorTestCase(BioProcessTestCase):
         exp_8 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
+    @with_resolwe_host
     @tag_process('upload-cxb', 'upload-expression-cuffnorm')
     def test_upload_cuffquant_expr(self):
         inputs = {

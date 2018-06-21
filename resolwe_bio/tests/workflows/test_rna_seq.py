@@ -7,10 +7,10 @@ from guardian.shortcuts import assign_perm
 from resolwe.flow.models import Data
 from resolwe.test import with_resolwe_host, tag_process
 
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase, KBBioProcessTestCase
 
 
-class RNASeqWorkflowTestCase(BioProcessTestCase):
+class RNASeqWorkflowTestCase(KBBioProcessTestCase):
     @tag_process('workflow-rnaseq-cuffquant')
     def test_cuffquant_workflow(self):
         with self.preparation_stage():
@@ -29,6 +29,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
+    @with_resolwe_host
     @tag_process('workflow-bbduk-star-htseq')
     def test_bbduk_star_htseq_single_workflow(self):
         with self.preparation_stage():
@@ -70,6 +71,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFields(workflow, 'source', 'ENSEMBL')
         self.assertFields(workflow, 'species', 'Homo sapiens')
 
+    @with_resolwe_host
     @tag_process('workflow-bbduk-star-htseq-paired')
     def test_bbduk_star_htseq_paired_workflow(self):
         with self.preparation_stage():
@@ -104,6 +106,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFields(workflow, 'source', 'ENSEMBL')
         self.assertFields(workflow, 'species', 'Homo sapiens')
 
+    @with_resolwe_host
     @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired')
     def test_bbduk_star_featurecounts_workflow(self):
         with self.preparation_stage():
@@ -143,6 +146,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
 
+    @with_resolwe_host
     @tag_process('workflow-custom-cutadapt-star-htseq-single', 'workflow-custom-cutadapt-star-htseq-paired')
     def test_custom_cutadapt_star_htseq_workflow(self):
         with self.preparation_stage():
@@ -188,6 +192,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         workflow = Data.objects.last()
         self.assertFile(workflow, 'rc', 'workflow_ccshp.tab.gz', compression='gzip')
 
+    @with_resolwe_host
     @tag_process('workflow-custom-cutadapt-star-rsem-single', 'workflow-custom-cutadapt-star-rsem-paired')
     def test_custom_cutadapt_star_rsem_workflow(self):
         with self.preparation_stage():
@@ -242,7 +247,10 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFile(workflow, 'rc', 'workflow_ccsrp.tab.gz', compression='gzip')
         self.assertFile(workflow, 'genes', 'rsem_genes_paired.tab.gz', compression='gzip')
         self.assertFile(workflow, 'transcripts', 'rsem_isoforms_paired.tab.gz', compression='gzip')
+        self.assertFile(workflow, 'exp_set', 'rsem_paired_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(workflow, workflow.output['exp_set_json'], '', 'rsem_paired_exp_set.json.gz')
 
+    @with_resolwe_host
     @tag_process('workflow-rnaseq-single')
     def test_rnaseq_single_workflow(self):
         with self.preparation_stage():
@@ -286,6 +294,7 @@ class RNASeqWorkflowTestCase(BioProcessTestCase):
         self.assertFields(workflow, 'exp_type', 'TPM')
         self.assertFields(workflow, 'source', 'DICTYBASE')
 
+    @with_resolwe_host
     @tag_process('workflow-rnaseq-paired')
     def test_rnaseq_paired_workflow(self):
         with self.preparation_stage():

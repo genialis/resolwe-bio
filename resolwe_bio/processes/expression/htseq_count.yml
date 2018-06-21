@@ -10,8 +10,10 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.1.0
+    resources:
+      network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.2.3
+  version: 1.3.0
   type: data:expression:htseq:normalized
   category: analyses
   flow_collection: sample
@@ -102,6 +104,12 @@
     - name: exp_type
       label: Expression Type (default output)
       type: basic:string
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
+      type: basic:json
     - name: source
       label: Gene ID database
       type: basic:string
@@ -192,10 +200,21 @@
       re-save exp_json json.txt
       re-progress 0.95
 
+      create_expression_set.py \
+        --expressions "${NAME}_rc.tab.gz" \
+        --source_db {{ gff.source }} \
+        --species {{ alignments.species }} \
+        --output_name "${NAME}_expressions" \
+        --norm_expressions "${NAME}_fpkm.tab.gz" "${NAME}_tpm.tab.gz" \
+        --norm_expressions_type FPKM TPM
+      re-checkrc
+
       re-save-file rc "${NAME}_rc.tab.gz"
       re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
+      re-save-file exp_set "${NAME}_expressions.txt.gz"
+      re-save exp_set_json "${NAME}_expressions.json"
       re-save exp_type 'TPM'
       re-save source {{gff.source}}
       re-save species {{alignments.species}}
@@ -210,8 +229,10 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.0.0
+    resources:
+      network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.3.0
+  version: 1.4.0
   type: data:expression:htseq:cpm
   category: analyses
   flow_collection: sample
@@ -300,6 +321,12 @@
       type: basic:file
     - name: exp_json
       label: CPM (json)
+      type: basic:json
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
       type: basic:json
     - name: exp_type
       label: Expression Type (default output)
@@ -393,9 +420,20 @@
       re-save exp_json json.txt
       re-progress 0.95
 
+      create_expression_set.py \
+        --expressions "${NAME}_rc.tab.gz" \
+        --source_db {{ gff.source }} \
+        --species {{ alignments.species }} \
+        --output_name "${NAME}_expressions" \
+        --norm_expressions "${NAME}_cpm.tab.gz" \
+        --norm_expressions_type CPM
+      re-checkrc
+
       re-save-file rc "${NAME}_rc.tab.gz"
       re-save-file exp "${NAME}_cpm.tab.gz"
       re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
+      re-save-file exp_set "${NAME}_expressions.txt.gz"
+      re-save exp_set_json "${NAME}_expressions.json"
       re-save exp_type 'CPM'
       re-save source {{gtf.source}}
       re-save species {{alignments.species}}

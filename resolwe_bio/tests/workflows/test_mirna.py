@@ -1,10 +1,11 @@
 # pylint: disable=missing-docstring,invalid-name
 from resolwe.test import tag_process
 from resolwe.flow.models import Data
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class MicroRNATestCase(BioProcessTestCase):
+class MicroRNATestCase(KBBioProcessTestCase):
+    @with_resolwe_host
     @tag_process('workflow-mirna')
     def test_mirna_workflow(self):
         # Prepare data for aligning the reads with bowtie2 and annotation file for featureCounts.
