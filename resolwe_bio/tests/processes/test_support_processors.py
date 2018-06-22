@@ -2,10 +2,10 @@
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class SupportProcessorTestCase(BioProcessTestCase):
+class SupportProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('reference_compatibility')
     def test_reference_compatibility(self):
@@ -91,6 +91,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
         self.assertFields(gff_to_gtf, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
                                                                      'file': 'trackList.json'})
 
+    @with_resolwe_host
     @tag_process('archive-samples')
     def test_ars(self):
         with self.preparation_stage():
@@ -159,6 +160,7 @@ class SupportProcessorTestCase(BioProcessTestCase):
 
         self.assertFile(prepare_geo_chipseq, 'table', 'prepare_geo_ChIP-Seq.txt')
 
+    @with_resolwe_host
     @tag_process('prepare-geo-rnaseq')
     def test_prepare_geo_rnaseq(self):
         with self.preparation_stage():

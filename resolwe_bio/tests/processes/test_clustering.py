@@ -1,10 +1,11 @@
 # pylint: disable=missing-docstring
 from resolwe.test import tag_process
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class ClusteringProcessorTestCase(BioProcessTestCase):
+class ClusteringProcessorTestCase(KBBioProcessTestCase):
 
+    @with_resolwe_host
     @tag_process('clustering-hierarchical-samples')
     def test_hc_clustering_samples_ucsc(self):
         with self.preparation_stage():
@@ -36,6 +37,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         self.assertEqual(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)
 
+    @with_resolwe_host
     @tag_process('clustering-hierarchical-genes')
     def test_hc_clustering_genes_ucsc(self):
         with self.preparation_stage():
@@ -67,6 +69,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         self.assertEqual(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)
 
+    @with_resolwe_host
     @tag_process('clustering-hierarchical-genes')
     def test_hc_clustering_genes_ncbi(self):
         with self.preparation_stage():
@@ -96,6 +99,7 @@ class ClusteringProcessorTestCase(BioProcessTestCase):
         self.assertEqual(test_json['linkage'], saved_json['linkage'])
         self.assertTrue('order' in test_json)
 
+    @with_resolwe_host
     @tag_process('clustering-hierarchical-samples')
     def test_hc_clustering_samples_ncbi(self):
         with self.preparation_stage():

@@ -303,6 +303,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(index_fasta_nucl, 'species', 'Homo sapiens')
         self.assertFields(index_fasta_nucl, 'build', 'ens_90')
 
+    @with_resolwe_host
     @tag_process('mergeexpressions')
     def test_mergeexpression(self):
         with self.preparation_stage():

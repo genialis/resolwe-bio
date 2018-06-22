@@ -18,6 +18,7 @@ Added
   - ``htseq-count``
   - ``htseq-count-raw``
   - ``rsem``
+  - ``upload-expression``
   - ``upload-expression-cuffnorm``
   - ``upload-expression-star``
 

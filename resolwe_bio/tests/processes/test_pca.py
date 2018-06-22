@@ -2,11 +2,11 @@
 import six
 
 from resolwe.test import tag_process
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class PcaProcessorTestCase(BioProcessTestCase):
-
+class PcaProcessorTestCase(KBBioProcessTestCase):
+    @with_resolwe_host
     @tag_process('pca')
     def test_pca(self):
         with self.preparation_stage():
@@ -46,6 +46,7 @@ class PcaProcessorTestCase(BioProcessTestCase):
             'Gene selection and filtering resulted in no genes. Please select different samples or genes.'
         )
 
+    @with_resolwe_host
     @tag_process('pca')
     def test_pca_ncbi(self):
         with self.preparation_stage():

@@ -44,6 +44,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(upload_bam, 'species', 'Homo sapiens')
         self.assertFields(upload_bam, 'build', 'hg19')
 
+    @with_resolwe_host
     @tag_process('upload-expression')
     def test_upload_expression(self):
         inputs = {
@@ -105,6 +106,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(exp_5, 'exp', 'exp_1_tpm.tab.gz')
         self.assertFile(exp_5, 'rc', 'exp_1_rc.tab.gz')
         self.assertJSON(exp_5, exp_5.output['exp_json'], '', 'exp_1_norm.json.gz')
+        self.assertJSON(exp_5, exp_5.output['exp_set_json'], '', 'upload_exp_norm_set.json.gz')
 
         inputs = {
             'rc': 'exp_mac_line_ending.txt.gz',

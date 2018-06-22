@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.4.0
     resources:
       network: true
   data_name: '{{ exp_name }}'
-  version: 2.0.0
+  version: 2.1.0
   type: data:expression
   flow_collection: sample
   category: upload
@@ -112,6 +112,12 @@
     - name: exp_type
       label: Expression type
       type: basic:string
+    - name: exp_set
+      label: Expressions
+      type: basic:file
+    - name: exp_set_json
+      label: Expressions (json)
+      type: basic:json
     - name: source
       label: Gene ID source
       type: basic:string
@@ -139,53 +145,64 @@
 
       {% elif rc and not exp and not exp_type %}
         re-import {{ rc.file_temp|default(rc.file) }} {{ rc.file }} "txt|tab|gz" "tab" 0.1 compress
-        EXP_TYPE="RC"
-        re-save exp_type ${EXP_TYPE}
-        re-save-file exp ${NAME}.tab.gz
-        re-save-file rc ${NAME}.tab.gz
+        EXP_NAME="${NAME}"
+        re-save exp_type RC
+        re-save-file exp "${EXP_NAME}.tab.gz"
+        re-save-file rc "${EXP_NAME}.tab.gz"
 
         expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt
-        re-save source {{source}}
-        re-save species {{species}}
-        re-save build {{build}}
-        re-save feature_type {{feature_type}}
+        re-save source {{ source }}
+        re-save species {{ species }}
+        re-save build {{ build }}
+        re-save feature_type {{ feature_type }}
 
       {% elif exp and exp_type and not rc %}
         re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" "tab" 0.1 compress
-        EXP_NAME=${NAME}
-        EXP_TYPE={{exp_type}}
-        re-save exp_type ${EXP_TYPE}
-        re-save-file exp ${EXP_NAME}.tab.gz
-        re-save feature_type {{feature_type}}
+        EXP_NAME="${NAME}"
+        re-save exp_type {{ exp_type }}
+        re-save-file exp "${EXP_NAME}.tab.gz"
+        re-save feature_type {{ feature_type }}
 
         expression2storage.py --output json.txt "${NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt
-        re-save source {{source}}
-        re-save species {{species}}
-        re-save build {{build}}
-        re-save feature_type {{feature_type}}
+        re-save source {{ source }}
+        re-save species {{ species }}
+        re-save build {{ build }}
+        re-save feature_type {{ feature_type }}
 
       {% else %}
         re-import {{ rc.file_temp|default(rc.file) }} {{ rc.file }} "txt|tab|gz" "tab" 0.5 compress
-        RC_NAME=${NAME}
-        re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" "tab" 0.9 compress
         EXP_NAME=${NAME}
-        EXP_TYPE={{exp_type}}
-        re-save exp_type ${EXP_TYPE}
-        re-save-file exp ${EXP_NAME}.tab.gz
-        re-save-file rc ${RC_NAME}.tab.gz
+        re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" "tab" 0.9 compress
+        NORM_EXP_NAME=${NAME}
+        re-save exp_type {{ exp_type }}
+        re-save-file exp "${NORM_EXP_NAME}.tab.gz"
+        re-save-file rc "${EXP_NAME}.tab.gz"
 
-        expression2storage.py --output json.txt "${EXP_NAME}.tab.gz"
+        expression2storage.py --output json.txt "${NORM_EXP_NAME}.tab.gz"
         re-checkrc
         re-save exp_json json.txt
-        re-save source {{source}}
-        re-save species {{species}}
-        re-save build {{build}}
-        re-save feature_type {{feature_type}}
+        re-save source {{ source }}
+        re-save species {{ species }}
+        re-save build {{ build }}
+        re-save feature_type {{ feature_type }}
       {% endif %}
+
+      create_expression_set.py \
+        {% if exp and exp_type and not rc %}--expressions_type {{ exp_type }}{% endif %} \
+        {% if exp and exp_type and rc %}--norm_expressions_type {{ exp_type }} --norm_expressions "${NORM_EXP_NAME}.tab.gz"{% endif %} \
+        --expressions "${EXP_NAME}.tab.gz" \
+        --source_db {{ source }} \
+        --species {{ species }} \
+        --output_name "${EXP_NAME}_expressions"
+      re-checkrc
+
+      re-save-file exp_set "${EXP_NAME}_expressions.txt.gz"
+      re-save exp_set_json "${EXP_NAME}_expressions.json"
+
 
 
 - slug: upload-expression-cuffnorm

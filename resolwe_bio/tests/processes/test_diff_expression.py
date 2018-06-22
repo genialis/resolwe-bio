@@ -2,10 +2,10 @@
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 
-class DiffExpProcessorTestCase(BioProcessTestCase):
+class DiffExpProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('cuffdiff')
     def test_cuffdiff(self):
@@ -41,6 +41,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFields(cuffdiff, 'build', 'hg19')
         self.assertFields(cuffdiff, 'feature_type', 'gene')
 
+    @with_resolwe_host
     @tag_process('differentialexpression-deseq2')
     def test_deseq2_genes(self):
         with self.preparation_stage():
@@ -64,6 +65,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
         self.assertFields(diff_exp, 'build', 'dd-05-2009')
         self.assertFields(diff_exp, 'feature_type', 'gene')
 
+    @with_resolwe_host
     @tag_process('differentialexpression-deseq2')
     def test_deseq2_source(self):
         with self.preparation_stage():
@@ -77,6 +79,7 @@ class DiffExpProcessorTestCase(BioProcessTestCase):
 
         self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
 
+    @with_resolwe_host
     @tag_process('differentialexpression-edger')
     def test_edger(self):
         with self.preparation_stage():
