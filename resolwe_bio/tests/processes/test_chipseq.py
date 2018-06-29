@@ -106,11 +106,21 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             }
             macs_peaks = self.run_process('upload-bed', inputs)
 
-        inputs = {"genome": 'HG19',
-                  "input_upload": macs_peaks.id,
-                  "rankby": bam.id,
-                  "control": control.id,
-                  "tss": 2500}
+            inputs = {
+                'src': 'hg19_encode_blacklist_chr22.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            }
+            mask = self.run_process('upload-bed', inputs)
+
+        inputs = {
+            "genome": 'HG19',
+            "input_upload": macs_peaks.id,
+            "rankby": bam.id,
+            "control": control.id,
+            "tss": 2500,
+            "mask": mask.id
+        }
         rose2 = self.run_process("rose2", inputs)
 
         # remove changing lines from the rose2 output

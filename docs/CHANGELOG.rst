@@ -21,6 +21,8 @@ Added
   - ``upload-expression``
   - ``upload-expression-cuffnorm``
   - ``upload-expression-star``
+- Add 'Masking BED file' input to ``rose2`` process which allows
+  masking reagions from the analysis
 
 Changed
 -------

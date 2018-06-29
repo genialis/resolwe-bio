@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 2.1.1
+  version: 2.2.0
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -67,6 +67,12 @@
       required: false
       description: >
         Enter a max linking distance for stitching. If not given, optimal stitching parameter will be determined automatically.
+    - name: mask
+      label: Masking BED file
+      type: data:bed
+      required: false
+      description: >
+        Mask a set of regions from analysis. Provide a BED of masking regions.
   output:
     - name: all_enhancers
       label: All enhancers table
@@ -123,7 +129,7 @@
                'Please provide aligned reads and annotation with the same species.')
                |format(input.species, rankby.species) }}
         {% endif %}
-        {% if input.build!= rankby.build %}
+        {% if input.build != rankby.build %}
           re-error \
             {{ ('Genome builds of rankby bam file (%s) and MACS bed file (%s) do not match. ' ~
                'Please provide aligned reads and annotation with the same genome build.')
@@ -165,9 +171,30 @@
         {% endif %}
       {% endif %}
 
-      CONTROL='{% if control %}--control {{ control.bam.file }}{% endif %}'
-      STITCH='{% if stitch %}--stitch {{ stitch }} {% endif %}'
-      rose2 --genome {{ genome }} -i "${NAME}.bed" --rankby {{ rankby.bam.file }} ${CONTROL} --tss {{ tss }} ${STITCH} --out .
+      {% if mask %}
+        {% if mask.species != rankby.species %}
+          re-error \
+            {{ ('Species of the masking bed file (%s) does not match other inputs` species. ' ~
+               'Please provide a masking file of the same species as other inputs.')
+               |format(maks.species, rankby.species) }}
+        {% endif %}
+        {% if mask.build != rankby.build %}
+          re-error \
+            {{ ('Genome build of the masking bed file (%s) does not match other inputs` build. ' ~
+               'Please provide a masking file of the same genome build as other inputs.')
+               |format(maks.build, rankby.build) }}
+        {% endif %}
+      {% endif %}
+
+      rose2 \
+        --genome {{ genome }} \
+        -i "${NAME}.bed" \
+        --rankby {{ rankby.bam.file }} \
+        {% if control %}--control {{ control.bam.file }}{% endif %} \
+        --tss {{ tss }} \
+        {% if stitch %}--stitch {{ stitch }} {% endif %} \
+        {% if mask %}--mask {{ mask.bed.file }} {% endif %} \
+        --out .
       re-checkrc "Rose2 run failed."
 
       re-save-file all_enhancers "${NAME}_AllEnhancers.table.txt"
