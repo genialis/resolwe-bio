@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/rnaseq:3.4.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.5.1
+  version: 1.5.2
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample
@@ -75,6 +75,7 @@
     - name: bigwig
       label: BigWig file
       type: basic:file
+      required: false
     - name: species
       label: Species
       type: basic:string
@@ -157,7 +158,8 @@
           re-save-file unmapped_r "${NAME}_unmapped.out.mate2.fastq.gz"
       fi
 
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50
-
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
+
+      #computation time limit for bamCoverage is 480s per GB
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
