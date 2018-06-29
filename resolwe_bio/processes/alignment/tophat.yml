@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.1.2
+  version: 2.1.3
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample
@@ -151,6 +151,7 @@
     - name: bigwig
       label: BigWig file
       type: basic:file
+      required: false
     - name: species
       label: Species
       type: basic:string
@@ -234,8 +235,6 @@
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50
-
       if [ -f "${NAME}_unmapped.bam" ]; then
         re-save-file unmapped "${NAME}_unmapped.bam"
       fi
@@ -251,3 +250,7 @@
       if [ -f "${NAME}_insertions.bed" ]; then
         re-save-file insertions "${NAME}_insertions.bed"
       fi
+
+      #computation time limit for bamCoverage is 480s per GB
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
+

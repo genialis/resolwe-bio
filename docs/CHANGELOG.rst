@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Fixed
+-----
+- Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
+  defined time
 
 ===================
 10.0.0 - 2018-06-19
