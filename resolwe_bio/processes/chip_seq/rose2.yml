@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 2.1.0
+  version: 2.1.1
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -116,18 +116,34 @@
         re-error "Please provide only one .bed peaks file."
       {% endif %}
 
-      {% if input and input.species != rankby.species %}
-        re-error \
-          {{ ('Species of rankby bam file (%s) and input bed file (%s) do not match. ' ~
-             'Please provide aligned reads and annotation with the same species.')
-             |format(input.species, rankby.species) }}
+      {% if input %}
+        {% if input.species != rankby.species %}
+          re-error \
+            {{ ('Species of rankby bam file (%s) and MACS bed file (%s) do not match. ' ~
+               'Please provide aligned reads and annotation with the same species.')
+               |format(input.species, rankby.species) }}
+        {% endif %}
+        {% if input.build!= rankby.build %}
+          re-error \
+            {{ ('Genome builds of rankby bam file (%s) and MACS bed file (%s) do not match. ' ~
+               'Please provide aligned reads and annotation with the same genome build.')
+               |format(input.build, rankby.build) }}
+        {% endif %}
       {% endif %}
 
-      {% if input_upload and input_upload.species != rankby.species %}
-        re-error \
-          {{ ('Species of rankby bam file (%s) and upload bed file (%s) do not match. ' ~
-             'Please provide aligned reads and annotation with the same species.')
-             |format(input_upload.species, rankby.species) }}
+      {% if input_upload %}
+        {% if input_upload.species != rankby.species %}
+          re-error \
+            {{ ('Species of rankby bam file (%s) and uploaded bed file (%s) do not match. ' ~
+               'Please provide aligned reads and annotation with the same species.')
+               |format(input_upload.species, rankby.species) }}
+        {% endif %}
+        {% if input_upload.build != rankby.build %}
+          re-error \
+            {{ ('Genome builds of rankby bam file (%s) and uploaded bed file (%s) do not match. ' ~
+               'Please provide aligned reads and annotation with the same genome build.')
+               |format(input_upload.build, rankby.build) }}
+        {% endif %}
       {% endif %}
 
       {% if input_upload %}

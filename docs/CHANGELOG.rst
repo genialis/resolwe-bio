@@ -25,12 +25,14 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Remove management command module
+- Expand error messages in ``rose2`` process
 
 Fixed
 -----
 - Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
   defined time
 - Fix peaks BigBed output in ``macs14`` process
+
 
 ===================
 10.0.0 - 2018-06-19
