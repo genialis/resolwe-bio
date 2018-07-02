@@ -36,6 +36,8 @@ Fixed
 - Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
   defined time
 - Fix peaks BigBed output in ``macs14`` process
+- Remove duplicated forward of ``alignIntronMax`` input field in
+  BBDuk - STAR - featureCounts workflow
 
 
 ===================

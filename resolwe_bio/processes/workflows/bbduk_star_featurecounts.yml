@@ -4,7 +4,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.3
+  version: 0.0.4
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -392,7 +392,6 @@
             alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
             alignMatesGapMax: '{{ input.alignment.alignment.alignMatesGapMax }}'
             alignEndsType: '{{ input.alignment.alignment.alignEndsType }}'
-            alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
           output_sam_bam:
             outSAMunmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
             outSAMattributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
@@ -417,7 +416,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.3
+  version: 0.0.4
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -807,7 +806,6 @@
             alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
             alignMatesGapMax: '{{ input.alignment.alignment.alignMatesGapMax }}'
             alignEndsType: '{{ input.alignment.alignment.alignEndsType }}'
-            alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
           output_sam_bam:
             outSAMunmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
             outSAMattributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
