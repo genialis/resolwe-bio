@@ -23,6 +23,8 @@ Added
   - ``upload-expression-star``
 - Add 'Masking BED file' input to ``rose2`` process which allows
   masking reagions from the analysis
+- Add ``filtering.outFilterMismatchNoverReadLmax`` input to
+  ``alignment-star`` process
 
 Changed
 -------
