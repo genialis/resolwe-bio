@@ -22,6 +22,10 @@ Added
   - ``upload-expression-cuffnorm``
   - ``upload-expression-star``
 
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Remove management command module
+
 Fixed
 -----
 - Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
