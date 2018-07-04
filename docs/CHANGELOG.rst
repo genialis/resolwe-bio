@@ -38,6 +38,8 @@ Fixed
 - Fix peaks BigBed output in ``macs14`` process
 - Remove duplicated forward of ``alignIntronMax`` input field in
   BBDuk - STAR - featureCounts workflow
+- Make ``cuffnorm`` process attach correct expression data objects to
+  samples
 
 
 ===================
