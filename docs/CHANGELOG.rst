@@ -35,13 +35,21 @@ Changed
 
 Fixed
 -----
-- Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
-  defined time
 - Fix peaks BigBed output in ``macs14`` process
 - Remove duplicated forward of ``alignIntronMax`` input field in
   BBDuk - STAR - featureCounts workflow
 - Make ``cuffnorm`` process attach correct expression data objects to
   samples
+
+
+===================
+10.0.1 - 2018-07-06
+===================
+
+Fixed
+-----
+- Fix ``bamtobigwig.sh`` to timeout the ``bamCoverage`` calculation after
+  defined time
 
 
 ===================
