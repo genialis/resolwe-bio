@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:1.4.0
+        image: resolwebio/rnaseq:3.4.0
   data_name: 'PCA'
-  version: 1.2.2
+  version: 2.0.0
   type: data:pca
   category: analyses
   persistence: TEMP
@@ -51,12 +51,6 @@
           value: Odocoileus virginianus texanus
         - label: Solanum tuberosum
           value: Solanum tuberosum
-    - name: filter
-      label: Exclude genes with low expression
-      type: basic:boolean
-      default: true
-      description: >
-        Exclude/filter unexpressed genes and genes with cumulative normalized expression lower than number of samples.
   output:
     - name: pca
       label: PCA
@@ -105,9 +99,7 @@
         --sample-files {% for exp in exps %} {{ exp.exp.file }} {% endfor %} \
         --sample-ids {% for exp in exps %} {{ exp|sample_id }} {% endfor %} \
         {% if genes %} --gene-labels {% for gene in genes %} {{ gene }} {% endfor %} {% endif %} \
-        {% if filter %} --skip-low-expressions {% endif %} \
         --output-fn pca.json
       re-checkrc "Principal component analysis failed."
 
       re-save pca pca.json
-

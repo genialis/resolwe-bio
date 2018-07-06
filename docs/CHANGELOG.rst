@@ -29,6 +29,8 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Remove management command module
+- **BACKWARD INCOMPATIBLE:** Remove filtering of genes with low expression
+  in PCA analysis
 - Expand error messages in ``rose2`` process
 
 Fixed

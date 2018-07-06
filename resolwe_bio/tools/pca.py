@@ -18,7 +18,6 @@ def get_args():
     parser.add_argument('--sample-ids', '-i', nargs='+', help='Sample IDs', required=True)
     parser.add_argument('--gene-labels', '-g', nargs='+', help='Filter genes by label')
     parser.add_argument('--components', '-c', help='Number of PCA components', type=int, default=2)
-    parser.add_argument('--skip-low-expressions', '-s', help='Skip genes with low expression', action='store_true')
     parser.add_argument('--output-fn', '-o', help='Output file name')
     return parser.parse_args()
 
@@ -50,7 +49,10 @@ def get_pca(expressions=pd.DataFrame(), n_components=2, gene_labels=[]):
 
         coordinates = [t[:2].tolist() if len(t) > 1 else [t[0], 0.0] for t in pca_expressions]
         all_components = [component_top_factors(component, gene_labels) for component in pca.components_]
-        all_explained_variance_ratios = pca.explained_variance_ratio_.tolist()
+        if np.isnan(pca.explained_variance_ratio_).any():
+            all_explained_variance_ratios = [0.0 for _ in pca.explained_variance_ratio_]
+        else:
+            all_explained_variance_ratios = pca.explained_variance_ratio_.tolist()
 
     result = {
         'coordinates': coordinates,
@@ -113,9 +115,6 @@ def main():
     if args.gene_labels:
         gene_labels = set(args.gene_labels).intersection(expressions.index)
         expressions = expressions.loc[gene_labels]
-
-    if args.skip_low_expressions:
-        expressions = expressions.loc[expressions.sum(axis=1) > expressions.shape[1]]
 
     result = get_pca(expressions, args.components, args.gene_labels)
     save_pca(result, args.sample_ids, args.output_fn)
