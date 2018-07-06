@@ -5,7 +5,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class ImportProcessorTestCase(BioProcessTestCase):
-    @tag_process('import-sra')
+    @tag_process('import-sra', 'import-sra-single', 'import-sra-paired')
     def external_test_sra(self):
         # single-end read from Polyak RNA-seq demo dataset
         inputs = {
@@ -41,6 +41,12 @@ class ImportProcessorTestCase(BioProcessTestCase):
         del import_sra.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
         self.assertFields(import_sra, 'fastqc_url2', [{'file': 'fastqc/SRR2124780_2_fastqc/fastqc_report.html',
                                                        'refs': ['fastqc/SRR2124780_2_fastqc']}])
+
+        # test error messages
+        sra = self.run_process('import-sra-single', {'sra_accession': 'non-existing SRR'}, Data.STATUS_ERROR)
+        self.assertEqual(sra.process_error[0], 'Download of reads with fastq-dump failed.')
+        sra = self.run_process('import-sra-paired', {'sra_accession': 'non-existing SRR'}, Data.STATUS_ERROR)
+        self.assertEqual(sra.process_error[0], 'Download of reads with fastq-dump failed.')
 
     @tag_process('basespace-file-import')
     def external_test_basespace_import(self):
