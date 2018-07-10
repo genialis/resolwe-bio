@@ -1,5 +1,6 @@
 bbmap
 bedtools
+chrom-mappings
 cufflinks
 fastqc
 hisat2

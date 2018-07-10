@@ -25,6 +25,8 @@ Added
   masking reagions from the analysis
 - Add ``filtering.outFilterMismatchNoverReadLmax`` input to
   ``alignment-star`` process
+- Add mappings from ENSEMBL or NCBI to UCSC chromosome names to
+  ``resolwebio/rnaseq:3.5.0`` docker image
 
 Changed
 -------
