@@ -33,6 +33,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove management command module
 - **BACKWARD INCOMPATIBLE:** Remove filtering of genes with low expression
   in PCA analysis
+- **BACKWARD INCOMPATIBLE:** Remove obsolete RNA-seq DSS process
 - Expand error messages in ``rose2`` process
 - Check for errors during download of FASTQ files and use
   ``resolwebio/utils:1.3.0`` Docker image in import SRA process

@@ -1,13 +1,8 @@
 # pylint: disable=missing-docstring,invalid-name
-from django.contrib.auth.models import AnonymousUser
-from django.test import LiveServerTestCase
-
-from guardian.shortcuts import assign_perm
-
 from resolwe.flow.models import Data
 from resolwe.test import with_resolwe_host, tag_process
 
-from resolwe_bio.utils.test import BioProcessTestCase, KBBioProcessTestCase
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class RNASeqWorkflowTestCase(KBBioProcessTestCase):
@@ -330,58 +325,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             'trailing': 1,
             'stranded': 'no',
             'id_attribute': 'transcript_id'
-        })
-
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
-        self.assertFields(workflow, 'exp_type', 'TPM')
-        self.assertFields(workflow, 'source', 'DICTYBASE')
-
-
-class RNASeqDSSTestCase(BioProcessTestCase, LiveServerTestCase):
-    @with_resolwe_host
-    @tag_process('dss-rna-seq')
-    def test_rnaseq_dss(self):
-        with self.preparation_stage():
-            single_reads = self.prepare_reads()
-            paired_reads = self.prepare_paired_reads()
-            genome = self.prepare_genome()
-            genome.slug = 'genome-mm10'
-            genome.save()
-            assign_perm('view_data', AnonymousUser(), genome)
-            annotation = self.prepare_annotation('annotation dicty.gtf.gz')
-            annotation.slug = 'annotation-mm10'
-            annotation.save()
-            assign_perm('view_data', AnonymousUser(), annotation)
-            adapters = self.prepare_adapters()
-            adapters.slug = 'adapters-illumina'
-            adapters.save()
-            assign_perm('view_data', AnonymousUser(), adapters)
-
-        self.run_process('dss-rna-seq', {
-            'genome_and_annotation': 'mm',
-            'reads': single_reads.id,
-            'id_attribute': 'transcript_id',
-            'adapters': 'no'
-        })
-
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'workflow_rnaseq_single_rc.tab.gz', compression='gzip')
-        self.assertFields(workflow, 'exp_type', 'TPM')
-        self.assertFields(workflow, 'source', 'DICTYBASE')
-
-        self.run_process('dss-rna-seq', {
-            'genome_and_annotation': 'mm',
-            'reads': paired_reads.id,
-            'trailing': 1,
-            'id_attribute': 'transcript_id',
-            'adapters': 'no'
         })
 
         for data in Data.objects.all():
