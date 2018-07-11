@@ -58,7 +58,7 @@ class Feature(models.Model):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     sub_type = models.CharField(max_length=20, choices=SUBTYPE_CHOICES)
     name = models.CharField(max_length=1024)
-    full_name = models.CharField(max_length=200, blank=True)
+    full_name = models.CharField(max_length=300, blank=True)
     description = models.TextField(blank=True)
     aliases = ArrayField(models.CharField(max_length=256), default=[], blank=True)
 
