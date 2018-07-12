@@ -51,6 +51,9 @@ Fixed
   BBDuk - STAR - featureCounts workflow
 - Make ``cuffnorm`` process attach correct expression data objects to
   samples
+- Fix ``upload-gtf`` in a way that GTF can be shown in JBrowse. Because
+  JBrowse works only with GFF files, input GTF is converted to GFF from
+  which JBrowse track is created.
 
 
 ===================

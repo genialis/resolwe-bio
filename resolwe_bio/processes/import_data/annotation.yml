@@ -123,7 +123,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 3.1.0
+  version: 3.1.1
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -206,10 +206,12 @@
 
       igvtools sort "${NAME}".gtf "${NAME}"_sorted.gtf
       re-checkrc "Sorting of GTF file failed."
-      # add warning when GTF file is not acceptable by IGV, but can be used by other tool on platform
+      # add warning when GTF file is not acceptable by IGV, but can be used by other tools on platform
       igvtools index "${NAME}"_sorted.gtf || re-warning "Indexing of GTF file failed."
 
-      flatfile-to-json.pl --gff "${NAME}"_sorted.gtf --out . --trackLabel "annotation"
+      gffread "${NAME}"_sorted.gtf -o- > tmp.gff3
+      re-checkrc "Conversion to GFF3 for JBrowse failed."
+      flatfile-to-json.pl --gff tmp.gff3 --out . --trackLabel "annotation"
       re-checkrc "Annotation track processing for JBrowse failed."
 
       re-save-file annot "${NAME}.gtf"
