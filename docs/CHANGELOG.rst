@@ -62,6 +62,7 @@ Fixed
 - Fix ``upload-gtf`` in a way that GTF can be shown in JBrowse. Because
   JBrowse works only with GFF files, input GTF is converted to GFF from
   which JBrowse track is created.
+- Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
 
 
 ===================

@@ -7,7 +7,7 @@ download_and_verify \
     sra-toolkit \
     2.9.0 \
     911301a6f85bdbf8e786a6b6561d32f262cd356ae52acd27830e39fb07e41b12 \
-    https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/current/sratoolkit.current-ubuntu64.tar.gz \
+    https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.9.0/sratoolkit.\${version}-ubuntu64.tar.gz \
     sratoolkit.\${version}-ubuntu64
 
 mkdir /.ncbi/
