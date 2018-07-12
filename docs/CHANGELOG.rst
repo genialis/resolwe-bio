@@ -37,11 +37,12 @@ Changed
 - Expand error messages in ``rose2`` process
 - Check for errors during download of FASTQ files and use
   ``resolwebio/utils:1.3.0`` Docker image in import SRA process
-- Increase Feature's full name's max length to 300 to support a long full
-  name of "Beta-1,4-galactosyltransferase 2 Lactose synthase A protein
-  N-acetyllactosamine synthase Beta-N-acetylglucosaminylglycopeptide
-  beta-1,4-galactosyltransferase Beta-N-acetylglucosaminyl-glycolipid
-  beta-1,4-galactosyltransferase" in Ensembl
+- Increase Feature's full name's max length to 350 to support a long full
+  name of "Complement C3 Complement C3 beta chain C3-beta-c Complement C3
+  alpha chain C3a anaphylatoxin Acylation stimulating protein Complement C3b
+  alpha' chain Complement C3c alpha' chain fragment 1 Complement C3dg
+  fragment Complement C3g fragment Complement C3d fragment Complement C3f
+  fragment Complement C3c alpha' chain fragment 2" in Ensembl
 
 Fixed
 -----
