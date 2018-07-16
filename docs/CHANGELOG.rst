@@ -6,9 +6,25 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+11.0.0 - 2018-07-17
+===================
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Remove management command module
+- **BACKWARD INCOMPATIBLE:** Remove filtering of genes with low expression
+  in PCA analysis
+- **BACKWARD INCOMPATIBLE:** Remove obsolete RNA-seq DSS process
+- Expand error messages in ``rose2`` process
+- Check for errors during download of FASTQ files and use
+  ``resolwebio/utils:1.3.0`` Docker image in import SRA process
+- Increase Feature's full name's max length to 350 to support a long full
+  name of "Complement C3 Complement C3 beta chain C3-beta-c Complement C3
+  alpha chain C3a anaphylatoxin Acylation stimulating protein Complement C3b
+  alpha' chain Complement C3c alpha' chain fragment 1 Complement C3dg
+  fragment Complement C3g fragment Complement C3d fragment Complement C3f
+  fragment Complement C3c alpha' chain fragment 2" in Ensembl
 
 Added
 -----
@@ -27,22 +43,6 @@ Added
   ``alignment-star`` process
 - Add mappings from ENSEMBL or NCBI to UCSC chromosome names to
   ``resolwebio/rnaseq:3.5.0`` docker image
-
-Changed
--------
-- **BACKWARD INCOMPATIBLE:** Remove management command module
-- **BACKWARD INCOMPATIBLE:** Remove filtering of genes with low expression
-  in PCA analysis
-- **BACKWARD INCOMPATIBLE:** Remove obsolete RNA-seq DSS process
-- Expand error messages in ``rose2`` process
-- Check for errors during download of FASTQ files and use
-  ``resolwebio/utils:1.3.0`` Docker image in import SRA process
-- Increase Feature's full name's max length to 350 to support a long full
-  name of "Complement C3 Complement C3 beta chain C3-beta-c Complement C3
-  alpha chain C3a anaphylatoxin Acylation stimulating protein Complement C3b
-  alpha' chain Complement C3c alpha' chain fragment 1 Complement C3dg
-  fragment Complement C3g fragment Complement C3d fragment Complement C3f
-  fragment Complement C3c alpha' chain fragment 2" in Ensembl
 
 Fixed
 -----
