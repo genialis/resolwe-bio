@@ -1,3 +1,2 @@
 fastqc
-igvtools
 sra-toolkit

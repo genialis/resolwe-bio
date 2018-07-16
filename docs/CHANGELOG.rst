@@ -10,9 +10,15 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Remove ``igvtools`` from ``resolwebio/utils`` Docker image
+
 Fixed
 -------
 - fix ``upload-gtf`` to create JBrowse track only if GTF file is ok
+- Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
+
 
 ===================
 11.0.0 - 2018-07-17
@@ -62,7 +68,6 @@ Fixed
 - Fix ``upload-gtf`` in a way that GTF can be shown in JBrowse. Because
   JBrowse works only with GFF files, input GTF is converted to GFF from
   which JBrowse track is created.
-- Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
 
 
 ===================
