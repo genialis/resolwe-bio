@@ -1,7 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <Global genome="hg19" hasGeneTrack="true" hasSequenceTrack="true" locus="chr7:79439229-79481604" nextAutoscaleGroup="3" version="8">
   <Resources>
-    <Resource path="https://dummy.host.local/data/1/sp_test.bam"/>
-    <Resource path="https://dummy.host.local/data/2/reads.bam"/>
+    <Resource path="https://dummy.host.local/data/1/reads.bam"/>
   </Resources>
 </Global>

@@ -21,6 +21,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_bam_upload_index.bai')
         self.assertFile(upload_bam, 'stats', 'alignment_bam_upload_stats.txt')
+        self.assertFile(upload_bam, 'bigwig', 'alignment_bam_upload_bigwig.bw')
         self.assertFields(upload_bam, 'species', 'Homo sapiens')
         self.assertFields(upload_bam, 'build', 'hg19')
 
@@ -43,6 +44,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(upload_bam, 'bam', 'alignment_position_sorted.bam')
         self.assertFile(upload_bam, 'bai', 'alignment_position_sorted.bam.bai')
         self.assertFile(upload_bam, 'stats', 'alignment_bam_upload_stats.txt')
+        self.assertFile(upload_bam, 'bigwig', 'alignment_bam_upload_bigwig.bw')
         self.assertFields(upload_bam, 'species', 'Homo sapiens')
         self.assertFields(upload_bam, 'build', 'hg19')
 
