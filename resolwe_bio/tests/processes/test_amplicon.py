@@ -32,6 +32,7 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
         bwa_trim = self.run_process('align-bwa-trim', inputs)
 
         self.assertFile(bwa_trim, 'stats', 'bwa_trim_stats.txt')
+        self.assertFile(bwa_trim, 'bigwig', 'bwa_trim_bigwig.bw')
         self.assertFields(bwa_trim, 'species', 'Homo sapiens')
         self.assertFields(bwa_trim, 'build', 'b37')
 

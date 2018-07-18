@@ -39,6 +39,7 @@ Added
   ``workflow-bbduk-star-featurecounts-qc-paired`` processes.
 - Add mappings from ENSEMBL or NCBI to UCSC chromosome names and deepTools
   (v3.1.0) to ``resolwebio/dnaseq:3.3.0`` docker image
+- Add BigWig output field to ``align-bwa-trim`` processor.
 
 Fixed
 -----
