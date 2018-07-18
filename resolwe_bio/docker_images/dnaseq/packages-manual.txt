@@ -1,3 +1,4 @@
+chrom-mappings
 primerclip
 r-packages
 samtools

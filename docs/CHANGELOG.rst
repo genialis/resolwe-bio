@@ -31,6 +31,8 @@ Added
 - Add detection of globin-derived reads as an additional QC step in the
   ``workflow-bbduk-star-featurecounts-qc-single`` and
   ``workflow-bbduk-star-featurecounts-qc-paired`` processes.
+- Add mappings from ENSEMBL or NCBI to UCSC chromosome names to
+  ``resolwebio/dnaseq:3.3.0`` docker image
 
 Fixed
 -----
