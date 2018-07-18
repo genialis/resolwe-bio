@@ -1,5 +1,6 @@
 bedtools
 bwa
+libpython3.6-dev
 picard-tools
 python
 python3-setuptools

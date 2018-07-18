@@ -9,6 +9,7 @@ Included bioinformatics tools:
 * bwa (v0.7.17-1)
 * CheMut
 * CNVkit (0.9.3)
+* deepTools (3.1.0)
 * GATK (4.0.2.1)
 * LoFreq (2.1.3.1)
 * Picard Tools (v2.8.1+dfsg-3)
