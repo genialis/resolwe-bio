@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 2.2.0
+  version: 2.2.1
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
@@ -127,13 +127,13 @@
           re-error \
             {{ ('Species of rankby bam file (%s) and MACS bed file (%s) do not match. ' ~
                'Please provide aligned reads and annotation with the same species.')
-               |format(input.species, rankby.species) }}
+               |format(rankby.species, input.species) }}
         {% endif %}
         {% if input.build != rankby.build %}
           re-error \
             {{ ('Genome builds of rankby bam file (%s) and MACS bed file (%s) do not match. ' ~
                'Please provide aligned reads and annotation with the same genome build.')
-               |format(input.build, rankby.build) }}
+               |format(rankby.build, input.build) }}
         {% endif %}
       {% endif %}
 
@@ -142,13 +142,43 @@
           re-error \
             {{ ('Species of rankby bam file (%s) and uploaded bed file (%s) do not match. ' ~
                'Please provide aligned reads and annotation with the same species.')
-               |format(input_upload.species, rankby.species) }}
+               |format(rankby.species, input_upload.species) }}
         {% endif %}
         {% if input_upload.build != rankby.build %}
           re-error \
             {{ ('Genome builds of rankby bam file (%s) and uploaded bed file (%s) do not match. ' ~
                'Please provide aligned reads and annotation with the same genome build.')
-               |format(input_upload.build, rankby.build) }}
+               |format(rankby.build, input_upload.build) }}
+        {% endif %}
+      {% endif %}
+
+      {% if control %}
+        {% if control.species != rankby.species %}
+          re-error \
+            {{ ('Species of rankby bam file (%s) and control bam file (%s) do not match. ' ~
+               'Please provide aligned reads with the same species.')
+               |format(rankby.species, control.species) }}
+        {% endif %}
+        {% if control.build != rankby.build %}
+          re-error \
+            {{ ('Genome builds of rankby bam file (%s) and control bam  file (%s) do not match. ' ~
+               'Please provide aligned reads with the same genome build.')
+               |format(rankby.build, control.build) }}
+        {% endif %}
+      {% endif %}
+
+      {% if mask %}
+        {% if mask.species != rankby.species %}
+          re-error \
+            {{ ('Species of the masking bed file (%s) does not match other inputs` species. ' ~
+               'Please provide a masking file of the same species as other inputs.')
+               |format(mask.species) }}
+        {% endif %}
+        {% if mask.build != rankby.build %}
+          re-error \
+            {{ ('Genome build of the masking bed file (%s) does not match other inputs` build. ' ~
+               'Please provide a masking file of the same genome build as other inputs.')
+               |format(mask.build) }}
         {% endif %}
       {% endif %}
 
@@ -168,21 +198,6 @@
         {% else %}
           NAME=`basename {{ input.peaks_bed.file }} .bed.gz`
           bgzip -cd {{ input.peaks_bed.file }} > "${NAME}".bed
-        {% endif %}
-      {% endif %}
-
-      {% if mask %}
-        {% if mask.species != rankby.species %}
-          re-error \
-            {{ ('Species of the masking bed file (%s) does not match other inputs` species. ' ~
-               'Please provide a masking file of the same species as other inputs.')
-               |format(maks.species, rankby.species) }}
-        {% endif %}
-        {% if mask.build != rankby.build %}
-          re-error \
-            {{ ('Genome build of the masking bed file (%s) does not match other inputs` build. ' ~
-               'Please provide a masking file of the same genome build as other inputs.')
-               |format(maks.build, rankby.build) }}
         {% endif %}
       {% endif %}
 
