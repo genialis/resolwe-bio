@@ -123,7 +123,7 @@
     resources:
       network: true
   data_name: '{{ src.file }}'
-  version: 3.1.1
+  version: 3.1.2
   type: data:annotation:gtf
   category: upload
   persistence: RAW
@@ -189,6 +189,7 @@
     - name: annot_sorted_track_jbrowse
       label: Jbrowse track for sorted GTF
       type: basic:file
+      required: false
     - name: source
       label: Gene ID database
       type: basic:string
@@ -211,12 +212,19 @@
 
       gffread "${NAME}"_sorted.gtf -o- > tmp.gff3
       re-checkrc "Conversion to GFF3 for JBrowse failed."
-      flatfile-to-json.pl --gff tmp.gff3 --out . --trackLabel "annotation"
-      re-checkrc "Annotation track processing for JBrowse failed."
+
+      # if tmp.gff3 file is not empty create JBrowse track
+      if [ -s tmp.gff3 ]
+      then
+        flatfile-to-json.pl --gff tmp.gff3 --out . --trackLabel "annotation"
+        re-checkrc "Annotation track processing for JBrowse failed."
+        re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation
+      else
+        re-warning "JBrowse track was not created. Please validate your GTF file."
+      fi
 
       re-save-file annot "${NAME}.gtf"
       re-save-file annot_sorted "${NAME}"_sorted.gtf
-      re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation
 
       if [ -f "${NAME}"_sorted.gtf.idx ]; then
          re-save-file annot_sorted_idx_igv "${NAME}"_sorted.gtf.idx

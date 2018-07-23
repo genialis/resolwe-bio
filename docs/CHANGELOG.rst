@@ -10,6 +10,9 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Fixed
+-------
+- fix ``upload-gtf`` to create JBrowse track only if GTF file is ok
 
 ===================
 11.0.0 - 2018-07-17
