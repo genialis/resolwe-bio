@@ -15,6 +15,7 @@ Added
 - Add two-pass mode to ``alignment-star`` process
 - Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
 - Add KAPA experiment descriptor schema
+- Add ``resdk`` Python 3 package to ``resolwebio/utils`` Docker image
 
 Changed
 -------
