@@ -16,6 +16,8 @@ Added
 - Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
 - Add KAPA experiment descriptor schema
 - Add ``resdk`` Python 3 package to ``resolwebio/utils`` Docker image
+- Add to ``cutadapt-single`` process an option to discard reads having more
+  'N' bases than specified.
 
 Changed
 -------

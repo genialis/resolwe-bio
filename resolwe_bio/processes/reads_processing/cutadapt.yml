@@ -13,13 +13,17 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.1.0
   type: data:reads:fastq:single:cutadapt
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    "Trim 5' and 3' primers using Cutadapt"
+    "Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted
+    sequence from your high-throughput sequencing single-end reads. After Cutadapt, FastQC quality control
+    report of trimmed reads is prepared. For more information about Cutadapt see
+    [the official website](http://cutadapt.readthedocs.io/en/stable/index.html) or
+    [publication](http://journal.embnet.org/index.php/embnetjournal/article/view/200)."
   input:
     - name: reads
       label: NGS reads
@@ -47,17 +51,17 @@
       description: >
         Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
     - name: leading
-      label: Leading quality
+      label: Quality on 5 prime
       type: basic:integer
       required: false
       description: >
-        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
+        Remove low quality bases from 5 prime. Specifies the minimum quality required to keep a base.
     - name: trailing
-      label: Trailing quality
+      label: Quality on 3 prime
       type: basic:integer
       required: false
       description: >
-        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.
+        Remove low quality bases from the 3 prime. Specifies the minimum quality required to keep a base.
     - name: crop
       label: Crop
       type: basic:integer
@@ -82,6 +86,12 @@
       required: false
       description: >
         Drop the read if it is below a specified length
+    - name: max_n
+      label: Max numebr of N-s
+      type: basic:integer
+      required: false
+      description: >
+        Discard reads having more 'N' bases than specified.
     - name: match_read_wildcards
       label: Match read wildcards
       type: basic:boolean
@@ -163,19 +173,20 @@
 
       # Run Cutadapt
       cutadapt \
-        {% if headcrop %}-u {{headcrop}}{% endif %} \
-        {% if crop %}-u -{{crop}}{% endif %} \
-        {% if leading %}-q {{leading}}{% endif %} \
-        {% if trailing %}-q {{trailing}},0{% endif %} \
+        {% if headcrop is defined %}-u {{headcrop}}{% endif %} \
+        {% if crop is defined %}-u -{{crop}}{% endif %} \
+        {% if trailing is defined %}-q {{ trailing }}{% endif %} \
+        {% if leading is defined %}-q {{ leading }},0{% endif %} \
         {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
         {% if down_primers_seq %}$down_primers{% endif %} \
         {% if up_primers_seq %}$up_primers{% endif %} \
         {% if down_primers_file %}-a file:3_primers.fasta{% endif %} \
         {% if up_primers_file %}-g file:5_primers.fasta{% endif %} \
-        {% if minlen %}-m {{minlen}}{% endif %} \
-        {% if times %}--times {{ times }} {% endif %} \
+        {% if minlen is defined %}-m {{minlen}}{% endif %} \
+        {% if times is defined %}--times {{ times }} {% endif %} \
         {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
-        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
+        {% if error_rate is defined %}--error-rate {{ error_rate }} {% endif %} \
+        {% if max_n is defined %}--max-n {{ max_n }} {% endif %} \
         -O {{min_overlap}} \
         -o "${NAME}_trimmed.fastq.gz" in_reads.fastq.gz > report.txt
       re-checkrc "Failed while running cutadapt"
