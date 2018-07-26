@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 - Add two-pass mode to ``alignment-star`` process
+- Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
 
 Changed
 -------

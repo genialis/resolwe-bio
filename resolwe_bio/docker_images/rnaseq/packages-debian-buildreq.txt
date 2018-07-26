@@ -7,3 +7,6 @@ gfortran
 liblapack-dev
 libopenblas-dev
 libxml2-dev
+
+# Required by regtools
+cmake

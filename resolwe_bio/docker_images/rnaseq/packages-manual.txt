@@ -9,6 +9,7 @@ genome-tools
 igvtools
 jbrowse
 r-packages
+regtools
 rsem
 salmon
 samtools

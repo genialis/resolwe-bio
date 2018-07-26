@@ -27,6 +27,7 @@ Included bioinformatics tools:
 * jbrowse (v1.12.0)
 * loadSubread (0.0.1)
 * Picard Tools (v2.18.5)
+* regtools (0.5.0)
 * RSEM (v1.4.0)
 * rtracklayer (v1.38.0)
 * SAMtools (v1.5)
