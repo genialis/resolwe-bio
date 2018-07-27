@@ -13,6 +13,7 @@ Unreleased
 Changed
 -------
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
+- Improve helper text and labels in processes used for sequencing data upload
 
 Fixed
 -------

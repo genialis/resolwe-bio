@@ -13,19 +13,20 @@
     resources:
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
   persistence: RAW
   description: >
-    Upload NGS reads in FASTQ format.
+    Upload sequencing reads in FASTQ format. Select multiple files to upload
+    the sample data split into multiple sequencing lanes.
   input:
     - name: src
-      label: NGS reads (FASTQ)
+      label: Reads
       type: list:basic:file
       description: >
-        NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
+        Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
     - name: fastq
@@ -98,25 +99,26 @@
     resources:
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
   persistence: RAW
   description: >
-    Upload paired-end reads in FASTQ format.
+    Upload paired-end (mate1, mate2) sequencing reads in FASTQ format.
+    Select multiple files to upload the sample data split into multiple sequencing lanes.
   input:
     - name: src1
-      label: NGS upstream reads (FASTQ)
+      label: Mate1
       type: list:basic:file
       description: >
-        NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
+        Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
     - name: src2
-      label: NGS downstream reads (FASTQ)
+      label: Mate2
       type: list:basic:file
       description: >
-        NGS reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
+        Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
     - name: fastq
@@ -227,7 +229,7 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: upload
@@ -236,10 +238,10 @@
     Convert FASTQ files to single-end reads.
   input:
     - name: src
-      label: NGS reads (FASTQ)
+      label: Reads
       type: list:data:file
       description: >
-        NGS reads in FASTQ format.
+        Sequencing reads in FASTQ format
   output:
     - name: fastq
       label: Reads file
@@ -308,7 +310,7 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:paired
   category: upload
   flow_collection: sample
@@ -317,10 +319,10 @@
     Convert FASTQ files to paired-end reads.
   input:
     - name: src1
-      label: NGS upstream reads (FASTQ)
+      label: Mate1
       type: list:data:file
     - name: src2
-      label: NGS downstream reads (FASTQ)
+      label: Mate2
       type: list:data:file
   output:
     - name: fastq
