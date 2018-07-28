@@ -1,0 +1,223 @@
+# =========================================
+# Regtools - Junctions Extract and Annotate
+# =========================================
+---
+
+- slug: regtools-junctions-annotate
+  name: Annotate novel splice junctions (regtools)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:3.7.0
+  data_name: "Novel Junctions ({{ star|sample_name|default('') }}{{ extracted|sample_name|default('') }})"
+  version: 0.0.1
+  type: data:bed:junctions
+  category: Splice Junctions
+  flow_collection: sample
+  persistence: CACHED
+  description:
+    Identify novel splice junctions by using regtools to annotate against a reference. The process
+    accepts reference genome, reference genome annotation (GTF), and input with reads information
+    (STAR aligment or reads aligned by any other aligner or junctions in BED12 format). If STAR aligner
+    data is given as input, the process calculates BED12 file from STAR 'SJ.out.tab' file, and annotates
+    all junctions with 'regtools junctions annotate' command. When reads are aligned by other aligner,
+    junctions are extracted with 'regtools junctions extract' tool and then annotated with 'junction
+    annotate' command. Third option allows user to provide directly BED12 file with junctions, which
+    are then annotated. Finnally, annotated novel junctions are filtered in a separate output file.
+    More information can be found in the [regtools manual](https://regtools.readthedocs.io/en/latest/).
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: annotation
+      label: Reference genome annotation (GTF)
+      type: data:annotation:gtf
+    - name: alignment_star
+      label: STAR alignment
+      type: data:alignment:bam:star
+      description: >
+        Splice junctions detected by STAR aligner (SJ.out.tab STAR output file). Please provide one
+        input 'STAR alignment' or 'Alignment' by any aligner or directly 'Junctions in BED12 format'.
+      required: false
+    - name: alignment
+      label: Alignment
+      type: data:alignment:bam
+      required: false
+      description: >
+        Aligned reads from which splice junctions are going to be extracted. Please provide one input
+        'STAR alignment' or 'Alignment' by any aligner or directly 'Junctions in BED12 format'.
+    - name: input_bed_junctions
+      label: Junctions in BED12 format
+      type: data:bed
+      required: false
+      description: >
+        Splice junctions in BED12 format. Please provide one input 'STAR alignment' or 'Alignment'
+        by any aligner or directly 'Junctions in BED12 format'.
+  output:
+    - name: novel_splice_junctions
+      label: Table of annotated novel splice junctions
+      type: basic:file
+    - name: splice_junctions
+      label: Table of annotated splice junctions
+      type: basic:file
+    - name: bed
+      label: Splice junctions in BED format
+      type: basic:file
+    - name: bigbed_igv_ucsc
+      label: Splice junctions in BigBed format
+      type: basic:file
+      required: false
+    - name: tbi_jbrowse
+      label: Bed tbi index for JBrowse
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      {% if not alignment_star and not alignment and not input_bed_junctions %}
+        re-error "Please define STAR alignment or other alignment or Junctions in BED12 format."
+      {% endif %}
+
+      {% if (alignment_star and alignment)
+        or ( alignment_star and input_bed_junctions)
+        or (alignment and input_bed_junctions ) %}
+        re-error "Please define only STAR alignment or other alignment or Junctions in BED12 format."
+      {% endif %}
+
+      {% if not genome.species == annotation.species %}
+        re-error \
+          {{ ('Species of genome (%s) and annotation (%s) do not match. Please provide genome ' ~
+             'and annotation of the same species.')|format(genome.species, annotation.species) }}
+      {% endif %}
+
+      {% if not genome.build == annotation.build %}
+        re-error \
+          {{ ('Build of genome (%s) and annotation (%s) do not match. Please provide genome ' ~
+             'and annotation with the same build.')|format(genome.build, annotation.build) }}
+      {% endif %}
+
+      {% if alignment_star %}
+
+        {% if not alignment_star.species == genome.species %}
+          re-error \
+            {{ ('Species of STAR splice junctions file (%s) and genome (%s) do not match. ' ~
+              'Please provide STAR splice junctions file and genome of the same species.')
+              |format(alignment_star.species, genome.species) }}
+        {% endif %}
+
+        {% if not alignment_star.build == genome.build %}
+          re-error \
+            {{ ('Build of STAR splice junctions file (%s) and genome (%s) do not match. ' ~
+              'Please provide STAR splice junctions file and genome with the same build.')
+              |format(alignment_star.build, genome.build) }}
+        {% endif %}
+
+        if [ ! -s {{ alignment_star.sj.file }} ]; then
+          re-warning \
+            "STAR SJ.out.tab file has no entries. There will be no splice junctions detected."
+        fi
+
+        NAME=`basename {{ alignment_star.sj.file }} _SJ.out.tab`
+
+        # calculate BED12 fields from STAR SJ.out.tab file
+        star_sj_to_bed12.sh {{ alignment_star.sj.file }}
+
+        sort -V -o junctions_sorted.bed junctions_unsorted.bed
+        re-checkrc "Sorting of bed file failed."
+
+      {% elif alignment %}
+
+        {% if not alignment.species == genome.species %}
+            re-error \
+              {{ ('Species of aligned reads (%s) and genome (%s) do not match. ' ~
+                'Please provide aligned reads (bam file) and genome with the same species.')
+                |format(alignment.species, genome.species) }}
+          {% endif %}
+
+          {% if not alignment.build == genome.build %}
+            re-error \
+              {{ ('Build of aligned reads (%s) and genome (%s) do not match. ' ~
+                'Please provide aligned reads (bam file) and genome with the same build.')
+                |format(alignment.build, genome.build) }}
+          {% endif %}
+
+        NAME=`basename {{ alignment.bam.file }} .bam`
+
+        # if BAM file is empty return warning and empty output files
+        if [ `samtools view -c {{ alignment.bam.file }}` == 0 ]; then
+          re-warning "Bam file has no entries. There will be no splice junctions detected."
+          touch junctions_sorted.bed
+
+        else
+          # extract splice junctions from bam file with regtools extract
+          regtools junctions extract \
+            -o junctions_sorted.bed \
+            {{ alignment.bam.file }}
+            re-checkrc "Junctions extraction with regtools failed."
+        fi
+
+      {% elif input_bed_junctions %}
+
+        {% if not input_bed_junctions.species == genome.species %}
+          re-error \
+            {{ ('Species of input bed file (%s) and genome (%s) do not match. ' ~
+              'Please provide input bed file and genome with the same species.')
+              |format(input_bed_junctions.species, genome.species) }}
+        {% endif %}
+
+        if [ ! -s {{ input_bed_junctions.bed.file }} ]; then
+          re-warning \
+            "Input Bed file has no entries. There will be no splice junctions detected."
+        fi
+
+        NAME=`basename {{ input_bed_junctions.bed.file }} .bed`
+        mv {{ input_bed_junctions.bed.file }} junctions_sorted.bed
+
+      {% endif %}
+
+      regtools junctions annotate \
+        -o annotated_junctions.txt \
+        junctions_sorted.bed \
+        {{ genome.fasta.file }} \
+        {{ annotation.annot.file }}
+      re-checkrc "Junctions annotation with regtools failed."
+
+      # Create tabix index for JBrowse
+      bgzip -c junctions_sorted.bed > "${NAME}_SJ.bed.gz"
+      tabix -p bed "${NAME}_SJ.bed.gz"
+      re-checkrc "Tabix processing for JBrowse failed."
+      re-save-file bed "${NAME}_SJ.bed.gz"
+      re-save-file tbi_jbrowse "${NAME}_SJ.bed.gz.tbi"
+
+      # Filter novel junctions in new file
+      awk '($11!="DA") {print}' annotated_junctions.txt > "${NAME}_SJ_novel.txt"
+      re-checkrc "Filtering of novel junctions failed."
+      re-save-file novel_splice_junctions "${NAME}_SJ_novel.txt"
+
+      gzip annotated_junctions.txt
+      mv annotated_junctions.txt.gz "${NAME}_SJ.txt.gz"
+      re-save-file splice_junctions "${NAME}_SJ.txt.gz"
+
+      # Create bigBed index if bed file is not empty
+      if [ -s junctions_sorted.bed ]; then
+        cut -f -2 {{ genome.fai.file }} > chrom.sizes
+        bed_file_corrections_genome_browsers.py -f junctions_sorted.bed
+        re-checkrc "Bed file corrections for Genome Browsers failed."
+        bedToBigBed corrected_junctions_sorted.bed chrom.sizes "${NAME}_SJ.bb"
+        re-checkrc "Creating bigBed file failed."
+        re-save-file bigbed_igv_ucsc "${NAME}_SJ.bb"
+      else
+        re-warning \
+          "Bed file has no entries. BigBed index can not be created."
+      fi
+
+      re-save species {{ genome.species }}
+      re-save build {{ genome.build }}

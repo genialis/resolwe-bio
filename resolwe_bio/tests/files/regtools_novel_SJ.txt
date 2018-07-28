@@ -1,0 +1,5 @@
+chrom	start	end	name	score	strand	splice_site	acceptors_skipped	exons_skipped	donors_skipped	anchor	known_donor	known_acceptor	known_junction	genes	transcripts
+1	14737	14970	JUNC0001	1	-	GT-AG	0	0	0	N	0	0	0	NA	NA
+1	17055	17915	JUNC0006	2	-	GT-AG	2	2	2	NDA	1	1	0	WASH7P	ENST00000488147
+1	18369	18913	JUNC00011	4	-	GT-AG	0	0	0	N	0	0	0	NA	NA
+1	18369	18501	JUNC00010	1	-	GT-AG	0	0	0	N	0	0	0	NA	NA

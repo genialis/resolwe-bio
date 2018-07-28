@@ -63,6 +63,8 @@ Added
   - ``picard-tools (1.113-2)``
   - ``run_spp.R (1.2) (as spp)``
   - ``SPP (1.14)``
+- Add ``regtools-junctions-annotate`` process that annotates novel splice
+  junctions.
 
 Fixed
 -----
