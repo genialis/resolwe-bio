@@ -1,0 +1,143 @@
+# =========================================
+# Regtools - Junctions Extract and Annotate
+# =========================================
+---
+
+- slug: junctions-annotate
+  name: Annotate novel splice junctions (regtools)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:regtools3
+  data_name: "Novel Junctions ({{ star|sample_name|default('') }}{{ extracted|sample_name|default('') }})"
+  version: 0.0.1
+  type: data:bed:junctions:novel
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Identify novel splice junctions by using regtools to annotate against a reference.
+  input:
+    - name: star
+      label: STAR alignment
+      type: data:alignment:bam:star
+      description: >
+        STAR alignment with SJ.out.tab output. Required if a .bed junctions file is not provided.
+      required: false
+    - name: extracted
+      label: Junctions in BED format
+      type: data:bed
+      description: >
+        Splice junctions previously extracted from an alignment, in BED format. Required if a STAR alignment is not provided.
+      required: false
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: gtf
+      label: Reference genome annotation (GTF)
+      type: data:annotation:gtf
+      description: >
+        A "reference" annotation GTF.
+  output:
+    - name: bed
+      label: Junctions in BED format
+      type: basic:file
+      description: Splice junctions in BED format.
+    - name: bed_jbrowse
+      label: Bgzip bed file for JBrowse
+      type: basic:file
+    - name: tbi_jbrowse
+      label: Bed file index for JBrowse
+      type: basic:file
+    - name: sj
+      label: Splice junctions table
+      type: basic:file
+      description: >
+        Table of splice junctions, annotated with read counts, transcript, and gene ID.
+    - name: novel
+      label: Novel junctions table
+      type: basic:file
+      description: >
+        Filtered Table of annotated novel splice junctions.
+    - name: stats
+      label: Statistics
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      BED_FILE={{ extracted.bed.file }}
+      BED_NAME=`basename $BED_FILE .bed`
+      GENOME_FILE={{ genome.fasta.file }}
+      GTF_FILE={{ gtf.annot.file }}
+
+      regtools junctions annotate \
+        -o "${BED_NAME}_junctions.tsv" \
+        "${BED_FILE}" \
+        "${GENOME_FILE}" \
+        "${GTF_FILE}"
+      re-checkrc "Junctions annotation failed."
+
+      re-save-file bed "${BED_FILE}"
+      re-save-file sj "${BED_NAME}_sjtable.tsv"
+      re-save species {{genome.species}}
+      re-save build {{genome.build}}
+
+- slug: junctions-extract
+  name: Extract splice junctions (regtools)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:regtools3
+  data_name: "Extracted Junctions ({{ bam|sample_name|default('?') }})"
+  version: 0.0.1
+  type: data:bed:junctions:extracted
+  category: analyses
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    Extract splice junctions from an alignment using regtools.
+  input:
+    - name: bam
+      label: Alignment
+      type: data:alignment:bam
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: gtf
+      label: Reference genome annotation (GTF)
+      type: data:annotation:gtf
+      description: >
+        A "reference" annotation GTF.
+  output:
+    - name: bed
+      label: Junctions in BED format
+      type: basic:file
+      description: Splice junctions in BED format.
+    - name: bed_jbrowse
+      label: Bgzip bed file for JBrowse
+      type: basic:file
+    - name: tbi_jbrowse
+      label: Bed file index for JBrowse
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      BAM_FILE={{ bam.bam.file }}
+      BAM_FILE=`basename $BAM_FILE .bam`
+      

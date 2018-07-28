@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 - Add two-pass mode to ``alignment-star`` process
+- Add ``junctions-extract`` and ``junctions-annotate`` processes using regtools
 
 Changed
 -------
