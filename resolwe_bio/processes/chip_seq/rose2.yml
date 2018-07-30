@@ -11,31 +11,13 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 2.2.1
+  version: 3.0.0
   type: data:chipseq:rose2
   category: analyses
   persistence: CACHED
   description: >
     Rank ordering of super-enhancers.
   input:
-    - name: genome
-      label: Genome build
-      type: basic:string
-      choices:
-        - label: MM10
-          value: MM10
-        - label: MM9
-          value: MM9
-        - label: MM8
-          value: MM8
-        - label: HG19
-          value: HG19
-        - label: HG18
-          value: HG18
-        - label: RN4
-          value: RN4
-        - label: RN6
-          value: RN6
     - name: input
       label: BED file (MACS results)
       type: data:chipseq:macs14
@@ -95,9 +77,10 @@
     - name: gene_enhancer
       label: Gene to Enhancer
       type: basic:file
-    - name: stich_parameter
-      label: Stich parameter
+    - name: stitch_parameter
+      label: Stitch parameter
       type: basic:file
+      required: false
     - name: all_output
       label: All output
       type: basic:file
@@ -182,6 +165,24 @@
         {% endif %}
       {% endif %}
 
+      {% set genome_list = [
+        'hg19',
+        'hg18',
+        'mm10',
+        'mm9',
+        'mm8',
+        'rn6',
+        'rn4',
+        ]
+      %}
+      {% if rankby.build not in genome_list %}
+        re-error \
+          {{ ('"%s" is not a valid genome build. Accepted genome builds are: "%s".')
+             |format(rankby.build, genome_list|join('", "')) }}
+      {% endif %}
+
+      {% set genome = rankby.build|upper %}
+
       {% if input_upload %}
         {% if (input_upload.bed.file|basename)[-4:] == '.bed' %}
           NAME=`basename {{ input_upload.bed.file }} .bed`
@@ -207,7 +208,7 @@
         --rankby {{ rankby.bam.file }} \
         {% if control %}--control {{ control.bam.file }}{% endif %} \
         --tss {{ tss }} \
-        {% if stitch %}--stitch {{ stitch }} {% endif %} \
+        {% if stitch is defined %}--stitch {{ stitch }} {% endif %} \
         {% if mask %}--mask {{ mask.bed.file }} {% endif %} \
         --out .
       re-checkrc "Rose2 run failed."
@@ -219,7 +220,9 @@
       re-save-file enhancer_gene "${NAME}_SuperEnhancers_ENHANCER_TO_GENE.txt"
       re-save-file enhancer_top_gene "${NAME}_SuperEnhancers_ENHANCER_TO_TOP_GENE.txt"
       re-save-file gene_enhancer "${NAME}_SuperEnhancers_GENE_TO_ENHANCER.txt"
-      re-save-file stich_parameter "${NAME}_stitch_parameter.pdf"
+      {% if stitch is not defined %}
+        re-save-file stitch_parameter "${NAME}_stitch_parameter.pdf"
+      {% endif %}
 
       plot_enhancers.py ${NAME}_AllEnhancers.table.txt scatter_plot.json {% if control %} -c {% endif %}
       re-checkrc

@@ -14,11 +14,16 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Use read count instead of sampling rate
   in strandedness detection
+- **BACKWARD INCOMPATIBLE:** Remove ``genome`` input from ``rose2``
+  process and automate its selection
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
 - Improve helper text and labels in processes used for sequencing data upload
 
+
 Fixed
 -------
+- **BACKWARD INCOMPATIBLE:** Fix the ``stitch`` parameter handling in
+  ``rose2``
 - fix ``upload-gtf`` to create JBrowse track only if GTF file is ok
 - Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
 - Fix and improve ``rose2`` error messages

@@ -114,10 +114,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             mask = self.run_process('upload-bed', inputs)
 
         inputs = {
-            "genome": 'HG19',
             "input_upload": macs_peaks.id,
             "rankby": bam.id,
             "control": control.id,
+            "stitch": 5000,
             "tss": 2500,
             "mask": mask.id
         }

@@ -15,6 +15,5 @@ class ChipSeqWorkflowTestCase(BioProcessTestCase):
             'workflow-chip-seq', {
                 'reads': reads.id,
                 'genome': genome.id,
-                'rose_genome': 'MM9'
             }
         )
