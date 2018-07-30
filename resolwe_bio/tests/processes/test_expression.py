@@ -479,7 +479,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 'aligned_reads': aligned_reads.id,
                 'assay_type': 'auto',
                 'cdna_index': salmon_index.id,
-                'sampling_rate': 1,
             },
             'annotation': {
                 'annotation': annotation.id,

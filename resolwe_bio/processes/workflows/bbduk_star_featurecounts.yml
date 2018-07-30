@@ -4,7 +4,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.4
+  version: 1.0.0
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -293,16 +293,15 @@
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
             obtain the reliable analysis results.
-        - name: sampling_rate
-          label: Alignment file sampling rate
-          type: basic:decimal
-          default: 0.01
+        - name: n_reads
+          label: Number of reads in subsampled alignment file
+          type: basic:integer
+          default: 5000000
           hidden: "quantification.assay_type != 'auto'"
           description: >
-            Alignment (.bam) file sampling rate. Increase the sampling rate
-            to use the larger proportion of aligned reads for automated strand
-            detection. The sampling rate should be higher if the number of aligned
-            reads in the sample is low.
+            Alignment (.bam) file subsample size. Increase the number of reads
+            to make automatic detection more reliable. Decrease the number of
+            reads to make automatic detection run faster.
         - name: feature_class
           label: Feature class
           type: basic:string
@@ -403,7 +402,7 @@
             aligned_reads: '{{ steps.alignment }}'
             assay_type: '{{ input.quantification.assay_type }}'
             cdna_index: '{{ input.quantification.cdna_index }}'
-            sampling_rate: '{{ input.quantification.sampling_rate }}'
+            n_reads: '{{ input.quantification.n_reads }}'
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             feature_class: '{{ input.quantification.feature_class }}'
@@ -416,7 +415,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.4
+  version: 1.0.0
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
@@ -705,16 +704,15 @@
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
             obtain the reliable analysis results.
-        - name: sampling_rate
-          label: Alignment file sampling rate
-          type: basic:decimal
-          default: 0.01
+        - name: n_reads
+          label: Number of reads in subsampled alignment file
+          type: basic:integer
+          default: 5000000
           hidden: "quantification.assay_type != 'auto'"
           description: >
-            Alignment (.bam) file sampling rate. Increase the sampling rate
-            to use the larger proportion of aligned reads for automated strand
-            detection. The sampling rate should be higher if the number of aligned
-            reads in the sample is low.
+            Alignment (.bam) file subsample size. Increase the number of reads
+            to make automatic detection more reliable. Decrease the number of
+            reads to make automatic detection run faster.
         - name: feature_class
           label: Feature class
           type: basic:string
@@ -817,7 +815,7 @@
             aligned_reads: '{{ steps.alignment }}'
             assay_type: '{{ input.quantification.assay_type }}'
             cdna_index: '{{ input.quantification.cdna_index }}'
-            sampling_rate: '{{ input.quantification.sampling_rate }}'
+            n_reads: '{{ input.quantification.n_reads }}'
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             feature_class: '{{ input.quantification.feature_class }}'

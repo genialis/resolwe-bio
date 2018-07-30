@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.1.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 1.1.0
+  version: 2.0.0
   type: data:expression:featurecounts
   category: analyses
   flow_collection: sample
@@ -67,16 +67,15 @@
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
             obtain the reliable analysis results.
-        - name: sampling_rate
-          label: Alignment file sampling rate
-          type: basic:decimal
-          default: 0.01
+        - name: n_reads
+          label: Number of reads in subsampled alignment file
+          type: basic:integer
+          default: 5000000
           hidden: "alignment.assay_type != 'auto'"
           description: >
-            Alignment (.bam) file sampling rate. Increase the sampling rate
-            to use the larger proportion of aligned reads for automated strand
-            detection. The sampling rate should be higher if the number of aligned
-            reads in the sample is low.
+            Alignment (.bam) file subsample size. Increase the number of reads
+            to make automatic detection more reliable. Decrease the number of
+            reads to make automatic detection run faster.
     - name: annotation
       label: Annotation
       group:
@@ -465,7 +464,7 @@
       {% if alignment.assay_type == 'auto' %}
         . detect_strandedness.sh \
           {{ alignment.aligned_reads.bam.file }} \
-          {{ alignment.sampling_rate }} \
+          {{ alignment.n_reads }} \
           {{ alignment.cdna_index.index.dir }} \
           {{ requirements.resources.cores }} \
           strandedness_report
