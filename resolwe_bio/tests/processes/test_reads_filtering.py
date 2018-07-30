@@ -254,12 +254,15 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'reads': reads.id,
-            'polya_tail': 5,
-            'down_primers_seq_fwd': ['AGCACCT'],
-            'down_primers_seq_rev': ['AGCACCT'],
-            'up_primers_seq_fwd': ['AGCTAAA'],
-            'up_primers_seq_rev': ['AGCTAAA'],
-            'minlen': 10
+            'adapters': {
+                'mate1_3prime_seq': ['AGCACCT'],
+                'mate2_3prime_seq': ['AGCACCT'],
+                'mate1_5prime_seq': ['AGCTAAA'],
+                'mate2_5prime_seq': ['AGCTAAA'],
+            },
+            'filtering': {
+                'minlen': 10,
+            },
         }
 
         cutadapt_paired = self.run_process('cutadapt-paired', inputs)
@@ -272,12 +275,15 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'reads': reads.id,
-            'polya_tail': 5,
-            'down_primers_file_fwd': primers_down.id,
-            'down_primers_file_rev': primers_down.id,
-            'up_primers_file_fwd': primers_up.id,
-            'up_primers_file_rev': primers_up.id,
-            'minlen': 10
+            'adapters': {
+                'mate1_3prime_file': primers_down.id,
+                'mate2_3prime_file': primers_down.id,
+                'mate1_5prime_file': primers_up.id,
+                'mate2_5prime_file': primers_up.id,
+            },
+            'filtering': {
+                'minlen': 10,
+            }
         }
 
         cutadapt_paired = self.run_process('cutadapt-paired', inputs)

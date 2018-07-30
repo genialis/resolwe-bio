@@ -207,7 +207,6 @@
       re-save-file-list fastqc_archive "${NAME}_trimmed_fastqc.zip"
       re-save-list fastqc_url "${FASTQC_URL}"
 
-
 - slug: cutadapt-paired
   name: Cutadapt (paired-end)
   requirements:
@@ -216,130 +215,134 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 2.0.0
   type: data:reads:fastq:paired:cutadapt
   category: analyses
   flow_collection: sample
   persistence: CACHED
   description: >
-    "Trim 5' and 3' primers using Cutadapt"
+    "Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted
+    sequence from your high-throughput sequencing paired-end reads. After Cutadapt, FastQC quality
+    control report of trimmed reads is prepared. For more information about Cutadapt see
+    [the official website](http://cutadapt.readthedocs.io/en/stable/index.html) or
+    [publication](http://journal.embnet.org/index.php/embnetjournal/article/view/200)."
   input:
     - name: reads
       label: NGS reads
       type: data:reads:fastq:paired
-    - name: up_primers_file_fwd
-      label: 5 prime forward reads adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: down_primers_file_fwd
-      label: 3 prime forward reads adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: up_primers_file_rev
-      label: 5 prime reverse reads adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: down_primers_file_rev
-      label: 3 prime reverse reads adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: up_primers_seq_fwd
-      label: 5 prime forward reads adapter sequence
-      type: list:basic:string
-      required: false
-    - name: down_primers_seq_fwd
-      label: 3 prime forward reads adapter sequence
-      type: list:basic:string
-      required: false
-    - name: up_primers_seq_rev
-      label: 5 prime reverse reads adapter sequence
-      type: list:basic:string
-      required: false
-    - name: down_primers_seq_rev
-      label: 3 prime reverse reads adapter sequence
-      type: list:basic:string
-      required: false
-    - name: polya_tail
-      label: Poly-A tail
-      type: basic:integer
-      required: false
-      description: >
-        Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
-    - name: leading
-      label: Leading quality
-      type: basic:integer
-      required: false
-      description: >
-        Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
-    - name: trailing
-      label: Trailing quality
-      type: basic:integer
-      required: false
-      description: >
-        Remove low quality bases from the end. Specifies the minimum quality required to keep a base.
-    - name: crop_fwd
-      label: Crop (forward reads)
-      type: basic:integer
-      required: false
-      description: >
-       Cut the specified number of bases from the end of the forward reads
-    - name: crop_rev
-      label: Crop (reverse reads)
-      type: basic:integer
-      required: false
-      description: >
-       Cut the specified number of bases from the end of the reverse reads
-    - name: headcrop_fwd
-      label: Headcrop (forward reads)
-      type: basic:integer
-      required: false
-      description: >
-       Cut the specified number of bases from the start of the forward reads
-    - name: headcrop_rev
-      label: Headcrop (reverse reads)
-      type: basic:integer
-      required: false
-      description: >
-       Cut the specified number of bases from the start of the reverse reads
-    - name: min_overlap_fwd
-      label: Minimal overlap (forward reads)
-      type: basic:integer
-      default: 3
-      description: >
-       Minimum overlap for an adapter match in forward reads
-    - name: min_overlap_rev
-      label: Minimal overlap (reverse reads)
-      type: basic:integer
-      default: 3
-      description: >
-       Minimum overlap for an adapter match in reverse reads
-    - name: minlen
-      label: Min length
-      type: basic:integer
-      required: false
-      description: >
-        Drop the read if it is below a specified length
-    - name: match_read_wildcards
-      label: Match read wildcards
-      type: basic:boolean
-      required: false
-      default: false
-      description: >
-        Interpret IUPAC wildcards in reads.
-    - name: times
-      label: Times
-      type: basic:integer
-      required: false
-      default: 1
-      description: >
-        Remove up to COUNT adapters from each read.
-    - name: error_rate
-      label: Error rate
-      type: basic:decimal
-      required: false
-      default: 0.1
-      description: >
-        Maximum allowed error rate (no. of errors divided by the length of the matching region).
+    - name: adapters
+      label: Adapters
+      group:
+        - name: mate1_5prime_file
+          label: 5 prime adapter file for Mate 1
+          type: data:seq:nucleotide
+          required: false
+        - name: mate1_3prime_file
+          label: 3 prime adapter file for Mate 1
+          type: data:seq:nucleotide
+          required: false
+        - name: mate2_5prime_file
+          label: 5 prime adapter file for Mate 2
+          type: data:seq:nucleotide
+          required: false
+        - name: mate2_3prime_file
+          label: 3 prime adapter file for Mate 2
+          type: data:seq:nucleotide
+          required: false
+        - name: mate1_5prime_seq
+          label: 5 prime adapter sequence for Mate 1
+          type: list:basic:string
+          required: false
+        - name: mate1_3prime_seq
+          label: 3 prime adapter sequence for Mate 1
+          type: list:basic:string
+          required: false
+        - name: mate2_5prime_seq
+          label: 5 prime adapter sequence for Mate 2
+          type: list:basic:string
+          required: false
+        - name: mate2_3prime_seq
+          label: 3 prime adapter sequence for Mate 2
+          type: list:basic:string
+          required: false
+        - name: times
+          label: Times
+          type: basic:integer
+          default: 1
+          description: >
+            Remove up to COUNT adapters from each read.
+        - name: error_rate
+          label: Error rate
+          type: basic:decimal
+          default: 0.1
+          description: >
+            Maximum allowed error rate (no. of errors divided by the length of the matching region).
+        - name: min_overlap
+          label: Minimal overlap
+          type: basic:integer
+          default: 3
+          description: >
+            Minimum overlap for an adapter match.
+        - name: match_read_wildcards
+          label: Match read wildcards
+          type: basic:boolean
+          default: false
+          description: >
+            Interpret IUPAC wildcards in reads.
+    - name: modify_reads
+      label: Modifying reads
+      group:
+        - name: leading
+          label: Quality on 5 prime
+          type: basic:integer
+          required: false
+          description: >
+            Remove low quality bases from 5 prime. Specifies the minimum quality required to keep a base.
+        - name: trailing
+          label: Quality on 3 prime
+          type: basic:integer
+          required: false
+          description: >
+            Remove low quality bases from the 3 prime. Specifies the minimum quality required to keep a base.
+        - name: crop
+          label: Crop
+          type: basic:integer
+          required: false
+          description: >
+            Cut the specified number of bases from the end of the reads.
+        - name: headcrop
+          label: Headcrop
+          type: basic:integer
+          required: false
+          description: >
+            Cut the specified number of bases from the start of the reads.
+    - name: filtering
+      label: Filtering of processed reads
+      group:
+        - name: minlen
+          label: Min length
+          type: basic:integer
+          required: false
+          description: >
+            Drop the read if it is below a specified.
+        - name: max_n
+          label: Max numebr of N-s
+          type: basic:integer
+          required: false
+          description: >
+            Discard reads having more 'N' bases than specified.
+        - name: pair_filter
+          label: Which of the reads have to match the filtering criterion
+          type: basic:string
+          default: any
+          choices:
+            - label: Any of the reads in a paired-end read have to match the filtering criterion
+              value: any
+            - label: Both of the reads in a paired-end read have to match the filtering criterion
+              value: both
+          description: >
+            Which of the reads in a paired-end read have to match the filtering criterion in order for the pair to be
+            filtered.
   output:
     - name: fastq
       label: Reads file (forward)
@@ -367,38 +370,33 @@
     language: bash
     program: |
 
-      {% if not up_primers_file_fwd
-       and not up_primers_file_rev
-       and not down_primers_file_fwd
-       and not down_primers_file_rev
-       and not up_primers_seq_fwd
-       and not up_primers_seq_rev
-       and not down_primers_seq_fwd
-       and not down_primers_seq_rev
-       and not polya_tail
-       and not leading
-       and not trailing
-       and not crop_fwd
-       and not crop_rev
-       and not headcrop_fwd
-       and not headcrop_rev
-       and not minlen %}
+      {% if not adapters.mate1_5prime_file
+       and not adapters.mate2_5prime_file
+       and not adapters.mate1_3prime_file
+       and not adapters.mate2_3prime_file
+       and not adapters.mate1_5prime_seq
+       and not adapters.mate2_5prime_seq
+       and not adapters.mate1_3prime_seq
+       and not adapters.mate2_3prime_seq
+       and not modify_reads.leading
+       and not modify_reads.trailing
+       and not modify_reads.crop
+       and not modify_reads.headcrop
+       and not filtering.minlen
+       and not filtering.max_n %}
         re-error "At least one parameter required"
       {% endif %}
 
-      {% if down_primers_file_fwd and down_primers_seq_fwd %}
+      {% if adapters.mate1_3prime_file and adapters.mate1_3prime_seq %}
         re-error "Forward reads 3' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
-
-      {% if down_primers_file_rev and down_primers_seq_rev %}
+      {% if adapters.mate2_3prime_file and adapters.mate2_3prime_seq %}
         re-error "Reverse reads 3' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
-
-      {% if up_primers_file_fwd and up_primers_seq_fwd %}
+      {% if adapters.mate1_5prime_file and adapters.mate1_5prime_seq %}
         re-error "Forward reads 5' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
-
-      {% if up_primers_file_rev and up_primers_seq_rev %}
+      {% if adapters.mate2_5prime_file and mate2_5prime_seq %}
         re-error "Reverse reads 5' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
 
@@ -407,82 +405,55 @@
 
       FW_READS=({% for read in reads.fastq %}{{read.file}} {% endfor %})
       cat "${FW_READS[@]}" > in_fw_reads.fastq.gz
-
       RW_READS=({% for read in reads.fastq2 %}{{read.file}} {% endfor %})
       cat "${RW_READS[@]}" > in_rw_reads.fastq.gz
 
-      polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
-      down_primers_fwd='{% for primer in down_primers_seq_fwd %}-a {{primer}} {% endfor %}'
+      down_primers_fwd='{% for primer in adapters.mate1_3prime_seq %}-a {{primer}} {% endfor %}'
       down_primers_fwd=${down_primers_fwd%?}
-      down_primers_rev='{% for primer in down_primers_seq_rev %}-a {{primer}} {% endfor %}'
+      down_primers_rev='{% for primer in adapters.mate2_3prime_seq %}-A {{primer}} {% endfor %}'
       down_primers_rev=${down_primers_rev%?}
-      up_primers_fwd='{% for primer in up_primers_seq_fwd %}-g {{primer}} {% endfor %}'
+      up_primers_fwd='{% for primer in adapters.mate1_5prime_seq %}-g {{primer}} {% endfor %}'
       up_primers_fwd=${up_primers_fwd%?}
-      up_primers_rev='{% for primer in up_primers_seq_rev %}-g {{primer}} {% endfor %}'
+      up_primers_rev='{% for primer in adapters.mate2_5prime_seq %}-G {{primer}} {% endfor %}'
       up_primers_rev=${up_primers_rev%?}
 
       # Decompress primer files
-      {% if up_primers_file_fwd %}
-        gunzip -c {{up_primers_file_fwd.fasta.file}} > 5_primers_fwd.fasta
+      {% if adapters.mate1_5prime_file %}
+        gunzip -c {{adapters.mate1_5prime_file.fasta.file}} > 5_primers_fwd.fasta
       {% endif %}
-      {% if up_primers_file_rev %}
-        gunzip -c {{up_primers_file_rev.fasta.file}} > 5_primers_rev.fasta
+      {% if adapters.mate1_3prime_file %}
+        gunzip -c {{adapters.mate1_3prime_file.fasta.file}} > 3_primers_fwd.fasta
       {% endif %}
-      {% if down_primers_file_fwd %}
-        gunzip -c {{down_primers_file_fwd.fasta.file}} > 3_primers_fwd.fasta
+      {% if adapters.mate2_5prime_file %}
+        gunzip -c {{adapters.mate2_5prime_file.fasta.file}} > 5_primers_rev.fasta
       {% endif %}
-      {% if down_primers_file_rev %}
-        gunzip -c {{down_primers_file_rev.fasta.file}} > 3_primers_rev.fasta
+      {% if adapters.mate2_3prime_file %}
+        gunzip -c {{adapters.mate2_3prime_file.fasta.file}} > 3_primers_rev.fasta
       {% endif %}
 
-      # Run Cutadapt on forward reads
       cutadapt \
-        {% if headcrop_fwd %}-u {{headcrop_fwd}}{% endif %} \
-        {% if crop_fwd %}-u -{{crop_fwd}}{% endif %} \
-        {% if leading %}-q {{leading}}{% endif %} \
-        {% if trailing %}-q {{trailing}},0{% endif %} \
-        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
-        {% if down_primers_seq_fwd %}$down_primers_fwd{% endif %} \
-        {% if up_primers_seq_fwd %}$up_primers_fwd{% endif %} \
-        {% if down_primers_file_fwd %}-a file:3_primers_fwd.fasta{% endif %} \
-        {% if up_primers_file_fwd %}-g file:5_primers_fwd.fasta{% endif %} \
-        {% if times %}--times {{ times }} {% endif %} \
-        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
-        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
-        -O {{min_overlap_fwd}} \
-        -o "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq.gz > report.txt
-      re-checkrc "Failed while running cutadapt"
-      re-progress 0.4
-
-      # Run Cutadapt on reverse reads
-      cutadapt \
-        {% if headcrop_rev %}-u {{headcrop_rev}}{% endif %} \
-        {% if crop_rev %}-u -{{crop_rev}}{% endif %} \
-        {% if leading %}-q {{leading}}{% endif %} \
-        {% if trailing %}-q {{trailing}},0{% endif %} \
-        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
-        {% if down_primers_seq_rev %}$down_primers_rev{% endif %} \
-        {% if up_primers_seq_rev %}$up_primers_rev{% endif %} \
-        {% if down_primers_file_rev %}-a file:3_primers_rev.fasta{% endif %} \
-        {% if up_primers_file_rev %}-g file:5_primers_rev.fasta{% endif %} \
-        {% if times %}--times {{ times }} {% endif %} \
-        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
-        {% if error_rate %}--error-rate {{ error_rate }} {% endif %} \
-        -O {{min_overlap_rev}} \
-        -o "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz >> report.txt
-      re-checkrc "Failed while running cutadapt"
-      re-progress 0.7
-
-      # Run Cutadapt on both reads
-      {% if minlen %}
-        if [ -f "${NAME1}_trimmed.fastq.gz" ]; then
-         mv "${NAME1}_trimmed.fastq.gz" in_fw_reads.fastq.gz
-        fi
-        if [ -f "${NAME2}_trimmed.fastq.gz" ]; then
-         mv "${NAME2}_trimmed.fastq.gz" in_rw_reads.fastq.gz
-        fi
-        cutadapt -m 20 -o "${NAME1}_trimmed.fastq.gz" -p "${NAME2}_trimmed.fastq.gz" in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
-      {% endif %}
+        {% if filtering.minlen is defined%}--minimum-length={{ filtering.minlen }}{% endif %} \
+        {% if modify_reads.headcrop is defined %}--cut={{ modify_reads.headcrop }}{% endif %} \
+        {% if modify_reads.crop is defined %}--cut=-{{ modify_reads.crop }}{% endif %} \
+        {% if modify_reads.trailing is defined %}--quality-cutoff={{ modify_reads.trailing }}{% endif %} \
+        {% if modify_reads.leading is defined %}--quality-cutoff={{ modify_reads.leading }},0{% endif %} \
+        {% if adapters.mate1_3prime_seq %}$down_primers_fwd{% endif %} \
+        {% if adapters.mate1_5prime_seq %}$up_primers_fwd{% endif %} \
+        {% if adapters.mate1_3prime_file %}-a file:3_primers_fwd.fasta{% endif %} \
+        {% if adapters.mate1_5prime_file %}-g file:5_primers_fwd.fasta{% endif %} \
+        {% if adapters.mate2_3prime_seq %}$down_primers_rev{% endif %} \
+        {% if adapters.mate2_5prime_seq %}$up_primers_rev{% endif %} \
+        {% if adapters.mate2_3prime_file %}-A file:3_primers_rev.fasta{% endif %} \
+        {% if adapters.mate2_5prime_file %}-G file:5_primers_rev.fasta{% endif %} \
+        {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
+        {% if adapters.match_read_wildcards %}--match-read-wildcards {% endif %} \
+        --pair-filter={{ filtering.pair_filter }} \
+        --error-rate {{ adapters.error_rate }} \
+        --times {{ adapters.times }} \
+        --overlap={{ adapters.min_overlap }} \
+        -o "${NAME1}_trimmed.fastq.gz" \
+        -p "${NAME2}_trimmed.fastq.gz" \
+        in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.8
 

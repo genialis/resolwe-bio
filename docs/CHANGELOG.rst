@@ -25,6 +25,7 @@ Changed
   in strandedness detection
 - **BACKWARD INCOMPATIBLE:** Remove ``genome`` input from ``rose2``
   process and automate its selection
+- **BACKWARD INCOMPATIBLE:** Refactor ``cutadapt-paired`` process
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
 - Improve helper text and labels in processes used for sequencing data upload
 - Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
