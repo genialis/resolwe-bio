@@ -23,6 +23,8 @@ Changed
   process and automate its selection
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
 - Improve helper text and labels in processes used for sequencing data upload
+- Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
+  and ``workflow-bbduk-star-featurecounts-paired`` processes
 
 
 Fixed

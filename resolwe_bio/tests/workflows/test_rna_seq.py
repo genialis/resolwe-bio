@@ -120,6 +120,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             'preprocessing': {
                 'reads': reads.id,
                 'adapters': [adapters.id],
+                'custom_adapter_sequences': ['ACTGACTGACTG', 'AAACCCTTT'],
             },
             'alignment': {
                 'genome': star_index.id,
