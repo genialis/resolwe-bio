@@ -18,6 +18,10 @@ Added
 - Add ``resdk`` Python 3 package to ``resolwebio/utils`` Docker image
 - Add to ``cutadapt-single`` process an option to discard reads having more
   'N' bases than specified.
+- Add workflows for single-end ``workflow-cutadapt-star-featurecounts-single``
+  and paired-end reads ``workflow-cutadapt-star-featurecounts-paired``.
+  Both workflows consist of preprocessing with Cutadapt, alignment
+  with STAR two pass mode and quantification with featureCounts.
 
 Changed
 -------

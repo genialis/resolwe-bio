@@ -335,3 +335,63 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
         self.assertFields(workflow, 'source', 'DICTYBASE')
+
+    @with_resolwe_host
+    @tag_process('workflow-cutadapt-star-featurecounts-single', 'workflow-cutadapt-star-featurecounts-paired')
+    def test_cutadapt_star_featurecounts_workflow(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['SRR7455803_1_short.fastq.gz'])
+            paired_reads = self.prepare_paired_reads(
+                mate1=['SRR7455803_1_short.fastq.gz'],
+                mate2=['SRR7455803_2_short.fastq.gz'])
+
+            inputs = {
+                'src': 'PGSC_ITAG_test.gff',
+                'build': 'stu_dm_itag-pgsc_4.04_nib',
+                'source': 'PGSC/ITAG',
+                'species': 'Solanum tuberosum',
+            }
+            gff3 = self.run_process('upload-gff3', inputs)
+            star_index_fasta = self.prepare_adapters(fn='StPGSC4.04n_Chr09.fasta.gz')
+            inputs = {'annotation': gff3.id, 'genome2': star_index_fasta.id}
+            star_index = self.run_process('alignment-star-index', inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.run_process(
+            'workflow-cutadapt-star-featurecounts-single', {
+                'preprocessing': {
+                    'reads': reads.id,
+                },
+                'alignment': {
+                    'genome': star_index.id,
+                },
+                'quantification': {
+                    'annotation': gff3.id
+                }
+            }
+        )
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        featurecounts = Data.objects.last()
+        self.assertFile(featurecounts, 'rc', 'workflow_cutadapt_star_fc_single.tab.gz', compression='gzip')
+
+        self.run_process(
+            'workflow-cutadapt-star-featurecounts-paired', {
+                'preprocessing': {
+                    'reads': paired_reads.id,
+                },
+                'alignment': {
+                    'genome': star_index.id,
+                },
+                'quantification': {
+                    'annotation': gff3.id
+                }
+            }
+        )
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        featurecounts = Data.objects.last()
+        self.assertFile(featurecounts, 'rc', 'workflow_cutadapt_star_fc_paired.tab.gz', compression='gzip')
