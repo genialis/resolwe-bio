@@ -14,6 +14,7 @@ Added
 -----
 - Add two-pass mode to ``alignment-star`` process
 - Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
+- Add KAPA experiment descriptor schema
 
 Changed
 -------
@@ -25,7 +26,6 @@ Changed
 - Improve helper text and labels in processes used for sequencing data upload
 - Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
   and ``workflow-bbduk-star-featurecounts-paired`` processes
-
 
 Fixed
 -------

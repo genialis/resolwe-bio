@@ -1,0 +1,84 @@
+- slug: kapa-rna-seq-bbduk-star-featurecounts
+  name: "KAPA RNA-Seq pipeline: BBDuk - STAR - featureCounts"
+  version: 0.0.1
+  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
+    quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3'-end, and discards reads that are too short after trimming.
+    Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
+    preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
+    considered a state-of-the-art tool that consistently produces accurate results from diverse sets
+    of reads, and performs well even with default settings. For more information see [this
+    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106).\n\nFinally, aligned
+    reads are summarized to genes by __featureCounts__. Gaining wide adoption among the
+    bioinformatics community, featureCounts yields expressions in a computationally efficient
+    manner.\n\nAll three tools in this workflow support parallelization to accelerate the analysis."
+  schema:
+    - name: species
+      label: Species
+      type: basic:string
+      default: Homo sapiens
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+    - name: kit
+      label: Kit selection
+      type: basic:string
+      default: KAPA Stranded RNA-Seq Kit
+      choices:
+        - label: KAPA Stranded RNA-Seq Kit
+          value: KAPA Stranded RNA-Seq Kit
+        - label: KAPA RNA HyperPrep Kit
+          value: KAPA RNA HyperPrep Kit
+        - label: KAPA Stranded mRNA-Seq Kit
+          value: KAPA Stranded mRNA-Seq Kit
+        - label: KAPA mRNA HyperPrep Kit
+          value: KAPA mRNA HyperPrep Kit
+        - label: KAPA Stranded RNA-Seq Kit with RiboErase
+          value: KAPA Stranded RNA-Seq Kit with RiboErase
+        - label: KAPA RNA HyperPrep Kit with RiboErase
+          value: KAPA RNA HyperPrep Kit with RiboErase
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
+    - name: adapters
+      label: Remove adapters
+      hidden: '!advanced'
+      group:
+        - name: illumina
+          label: Illumina adapters
+          type: basic:boolean
+          default: true
+          description: >
+            Remove standard Illumina adapter set.
+        - name: custom_sequences
+          label: Custom adapter sequences
+          type: list:basic:string
+          default: []
+          required: false
+          description: >
+            Custom adapter sequences can be specified by inputting them one by one and pressing Enter
+            after each sequence.
+    - name: reads_trimming
+      label: Trim reads
+      hidden: '!advanced'
+      group:
+        - name: trailing
+          label: Trailing quality
+          type: basic:integer
+          default: 28
+          description: >
+            The minimum quality required to keep a base. Bases with lower quality
+            will be removed from the right end of reads.
+        - name: min_length
+          label: Minimum read length
+          type: basic:integer
+          default: 10
+          description: >
+            Trimmed reads shorter than the minimum read length will be discarded.
