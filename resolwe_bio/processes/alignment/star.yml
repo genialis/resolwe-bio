@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.4.0
+  version: 1.5.0
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -173,6 +173,16 @@
               value: Extend5pOfRead1
             - label: Extend5pOfReads12
               value: Extend5pOfReads12
+    - name: two_pass_mapping
+      label: Two-pass mapping
+      group:
+        - name: two_pass_mode
+          label: --twopassMode
+          type: basic:boolean
+          default: false
+          description: >
+             Perform first-pass mapping, extract junctions, insert them into genome index, and
+             re-map all reads in the second mapping pass.
     - name: output_sam_bam
       label: Output SAM, BAM and BigWig
       group:
@@ -309,6 +319,7 @@
           {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
           {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %} \
           {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
+          {% if two_pass_mapping.two_pass_mode %} --twopassMode Basic {% endif %} \
           {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
           {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
           {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}
@@ -346,6 +357,7 @@
           {% if alignment.alignIntronMax %}--alignIntronMax {{alignment.alignIntronMax}}{% endif %} \
           {% if alignment.alignMatesGapMax %}--alignMatesGapMax {{alignment.alignMatesGapMax}}{% endif %} \
           {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
+          {% if two_pass_mapping.two_pass_mode %} --twopassMode Basic {% endif %} \
           {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
           {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
           {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}

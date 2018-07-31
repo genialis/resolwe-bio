@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add two-pass mode to ``alignment-star`` process
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Use read count instead of sampling rate

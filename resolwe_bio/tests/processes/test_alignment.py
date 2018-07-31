@@ -131,7 +131,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertAlmostEqual(star_index.output['index']['size'], 1566163829, delta=5)
 
     @with_resolwe_host
-    @tag_process('alignment-star-index', 'alignment-star')
+    @tag_process('alignment-star')
     def test_star(self):
         with self.preparation_stage():
             reads = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
@@ -157,7 +157,12 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'reads': reads.id,
             't_coordinates': {
                 'quantmode': True,
-                'gene_counts': True}}
+                'gene_counts': True,
+            },
+            'two_pass_mapping': {
+                'two_pass_mode': True,
+            },
+        }
         aligned_reads = self.run_process('alignment-star', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -178,7 +183,12 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'reads': paired_reads.id,
             't_coordinates': {
                 'quantmode': True,
-                'gene_counts': True}}
+                'gene_counts': True,
+            },
+            'two_pass_mapping': {
+                'two_pass_mode': True,
+            },
+        }
         aligned_reads = self.run_process('alignment-star', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
