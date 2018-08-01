@@ -6,6 +6,7 @@ bam_file="$1"
 number_of_cores="$2"
 bin_size="$3"
 time_limit="$4"
+species="$5"
 
 NAME=`basename "${bam_file}" .bam`
 
@@ -15,7 +16,7 @@ timeout "${time_deeptools}" \
   bamCoverage \
     --binSize "${bin_size}" \
     --bam "${bam_file}" \
-    --outFileName "${NAME}.bw" \
+    --outFileName "tmp_${NAME}.bw" \
     --outFileFormat "bigwig" \
     --numberOfProcessors "${number_of_cores}"
 
@@ -26,6 +27,11 @@ then
   re-warning "BigWig took too long to process."
 elif [ ${exit_status} == 0 ]
 then
+  bigwig_chroms_to_ucsc.py \
+    --infile "tmp_${NAME}.bw" \
+    --outfile "${NAME}.bw" \
+    --species "${species}"
+  re-checkrc "Mapping of BigWig failed."
   re-save-file bigwig "${NAME}.bw"
 else
   re-checkrc "Calculation of BigWig failed."

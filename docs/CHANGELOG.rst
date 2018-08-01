@@ -26,6 +26,11 @@ Changed
 - Improve helper text and labels in processes used for sequencing data upload
 - Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
   and ``workflow-bbduk-star-featurecounts-paired`` processes
+- Change chromosome names from ENSEMBL / NCBI to UCSC (example: "1" to
+  "chr1") in BigWig files. The purpose of this is to enable viewing BigWig
+  files in UCSC genome browsers for files aligned with ENSEBML or NCBI genome.
+  This change is done by adding script bigwig_chroms_to_ucsc.py to
+  bamtobigwig.sh script.
 
 Fixed
 -------

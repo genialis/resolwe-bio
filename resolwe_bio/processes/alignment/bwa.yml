@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 2.1.2
+  version: 2.1.3
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -223,7 +223,7 @@
       fi
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
 
 
 - slug: alignment-bwa-sw
@@ -232,11 +232,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.2
+  version: 1.2.3
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -374,7 +374,7 @@
       fi
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
 
 - slug: alignment-bwa-aln
   name: BWA ALN
@@ -382,11 +382,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.2
+  version: 1.2.3
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample
@@ -554,4 +554,4 @@
       fi
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}

@@ -190,6 +190,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             },
         }
         aligned_reads = self.run_process('alignment-star', inputs)
+        self.assertFile(aligned_reads, 'bigwig', 'bigwig_star_ens_paired.bw')
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
@@ -284,6 +285,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'reads': reads_paired.id}
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'stats', 'hisat2_paired_report.txt')
+        self.assertFile(aligned_reads, 'bigwig', 'hisat2_paired_bigwig.bw')
         self.assertFile(aligned_reads, 'unmapped_f', 'hisat2_unmapped_1.fastq.gz', compression='gzip', sort=True)
         self.assertFile(aligned_reads, 'unmapped_r', 'hisat2_unmapped_2.fastq.gz', compression='gzip', sort=True)
         self.assertFileExists(aligned_reads, 'splice_junctions')
@@ -297,8 +299,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
             inputs = {
                 'src': 'my.strange.genome name$.fasta.gz',
-                'species': 'Homo sapiens',
-                'build': 'hg19'
+                'species': 'Dictyostelium discoideum',
+                'build': 'dd-05-2009',
             }
             genome_2 = self.run_process('upload-genome', inputs)
 
@@ -317,3 +319,39 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         aligned_reads = self.run_process('alignment-subread', inputs)
         self.assertFile(aligned_reads, 'stats', 'subread_paired_reads_report.txt')
         self.assertFile(aligned_reads, 'bam', 'subread_paired.bam')
+
+    @tag_process('alignment-hisat2')
+    def test_hisat2_bigwig(self):
+        with self.preparation_stage():
+            paired_reads_ucsc = self.prepare_paired_reads(mate1=['SRR2124780_1 1k.fastq.gz'],
+                                                          mate2=['SRR2124780_2 1k.fastq.gz'])
+            paired_reads_ncbi = self.prepare_paired_reads(mate1=['GRCh38.p12_NCBIchr21_R1.fq.gz'],
+                                                          mate2=['GRCh38.p12_NCBIchr21_R2.fq.gz'])
+
+            inputs = {
+                'src': 'hg38_chr21_9M.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg38',
+            }
+            genome_ucsc = self.run_process('upload-genome', inputs)
+
+            inputs = {
+                'src': 'GRCh38.p12_NCBIchr21_9M.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38.p12',
+            }
+            genome_ncbi = self.run_process('upload-genome', inputs)
+
+        inputs = {
+            'genome': genome_ucsc.id,
+            'reads': paired_reads_ucsc.id,
+        }
+        aligned_reads = self.run_process('alignment-hisat2', inputs)
+        self.assertFile(aligned_reads, 'bigwig', 'hisat2_paired_ucsc_bigwig.bw')
+
+        inputs = {
+            'genome': genome_ncbi.id,
+            'reads': paired_reads_ncbi.id,
+        }
+        aligned_reads = self.run_process('alignment-hisat2', inputs)
+        self.assertFile(aligned_reads, 'bigwig', 'hisat2_paired_ncbi_bigwig.bw')

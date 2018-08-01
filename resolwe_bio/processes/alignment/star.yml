@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.5.0
+  version: 1.5.1
   type: data:alignment:bam:star
   category: analyses:alignment
   flow_collection: sample
@@ -420,7 +420,7 @@
       re-save build {{genome.build}}
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${READS_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }} 480
+      bamtobigwig.sh "${READS_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }} 480 {{ genome.species }}
 
 
 

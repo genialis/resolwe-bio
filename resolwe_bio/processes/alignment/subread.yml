@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:3.5.0
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.0.2
+  version: 2.0.3
   type: data:alignment:bam:subread
   category: analyses:alignment
   flow_collection: sample
@@ -211,4 +211,4 @@
       fi
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480
+      bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
