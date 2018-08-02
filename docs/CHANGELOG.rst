@@ -22,6 +22,7 @@ Added
   and paired-end reads ``workflow-cutadapt-star-featurecounts-paired``.
   Both workflows consist of preprocessing with Cutadapt, alignment
   with STAR two pass mode and quantification with featureCounts.
+- Add descriptor schema ``rna-seq-cutadapt-star-featurecounts``
 
 Changed
 -------

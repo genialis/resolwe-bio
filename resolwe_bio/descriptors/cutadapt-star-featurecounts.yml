@@ -1,0 +1,106 @@
+- slug: rna-seq-cutadapt-star-featurecounts
+  name: "Pipeline: Cutadapt - STAR (two pass mode) - featureCounts"
+  version: 0.0.1
+  description: "This RNA-Seq pipeline consists of three steps: preprocessing, alignment and  quantification.
+    \n\nFirstly, reads are preprocessed by __Cutadapt__ which by default drops reads that are shorter
+    than 50 bp and reads having more than 2 'N' bases, then it removes bases from 3' end with quality
+    below 20.\n\nSecondly, trimmed reads are aligned to genome by __STAR__ aligner using two-pass mode.
+    \n\nFinally, aligned reads are summarized to genes by __featureCounts__. Exons that are overlapping
+    to multiple genes are assigned to all of genes. Each overlapping gene receives a count of 1 / y,
+    where y is the total number of genes overlapping with the read."
+  schema:
+    - name: annotation
+      label: Source of annotation
+      type: basic:string
+      default: pgsc_itag
+      choices:
+        - label: PGSC/ITAG
+          value: pgsc_itag
+        - label: PGSC
+          value: pgsc
+        - label: ITAG
+          value: itag
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
+    - name: trailing
+      label: Quality cutoff from 3' end
+      type: basic:integer
+      default: 20
+      description: >
+        Remove low quality bases from the 3' end. Specifies the minimum quality required to keep a base.
+      hidden: '!advanced'
+    - name: minlen
+      label: Min length
+      type: basic:integer
+      default: 50
+      description: >
+        Drop the read if it is below a specified length.
+      hidden: '!advanced'
+    - name: max_n
+      label: Max number of Ns in read.
+      type: basic:integer
+      default: 2
+      description: >
+        Discard reads having more 'N' bases than specified.
+      hidden: '!advanced'
+    - name: assay_type
+      label: Assay type
+      type: basic:string
+      default: non_specific
+      choices:
+        - label: Strand non-specific
+          value: non_specific
+        - label: Strand-specific forward
+          value: forward
+        - label: Strand-specific reverse
+          value: reverse
+      description: >
+        In strand non-specific assay a read is considered overlapping with a feature regardless
+        of whether it is mapped to the same or the opposite strand as the feature.
+        In strand-specific forward assay and single reads, the read has to be mapped to the
+        same strand as the feature. For paired-end reads, the first read has to be on the same
+        strand and the second read on the opposite strand. In strand-specific reverse
+        assay these rules are reversed.
+      hidden: '!advanced'
+    - name: frac_overlap
+      label: >
+        Minimum fraction of overlapping bases in a read that is required for read assignment
+      type: basic:decimal
+      default: 0.0
+      description: >
+        Value should be within range [0, 1]. Number of overlapping bases is counted from both
+        reads if paired end. Both this option and 'Minimum number of overlapping bases in a read
+        that is required for read assignment' need to be satisfied for read assignment.
+      hidden: '!advanced'
+    - name: allow_multi_overlap
+      label: Assign reads to all their overlapping features or meta-features
+      type: basic:boolean
+      default: true
+      hidden: '!advanced'
+    - name: count_multi_mapping_reads
+      label: Count multi-mapping reads
+      type: basic:boolean
+      default: false
+      description: >
+        For a multi-mapping read, all its reported alignments will be counted. The 'NH' tag in BAM
+        input is used to detect multi-mapping reads.
+      hidden: '!advanced'
+    - name: fraction
+      label: Assign fractional counts to features
+      type: basic:boolean
+      default: true
+      description: >
+        This option must be used together with 'Count multi-mapping reads' or 'Assign reads to
+        all their overlapping features or meta-features' or both. When 'Count multi-mapping reads'
+        is checked, each reported alignment from a multi-mapping read (identified via 'NH' tag)
+        will carry a count of 1 / x, instead of 1 (one), where x is the total number of
+        alignments reported for the same read. When 'Assign reads to all their overlapping
+        features or meta-features' is checked, each overlapping feature will receive a count
+        of 1 / y, where y is the total number of features overlapping with the read. When both
+        'Count multi-mapping reads' and 'Assign reads to all their overlapping features or
+        meta-features' are specified, each alignment will carry a count of 1 / (x * y).
+      hidden: '!advanced'
