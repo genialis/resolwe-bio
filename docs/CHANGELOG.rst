@@ -31,6 +31,11 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``genome`` input from ``rose2``
   process and automate its selection
 - **BACKWARD INCOMPATIBLE:** Refactor ``cutadapt-paired`` process
+- **BACKWARD INCOMPATIBLE:** Improve leaf ordering performance in gene and
+  sample hierarchical clustering. We now use exact leaf ordering which has
+  been recently added to ``scipy`` instead of an approximate in-house
+  solution based on nearest neighbor algorithm. Add informative warning
+  and error messages to simplify troubleshooting with degenerate datasets.
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
 - Improve helper text and labels in processes used for sequencing data upload
 - Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
