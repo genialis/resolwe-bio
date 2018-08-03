@@ -55,6 +55,7 @@ Fixed
 - Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
 - Fix and improve ``rose2`` error messages
 - Fail gracefully if bam file is empty when producing bigwig files
+- Fail gracefully if there are no matches when mapping chromosome names
 
 
 ===================

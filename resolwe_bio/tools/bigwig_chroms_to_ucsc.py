@@ -67,22 +67,29 @@ def parse_mappings(species, infile, outfile):
 def create_new_header(infile, mappings, outfile):
     """Create new header in BigWig, with UCSC chromosome names."""
     with pyBigWig.open(infile) as bw:
-        # If chromosome names are already UCSC, just rename input file to output name.
-        # Exit with status 0 since this is normal behavior.
         if set(bw.chroms().keys()).issubset(mappings.values()):
+            # If chromosome names are already UCSC, just rename input file to output name.
+            # Exit with status 0 since this is normal behavior.
             os.rename(infile, outfile)
             sys.exit(0)
-        else:
-            hdr = [(mappings[chrom], length) for chrom, length in bw.chroms().items() if chrom in mappings]
-            with pyBigWig.open(outfile, 'w') as bw_output:
-                bw_output.addHeader(hdr)
-                for chrom, length in bw.chroms().items():
-                    ints = bw.intervals(chrom, 0, length)
-                    if ints:
-                        bw_output.addEntries([mappings[chrom]] * len(ints),
-                                             [x[0] for x in ints],
-                                             ends=[x[1] for x in ints],
-                                             values=[x[2] for x in ints])
+
+        hdr = [(mappings[chrom], length) for chrom, length in bw.chroms().items() if chrom in mappings]
+
+        if not hdr:
+            msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
+            print(warning(msg))
+            os.rename(infile, outfile)
+            sys.exit(0)
+
+        with pyBigWig.open(outfile, 'w') as bw_output:
+            bw_output.addHeader(hdr)
+            for chrom, length in bw.chroms().items():
+                ints = bw.intervals(chrom, 0, length)
+                if ints:
+                    bw_output.addEntries([mappings[chrom]] * len(ints),
+                                         [x[0] for x in ints],
+                                         ends=[x[1] for x in ints],
+                                         values=[x[2] for x in ints])
 
 
 def main():

@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.1.5
+  version: 2.1.6
   type: data:alignment:bam:tophat
   category: analyses:alignment
   flow_collection: sample

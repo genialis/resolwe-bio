@@ -367,3 +367,21 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'genome': genome.id,
         })
         self.assertEqual(aligned_reads.process_error, ['Bam file has no entries. No bigWig file will be made.'])
+
+    @tag_process('alignment-hisat2')
+    def test_no_bigwig_mappings(self):
+        """Use dicty genome and reads but declare it as human so no mapping to UCSC can happen."""
+        with self.preparation_stage():
+            reads = self.prepare_reads()
+            genome = self.run_process('upload-genome', {
+                'src': 'genome.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38.p12',
+            })
+
+        aligned_reads = self.run_process('alignment-hisat2', {
+            'reads': reads.id,
+            'genome': genome.id,
+        })
+        msg = 'Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done.'
+        self.assertEqual(aligned_reads.process_warning, [msg])
