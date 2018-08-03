@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/rnaseq:3.5.0
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.5.3
+  version: 1.5.4
   type: data:alignment:bam:hisat2
   category: analyses:alignment
   flow_collection: sample

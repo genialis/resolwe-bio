@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 2.1.3
+  version: 2.1.4
   type: data:alignment:bam:bwamem
   category: analyses:alignment
   flow_collection: sample
@@ -236,7 +236,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.3
+  version: 1.2.4
   type: data:alignment:bam:bwasw
   category: analyses:alignment
   flow_collection: sample
@@ -386,7 +386,7 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.3
+  version: 1.2.4
   type: data:alignment:bam:bwaaln
   category: analyses:alignment
   flow_collection: sample

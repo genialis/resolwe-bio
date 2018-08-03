@@ -8,6 +8,12 @@ bin_size="$3"
 time_limit="$4"
 species="$5"
 
+BAM_SEQUENCES=`samtools view -c "${bam_file}"`
+if [ "${BAM_SEQUENCES}" == 0 ]; then
+  re-error "Bam file has no entries. No bigWig file will be made."
+  exit 0
+fi
+
 NAME=`basename "${bam_file}" .bam`
 
 time_deeptools=`python -c "import os; print(max(os.path.getsize('${bam_file}') / 1024**3, 1) * ${time_limit})"`

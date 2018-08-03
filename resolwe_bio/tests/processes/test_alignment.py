@@ -355,3 +355,15 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         }
         aligned_reads = self.run_process('alignment-hisat2', inputs)
         self.assertFile(aligned_reads, 'bigwig', 'hisat2_paired_ncbi_bigwig.bw')
+
+    @tag_process('alignment-hisat2')
+    def test_empty_bam(self):
+        with self.preparation_stage():
+            genome = self.prepare_genome()
+            reads = self.prepare_reads(['reads-map-to-nowhere.fastq'])
+
+        aligned_reads = self.run_process('alignment-hisat2', assert_status=Data.STATUS_ERROR, input_={
+            'reads': reads.id,
+            'genome': genome.id,
+        })
+        self.assertEqual(aligned_reads.process_error, ['Bam file has no entries. No bigWig file will be made.'])

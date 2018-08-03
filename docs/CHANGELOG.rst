@@ -54,6 +54,7 @@ Fixed
 - fix ``upload-gtf`` to create JBrowse track only if GTF file is ok
 - Pin ``sra-toolkit`` version to 2.9.0 in ``resolwebio/utils`` Docker image.
 - Fix and improve ``rose2`` error messages
+- Fail gracefully if bam file is empty when producing bigwig files
 
 
 ===================
