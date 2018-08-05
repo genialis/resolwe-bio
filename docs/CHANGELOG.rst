@@ -26,6 +26,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 11.x
 - **BACKWARD INCOMPATIBLE:** Use read count instead of sampling rate
   in strandedness detection
 - **BACKWARD INCOMPATIBLE:** Remove ``genome`` input from ``rose2``
