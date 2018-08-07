@@ -4,7 +4,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-Seq pipeline is made to process single-end reads and consists of three steps:
     preprocessing, alignment and  quantification.\n\nFirstly, reads are preprocessed by __Cutadapt__ which
@@ -92,11 +92,6 @@
             Value should be within range [0, 1]. Number of overlapping bases is counted from both
             reads if paired end.
           hidden: '!quantification.show_advanced'
-        - name: allow_multi_overlap
-          label: Assign reads to all their overlapping features or meta-features
-          type: basic:boolean
-          default: true
-          hidden: '!quantification.show_advanced'
         - name: count_multi_mapping_reads
           label: Count multi-mapping reads
           type: basic:boolean
@@ -108,7 +103,7 @@
         - name: fraction
           label: Assign fractional counts to features
           type: basic:boolean
-          default: true
+          default: false
           description: >
             This option must be used together with 'Count multi-mapping reads' or 'Assign reads to
             all their overlapping features or meta-features' or both. When 'Count multi-mapping reads'
@@ -120,6 +115,8 @@
             'Count multi-mapping reads' and 'Assign reads to all their overlapping features or
             meta-features' are specified, each alignment will carry a count of 1 / (x * y).
           hidden: '!quantification.show_advanced'
+          disabled: >
+            !quantification.count_multi_mapping_reads
   run:
     language: workflow
     program:
@@ -146,6 +143,13 @@
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             id_attribute: 'Parent'
+          advanced:
+            overlap:
+              frac_overlap: '{{ input.quantification.frac_overlap }}'
+            multi_mapping_reads:
+              count_multi_mapping_reads: '{{ input.quantification.count_multi_mapping_reads }}'
+            fractional_counting:
+              fraction: '{{ input.quantification.fraction }}'
 
 - slug: workflow-cutadapt-star-featurecounts-paired
   category: workflow:primary
@@ -153,7 +157,7 @@
   data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 0.0.2
   type: data:workflow:rnaseq:featurecounts
   description: "This RNA-Seq pipeline is made to process paired-end reads and consists of three steps:
     preprocessing, alignment and  quantification.\n\nFirstly, reads are preprocessed by __Cutadapt__ which
@@ -254,10 +258,6 @@
             Value should be within range [0, 1]. Number of overlapping bases is counted from both
             reads if paired end.
           hidden: '!quantification.show_advanced'
-        - name: allow_multi_overlap
-          label: Assign reads to all their overlapping features or meta-features
-          type: basic:boolean
-          default: true
           hidden: '!quantification.show_advanced'
         - name: count_multi_mapping_reads
           label: Count multi-mapping reads
@@ -270,7 +270,7 @@
         - name: fraction
           label: Assign fractional counts to features
           type: basic:boolean
-          default: true
+          default: false
           description: >
             This option must be used together with 'Count multi-mapping reads' or 'Assign reads to
             all their overlapping features or meta-features' or both. When 'Count multi-mapping reads'
@@ -282,6 +282,8 @@
             'Count multi-mapping reads' and 'Assign reads to all their overlapping features or
             meta-features' are specified, each alignment will carry a count of 1 / (x * y).
           hidden: '!quantification.show_advanced'
+          disabled: >
+            !quantification.count_multi_mapping_reads
   run:
     language: workflow
     program:
@@ -311,3 +313,10 @@
           annotation:
             annotation: '{{ input.quantification.annotation }}'
             id_attribute: 'Parent'
+          advanced:
+            overlap:
+              frac_overlap: '{{ input.quantification.frac_overlap }}'
+            multi_mapping_reads:
+              count_multi_mapping_reads: '{{ input.quantification.count_multi_mapping_reads }}'
+            fractional_counting:
+              fraction: '{{ input.quantification.fraction }}'
