@@ -79,10 +79,7 @@ def transform(expressions, log2=False, const=1.0, z_score=False, ddof=1):
             raise ValueError(msg)
     if z_score:
         expressions = expressions.apply(lambda x: zscore(x, ddof=ddof), axis=1, result_type='broadcast')
-        if expressions.isnull().values.any():
-            msg = 'Cannot compute Z-scores.'
-            print(error(msg))
-            raise ValueError(msg)
+        expressions.fillna(value=0.0, inplace=True)
     return expressions
 
 

@@ -65,6 +65,12 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 name='expression 6',
                 source='ENSEMBL',
                 species='Homo sapiens')
+            expression_7 = self.prepare_expression(
+                f_exp='clustering_ensembl_7.tab.gz',
+                f_type='TPM',
+                name='expression 7',
+                source='ENSEMBL',
+                species='Homo sapiens')
 
         inputs = {
             'exps': [
@@ -256,6 +262,14 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
 
         inputs = {
             'exps': [
+                expression_1.pk,
+                expression_7.pk,
+            ],
+        }
+        clustering = self.run_process('clustering-hierarchical-samples', inputs)
+
+        inputs = {
+            'exps': [
                 expression_3.pk,
                 expression_6.pk,
             ],
@@ -350,6 +364,12 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 f_exp='clustering_ensembl_5.tab.gz',
                 f_type='TPM',
                 name='expression 5',
+                source='ENSEMBL',
+                species='Homo sapiens')
+            expression_7 = self.prepare_expression(
+                f_exp='clustering_ensembl_7.tab.gz',
+                f_type='TPM',
+                name='expression 7',
                 source='ENSEMBL',
                 species='Homo sapiens')
 
@@ -557,6 +577,14 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                      'across samples. However, hierarchical clustering of genes cannot be computed '
                      'with just one gene.']
         self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            'exps': [
+                expression_1.pk,
+                expression_7.pk,
+            ],
+        }
+        clustering = self.run_process('clustering-hierarchical-genes', inputs)
 
         inputs = {
             'exps': [

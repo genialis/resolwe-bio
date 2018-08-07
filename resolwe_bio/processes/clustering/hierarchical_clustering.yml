@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: 'Hierarchical clustering of samples'
-  version: 2.0.0
+  version: 2.0.1
   type: data:clustering:hierarchical:sample
   category: analyses
   persistence: TEMP
@@ -182,7 +182,7 @@
       memory: 16384
       network: true
   data_name: 'Hierarchical clustering of genes'
-  version: 2.0.0
+  version: 2.0.1
   type: data:clustering:hierarchical:gene
   category: analyses
   persistence: TEMP
