@@ -1,6 +1,6 @@
 - slug: rna-seq-cutadapt-star-featurecounts
   name: "Pipeline: Cutadapt - STAR (two pass mode) - featureCounts"
-  version: 0.0.1
+  version: 0.0.2
   description: "This RNA-Seq pipeline consists of three steps: preprocessing, alignment and  quantification.
     \n\nFirstly, reads are preprocessed by __Cutadapt__ which by default drops reads that are shorter
     than 50 bp and reads having more than 2 'N' bases, then it removes bases from 3' end with quality
@@ -76,11 +76,6 @@
         reads if paired end. Both this option and 'Minimum number of overlapping bases in a read
         that is required for read assignment' need to be satisfied for read assignment.
       hidden: '!advanced'
-    - name: allow_multi_overlap
-      label: Assign reads to all their overlapping features or meta-features
-      type: basic:boolean
-      default: true
-      hidden: '!advanced'
     - name: count_multi_mapping_reads
       label: Count multi-mapping reads
       type: basic:boolean
@@ -104,3 +99,5 @@
         'Count multi-mapping reads' and 'Assign reads to all their overlapping features or
         meta-features' are specified, each alignment will carry a count of 1 / (x * y).
       hidden: '!advanced'
+      disabled: >
+        !count_multi_mapping_reads
