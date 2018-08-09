@@ -30,7 +30,7 @@ download_and_verify \
     566988707c6ae198266d6bbda38caff16014186ad08d0db28809e9bc2d73ae4d \
     https://drive.google.com/uc?id=1i20f8tuqwJBAzCDYwpRjK1zfsZGaXRft \
     '' \
-    GRCm38.p6_ensembl2UCSC.
+    GRCm38.p6_ensembl2UCSC.txt
 
 download_and_verify \
     chrom_mappings \
