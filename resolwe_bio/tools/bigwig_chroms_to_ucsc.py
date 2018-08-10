@@ -85,11 +85,14 @@ def create_new_header(infile, mappings, outfile):
             bw_output.addHeader(hdr)
             for chrom, length in bw.chroms().items():
                 ints = bw.intervals(chrom, 0, length)
-                if ints:
+                if ints and chrom in mappings:
                     bw_output.addEntries([mappings[chrom]] * len(ints),
                                          [x[0] for x in ints],
                                          ends=[x[1] for x in ints],
                                          values=[x[2] for x in ints])
+                elif chrom not in mappings:
+                    print(warning("UCSC mapping for sequence {} is missing. "
+                                  "This sequence will not be included in the bigWig file.".format(chrom)))
 
 
 def main():
