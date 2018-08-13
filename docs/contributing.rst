@@ -229,7 +229,34 @@ Building documentation
 Preparing release
 =================
 
-Follow `Resolwe's documentation on preparing a release`_.
+Follow `Resolwe's documentation on preparing a release`_. Resolwe
+code is automatically released to PyPI when tagged, but this is not
+supported in Resolwe Bioinformatics yet. After you have completed the
+first part, follow the steps below to release the code on PyPI.
 
 .. _Resolwe's documentation on preparing a release:
   http://resolwe.readthedocs.io/en/latest/contributing.html#preparing-release
+
+Clean ``build`` directory::
+
+    python setup.py clean -a
+
+Remove previous distributions in ``dist`` directory::
+
+    rm dist/*
+
+Remove previous ``egg-info`` directory::
+
+    rm -r *.egg-info
+
+Create source distribution::
+
+    python setup.py sdist
+
+Build wheel::
+
+    python setup.py bdist_wheel
+
+Upload distribution to PyPI_::
+
+    twine upload dist/*
