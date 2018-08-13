@@ -6,23 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
-
-Added
------
-- Add two-pass mode to ``alignment-star`` process
-- Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
-- Add KAPA experiment descriptor schema
-- Add ``resdk`` Python 3 package to ``resolwebio/utils`` Docker image
-- Add to ``cutadapt-single`` process an option to discard reads having more
-  'N' bases than specified.
-- Add workflows for single-end ``workflow-cutadapt-star-featurecounts-single``
-  and paired-end reads ``workflow-cutadapt-star-featurecounts-paired``.
-  Both workflows consist of preprocessing with Cutadapt, alignment
-  with STAR two pass mode and quantification with featureCounts.
-- Add descriptor schema ``rna-seq-cutadapt-star-featurecounts``
+===================
+12.0.0 - 2018-08-13
+===================
 
 Changed
 -------
@@ -39,8 +25,9 @@ Changed
   and error messages to simplify troubleshooting with degenerate datasets.
 - Remove ``igvtools`` from ``resolwebio/utils`` Docker image
 - Improve helper text and labels in processes used for sequencing data upload
-- Allow using custom adapter sequences in the ``workflow-bbduk-star-featurecounts-single``
-  and ``workflow-bbduk-star-featurecounts-paired`` processes
+- Allow using custom adapter sequences in the
+  ``workflow-bbduk-star-featurecounts-single`` and
+  ``workflow-bbduk-star-featurecounts-paired`` processes
 - Change chromosome names from ENSEMBL / NCBI to UCSC (example: "1" to
   "chr1") in BigWig files. The purpose of this is to enable viewing BigWig
   files in UCSC genome browsers for files aligned with ENSEBML or NCBI genome.
@@ -48,8 +35,22 @@ Changed
   bamtobigwig.sh script.
 - Reduce RAM requirement in SRA import processes
 
+Added
+-----
+- Add two-pass mode to ``alignment-star`` process
+- Add ``regtools (0.5.0)`` to ``resolwebio/rnaseq`` Docker image
+- Add KAPA experiment descriptor schema
+- Add ``resdk`` Python 3 package to ``resolwebio/utils`` Docker image
+- Add to ``cutadapt-single`` process an option to discard reads having more
+  'N' bases than specified.
+- Add workflows for single-end ``workflow-cutadapt-star-featurecounts-single``
+  and paired-end reads ``workflow-cutadapt-star-featurecounts-paired``.
+  Both workflows consist of preprocessing with Cutadapt, alignment
+  with STAR two pass mode and quantification with featureCounts.
+- Add descriptor schema ``rna-seq-cutadapt-star-featurecounts``
+
 Fixed
--------
+-----
 - **BACKWARD INCOMPATIBLE:** Fix the ``stitch`` parameter handling in
   ``rose2``
 - fix ``upload-gtf`` to create JBrowse track only if GTF file is ok
