@@ -64,9 +64,10 @@ class ReportProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(report, 'amplicon_cov')
         self.assertFiles(report, 'variant_tables', ['56GSID.gatkHC.finalvars.txt', '56GSID.lf.finalvars.txt'])
 
+    @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     @tag_process('amplicon-archive-multi-report')
     def test_multisample_report(self):
-        # Modify covergebed process to also test for nested files.
+        # Modify coveragebed process to also test for nested files.
         process = Process.objects.filter(slug='coveragebed').order_by('-version')[0]
         process.run['program'] = process.run['program'][:-70]
         process.run['program'] += 'mv htmlplot htmlplot_cp\n'
