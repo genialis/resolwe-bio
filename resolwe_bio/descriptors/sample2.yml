@@ -1,0 +1,385 @@
+- slug: sample2
+  name: Sample annotation
+  description: Sample meta data compliant with GEO and ENCODE databases.
+  version: 1.0.0
+  schema:
+    - name: sample_info
+      label: Sample information
+      group:
+        - name: description
+          label: Description
+          type: basic:string
+          required: false
+        - name: species
+          label: Species
+          type: basic:string
+          choices:
+            - label: Caenorhabditis elegans
+              value: Caenorhabditis elegans
+            - label: Cricetulus griseus
+              value: Cricetulus griseus
+            - label: Dictyostelium discoideum
+              value: Dictyostelium discoideum
+            - label: Drosophila melanogaster
+              value: Drosophila melanogaster
+            - label: Homo sapiens
+              value: Homo sapiens
+            - label: Mus musculus
+              value: Mus musculus
+            - label: Odocoileus virginianus texanus
+              value: Odocoileus virginianus texanus
+            - label: Rattus norvegicus
+              value: Rattus norvegicus
+            - label: Solanum tuberosum
+              value: Solanum tuberosum
+            - label: Other
+              value: other
+        - name: strain
+          label: Strain
+          type: basic:string
+          description: >
+            If using an animal model, this is strain information of that model, e.g. C57BL6,
+            Sprague Dawley, etc.
+          required: false
+          hidden: "sample_data.species != 'Mus musculus' && sample_data.species != 'Rattus norvegicus'"
+        - name: genotype
+          label: Genotype
+          type: basic:string
+          description: >
+            Genotype of your sample, e.g. P53+/-, Tg2576, etc.
+          required: false
+        - name: biosample_type
+          label: Biosample type
+          type: basic:string
+          required: false
+          description: >
+            Source of samples/biological material, e.g. cell line, tissue, primary cell lines, etc.
+          choices:
+            - label: Cell line
+              value: cell_line
+            - label: Tissue
+              value: tissue
+            - label: Primary cell
+              value: primary_cell
+            - label: Other
+              value: other
+        - name: primary_cell_line
+          label: Primary cell line
+          type: basic:string
+          description: >
+            Search for your tissue type: http://www.ontobee.org/ontology/UBERON and enter the UBERON
+            number e.g. thymus - UBERON:0002370.
+          required: false
+          hidden: "biosample_type != 'primary_cell'"
+        - name: cell_line
+          label: Cell line
+          type: basic:string
+          description: Name of your cell line, e.g. MF331, DAOY, etc.
+          required: false
+          hidden: "biosample_type != 'cell_line'"
+        - name: organ
+          label: Organ / tissue
+          type: basic:string
+          required: false
+          choices:
+            - label: Adipose tissue
+              value: adipose_tissue
+            - label: Adrenal gland
+              value: adrenal_gland
+            - label: Artery
+              value: artery
+            - label: Blood
+              value: blood
+            - label: Blood vessel
+              value: blood_vessel
+            - label: Bodily fluid
+              value: bodily_fluid
+            - label: Bone element
+              value: bone_element
+            - label: Bone marrow
+              value: bone_marrow
+            - label: Brain
+              value: brain
+            - label: Breast
+              value: breast
+            - label: Bronchus
+              value: bronchus
+            - label: Connective tissue
+              value: connective_tissue
+            - label: Embryo
+              value: embryo
+            - label: Epithelium
+              value: epithelium
+            - label: Esophagus
+              value: esophagus
+            - label: Extraembryonic component
+              value: extraembryonic_component
+            - label: Eye
+              value: eye
+            - label: Gonad
+              value: gonad
+            - label: Heart
+              value: heart
+            - label: Intestine
+              value: intestine
+            - label: Kidney
+              value: kidney
+            - label: Large intestine
+              value: large_intestine
+            - label: Limb
+              value: limb
+            - label: Liver
+              value: liver
+            - label: Lung
+              value: lung
+            - label: Lymphatic vessel
+              value: lymphatic_vessel
+            - label: Lymphoid tissue
+              value: lymphoid_tissue
+            - label: Lymph node
+              value: lymph_node
+            - label: Mammary gland
+              value: mammary_gland
+            - label: Mouth
+              value: mouth
+            - label: Musculature of body
+              value: musculature_of_body
+            - label: Nerve
+              value: nerve
+            - label: Nose
+              value: nose
+            - label: Ovary
+              value: ovary
+            - label: Pancreas
+              value: pancreas
+            - label: Penis
+              value: penis
+            - label: Pericardium
+              value: pericardium
+            - label: Placenta
+              value: placenta
+            - label: Prostate gland
+              value: prostate_gland
+            - label: Skeleton
+              value: skeleton
+            - label: Skin of body
+              value: skin_of_body
+            - label: Small intestine
+              value: small_intestine
+            - label: Spinal cord
+              value: spinal_cord
+            - label: Spleen
+              value: spleen
+            - label: Stomach
+              value: stomach
+            - label: Testis
+              value: testis
+            - label: Thymus
+              value: thymus
+            - label: Thyroid gland
+              value: thyroid_gland
+            - label: Trachea
+              value: trachea
+            - label: Tongue
+              value: tongue
+            - label: Uretar
+              value: uretar
+            - label: Urinary bladder
+              value: urinary_bladder
+            - label: Uterus
+              value: uterus
+            - label: Vagina
+              value: vagina
+            - label: Vasculature
+              value: vasculature
+            - label: Vein
+              value: vein
+            - label: Other
+              value: other
+            - label: N/A
+              value: na
+        - name: growth_protocol
+          label: Growth protocol
+          type: basic:string
+          description: >
+            Describe the conditions that were used to grow or maintain organisms or cells prior to
+            extract preparation.
+          required: false
+        - name: biosample_treatment
+          label: Biosample treatment
+          type: basic:string
+          description: >
+            If your sample was treated with a chemical agent search for the CHEBI number at
+            https://www.ebi.ac.uk/chebi/, e.g. cisplatin, CHEBI:27899.
+          required: false
+        - name: treatment_protocol
+          label: Treatment protocol
+          type: basic:string
+          description: >
+            Describe how your sample was treated, at different timepoints, if using non-chemical
+            treatments e.g. exercise, aging, etc.
+          required: false
+        - name: annotator
+          label: Annotator
+          type: basic:string
+          required: false
+          description: Person who annotated the sample.
+    - name: sample_processing
+      label: Sample processing
+      group:
+        - name: assay_type
+          label: Assay type
+          type: basic:string
+          required: false
+          choices:
+            - label: RNA-seq
+              value: rna-seq
+            - label: ChIP-seq
+              value: chip-seq
+            - label: ATAC-seq
+              value: atac-seq
+            - label: ChIPmentation
+              value: chipmentation
+            - label: Other
+              value: other
+        - name: extract_protocol
+          label: Extract protocol
+          type: basic:string
+          description: >
+            Describe the protocols used to extract and prepare the material to be sequenced.
+          required: false
+        - name: molecule
+          label: Library made from / Molecule
+          type: basic:string
+          description: >
+            Select what molecule your samples are from, e.g. totalRNA, polyA RNA, genomic DNA, etc.
+          required: false
+          choices:
+            - label: Total RNA
+              value: total_rna
+            - label: polyA RNA
+              value: polya_rna
+            - label: Cytoplasmic RNA
+              value: cytoplasmic_rna
+            - label: Nuclear RNA
+              value: nuclear_rna
+            - label: Genomic DNA
+              value: genomic_dna
+            - label: Protein
+              value: protein
+            - label: Other
+              value: other
+        - name: library_depleted_in
+          label: Library depleted in
+          type: basic:string
+          description: >
+            Select how your library was depleted, otherwise choose N/A.
+          required: false
+          choices:
+            - label: rRNA
+              value: rrna
+            - label: polyA mRNA
+              value: polya_mrna
+            - label: N/A
+              value: na
+        - name: library_treatment
+          label: Library treatment
+          type: basic:string
+          description: Describe how your library was treated.
+          required: false
+        - name: replication_type
+          label: Replication type
+          type: basic:string
+          description: >
+            Select what replication type you used. For more info, go to
+            https://www.encodeproject.org/data-standards/terms/.
+          required: false
+          choices:
+            - label: Biological
+              value: biological
+            - label: Isogenic
+              value: isogenic
+            - label: Technical
+              value: technical
+            - label: Sequencing
+              value: sequencing
+            - label: Pseudoreplicate
+              value: pseudoreplicate
+            - label: Other
+              value: other
+        - name: platform
+          label: Platform
+          type: basic:string
+          description: Select the platform used to sequence your samples.
+          required: false
+          choices:
+            - label: NextSeq 500
+              value: nextseq_500
+            - label: HiSeq 2500
+              value: hiseq_2500
+            - label: HiSeq 2000
+              value: hiseq_2000
+            - label: NovaSeq 6000
+              value: novaseq_6000
+            - label: Other
+              value: other
+        - name: chip_seq
+          label: ChIP-seq
+          hidden: "assay_type != 'chip-seq'"
+          group:
+            - name: target_of_assay
+              label: Target of assay
+              type: basic:string
+              description: >
+                Target in a ChIP-seq experiment, e.g. transcription factor, histone mark, etc.
+              required: false
+              choices:
+                - label: Transcription factor
+                  value: transcription_factor
+                - label: Histone
+                  value: histone
+                - label: Control
+                  value: control
+                - label: Chromatin associated protein
+                  value: chromatin_associated_protein
+                - label: RNA binding protein
+                  value: rna_binding_protein
+                - label: Chromatin remodeller
+                  value: chromatin_remodeller
+                - label: Nucleotide modification
+                  value: nucleotide_modification
+                - label: Other
+                  value: other
+            - name: antibody_target
+              label: Antibody target
+              type: basic:string
+              required: false
+              description: Antigen that you are enriching for, e.g. Myc, H3K27AC, etc.
+            - name: antibody_manufacturer
+              label: Antibody manufacturer
+              type: basic:string
+              required: false
+              description: Name of the vendor where the antibody used came from.
+              choices:
+                - label: Abcam
+                  value: abcam
+                - label: BioRad
+                  value: biorad
+                - label: ThermoFisher
+                  value: thermofisher
+                - label: CellSignal
+                  value: cellsignal
+                - label: Diagenode
+                  value: diagenode
+                - label: ActiveMotif
+                  value: activemotif
+                - label: Other
+                  value: other
+            - name: antibody_catalog_number
+              label: Antibody catalog number
+              type: basic:string
+              required: false
+            - name: antibody_lot_number
+              label: Antibody lot number
+              type: basic:string
+              required: false

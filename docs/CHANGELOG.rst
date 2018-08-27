@@ -29,6 +29,8 @@ Added
 -----
 - Add ``MultiQC (1.6.0)`` and ``Seqtk (1.2-r94)`` to the
   ``resolwebio/utils:1.5.0`` Docker image
+- Add ``sample2`` descriptor schema which is the successor of the original
+  ``sample`` and ``reads`` descriptor schemas
 
 Fixed
 -----
