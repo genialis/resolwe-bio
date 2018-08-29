@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.4
+  version: 1.0.0
   type: data:snpeff:upload
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload snpEff result files.

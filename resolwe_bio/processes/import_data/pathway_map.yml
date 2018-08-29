@@ -1,5 +1,5 @@
 - slug: upload-metabolic-pathway
-  name: Metabolic Pathway File
+  name: Metabolic pathway file
   requirements:
     expression-engine: jinja
     executor:
@@ -8,9 +8,9 @@
     resources:
       network: true
   data_name: Metabolic Pathway
-  version: 0.0.4
+  version: 1.0.0
   type: data:metabolicpathway
-  category: upload
+  category: import
   persistence: RAW
   scheduling_class: batch
   description: >

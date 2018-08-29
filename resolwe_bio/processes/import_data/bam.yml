@@ -11,15 +11,18 @@
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
+      cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.2
   type: data:alignment:bam:upload
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Upload a mapping file in BAM format.
+    Import a BAM file (.bam), which is the binary format for storing sequence
+    alignment data. This format is described on the
+    [SAM Tools web site](http://samtools.github.io/hts-specs/).
   input:
     - name: src
       label: Mapping (BAM)
@@ -104,15 +107,18 @@
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
+      cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:upload
-  category: upload
+  category: import
   flow_collection: sample
   persistence: RAW
   description: >
-    Upload a mapping file in BAM format with index.
+    Import a BAM file (.bam) and BAM index (.bam.bai). BAM file is the binary
+    format for storing sequence alignment data. This format is described on
+    the [SAM Tools web site](http://samtools.github.io/hts-specs/).
   input:
     - name: src
       label: Mapping (BAM)
@@ -188,12 +194,13 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
     resources:
+      cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.1.0
+  version: 0.1.1
   type: data:alignment:bam:secondary
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload a secondary mapping file in BAM format.

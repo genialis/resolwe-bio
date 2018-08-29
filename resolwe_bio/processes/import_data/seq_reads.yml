@@ -4,23 +4,25 @@
 ---
 
 - slug: upload-fastq-single
-  name: Reads (single-end)
+  name: FASTQ file (single-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
     resources:
+      cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.0.1
+  version: 2.0.2
   type: data:reads:fastq:single
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Upload sequencing reads in FASTQ format. Select multiple files to upload
-    the sample data split into multiple sequencing lanes.
+    Import single-end reads in FASTQ format, which is a text-based format for
+    storing both a biological sequence (usually nucleotide sequence) and its
+    corresponding quality scores.
   input:
     - name: src
       label: Reads
@@ -90,23 +92,25 @@
       re-save-list fastqc_url "${FASTQC_URL[@]}"
 
 - slug: upload-fastq-paired
-  name: Reads (paired-end)
+  name: FASTQ file (paired-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
     resources:
+      cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.0.1
+  version: 2.0.2
   type: data:reads:fastq:paired
-  category: upload
+  category: import
   flow_collection: sample
   persistence: RAW
   description: >
-    Upload paired-end (mate1, mate2) sequencing reads in FASTQ format.
-    Select multiple files to upload the sample data split into multiple sequencing lanes.
+    Import paired-end reads in FASTQ format, which is a text-based format for
+    storing both a biological sequence (usually nucleotide sequence) and its
+    corresponding quality scores.
   input:
     - name: src1
       label: Mate1
@@ -229,10 +233,10 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.0.1
+  version: 1.0.2
   type: data:reads:fastq:single
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Convert FASTQ files to single-end reads.
@@ -310,9 +314,9 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.0.1
+  version: 1.0.2
   type: data:reads:fastq:paired
-  category: upload
+  category: import
   flow_collection: sample
   persistence: RAW
   description: >

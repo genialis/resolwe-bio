@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-mappability
-  name: Upload mappability info
+  name: Mappability info
   requirements:
     expression-engine: jinja
     executor:
@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.6
+  version: 1.0.8
   type: data:mappability:bcm
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload mappability information.

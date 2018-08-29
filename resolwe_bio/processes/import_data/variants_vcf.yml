@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-variants-vcf
-  name: Variants (.vcf)
+  name: VCF file
   requirements:
     expression-engine: jinja
     executor:
@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:variants:vcf
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload variants in VCF format.

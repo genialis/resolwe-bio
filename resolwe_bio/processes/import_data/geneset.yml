@@ -4,22 +4,25 @@
 ---
 
 - slug: upload-geneset
-  name: Upload gene set
+  name: Gene set
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.1.0
+  version: 1.0.0
   type: data:geneset
-  category: upload
+  category: import
   persistence: RAW
   scheduling_class: interactive
   description: >
-    Upload Gene Set.
+    Import a set of genes. Provide one gene ID per line in a .tab, .tab.gz, or
+    .txt file format.
   input:
     - name: src
       label: Gene set
@@ -86,20 +89,23 @@
       re-save-file geneset "${NAME}.tab.gz"
 
 - slug: create-geneset
-  name: Create gene set
+  name: Gene set (create)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
+    resources:
+      cores: 1
+      memory: 1024
   data_name: Gene set
-  version: 0.1.0
+  version: 1.0.0
   type: data:geneset
-  category: upload
+  category: import
   persistence: RAW
   scheduling_class: interactive
   description: >
-    Create Gene Set.
+    Create a gene set from a list of genes.
   input:
     - name: genes
       label: Genes
@@ -165,22 +171,24 @@
       re-save species {{ species }}
 
 - slug: create-geneset-venn
-  name: Create Venn gene set
+  name: Gene set (create from Venn diagram)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: Gene set (Venn)
-  version: 0.1.0
+  version: 1.0.0
   type: data:geneset:venn
-  category: upload
+  category: import
   persistence: RAW
   scheduling_class: interactive
   description: >
-    Create Venn gene set.
+    Create a gene set from a Venn diagram.
   input:
     - name: genes
       label: Genes

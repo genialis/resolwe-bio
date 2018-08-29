@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-obo
-  name: Upload gene ontology
+  name: OBO file
   requirements:
     expression-engine: jinja
     executor:
@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.20
+  version: 1.0.21
   type: data:ontology:obo
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload gene ontology in OBO format.

@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-master-file
-  name: Upload custom master file
+  name: Custom master file
   requirements:
     expression-engine: jinja
     executor:
@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ panel_name }}'
-  version: 0.1.0
+  version: 1.0.0
   type: data:masterfile:amplicon
-  category: upload
+  category: import
   persistence: CACHED
   description: >
     This should be a tab delimited file (*.txt).

@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: Expression time course
-  version: 1.0.10
+  version: 1.0.11
   type: data:etc
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload Expression time course.

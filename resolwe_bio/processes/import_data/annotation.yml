@@ -4,21 +4,27 @@
 ---
 
 - slug: upload-gff3
-  name: Annotation (GFF3)
+  name: GFF3 file
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ src.file }}'
-  version: 3.1.0
+  version: 3.1.1
   type: data:annotation:gff3
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Upload annotation in GFF3 format.
+    Import a General Feature Format (GFF) file which is a file format used for
+    describing genes and other features of DNA, RNA and protein sequences. See
+    [here](https://useast.ensembl.org/info/website/upload/gff3.html) and
+    [here](https://en.wikipedia.org/wiki/General_feature_format) for more
+    information.
   input:
     - name: src
       label: Annotation (GFF3)
@@ -114,23 +120,28 @@
       re-save build {{ build }}
 
 - slug: upload-gtf
-  name: Annotation (GTF2.2)
+  name: GTF file
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ src.file }}'
-  version: 3.1.2
+  version: 3.1.3
   type: data:annotation:gtf
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Upload annotation in GTF format. The GTF format is identical to GFF
-    version 2 so this process accepts both. However, the .gff exstension
-    will be renamed to .gtf.
+    Import a Gene Transfer Format (GTF) file.  It is a file format used to
+    hold information about gene structure. It is a tab-delimited text format
+    based on the general feature format (GFF), but contains some additional
+    conventions specific to gene information. See
+    [here](https://en.wikipedia.org/wiki/General_feature_format) for
+    differences between GFF and GTF files.
   input:
     - name: src
       label: Annotation (GTF)

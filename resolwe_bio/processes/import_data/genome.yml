@@ -14,12 +14,13 @@
       cores: 10
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.1.0
+  version: 3.1.1
   type: data:genome:fasta
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Upload genome sequence in FASTA format.
+    Import genome sequence in FASTA format which includes .fasta.gz
+    (preferred), .fa., .fna., or .fasta extensions.
   input:
     - name: src
       label: Genome sequence (FASTA)

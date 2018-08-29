@@ -4,22 +4,25 @@
 ---
 
 - slug: import-sra
-  name: Import SRA
+  name: SRA data
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/utils:1.3.0
     resources:
+      cores: 1
       memory: 1024
       network: true
-  data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.5
-  type: data:reads:fastq
-  category: upload
+  data_name: "{{ sra_accession }}"
+  version: 0.0.6
+  type: data:sra
+  category: import
   persistence: TEMP
   description: >
-    Import single or paired-end reads from NCBI.
+    Import single or paired-end reads from Sequence Read Archive (SRA) via an
+    SRA accession number. SRA stores raw sequencing data and alignment
+    information from high-throughput sequencing platforms.
   input:
     - name: sra_accession
       label: SRA accession
@@ -85,23 +88,26 @@
       '}'
 
 - slug: import-sra-single
-  name: Import SRA (single-end)
+  name: SRA data (single-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/utils:1.3.0
     resources:
+      cores: 1
       memory: 1024
       network: true
-  data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.8
+  data_name: "{{ sra_accession }}"
+  version: 0.0.2
   type: data:reads:fastq:single
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Import single-end reads from NCBI.
+    Import single-end reads from Sequence Read Archive (SRA) via an
+    SRA accession number. SRA stores raw sequencing data and alignment
+    information from high-throughput sequencing platforms.
   input:
     - name: sra_accession
       label: SRA accession
@@ -193,23 +199,26 @@
       re-save-list fastqc_url ${FASTQC_URL}
 
 - slug: import-sra-paired
-  name: Import SRA (paired-end)
+  name: SRA data (paired-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/utils:1.3.0
     resources:
+      cores: 1
       memory: 1024
       network: true
-  data_name: "Import SRA ({{ sra_accession }})"
-  version: 0.0.8
+  data_name: "{{ sra_accession }}"
+  version: 0.0.9
   type: data:reads:fastq:paired
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
-    Import paired-end reads from NCBI.
+    Import paired-end reads from Sequence Read Archive (SRA) via an
+    SRA accession number. SRA stores raw sequencing data and alignment
+    information from high-throughput sequencing platforms.
   input:
     - name: sra_accession
       label: SRA accession

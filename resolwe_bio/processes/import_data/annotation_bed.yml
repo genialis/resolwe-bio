@@ -4,21 +4,26 @@
 ---
 
 - slug: upload-bed
-  name: BED track file
+  name: BED file
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/chipseq:2.1.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.0
+  version: 1.2.1
   type: data:bed
-  category: upload
+  category: import
   persistence: RAW
   description: >
-        Upload BED file annotation track.
+        Import a BED file (.bed) which is a tab-delimited text file that
+        defines a feature track. It can have any file extension, but .bed is
+        recommended. The BED file format is described on the [UCSC Genome
+        Bioinformatics web site](http://genome.ucsc.edu/FAQ/FAQformat#format1).
   input:
     - name: src
       label: BED file

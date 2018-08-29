@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-header-sam
-  name: Upload Header SAM file
+  name: SAM header
   requirements:
     expression-engine: jinja
     executor:
@@ -13,9 +13,9 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.0.1
+  version: 1.0.0
   type: data:sam:header
-  category: upload
+  category: import
   persistence: RAW
   description: >
     Upload a mapping file header in SAM format.

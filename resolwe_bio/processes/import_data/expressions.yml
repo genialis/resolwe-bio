@@ -4,23 +4,26 @@
 ---
 
 - slug: upload-expression
-  name: Expression
+  name: Expression data
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.4.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ exp_name }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:expression
   flow_collection: sample
-  category: upload
+  category: import
   persistence: RAW
   description: >
-        Upload expression data. Please provide raw expression data (read counts) and/or normalized
-        expression data together with the associated data normalization type.
+      Upload expression data by providing raw expression data (read counts)
+      and/or normalized expression data together with the associated data
+      normalization type.
   input:
     - name: rc
       label: Read counts (raw expression)
@@ -206,22 +209,24 @@
 
 
 - slug: upload-expression-cuffnorm
-  name: Expression (Cuffnorm)
+  name: Expression data (Cuffnorm)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.4.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: '{{ exp.file|default("?") }}'
-  version: 1.3.0
+  version: 1.3.1
   type: data:expression
-  category: upload
+  category: import
   persistence: RAW
   flow_collection: sample
   description: >
-        Save per-sample expression data from Cuffnorm results.
+      Upload expression data by providing Cuffnorm results.
   input:
     - name: exp
       label: Normalized expression
@@ -302,22 +307,24 @@
 
 
 - slug: upload-expression-star
-  name: Expression (STAR)
+  name: Expression data (STAR)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.4.0
     resources:
+      cores: 1
+      memory: 1024
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'
-  version: 1.2.0
+  version: 1.2.1
   type: data:expression:star
-  category: upload
+  category: import
   persistence: RAW
   flow_collection: sample
   description: >
-        Save expression data from STAR aligner.
+        Upload expression data by providing STAR aligner results.
   input:
     - name: rc
       label: Read counts (raw expression)
