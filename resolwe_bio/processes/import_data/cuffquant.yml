@@ -15,7 +15,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 1.1.2
   type: data:cufflinks:cuffquant
-  category: import
+  category: Import
   flow_collection: sample
   persistence: RAW
   description: >

@@ -4,7 +4,7 @@
 ---
 
 - slug: htseq-count
-  name: HTSeq-count-normalized
+  name: HTSeq-count (TPM)
   requirements:
     expression-engine: jinja
     executor:
@@ -13,14 +13,21 @@
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.3.0
+  version: 1.3.1
   type: data:expression:htseq:normalized
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    Count the number of reads that map to a genomic feature (e.g. gene). For computationally
-    efficient quantification consider using featureCounts instead of HTSeq-count.
+    HTSeq-count is useful for preprocessing RNA-Seq alignments for differential
+    expression calling. It counts the number of reads that map to a genomic
+    feature (e.g. gene).
+
+    The expressions with raw counts, produced by HTSeq are then normalized
+    by computing FPKM and TPM.
+
+    For computationally efficient quantification consider
+    using featureCounts instead of HTSeq-count.
   input:
     - name: alignments
       label: Aligned reads
@@ -223,7 +230,7 @@
 
 
 - slug: htseq-count-raw
-  name: HTSeq-count with counts per million normalization
+  name: HTSeq-count (CPM)
   requirements:
     expression-engine: jinja
     executor:
@@ -232,19 +239,25 @@
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.4.0
+  version: 1.4.1
   type: data:expression:htseq:cpm
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    Count the number of reads that map to a genomic feature (e.g. gene)
-    and produce expressions according to the input parameters. The expressions
-    with raw counts, produced by HTSeq are then normalized by computing CPM.\n\n
-    See [the official website](https://htseq.readthedocs.io/en/release_0.9.1)
+    HTSeq-count is useful for preprocessing RNA-Seq alignments for differential
+    expression calling. It counts the number of reads that map to a genomic
+    feature (e.g. gene). For computationally efficient quantification consider
+    using featureCounts instead of HTSeq-count.
+
+    The expressions with raw counts, produced by HTSeq are then normalized
+    by computing CPM. See
+    [the official website](https://htseq.readthedocs.io/en/release_0.9.1)
     and [the introductory paper](https://academic.oup.com/bioinformatics/article/31/2/166/2366196)
-    for more information.\n\nFor computationally efficient quantification
-    consider using featureCounts instead of HTSeq-count.
+    for more information.
+
+    For computationally efficient quantification consider using featureCounts
+    instead of HTSeq-count.
   input:
     - name: alignments
       label: Aligned reads

@@ -12,18 +12,17 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
-  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.1.0
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 1.1.1
   type: data:reads:fastq:single:cutadapt
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    "Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted
-    sequence from your high-throughput sequencing single-end reads. After Cutadapt, FastQC quality control
-    report of trimmed reads is prepared. For more information about Cutadapt see
-    [the official website](http://cutadapt.readthedocs.io/en/stable/index.html) or
-    [publication](http://journal.embnet.org/index.php/embnetjournal/article/view/200)."
+    Cutadapt finds and removes adapter sequences, primers, poly-A tails and
+    other types of unwanted sequence from high-throughput sequencing reads.
+    More information about Cutadapt can be found
+    [here](http://cutadapt.readthedocs.io/en/stable/).
   input:
     - name: reads
       label: NGS reads
@@ -214,18 +213,17 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
-  data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 2.0.0
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 2.0.1
   type: data:reads:fastq:paired:cutadapt
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    "Cutadapt finds and removes adapter sequences, primers, poly-A tails and other types of unwanted
-    sequence from your high-throughput sequencing paired-end reads. After Cutadapt, FastQC quality
-    control report of trimmed reads is prepared. For more information about Cutadapt see
-    [the official website](http://cutadapt.readthedocs.io/en/stable/index.html) or
-    [publication](http://journal.embnet.org/index.php/embnetjournal/article/view/200)."
+    Cutadapt finds and removes adapter sequences, primers, poly-A tails and
+    other types of unwanted sequence from high-throughput sequencing reads.
+    More information about Cutadapt can be found
+    [here](http://cutadapt.readthedocs.io/en/stable/).
   input:
     - name: reads
       label: NGS reads

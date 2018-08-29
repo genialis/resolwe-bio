@@ -4,7 +4,7 @@
 ---
 
 - slug: alignment-tophat2
-  name: TopHat
+  name: TopHat 2.0
   requirements:
     expression-engine: jinja
     executor:
@@ -13,13 +13,21 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.1.7
+  version: 2.1.8
   type: data:alignment:bam:tophat
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    TopHat is a program that aligns RNA-Seq reads to a genome in order to identify exon-exon splice junctions. It is built on the ultrafast short read mapping program Bowtie.
+    TopHat is a fast splice junction mapper for NGS reads. It aligns NGS reads
+    to mammalian-sized genomes using the ultra high-throughput short read
+    aligner Bowtie, and then analyzes the mapping results to identify splice
+    junctions between exons. Please note that TopHat has entered a low
+    maintenance, low support stage as it is now largely superseded by HISAT2
+    which provides the same core functionality (i.e. spliced alignment of
+    RNA-Seq reads), in a more accurate and much more efficient way. See
+    [here](https://ccb.jhu.edu/software/tophat/index.shtml) for more
+    information.
   input:
     - name: genome
       label: Reference genome

@@ -15,7 +15,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 1.0.8
   type: data:mappability:bcm
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload mappability information.

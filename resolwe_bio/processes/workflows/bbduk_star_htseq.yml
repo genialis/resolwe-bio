@@ -1,15 +1,27 @@
 - slug: workflow-bbduk-star-htseq
-  category: workflow:primary
-  name: "Pipeline for QuantSeq single-end reads"
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: BBDuk - STAR - HTSeq-count (single-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.5
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq:single
-  description: "This pipeline is design to process single-end reads prepared with __FWD or REV Lexogen
-    QuantSeq 3' mRNA-Seq Library Prep Kit__. Workflow consists of three steps: preprocessing with BBDuk,
-    alignment with STAR, and quantification with HTSeq.\n\nPipeline is closely following recommended
-    [data analysis workflow by Lexogen](https://www.lexogen.com/quantseq-data-analysis/)."
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3‚Äô-end, and discards reads that are too short
+    after trimming. Compared to similar tools, BBDuk is regarded for its
+    computational efficiency.  Next, preprocessed reads are aligned by __STAR__
+    aligner. At the time of implementation, STAR is considered a
+    state-of-the-art tool that consistently produces accurate results from
+    diverse sets of reads, and performs well even with default settings. For
+    more information see [this comparison of RNA-seq
+    aligners](https://www.nature.com/articles/nmeth.4106). Finally, aligned
+    reads are summarized to genes by __HTSeq-count__. Compared to
+    featureCounts, HTSeq-count is not as computationally efficient. All three
+    tools in this workflow support parallelization to accelerate the analysis.
   input:
     - name: reads
       label: Input single-end reads
@@ -80,17 +92,29 @@
           stranded: '{{ input.stranded }}'
 
 - slug: workflow-bbduk-star-htseq-paired
-  category: workflow:primary
-  name: "Pipeline for QuantSeq paired-end reads"
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: BBDuk - STAR - HTSeq-count (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq:paired
-  description: "This pipeline is made to process paired-end reads prepared with __FWD or REV Lexogen
-    QuantSeq 3' mRNA-Seq Library Prep Kit__. Workflow consists of three steps: preprocessing with BBDuk,
-    alignment with STAR, and quantification with HTSeq.\n\nPipeline is closely following recommended
-    [data analysis workflow by Lexogen](https://www.lexogen.com/quantseq-data-analysis/)."
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3‚Äô-end, and discards reads that are too short
+    after trimming. Compared to similar tools, BBDuk is regarded for its
+    computational efficiency.  Next, preprocessed reads are aligned by __STAR__
+    aligner. At the time of implementation, STAR is considered a
+    state-of-the-art tool that consistently produces accurate results from
+    diverse sets of reads, and performs well even with default settings. For
+    more information see [this comparison of RNA-seq
+    aligners](https://www.nature.com/articles/nmeth.4106). Finally, aligned
+    reads are summarized to genes by __HTSeq-count__. Compared to
+    featureCounts, HTSeq-count is not as computationally efficient. All three
+    tools in this workflow support parallelization to accelerate the analysis.
   input:
     - name: reads
       label: Paired-end reads

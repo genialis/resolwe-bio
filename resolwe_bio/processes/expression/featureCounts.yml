@@ -14,21 +14,19 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 2.0.1
   type: data:expression:featurecounts
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    An ultrafast and accurate read summarization program. First samtools are
-    used to determine, if aligned reads are single or paired-end. After that
-    the featureCounts tool produces expressions according to the parameters
-    set in the process inputs. Finally, raw expression counts are normalized
-    by computing TPM and FPKM values. See
-    [the official website](http://bioinf.wehi.edu.au/featureCounts/) and
-    [the introductory paper](https://academic.oup.com/bioinformatics/article/30/7/923/232889)
-    for more information. Count fragments (or templates) instead of reads
-    is enabled by default for paired-end data.
+    featureCounts is a highly efficient general-purpose read summarization
+    program that counts mapped reads for genomic features such as genes, exons,
+    promoter, gene bodies, genomic bins and chromosomal locations. It can be
+    used to count both RNA-seq and genomic DNA-seq reads. See the
+    [official website](http://bioinf.wehi.edu.au/featureCounts/) and the
+    [introductory paper](https://academic.oup.com/bioinformatics/article/30/7/923/232889)
+    for more information.
   input:
     - name: alignment
       label: Alignment

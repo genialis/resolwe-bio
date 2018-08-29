@@ -6,20 +6,24 @@
 ---
 
 - slug: prinseq-lite-single
-  name: Prinseq-lite (single-end)
+  name: PRINSEQ (single-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.2
+  version: 1.1.3
   type: data:reads:fastq:single:prinseq
+  category: Trim
   flow_collection: sample
-  category: analyses
   persistence: CACHED
   description: >
-    PRINSEQ is a tool that generates summary statistics of sequence and quality data and that is used to filter, reformat and trim next-generation sequence data.
+    PReprocessing and INformation of SEQuence data (PRINSEQ) is a
+    pre-processing tool that can be used to filter, reformat, and/or trim
+    genomic and metagenomic sequence data. It generates summary statistics
+    of sequences in graphical and tabular format. More information can be
+    found [here](http://prinseq.sourceforge.net/).
   input:
     - name: reads
       label: Reads
@@ -111,20 +115,24 @@
       re-save-list fastqc_url "${FASTQC_URL}"
 
 - slug: prinseq-lite-paired
-  name: Prinseq-lite (paired-end)
+  name: PRINSEQ (paired-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.2
+  version: 1.1.3
   type: data:reads:fastq:paired:prinseq
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    PRINSEQ is a tool that generates summary statistics of sequence and quality data and that is used to filter, reformat and trim next-generation sequence data.
+    PReprocessing and INformation of SEQuence data (PRINSEQ) is a
+    pre-processing tool that can be used to filter, reformat, and/or trim
+    genomic and metagenomic sequence data. It generates summary statistics
+    of sequences in graphical and tabular format. More information can be
+    found [here](http://prinseq.sourceforge.net/).
   input:
     - name: reads
       label: Reads

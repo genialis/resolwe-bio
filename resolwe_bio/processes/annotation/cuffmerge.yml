@@ -11,12 +11,18 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.2.3
+  version: 1.2.4
   type: data:annotation:cuffmerge
-  category: analyses
+  category: Quantify
   persistence: CACHED
   description: >
-    Merge together several Cufflinks assemblies
+    Cufflinks includes a script called Cuffmerge that you can use to merge
+    together several Cufflinks assemblies. It also handles running Cuffcompare
+    for you, and automatically filters a number of transfrags that are probably
+    artfifacts. The main purpose of Cuffmerge is to make it easier to make an
+    assembly GTF file suitable for use with Cuffdiff. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffmerge/) for more
+    information.
   input:
     - name: expressions
       label: Cufflinks transcripts (GTF)

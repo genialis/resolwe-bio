@@ -4,7 +4,7 @@
 ---
 
 - slug: cuffdiff
-  name: Cuffdiff (2.2.1)
+  name: Cuffdiff 2.2
   requirements:
     expression-engine: jinja
     executor:
@@ -13,12 +13,18 @@
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.1.1
+  version: 2.1.2
   type: data:differentialexpression:cuffdiff
-  category: analyses
+  category: Differential Expression
   persistence: CACHED
   description: >
-    Find significant changes in transcript expression, splicing, and promoter use.
+    Cuffdiff finds significant changes in transcript expression, splicing, and
+    promoter use.  You can use it to find differentially expressed genes and
+    transcripts, as well as genes that are being differentially regulated at
+    the transcriptional and post-transcriptional level. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffdiff/) and
+    [here](https://software.broadinstitute.org/cancer/software/genepattern/modules/docs/Cuffdiff/7)
+    for more information.
   input:
     - name: case
       label: Case samples

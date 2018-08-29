@@ -17,7 +17,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 1.2.1
   type: data:bed
-  category: import
+  category: Import
   persistence: RAW
   description: >
         Import a BED file (.bed) which is a tab-delimited text file that

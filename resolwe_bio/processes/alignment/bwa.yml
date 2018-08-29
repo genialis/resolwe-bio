@@ -12,14 +12,19 @@
         image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 10
-  data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 2.1.6
+  data_name: "{{ reads|sample_name|default('?') }}"
+  version: 2.1.7
   type: data:alignment:bam:bwamem
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The algorithm works by seeding alignments with maximal exact matches (MEMs) and then extending seeds with the affine-gap Smith-Waterman algorithm (SW).
+    BWA MEM is a read aligner for mapping low-divergent sequences against a
+    large reference genome. Designed for longer sequences ranged from 70bp to
+    1Mbp. The algorithm works by seeding alignments with maximal exact matches
+    (MEMs) and then extending seeds with the affine-gap Smith-Waterman
+    algorithm (SW). See [here](http://bio-bwa.sourceforge.net/) for more
+    information.
   input:
     - name: genome
       label: Reference genome
@@ -235,10 +240,10 @@
         image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 10
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.6
+  data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
+  version: 1.2.7
   type: data:alignment:bam:bwasw
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
@@ -385,10 +390,10 @@
         image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 10
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.2.6
+  data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
+  version: 1.2.7
   type: data:alignment:bam:bwaaln
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >

@@ -1,22 +1,28 @@
 - slug: workflow-bbduk-star-featurecounts-single
-  category: workflow:primary
-  name: "Pipeline: BBDuk - STAR - featureCounts (single-end)"
+  name: "BBDuk - STAR - featureCounts (single-end)"
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.1.1
   type: data:workflow:rnaseq:featurecounts
-  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
-    quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
-    reads for quality from the 3'-end, and discards reads that are too short after trimming.
-    Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
-    preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
-    considered a state-of-the-art tool that consistently produces accurate results from diverse sets
-    of reads, and performs well even with default settings. For more information see [this
-    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106).\n\nFinally, aligned
-    reads are summarized to genes by __featureCounts__. Gaining wide adoption among the
-    bioinformatics community, featureCounts yields expressions in a computationally efficient
-    manner.\n\nAll three tools in this workflow support parallelization to accelerate the analysis."
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps preprocessing, alignment,
+    and quantification.
+
+    First, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3'-end, and discards reads that are too short
+    after trimming. Compared to similar tools, BBDuk is regarded for its
+    computational efficiency.  Next, preprocessed reads are aligned by __STAR__
+    aligner. At the time of implementation, STAR is considered a
+    state-of-the-art tool that consistently produces accurate results from
+    diverse sets of reads, and performs well even with default settings. For
+    more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/). Finally,
+    aligned reads are summarized to genes by __featureCounts__. Gaining wide
+    adoption among the bioinformatics community, featureCounts yields
+    expressions in a computationally efficient manner. All three tools in
+    this workflow support parallelization to accelerate the analysis.
   input:
     - name: preprocessing
       label: Preprocessing (BBDuk)
@@ -420,24 +426,30 @@
             id_attribute: '{{ input.quantification.id_attribute }}'
 
 - slug: workflow-bbduk-star-featurecounts-paired
-  category: workflow:primary
-  name: "Pipeline: BBDuk - STAR - featureCounts (paired-end)"
+  name: BBDuk - STAR - featureCounts (paired-end)
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.1.1
   type: data:workflow:rnaseq:featurecounts
-  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
-    quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
-    reads for quality from the 3'-end, and discards reads that are too short after trimming.
-    Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
-    preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
-    considered a state-of-the-art tool that consistently produces accurate results from diverse sets
-    of reads, and performs well even with default settings. For more information see [this
-    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106).\n\nFinally, aligned
-    reads are summarized to genes by __featureCounts__. Gaining wide adoption among the
-    bioinformatics community, featureCounts yields expressions in a computationally efficient
-    manner.\n\nAll three tools in this workflow support parallelization to accelerate the analysis."
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps preprocessing, alignment,
+    and quantification.
+
+    First, reads are preprocessed by __BBDuk__ which removes adapters, trims
+    reads for quality from the 3'-end, and discards reads that are too short
+    after trimming. Compared to similar tools, BBDuk is regarded for its
+    computational efficiency.  Next, preprocessed reads are aligned by __STAR__
+    aligner. At the time of implementation, STAR is considered a
+    state-of-the-art tool that consistently produces accurate results from
+    diverse sets of reads, and performs well even with default settings. For
+    more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/). Finally,
+    aligned reads are summarized to genes by __featureCounts__. Gaining wide
+    adoption among the bioinformatics community, featureCounts yields
+    expressions in a computationally efficient manner. All three tools in
+    this workflow support parallelization to accelerate the analysis.
   input:
     - name: preprocessing
       label: Preprocessing (BBDuk)

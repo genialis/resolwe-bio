@@ -16,17 +16,20 @@
       cores: 10
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:single:bbduk
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    BBDuk combines most common data-quality-related trimming, filtering, and masking operations into
-    a single high-performance tool. It is capable of quality-trimming and filtering,
-    adapter-trimming, contaminant-filtering via kmer matching, sequence masking, GC-filtering,
-    length filtering, entropy-filtering, and various other operations in a single pass. See [the
-    official website](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
+    BBDuk combines the most common data-quality-related trimming, filtering,
+    and masking operations into a single high-performance tool. It is capable
+    of quality-trimming and filtering, adapter-trimming, contaminant-filtering
+    via kmer matching, sequence masking, GC-filtering, length filtering,
+    entropy-filtering, format conversion, histogram generation, subsampling,
+    quality-score recalibration, kmer cardinality estimation, and various
+    other operations in a single pass. See
+    [here](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
     for more information.
   input:
     - name: reads
@@ -542,19 +545,20 @@
       cores: 10
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:paired:bbduk
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    BBDuk combines the most common data-quality-related trimming, filtering, and masking operations
-    into a single high-performance tool. It is capable of quality-trimming and filtering,
-    adapter-trimming, contaminant-filtering via kmer matching, sequence masking, GC-filtering,
-    length filtering, entropy-filtering, format conversion, histogram generation, subsampling,
-    quality-score recalibration, kmer cardinality estimation, and various other operations in a
-    single pass. See
-    [the official website](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
+    BBDuk combines the most common data-quality-related trimming, filtering,
+    and masking operations into a single high-performance tool. It is capable
+    of quality-trimming and filtering, adapter-trimming, contaminant-filtering
+    via kmer matching, sequence masking, GC-filtering, length filtering,
+    entropy-filtering, format conversion, histogram generation, subsampling,
+    quality-score recalibration, kmer cardinality estimation, and various
+    other operations in a single pass. See
+    [here](https://jgi.doe.gov/data-and-tools/bbtools/bb-tools-user-guide/bbduk-guide/)
     for more information.
   input:
     - name: reads

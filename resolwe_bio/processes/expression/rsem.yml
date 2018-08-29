@@ -13,14 +13,20 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.4.0
-  data_name: "Quantification ({{ (alignments|sample_name) }})"
-  version: 0.2.0
+  data_name: "{{ (alignments|sample_name) }}"
+  version: 1.0.0
   type: data:expression:rsem
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    Quantify gene and isoform abundances from single-end or paired-end RNA-seq data
+    RSEM is a software package for estimating gene and isoform expression
+    levels from RNA-Seq data. The RSEM package supports threads for parallel
+    computation of the EM algorithm, single-end and paired-end read data,
+    quality scores, variable-length reads and RSPD estimation. See
+    [here](https://deweylab.github.io/RSEM/README.html) and the
+    [original paper](https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-12-323)
+    for more information.
   input:
     - name: alignments
       label: Aligned reads

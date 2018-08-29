@@ -1,11 +1,25 @@
 - slug: workflow-rnaseq-single
-  category: workflow:primary
-  name: RNA-seq (single-end)
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Trimmomatic - HISAT2 - HTSeq-count (single-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.5
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __Trimmomatic__ which performs a variety
+    of useful trimming tasks including removing adapters for Illumina
+    paired-end and single-end high-throughput sequencing reads. Next,
+    preprocessed reads are aligned by __HISAT2__ aligner. HISAT2 is a fast and
+    sensitive alignment program for mapping next-generation sequencing reads
+    For more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/). Finally,
+    aligned reads are summarized to genes by __HTSeq-count__. Compared to
+    featureCounts, HTSeq-count is not as computationally efficient.  All three
+    tools in this workflow support parallelization to accelerate the analysis.
   input:
     - name: reads
       label: Input reads
@@ -107,13 +121,27 @@
           id_attribute: '{{input.id_attribute}}'
 
 - slug: workflow-rnaseq-paired
-  category: workflow:primary
-  name: RNA-seq (paired-end)
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Trimmomatic - HISAT2 - HTSeq-count (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.5
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __Trimmomatic__ which performs a variety
+    of useful trimming tasks including removing adapters for Illumina
+    paired-end and single-end high-throughput sequencing reads. Next,
+    preprocessed reads are aligned by __HISAT2__ aligner. HISAT2 is a fast and
+    sensitive alignment program for mapping next-generation sequencing reads
+    For more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/). Finally,
+    aligned reads are summarized to genes by __HTSeq-count__. Compared to
+    featureCounts, HTSeq-count is not as computationally efficient.  All three
+    tools in this workflow support parallelization to accelerate the analysis.
   input:
     - name: reads
       label: Input reads

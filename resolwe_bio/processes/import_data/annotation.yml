@@ -17,7 +17,7 @@
   data_name: '{{ src.file }}'
   version: 3.1.1
   type: data:annotation:gff3
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import a General Feature Format (GFF) file which is a file format used for
@@ -133,7 +133,7 @@
   data_name: '{{ src.file }}'
   version: 3.1.3
   type: data:annotation:gtf
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import a Gene Transfer Format (GTF) file.  It is a file format used to

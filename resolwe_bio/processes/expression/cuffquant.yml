@@ -4,7 +4,7 @@
 ---
 
 - slug: cuffquant
-  name: Cuffquant (2.2.1)
+  name: Cuffquant 2.2
   requirements:
     expression-engine: jinja
     executor:
@@ -12,14 +12,18 @@
         image: resolwebio/rnaseq:3.1.0
     resources:
       cores: 10
-  data_name: 'Cuffquant ({{ alignment|sample_name|default("?") }})'
-  version: 1.2.5
+  data_name: '{{ alignment|sample_name|default("?") }}'
+  version: 1.2.6
   type: data:cufflinks:cuffquant
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    Compute the gene and transcript expression profiles and save these profiles to files that you can analyze later with Cuffdiff or Cuffnorm
+    Cuffquant allows you to compute the gene and transcript expression
+    profiles and save these profiles to files that you can analyze later with
+    Cuffdiff or Cuffnorm. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/manual/) for more
+    information.
   input:
     - name: alignment
       label: Aligned reads

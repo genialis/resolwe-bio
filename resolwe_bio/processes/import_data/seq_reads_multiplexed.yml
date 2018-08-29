@@ -15,7 +15,7 @@
   data_name: '{{ reads.file|default("?") }}'
   version: 1.0.21
   type: data:multiplexed:qseq:single
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload multiplexed NGS reds in QSEQ format.
@@ -96,7 +96,7 @@
   data_name: '{{ reads.file|default("?") }}'
   version: 1.0.21
   type: data:multiplexed:qseq:paired
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload multiplexed NGS reds in QSEQ format.

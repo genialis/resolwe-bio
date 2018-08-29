@@ -1,8 +1,6 @@
 # =============================================
 # Processors for reads procesing - Trimmomatic
 # =============================================
-#
-
 ---
 
 - slug: trimmomatic-single
@@ -15,16 +13,20 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.1
+  version: 2.0.2
   type: data:reads:fastq:single:trimmomatic
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    Trimmomatic can be used to trim and crop Illumina (FASTQ) data as well as to remove adapters. FastQC is performed
-    for quality control checks on trimmed raw sequence data, which are the output of Trimmomatic. See Trimmomatic
-    [official website](http://www.usadellab.org/cms/?page=trimmomatic) and [the introductory paper](https://www.ncbi.nlm.nih.gov/pubmed/24695404)
-    or FastQC [official website](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for more information.
+    Trimmomatic performs a variety of useful trimming tasks including removing
+    adapters for Illumina paired-end and single-end data. FastQC is performed
+    for quality control checks on trimmed raw sequence data, which are the
+    output of Trimmomatic. See [Trimmomatic official
+    website](http://www.usadellab.org/cms/?page=trimmomatic), the
+    [introductory paper](https://www.ncbi.nlm.nih.gov/pubmed/24695404), and the
+    [FastQC official website](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+    for more information.
   input:
     - name: reads
       label: Reads
@@ -269,16 +271,20 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.0
+  version: 2.0.1
   type: data:reads:fastq:paired:trimmomatic
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    Trimmomatic can be used to trim and crop Illumina (FASTQ) data as well as to remove adapters. FastQC is performed
-    for quality control checks on trimmed raw sequence data, which are the output of Trimmomatic. See Trimmomatic
-    [official website](http://www.usadellab.org/cms/?page=trimmomatic) and [the introductory paper](https://www.ncbi.nlm.nih.gov/pubmed/24695404)
-    or FastQC [official website](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/) for more information.
+    Trimmomatic performs a variety of useful trimming tasks including removing
+    adapters for Illumina paired-end and single-end data. FastQC is performed
+    for quality control checks on trimmed raw sequence data, which are the
+    output of Trimmomatic. See [Trimmomatic official
+    website](http://www.usadellab.org/cms/?page=trimmomatic), the
+    [introductory paper](https://www.ncbi.nlm.nih.gov/pubmed/24695404), and the
+    [FastQC official website](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+    for more information.
   input:
     - name: reads
       label: Reads

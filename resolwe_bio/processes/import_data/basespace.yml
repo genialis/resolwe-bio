@@ -13,7 +13,7 @@
   data_name: 'BaseSpace ({{ file_id|default("?") }})'
   version: 1.0.1
   type: data:file
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import a file from Illumina BaseSpace.

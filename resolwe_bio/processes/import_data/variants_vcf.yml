@@ -15,7 +15,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 2.0.1
   type: data:variants:vcf
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload variants in VCF format.

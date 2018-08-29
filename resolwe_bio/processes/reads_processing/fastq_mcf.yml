@@ -13,13 +13,19 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.2
+  version: 1.1.3
   type: data:reads:fastq:single:fastqmcf
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    Remove adapters and filter single-end NGS reads according to data quality metrics (Fastq-mcf - ea-utils 1.1.2-537)
+    Fastq-mcf detects and removes sequencing adapters and primers from FASTQ
+    files, detects limited skewing at the ends of reads and clip, detects poor
+    quality at the ends of reads and clip, detect Ns and remove from ends,
+    removes reads with CASAVA 'Y' flag (purity filtering), discards sequences
+    that are too short, and keeps multiple mate-reads in sync.  See
+    [here](https://github.com/ExpressionAnalysis/ea-utils/blob/wiki/FastqMcf.md)
+    for more information.
   input:
     - name: reads
       label: NGS reads
@@ -136,13 +142,19 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.2
+  version: 1.1.3
   type: data:reads:fastq:paired:fastqmcf
-  category: analyses
+  category: Trim
   flow_collection: sample
   persistence: CACHED
   description: >
-    Remove adapters and filter single-end NGS reads according to data quality metrics (Fastq-mcf - ea-utils 1.1.2-537)
+    Fastq-mcf detects and removes sequencing adapters and primers from FASTQ
+    files, detects limited skewing at the ends of reads and clip, detects poor
+    quality at the ends of reads and clip, detect Ns and remove from ends,
+    removes reads with CASAVA 'Y' flag (purity filtering), discards sequences
+    that are too short, and keeps multiple mate-reads in sync.  See
+    [here](https://github.com/ExpressionAnalysis/ea-utils/blob/wiki/FastqMcf.md)
+    for more information.
   input:
     - name: reads
       label: NGS reads

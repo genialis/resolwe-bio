@@ -1,10 +1,10 @@
 - slug: workflow-accel
-  category: workflow:primary
   name: Accel Amplicon Pipeline
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.0.0
+  version: 3.0.1
+  category: Pipeline
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
     The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
@@ -187,12 +187,12 @@
           bam: '{{steps.bwa_trim}}'
 
 - slug: workflow-accel-gatk4
-  category: workflow:primary
   name: Accel Amplicon Pipeline (GATK4)
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 2.0.1
+  category: Pipeline
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
     The raw amplicon sequencing reads are quality trimmed using Trimmomatic.

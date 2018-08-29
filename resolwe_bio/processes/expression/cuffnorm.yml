@@ -12,13 +12,18 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.1.0
-  data_name: 'Cuffnorm ({{ cuffquant|map("sample_name")|join(", ")|default("?") }})'
-  version: 1.7.0
+  data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
+  version: 1.7.1
   type: data:cuffnorm
-  category: analyses
+  category: Quantify
   persistence: CACHED
   description: >
-    Generate tables of expression values that are properly normalized for library size.
+    Cufflinks includes a program, Cuffnorm, that you can use to generate
+    tables of expression values that are properly normalized for library size.
+    Cuffnorm takes a GTF2/GFF3 file of transcripts as input, along with two or
+    more SAM, BAM, or CXB files for two or more samples. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffnorm/) for more
+    information.
   input:
     - name: cuffquant
       label: Cuffquant expression file

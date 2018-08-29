@@ -17,7 +17,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 1.0.0
   type: data:geneset
-  category: import
+  category: Import
   persistence: RAW
   scheduling_class: interactive
   description: >
@@ -101,7 +101,7 @@
   data_name: Gene set
   version: 1.0.0
   type: data:geneset
-  category: import
+  category: Import
   persistence: RAW
   scheduling_class: interactive
   description: >
@@ -184,7 +184,7 @@
   data_name: Gene set (Venn)
   version: 1.0.0
   type: data:geneset:venn
-  category: import
+  category: Import
   persistence: RAW
   scheduling_class: interactive
   description: >

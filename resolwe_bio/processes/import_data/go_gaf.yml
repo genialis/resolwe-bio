@@ -15,7 +15,7 @@
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'
   version: 1.0.17
   type: data:gaf:2:0
-  category: import
+  category: Import
   persistence: RAW
   description: >
         GO annotation file (GAF v2.0) relating gene ID and associated GO terms

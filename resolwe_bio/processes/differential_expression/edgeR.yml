@@ -11,12 +11,21 @@
       docker:
         image: resolwebio/rnaseq:3.1.0
   data_name: 'Differential expression (case vs. control)'
-  version: 0.2.1
+  version: 1.0.0
   type: data:differentialexpression:edger
-  category: analyses
+  category: Differential Expression
   persistence: CACHED
   description: >
-    Find differentially expressed genes.
+    Empirical Analysis of Digital Gene Expression Data in R (edgeR).
+    Differential expression analysis of RNA-seq expression profiles with
+    biological replication. Implements a range of statistical methodology
+    based on the negative binomial distributions, including empirical Bayes
+    estimation, exact tests, generalized linear models and quasi-likelihood
+    tests. As well as RNA-seq, it be applied to differential signal analysis
+    of other types of genomic data that produce counts, including ChIP-seq,
+    Bisulfite-seq, SAGE and CAGE. See
+    [here](https://www.bioconductor.org/packages/devel/bioc/vignettes/edgeR/inst/doc/edgeRUsersGuide.pdf)
+    for more information.
   input:
     - name: case
       label: Case

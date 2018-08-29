@@ -4,7 +4,7 @@
 ---
 
 - slug: alignment-bowtie
-  name: Bowtie (dicty)
+  name: Bowtie (Dicty)
   requirements:
     expression-engine: jinja
     executor:
@@ -12,10 +12,10 @@
         image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 10
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.3.6
+  data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
+  version: 1.3.7
   type: data:alignment:bam:bowtie1
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
@@ -288,7 +288,7 @@
 
 
 - slug: alignment-bowtie2
-  name: Bowtie
+  name: Bowtie2
   requirements:
     expression-engine: jinja
     executor:
@@ -297,14 +297,19 @@
     resources:
       memory: 8192
       cores: 10
-  data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 1.3.6
+  data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
+  version: 1.3.7
   type: data:alignment:bam:bowtie2
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    An ultrafast and memory-efficient tool for aligning sequencing reads to long reference sequences.
+    Bowtie is an ultrafast, memory-efficient short read aligner. It aligns
+    short DNA sequences (reads) to the human genome at a rate of over 25
+    million 35-bp reads per hour. Bowtie indexes the genome with a
+    Burrows-Wheeler index to keep its memory footprint small—-typically about
+    2.2 GB for the human genome (2.9 GB for paired-end). See
+    [here](http://bowtie-bio.sourceforge.net/index.shtml) for more information.
   input:
     - name: genome
       label: Reference genome

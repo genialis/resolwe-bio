@@ -4,7 +4,7 @@
 ---
 
 - slug: cufflinks
-  name: Cufflinks (2.2.1)
+  name: Cufflinks 2.2
   requirements:
     expression-engine: jinja
     executor:
@@ -13,13 +13,19 @@
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.0.3
+  version: 2.0.4
   type: data:cufflinks:cufflinks
-  category: analyses
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: >
-    Assemble transcripts and estimate their abundances.
+    Cufflinks assembles transcripts, estimates their abundances, and tests for
+    differential expression and regulation in RNA-Seq samples. It accepts
+    aligned RNA-Seq reads and assembles the alignments into a parsimonious set
+    of transcripts. Cufflinks then estimates the relative abundances of these
+    transcripts based on how many reads support each one, taking into account
+    biases in library preparation protocols. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/) for more information.
   input:
     - name: alignment
       label: Aligned reads

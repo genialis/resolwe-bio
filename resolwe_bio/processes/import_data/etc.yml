@@ -15,7 +15,7 @@
   data_name: Expression time course
   version: 1.0.11
   type: data:etc
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload Expression time course.

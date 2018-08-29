@@ -14,13 +14,21 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.5.4
+  version: 1.5.5
   type: data:alignment:bam:star
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    Spliced Transcripts Alignment to a Reference
+    Spliced Transcripts Alignment to a Reference (STAR) software is based on
+    an alignment algorithm that uses sequential maximum mappable seed search
+    in uncompressed suffix arrays followed by seed clustering and stitching
+    procedure. In addition to unbiased de novo detection of canonical
+    junctions, STAR can discover non-canonical splices and chimeric (fusion)
+    transcripts, and is also capable of mapping full-length RNA sequences.
+    More information can be found in the
+    [STAR manual](http://labshare.cshl.edu/shares/gingeraslab/www-data/dobin/STAR/STAR.posix/doc/STARmanual.pdf)
+    and in the [original paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3530905/).
   input:
     - name: genome
       label: Indexed reference genome

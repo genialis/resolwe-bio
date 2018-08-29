@@ -17,7 +17,7 @@
   data_name: "{{ sra_accession }}"
   version: 0.0.6
   type: data:sra
-  category: import
+  category: Import
   persistence: TEMP
   description: >
     Import single or paired-end reads from Sequence Read Archive (SRA) via an
@@ -102,7 +102,7 @@
   version: 0.0.2
   type: data:reads:fastq:single
   flow_collection: sample
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import single-end reads from Sequence Read Archive (SRA) via an
@@ -213,7 +213,7 @@
   version: 0.0.9
   type: data:reads:fastq:paired
   flow_collection: sample
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import paired-end reads from Sequence Read Archive (SRA) via an

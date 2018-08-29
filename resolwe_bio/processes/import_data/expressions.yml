@@ -18,7 +18,7 @@
   version: 2.1.1
   type: data:expression
   flow_collection: sample
-  category: import
+  category: Import
   persistence: RAW
   description: >
       Upload expression data by providing raw expression data (read counts)
@@ -222,7 +222,7 @@
   data_name: '{{ exp.file|default("?") }}'
   version: 1.3.1
   type: data:expression
-  category: import
+  category: Import
   persistence: RAW
   flow_collection: sample
   description: >
@@ -320,7 +320,7 @@
   data_name: STAR expression '({{ rc.file|default("?") }})'
   version: 1.2.1
   type: data:expression:star
-  category: import
+  category: Import
   persistence: RAW
   flow_collection: sample
   description: >

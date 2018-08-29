@@ -13,14 +13,18 @@
     executor:
       docker:
         image: resolwebio/rnaseq:3.6.1
-  data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.5.6
+  data_name: "{{ reads|sample_name|default('?') }}"
+  version: 1.5.7
   type: data:alignment:bam:hisat2
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    Spliced Transcripts Alignment to a Reference
+    HISAT2 is a fast and sensitive alignment program for mapping
+    next-generation sequencing reads (both DNA and RNA) to a population of
+    genomes (as well as to a single reference genome). See
+    [here](https://ccb.jhu.edu/software/hisat2/index.shtml) for more
+    information.
   input:
     - name: genome
       label: Reference genome

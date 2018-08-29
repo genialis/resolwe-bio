@@ -1,11 +1,27 @@
 - slug: workflow-custom-cutadapt-star-htseq-single
-  category: workflow:primary
-  name: Workflow with Cutadapt, STAR, and HTSeq for single-end reads
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Cutadapt - STAR - HTSeq-count (single-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __cutadapt__ which finds and removes
+    adapter sequences, primers, poly-A tails and other types of unwanted
+    sequence from high-throughput sequencing reads. Next, preprocessed reads
+    are aligned by __STAR__ aligner. At the time of implementation, STAR is
+    considered a state-of-the-art tool that consistently produces accurate
+    results from diverse sets of reads, and performs well even with default
+    settings. For more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/).
+    Finally, aligned reads are summarized to genes by __HTSeq-count__.
+    Compared to featureCounts, HTSeq-count is not as computationally efficient.
+    All three tools in this workflow support parallelization to accelerate
+    the analysis.
   input:
     - name: reads
       label: NGS reads
@@ -234,13 +250,29 @@
 
 
 - slug: workflow-custom-cutadapt-star-htseq-paired
-  category: workflow:primary
-  name: Workflow with Cutadapt, STAR, and HTSeq for paired-end reads
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Cutadapt - STAR - HTSeq-count (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 1.0.0
   type: data:workflow:rnaseq:htseq
+  category: Pipeline
+  description: >
+    This RNA-seq pipeline is comprised of three steps, preprocessing,
+    alignment, and quantification.
+
+    First, reads are preprocessed by __cutadapt__ which finds and removes
+    adapter sequences, primers, poly-A tails and other types of unwanted
+    sequence from high-throughput sequencing reads. Next, preprocessed reads
+    are aligned by __STAR__ aligner. At the time of implementation, STAR is
+    considered a state-of-the-art tool that consistently produces accurate
+    results from diverse sets of reads, and performs well even with default
+    settings. For more information see [this comparison of RNA-seq
+    aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/).
+    Finally, aligned reads are summarized to genes by __HTSeq-count__.
+    Compared to featureCounts, HTSeq-count is not as computationally efficient.
+    All three tools in this workflow support parallelization to accelerate
+    the analysis.
   input:
     - name: reads
       label: NGS reads

@@ -13,13 +13,18 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.0.6
+  version: 2.0.7
   type: data:alignment:bam:subread
-  category: analyses:alignment
+  category: Align
   flow_collection: sample
   persistence: CACHED
   description: >
-    An accurate and efficient aligner for mapping both genomic DNA-seq reads and RNA-seq reads (for the purpose of expression analysis).
+    Subread is an accurate and efficient general-purpose read aligner which
+    can align both genomic DNA-seq and RNA-seq reads. It can also be used to
+    discover genomic mutations including short indels and structural variants.
+    See [here](http://subread.sourceforge.net/) and a paper by
+    [Liao and colleagues](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3664803/)
+    (2013) for more information.
   input:
     - name: genome
       label: Reference genome

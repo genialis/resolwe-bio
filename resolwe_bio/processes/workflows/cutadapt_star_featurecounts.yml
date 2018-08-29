@@ -1,18 +1,23 @@
 - slug: workflow-cutadapt-star-featurecounts-single
-  category: workflow:primary
-  name: "Workflow with Cutadapt, STAR 2-pass, and featureCounts for single-end reads"
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Cutadapt - STAR (2-pass) - featureCounts (single-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:rnaseq:featurecounts
-  description: "This RNA-Seq pipeline is made to process single-end reads and consists of three steps:
-    preprocessing, alignment and  quantification.\n\nFirstly, reads are preprocessed by __Cutadapt__ which
-    by default drops reads that are shorter than 50 bp and reads having more than 2 'N' bases,
-    then it removes bases from 3' end with quality below 20.\n\nSecondly, trimmed reads are aligned
-    to genome by __STAR__ aligner using two-pass mode.\n\nFinally, aligned reads are summarized to genes
-    by __featureCounts__. Exons that overlap multiple genes are assigned to all of genes. Each overlapping
-    gene receives a count of 1 / y, where y is the total number of genes overlapping with the read."
+  category: Pipeline
+  description: >
+    This RNA-Seq pipeline is made to process single-end reads and consists of
+    three steps, preprocessing, alignment and  quantification.
+
+    First, reads are preprocessed by __Cutadapt__ which by default drops reads
+    that are shorter than 50 bp and reads having more than 2 'N' bases, then it
+    removes bases from 3' end with quality below 20. Second, trimmed reads
+    are aligned to genome by __STAR__ aligner using two-pass mode. Finally,
+    aligned reads are summarized to genes by __featureCounts__. Exons that
+    overlap multiple genes are assigned to all of genes. Each overlapping gene
+    receives a count of 1 / y, where y is the total number of genes overlapping
+    with the read.
   input:
     - name: preprocessing
       label: Preprocessing (Cutadapt)
@@ -152,21 +157,25 @@
               fraction: '{{ input.quantification.fraction }}'
 
 - slug: workflow-cutadapt-star-featurecounts-paired
-  category: workflow:primary
-  name: "Workflow with Cutadapt, STAR 2-pass, and featurecounts for paired-end reads"
-  data_name: "Pipeline ({{ reads|sample_name|default('?') }})"
+  name: Cutadapt - STAR (2-pass) - featureCounts (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:rnaseq:featurecounts
-  description: "This RNA-Seq pipeline is made to process paired-end reads and consists of three steps:
-    preprocessing, alignment and  quantification.\n\nFirstly, reads are preprocessed by __Cutadapt__ which
-    by default drops reads that are shorter than 50 bp and reads having more than 2 'N' bases,
-    then it removes bases from 3'end with quality below 20.\n\nSecondly, trimmed reads are aligned
-    to genome by __STAR__ aligner using two-pass mode.\n\nFinally, aligned reads are summarized to genes
-    by __featureCounts__. Exons that are overlapping to multiple genes are assigned to all of genes.
-    Each overlapping gene receives a count of 1 / y, where y is the total number of genes overlapping
-    with the read."
+  category: Pipeline
+  description: >
+    This RNA-Seq pipeline is made to process paired-end reads and consists of
+    three steps, preprocessing, alignment and quantification.
+
+    First, reads are preprocessed by __Cutadapt__ which by default drops reads
+    that are shorter than 50 bp and reads having more than 2 'N' bases, then it
+    removes bases from 3'end with quality below 20. Second, trimmed reads are
+    aligned to genome by __STAR__ aligner using two-pass mode. Finally, aligned
+    reads are summarized to genes by __featureCounts__. Exons that are
+    overlapping to multiple genes are assigned to all of genes. Each
+    overlapping gene receives a count of 1 / y, where y is the total number of
+    genes overlapping with the read.
   input:
     - name: preprocessing
       label: Preprocessing (Cutadapt)

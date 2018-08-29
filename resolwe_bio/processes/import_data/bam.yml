@@ -17,7 +17,7 @@
   version: 1.1.2
   type: data:alignment:bam:upload
   flow_collection: sample
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import a BAM file (.bam), which is the binary format for storing sequence
@@ -112,7 +112,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 1.1.1
   type: data:alignment:bam:upload
-  category: import
+  category: Import
   flow_collection: sample
   persistence: RAW
   description: >
@@ -200,7 +200,7 @@
   version: 0.1.1
   type: data:alignment:bam:secondary
   flow_collection: sample
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Upload a secondary mapping file in BAM format.

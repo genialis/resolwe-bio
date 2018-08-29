@@ -10,7 +10,7 @@
   data_name: Metabolic Pathway
   version: 1.0.0
   type: data:metabolicpathway
-  category: import
+  category: Import
   persistence: RAW
   scheduling_class: batch
   description: >

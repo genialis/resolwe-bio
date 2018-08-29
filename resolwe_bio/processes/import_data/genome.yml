@@ -16,7 +16,7 @@
   data_name: '{{ src.file|default("?") }}'
   version: 3.1.1
   type: data:genome:fasta
-  category: import
+  category: Import
   persistence: RAW
   description: >
     Import genome sequence in FASTA format which includes .fasta.gz
