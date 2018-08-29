@@ -7,23 +7,6 @@ from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
 class SupportProcessorTestCase(KBBioProcessTestCase):
 
-    @tag_process('reference_compatibility')
-    def test_reference_compatibility(self):
-        with self.preparation_stage():
-            inputs = {
-                'src': 'sp_test.fasta',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
-            }
-            genome = self.run_process('upload-genome', inputs)
-
-            mapping = self.prepare_bam()
-            annotation = self.prepare_annotation()
-
-        inputs = {'reference': genome.pk, 'bam': mapping.pk, 'annot': annotation.pk}
-        compatibility_test = self.run_process('reference_compatibility', inputs)
-        self.assertFile(compatibility_test, 'report_file', 'sp_test_compatibility_report.txt')
-
     @tag_process('bam-split')
     def test_bam_split(self):
         with self.preparation_stage():
@@ -61,24 +44,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(bam2, 'bai', 'hybrid_dm6.bam.bai')
         self.assertFields(bam2, 'species', 'Drosophila melanogaster')
         self.assertFields(bam2, 'build', 'dm6')
-
-    @tag_process('feature_location')
-    def test_feature_location(self):
-        with self.preparation_stage():
-            inputs = {
-                'src': 'mm10_small.gtf.gz',
-                'source': 'UCSC',
-                'species': 'Mus musculus',
-                'build': 'mm10'
-            }
-            annotation = self.run_process('upload-gtf', inputs)
-
-        inputs = {'annotation': annotation.pk,
-                  'feature_type': 'exon',
-                  'id_type': 'transcript_id',
-                  'summarize_exons': True}
-        features = self.run_process('feature_location', inputs)
-        self.assertJSON(features, features.output['feature_location'], '', 'feature_locations.json.gz')
 
     @tag_process('gff-to-gtf')
     def test_gff_to_gtf(self):

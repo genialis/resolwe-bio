@@ -12,6 +12,15 @@ Unreleased
 
 Changed
 -------
+* **BACKWARD INCOMPATIBLE:** Remove obsolete processes: ``assembler-abyss``,
+  ``cutadapt-amplicon``, ``feature_location``, ``microarray-affy-qc``,
+  ``reads-merge``, ``reference_compatibility``, ``transmart-expressions``,
+  ``upload-hmmer-db``, ``upload-mappability-bigwig``,
+  ``upload-microarray-affy``.
+* **BACKWARD INCOMPATIBLE:** Remove obsolete descriptor schema: ``transmart``.
+* **BACKWARD INCOMPATIBLE:** Remove tools which are not used by any process:
+  ``clustering_leaf_ordering.py``, ``go_genesets.py``, ``VCF_ad_extract.py``,
+  ``volcanoplot.py``, ``xgff.py``, ``xgtf2gff.py``.
 
 Added
 -----

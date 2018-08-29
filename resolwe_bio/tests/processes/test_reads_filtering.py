@@ -318,33 +318,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_custom_paired_reverse_trimmed.fastq.gz'],
                          compression='gzip')
 
-    @tag_process('cutadapt-amplicon')
-    def test_cutadapt_amplicon(self):
-        with self.preparation_stage():
-            inputs = {
-                'src1': ['56GSID_1k_mate1.fastq.gz'],
-                'src2': ['56GSID_1k_mate2.fastq.gz']}
-            reads = self.run_processor('upload-fastq-paired', inputs)
-
-            inputs = {'src': '5ptrim_new56Gprimers.fa.gz'}
-            primers_1 = self.run_processor('upload-fasta-nucl', inputs)
-
-            inputs = {'src': '3ptrim_new56Gprimers.fa.gz'}
-            primers_2 = self.run_processor('upload-fasta-nucl', inputs)
-
-        inputs = {
-            'reads': reads.id,
-            'up_primers': primers_1.id,
-            'down_primers': primers_2.id
-        }
-
-        filtered_reads = self.run_processor('cutadapt-amplicon', inputs)
-
-        self.assertFiles(filtered_reads, 'fastq', ['cutadapt_trimmed_mate1.fastq.gz'],
-                         compression='gzip')
-        self.assertFiles(filtered_reads, 'fastq2', ['cutadapt_trimmed_mate2.fastq.gz'],
-                         compression='gzip')
-
     @tag_process('bbduk-single')
     def test_bbduk_single(self):
         with self.preparation_stage():
