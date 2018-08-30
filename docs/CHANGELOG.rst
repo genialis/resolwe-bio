@@ -44,6 +44,7 @@ Added
 
 Fixed
 -----
+- Track ``source`` information in the ``upload-fasta-nucl`` process.
 
 
 ===================
