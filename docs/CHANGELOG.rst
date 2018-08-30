@@ -31,6 +31,10 @@ Changed
   build
 - Calculate alignment statistics for the uploaded alignment (.bam) file in the
   ``upload-bam``, ``upload-bam-indexed`` and ``upload-bam-secondary`` processes.
+- Annotation (GTF/GFF3) file input is now optional for the creation of the
+  STAR genome index files. Annotation file can be used at the alignment stage
+  to supplement the genome indices with the set of known features.
+
 
 Added
 -----
@@ -45,6 +49,8 @@ Added
 Fixed
 -----
 - Track ``source`` information in the ``upload-fasta-nucl`` process.
+- When STAR aligner produces an empty alignment file, re-sort the alignment
+  file to allow successful indexing of the output ``.bam`` file.
 
 
 ===================

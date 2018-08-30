@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.5.5
+  version: 1.6.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -30,20 +30,54 @@
     [STAR manual](http://labshare.cshl.edu/shares/gingeraslab/www-data/dobin/STAR/STAR.posix/doc/STARmanual.pdf)
     and in the [original paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3530905/).
   input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
     - name: genome
       label: Indexed reference genome
       type: data:genomeindex:star
       description: >
         Genome index prepared by STAR aligner indexing tool.
-    - name: reads
-      label: Reads
-      type: data:reads:fastq
+    - name: annotation
+      label: Annotation file (GTF/GFF3)
+      type: data:annotation
+      required: false
+      description: >
+        Insert known annotations into genome indices at the mapping stage.
+    - name: annotation_options
+      label: Annotation file options
+      hidden: "!annotation"
+      group:
+        - name: exon_name
+          label: --sjdbGTFfeatureExon
+          type: basic:string
+          default: exon
+          description: >
+            Feature type in GTF file to be used as exons for building transcripts.
+        - name: sjdbOverhang
+          label: Junction length (sjdbOverhang)
+          type: basic:integer
+          default: 100
+          description: >
+            This parameter specifies the length of the genomic sequence around the annotated junction
+            to be used in constructing the splice junction database.
+            Ideally, this length should be equal to the ReadLength-1, where ReadLength is the
+            length of the reads. For instance, for Illumina 2x100b paired-end reads,
+            the ideal value is 100-1=99. In case of reads of varying length, the ideal value is
+            max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value.
     - name: unstranded
       label: The data is unstranded
       type: basic:boolean
       default: false
       description: >
-        For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute, which STAR will generate with --outSAMstrandField intronMotif option. As required, the XS strand attribute will be generated for all alignments that contain splice junctions. The spliced alignments that have undefined strand (i.e. containing only non-canonical unannotated junctions) will be suppressed. If you have stranded RNA-seq data, you do not need to use any specific STAR options. Instead, you need to run Cufflinks with the library option --library-type options. For example, cufflinks --library-type fr-firststrand should be used for the standard dUTP protocol, including Illumina's stranded Tru-Seq. This option has to be used only for Cufflinks runs and not for STAR runs.
+        For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute,
+        which STAR will generate with --outSAMstrandField intronMotif option.
+        As required, the XS strand attribute will be generated for all alignments that contain splice junctions.
+        The spliced alignments that have undefined strand (i.e. containing only non-canonical unannotated junctions)
+        will be suppressed. If you have stranded RNA-seq data, you do not need to use any specific STAR options.
+        Instead, you need to run Cufflinks with the library option --library-type options.
+        For example, cufflinks --library-type fr-firststrand should be used for the standard dUTP protocol,
+        including Illumina's stranded Tru-Seq. This option has to be used only for Cufflinks runs and not for STAR runs.
     - name: noncannonical
       label: Remove non-cannonical junctions (Cufflinks compatibility)
       type: basic:boolean
@@ -58,7 +92,14 @@
           type: basic:boolean
           default: false
           description: >
-            To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
+            To switch on detection of chimeric (fusion) alignments (in addition to normal mapping),
+            --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments".
+            Each segment is non-chimeric on its own, but the segments are chimeric to each other
+            (i.e. the segments belong to different chromosomes, or different strands, or are far from each other).
+            Both segments may contain splice junctions, and one of the segments may contain portions of both mates.
+            --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed.
+            For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment
+            with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
         - name: chimSegmentMin
           label: --chimSegmentMin
           type: basic:integer
@@ -72,21 +113,32 @@
           type: basic:boolean
           default: false
           description: >
-            With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
+            With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript
+            coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic
+            coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various
+            transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
         - name: singleend
           label: Allow soft-clipping and indels
           type: basic:boolean
           default: false
           disabled: "t_coordinates.quantmode != true"
           description: >
-            By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
+            By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed.
+            Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the
+            transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
         - name: gene_counts
           label: Count reads
           type: basic:boolean
           default: false
           disabled: "t_coordinates.quantmode != true"
           description: >
-            With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
+            With --quantMode GeneCounts option STAR will count number reads per gene while mapping.
+            A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read
+            are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters.
+            ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness
+            options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read
+            strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned
+            with RNA (htseq-count option -s reverse).
     - name: filtering
       label: Output Filtering
       group:
@@ -95,7 +147,8 @@
           type: basic:string
           default: Normal
           description: >
-            Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
+            Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain
+            junctions that passed filtering into SJ.out.tab
           choices:
             - label: Normal
               value: Normal
@@ -106,7 +159,8 @@
           type: basic:integer
           required: false
           description: >
-            Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
+            Read alignments will be output only if the read maps fewer than this value,
+            otherwise no alignments will be output (default: 10).
         - name: outFilterMismatchNmax
           label: --outFilterMismatchNmax
           type: basic:integer
@@ -118,7 +172,8 @@
           type: basic:decimal
           required: false
           description: >
-            Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
+            Max number of mismatches per pair relative to read length: for 2x100b, max number of
+            mismatches is 0.06*200=8 for the paired read.
         - name: outFilterScoreMin
           label: --outFilterScoreMin
           type: basic:integer
@@ -131,7 +186,8 @@
           range: [0, 1.0]
           required: false
           description: >
-            Alignment will be output only if its ratio of mismatches to *read* length is less than or equal to this value (default: 1.0).
+            Alignment will be output only if its ratio of mismatches to *read* length is less than
+            or equal to this value (default: 1.0).
     - name: alignment
       label: Alignment and Seeding
       group:
@@ -152,19 +208,22 @@
           type: basic:integer
           required: false
           description: >
-            Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
+            Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin,
+            otherwise it is considered Deletion (default: 21).
         - name: alignIntronMax
           label: --alignIntronMax
           type: basic:integer
           required: false
           description: >
-            Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+            Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins)
+            (default: 0).
         - name: alignMatesGapMax
           label: --alignMatesGapMax
           type: basic:integer
           required: false
           description: >
-            Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
+            Maximum gap between two mates, if 0, max intron gap will be determined by
+            (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
         - name: alignEndsType
           label: --alignEndsType
           type: basic:string
@@ -311,6 +370,10 @@
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
           --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
+          {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
+          {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
+          {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
+          {% if annotation %}--sjdbGTFfeatureExon {{ annotation_options.exon_name }} {% endif %} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
@@ -349,6 +412,10 @@
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
           --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
+          {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
+          {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
+          {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
+          {% if annotation %}--sjdbGTFfeatureExon {{ annotation_options.exon_name }} {% endif %} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
@@ -387,8 +454,21 @@
 
       {% endif %}
       re-progress 0.8
-      samtools index Aligned.sortedByCoord.out.bam "${READS_NAME}.bam.bai"
-      re-checkrc
+
+      # If alignment job produces an empty .bam file, the file needs to be re-sorted
+      # for it to be successfully indexed by samtools.
+      if [[ $(samtools view -c Aligned.sortedByCoord.out.bam) == 0 ]]
+      then
+        samtools sort Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord_temp.out.bam
+        re-checkrc "Samtools sort command failed."
+        samtools index Aligned.sortedByCoord_temp.out.bam "${READS_NAME}.bam.bai"
+        re-checkrc "Samtools index command failed."
+        mv Aligned.sortedByCoord_temp.out.bam "${READS_NAME}.bam"
+      else
+        samtools index Aligned.sortedByCoord.out.bam "${READS_NAME}.bam.bai"
+        re-checkrc "Samtools index command failed."
+        mv Aligned.sortedByCoord.out.bam "${READS_NAME}.bam"
+      fi
       re-progress 0.9
 
       {% if detect_chimeric.chimeric %}
@@ -416,7 +496,6 @@
         echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
       {% endif %}
 
-      mv Aligned.sortedByCoord.out.bam "${READS_NAME}.bam"
       mv Log.final.out "${READS_NAME}_stats.txt"
       mv SJ.out.tab "${READS_NAME}_SJ.out.tab"
 
@@ -437,12 +516,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.3.0
+        image: resolwebio/rnaseq:3.6.1
     resources:
       memory: 32768
       cores: 1
   data_name: "{{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }}"
-  version: 1.3.1
+  version: 1.4.0
   type: data:genomeindex:star
   category: Other
   persistence: CACHED
@@ -450,25 +529,21 @@
     Generate genome indices files from the supplied reference genome sequence
     and GTF files.
   input:
-    - name: annotation
-      label: Annotation file (GTF/GFF3)
-      type: data:annotation
     - name: genome
-      label: Reference genome (of type data:genome:fasta)
+      label: Reference genome (indexed)
       type: data:genome:fasta
       required: false
     - name: genome2
-      label: Reference genome (of type data:seq:nucleotide)
+      label: Reference genome (nucleotide sequence)
       type: data:seq:nucleotide
       required: false
-    - name: sjdbOverhang
-      label: Junction length (sjdbOverhang)
-      type: basic:integer
-      default: 100
-      description: >
-        This parameter specifies the length of the genomic sequence around the annotated junction to be used in constructing the splice junction database. Ideally, this length should be equal to the ReadLength-1, where ReadLength is the length of the reads. For instance, for Illumina 2x100b paired-end reads, the ideal value is 100-1=99. In case of reads of varying length, the ideal value is max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value
+    - name: annotation
+      label: Annotation file (GTF/GFF3)
+      type: data:annotation
+      required: false
     - name: annotation_options
       label: Annotation file options
+      hidden: "!annotation"
       group:
         - name: exon_name
           label: --sjdbGTFfeatureExon
@@ -476,6 +551,17 @@
           default: exon
           description: >
             Feature type in GTF file to be used as exons for building transcripts.
+        - name: sjdbOverhang
+          label: Junction length (sjdbOverhang)
+          type: basic:integer
+          default: 100
+          description: >
+            This parameter specifies the length of the genomic sequence around the annotated junction
+            to be used in constructing the splice junction database.
+            Ideally, this length should be equal to the ReadLength-1, where ReadLength is the
+            length of the reads. For instance, for Illumina 2x100b paired-end reads,
+            the ideal value is 100-1=99. In case of reads of varying length, the ideal value is
+            max(ReadLength)-1. In most cases, the default value of 100 will work as well as the ideal value.
     - name: advanced
       label: Advanced options
       group:
@@ -484,19 +570,25 @@
           type: basic:integer
           required: false
           description: >
-            For small genomes, the parameter --genomeSAindexNbases needs to be scaled down, with a typical value of min(14, log2(GenomeLength)/2 - 1). For example, for 1 megaBase genome, this is equal to 9, for 100 kiloBase genome, this is equal to 7.
+            For small genomes, the parameter --genomeSAindexNbases needs to be scaled down,
+            with a typical value of min(14, log2(GenomeLength)/2 - 1).
+            For example, for 1 megaBase genome, this is equal to 9, for 100 kiloBase genome, this is equal to 7.
         - name: genomeChrBinNbits
           label: Large number of references adjustment
           type: basic:integer
           required: false
           description: >
-            If you are using a genome with a large (>5,000) number of references (chrosomes/scaffolds), you may need to reduce the --genomeChrBinNbits to reduce RAM consumption. The following scaling is recommended: --genomeChrBinNbits = min(18, log2(GenomeLength / NumberOfReferences)). For example, for 3 gigaBase genome with 100,000 chromosomes/scaffolds, this is equal to 15.
+            If you are using a genome with a large (>5,000) number of references (chrosomes/scaffolds),
+            you may need to reduce the --genomeChrBinNbits to reduce RAM consumption.
+            The following scaling is recommended: --genomeChrBinNbits = min(18, log2(GenomeLength / NumberOfReferences)).
+            For example, for 3 gigaBase genome with 100,000 chromosomes/scaffolds, this is equal to 15.
         - name: genomeSAsparseD
           label: Sufflux array sparsity
           type: basic:integer
           required: false
           description: >
-            Suffux array sparsity, i.e. distance between indices: use bigger numbers to decrease needed RAM at the cost of mapping speed reduction (integer > 0, default = 1).
+            Suffux array sparsity, i.e. distance between indices: use bigger numbers to decrease
+            needed RAM at the cost of mapping speed reduction (integer > 0, default = 1).
   output:
     - name: index
       label: Indexed genome
@@ -529,9 +621,8 @@
           cp {{ genome2.fasta.file }} genome.fasta
         fi
       {% else %}
-        exit 1
+        re-error "At least one of genome/genome2 inputs must be given!"
       {% endif %}
-      re-checkrc "At least one of genome/genome2 inputs must be given!"
 
       re-progress 0.1
 
@@ -544,13 +635,25 @@
         {% if advanced.genomeSAsparseD %}--genomeSAsparseD {{ advanced.genomeSAsparseD }}{% endif %} \
         --genomeDir ./star_index/ \
         --genomeFastaFiles genome.fasta \
-        --sjdbGTFfile {{ annotation.annot.file }} \
+        {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
         {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
-        --sjdbOverhang {{ sjdbOverhang }} \
-        --sjdbGTFfeatureExon {{ annotation_options.exon_name }}
+        {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
+        {% if annotation %}--sjdbGTFfeatureExon {{ annotation_options.exon_name }} {% endif %}
+
       re-checkrc "Genome index build failed."
       re-progress 0.8
       re-save-dir index star_index
-      re-save source {{annotation.source}}
-      re-save species {{annotation.species}}
-      re-save build {{annotation.build}}
+
+      {% if annotation %}
+        re-save source {{ annotation.source }}
+        re-save species {{ annotation.species }}
+        re-save build {{ annotation.build }}
+      {% elif genome %}
+        re-save source {{ genome.source }}
+        re-save species {{ genome.species }}
+        re-save build {{ genome.build }}
+      {% else %}
+        re-save source {{ genome2.source }}
+        re-save species {{ genome2.species }}
+        re-save build {{ genome2.build }}
+      {% endif %}

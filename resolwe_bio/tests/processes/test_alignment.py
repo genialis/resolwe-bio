@@ -126,6 +126,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         inputs_gtf = {'annotation': annotation_gtf.id, 'genome2': star_index_fasta.id}
         self.run_process('alignment-star-index', inputs_gtf)
 
+        # Test genome indexing without the input annotation file
+        inputs_gtf = {'genome2': star_index_fasta.id}
+        self.run_process('alignment-star-index', inputs_gtf)
+
         inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
         star_index = self.run_process('alignment-star-index', inputs_gff3)
         self.assertAlmostEqual(star_index.output['index']['size'], 1566163829, delta=5)
@@ -143,11 +147,14 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 'src': 'HS chr21_ensembl.fa.gz',
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens90',
+                'source': 'ENSEMBL',
             }
             star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
             inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
 
             star_index = self.run_process('alignment-star-index', inputs)
+
+            star_index_wo_annot = self.run_process('alignment-star-index', {'genome2': star_index_fasta.id})
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -155,6 +162,33 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             'genome': star_index.id,
             'reads': reads.id,
+            't_coordinates': {
+                'quantmode': True,
+                'gene_counts': True,
+            },
+            'two_pass_mapping': {
+                'two_pass_mode': True,
+            },
+        }
+        aligned_reads = self.run_process('alignment-star', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_single.tab.gz', compression='gzip')
+        self.assertFields(aligned_reads, 'species', 'Homo sapiens')
+        self.assertFields(aligned_reads, 'build', 'GRCh38_ens90')
+
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFields(exp, 'species', 'Homo sapiens')
+        self.assertFields(exp, 'build', 'GRCh38_ens90')
+        self.assertFields(exp, 'feature_type', 'gene')
+
+        inputs = {
+            'genome': star_index_wo_annot.id,
+            'reads': reads.id,
+            'annotation': annotation.id,
             't_coordinates': {
                 'quantmode': True,
                 'gene_counts': True,
