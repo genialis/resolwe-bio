@@ -14,7 +14,7 @@
   version: 0.1.1
   type: data:alignment:bam:primary
   flow_collection: sample
-  category: other
+  category: Other
   persistence: CACHED
   description: >
     Split hybrid bam file into two bam files.
@@ -82,7 +82,7 @@
       {% else %}
         NUM=`grep -v @ "${NAME}.sam" -m 1 -n | cut -d ':' -f 1`
         SELECTION=`grep -e @ -m $((NUM-1)) "${NAME}.sam"`
-        HEAD=`echo "$SELECTION" | grep -e @HD "${NAME}.sam"` 
+        HEAD=`echo "$SELECTION" | grep -e @HD "${NAME}.sam"`
         TAIL=`echo "$SELECTION" | grep -e @PG "${NAME}.sam"`
         re-checkrc
         re-progress 0.1

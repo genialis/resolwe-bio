@@ -10,14 +10,15 @@
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
-  data_name: "Called variants ({{ mapping.bam.file|basename|default('?') }})"
-  version: 1.2.0
+  data_name: "{{ mapping.bam.file|basename|default('?') }}"
+  version: 1.2.1
   type: data:variants:vcf
-  category: analyses:variants
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >
-    Samtools variant calling.
+    Samtools variant calling. See[here](http://www.htslib.org/workflow/) for
+    more information.
   input:
     - name: genome
       label: Reference genome

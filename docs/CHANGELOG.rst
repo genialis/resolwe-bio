@@ -21,6 +21,8 @@ Changed
 * **BACKWARD INCOMPATIBLE:** Remove tools which are not used by any process:
   ``clustering_leaf_ordering.py``, ``go_genesets.py``, ``VCF_ad_extract.py``,
   ``volcanoplot.py``, ``xgff.py``, ``xgtf2gff.py``.
+* Update the meta data like name, description, category, etc. of most of the
+  processes.
 
 Added
 -----

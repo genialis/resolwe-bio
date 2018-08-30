@@ -13,9 +13,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:mappability:bcm
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Compute genome mappability. Developed by Bioinformatics Laboratory, Faculty of Computer and Information Science,

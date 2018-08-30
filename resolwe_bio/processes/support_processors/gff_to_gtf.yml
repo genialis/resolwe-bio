@@ -5,18 +5,18 @@
 ---
 
 - slug: gff-to-gtf
-  name: Convert GFF3 to GTF format
+  name: Convert GFF3 to GTF
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: "Converted GFF3 to GTF file"
-  version: 0.2.0
+  version: 0.2.1
   type: data:annotation:gtf
-  category: analyses
+  category: Other
   description: >
-    Convert gff3 to gtf format.
+    Convert GFF3 file to GTF format.
   input:
     - name: annotation
       label: Annotation (GFF3)

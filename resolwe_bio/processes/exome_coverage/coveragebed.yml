@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/dnaseq:3.2.1
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 4.0.2
+  version: 4.0.3
   type: data:coverage
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

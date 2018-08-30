@@ -4,20 +4,24 @@
 ---
 
 - slug: igv
-  name: Session for IGV 2.3.91
+  name: IGV Session
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
-  data_name: "IGV {{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.0.3
+  data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
+  version: 1.0.4
   type: data:igv:bam
-  category: analyses
+  category: Other
   persistence: CACHED
   scheduling_class: interactive
   description: >
-    Process creates a session for Integrative Genomics Viewer (IGV).
+    Create a session file for Integrative Genomics Viewer (IGV). Sessions are
+    an integral part of IGV, allowing users to share their data and views with
+    other users simply and accurately. See
+    [here](https://software.broadinstitute.org/software/igv/Sessions) for more
+    information.
   input:
     - name: genomeid
       label: Genome id

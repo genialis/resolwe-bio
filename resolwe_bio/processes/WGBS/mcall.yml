@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "mcall"
-  version: 1.0.5
+  version: 1.0.6
   type: data:wgbs:mcall
-  category: analyses:wgbs
+  category: Other
   persistence: CACHED
   description: >
     The methylation ratio calling module accepts alignment from BSMAP,

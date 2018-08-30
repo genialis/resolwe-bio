@@ -1,6 +1,6 @@
-# ===============
-# ChIP-Seq - MACS
-# ===============
+# ===================
+# ChIP-Seq - MACS 1.4
+# ===================
 ---
 
 - slug: macs14
@@ -11,12 +11,19 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: "MACS results ({{ treatment|sample_name|default('?') }})"
-  version: 2.3.2
+  version: 2.3.3
   type: data:chipseq:macs14
-  category: analyses
+  category: ChIP-Seq:Call Peaks
   persistence: CACHED
   description: >
-    Model-based Analysis of ChIP-Seq (MACS 1.4).
+    Model-based Analysis of ChIP-Seq (MACS 1.4) empirically models the length
+    of the sequenced ChIP fragments, which tends to be shorter than sonication
+    or library construction size estimates, and uses it to improve the spatial
+    resolution of predicted binding sites. MACS also uses a dynamic Poisson
+    distribution to effectively capture local biases in the genome sequence,
+    allowing for more sensitive and robust prediction. See the
+    [original paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2592715/)
+    for more information.
   input:
     - name: treatment
       label: BAM File

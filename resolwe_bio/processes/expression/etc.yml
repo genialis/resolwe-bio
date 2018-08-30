@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Expression time course"
-  version: 1.0.15
+  version: 1.0.16
   type: data:etc
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Select gene expression data and form a time course.

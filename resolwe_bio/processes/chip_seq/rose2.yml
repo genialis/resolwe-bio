@@ -11,12 +11,19 @@
       docker:
         image: resolwebio/chipseq:2.1.0
   data_name: ROSE2 analysis
-  version: 3.0.0
+  version: 3.0.1
   type: data:chipseq:rose2
-  category: analyses
+  category: ChIP-Seq:Post Process
   persistence: CACHED
   description: >
-    Rank ordering of super-enhancers.
+    For identification of super enhancers R2 uses the Rank Ordering of
+    Super-Enhancers algorithm (ROSE2). This takes the peaks called by RSEG for
+    acetylation and calculates the distances in-between to judge whether they
+    can be considered super-enhancers. The ranked values can be plotted and by
+    locating the inflection point in the resulting graph, super-enhancers can
+    be assigned. It can also be used with the MACS calculated data. See
+    [here](http://younglab.wi.mit.edu/super_enhancer_code.html) for more
+    information.
   input:
     - name: input
       label: BED file (MACS results)

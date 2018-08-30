@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/dnaseq:3.1.0
   data_name: "LoFreq ({{ alignment|sample_name|default('?') }})"
-  version: 0.3.0
+  version: 0.3.1
   type: data:variants:vcf:lofreq
-  category: analyses:variants
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

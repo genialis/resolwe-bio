@@ -10,9 +10,9 @@
       docker:
         image: resolwebio/latex:1.0.7
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 1.0.2
+  version: 1.0.3
   type: data:report:amplicon
-  category: analyses:variants
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

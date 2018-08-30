@@ -4,19 +4,21 @@
 ---
 
 - slug: mergeexpressions
-  name: Merge Expressions
+  name: Expression matrix
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/legacy:1.0.0
-  data_name: "Merged expressions"
-  version: 1.0.11
+  data_name: Expression matrix
+  version: 1.0.12
   type: data:expressionset
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
-    Merge expression data and filter genes.
+    Merge expression data to create an expression matrix where each column
+    represents all the gene expression levels from a single experiment, and
+    each row represents the expression of a gene across all experiments.
   input:
     - name: exps
       label: Gene expressions

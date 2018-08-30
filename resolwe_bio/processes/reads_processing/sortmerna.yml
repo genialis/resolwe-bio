@@ -13,9 +13,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
-  version: 1.1.2
+  version: 1.1.3
   type: data:reads:fastq:single:sortmerna
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >
@@ -124,7 +124,7 @@
 
 
 - slug: sortmerna-paired
-  version: 1.1.2
+  version: 1.1.3
   name: SortMeRNA 2.0 (paired-end)
   requirements:
     expression-engine: jinja
@@ -133,7 +133,7 @@
         image: resolwebio/legacy:1.0.0
   data_name: '{{ reads.fastq.0.file|default("?") }}'
   type: data:reads:fastq:paired:sortmerna
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

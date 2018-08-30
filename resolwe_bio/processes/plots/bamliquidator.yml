@@ -11,9 +11,9 @@
       docker:
         image: "resolwebio/chipseq:1.0.0"
   data_name: "Bamliquidator"
-  version: 0.1.1
+  version: 0.1.2
   type: data:bam:plot:bamliquidator
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Set of tools for analyzing the density of short DNA sequence read alignments in the BAM file format.

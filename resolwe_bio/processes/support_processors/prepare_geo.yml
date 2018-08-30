@@ -13,9 +13,9 @@
       docker:
         image: resolwebio/base:ubuntu-17.10
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 0.0.1
+  version: 0.0.2
   type: data:other:geo:chipseq
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Prepare ChIP-Seq data for GEO upload.
@@ -149,9 +149,9 @@
       docker:
         image: resolwebio/base:ubuntu-17.10
   data_name: 'Prepare GEO ({{name}} - RNA-Seq)'
-  version: 0.0.1
+  version: 0.0.2
   type: data:other:geo:rnaseq
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Prepare RNA-Seq data for GEO upload.
@@ -182,11 +182,11 @@
     program: |
       NAME={{ name }}_RNA-Seq
       mkdir "${NAME}"
-      
+
       {% set exp_first = expressions|first %}
 
       declare -A SAMPLE_TO_PAIRED
-      
+
       echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}".txt
 
       {% for read in reads %}

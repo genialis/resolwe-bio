@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/dnaseq:3.0.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.2.0
+  version: 1.2.1
   type: data:variants:vcf:filtering
-  category: analyses:variants
+  category: Other
   persistence: CACHED
   description: >
     Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum

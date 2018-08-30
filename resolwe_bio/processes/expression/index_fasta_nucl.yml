@@ -6,11 +6,12 @@
       docker:
         image: resolwebio/rnaseq:1.1.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.2.3
+  version: 0.2.4
   type: data:index:expression
+  category: Other
   persistence: CACHED
   description: >
-    Generate gene expression indices
+    Generate gene expression indices.
   input:
     - name: nucl
       label: Nucleotide sequence

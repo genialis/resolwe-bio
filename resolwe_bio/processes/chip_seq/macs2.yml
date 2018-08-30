@@ -1,23 +1,29 @@
-# ================
-# ChIP-Seq - MACS2
-# ================
+# ===================
+# ChIP-Seq - MACS 2.0
+# ===================
 ---
 
 - slug: macs2-callpeak
-  name: MACS2 (Call peaks)
+  name: MACS 2.0
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/chipseq:2.1.0
-  data_name: "MACS2 analysis ({{ case.bam.file|basename|default('?') }})"
-  version: 1.1.0
+  data_name: "{{ case.bam.file|basename|default('?') }}"
+  version: 1.1.1
   type: data:chipseq:macs2:callpeak
-  category: analyses
+  category: ChIP-Seq:Call Peaks
   flow_collection: sample
   persistence: CACHED
   description: >
-    Tool for Model-based Analysis of ChIP-Seq (MACS) - Callpeak module.
+    Model-based Analysis of ChIP-Seq (MACS 2.0), is used to identify transcript
+    factor binding sites. MACS 2.0 captures the influence of genome complexity
+    to evaluate the significance of enriched ChIP regions, and MACS improves
+    the spatial resolution of binding sites through combining the information
+    of both sequencing tag position and orientation. It has also an option to
+    link nearby peaks together in order to call broad peaks. See
+    [here](https://github.com/taoliu/MACS/) for more information.
   input:
     - name: case
       label: Case (treatment)

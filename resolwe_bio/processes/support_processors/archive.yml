@@ -8,7 +8,7 @@
         image: resolwebio/utils:1.2.0
   version: 0.1.2
   type: "data:archive:samples"
-  category: other
+  category: Other
   persistence: TEMP
   scheduling_class: interactive
   description: >

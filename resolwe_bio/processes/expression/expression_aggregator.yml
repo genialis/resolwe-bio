@@ -6,9 +6,9 @@
       docker:
         image: resolwebio/rnaseq:1.2.0
   data_name: "Expression aggregator"
-  version: 0.1.0
+  version: 0.1.1
   type: data:aggregator:expression
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Collect expression data from samples grouped by sample descriptor field.

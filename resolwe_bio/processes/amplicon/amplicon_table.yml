@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "{{table_name}}"
-  version: 0.0.5
+  version: 0.0.6
   type: data:varianttable:amplicon
-  category: analyses:variants
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

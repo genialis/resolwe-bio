@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
-  version: 1.0.10
+  version: 1.0.11
   type: data:chipseq:peakscore
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: Chip-Seq analysis - Peak Score (BCM)
@@ -58,9 +58,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Gene score ({{ peakscore.peak_score.file|basename|default('?') }})"
-  version: 1.0.6
+  version: 1.0.7
   type: data:chipseq:genescore
-  category: analyses
+  category: Other
   persistence: TEMP
   description: Chip-Seq analysis - Gene Score (BCM)
   input:

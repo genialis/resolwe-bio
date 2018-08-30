@@ -14,9 +14,9 @@
       memory: 16384
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.0.1
   type: data:alignment:bam:bwatrim
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

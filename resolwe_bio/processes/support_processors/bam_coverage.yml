@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "BigWig ({{bam.bam.file}})"
-  version: 1.0.8
+  version: 1.0.9
   type: data:reads:coverage
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

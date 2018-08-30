@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Merged ETC"
-  version: 1.0.8
+  version: 1.0.9
   type: data:expressionset:etc
-  category: analyses
+  category: Other
   persistence: CACHED
   description: >
     Merge Expression Time Course (ETC) data.

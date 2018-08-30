@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.2.2
+  version: 1.2.3
   type: data:expression:polya
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

@@ -8,7 +8,7 @@
         image: resolwebio/latex:1.0.7
   version: 0.2.4
   type: "data:archive:samples:amplicon"
-  category: other
+  category: Other
   persistence: TEMP
   scheduling_class: interactive
   description: >

@@ -7,9 +7,9 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: '{{ alignment.bam.file|default("?") }}'
-  version: 0.1.0
+  version: 0.1.1
   type: data:alignment:bam:hsqutils
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >

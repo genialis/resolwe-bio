@@ -13,9 +13,9 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:single:cutadapt
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >
@@ -79,9 +79,9 @@
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:paired:cutadapt
-  category: analyses
+  category: Other
   flow_collection: sample
   persistence: CACHED
   description: >
