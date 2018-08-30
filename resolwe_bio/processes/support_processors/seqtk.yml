@@ -1,0 +1,209 @@
+- slug: seqtk-sample-single
+  name: Subsample FASTQ (single-end)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/utils:1.5.0
+    resources:
+      cores: 1
+      memory: 2048
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 1.0.0
+  type: data:reads:fastq:single:seqtk
+  category: other
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    [Seqtk](https://github.com/lh3/seqtk) is a fast and lightweight tool for
+    processing sequences in the FASTA or FASTQ format. The Seqtk "sample" command
+    enables subsampling of the large FASTQ file(s).
+  input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq:single
+    - name: n_reads
+      label: Number of reads
+      type: basic:integer
+      default: 1000000
+    - name: advanced
+      label: Advanced options
+      group:
+        - name: seed
+          label: Seed
+          type: basic:integer
+          default: 11
+        - name: fraction
+          label: Fraction
+          type: basic:decimal
+          required: false
+          range: [0, 1.0]
+          description: >
+            Use the fraction of reads [0 - 1.0] from the orignal input file instead
+            of the absolute number of reads. If set, this will override the
+            "Number of reads" input parameter.
+        - name: two_pass
+          label: 2-pass mode
+          type: basic:boolean
+          default: false
+          description: >
+            Enable two-pass mode when down-sampling. Two-pass mode is twice
+            as slow but with much reduced memory.
+  output:
+    - name: fastq
+      label: Remaining reads
+      type: list:basic:file
+    - name: fastqc_url
+      label: Quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% set input_reads = 'input_reads.fastq.gz' %}
+      {% set name = ((reads.fastq|first).file|basename)[:-9] %}
+      {% set output_reads = 'output_reads.fastq' %}
+      {% set final_reads = name + '_downsampled.fastq.gz' %}
+
+      {% for read in reads.fastq %}
+        cat {{ read.file }} >>{{ input_reads }}
+      {% endfor %}
+
+      seqtk sample \
+        -s {{ advanced.seed }} \
+        {% if advanced.two_pass %} -2 {% endif %} \
+        {{ input_reads }} \
+        {% if advanced.fraction %} {{ advanced.fraction }} {% else %} {{ n_reads }} {% endif %} > \
+        {{ output_reads }}
+
+      re-checkrc "Downsampling with Seqtk failed."
+
+      gzip {{ output_reads }}
+      mv {{ output_reads + '.gz' }} {{ final_reads }}
+
+      re-save-file-list fastq {{ final_reads }}
+      fastqc.sh {{ final_reads }} fastqc fastqc_archive fastqc_url
+
+
+- slug: seqtk-sample-paired
+  name: Subsample FASTQ (paired-end)
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/utils:1.5.0
+    resources:
+      cores: 1
+      memory: 2048
+  data_name: '{{ reads|sample_name|default("?") }}'
+  version: 1.0.0
+  type: data:reads:fastq:paired:seqtk
+  category: other
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    [Seqtk](https://github.com/lh3/seqtk) is a fast and lightweight tool for
+    processing sequences in the FASTA or FASTQ format. The Seqtk "sample" command
+    enables subsampling of the large FASTQ file(s).
+  input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq:paired
+    - name: n_reads
+      label: Number of reads
+      type: basic:integer
+      default: 1000000
+    - name: advanced
+      label: Advanced options
+      group:
+        - name: seed
+          label: Seed
+          type: basic:integer
+          default: 11
+        - name: fraction
+          label: Fraction
+          type: basic:decimal
+          required: false
+          range: [0, 1.0]
+          description: >
+            Use the fraction of reads [0 - 1.0] from the orignal input file instead
+            of the absolute number of reads. If set, this will override the
+            "Number of reads" input parameter.
+        - name: two_pass
+          label: 2-pass mode
+          type: basic:boolean
+          default: false
+          description: >
+            Enable two-pass mode when down-sampling. Two-pass mode is twice
+            as slow but with much reduced memory.
+  output:
+    - name: fastq
+      label: Remaining mate 1 reads
+      type: list:basic:file
+    - name: fastq2
+      label: Remaining mate 2 reads
+      type: list:basic:file
+    - name: fastqc_url
+      label: Mate 1 quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_url2
+      label: Mate 2 quality control with FastQC
+      type: list:basic:file:html
+    - name: fastqc_archive
+      label: Download mate 1 FastQC archive
+      type: list:basic:file
+    - name: fastqc_archive2
+      label: Download mate 2 FastQC archive
+      type: list:basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      {% set input_mate1 = 'input_mate1.fastq.gz' %}
+      {% set input_mate2 = 'input_mate2.fastq.gz' %}
+      {% set output_mate1 = 'output_mate1.fastq' %}
+      {% set output_mate2 = 'output_mate2.fastq' %}
+      {% set name_mate1 = ((reads.fastq|first).file|basename)[:-9] %}
+      {% set name_mate2 = ((reads.fastq2|first).file|basename)[:-9] %}
+      {% set final_mate1 = name_mate1 + '_downsampled.fastq.gz' %}
+      {% set final_mate2 = name_mate2 + '_downsampled.fastq.gz' %}
+
+      {% for read in reads.fastq %}
+        cat {{ read.file }} >>{{ input_mate1 }}
+      {% endfor %}
+      {% for read in reads.fastq2 %}
+        cat {{ read.file }} >>{{ input_mate2 }}
+      {% endfor %}
+
+      seqtk sample \
+        -s {{ advanced.seed }} \
+        {% if advanced.two_pass %} -2 {% endif %} \
+        {{ input_mate1 }} \
+        {% if advanced.fraction %} {{ advanced.fraction }} {% else %} {{ n_reads }} {% endif %} > \
+        {{ output_mate1 }}
+
+      re-checkrc "Downsampling with Seqtk failed."
+
+      seqtk sample \
+        -s {{ advanced.seed }} \
+        {% if advanced.two_pass %} -2 {% endif %} \
+        {{ input_mate2 }} \
+        {% if advanced.fraction %} {{ advanced.fraction }} {% else %} {{ n_reads }} {% endif %} > \
+        {{ output_mate2 }}
+
+      re-checkrc "Downsampling with Seqtk failed."
+
+      gzip {{ output_mate1 }}
+      gzip {{ output_mate2 }}
+
+      mv {{ output_mate1 + '.gz' }} {{ final_mate1 }}
+      mv {{ output_mate2 + '.gz' }} {{ final_mate2 }}
+
+      re-save-file-list fastq {{ final_mate1 }}
+      re-save-file-list fastq2 {{ final_mate2 }}
+
+      fastqc.sh {{ final_mate1 }} fastqc fastqc_archive fastqc_url
+      fastqc.sh {{ final_mate2 }} fastqc fastqc_archive2 fastqc_url2

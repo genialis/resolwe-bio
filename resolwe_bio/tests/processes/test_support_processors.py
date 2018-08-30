@@ -238,3 +238,39 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             }
         })
         self.assertFileExists(multiqc, 'report')
+
+    @tag_process('seqtk-sample-single', 'seqtk-sample-paired')
+    def test_seqtk_sample(self):
+        with self.preparation_stage():
+            reads = self.run_processor('upload-fastq-single', {
+                'src': ['hs_single bbduk_star_htseq_reads_single.fastq.gz']
+            })
+
+            paired_reads = self.prepare_paired_reads(['hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz'],
+                                                     ['hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz'])
+
+        inputs_single = {
+            'reads': reads.id,
+            'n_reads': 42,
+            'advanced': {
+                'seed': 42,
+            }
+        }
+
+        seqtk_single = self.run_process('seqtk-sample-single', inputs_single)
+        self.assertFiles(seqtk_single, 'fastq', ['seqtk_subsampled_reads_single_end.fastq.gz'],
+                         compression='gzip')
+
+        inputs_paired = {
+            'reads': paired_reads.id,
+            'advanced': {
+                'seed': 42,
+                'fraction': 0.25,
+            }
+        }
+
+        seqtk_paired = self.run_process('seqtk-sample-paired', inputs_paired)
+        self.assertFiles(seqtk_paired, 'fastq', ['seqtk_subsampled_reads_paired_end_mate1.fastq.gz'],
+                         compression='gzip')
+        self.assertFiles(seqtk_paired, 'fastq2', ['seqtk_subsampled_reads_paired_end_mate2.fastq.gz'],
+                         compression='gzip')

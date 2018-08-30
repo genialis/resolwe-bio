@@ -46,6 +46,9 @@ Added
 - Add ``HS Panel`` choice option to the ``amplicon-master-file`` descriptor
   schema
 - Add MultiQC process
+- Add process for the Seqtk tool ``sample`` sub-command. This process allows
+  sub-sampling of ``.fastq`` files using either a fixed number of reads or the
+  ratio of the input file.
 
 Fixed
 -----
