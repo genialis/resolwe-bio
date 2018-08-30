@@ -1,0 +1,122 @@
+- slug: multiqc
+  name: MultiQC
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 1
+      memory: 1024
+    executor:
+      docker:
+        image: resolwebio/utils:1.5.0
+  data_name: 'MultiQC report'
+  version: 0.0.1
+  type: data:multiqc
+  category: other
+  persistence: CACHED
+  flow_collection: sample
+  description: >
+    Aggregate results from bioinformatics analyses across many samples into a single report.
+    [MultiQC](http://www.multiqc.info) searches a given directory for analysis logs and compiles a HTML report.
+    It's a general use tool, perfect for summarising the output from numerous bioinformatics tools.
+  input:
+    - name: data
+      label: Input data
+      type: list:data
+      description: >
+        Select multiple data objects for which the MultiQC report is to be generated.
+    - name: advanced
+      label: Advanced options
+      group:
+        - name: dirs
+          label: --dirs
+          type: basic:boolean
+          default: false
+          description: >
+            Prepend directory to sample names.
+        - name: fullnames
+          label: --fullnames
+          type: basic:boolean
+          default: false
+          description: >
+            Do not clean the sample names (leave as full file name).
+        - name: config
+          label: Use configuration file
+          type: basic:boolean
+          default: false
+          description: >
+            Use Genialis configuration file for MultiQC report.
+        - name: cl_config
+          label: --cl-config
+          type: basic:string
+          required: false
+          description: >
+            Enter text with command-line configuration options to override the defaults
+            (e.g. custom_logo_url: https://www.genialis.com).
+  output:
+    - name: report
+      label: MultiQC report
+      type: basic:file:html
+    - name: report_data
+      label: Report data
+      type: basic:dir
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      # Fix an issue with the Click library http://click.pocoo.org/python3/
+      export LC_ALL=C.UTF-8
+
+      {% for d in data %}
+        # Use slugs instead of sample names, since dots in the folder name
+        # breake the MultiQC "--dirs" parameter behaviour.
+        DIRECTORY={{ d | sample_slug }}
+        mkdir -p "${DIRECTORY}"
+
+        # Prepare FastQC data for single reads objects.
+        {% if (d|type).startswith('data:reads:fastq:single') %}
+          {% for fq_report in d['fastqc_archive'] %}
+            ln -s --backup=numbered {{ fq_report.file }} "${DIRECTORY}"/{{ fq_report | basename }}
+          {% endfor %}
+
+        # Prepare FastQC data for paired-end reads objects.
+        {% elif (d|type).startswith('data:reads:fastq:paired') %}
+          {% for fq_report in d['fastqc_archive'] + d['fastqc_archive2'] %}
+            ln -s --backup=numbered {{ fq_report.file }} "${DIRECTORY}"/{{ fq_report | basename }}
+          {% endfor %}
+
+        # Prepare STAR alignment file reports.
+        {% elif (d|type) == 'data:alignment:bam:star:' %}
+          BAM_NAME=`basename {{ d['stats'].file }} _stats.txt`
+          {% if d['build'] == 'rRNA' %}
+            ln -s --backup=numbered {{ d['stats'].file }} "${DIRECTORY}"/"${BAM_NAME}.rRNA.Log.final.out"
+          {% elif d['build'] == 'globin' %}
+            ln -s --backup=numbered {{ d['stats'].file }} "${DIRECTORY}"/"${BAM_NAME}.globin.Log.final.out"
+          {% else %}
+            ln -s --backup=numbered {{ d['stats'].file }} "${DIRECTORY}"/"${BAM_NAME}.Log.final.out"
+          {% endif %}
+
+        # Prepare alignment file reports.
+        {% elif (d|type).startswith('data:alignment:bam') %}
+            ln -s --backup=numbered {{ d['stats'].file }} "${DIRECTORY}"/{{ d['stats'].file | basename }}
+
+        # Prepare FeatureCounts reports.
+        {% elif (d|type) == 'data:expression:featurecounts:' %}
+            ln -s --backup=numbered {{ d['counts_summary'].file }} \
+            "${DIRECTORY}"/{{ d['counts_summary'].file | basename }}
+
+        # Skip MultiQC reporting for unsupported data types.
+        {% else %}
+          re-warning "{{ d | name }} is not supported by the MultiQC analysis"
+        {% endif %}
+
+      {% endfor %}
+
+      multiqc . \
+        {% if advanced.dirs %} -d {% endif %} \
+        {% if advanced.fullnames %} -s {% endif %} \
+        {% if advanced.config %} -c '/opt/resolwebio/assets/multiqc_config.yml' {% endif %} \
+        {% if advanced.cl_config %} --cl-config {{ cl_config }} {% endif %}
+
+      re-save-file report multiqc_report.html
+      re-save-dir report_data multiqc_data

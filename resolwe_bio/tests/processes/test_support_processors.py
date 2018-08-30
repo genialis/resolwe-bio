@@ -186,3 +186,55 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         lib_strandedness_paired = self.run_process('library-strandedness', paired_input)
         self.assertFields(lib_strandedness_paired, 'strandedness', 'IU')
         self.assertFields(lib_strandedness_paired, 'fragment_ratio', 1.0)
+
+    @tag_process('multiqc')
+    def test_multiqc(self):
+        with self.preparation_stage():
+            reads = self.run_processor('upload-fastq-single', {
+                'src': ['hs_single bbduk_star_htseq_reads_single.fastq.gz']
+            })
+
+            paired_reads = self.prepare_paired_reads(['hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz'],
+                                                     ['hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz'])
+
+            filtered_reads = self.run_process('bbduk-paired', {'reads': paired_reads.id})
+
+            bam_samtools = self.run_process('upload-bam-indexed', {
+                'src': 'alignment_position_sorted.bam',
+                'src2': 'alignment_position_sorted.bam.bai',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
+
+            annotation = self.run_process('upload-gtf', {
+                'src': 'hs annotation.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
+
+            genome_fasta = self.run_process('upload-fasta-nucl', {'src': 'hs genome.fasta.gz'})
+            star_index = self.run_process('alignment-star-index', {
+                'annotation': annotation.id,
+                'genome2': genome_fasta.id,
+            })
+
+            star_alignment = self.run_process('alignment-star', {
+                'genome': star_index.id,
+                'reads': paired_reads.id,
+            })
+
+        multiqc = self.run_process('multiqc', {
+            'data': [
+                reads.id,
+                paired_reads.id,
+                filtered_reads.id,
+                bam_samtools.id,
+                star_alignment.id,
+            ],
+            'advanced': {
+                'dirs': True,
+                'config': True,
+            }
+        })
+        self.assertFileExists(multiqc, 'report')
