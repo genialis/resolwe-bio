@@ -1,5 +1,6 @@
 python3-setuptools
 python3-wheel
+seqtk
 zip
 
 # Required by FastQC

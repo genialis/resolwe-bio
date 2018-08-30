@@ -1,0 +1,83 @@
+############################
+# MultiQC Configuration File
+############################
+
+# Cleaning options for sample names. Typically, sample names are detected
+# from an input filename. If any of these strings are found, they and any
+# text to their right will be discarded.
+# For example - file1.fq.gz_trimmed.bam_deduplicated_fastqc.zip
+# would be cleaned to 'file1'
+# Two options here - fn_clean_exts will remove the defaults,
+# extra_fn_clean_exts will append to the defaults
+extra_fn_clean_exts:
+    - .gz
+    - .fastq
+    - .fq
+    - .bam
+    - .sam
+    - .sra
+    - _tophat
+    - _star_aligned
+    - _fastqc
+    - _preprocessed
+    - _downsampled
+    - .rRNA
+
+# Opt-out of remotely checking that you're running the latest version
+no_version_check: True
+
+# Specify a custom logo to add to reports
+custom_logo: '/opt/resolwebio/assets/Genialis-full-logo-Black.png'
+custom_logo_url: 'https://www.genialis.com'
+custom_logo_title: 'Genialis, Inc.'
+intro_text: 'Aggregated (multi) sample QC report.'
+
+# Disable specific columns in General statistics table
+table_columns_visible:
+    picard:
+        PCT_RIBOSOMAL_BASES: False
+
+# Set the order of modules in QC report
+module_order:
+    - fastqc:
+        name: 'FastQC (raw)'
+        path_filters:
+          - '*_fastqc.zip'
+        path_filters_exclude:
+          - '*_preprocessed_fastqc.zip'
+          - '*_downsampled_fastqc.zip'
+    - fastqc:
+        name: 'FastQC (trimmed)'
+        info: 'This section of the report shows FastQC results after QC trimming.'
+        path_filters:
+            - '*_preprocessed_fastqc.zip'
+    - fastqc:
+        name: 'FastQC (downsampled)'
+        info: 'This section of the report shows FastQC results after downsampling.'
+        path_filters:
+            - '*_downsampled_fastqc.zip'
+    - star:
+        name: 'STAR'
+        path_filters_exclude:
+          - '*.rRNA.Log.final.out'
+          - '*.globin.Log.final.out'
+    - star:
+        name: 'STAR (rRNA)'
+        info: >
+          This section of the report shows the level of rRNA contamination in the sample.
+          Input reads are sub-sampled and aligned to the rRNA reference.
+          Mapping rate shows the ratio of rRNA-derived reads in the sample.
+        path_filters:
+          - '*.rRNA.Log.final.out'
+    - star:
+        name: 'STAR (Globin)'
+        info: >
+          This section of the report shows the level of globin-derived
+          sequences in the sample. Input reads are sub-sampled and aligned to the
+          globin reference sequence(s). Mapping rate shows the ratio of globin-derived
+          reads in the sample.
+        path_filters:
+          - '*.globin.Log.final.out'
+    - samtools
+    - featureCounts
+    - picard
