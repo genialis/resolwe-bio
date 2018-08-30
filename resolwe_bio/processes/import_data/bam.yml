@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.2
+  version: 1.2.0
   type: data:alignment:bam:upload
   flow_collection: sample
   category: Import
@@ -59,6 +59,9 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: stats
+      label: Alignment statistics
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -94,10 +97,14 @@
             re-checkrc
         fi
 
+        samtools flagstat "${NAME}.bam" > "${NAME}_stats.txt"
+        re-checkrc "Samtools flagstat command failed."
+
         re-save-file bam "${NAME}.bam"
         re-save-file bai "${NAME}.bam.bai"
-        re-save species {{species}}
-        re-save build {{build}}
+        re-save-file stats "${NAME}_stats.txt"
+        re-save species {{ species }}
+        re-save build {{ build }}
 
 - slug: upload-bam-indexed
   name: BAM file and index
@@ -105,12 +112,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.1
+  version: 1.2.0
   type: data:alignment:bam:upload
   category: Import
   flow_collection: sample
@@ -161,6 +168,9 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: stats
+      label: Alignment statistics
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -172,16 +182,20 @@
     language: bash
     program: |
         re-import {{ src.file_temp }} {{ src.file }} "bam" "bam" 0.3 extract
-        BAM_NAME=${NAME}.bam
+        BAM_NAME="${NAME}"
 
         re-import {{ src2.file_temp|default(src2.file) }} {{ src2.file }} "bai" "bai" 0.3 extract
-        BAI_NAME=${NAME}.bai
+        BAI_NAME="${NAME}.bai"
 
-        if [ "${BAM_NAME}.bai" = "${BAI_NAME}" ]; then
-          re-save-file bam "${BAM_NAME}"
+        if [ "${BAM_NAME}.bam.bai" = "${BAI_NAME}" ]; then
+          samtools flagstat "${BAM_NAME}.bam" > "${BAM_NAME}_stats.txt"
+          re-checkrc "Samtools flagstat command failed."
+
+          re-save-file bam "${BAM_NAME}.bam"
           re-save-file bai "${BAI_NAME}"
-          re-save species {{species}}
-          re-save build {{build}}
+          re-save-file stats "${BAM_NAME}_stats.txt"
+          re-save species {{ species }}
+          re-save build {{ build }}
         else
           re-error "BAI should have the same name as BAM with .bai extension"
         fi
@@ -192,12 +206,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:1.1.0
+        image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.1.1
+  version: 0.2.0
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import
@@ -236,6 +250,9 @@
     - name: bai
       label: Index BAI
       type: basic:file
+    - name: stats
+      label: Alignment statistics
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -252,7 +269,11 @@
         re-checkrc
         re-progress 0.8
 
+        samtools flagstat "${NAME}.bam" > "${NAME}_stats.txt"
+        re-checkrc "Samtools flagstat command failed."
+
         re-save-file bam "${NAME}.bam"
         re-save-file bai "${NAME}.bam.bai"
-        re-save species {{species}}
-        re-save build {{build}}
+        re-save-file stats "${NAME}_stats.txt"
+        re-save species {{ species }}
+        re-save build {{ build }}

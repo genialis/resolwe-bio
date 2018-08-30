@@ -29,6 +29,8 @@ Changed
 * Speed-up management command for inserting mappings
 * Change location of cufflinks to Google Drive for resolwebio/rnaseq Docker
   build
+- Calculate alignment statistics for the uploaded alignment (.bam) file in the
+  ``upload-bam``, ``upload-bam-indexed`` and ``upload-bam-secondary`` processes.
 
 Added
 -----
