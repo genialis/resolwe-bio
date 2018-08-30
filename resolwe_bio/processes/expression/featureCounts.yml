@@ -459,9 +459,13 @@
         {% endif %}
       {% endif %}
 
+      # Avoid reporting the full path to the alignment (.bam) file in the counts summary file.
+      # This is to prevent the FeatureCounts results to be reported as a separate sample in the MultiQC report
+      ln -s {{ alignment.aligned_reads.bam.file }} {{ alignment.aligned_reads.bam.file | basename }}
+
       {% if alignment.assay_type == 'auto' %}
         . detect_strandedness.sh \
-          {{ alignment.aligned_reads.bam.file }} \
+          {{ alignment.aligned_reads.bam.file | basename }} \
           {{ alignment.n_reads }} \
           {{ alignment.cdna_index.index.dir }} \
           {{ requirements.resources.cores }} \
@@ -478,7 +482,7 @@
          if annotation.annotation|type|subtype('data:annotation:gtf')
          else 'gff3' %}
 
-      if [[ $(samtools view -c -f 1 {{ alignment.aligned_reads.bam.file }}) == 0 ]]
+      if [[ $(samtools view -c -f 1 {{ alignment.aligned_reads.bam.file | basename }}) == 0 ]]
       then
         featureCounts \
           -a {{ annotation.annotation.annot.file }} \
@@ -515,7 +519,7 @@
           {% if advanced.miscellaneous.report_reads %} -R CORE {% endif %} \
           --maxMOp {{ advanced.miscellaneous.max_mop }} \
           {% if advanced.miscellaneous.verbose %} --verbose {% endif %} \
-          {{ alignment.aligned_reads.bam.file }}
+          {{ alignment.aligned_reads.bam.file | basename }}
       else
         featureCounts \
           -a {{ annotation.annotation.annot.file }} \
@@ -559,7 +563,7 @@
           {% if advanced.miscellaneous.report_reads %} -R CORE {% endif %} \
           --maxMOp {{ advanced.miscellaneous.max_mop }} \
           {% if advanced.miscellaneous.verbose %} --verbose {% endif %} \
-          {{ alignment.aligned_reads.bam.file }}
+          {{ alignment.aligned_reads.bam.file | basename }}
       fi
       re-checkrc "featureCounts failed"
 
