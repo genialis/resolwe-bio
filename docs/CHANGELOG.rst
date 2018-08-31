@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+* **BACKWARD INCOMPATIBLE:** Require Resolwe 12.x
 * **BACKWARD INCOMPATIBLE:** Remove obsolete processes: ``assembler-abyss``,
   ``cutadapt-amplicon``, ``feature_location``, ``microarray-affy-qc``,
   ``reads-merge``, ``reference_compatibility``, ``transmart-expressions``,
