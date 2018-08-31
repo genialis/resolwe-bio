@@ -10,7 +10,7 @@ species="$5"
 
 BAM_SEQUENCES=`samtools view -c "${bam_file}"`
 if [ "${BAM_SEQUENCES}" == 0 ]; then
-  re-error "Bam file has no entries. No bigWig file will be made."
+  re-warning "Bam file has no entries. No bigWig file will be made."
   exit 0
 fi
 

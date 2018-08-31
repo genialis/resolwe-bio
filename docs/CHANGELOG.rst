@@ -34,7 +34,8 @@ Changed
 - Annotation (GTF/GFF3) file input is now optional for the creation of the
   STAR genome index files. Annotation file can be used at the alignment stage
   to supplement the genome indices with the set of known features.
-
+- Trigger process warning instead of process error in the case when
+  ``bamtobigwig.sh`` scripts detects an empty .bam file.
 
 Added
 -----
