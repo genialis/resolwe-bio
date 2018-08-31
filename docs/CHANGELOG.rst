@@ -51,6 +51,10 @@ Added
   ratio of the input file.
 - Add MultiQC analysis step to the ``workflow-bbduk-star-featurecounts-single``
   and ``workflow-bbduk-star-featurecounts-single`` processes.
+- Add ``workflow-bbduk-star-featurecounts-qc-single`` and
+  ``workflow-bbduk-star-featurecounts-qc-paired`` processes which support
+  MultiQC analysis, input reads down-sampling (using Seqtk) and rRNA
+  sequence detection using STAR aligner.
 
 Fixed
 -----

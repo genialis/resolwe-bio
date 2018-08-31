@@ -102,19 +102,43 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(workflow, 'species', 'Homo sapiens')
 
     @with_resolwe_host
-    @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired')
+    @tag_process('workflow-bbduk-star-featurecounts-single', 'workflow-bbduk-star-featurecounts-paired',
+                 'workflow-bbduk-star-featurecounts-qc-single', 'workflow-bbduk-star-featurecounts-qc-paired')
     def test_bbduk_star_featurecounts_workflow(self):
         with self.preparation_stage():
             reads = self.prepare_reads(['hs sim_reads_single.fastq.gz'])
             paired_reads = self.prepare_paired_reads(['hs sim_reads1.fastq.gz'], ['hs sim_reads2.fastq.gz'])
-            annotation = self.prepare_annotation('hs annotation.gtf.gz')
-            star_index_fasta = self.prepare_adapters('hs genome.fasta.gz')
+            annotation = self.prepare_annotation(
+                fn='hs annotation.gtf.gz',
+                source='ENSEMBL',
+                species='Homo sapiens',
+                build='ens90',
+            )
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'hs genome.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens90',
+            })
             inputs = {
                 'annotation': annotation.id,
                 'genome2': star_index_fasta.id,
             }
             star_index = self.run_process('alignment-star-index', inputs)
             adapters = self.prepare_adapters()
+
+            rrna_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'Homo_sapiens_rRNA.fasta.gz',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'rRNA',
+            })
+            rrna_star_index = self.run_process('alignment-star-index', {
+                'genome2': rrna_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
 
         inputs = {
             'preprocessing': {
@@ -132,15 +156,49 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.run_process('workflow-bbduk-star-featurecounts-single', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
-        workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'feature_counts_rc_single.tab.gz', compression='gzip')
+        feature_counts = Data.objects.get(process__slug='feature_counts')
+        self.assertFile(feature_counts, 'rc', 'feature_counts_rc_single.tab.gz', compression='gzip')
+        multiqc = Data.objects.get(process__slug='multiqc')
+        self.assertFileExists(multiqc, 'report')
 
         inputs['preprocessing']['reads'] = paired_reads.id
         self.run_process('workflow-bbduk-star-featurecounts-paired', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
-        workflow = Data.objects.last()
-        self.assertFile(workflow, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
+        feature_counts = Data.objects.filter(process__slug='feature_counts').last()
+        self.assertFile(feature_counts, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
+        multiqc = Data.objects.filter(process__slug='multiqc').last()
+        self.assertFileExists(multiqc, 'report')
+
+        inputs = {
+            'preprocessing': {
+                'reads': reads.id,
+                'adapters': [adapters.id],
+                'custom_adapter_sequences': ['ACTGACTGACTG', 'AAACCCTTT'],
+            },
+            'alignment': {
+                'genome': star_index.id,
+            },
+            'quantification': {
+                'annotation': annotation.id,
+            },
+            'qc': {
+                'rrna_reference': rrna_star_index.id,
+            }
+        }
+
+        self.run_process('workflow-bbduk-star-featurecounts-qc-single', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug='feature_counts').last()
+        self.assertFile(feature_counts, 'rc', 'feature_counts_rc_single.tab.gz', compression='gzip')
+
+        inputs['preprocessing']['reads'] = paired_reads.id
+        self.run_process('workflow-bbduk-star-featurecounts-qc-paired', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug='feature_counts').last()
+        self.assertFile(feature_counts, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
 
     @with_resolwe_host
     @tag_process('workflow-custom-cutadapt-star-htseq-single', 'workflow-custom-cutadapt-star-htseq-paired')
