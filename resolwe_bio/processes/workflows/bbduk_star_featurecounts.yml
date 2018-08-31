@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.1
+  version: 1.2.0
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
   description: >
@@ -424,13 +424,21 @@
             feature_class: '{{ input.quantification.feature_class }}'
             feature_type: '{{ input.quantification.feature_type }}'
             id_attribute: '{{ input.quantification.id_attribute }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [input.preprocessing.reads, steps.preprocessing, steps.alignment, steps.quantification] }}'
+          advanced:
+            dirs: true
+            config: true
+
 
 - slug: workflow-bbduk-star-featurecounts-paired
   name: BBDuk - STAR - featureCounts (paired-end)
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.1
+  version: 1.2.0
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
   description: >
@@ -853,3 +861,10 @@
             feature_class: '{{ input.quantification.feature_class }}'
             feature_type: '{{ input.quantification.feature_type }}'
             id_attribute: '{{ input.quantification.id_attribute }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [input.preprocessing.reads, steps.preprocessing, steps.alignment, steps.quantification] }}'
+          advanced:
+            dirs: true
+            config: true

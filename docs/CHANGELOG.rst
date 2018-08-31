@@ -49,6 +49,8 @@ Added
 - Add process for the Seqtk tool ``sample`` sub-command. This process allows
   sub-sampling of ``.fastq`` files using either a fixed number of reads or the
   ratio of the input file.
+- Add MultiQC analysis step to the ``workflow-bbduk-star-featurecounts-single``
+  and ``workflow-bbduk-star-featurecounts-single`` processes.
 
 Fixed
 -----
