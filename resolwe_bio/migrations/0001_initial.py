@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('flow', '0006_data_named_by_user'),
+        ('flow', '0001_squashed_0030_change_slug_field'),
     ]
 
     operations = [

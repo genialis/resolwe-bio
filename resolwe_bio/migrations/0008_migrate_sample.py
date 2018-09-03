@@ -59,7 +59,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('resolwe_bio', '0007_sample_descriptor_dirty'),
-        ('flow', '0021_entity_descriptor_completed'),
     ]
 
     operations = [

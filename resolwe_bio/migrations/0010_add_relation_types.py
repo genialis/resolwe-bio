@@ -13,7 +13,6 @@ def load_relation_types(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flow', '0024_add_relations'),
         ('resolwe_bio', '0009_delete_sample'),
     ]
 
