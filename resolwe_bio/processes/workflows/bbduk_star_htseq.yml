@@ -11,7 +11,7 @@
     alignment, and quantification.
 
     First, reads are preprocessed by __BBDuk__ which removes adapters, trims
-    reads for quality from the 3‚Äô-end, and discards reads that are too short
+    reads for quality from the 3'-end, and discards reads that are too short
     after trimming. Compared to similar tools, BBDuk is regarded for its
     computational efficiency.  Next, preprocessed reads are aligned by __STAR__
     aligner. At the time of implementation, STAR is considered a
@@ -104,7 +104,7 @@
     alignment, and quantification.
 
     First, reads are preprocessed by __BBDuk__ which removes adapters, trims
-    reads for quality from the 3‚Äô-end, and discards reads that are too short
+    reads for quality from the 3'-end, and discards reads that are too short
     after trimming. Compared to similar tools, BBDuk is regarded for its
     computational efficiency.  Next, preprocessed reads are aligned by __STAR__
     aligner. At the time of implementation, STAR is considered a
