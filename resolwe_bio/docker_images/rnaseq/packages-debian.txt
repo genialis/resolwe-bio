@@ -5,6 +5,7 @@ file
 picard-tools
 python-pip
 r-base-core
+tabix
 tophat
 
 # Required by FastQC
