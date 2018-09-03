@@ -7,6 +7,7 @@ Included bioinformatics tools:
 ------------------------------
 * affy (v1.56.0)
 * BBMap (v37.90)
+* bedToBigBed (kent-v364)
 * Bedtools (2.27.1)
 * Bowtie (v1.2.2)
 * Bowtie2 (v2.3.4.1)

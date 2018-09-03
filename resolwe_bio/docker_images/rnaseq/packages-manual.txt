@@ -1,4 +1,5 @@
 bbmap
+bedtobigbed
 bedtools
 chrom-mappings
 cufflinks

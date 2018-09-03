@@ -36,6 +36,7 @@ Added
   ``resolwebio/utils:1.5.0`` Docker image
 - Add ``sample2`` descriptor schema which is the successor of the original
   ``sample`` and ``reads`` descriptor schemas
+- Add bedToBigBed to resolwebio/rnaseq:3.7.0 docker image
 
 Fixed
 -----
