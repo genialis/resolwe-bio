@@ -27,6 +27,8 @@ Changed
 * Update the meta data like name, description, category, etc. of most of the
   processes.
 * Speed-up management command for inserting mappings
+* Change location of cufflinks to Google Drive for resolwebio/rnaseq Docker
+  build
 
 Added
 -----

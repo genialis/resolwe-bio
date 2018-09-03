@@ -7,8 +7,9 @@ download_and_verify \
     cufflinks \
     2.2.1 \
     9615bba771e6c89546644c653a99127e49c4453396f2cc7f98b6363c157bb961 \
-    'https://data2.genialis.com/f/fa3cf97573b74569a5fe/?dl=1#.tar.bz2' \
-    cufflinks
+    https://drive.google.com/uc?id=14jDS0XP4ZOd2uXf735YWUSMZyLarUIvV#.elf \
+    cufflinks \
+    cufflinks-2.2.1.tar.bz2
 
 add_binary_path \
     ctl \
