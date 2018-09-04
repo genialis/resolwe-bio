@@ -12,22 +12,22 @@ Unreleased
 
 Changed
 -------
-* **BACKWARD INCOMPATIBLE:** Require Resolwe 12.x
-* **BACKWARD INCOMPATIBLE:** Remove obsolete processes: ``assembler-abyss``,
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 12.x
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes: ``assembler-abyss``,
   ``cutadapt-amplicon``, ``feature_location``, ``microarray-affy-qc``,
   ``reads-merge``, ``reference_compatibility``, ``transmart-expressions``,
   ``upload-hmmer-db``, ``upload-mappability-bigwig``,
   ``upload-microarray-affy``.
-* **BACKWARD INCOMPATIBLE:** Remove obsolete descriptor schema: ``transmart``.
-* **BACKWARD INCOMPATIBLE:** Remove tools which are not used by any process:
+- **BACKWARD INCOMPATIBLE:** Remove obsolete descriptor schema: ``transmart``.
+- **BACKWARD INCOMPATIBLE:** Remove tools which are not used by any process:
   ``clustering_leaf_ordering.py``, ``go_genesets.py``, ``VCF_ad_extract.py``,
   ``volcanoplot.py``, ``xgff.py``, ``xgtf2gff.py``.
-* **BACKWARD INCOMPATIBLE:** Management command for inserting features and
+- **BACKWARD INCOMPATIBLE:** Management command for inserting features and
   mappings requires PostgreSQL version 9.5 or newer
-* Update the meta data like name, description, category, etc. of most of the
+- Update the meta data like name, description, category, etc. of most of the
   processes.
-* Speed-up management command for inserting mappings
-* Change location of cufflinks to Google Drive for resolwebio/rnaseq Docker
+- Speed-up management command for inserting mappings
+- Change location of cufflinks to Google Drive for resolwebio/rnaseq Docker
   build
 - Calculate alignment statistics for the uploaded alignment (.bam) file in the
   ``upload-bam``, ``upload-bam-indexed`` and ``upload-bam-secondary`` processes.
