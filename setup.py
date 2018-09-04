@@ -47,6 +47,9 @@ setup(
     zip_safe=False,
     install_requires=(
         'Django~=1.11.0',
+        # XXX: Remove django-autoslug after all migrations that import
+        # it are deleted
+        'django-autoslug==1.9.3',
         'djangorestframework~=3.7.0',
         'djangorestframework-filters~=0.10.0',
         'elasticsearch-dsl~=5.4.0',
