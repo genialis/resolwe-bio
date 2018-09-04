@@ -37,6 +37,8 @@ Added
 - Add ``sample2`` descriptor schema which is the successor of the original
   ``sample`` and ``reads`` descriptor schemas
 - Add bedToBigBed and Tabix to resolwebio/rnaseq:3.7.0 docker image
+- Add ``HS Panel`` choice option to the ``amplicon-master-file`` descriptor
+  schema
 
 Fixed
 -----

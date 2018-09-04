@@ -46,7 +46,7 @@
 
 - slug: amplicon-master-file
   name: Amplicon panel master-file information
-  version: 0.0.1
+  version: 0.0.2
   description: Panel type choice
   schema:
     - name: panel_type
@@ -58,5 +58,7 @@
       choices:
         - label: Basic
           value: basic
+        - label: HS Panel
+          value: hs_panel
         - label: Plus
           value: plus
