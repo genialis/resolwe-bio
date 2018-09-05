@@ -12,6 +12,11 @@ Unreleased
 
 Changed
 -------
+- Use ``resolwebio/chipseq:3.0.0`` docker image in the following processes:
+
+  - ``macs14``
+  - ``macs2-callpeak``
+  - ``rose2``
 
 Added
 -----

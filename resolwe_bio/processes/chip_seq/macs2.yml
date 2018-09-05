@@ -9,10 +9,10 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:2.1.0
+        image: resolwebio/chipseq:3.0.0
   data_name: "{{ case.bam.file|basename|default('?') }}"
-  version: 1.1.1
   type: data:chipseq:macs2:callpeak
+  version: 1.1.2
   category: ChIP-Seq:Call Peaks
   flow_collection: sample
   persistence: CACHED
