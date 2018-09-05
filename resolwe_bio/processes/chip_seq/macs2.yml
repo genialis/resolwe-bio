@@ -12,7 +12,7 @@
         image: resolwebio/chipseq:3.0.0
   data_name: "{{ case.bam.file|basename|default('?') }}"
   type: data:chipseq:macs2:callpeak
-  version: 1.2.0
+  version: 2.0.0
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
   description: >
@@ -54,23 +54,6 @@
     - name: settings
       label: Settings
       group:
-        - name: gsize
-          label: Mappable genome size
-          type: basic:string
-          choices:
-            - label: "hs"
-              value: "2.7e9"
-            - label: "mm"
-              value: "1.87e9"
-            - label: "Dicty"
-              value: "3.4e7"
-          required: false
-          description: >
-            It's the mappable genome size or effective genome size which is defined as the genome
-            size which can be sequenced. Because of the repetitive features on the chromsomes, the
-            actual mappable genome size will be smaller than the original size, about 90% or 70%
-            of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is
-            recommended for Dicty genome.
         - name: duplicates
           label: Number of duplicates
           type: basic:string
@@ -442,7 +425,19 @@
         ] | join('\t')
       %}
 
+      {% set species_to_gsize = {
+        'Homo sapiens': '2.7e9',
+        'Mus musculus': '1.87e9',
+        'Dictyostelium discoideum': '3.4e7',
+        'Drosophila melanogaster': '1.2e8',
+        'Caenorhabditis elegans': '9e7',
+        'Rattus norvegicus': '2e9',
+        }
+      %}
 
+      {% set gsize = species_to_gsize[case.species] %}
+      {% if not gsize %}
+        re-error "Species {{ case.species }} is not supported by the MACS 2.0 process. Supported species are: {{ species_to_gsize.keys() | join(', ') }}"
       {% endif %}
 
       re-progress 0.1

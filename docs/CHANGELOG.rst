@@ -12,6 +12,8 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Remove ``gsize`` input from
+  ``macs2-callpeak`` process and automate genome size selection
 - Use ``resolwebio/chipseq:3.0.0`` docker image in the following processes:
 
   - ``macs14``
@@ -49,7 +51,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Management command for inserting features and
   mappings requires PostgreSQL version 9.5 or newer
 - Update the meta data like name, description, category, etc. of most of the
-  processes.
+  processes
 - Speed-up management command for inserting mappings
 - Change location of cufflinks to Google Drive for resolwebio/rnaseq Docker
   build
