@@ -1,5 +1,8 @@
+bedtools
+picard-tools
 python
 python-pip
+r-base
 samtools
 tabix
 
@@ -30,5 +33,5 @@ python-software-properties
 python-tables
 python-numexpr
 
-# required for ROSE2
-r-base
+# required for SPP
+gawk

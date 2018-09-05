@@ -56,6 +56,13 @@ Added
   ``workflow-bbduk-star-featurecounts-qc-paired`` processes which support
   MultiQC analysis, input reads down-sampling (using Seqtk) and rRNA
   sequence detection using STAR aligner.
+- Add to ``resolwebio/chipseq`` Docker image:
+
+  - ``bedtools (2.25.0-1)``
+  - ``gawk (1:4.1.3+dfsg-0.1)``
+  - ``picard-tools (1.113-2)``
+  - ``run_spp.R (1.2) (as spp)``
+  - ``SPP (1.14)``
 
 Fixed
 -----
