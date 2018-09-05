@@ -1,0 +1,278 @@
+# =====================
+# ChIP-Seq - Prepeak QC
+# =====================
+---
+
+- slug: qc-prepeak
+  name: Pre-peakcall QC
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/chipseq:3.0.0
+    resources:
+      memory: 16384
+      cores: 10
+  data_name: "{{ alignment.bam.file|basename|default('?') }}"
+  version: 0.0.1
+  type: data:prepeakqc
+  category: ChIP-Seq:QC report
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    ChIP-Seq and ATAC-Seq QC metrics. Process returns a QC metrics report, fragment length
+    estimation, and a deduplicated tagAlign file. Both fragment length estimation and the tagAlign
+    file can be used as inputs in MACS 2.0. QC report contains ENCODE 3 proposed QC metrics --
+    [NRF, PBC bottlenecking coefficients](https://www.encodeproject.org/data-standards/terms/),
+    [NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq).
+  input:
+    - name: alignment
+      label: Aligned reads
+      type: data:alignment:bam
+    - name: q_treshold
+      label: Quality filtering treshold
+      type: basic:integer
+      default: 30
+    - name: n_sub
+      label: Number of reads to subsample
+      type: basic:integer
+      default: 15000000
+    - name: tn5
+      label: TN5 shifting
+      type: basic:boolean
+      default: false
+      description: >
+        Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
+  output:
+    - name: chip_qc
+      label: QC report
+      type: basic:file
+    - name: tagalign
+      label: Filtered tagAlign
+      type: basic:file
+    - name: fraglen
+      label: Fragnment length
+      type: basic:integer
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME=`basename {{ alignment.bam.file }} .bam`
+
+      {% set pbc_header = [
+        'Total Reads',
+        'Distinct Reads',
+        'One Read',
+        'Two Reads',
+        'NRF',
+        'PBC1',
+        'PBC2',
+        ] | join('\t')
+      %}
+
+      {% set spp_header = [
+        '',
+        'Reads',
+        'Est. Fragment Len.',
+        'Corr. Est. Fragment Len.',
+        'Phantom Peak',
+        'Corr. Phantom Peak',
+        'Argmin. Corr.',
+        'Min. Corr.',
+        'NSC',
+        'RSC',
+        'Quality Tag',
+        ] | join('\t')
+      %}
+
+      # Get alignment metrics
+      echo -e "TOTAL_READS\tMAPPED_READS\tMAPPED_PERCENTAGE" > align_metrics.txt
+      {% if alignment|type|subtype('data:alignment:bam:bwamem') %}
+        sed -n '1p;5p' {{ alignment.stats.file }} | \
+        paste -s | \
+        tr -d '(' | \
+        tr ' ' '\t' | \
+        cut -f 1,11,15 >> align_metrics.txt
+      {% else %}
+        samtools flagstat {{ alignment.bam.file }} | \
+        sed -n '1p;3p' | \
+        paste -s | \
+        tr -d '(' | \
+        tr ':' ' ' | \
+        tr ' ' '\t' | \
+        cut -f 1,11,15 >> align_metrics.txt
+      {% endif %}
+
+      # Single-end reads
+      if [ $(samtools view -c -f 1 {{ alignment.bam.file }}) -eq 0 ]; then
+
+        # Remove unmapped reads, not primary alignments, and reads below minimum mapping quality
+        samtools view -F 1804 -q {{ q_treshold }} -b {{ alignment.bam.file }} > "${NAME}_filtered.bam"
+        re-checkrc "Samtools filtering failed"
+        re-progress 0.1
+
+        # Mark duplicate reads
+        picard-tools MarkDuplicates \
+          INPUT="${NAME}_filtered.bam" \
+          OUTPUT="${NAME}_filtered_tmp.bam" \
+          METRICS_FILE="${NAME}_duplicates_metrics.txt" \
+          VALIDATION_STRINGENCY=LENIENT \
+          ASSUME_SORTED=true \
+          REMOVE_DUPLICATES=false
+        re-checkrc "picard-tools MarkDuplicates processing failed"
+        re-progress 0.3
+
+        # Get PBC bottlenecking metrics
+        bedtools bamtobed -i "${NAME}_filtered_tmp.bam" | \
+        awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$6}' | \
+        grep -v 'chrM' | \
+        sort | \
+        uniq -c | \
+        awk '
+          BEGIN{mt=0;m0=0;m1=0;m2=0} ($1==1){m1=m1+1} ($1==2){m2=m2+1} {m0=m0+1} {mt=mt+$1}
+          END{printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2}
+        ' | \
+        cat <(echo -e {{ pbc_header }}) - > "${NAME}_pbc_qc.txt"
+        re-checkrc "PBC QC failed"
+        re-progress 0.4
+
+        # Remove unmapped reads, not primary alignments, and duplicate reads
+        samtools view -F 1804 -b "${NAME}_filtered_tmp.bam" > "${NAME}_filtered.bam"
+        re-checkrc "Samtools filtering failed"
+        re-progress 0.5
+
+        # Transform deduplicated bam to tagAlign
+        bedtools bamtobed -i "${NAME}_filtered.bam" | \
+        awk 'BEGIN{OFS="\t"}{$4="N";$5="1000";print $0}' > "${NAME}.tagAlign"
+        re-checkrc "Conversion to tagAlign failed"
+        re-progress 0.6
+
+        # Subsample tagAlign
+        grep -v “chrM” "${NAME}.tagAlign" | \
+        shuf -n {{ n_sub }} --random-source="${NAME}.tagAlign" | \
+        gzip -nc > "${NAME}_subsampled.tagAlign.gz"
+        re-checkrc "Subsampling failed"
+        re-progress 0.7
+
+      # Paired-end reads
+      else
+
+        # Remove unmapped reads, unmaped mates, not primary alignments, reads below minimum
+        # mapping quality, and reads not mapped in proper pair
+        # Sort by name for fixmate
+        samtools view -F 1804 -f 2 -q {{ q_treshold }} -u {{ alignment.bam.file }} | \
+        samtools sort -n - "${NAME}_filtered" 
+        re-checkrc "Samtools filtering and sorting failed"
+        re-progress 0.1
+
+        # Fill in mate coordinates, ISIZE and mate related flags from a name-sorted alignment
+        samtools fixmate -r "${NAME}_filtered.bam" "${NAME}_filtered_tmp.bam"
+        re-checkrc "Samtools fixmate failed"
+        re-progress 0.2
+
+        # Remove unmapped reads, unmaped mates, not primary alignments, and reads not mapped in
+        # proper pair
+        # Sort by position
+        samtools view -F 1804 -f 2 -b "${NAME}_filtered_tmp.bam" | \
+        samtools sort - "${NAME}_filtered"
+        re-checkrc "Samtools filtering and sorting failed"
+        re-progress 0.3
+
+        # Mark duplicate reads
+        picard-tools MarkDuplicates \
+          INPUT="${NAME}_filtered.bam" \
+          OUTPUT="${NAME}_filtered_tmp.bam" \
+          METRICS_FILE="${NAME}_duplicates_metrics.txt" \
+          VALIDATION_STRINGENCY=LENIENT \
+          ASSUME_SORTED=true \
+          REMOVE_DUPLICATES=false
+        re-checkrc "picard-tools MarkDuplicates processing failed"
+        re-progress 0.3
+
+        # Name sort for PBC bottlenecking calculation
+        samtools sort -n "${NAME}_filtered_tmp.bam" "${NAME}_filtered"
+        re-checkrc "Samtools sorting failed"
+        re-progress 0.4
+
+        # Get PBC bottlenecking metrics
+        bedtools bamtobed -bedpe -i "${NAME}_filtered.bam" | \
+        awk 'BEGIN{OFS="\t"}{print $1,$2,$4,$6,$9,$10}' | \
+        grep -v 'chrM' | \
+        sort | \
+        uniq -c | \
+        awk '
+          BEGIN{mt=0;m0=0;m1=0;m2=0} ($1==1){m1=m1+1} ($1==2){m2=m2+1} {m0=m0+1} {mt=mt+$1}
+          END{printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2}
+        ' | \
+        cat <(echo -e {{ pbc_header }}) - > "${NAME}_pbc_qc.txt"
+        re-checkrc "PBC QC failed"
+        re-progress 0.5
+
+        # Remove unmapped reads, unmaped mates, not primary alignments, reads not mapped in proper
+        # pair, and duplicate reads
+        samtools view -F 1804 -f 2 -u "${NAME}_filtered.bam" | \
+        samtools sort -n - "${NAME}_filtered_tmp"
+        re-checkrc "Samtools filtering and sorting failed"
+        re-progress 0.6
+
+        # Transform deduplicated bam to tagAlign
+        bedtools bamtobed -bedpe -mate1 -i "${NAME}_filtered_tmp.bam" | \
+        awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\tN\t1000\t%s\n%s\t%s\t%s\tN\t1000\t%s\n",$1,$2,$3,$9,$4,$5,$6,$10}' > "${NAME}.tagAlign"
+        re-checkrc "Conversion to tagAlign failed"
+        re-progress 0.7
+
+        # Subsample tagAlign
+        grep -v “chrM” "${NAME}.tagAlign" | \
+        shuf -n {{ n_sub }} --random-source="${NAME}.tagAlign" | \
+        sed 'N;s/\\n/\\t/' | \
+        awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6}' | \
+        gzip -nc > "${NAME}_subsampled.tagAlign.gz"
+        re-checkrc "Subsampling failed"
+        re-progress 0.8
+
+      fi
+
+      # Get cross-corelation metrics (NSC, RSC, fragment length...)
+      spp \
+        -c="${NAME}_subsampled.tagAlign.gz" \
+        -p={{requirements.resources.cores}} \
+        -filtchr=chrM \
+        -out="${NAME}_cc_score.txt"
+      re-checkrc "SPP processing failed"
+      re-progress 0.9
+
+      # Collect metrics from all the reports and put them in one report
+      sed -r 's/,[^\t]+//g' "${NAME}_cc_score.txt" > "${NAME}_cc_score_tmp.txt"
+
+      echo -e {{ spp_header }} | cat - "${NAME}_cc_score_tmp.txt" > "${NAME}_cc_score.txt"
+
+      grep -e UNPAIRED_READS_EXAMINED -A 1 "${NAME}_duplicates_metrics.txt" > "${NAME}_duplicates_metrics_tmp.txt"
+
+      paste align_metrics.txt "${NAME}_duplicates_metrics_tmp.txt" "${NAME}_pbc_qc.txt" "${NAME}_cc_score.txt" | \
+      cut -f 1,2,3,5,6,8,11,17,18,19,28,29 > "${NAME}_prepeak_qc_report.txt"
+
+      # Tn5 transposon shifting
+      {% if tn5 %}
+        awk -F $'\t' 'BEGIN {OFS = FS}{
+          if ($6 == "+") {$2 = $2 + 4}
+          else if ($6 == "-") {$3 = $3 - 5} print $0
+        }' "${NAME}.tagAlign" | gzip -c > "${NAME}_tn5.tagAlign.gz"
+      {% endif %}
+
+      gzip "${NAME}.tagAlign"
+
+      re-save-file chip_qc "${NAME}_prepeak_qc_report.txt"
+      re-save fraglen $(cut "${NAME}_cc_score_tmp.txt" -f 3)
+      {% if tn5 %}
+        re-save-file tagalign "${NAME}_tn5.tagAlign.gz"
+      {% else %}
+        re-save-file tagalign "${NAME}.tagAlign.gz"
+      {% endif %}
+      re-save build {{ alignment.build }}
+      re-save species {{ alignment.species }}

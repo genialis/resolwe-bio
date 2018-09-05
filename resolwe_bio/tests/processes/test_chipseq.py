@@ -128,3 +128,49 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             return line.startswith(b'#Created')
 
         self.assertFile(rose2, 'all_enhancers', 'rose2_enhancer_table.txt', file_filter=filter_created)
+
+    @tag_process('qc-prepeak')
+    def test_qc_prepeak(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'prepeak_se.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            bam = self.run_process("upload-bam", inputs)
+
+        inputs = {
+            "alignment": bam.id,
+            'n_sub': 7000,
+            'q_treshold': 25,
+            'tn5': True,
+        }
+        prepeak = self.run_process("qc-prepeak", inputs)
+
+        self.assertFields(prepeak, 'species', 'Homo sapiens')
+        self.assertFields(prepeak, 'build', 'hg19')
+        self.assertFields(prepeak, 'fraglen', 215)
+        self.assertFile(prepeak, 'chip_qc', 'prepeak_se_qc_report.txt')
+        self.assertFileExists(prepeak, 'tagalign')
+
+        with self.preparation_stage():
+            inputs = {
+                'src': 'prepeak_pe.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            bam = self.run_process("upload-bam", inputs)
+
+        inputs = {
+            "alignment": bam.id,
+            'n_sub': 7000,
+            'q_treshold': 25,
+            'tn5': True,
+        }
+        prepeak = self.run_process("qc-prepeak", inputs)
+
+        self.assertFields(prepeak, 'species', 'Homo sapiens')
+        self.assertFields(prepeak, 'build', 'hg19')
+        self.assertFields(prepeak, 'fraglen', 225)
+        self.assertFile(prepeak, 'chip_qc', 'prepeak_pe_qc_report.txt')
+        self.assertFileExists(prepeak, 'tagalign')

@@ -20,6 +20,8 @@ Changed
 
 Added
 -----
+- Add ``qc-prepeak`` process that reports ENCODE3 accepted ChIP-seq and
+  ATAC-seq QC metrics
 
 Fixed
 -----
