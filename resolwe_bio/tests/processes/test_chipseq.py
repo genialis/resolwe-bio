@@ -81,6 +81,48 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(macs14, 'summits_tbi_jbrowse', 'macs14_summits.gz.tbi')
         self.assertFile(macs14, 'treat_bigwig', 'macs14_treat.bw')
 
+    @tag_process('macs2-callpeak')
+    def test_macs2(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'macs2_case.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            case_bam = self.run_process("upload-bam", inputs)
+
+            inputs = {
+                'src': 'promoters_chr21_subregion.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            promoters = self.run_process('upload-bed', inputs)
+
+        inputs = {
+            'case': case_bam.id,
+            'promoter': promoters.id,
+            'settings': {
+                'extsize': 298,
+                'nomodel': True,
+                'bedgraph': True,
+            }
+        }
+        macs2 = self.run_process("macs2-callpeak", inputs)
+
+        self.assertFields(macs2, 'species', 'Homo sapiens')
+        self.assertFields(macs2, 'build', 'hg19')
+        self.assertFile(macs2, 'chip_qc', 'postpeak_qc_report.txt')
+        self.assertFileExists(macs2, 'called_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks_bigbed_igv_ucsc')
+        self.assertFileExists(macs2, 'summits')
+        self.assertFileExists(macs2, 'summits_tbi_jbrowse')
+        self.assertFileExists(macs2, 'summits_bigbed_igv_ucsc')
+        self.assertFileExists(macs2, 'treat_pileup')
+        self.assertFileExists(macs2, 'treat_pileup_bigwig')
+        self.assertFileExists(macs2, 'control_lambda')
+        self.assertFileExists(macs2, 'control_lambda_bigwig')
+
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     @tag_process('rose2')
     def test_rose2(self):

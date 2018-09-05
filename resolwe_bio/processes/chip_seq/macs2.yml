@@ -12,9 +12,8 @@
         image: resolwebio/chipseq:3.0.0
   data_name: "{{ case.bam.file|basename|default('?') }}"
   type: data:chipseq:macs2:callpeak
-  version: 1.1.2
+  version: 1.2.0
   category: ChIP-Seq:Call Peaks
-  flow_collection: sample
   persistence: CACHED
   description: >
     Model-based Analysis of ChIP-Seq (MACS 2.0), is used to identify transcript
@@ -32,6 +31,26 @@
       label: Control
       type: data:alignment:bam
       required: false
+    - name: case_prepeak
+      label: Case prepeak QC
+      type: data:prepeakqc
+      required: false
+      description: >
+        If provided MACS2 will use the input's fragment length estimation and filtered tagAlign
+        file as case/treatment.
+    - name: control_prepeak
+      label: Control prepeak QC
+      type: data:prepeakqc
+      required: false
+      description: >
+        If provided MACS2 will use the input's filtered tagAlign file as control.
+    - name: promoter
+      label: Promoter regions BED file
+      type: data:bed
+      required: false
+      description: >
+        BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
+        of peaks and reads mapped to promoter regions.
     - name: settings
       label: Settings
       group:
@@ -47,120 +66,264 @@
               value: "3.4e7"
           required: false
           description: >
-            It's the mappable genome size or effective genome size which is defined as the genome size which can be sequenced. Because of the repetitive features on the chromsomes, the actual mappable genome size will be smaller than the original size, about 90% or 70% of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is recommended for Dicty genome.
+            It's the mappable genome size or effective genome size which is defined as the genome
+            size which can be sequenced. Because of the repetitive features on the chromsomes, the
+            actual mappable genome size will be smaller than the original size, about 90% or 70%
+            of the genome size -- 2.7e9 is recommended for UCSC human hg18 assembly and 3.4e7 is
+            recommended for Dicty genome.
+        - name: duplicates
+          label: Number of duplicates
+          type: basic:string
+          hidden: "case_prepeak"
+          required: false
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location. The default is to keep one tag
+            at the same location.
+        - name: duplicates_prepeak
+          label: Number of duplicates
+          type: basic:string
+          hidden: "!case_prepeak"
+          default: "all"
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location.
         - name: qvalue
           label: Q-value cutoff
           type: basic:decimal
           required: false
+          disabled: "settings.pvalue"
+          disabled: "settings.pvalue_prepeak && case_prepeak"
           description: >
-            The qvalue (minimum FDR) cutoff to call significant regions. Default is 0.01. For broad marks, you can try 0.05 as cutoff. Q-values are calculated from p-values using Benjamini-Hochberg procedure.
+            The qvalue (minimum FDR) cutoff to call significant regions. Default is 0.05. Q-values
+            are calculated from p-values using Benjamini-Hochberg procedure.
         - name: pvalue
           label: P-value cutoff
           type: basic:decimal
-          placeholder: '0.001'
           required: false
+          disabled: "settings.qvalue"
+          hidden: "case_prepeak"
           description: >
             The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
+        - name: pvalue_prepeak
+          label: P-value cutoff
+          type: basic:decimal
+          disabled: "settings.qvalue"
+          hidden: "!case_prepeak"
+          required: false
+          default: 0.00001
+          description: >
+            The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
+        - name: cap_num
+          label: Cap number of peaks by taking top N peaks
+          type: basic:integer
+          default: 500000
+          disabled: "settings.broad"
+          description: >
+            To keep all peaks set value to 0.
         - name: mfold_lower
           label: MFOLD range (lower limit)
           type: basic:integer
           required: false
           description: >
-            This parameter is used to select the regions within MFOLD range of high-confidence enrichment ratio against background to build model. The regions must be lower than upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means using all regions not too low (>10) and not too high (<30) to build paired-peaks model. If MACS can not find more than 100 regions to build model, it will use the --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
         - name: mfold_upper
           label: MFOLD range (upper limit)
           type: basic:integer
           required: false
           description: >
-            This parameter is used to select the regions within MFOLD range of high-confidence enrichment ratio against background to build model. The regions must be lower than upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means using all regions not too low (>10) and not too high (<30) to build paired-peaks model. If MACS can not find more than 100 regions to build model, it will use the --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
         - name: slocal
           label: Small local region
           type: basic:integer
-          placeholder: '2000'
           required: false
           description: >
-            Slocal and llocal parameters control which two levels of regions will be checked around the peak regions to calculate the maximum lambda as local lambda. By default, MACS considers 1000bp for small local region(--slocal), and 10000bps for large local region(--llocal) which captures the bias from a long range effect like an open chromatin domain. You can tweak these according to your project. Remember that if the region is set too small, a sharp spike in the input data may kill the significant peak.
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
         - name: llocal
           label: Large local region
           type: basic:integer
           required: false
           description: >
-            Slocal and llocal parameters control which two levels of regions will be checked around the peak regions to calculate the maximum lambda as local lambda. By default, MACS considers 1000bp for small local region(--slocal), and 10000bps for large local region(--llocal) which captures the bias from a long range effect like an open chromatin domain. You can tweak these according to your project. Remember that if the region is set too small, a sharp spike in the input data may kill the significant peak.
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
         - name: extsize
           label: extsize
           type: basic:integer
-          placeholder: '100'
           required: false
           description: >
-            While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction to fix-sized fragments. For example, if the size of binding region for your transcription factor is 200 bp, and you want to bypass the model building by MACS, this parameter can be set as 200. This option is only valid when --nomodel is set or when MACS fails to build model and --fix-bimodal is on.
+            While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction
+            to fix-sized fragments. For example, if the size of binding region for your
+            transcription factor is 200 bp, and you want to bypass the model building by MACS,
+            this parameter can be set as 200. This option is only valid when --nomodel is set or
+            when MACS fails to build model and --fix-bimodal is on.
         - name: shift
           label: Shift
           type: basic:integer
           required: false
           description: >
-            Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You can set an arbitrary shift in bp here. Please Use discretion while setting it other than default value (0). When --nomodel is set, MACS will use this value to move cutting ends (5') then apply --extsize from 5' to 3' direction to extend them to fragments. When this value is negative, ends will be moved toward 3'->5' direction, otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets, or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if format is BAMPE for paired-end data. Default is 0.
+            Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You
+            can set an arbitrary shift in bp here. Please Use discretion while setting it other
+            than default value (0). When --nomodel is set, MACS will use this value to move
+            cutting ends (5') then apply --extsize from 5' to 3' direction to extend them to
+            fragments. When this value is negative, ends will be moved toward 3'->5' direction,
+            otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets,
+            or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting
+            loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if
+            format is BAMPE for paired-end data. Default is 0.
         - name: band_width
           label: Band width
           type: basic:integer
-          placeholder: '200'
           required: false
           description: >
-            The band width which is used to scan the genome ONLY for model building. You can set this parameter as the sonication fragment size expected from wet experiment. The previous side effect on the peak detection process has been removed. So this parameter only affects the model building.
+            The band width which is used to scan the genome ONLY for model building. You can set
+            this parameter as the sonication fragment size expected from wet experiment. The
+            previous side effect on the peak detection process has been removed. So this parameter
+            only affects the model building.
         - name: nolambda
           label: Use backgroud lambda as local lambda
           type: basic:boolean
           default: false
+          required: false
           description: >
-            With this flag on, MACS will use the background lambda as local lambda. This means MACS will not consider the local bias at peak candidate regions.
+            With this flag on, MACS will use the background lambda as local lambda. This means
+            MACS will not consider the local bias at peak candidate regions.
         - name: fix_bimodal
           label: Turn on the auto paired-peak model process
           type: basic:boolean
           default: false
+          required: false
           description: >
-            Whether turn on the auto paired-peak model process. If it's set, when MACS failed to build paired model, it will use the nomodel settings, the '--extsize' parameter to extend each tags. If set, MACS will be terminated if paried-peak model is failed.
+            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            to build paired model, it will use the nomodel settings, the '--extsize' parameter
+            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
         - name: nomodel
           label: Bypass building the shifting model
           type: basic:boolean
           default: false
+          required: false
+          hidden: "case_prepeak"
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: nomodel_prepeak
+          label: Bypass building the shifting model
+          type: basic:boolean
+          default: true
+          required: false
+          hidden: "!case_prepeak"
           description: >
             While on, MACS will bypass building the shifting model.
         - name: down_sample
           label: Down-sample
           type: basic:boolean
           default: false
+          required: false
           description: >
-            When set, random sampling method will scale down the bigger sample. By default, MACS uses linear scaling. This option will make the results unstable and irreproducible since each time, random reads would be selected, especially the numbers (pileup, pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs instead.
+            When set, random sampling method will scale down the bigger sample. By default, MACS
+            uses linear scaling. This option will make the results unstable and irreproducible
+            since each time, random reads would be selected, especially the numbers (pileup,
+            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
+            instead.
         - name: bedgraph
           label: Save fragment pileup and control lambda
           type: basic:boolean
           default: true
+          required: false
           description: >
-            If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in current directory named NAME+'_treat_pileup.bdg' for treatment data, NAME+'_control_lambda.bdg' for local lambda values from control, NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in -log10(pvalue) form), and NAME+'_treat_qvalue.bdg' for q-value scores from Benjamini-Hochberg-Yekutieli procedure.
+            If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue
+            and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in
+            current directory named NAME+'_treat_pileup.bdg' for treatment data,
+            NAME+'_control_lambda.bdg' for local lambda values from control,
+            NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in -log10(pvalue) form), and
+            NAME+'_treat_qvalue.bdg' for q-value scores from Benjamini-Hochberg-Yekutieli
+            procedure.
+        - name: spmr
+          label: Save signal per million reads for fragment pileup profiles
+          type: basic:boolean
+          default: true
+          required: false
+          disabled: "settings.bedgraph === false"
         - name: call_summits
           label: Call summits
           type: basic:boolean
+          default: false
+          required: false
           description: >
-            MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff setting) to deconvolve subpeaks within each peak called from general procedure. It's highly recommended to detect adjacent binding events. While used, the output subpeaks of a big peak region will have the same peak boundaries, and different scores and peak summit positions.
+            MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff
+            setting) to deconvolve subpeaks within each peak called from general procedure. It's
+            highly recommended to detect adjacent binding events. While used, the output subpeaks
+            of a big peak region will have the same peak boundaries, and different scores and peak
+            summit positions.
         - name: broad
           label: Composite broad regions
           type: basic:boolean
           default: false
+          required: false
           disabled: "settings.call_summits === true"
           description: >
-            When this flag is on, MACS will try to composite broad regions in BED12 ( a gene-model-like format ) by putting nearby highly enriched regions into a broad region with loose cutoff. The broad region is controlled by another cutoff through --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
+            When this flag is on, MACS will try to composite broad regions in BED12 (a
+            gene-model-like format) by putting nearby highly enriched regions into a broad region
+            with loose cutoff. The broad region is controlled by another cutoff through
+            --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
         - name: broad_cutoff
           label: Broad cutoff
           type: basic:decimal
           required: false
           disabled: "settings.call_summits === true"
+          disabled: "settings.broad !== true"
           description: >
-            Cutoff for broad region. This option is not available unless --broad is set. If -p is set, this is a pvalue cutoff, otherwise, it's a qvalue cutoff. DEFAULT: 0.1
+            Cutoff for broad region. This option is not available unless --broad is set. If -p is
+            set, this is a pvalue cutoff, otherwise, it's a qvalue cutoff. DEFAULT = 0.1
   output:
     - name: called_peaks
       label: Called peaks
       type: basic:file
     - name: narrow_peaks
       label: Narrow peaks
+      type: basic:file
+      required: false
+    - name: chip_qc
+      label: QC report
       type: basic:file
       required: false
     - name: narrow_peaks_bigbed_igv_ucsc
@@ -217,8 +380,14 @@
     runtime: polyglot
     language: bash
     program: |
+      NAME=`basename {{ case.bam.file }} .bam`
+
       {% if settings.broad and settings.call_summits %}
         re-error "--broad can't be combined with --call-summits!"
+      {% endif %}
+
+      {% if case_prepeak and control and not control_prepeak %}
+        re-error "Case tagAlign file cannot be combined with a control BAM file."
       {% endif %}
 
       {% if control and case.build != control.build %}
@@ -231,58 +400,105 @@
           {{ ('All BAM files must share the same species information. ' ~
              'BAM %s has %s while %s has %s species information.')
              |format(case|name, case.species, control|name, control.species) }}
+      {% elif case_prepeak and case.build != case_prepeak.build %}
+        re-error \
+          {{ ('All BAM files must share the same genome build information. ' ~
+             'BAM %s has %s while %s has %s build information.')
+             |format(case|name, case.build, case_prepeak|name, case_prepeak.build) }}
+      {% elif case_prepeak and case.species != case_prepeak.species %}
+        re-error \
+          {{ ('All BAM files must share the same species information. ' ~
+             'BAM %s has %s while %s has %s species information.')
+             |format(case|name, case.species, case_prepeak|name, case_prepeak.species) }}
+      {% elif control_prepeak and case.build != control_prepeak.build %}
+        re-error \
+          {{ ('All BAM files must share the same genome build information. ' ~
+             'BAM %s has %s while %s has %s build information.')
+             |format(case|name, case.build, control_prepeak|name, control_prepeak.build) }}
+      {% elif control_prepeak and case.species != control_prepeak.species %}
+        re-error \
+          {{ ('All BAM files must share the same species information. ' ~
+             'BAM %s has %s while %s has %s species information.')
+             |format(case|name, case.species, control_prepeak|name, control_prepeak.species) }}
+      {% elif promoter and promoter.species != case.species %}
+        re-error
+          {{ ('All input files must share the same species information. ' ~
+             'Case BAM %s has %s while promoter BED %s has %s species information.')
+             |format(case|name, case.species, promoter|name, promoter.species) }}
+      {% elif promoter and promoter.build != case.build %}
+        re-error
+          {{ ('All input files must share the same genome build information. ' ~
+             'Case BAM %s has %s while promoter BED %s has %s build information.')
+             |format(case|name, case.build, promoter|name, promoter.build) }}
       {% endif %}
 
-      NAME=`basename {{ case.bam.file }} .bam`
+      {% set qc_header = [
+        "FRiP",
+        "NUMBER_OF_PEAKS",
+        "NUMBER_OF_READS_IN_PROMOTERS",
+        "FRACTION_OF_READS_IN_PROMOTERS",
+        "NUMBER_OF_PEAKS_IN_PROMOTERS",
+        "FRACTION_OF_PEAKS_IN_PROMOTERS",
+        ] | join('\t')
+      %}
+
+
+      {% endif %}
 
       re-progress 0.1
 
-      CONTROL='{% if control %} -c {{ control.bam.file }} {% endif %}'
-      GSIZE='{% if settings.gsize %} -g {{ settings.gsize }} {% endif %}'
-      QVAL='{% if settings.qvalue %} -q {{ settings.qvalue }} {% endif %}'
-      PVAL='{% if settings.pvalue %} -p {{ settings.pvalue }} {% endif %}'
-      MFOLD='{% if settings.mfold_lower %} -m {{ settings.mfold_lower }} {{ settings.mfold_upper }} {% endif %}'
-      NO_LAMBDA='{% if settings.nolambda %} --nolambda {% endif %}'
-      SLOCAL='{% if settings.slocal %} --slocal {{settings.slocal}} {% endif %}'
-      ILOCAL='{% if settings.llocal %} --llocal {{settings.llocal}} {% endif %}'
-      FIX_BIMODAL='{% if settings.fix_bimodal %} --fix-bimodal {% endif %}'
-      NO_MODEL='{% if settings.nomodel %} --nomodel {% endif %}'
-      EXTSIZE='{% if settings.extsize %} --extsize {{settings.extsize}} {% endif %}'
-      SHIFT='{% if settings.shift %} --shift {{settings.shift}} {% endif %}'
-      BAND_WIDTH='{% if settings.band_width %} --bw {{settings.band_width}} {% endif %}'
-      DOWN_SAMPLE='{% if settings.down_sample %} --down-sample {% endif %}'
-      BEDGRAPH='{% if settings.bedgraph %} -B {% endif %}'
-      CALL_SUMMITS='{% if settings.call_summits %} --call-summits {% endif %}'
+      BROAD_CUTOFF='{% if settings.broad_cutoff %}--broad-cutoff {{settings.broad_cutoff}}{% endif %}'
 
-      {% if settings.broad and not settings.call_summits %}
-        BROAD=' --broad {% if settings.broad_cutoff %} --broad-cutoff {{settings.broad_cutoff}}{% endif %}'
-      {% endif %}
+      macs2 callpeak \
+        -t {{ case_prepeak.tagalign.file or case.bam.file }} \
+        {% if control or control_prepeak %}-c {{ control_prepeak.tagalign.file or control.bam.file }}{% endif %} \
+        -f {{ "BED" if case_prepeak else "BAM" }} \
+        -n "${NAME}" \
+        --gsize {{ gsize }} \
+        {% if settings.duplicates or case_prepeak %}--keep-dup {{ settings.duplicates or settings.duplicates_prepeak }}{% endif %} \
+        {% if settings.qvalue %}-q {{ settings.qvalue }}{% endif %} \
+        {% if settings.pvalue or settings.pvalue_prepeak and not setting.qvalue %}-p {{ settings.pvalue or settings.pvalue_prepeak }}{% endif %} \
+        {% if settings.mfold_lower %}-m {{ settings.mfold_lower }} {{ settings.mfold_upper }}{% endif %} \
+        {% if settings.nolambda %}--nolambda{% endif %} \
+        {% if settings.slocal %}--slocal {{ settings.slocal }}{% endif %} \
+        {% if settings.llocal %}--llocal {{ settings.llocal }}{% endif %} \
+        {% if settings.fix_bimodal %}--fix-bimodal{% endif %} \
+        {% if settings.nomodel or (settings.nomodel_prepeak and case_prepeak) %}--nomodel{% endif %} \
+        {% if settings.extsize or case_prepeak %}--extsize {{ settings.extsize or case_prepeak.fraglen }}{% endif %} \
+        {% if settings.shift %}--shift {{ settings.shift }}{% endif %} \
+        {% if settings.band_width %}--bw {{ settings.band_width }}{% endif %} \
+        {% if settings.broad %}--broad ${BROAD_CUTOFF}{% endif %} \
+        {% if settings.down_sample %}--down-sample{% endif %} \
+        {% if settings.bedgraph %}-B{% endif %} \
+        {% if settings.call_summits %}--call-summits{% endif %} \
+        {% if settings.spmr and settings.bedgraph %}--SPMR{% endif %} \
+        --outdir . 2>err.txt
 
-
-      macs2 callpeak -t {{ case.bam.file }} ${CONTROL} -f BAM -n ${NAME} ${GSIZE} ${QVAL} ${PVAL} ${MFOLD} ${NO_LAMBDA} ${SLOCAL} ${ILOCAL} ${FIX_BIMODAL} ${NO_MODEL} ${EXTSIZE} ${SHIFT} ${BAND_WIDTH} ${BROAD} ${DOWN_SAMPLE} ${BEDGRAPH} ${CALL_SUMMITS} --outdir . 2>err.txt
       re-checkrc "MACS2 processing failed"
-      re-progress 0.8
-
-      cat err.txt
-      re-warning "`grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
-
-      if [ -f ${NAME}_model.r ]
-      then
-        Rscript ${NAME}_model.r
-        re-checkrc
-        re-save-file model ${NAME}_model.pdf
-      fi
-
       re-progress 0.7
 
-      re-save-file called_peaks ${NAME}_peaks.xls
+      cat err.txt
+      WARNING=$(grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta')
+      if [ $(echo -n "${WARNING}" | wc -c) -ne 0 ]; then
+        re-warning "`grep "WARNING" err.txt | sed -e :a -e '$!N; s/\n/ /; ta'`"
+      fi
 
-      # Get chormosome sizes filr for bed to BigBed transformation
+      if [ -f "${NAME}_model.r" ]
+      then
+        Rscript "${NAME}_model.r"
+        re-checkrc
+        re-save-file model "${NAME}_model.pdf"
+      fi
+      re-progress 0.8
+
+      re-save-file called_peaks "${NAME}_peaks.xls"
+
+      # Get chormosome sizes file for bed to BigBed transformation
       samtools idxstats {{ case.bam.file }} | cut -f -2 | head -n -1 > chrom.sizes
 
       {% if settings.broad and not settings.call_summits %}
-        re-save-file broad_peaks ${NAME}_peaks.broadPeak
-        re-save-file gappedPeak ${NAME}_peaks.gappedPeak
+        re-save-file broad_peaks "${NAME}_peaks.broadPeak"
+        re-save-file gappedPeak "${NAME}_peaks.gappedPeak"
       {% else %}
         # Maximize 5th column of narrowPeak and summits files to 1000.
         bed_file_corrections_genome_browsers.py -f "${NAME}_peaks.narrowPeak"
@@ -303,7 +519,6 @@
         tabix -p bed "${NAME}_summits.bed.gz"
         re-checkrc "Summits.bed tabix processing for JBrowse failed."
 
-        re-save-file narrow_peaks "${NAME}_peaks.narrowPeak"
         re-save-file narrow_peaks_bigbed_igv_ucsc "${NAME}_peaks_narrowPeak.bb"
         re-save-file summits "${NAME}_summits.bed.gz"
         re-save-file summits_tbi_jbrowse "${NAME}_summits.bed.gz.tbi"
@@ -326,6 +541,70 @@
         re-checkrc "Creating bigWig from control_lambda.bgd bedGraph failed."
         re-save-file control_lambda "${NAME}_control_lambda.bdg"
         re-save-file control_lambda_bigwig "${NAME}_control_lambda.bw"
+      {% endif %}
+
+      # Get post-peakcall QC metrics
+      {% if not settings.broad %}
+        # Sort narrowPeak by p values
+        LC_COLLATE=C sort -k 8gr,8gr "${NAME}_peaks.narrowPeak" | \
+        awk 'BEGIN{OFS="\t"}{$4="Peak_"NR; if ($2<0) $2=0; if ($3<0) $3=0; print $0}' > "${NAME}_peaks_tmp.narrowPeak"
+
+        # Cap number of peaks
+        head -n {{ settings.cap_num or -0 }} "${NAME}_peaks_tmp.narrowPeak" > "${NAME}_peaks.narrowPeak"
+
+        {% if case_prepeak %}
+          FRAGLEN={{ case_prepeak.fraglen }}
+          cp {{ case_prepeak.tagalign.file }} "${NAME}.tagAlign"
+        {% else %}
+          # Get fragment length
+          {% if settings.extsize %}
+            FRAGLEN={{ settings.extsize }}
+          {% else %}
+            FRAGLEN=$(macs2 predictd -i {{ case.bam.file }} 2>&1 >/dev/null | grep -e 'predicted fragment length' | rev | cut -d ' ' -f 3 | rev)
+            re-checkrc "Error while estimating fragment size"
+          {% endif %}
+
+          # Transform case bam file to tagAlign for either single-end or paired-end reads
+          if [ $(samtools view -c -f 1 {{ case.bam.file }}) -eq 0 ]; then
+            bedtools bamtobed -i {{ case.bam.file }} | \
+            awk 'BEGIN{OFS="\t"}{$4="N";$5="1000";print $0}' > "${NAME}.tagAlign"
+            re-checkrc "Conversion to tagAlign failed"
+          else
+            samtools sort -n {{ case.bam.file }} "${NAME}_sorted"
+            samtools fixmate -r "${NAME}_sorted.bam" "${NAME}.bam"
+            samtools view -b -f 2 "${NAME}.bam" | \
+            bedtools bamtobed -bedpe -mate1 -i - | \
+            awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\tN\t1000\t%s\n%s\t%s\t%s\tN\t1000\t%s\n",$1,$2,$3,$9,$4,$5,$6,$10}' > "${NAME}.tagAlign"
+            re-checkrc "Conversion to tagAlign failed"
+          fi
+        {% endif %}
+
+        # Shift reads on both strands for half of the fragment length in opposite directions
+        bedtools slop -i "${NAME}.tagAlign" -g chrom.sizes -s -l $((-${FRAGLEN} / 2)) -r $((${FRAGLEN} / 2)) | \
+        awk '{if ($2>=0 && $3>=0 && $2<=$3) print $0}' > "${NAME}_shifted.tagAlign"
+
+        echo -e {{ qc_header }} > "${NAME}_postpeak_qc_report.txt"
+
+        # Calculate post-peakcall QC metrics
+        N_READS_PEAKS=$(bedtools intersect -a "${NAME}_shifted.tagAlign" -b "${NAME}_peaks.narrowPeak" -wa -u | wc -l)
+        N_READS=$(cat "${NAME}_shifted.tagAlign" | wc -l)
+        N_PEAKS=$(cat "${NAME}_peaks.narrowPeak" | wc -l)
+        FRIP=$(awk 'BEGIN{printf "%.3f\n", ('${N_READS_PEAKS}' / '${N_READS}')}')
+        {% if promoter %}
+          N_READS_PROM=$(bedtools intersect -a "${NAME}_shifted.tagAlign" -b {{ promoter.bed.file }} -wa -u | wc -l)
+          N_PEAKS_PROM=$(bedtools intersect -a "${NAME}_peaks.narrowPeak" -b {{ promoter.bed.file }} -wa -u | wc -l)
+          FRAC_READS=$(awk 'BEGIN{printf "%.3f\n", ('${N_READS_PROM}' / '${N_READS}')}')
+          FRAC_PEAKS=$(awk 'BEGIN{printf "%.3f\n", ('${N_PEAKS_PROM}' / '${N_PEAKS}')}')
+          echo -e "${FRIP}\t${N_PEAKS}\t${N_READS_PROM}\t${FRAC_READS}\t${N_PEAKS_PROM}\t${FRAC_PEAKS}" >> "${NAME}_postpeak_qc_report.txt"
+        {% else %}
+          echo -e "${FRIP}\t${N_PEAKS}\tN/A\tN/A\tN/A\nN/A" >> "${NAME}_postpeak_qc_report.txt"
+        {% endif %}
+
+        gzip "${NAME}_peaks.narrowPeak"
+
+        re-save-file narrow_peaks "${NAME}_peaks.narrowPeak.gz"
+        re-save-file chip_qc "${NAME}_postpeak_qc_report.txt"
+
       {% endif %}
 
       re-save build {{ case.build }}
