@@ -27,6 +27,7 @@ Added
 - Add ``qc-prepeak`` process that reports ENCODE3 accepted ChIP-seq and
   ATAC-seq QC metrics
 - Add QC report to ``macs2-callpeak`` process
+- Add combining ChIP-seq QC reports in ``archive-samples`` process
 
 Fixed
 -----

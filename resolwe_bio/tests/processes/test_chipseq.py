@@ -80,7 +80,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(macs14, 'summits_tbi_jbrowse', 'macs14_summits.gz.tbi')
         self.assertFile(macs14, 'treat_bigwig', 'macs14_treat.bw')
 
-    @tag_process('macs2-callpeak')
+    @tag_process('macs2-callpeak', 'archive-samples')
     def test_macs2(self):
         with self.preparation_stage():
             inputs = {
@@ -96,6 +96,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 'build': 'hg19',
             }
             promoters = self.run_process('upload-bed', inputs)
+
+            inputs = {
+                'alignment': case_bam.id,
+            }
+            prepeak = self.run_process("qc-prepeak", inputs)
 
         inputs = {
             'case': case_bam.id,
@@ -121,6 +126,39 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs2, 'treat_pileup_bigwig')
         self.assertFileExists(macs2, 'control_lambda')
         self.assertFileExists(macs2, 'control_lambda_bigwig')
+
+        # With "qc-prepeak" data object as input
+        inputs = {
+            'case': case_bam.id,
+            'case_prepeak': prepeak.id,
+            'promoter': promoters.id,
+            'settings': {
+                'bedgraph': True,
+            }
+        }
+        macs2 = self.run_process("macs2-callpeak", inputs)
+
+        self.assertFields(macs2, 'species', 'Homo sapiens')
+        self.assertFields(macs2, 'build', 'hg19')
+        self.assertFileExists(macs2, 'chip_qc')
+        self.assertFileExists(macs2, 'called_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks_bigbed_igv_ucsc')
+        self.assertFileExists(macs2, 'summits')
+        self.assertFileExists(macs2, 'summits_tbi_jbrowse')
+        self.assertFileExists(macs2, 'summits_bigbed_igv_ucsc')
+
+        # Test "archive-samples"' QC report merge
+        sample_1 = case_bam.entity_set.first()
+        sample_1.data.add(macs2)
+        sample_1.name = 'Sample_1'
+        sample_1.save()
+
+        inputs = {
+            'data': [prepeak.id, macs2.id],
+            'fields': ['chip_qc'],
+        }
+        self.run_process('archive-samples', inputs)
 
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     @tag_process('rose2')
