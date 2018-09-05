@@ -14,6 +14,8 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Remove ``gsize`` input from
   ``macs2-callpeak`` process and automate genome size selection
+- **BACKWARD INCOMPATIBLE:** Unify types of ``macs14`` and
+  ``macs2-callpeak`` processes and make ``rose2`` work with both
 - Use ``resolwebio/chipseq:3.0.0`` docker image in the following processes:
 
   - ``macs14``
@@ -30,6 +32,8 @@ Fixed
 -----
 = Fix handling of numerical feature_ids (NCBI source) in
   ``create_expression_set.py`` script
+- Make ``chipseq-peakscore`` work with gzipped narrowPeak input from
+  ``macs2-callpeak``
 
 
 =================

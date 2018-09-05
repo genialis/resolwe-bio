@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/legacy:1.0.0
   data_name: "Peak score ({{ peaks.narrow_peaks.file|basename|default('?') }})"
-  version: 1.0.11
+  version: 2.0.0
   type: data:chipseq:peakscore
   category: Other
   flow_collection: sample
@@ -20,7 +20,7 @@
   input:
     - name: peaks
       label: MACS2 results
-      type: data:chipseq:macs2:callpeak
+      type: data:chipseq:callpeak:macs2
       description: MACS2 results file (NarrowPeak)
     - name: bed
       label: BED file
@@ -40,7 +40,15 @@
         bgzip -cd {{ bed.bed.file }} > input_file.bed
       {% endif %}
 
-      closest-features --dist {{ peaks.narrow_peaks.file }} input_file.bed > macs2_peakscore
+      {% if (peaks.narrow_peaks.file|basename)[-11:] == '.narrowPeak' %}
+        NAME=`basename {{ peaks.narrow_peaks.file }} .narrowPeak`
+        cp {{ peaks.narrow_peaks.file }} "${NAME}".bed
+      {% else %}
+        NAME=`basename {{ peaks.narrow_peaks.file }} .narrowPeak.gz`
+        bgzip -cd {{ peaks.narrow_peaks.file }} > "${NAME}".bed
+      {% endif %}
+
+      closest-features --dist "${NAME}".bed input_file.bed > macs2_peakscore
       re-checkrc
       re-progress 0.3
 

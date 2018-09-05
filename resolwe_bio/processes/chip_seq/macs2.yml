@@ -11,8 +11,8 @@
       docker:
         image: resolwebio/chipseq:3.0.0
   data_name: "{{ case.bam.file|basename|default('?') }}"
-  type: data:chipseq:macs2:callpeak
-  version: 2.0.0
+  version: 3.0.0
+  type: data:chipseq:callpeak:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
   description: >

@@ -10,8 +10,8 @@
     executor:
       docker:
         image: resolwebio/chipseq:3.0.0
-  data_name: ROSE2 analysis
-  version: 3.0.2
+  data_name: "{{ rankby|sample_name|default('?') }}"
+  version: 4.0.0
   type: data:chipseq:rose2
   category: ChIP-Seq:Post Process
   persistence: CACHED
@@ -26,8 +26,8 @@
     information.
   input:
     - name: input
-      label: BED file (MACS results)
-      type: data:chipseq:macs14
+      label: BED/narrowPeak file (MACS results)
+      type: data:chipseq:callpeak
       required: false
     - name: input_upload
       label: BED file (Upload)
@@ -199,13 +199,22 @@
           bgzip -cd {{ input_upload.bed.file }} > "${NAME}".bed
         {% endif %}
 
-      {% else %}
+      {% elif input|type|subtype('data:chipseq:callpeak:macs14') %}
         {% if (input.peaks_bed.file|basename)[-4:] == '.bed' %}
           NAME=`basename {{ input.peaks_bed.file }} .bed`
           cp {{ input.peaks_bed.file }} "${NAME}".bed
         {% else %}
           NAME=`basename {{ input.peaks_bed.file }} .bed.gz`
           bgzip -cd {{ input.peaks_bed.file }} > "${NAME}".bed
+        {% endif %}
+
+      {% elif input|type|subtype('data:chipseq:callpeak:macs2') %}
+        {% if (input.narrow_peaks.file|basename)[-11:] == '.narrowPeak' %}
+          NAME=`basename {{ input.narrow_peaks.file }} .narrowPeak`
+          cp {{ input.narrow_peaks.file }} "${NAME}".bed
+        {% else %}
+          NAME=`basename {{ input.narrow_peaks.file }} .narrowPeak.gz`
+          bgzip -cd {{ input.narrow_peaks.file }} > "${NAME}".bed
         {% endif %}
       {% endif %}
 

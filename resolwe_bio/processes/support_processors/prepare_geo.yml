@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/base:ubuntu-17.10
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 0.0.2
+  version: 1.0.0
   type: data:other:geo:chipseq
   category: Other
   persistence: CACHED
@@ -27,7 +27,7 @@
         List of reads objects. Fastq files will be used.
     - name: macs14
       label: Macs14
-      type: list:data:chipseq:macs14
+      type: list:data:chipseq:callpeak:macs14
       description: >
         List of macs14 objects. Wiggle files will be used.
     - name: relations
