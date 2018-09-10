@@ -65,6 +65,7 @@ Added
   - ``SPP (1.14)``
 - Add ``regtools-junctions-annotate`` process that annotates novel splice
   junctions.
+- Add ``background`` relation type to fixtures
 
 Fixed
 -----
