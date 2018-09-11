@@ -5,14 +5,17 @@
 
 - slug: regtools-junctions-annotate
   name: Annotate novel splice junctions (regtools)
+  data_name: >
+    "({{ alignment_star|sample_name|default('') }}
+    {{ alignment|sample_name|default('') }}
+    {{ input_bed_junctions.bed.file|default('') }})"
+  version: 0.0.2
+  type: data:junctions:regtools
   requirements:
     expression-engine: jinja
     executor:
       docker:
         image: resolwebio/rnaseq:3.7.0
-  data_name: "Novel Junctions ({{ star|sample_name|default('') }}{{ extracted|sample_name|default('') }})"
-  version: 0.0.1
-  type: data:bed:junctions
   category: Splice Junctions
   flow_collection: sample
   persistence: CACHED
@@ -120,18 +123,21 @@
               |format(alignment_star.build, genome.build) }}
         {% endif %}
 
+        NAME=`basename {{ alignment_star.sj.file }} _SJ.out.tab`
+
         if [ ! -s {{ alignment_star.sj.file }} ]; then
           re-warning \
             "STAR SJ.out.tab file has no entries. There will be no splice junctions detected."
+          touch junctions_sorted.bed
+
+        else
+          # calculate BED12 fields from STAR SJ.out.tab file
+          star_sj_to_bed12.py {{ alignment_star.sj.file }}
+          re-checkrc "Calculation from STAR SJ.out.tab file to bed file failed."
+
+          sort -V -o junctions_sorted.bed junctions_unsorted.bed
+          re-checkrc "Sorting of bed file failed."
         fi
-
-        NAME=`basename {{ alignment_star.sj.file }} _SJ.out.tab`
-
-        # calculate BED12 fields from STAR SJ.out.tab file
-        star_sj_to_bed12.sh {{ alignment_star.sj.file }}
-
-        sort -V -o junctions_sorted.bed junctions_unsorted.bed
-        re-checkrc "Sorting of bed file failed."
 
       {% elif alignment %}
 
@@ -211,7 +217,9 @@
         cut -f -2 {{ genome.fai.file }} > chrom.sizes
         bed_file_corrections_genome_browsers.py -f junctions_sorted.bed
         re-checkrc "Bed file corrections for Genome Browsers failed."
-        bedToBigBed corrected_junctions_sorted.bed chrom.sizes "${NAME}_SJ.bb"
+        # case sensitive sorting
+        LC_COLLATE=C sort -k 1,1 -k 2,2n corrected_junctions_sorted.bed > corrected_junctions.bed
+        bedToBigBed corrected_junctions.bed chrom.sizes "${NAME}_SJ.bb"
         re-checkrc "Creating bigBed file failed."
         re-save-file bigbed_igv_ucsc "${NAME}_SJ.bb"
       else
