@@ -11,7 +11,7 @@
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.3.1
+  version: 0.3.2
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -53,7 +53,7 @@
         Minimum base quality required to consider a base for calling.
   output:
     - name: vcf
-      label: Alignment file
+      label: Variants
       type: basic:file
     - name: tbi
       label: Tabix index
