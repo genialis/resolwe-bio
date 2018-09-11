@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.1.7
+  version: 2.1.8
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -241,7 +241,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.2.7
+  version: 1.2.8
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -391,7 +391,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.2.7
+  version: 1.2.8
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample

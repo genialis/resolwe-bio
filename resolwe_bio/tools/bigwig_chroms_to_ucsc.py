@@ -81,6 +81,7 @@ def create_new_header(infile, mappings, outfile):
             os.rename(infile, outfile)
             sys.exit(0)
 
+        seq_num = 0
         with pyBigWig.open(outfile, 'w') as bw_output:
             bw_output.addHeader(hdr)
             for chrom, length in bw.chroms().items():
@@ -91,8 +92,12 @@ def create_new_header(infile, mappings, outfile):
                                          ends=[x[1] for x in ints],
                                          values=[x[2] for x in ints])
                 elif chrom not in mappings:
-                    print(warning("UCSC mapping for sequence {} is missing. "
-                                  "This sequence will not be included in the bigWig file.".format(chrom)))
+                    seq_num += 1
+                    print('UCSC chromosome/conting mapping for {} is missing'.format(chrom))
+
+        if seq_num > 0:
+            print(warning("UCSC chromosome/conting mapping for {} sequence(s) is missing. "
+                          "This sequence(s) will not be included in the bigWig file.".format(seq_num)))
 
 
 def main():
