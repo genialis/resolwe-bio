@@ -21,6 +21,8 @@ Changed
   - ``macs14``
   - ``macs2-callpeak``
   - ``rose2``
+- Downgrade primerclip to old version (v171018) in ``resolwebio/dnaseq:3.3.0``
+  docker image and move it to google drive.
 
 Added
 -----
