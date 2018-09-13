@@ -1,6 +1,6 @@
 - slug: rna-seq-bbduk-star-featurecounts
   name: "Pipeline: BBDuk - STAR - featureCounts"
-  version: 0.1.1
+  version: 0.1.2
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
@@ -63,7 +63,7 @@
     - name: min_length
       label: Minimum read length
       type: basic:integer
-      default: 10
+      default: 30
       hidden: '!advanced'
       description: >
         Trimmed reads shorter than the minimum read length will be discarded.

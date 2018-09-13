@@ -36,6 +36,8 @@ Changed
   to supplement the genome indices with the set of known features.
 - Trigger process warning instead of process error in the case when
   ``bamtobigwig.sh`` scripts detects an empty .bam file.
+- Set the default reads length filtering parameter to 30 bp in the
+  ``rna-seq-bbduk-star-featurecounts`` experiment descriptor schema.
 
 Added
 -----
