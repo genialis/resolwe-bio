@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.0.0
+        image: resolwebio/rnaseq:3.7.1
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.21
+  version: 1.0.22
   type: data:ontology:obo
   category: Import
   persistence: RAW

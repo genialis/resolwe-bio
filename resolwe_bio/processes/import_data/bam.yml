@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.6.1
+        image: resolwebio/rnaseq:3.7.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.0
+  version: 1.2.1
   type: data:alignment:bam:upload
   flow_collection: sample
   category: Import
@@ -112,12 +112,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.6.1
+        image: resolwebio/rnaseq:3.7.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.0
+  version: 1.2.1
   type: data:alignment:bam:upload
   category: Import
   flow_collection: sample
@@ -206,12 +206,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.6.1
+        image: resolwebio/rnaseq:3.7.1
     resources:
       cores: 1
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.2.0
+  version: 0.2.1
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import
