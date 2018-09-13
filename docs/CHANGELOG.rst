@@ -75,6 +75,7 @@ Fixed
 - Create a symbolic link to the alignment file in the ``feature_counts`` process,
   so that relative path is used in the quantification results. This prevent the
   FeatureCounts output to be listed as a separate sample in the MultiQC reports.
+- Fix handling of expression objects in ``archive-samples`` process
 
 
 ===================
