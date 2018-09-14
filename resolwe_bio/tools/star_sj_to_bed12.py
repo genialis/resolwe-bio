@@ -62,9 +62,9 @@ bed_file.loc[:, 'score'] = sj_file.iloc[:, 6].values
 
 # 6: strand =  0: '.' (undefined) , 1: '+', 2: '-
 conditions = [
-    sj_file.iloc[:, 4] == 0,
-    sj_file.iloc[:, 4] == 1,
-    sj_file.iloc[:, 4] == 2
+    sj_file.iloc[:, 3] == 0,
+    sj_file.iloc[:, 3] == 1,
+    sj_file.iloc[:, 3] == 2
 ]
 choices_strand = ['.', '+', '-']
 bed_file.loc[:, 'strand'] = np.select(conditions, choices_strand)
