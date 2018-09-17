@@ -38,7 +38,8 @@ Changed
   ``bamtobigwig.sh`` scripts detects an empty .bam file.
 - Set the default reads length filtering parameter to 30 bp in the
   ``rna-seq-bbduk-star-featurecounts`` and ``kapa-rna-seq-bbduk-star-featurecounts``
-  experiment descriptor schema.
+  experiment descriptor schema. Expand the kit selection choice options in the
+  latter descriptor schema.
 
 Added
 -----

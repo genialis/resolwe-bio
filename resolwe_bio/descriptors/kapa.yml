@@ -1,6 +1,6 @@
 - slug: kapa-rna-seq-bbduk-star-featurecounts
   name: "KAPA RNA-Seq pipeline: BBDuk - STAR - featureCounts"
-  version: 0.0.2
+  version: 0.0.3
   description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
@@ -27,20 +27,24 @@
     - name: kit
       label: Kit selection
       type: basic:string
-      default: KAPA Stranded RNA-Seq Kit
+      default: KAPA RNA HyperPrep Kit with RiboErase (HMR)
       choices:
-        - label: KAPA Stranded RNA-Seq Kit
-          value: KAPA Stranded RNA-Seq Kit
-        - label: KAPA RNA HyperPrep Kit
-          value: KAPA RNA HyperPrep Kit
-        - label: KAPA Stranded mRNA-Seq Kit
-          value: KAPA Stranded mRNA-Seq Kit
+        - label: KAPA RNA HyperPrep Kit with RiboErase (HMR)
+          value: KAPA RNA HyperPrep Kit with RiboErase (HMR)
+        - label: KAPA RNA HyperPrep Kit with RiboErase (HMR) Globin
+          value: KAPA RNA HyperPrep Kit with RiboErase (HMR) Globin
         - label: KAPA mRNA HyperPrep Kit
           value: KAPA mRNA HyperPrep Kit
-        - label: KAPA Stranded RNA-Seq Kit with RiboErase
-          value: KAPA Stranded RNA-Seq Kit with RiboErase
-        - label: KAPA RNA HyperPrep Kit with RiboErase
-          value: KAPA RNA HyperPrep Kit with RiboErase
+        - label: KAPA RNA HyperPrep Kit
+          value: KAPA RNA HyperPrep Kit
+        - label: KAPA Stranded RNA-Seq Library Preparation Kit with RiboErase (HMR)
+          value: KAPA Stranded RNA-Seq Library Preparation Kit with RiboErase (HMR)
+        - label: KAPA Stranded RNA-Seq Library Preparation Kit with RiboErase (HMR) Globin
+          value: KAPA Stranded RNA-Seq Library Preparation Kit with RiboErase (HMR) Globin
+        - label: KAPA Stranded mRNA-Seq Library Preparation Kit
+          value: KAPA Stranded mRNA-Seq Library Preparation Kit
+        - label: KAPA Stranded RNA-Seq Library Preparation Kit
+          value: KAPA Stranded RNA-Seq Library Preparation Kit
     - name: advanced
       label: Show advanced options
       type: basic:boolean
