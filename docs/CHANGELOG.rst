@@ -31,7 +31,7 @@ Added
 
 Fixed
 -----
-= Fix handling of numerical feature_ids (NCBI source) in
+- Fix handling of numerical feature_ids (NCBI source) in
   ``create_expression_set.py`` script
 - Make ``chipseq-peakscore`` work with gzipped narrowPeak input from
   ``macs2-callpeak``
