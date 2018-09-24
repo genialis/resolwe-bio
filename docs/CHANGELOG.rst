@@ -28,6 +28,9 @@ Added
   ATAC-seq QC metrics
 - Add QC report to ``macs2-callpeak`` process
 - Add combining ChIP-seq QC reports in ``archive-samples`` process
+- Add detection of globin-derived reads as an additional QC step in the
+  ``workflow-bbduk-star-featurecounts-qc-single`` and
+  ``workflow-bbduk-star-featurecounts-qc-paired`` processes.
 
 Fixed
 -----

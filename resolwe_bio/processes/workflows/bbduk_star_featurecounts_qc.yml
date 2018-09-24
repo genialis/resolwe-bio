@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: >
@@ -442,7 +442,12 @@
           label: Indexed rRNA reference sequence
           type: data:genomeindex:star
           description: >
-            Genome index prepared by STAR aligner indexing tool.
+            Reference sequence index prepared by STAR aligner indexing tool.
+        - name: globin_reference
+          label: Indexed Globin reference sequence
+          type: data:genomeindex:star
+          description: >
+            Reference sequence index prepared by STAR aligner indexing tool.
   run:
     language: workflow
     program:
@@ -520,6 +525,11 @@
         input:
           reads: '{{ steps.downsampling }}'
           genome: '{{ input.qc.rrna_reference }}'
+      - id: alignment_qc_globin
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.qc.globin_reference }}'
       - id: multiqc
         run: multiqc
         input:
@@ -529,7 +539,8 @@
             steps.alignment,
             steps.quantification,
             steps.downsampling,
-            steps.alignment_qc_rrna
+            steps.alignment_qc_rrna,
+            steps.alignment_qc_globin
             ] }}'
           advanced:
             dirs: true
@@ -541,7 +552,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: >
@@ -980,7 +991,12 @@
           label: Indexed rRNA reference sequence
           type: data:genomeindex:star
           description: >
-            Genome index prepared by STAR aligner indexing tool.
+            Reference sequence index prepared by STAR aligner indexing tool.
+        - name: globin_reference
+          label: Indexed Globin reference sequence
+          type: data:genomeindex:star
+          description: >
+            Reference sequence index prepared by STAR aligner indexing tool.
   run:
     language: workflow
     program:
@@ -1060,6 +1076,11 @@
         input:
           reads: '{{ steps.downsampling }}'
           genome: '{{ input.qc.rrna_reference }}'
+      - id: alignment_qc_globin
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.qc.globin_reference }}'
       - id: multiqc
         run: multiqc
         input:
@@ -1069,7 +1090,8 @@
             steps.alignment,
             steps.quantification,
             steps.downsampling,
-            steps.alignment_qc_rrna
+            steps.alignment_qc_rrna,
+            steps.alignment_qc_globin
             ] }}'
           advanced:
             dirs: true

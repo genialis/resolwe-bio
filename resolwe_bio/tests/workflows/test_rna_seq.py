@@ -140,6 +140,19 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 }
             })
 
+            globin_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'Homo_sapiens_globin_reference.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'globin',
+            })
+            globin_star_index = self.run_process('alignment-star-index', {
+                'genome2': globin_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
         inputs = {
             'preprocessing': {
                 'reads': reads.id,
@@ -184,6 +197,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             },
             'qc': {
                 'rrna_reference': rrna_star_index.id,
+                'globin_reference': globin_star_index.id,
             }
         }
 
@@ -192,6 +206,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug='feature_counts').last()
         self.assertFile(feature_counts, 'rc', 'feature_counts_rc_single.tab.gz', compression='gzip')
+        globin = Data.objects.filter(process__slug='alignment-star').last()
+        self.assertFields(globin, 'build', 'globin')
+        multiqc = Data.objects.filter(process__slug='multiqc').last()
+        self.assertFileExists(multiqc, 'report')
 
         inputs['preprocessing']['reads'] = paired_reads.id
         self.run_process('workflow-bbduk-star-featurecounts-qc-paired', inputs)
@@ -199,6 +217,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug='feature_counts').last()
         self.assertFile(feature_counts, 'rc', 'feature_counts_rc_paired.tab.gz', compression='gzip')
+        globin = Data.objects.filter(process__slug='alignment-star').last()
+        self.assertFields(globin, 'build', 'globin')
+        multiqc = Data.objects.filter(process__slug='multiqc').last()
+        self.assertFileExists(multiqc, 'report')
 
     @with_resolwe_host
     @tag_process('workflow-custom-cutadapt-star-htseq-single', 'workflow-custom-cutadapt-star-htseq-paired')
