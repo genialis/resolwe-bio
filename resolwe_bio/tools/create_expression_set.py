@@ -43,6 +43,8 @@ def parse_expression_file(exp_file, exp_type):
             "Transcript": "FEATURE_ID",
             "Expression": exp_type,
         }, inplace=True)
+        # Cast FEATURE_ID column to string
+        df['FEATURE_ID'] = df['FEATURE_ID'].astype('str')
         # Remove any possible empty rows from the input file
         df.dropna(inplace=True)
 

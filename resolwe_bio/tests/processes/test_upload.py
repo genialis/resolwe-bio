@@ -140,6 +140,17 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         exp_8 = self.run_process('upload-expression', inputs)
         self.assertJSON(exp_8, exp_8.output['exp_json'], '', 'exp.json.gz')
 
+        # Check handling of numerical feature_ids in expression file
+        inputs = {
+            'rc': 'mm_ncbi_exp.tab.gz',
+            'exp_name': 'Expression',
+            'source': 'NCBI',
+            'species': 'Mus musculus',
+            'build': 'hg19'
+        }
+        exp_9 = self.run_process('upload-expression', inputs)
+        self.assertFile(exp_9, 'exp_set', 'mm_ncbi_exp_set.txt.gz', compression='gzip')
+
     @with_resolwe_host
     @tag_process('upload-cxb', 'upload-expression-cuffnorm')
     def test_upload_cuffquant_expr(self):
