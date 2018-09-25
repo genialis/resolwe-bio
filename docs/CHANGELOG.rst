@@ -14,6 +14,10 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Remove ``gsize`` input from
   ``macs2-callpeak`` process and automate genome size selection
+- **BACKWARD INCOMPATIBLE:** Set a new default ``sample`` and ``reads``
+  descriptor schema. Change slug from ``sample2`` to ``sample``, modify group
+  names, and remove the original ``sample``, ``sample-detailed``, and
+  ``reads-detailed`` descriptor schemas.
 - **BACKWARD INCOMPATIBLE:** Unify types of ``macs14`` and
   ``macs2-callpeak`` processes and make ``rose2`` work with both
 - Use ``resolwebio/chipseq:3.0.0`` docker image in the following processes:

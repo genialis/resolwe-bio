@@ -1,10 +1,10 @@
-- slug: sample2
+- slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
   version: 1.0.0
   schema:
-    - name: sample_info
-      label: Sample information
+    - name: general
+      label: General
       group:
         - name: description
           label: Description
@@ -224,8 +224,8 @@
           type: basic:string
           required: false
           description: Person who annotated the sample.
-    - name: sample_processing
-      label: Sample processing
+    - name: experiment
+      label: Experiment details
       group:
         - name: assay_type
           label: Assay type

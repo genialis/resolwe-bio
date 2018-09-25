@@ -9,28 +9,28 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
     @tag_process('expression-aggregator')
     def test_expression_aggregator(self):
         with self.preparation_stage():
-            descriptor_ery = {'sample': {'cell_type': 'Erythrocyte'}}
+            descriptor_artery = {'general': {'organ': 'artery'}}
             expression1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                                  f_type='TPM', descriptor=descriptor_ery,
+                                                  f_type='TPM', descriptor=descriptor_artery,
                                                   species='Homo sapiens', build='ens_90')
 
-            descriptor_mono = {'sample': {'cell_type': 'Monocyte'}}
+            descriptor_blood = {'general': {'organ': 'blood'}}
             expression2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                                  f_type='TPM', descriptor=descriptor_mono,
+                                                  f_type='TPM', descriptor=descriptor_blood,
                                                   species='Homo sapiens', build='ens_90')
 
             expression3 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz',
-                                                  f_type='TPM', descriptor=descriptor_ery,
+                                                  f_type='TPM', descriptor=descriptor_artery,
                                                   species='Mus musculus', build='ens_90')
 
             expression4 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz',
-                                                  f_type='TPM', descriptor=descriptor_mono,
+                                                  f_type='TPM', descriptor=descriptor_blood,
                                                   species='Mus musculus', build='ens_90')
 
         # Expect the process to fail if expression data from multiple species is used
         inputs = {
             'exps': [expression1.id, expression2.id, expression3.id],
-            'group_by': 'sample.cell_type',
+            'group_by': 'general.organ',
         }
         expression_aggregator = self.run_process('expression-aggregator', inputs, Data.STATUS_ERROR)
 
