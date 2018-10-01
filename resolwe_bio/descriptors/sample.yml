@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.0.0
+  version: 1.1.0
   schema:
     - name: general
       label: General
@@ -77,6 +77,12 @@
           description: Name of your cell line, e.g. MF331, DAOY, etc.
           required: false
           hidden: "biosample_type != 'cell_line'"
+        - name: cell_type
+          label: Cell type
+          type: basic:string
+          required: false
+          description: >
+            Type of cell, e.g. embryonic stem cell.
         - name: organ
           label: Organ / tissue
           type: basic:string
