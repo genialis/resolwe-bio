@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 0.0.1
+  version: 0.0.2
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -154,7 +154,7 @@
         re-progress 0.6
 
         # Subsample tagAlign
-        grep -v “chrM” "${NAME}.tagAlign" | \
+        grep -v "chrM" "${NAME}.tagAlign" | \
         shuf -n {{ n_sub }} --random-source="${NAME}.tagAlign" | \
         gzip -nc > "${NAME}_subsampled.tagAlign.gz"
         re-checkrc "Subsampling failed"
@@ -167,7 +167,7 @@
         # mapping quality, and reads not mapped in proper pair
         # Sort by name for fixmate
         samtools view -F 1804 -f 2 -q {{ q_treshold }} -u {{ alignment.bam.file }} | \
-        samtools sort -n - "${NAME}_filtered" 
+        samtools sort -n - "${NAME}_filtered"
         re-checkrc "Samtools filtering and sorting failed"
         re-progress 0.1
 
@@ -228,7 +228,7 @@
         re-progress 0.7
 
         # Subsample tagAlign
-        grep -v “chrM” "${NAME}.tagAlign" | \
+        grep -v "chrM" "${NAME}.tagAlign" | \
         shuf -n {{ n_sub }} --random-source="${NAME}.tagAlign" | \
         sed 'N;s/\\n/\\t/' | \
         awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6}' | \
