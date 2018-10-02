@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.6.1
+  version: 1.6.2
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -339,24 +339,24 @@
     runtime: polyglot
     language: bash
     program: |
-      READS_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      MATE1_NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       INDEX={{genome.index.dir}}
 
-      FW_READS=()
-      RV_READS=()
+      MATE1=()
+      MATE2=()
 
       {% for r in reads.fastq %}
-        FW_READS+=({{ r.file }})
+        MATE1+=({{ r.file }})
       {% endfor %}
 
-      cat "${FW_READS[@]}" > fw_reads.fastq.gz
+      zcat "${MATE1[@]}" > mate1.fastq
 
       {% if reads|type|subtype('data:reads:fastq:paired:') %}
         {% for r in reads.fastq2 %}
-          RV_READS_NAME=`basename {{ r.file }} .fastq.gz`
-          RV_READS+=({{ r.file }})
+          MATE2_NAME=`basename {{ r.file }} .fastq.gz`
+          MATE2+=({{ r.file }})
         {% endfor %}
-        cat "${RV_READS[@]}" > rv_reads.fastq.gz
+        zcat "${MATE2[@]}" > mate2.fastq
       {% endif %}
 
       re-progress 0.05
@@ -365,8 +365,7 @@
         STAR \
           --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
-          --readFilesIn fw_reads.fastq.gz \
-          --readFilesCommand zcat \
+          --readFilesIn mate1.fastq \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
           --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
@@ -398,17 +397,16 @@
 
         if [ -f Unmapped.out.mate1 ]
         then
-          mv Unmapped.out.mate1 "${READS_NAME}_unmapped.out.mate1.fastq"
-          gzip "${READS_NAME}_unmapped.out.mate1.fastq"
-          re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
+          mv Unmapped.out.mate1 "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          gzip "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          re-save-file unmapped_f "${MATE1_NAME}_unmapped.out.mate1.fastq.gz"
         fi
 
       {% else %}
         STAR \
           --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
-          --readFilesIn fw_reads.fastq.gz rv_reads.fastq.gz \
-          --readFilesCommand zcat \
+          --readFilesIn mate1.fastq mate2.fastq \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
           --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
@@ -440,16 +438,16 @@
 
         if [ -f Unmapped.out.mate1 ]
         then
-          mv "Unmapped.out.mate1" "${READS_NAME}_unmapped.out.mate1.fastq"
-          gzip "${READS_NAME}_unmapped.out.mate1.fastq"
-          re-save-file unmapped_f "${READS_NAME}_unmapped.out.mate1.fastq.gz"
+          mv "Unmapped.out.mate1" "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          gzip "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          re-save-file unmapped_f "${MATE1_NAME}_unmapped.out.mate1.fastq.gz"
         fi
 
         if [ -f Unmapped.out.mate2 ]
         then
-          mv "Unmapped.out.mate2" "${RV_READS_NAME}_unmapped.out.mate2.fastq"
-          gzip "${RV_READS_NAME}_unmapped.out.mate2.fastq"
-          re-save-file unmapped_r "${RV_READS_NAME}_unmapped.out.mate2.fastq.gz"
+          mv "Unmapped.out.mate2" "${MATE2_NAME}_unmapped.out.mate2.fastq"
+          gzip "${MATE2_NAME}_unmapped.out.mate2.fastq"
+          re-save-file unmapped_r "${MATE2_NAME}_unmapped.out.mate2.fastq.gz"
         fi
 
       {% endif %}
@@ -461,53 +459,53 @@
       then
         samtools sort Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord_temp.out.bam
         re-checkrc "Samtools sort command failed."
-        samtools index Aligned.sortedByCoord_temp.out.bam "${READS_NAME}.bam.bai"
+        samtools index Aligned.sortedByCoord_temp.out.bam "${MATE1_NAME}.bam.bai"
         re-checkrc "Samtools index command failed."
-        mv Aligned.sortedByCoord_temp.out.bam "${READS_NAME}.bam"
+        mv Aligned.sortedByCoord_temp.out.bam "${MATE1_NAME}.bam"
       else
-        samtools index Aligned.sortedByCoord.out.bam "${READS_NAME}.bam.bai"
+        samtools index Aligned.sortedByCoord.out.bam "${MATE1_NAME}.bam.bai"
         re-checkrc "Samtools index command failed."
-        mv Aligned.sortedByCoord.out.bam "${READS_NAME}.bam"
+        mv Aligned.sortedByCoord.out.bam "${MATE1_NAME}.bam"
       fi
       re-progress 0.9
 
       {% if detect_chimeric.chimeric %}
-        mv Chimeric.out.sam "${READS_NAME}_chimeric.out.sam"
-        re-save-file chimeric "${READS_NAME}_chimeric.out.sam"
+        mv Chimeric.out.sam "${MATE1_NAME}_chimeric.out.sam"
+        re-save-file chimeric "${MATE1_NAME}_chimeric.out.sam"
       {% endif %}
 
       {% if t_coordinates.quantmode %}
-        mv Aligned.toTranscriptome.out.bam "${READS_NAME}_aligned.toTranscriptome.out.bam"
-        re-save-file alignment_transcriptome "${READS_NAME}_aligned.toTranscriptome.out.bam"
+        mv Aligned.toTranscriptome.out.bam "${MATE1_NAME}_aligned.toTranscriptome.out.bam"
+        re-save-file alignment_transcriptome "${MATE1_NAME}_aligned.toTranscriptome.out.bam"
       {% endif %}
 
       {% if t_coordinates.gene_counts %}
-        mv ReadsPerGene.out.tab "${READS_NAME}.tab"
-        gzip "${READS_NAME}.tab"
-        re-save-file gene_counts "${READS_NAME}.tab.gz"
-        cp "${READS_NAME}.tab.gz" "${READS_NAME}_1.tab.gz"
-        cp "${READS_NAME}.tab.gz" "${READS_NAME}_2.tab.gz"
-        cp "${READS_NAME}.tab.gz" "${READS_NAME}_3.tab.gz"
-        re-export "${READS_NAME}_1.tab.gz"
-        re-export "${READS_NAME}_2.tab.gz"
-        re-export "${READS_NAME}_3.tab.gz"
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_1.tab.gz\"',"stranded":"no","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_2.tab.gz\"',"stranded":"yes","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
-        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${READS_NAME}_3.tab.gz\"',"stranded":"reverse","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
+        mv ReadsPerGene.out.tab "${MATE1_NAME}.tab"
+        gzip "${MATE1_NAME}.tab"
+        re-save-file gene_counts "${MATE1_NAME}.tab.gz"
+        cp "${MATE1_NAME}.tab.gz" "${MATE1_NAME}_1.tab.gz"
+        cp "${MATE1_NAME}.tab.gz" "${MATE1_NAME}_2.tab.gz"
+        cp "${MATE1_NAME}.tab.gz" "${MATE1_NAME}_3.tab.gz"
+        re-export "${MATE1_NAME}_1.tab.gz"
+        re-export "${MATE1_NAME}_2.tab.gz"
+        re-export "${MATE1_NAME}_3.tab.gz"
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${MATE1_NAME}_1.tab.gz\"',"stranded":"no","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${MATE1_NAME}_2.tab.gz\"',"stranded":"yes","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
+        echo 'run {"process":"upload-expression-star","input":{"rc":'\"${MATE1_NAME}_3.tab.gz\"',"stranded":"reverse","source":'\"{{genome.source}}\"',"species":'\"{{genome.species}}\"',"build":'\"{{genome.build}}\"'}}'
       {% endif %}
 
-      mv Log.final.out "${READS_NAME}_stats.txt"
-      mv SJ.out.tab "${READS_NAME}_SJ.out.tab"
+      mv Log.final.out "${MATE1_NAME}_stats.txt"
+      mv SJ.out.tab "${MATE1_NAME}_SJ.out.tab"
 
-      re-save-file bam "${READS_NAME}.bam"
-      re-save-file bai "${READS_NAME}.bam.bai"
-      re-save-file sj "${READS_NAME}_SJ.out.tab"
-      re-save-file stats "${READS_NAME}_stats.txt"
+      re-save-file bam "${MATE1_NAME}.bam"
+      re-save-file bai "${MATE1_NAME}.bam.bai"
+      re-save-file sj "${MATE1_NAME}_SJ.out.tab"
+      re-save-file stats "${MATE1_NAME}_stats.txt"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${READS_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }} 480 {{ genome.species }}
+      bamtobigwig.sh "${MATE1_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }} 480 {{ genome.species }}
 
 
 - slug: alignment-star-index
