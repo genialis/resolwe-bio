@@ -153,3 +153,6 @@
       re-save-file bai "${NAME}_${BUILD1}.bam.bai"
       re-save species {{ species1 }}
       re-save build ${BUILD1}
+
+      # computation time limit for bamCoverage is 480s per GB
+      bamtobigwig.sh "${NAME}_${BUILD1}.bam" {{ requirements.resources.cores }} 50 480 {{ species1 }}
