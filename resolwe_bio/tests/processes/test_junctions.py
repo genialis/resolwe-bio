@@ -105,8 +105,12 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
             'annotation': annotation_no_junctions.id,
         }
         annotate_star_no_junctions = self.run_process('regtools-junctions-annotate', inputs)
-        warning_msg = ['STAR SJ.out.tab file has no entries. There will be no splice junctions detected.',
-                       'Bed file has no entries. BigBed index can not be created.']
+        warning_msg = [
+            'STAR SJ.out.tab file has no entries. There will be no splice junctions detected.',
+            'Bed file has no entries.',
+            'BigBed index can not be created.',
+            'Bed file with novel splice junctions has no entries. BigBed index can not be created.'
+        ]
         self.assertEqual(annotate_star_no_junctions.process_warning, warning_msg)
 
         inputs = {
@@ -116,11 +120,18 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
         }
         annotate_bam_no_junctions = self.run_process('regtools-junctions-annotate', inputs)
         warning_msg = [
-            'Bed file has no entries. BigBed index can not be created.']
+            'Bed file has no entries.',
+            'BigBed index can not be created.',
+            'Bed file with novel splice junctions has no entries. BigBed index can not be created.'
+        ]
         self.assertEqual(annotate_bam_no_junctions.process_warning, warning_msg)
 
         inputs['alignment'] = empty_bam_upload.id
         annotate_empty_bam = self.run_process('regtools-junctions-annotate', inputs)
-        warning_msg = ['Bam file has no entries. There will be no splice junctions detected.',
-                       'Bed file has no entries. BigBed index can not be created.']
+        warning_msg = [
+            'Bam file has no entries. There will be no splice junctions detected.',
+            'Bed file has no entries.',
+            'BigBed index can not be created.',
+            'Bed file with novel splice junctions has no entries. BigBed index can not be created.'
+        ]
         self.assertEqual(annotate_empty_bam.process_warning, warning_msg)

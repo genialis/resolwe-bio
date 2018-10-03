@@ -6,10 +6,10 @@
 - slug: regtools-junctions-annotate
   name: Annotate novel splice junctions (regtools)
   data_name: >
-    "{{ alignment_star|sample_name|default('') }}
+    {{ alignment_star|sample_name|default('') }}
     {{ alignment|sample_name|default('') }}
-    {{ input_bed_junctions.bed.file|default('') }}"
-  version: 0.0.3
+    {{ input_bed_junctions.bed.file|default('') }}
+  version: 0.1.0
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja
@@ -64,13 +64,23 @@
     - name: splice_junctions
       label: Table of annotated splice junctions
       type: basic:file
+    - name: novel_sj_bed
+      label: Novel splice junctions in BED format
+      type: basic:file
     - name: bed
       label: Splice junctions in BED format
       type: basic:file
+    - name: novel_sj_bigbed_igv_ucsc
+      label: Novel splice junctions in BigBed format
+      type: basic:file
+      required: false
     - name: bigbed_igv_ucsc
       label: Splice junctions in BigBed format
       type: basic:file
       required: false
+    - name: novel_sj_tbi_jbrowse
+      label: Novel splice junctions bed tbi index for JBrowse
+      type: basic:file
     - name: tbi_jbrowse
       label: Bed tbi index for JBrowse
       type: basic:file
@@ -203,10 +213,21 @@
       re-save-file bed "${NAME}_SJ.bed.gz"
       re-save-file tbi_jbrowse "${NAME}_SJ.bed.gz.tbi"
 
-      # Filter novel junctions in new file
+      # Filter annotated novel junctions in new file
       awk '($11!="DA") {print}' annotated_junctions.txt > "${NAME}_SJ_novel.txt"
-      re-checkrc "Filtering of novel junctions failed."
+      re-checkrc "Filtering of annotated novel splice junctions failed."
       re-save-file novel_splice_junctions "${NAME}_SJ_novel.txt"
+
+      # Filter novel junctions in BED12 format
+      novel_splice_junctions.py -bed junctions_sorted.bed -sj "${NAME}_SJ_novel.txt"
+      re-checkrc "Filtering of novel splice junctions in BED12 format failed."
+
+      # Create tabix index for bed file with novel SJ for JBrowse
+      bgzip -c novel_sj.bed > "${NAME}_novel_SJ.bed.gz"
+      tabix -p bed "${NAME}_novel_SJ.bed.gz"
+      re-checkrc "Tabix processing of bed file with novel SJ for JBrowse failed."
+      re-save-file novel_sj_bed "${NAME}_novel_SJ.bed.gz"
+      re-save-file novel_sj_tbi_jbrowse "${NAME}_novel_SJ.bed.gz.tbi"
 
       gzip annotated_junctions.txt
       mv annotated_junctions.txt.gz "${NAME}_SJ.txt.gz"
@@ -224,7 +245,21 @@
         re-save-file bigbed_igv_ucsc "${NAME}_SJ.bb"
       else
         re-warning \
-          "Bed file has no entries. BigBed index can not be created."
+          "BigBed index can not be created."
+      fi
+
+      # Create bigBed index if bed with novel junctions is not empty
+      if [ -s novel_sj.bed ]; then
+        bed_file_corrections_genome_browsers.py -f novel_sj.bed
+        re-checkrc "Novel splice junctions bed file corrections for Genome Browsers failed."
+        # case sensitive sorting
+        LC_COLLATE=C sort -k 1,1 -k 2,2n corrected_novel_sj.bed > corrected_novel_sj_sorted.bed
+        bedToBigBed corrected_novel_sj_sorted.bed chrom.sizes "${NAME}_novel_SJ.bb"
+        re-checkrc "Creating bigBed file with novel splice junctions failed."
+        re-save-file novel_sj_bigbed_igv_ucsc "${NAME}_novel_SJ.bb"
+      else
+        re-warning \
+          "Bed file with novel splice junctions has no entries. BigBed index can not be created."
       fi
 
       re-save species {{ genome.species }}

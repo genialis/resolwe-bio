@@ -51,6 +51,9 @@ Added
   - ``upload-bam-secondary``
 - Add ``replicate_groups`` Jinja expressions filter that accepts a list of
   data objects and returns a list of labels determining replicate groups.
+- Add 'Novel splice junctions in BED format' output to
+  ``regtools-junctions-annotate`` process, so that user can visualize only
+  novel splice juntions in genome browsers.
 
 Fixed
 -----
