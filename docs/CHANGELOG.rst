@@ -47,6 +47,8 @@ Added
   - ``upload-bam``
   - ``upload-bam-indexed``
   - ``upload-bam-secondary``
+- Add ``replicate_groups`` Jinja expressions filter that accepts a list of
+  data objects and returns a list of labels determining replicate groups.
 
 Fixed
 -----
