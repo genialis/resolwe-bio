@@ -118,6 +118,7 @@ FLOW_EXPRESSION_ENGINES = [
         'ENGINE': 'resolwe.flow.expression_engines.jinja',
         'CUSTOM_FILTERS': [
             'resolwe_bio.expression_filters.sample',
+            'resolwe_bio.expression_filters.relation',
         ]
     },
 ]
