@@ -13,17 +13,22 @@
       docker:
         image: resolwebio/rnaseq:3.1.0
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 1.7.1
+  version: 2.0.0
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED
   description: >
     Cufflinks includes a program, Cuffnorm, that you can use to generate
-    tables of expression values that are properly normalized for library size.
-    Cuffnorm takes a GTF2/GFF3 file of transcripts as input, along with two or
-    more SAM, BAM, or CXB files for two or more samples. See
-    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffnorm/) for more
-    information.
+    tables of expression values that are properly normalized for library
+    size. Cuffnorm takes a GTF2/GFF3 file of transcripts as input,
+    along with two or more SAM, BAM, or CXB files for two or more
+    samples. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffnorm/) for
+    more information.
+
+    Replicate relation needs to be defined for Cuffnorm to account for
+    replicates. If the replicate relation is not defined, each sample
+    will be treated individually.
   input:
     - name: cuffquant
       label: Cuffquant expression file
@@ -33,11 +38,6 @@
       type: data:annotation
       description: >
         A transcript annotation file produced by cufflinks, cuffcompare, or other source.
-    - name: replicates
-      label: Define Groups/Replicates
-      type: list:basic:string
-      description: >
-        Define sample groups and/or sample replicates. For example, a string 1 1 2 2 2 will split 5 samples into 2 groups with 2 and 3 replicate samples in each group, respectively.
     - name: useERCC
       label: ERCC spike-in normalization
       type: basic:boolean
@@ -150,7 +150,6 @@
           re-warning "All samples must share the same genome build information as the annotation."
           re-error "Sample {{ c|sample_name }} has {{ c.build }}, while annotation {{ annotation|name }} has {{ annotation.build }} build information."
         {% endif %}
-
       {% endfor %}
 
       {% if cuffquant|map('sample_name')|unique|list|length < cuffquant|length %}
@@ -160,16 +159,17 @@
       experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
       experiment=${experiment%?} #removes comma at the end
 
-      replicates='{% for r in replicates %}{{ r }},{% endfor %}'
-      replicates=${replicates%?}
+      {% set replicates = cuffquant|replicate_groups|join(',') %}
+      echo "Group labels:"
+      echo {{ replicates }}
 
       sample_names='{% for cq in cuffquant %}{{ cq|sample_name }},{% endfor %}'
       sample_names=${sample_names%?}
 
-      labels=`cuffnorm_group_labels.py ${replicates}` #construction of group labels
+      labels=`cuffnorm_group_labels.py {{ replicates }}` #construction of group labels
       labels=${labels%?}
 
-      experiments=`cufflinks_sample_groups.py ${experiment} ${replicates}` #put into correct format for cuffnorm
+      experiments=`cufflinks_sample_groups.py ${experiment} {{ replicates }}` #put into correct format for cuffnorm
 
       re-progress 0.1
 
@@ -178,7 +178,7 @@
       re-progress 0.8
 
       # Replace all cuffnorm output tables headers with sample names.
-      cuffnorm_output_table_headers.py ${replicates} ${sample_names} ${experiment}
+      cuffnorm_output_table_headers.py {{ replicates }} ${sample_names} ${experiment}
 
       # Run normalizeRNASeq.
       Rscript --slave --no-save --no-restore-history -e " \

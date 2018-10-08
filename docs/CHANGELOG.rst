@@ -21,6 +21,8 @@ Changed
   descriptor schemas.
 - **BACKWARD INCOMPATIBLE:** Unify types of ``macs14`` and
   ``macs2-callpeak`` processes and make ``rose2`` work with both
+- **BACKWARD INCOMPATIBLE:** Remove ``replicates`` input in ``cuffnorm``
+  process. Use sample relation information instead.
 - Use ``resolwebio/chipseq:3.0.0`` docker image in the following processes:
 
   - ``macs14``

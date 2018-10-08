@@ -1,6 +1,9 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Collection, Relation
+from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import tag_process
+
+from resolwe_bio.expression_filters.relation import replicate_groups
 
 from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
@@ -85,6 +88,20 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process('cuffnorm')
     def test_cuffnorm(self):
         with self.preparation_stage():
+            collection = Collection.objects.create(
+                name='Test collection',
+                contributor=self.contributor
+            )
+
+            rel_type_group = RelationType.objects.get(name='group')
+
+            replicate_group = Relation.objects.create(
+                contributor=self.contributor,
+                collection=collection,
+                type=rel_type_group,
+                category='Replicate'
+            )
+
             inputs = {
                 'src': 'cuffquant_1.cxb',
                 'source': 'UCSC',
@@ -133,13 +150,32 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             }
             sample_6 = self.run_process("upload-cxb", inputs)
 
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_1.entity_set.first(), label='1')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_2.entity_set.first(), label='1')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_3.entity_set.first(), label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_4.entity_set.first(), label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_5.entity_set.first(), label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_6.entity_set.first(), label='3')
+
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC',
                                                  species='Homo sapiens', build='hg19')
+
+            self.assertEqual(
+                replicate_groups([
+                    {'__id': sample_1.id},
+                    {'__id': sample_2.id},
+                    {'__id': sample_3.id},
+                    {'__id': sample_4.id},
+                    {'__id': sample_5.id},
+                    {'__id': sample_6.id}
+                ]),
+                [1, 1, 2, 2, 2, 3]
+            )
 
         inputs = {
             'cuffquant': [sample_1.pk, sample_2.pk, sample_3.pk, sample_4.pk, sample_5.pk, sample_6.pk],
             'annotation': annotation.id,
-            'replicates': ['1', '1', '2', '2', '2', '3']}
+        }
         cuffnorm = self.run_process('cuffnorm', inputs)
         self.assertFile(cuffnorm, 'fpkm_means', 'cuffnorm_all_fpkm_means.txt')
         self.assertFile(cuffnorm, 'genes_fpkm', 'cuffnorm_genes.fpkm_table')
