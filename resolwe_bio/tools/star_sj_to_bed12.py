@@ -57,8 +57,8 @@ bed_file.loc[:, 'sj_name'] = (
     (sj_file.index + 1).astype(str).map(lambda x: 'JUNC0' + x.zfill(rows_num_length))
 )
 
-# 5: score = number of uniquely mapping reads crossing the junction
-bed_file.loc[:, 'score'] = sj_file.iloc[:, 6].values
+# 5: score = number of uniquely and multi mapping reads crossing the junction
+bed_file.loc[:, 'score'] = (sj_file.iloc[:, 6].values + sj_file.iloc[:, 7].values)
 
 # 6: strand =  0: '.' (undefined) , 1: '+', 2: '-
 conditions = [

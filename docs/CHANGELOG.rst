@@ -31,6 +31,8 @@ Changed
 - Downgrade primerclip to old version (v171018) in ``resolwebio/dnaseq:3.3.0``
   docker image and move it to google drive.
 - Move ``bam-split`` process to ``resolwebio/rnaseq:3.7.1`` docker image
+- Count unique and multimmaping reads in ``regtools-junctions-annotate``
+  process
 
 Added
 -----
