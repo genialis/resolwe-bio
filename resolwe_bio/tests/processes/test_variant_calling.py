@@ -8,41 +8,6 @@ from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
 
 class VariantCallingTestCase(BioProcessTestCase):
 
-    @tag_process('vc-samtools')
-    def test_variant_calling_samtools(self):
-        with self.preparation_stage():
-            inputs = {
-                'src': 'variant_calling_genome.fasta.gz',
-                'species': 'Dictyostelium discoideum',
-                'build': 'dd-05-2009'
-            }
-            genome = self.run_process('upload-genome', inputs)
-
-            reads = self.prepare_reads(['variant_calling_reads.fastq.gz'])
-
-            inputs = {'genome': genome.pk, 'reads': reads.pk, 'reporting': {'rep_mode': "def"}}
-            aligned_reads = self.run_process('alignment-bowtie2', inputs)
-
-        inputs = {
-            'genome': genome.pk,
-            'mapping': aligned_reads.pk,
-            'options': {
-                'd': 10,
-                'D': 50000,
-                'Q': 30
-            }
-        }
-        samtools_variants = self.run_process('vc-samtools', inputs)
-        self.assertFile(
-            samtools_variants,
-            'vcf',
-            'variant_calling_samtools.vcf.gz',
-            file_filter=filter_vcf_variable,
-            compression='gzip'
-        )
-        self.assertFields(samtools_variants, 'build', 'dd-05-2009')
-        self.assertFields(samtools_variants, 'species', 'Dictyostelium discoideum')
-
     @tag_process('vc-chemut')
     def test_variant_calling_chemut(self):
         with self.preparation_stage():
@@ -105,34 +70,6 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(filtered_variants, 'vcf', 'variant_calling_filtered_variants.vcf.gz', compression='gzip')
         self.assertFields(filtered_variants, 'build', 'dd-05-2009')
         self.assertFields(filtered_variants, 'species', 'Dictyostelium discoideum')
-
-    @tag_process('hsqutils-dedup')
-    def test_hsqutils_dedup(self):
-        with self.preparation_stage():
-            bam_input = {
-                'src': 'hsqutils_aligment.bam',
-                'species': 'Homo sapiens',
-                'build': 'hg19'
-            }
-            bam = self.run_process('upload-bam', bam_input)
-
-            inputs = {
-                'src1': ['hsqutils_reads_mate1_paired_filtered.fastq.gz'],
-                'src2': ['hsqutils_reads_mate2_paired_filtered.fastq.gz']}
-            reads = self.run_processor('upload-fastq-paired', inputs)
-
-            probe = self.run_processor('upload-file', {'src': 'hsqutils_probe_info.txt'})
-
-        inputs = {
-            'alignment': bam.id,
-            'reads': reads.id,
-            'probe': probe.id
-        }
-
-        hsqutils_dedup = self.run_process('hsqutils-dedup', inputs)
-        self.assertFile(hsqutils_dedup, 'summary', 'HSQUtils_dedup_summary.txt')
-        self.assertFields(hsqutils_dedup, 'build', 'hg19')
-        self.assertFields(hsqutils_dedup, 'species', 'Homo sapiens')
 
     @skipUnlessLargeFiles('56GSID_10k_mate1_RG.bam')
     @tag_process('vc-realign-recalibrate')

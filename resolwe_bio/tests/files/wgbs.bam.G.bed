@@ -1,2 +1,0 @@
-#chrom	start	end	ratio	totalC	methC	strand	next	Plus	totalC	methC	Minus	totalC	methC	localSeq
-chr1	74113	74115	1	1	1	-	G	+	0	0	-	1	1	GCGAT

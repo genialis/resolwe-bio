@@ -84,36 +84,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_use_SE_report.txt')
 
-    @tag_process('alignment-tophat2')
-    def test_tophat(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-            reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
-                                                     mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
-
-            annotation = self.prepare_annotation_gff()
-
-        inputs = {
-            'genome': genome.id,
-            'reads': reads.id,
-            'annotation': annotation.id,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_process('alignment-tophat2', inputs)
-        self.assertFile(aligned_reads, 'stats', 'tophat_reads_report.txt')
-        self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
-        self.assertFields(aligned_reads, 'build', 'dd-05-2009')
-
-        inputs = {
-            'genome': genome.id,
-            'reads': reads_paired.id,
-            'annotation': annotation.id,
-            'PE_options': {
-                'library_type': "fr-unstranded"}}
-        aligned_reads = self.run_process('alignment-tophat2', inputs)
-        self.assertFile(aligned_reads, 'stats', 'tophat_paired_reads_report.txt')
-
     @tag_process('alignment-star-index')
     def test_star_index(self):
         with self.preparation_stage():

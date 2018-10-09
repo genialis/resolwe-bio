@@ -18,13 +18,13 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             annotation_gtf = self.prepare_annotation('annotation dicty.gff.gz')
             annotation_gff3 = self.prepare_annotation_gff()
 
-            inputs = {
+            aligned_reads = self.run_process('alignment-hisat2', {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'annotation': annotation_gtf.pk,
-                'PE_options': {
-                    'library_type': "fr-unstranded"}}
-            aligned_reads = self.run_process('alignment-tophat2', inputs)
+                'spliced_alignments': {
+                    'cufflinks': True
+                }
+            })
 
         inputs = {
             'alignment': aligned_reads.pk,
@@ -196,13 +196,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             reads = self.prepare_reads()
             annotation = self.prepare_annotation_gff()
 
-            inputs = {
+            aligned_reads = self.run_process('alignment-hisat2', {
                 'genome': genome.pk,
-                'reads': reads.pk,
-                'annotation': annotation.pk,
-                'PE_options': {
-                    'library_type': "fr-unstranded"}}
-            aligned_reads = self.run_process('alignment-tophat2', inputs)
+                'reads': reads.pk
+            })
 
             mappa = self.run_process("upload-mappability", {"src": "purpureum_mappability_50.tab.gz"})
 
@@ -251,15 +248,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             }
             annotation_wrong_build = self.run_process('upload-gtf', inputs)
 
-            inputs = {
+            aligned_reads = self.run_process('alignment-hisat2', {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'annotation': annotation_correct.pk,
-                'PE_options': {
-                    'library_type': 'fr-unstranded',
-                },
-            }
-            aligned_reads = self.run_process('alignment-tophat2', inputs)
+            })
 
         inputs = {
             'alignments': aligned_reads.pk,
@@ -376,13 +368,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             reads = self.prepare_reads()
             annotation = self.prepare_annotation_gff()
 
-            inputs = {
+            aligned_reads = self.run_process('alignment-hisat2', {
                 'genome': genome.pk,
                 'reads': reads.pk,
-                'annotation': annotation.pk,
-                'PE_options': {
-                    'library_type': "fr-unstranded"}}
-            aligned_reads = self.run_process('alignment-tophat2', inputs)
+            })
 
             mappa = self.run_process("upload-mappability", {"src": "purpureum_mappability_50.tab.gz"})
 

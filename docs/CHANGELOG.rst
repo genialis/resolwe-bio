@@ -6,6 +6,28 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes: ``bsmap``,
+  ``mcall``, ``coverage-garvan``, ``igv``, ``jbrowse-bed``,
+  ``jbrowse-gff3``, ``jbrowse-gtf``, ``jbrowse-bam-coverage``,
+  ``jbrowse-bam-coverage-normalized``, ``jbrowse-refseq``,
+  ``fastq-mcf-single``, ``fastq-mcf-paired``, ``hsqutils-trim``,
+  ``prinseq-lite-single``, ``prinseq-lite-paired``,
+  ``sortmerna-single``, ``sortmerna-paired``, ``bam-coverage``,
+  ``hsqutils-dedup``, ``vc-samtools``, ``workflow-heat-seq`` and
+  ``alignment-tophat2``.
+
+Added
+-----
+
+Fixed
+-----
+
 =================
 14.0.1 2018-10-23
 =================
