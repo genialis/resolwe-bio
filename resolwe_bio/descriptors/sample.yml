@@ -41,7 +41,7 @@
             If using an animal model, this is strain information of that model, e.g. C57BL6,
             Sprague Dawley, etc.
           required: false
-          hidden: "sample_data.species != 'Mus musculus' && sample_data.species != 'Rattus norvegicus'"
+          hidden: "general.species != 'Mus musculus' && general.species != 'Rattus norvegicus'"
         - name: genotype
           label: Genotype
           type: basic:string
@@ -70,13 +70,13 @@
             Search for your tissue type: http://www.ontobee.org/ontology/UBERON and enter the UBERON
             number e.g. thymus - UBERON:0002370.
           required: false
-          hidden: "biosample_type != 'primary_cell'"
+          hidden: "general.biosample_type != 'primary_cell'"
         - name: cell_line
           label: Cell line
           type: basic:string
           description: Name of your cell line, e.g. MF331, DAOY, etc.
           required: false
-          hidden: "biosample_type != 'cell_line'"
+          hidden: "general.biosample_type != 'cell_line'"
         - name: cell_type
           label: Cell type
           type: basic:string
@@ -331,7 +331,7 @@
               value: other
         - name: chip_seq
           label: ChIP-seq
-          hidden: "assay_type != 'chip-seq'"
+          hidden: "experiment.assay_type != 'chip-seq'"
           group:
             - name: target_of_assay
               label: Target of assay
