@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 0.0.2
+  version: 0.0.3
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -109,6 +109,8 @@
         cut -f 1,11,15 >> align_metrics.txt
       {% endif %}
 
+      mkdir temp
+
       # Single-end reads
       if [ $(samtools view -c -f 1 {{ alignment.bam.file }}) -eq 0 ]; then
 
@@ -125,6 +127,7 @@
           VALIDATION_STRINGENCY=LENIENT \
           ASSUME_SORTED=true \
           REMOVE_DUPLICATES=false
+          TMP_DIR='./temp'
         re-checkrc "picard-tools MarkDuplicates processing failed"
         re-progress 0.3
 
@@ -192,6 +195,7 @@
           VALIDATION_STRINGENCY=LENIENT \
           ASSUME_SORTED=true \
           REMOVE_DUPLICATES=false
+          TMP_DIR='./temp'
         re-checkrc "picard-tools MarkDuplicates processing failed"
         re-progress 0.3
 
