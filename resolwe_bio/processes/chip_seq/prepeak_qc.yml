@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 0.0.3
+  version: 0.0.4
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -126,7 +126,7 @@
           METRICS_FILE="${NAME}_duplicates_metrics.txt" \
           VALIDATION_STRINGENCY=LENIENT \
           ASSUME_SORTED=true \
-          REMOVE_DUPLICATES=false
+          REMOVE_DUPLICATES=false \
           TMP_DIR='./temp'
         re-checkrc "picard-tools MarkDuplicates processing failed"
         re-progress 0.3
@@ -194,7 +194,7 @@
           METRICS_FILE="${NAME}_duplicates_metrics.txt" \
           VALIDATION_STRINGENCY=LENIENT \
           ASSUME_SORTED=true \
-          REMOVE_DUPLICATES=false
+          REMOVE_DUPLICATES=false \
           TMP_DIR='./temp'
         re-checkrc "picard-tools MarkDuplicates processing failed"
         re-progress 0.3
