@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 0.0.4
+  version: 0.0.5
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -63,6 +63,9 @@
     runtime: polyglot
     language: bash
     program: |
+      # Set JVM memory requirements
+      export _JAVA_OPTIONS='-Xms256M -Xmx{{ requirements.resources.memory // 1024 }}g'
+
       NAME=`basename {{ alignment.bam.file }} .bam`
 
       {% set pbc_header = [
