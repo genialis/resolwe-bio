@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 13.x
 - **BACKWARD INCOMPATIBLE:** Remove ``gsize`` input from
   ``macs2-callpeak`` process and automate genome size selection
 - **BACKWARD INCOMPATIBLE:** Set a new default ``sample`` and ``reads``
