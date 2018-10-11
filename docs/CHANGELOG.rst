@@ -47,6 +47,8 @@ Fixed
 - Fix tests using deprecated flow_collection
 - Fix HTSeq CPM test
 - Handle integer expression values in hierarchical clustering
+- Fix Amplicon table gene hyperlinks for cases where multiple genes
+  are associated with detected variant
 
 
 =================

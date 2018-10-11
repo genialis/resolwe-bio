@@ -109,7 +109,9 @@ def main():
                 var_links = [(var_id, snp_url(var_id)) for var_id in variant['ID'].split(';')]
 
             url = 'http://www.ncbi.nlm.nih.gov/gene/?term='
-            feature_links = [(variant['EFF[*].GENE'], '{}{}'.format(url, variant['EFF[*].GENE']))]
+            feature_links = [
+                (gene_symbol, '{}{}'.format(url, gene_symbol)) for gene_symbol in variant['EFF[*].GENE'].split(',')
+            ]
 
             variants_temp[amp].append({
                 'pos': gb_pos,
