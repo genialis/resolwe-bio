@@ -21,6 +21,9 @@ Changed
   ``sortmerna-single``, ``sortmerna-paired``, ``bam-coverage``,
   ``hsqutils-dedup``, ``vc-samtools``, ``workflow-heat-seq`` and
   ``alignment-tophat2``.
+- **BACKWARD INCOMPATIBLE:** Remove ``jbrowse-bam-coverage`` process
+  step from the ``workflow-accel`` workflow. The bigwig coverage track
+  is computed in ``align-bwa-trim`` process instead.
 
 Added
 -----

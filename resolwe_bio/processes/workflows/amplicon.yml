@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.0.1
+  version: 4.0.0
   category: Pipeline
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
@@ -181,17 +181,13 @@
           annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
           all_amplicons: true
           table_name: All amplicons
-      - id: jbrowse_coverage
-        run: jbrowse-bam-coverage
-        input:
-          bam: '{{steps.bwa_trim}}'
 
 - slug: workflow-accel-gatk4
   name: Accel Amplicon Pipeline (GATK4)
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   category: Pipeline
   description: >
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
@@ -369,7 +365,3 @@
           annot_vars: '{{[steps.annotate_gatk, steps.annotate_lofreq]}}'
           all_amplicons: true
           table_name: All amplicons
-      - id: jbrowse_coverage
-        run: jbrowse-bam-coverage
-        input:
-          bam: '{{steps.bwa_trim}}'

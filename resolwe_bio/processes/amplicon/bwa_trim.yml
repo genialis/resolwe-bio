@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:alignment:bam:bwatrim
   category: Other
   flow_collection: sample
@@ -250,4 +250,4 @@
       re-save build {{ genome.build }}
 
       # computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}_RG.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
+      bamtobigwig.sh "${NAME}_RG.bam" {{ requirements.resources.cores }} 1 480 {{ genome.species }}
