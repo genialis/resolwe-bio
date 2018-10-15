@@ -552,6 +552,29 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         inputs = {
             'exps': [
                 expression_1.pk,
+                expression_7.pk,
+            ],
+            'preprocessing': {
+                'genes': [
+                    'ENSG00000185982',
+                    'ENSG00000125903',
+                    'ENSG00000186458',  # this gene is missing in both expression files
+                ],
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+            },
+        }
+        clustering = self.run_process('clustering-hierarchical-genes', inputs)
+        warning_msg = [('1 of the selected genes (DEFB132) is missing in at least one of the '
+                        'selected samples. This gene is excluded from the computation of '
+                        'hierarchical clustering of genes.')]
+        self.assertEqual(clustering.process_warning, warning_msg)
+        saved_json, test_json = self.get_json('gene_cluster_filtered.json.gz', clustering.output['cluster'])
+        self.assertEqual(test_json['linkage'], saved_json['linkage'])
+
+        inputs = {
+            'exps': [
+                expression_1.pk,
                 expression_1.pk,
             ],
             'preprocessing': {

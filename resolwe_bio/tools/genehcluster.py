@@ -193,6 +193,7 @@ def main():
 
     if args.remove_const:
         expressions, matches = remove_const_genes(expressions)
+        gene_names = get_gene_names(list(expressions.index), args.source, args.species)
         if len(expressions.index) == 0:
             msg = ('All of the selected genes have constant expression across samples. '
                    'Hierarchical clustering of genes cannot be computed.')
@@ -200,9 +201,9 @@ def main():
         if len(expressions.index) == 1:
             msg = ('Only one of the selected genes ({}) has a non-constant expression across '
                    'samples. However, hierarchical clustering of genes cannot be computed with '
-                   'just one gene.'.format(get_gene_names(list(expressions.index), args.source, args.species)[0]))
+                   'just one gene.'.format(gene_names[0]))
             set_error(msg)
-        removed = [name for i, name in enumerate(args.gene_labels) if not matches[i]]
+        removed = [name for i, name in enumerate(gene_names) if not matches[i]]
         suffix = '' if len(removed) <= 3 else ', ...'
         if removed:
             removed_names = get_gene_names(removed[:3], args.source, args.species)
@@ -212,7 +213,7 @@ def main():
                    'metric.'.format(len(removed), ', '.join(removed_names) + suffix))
             print(warning(msg))
     else:
-        matches = [True] * len(args.gene_labels)
+        matches = [True] * len(expressions.index)
 
     suffix = '' if len(excluded) <= 3 else ', ...'
     if excluded:
