@@ -9,6 +9,7 @@ gotea
 genome-tools
 igvtools
 jbrowse
+makedb-walt
 r-packages
 regtools
 rsem

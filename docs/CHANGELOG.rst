@@ -27,6 +27,9 @@ Changed
 
 Added
 -----
+- Add ``makedb (WALT 1.01)`` - callable as ``makedb-walt``, tool to
+  create genome index for WALT aligner, to ``resolwebio/rnaseq`` docker
+  image
 
 Fixed
 -----

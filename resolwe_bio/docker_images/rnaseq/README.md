@@ -27,6 +27,7 @@ Included bioinformatics tools:
 * igvtools (v2.3.98)
 * jbrowse (v1.12.0)
 * loadSubread (0.0.1)
+* makedb (WALT 1.01)
 * Picard Tools (v2.18.5)
 * regtools (0.5.0)
 * RSEM (v1.4.0)
