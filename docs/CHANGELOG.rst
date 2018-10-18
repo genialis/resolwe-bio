@@ -30,6 +30,10 @@ Added
 - Add ``makedb (WALT 1.01)`` - callable as ``makedb-walt``, tool to
   create genome index for WALT aligner, to ``resolwebio/rnaseq`` docker
   image
+- Add ``resolwebio/wgbs`` docker image including the following tools:
+
+  -``MethPipe (3.4.3)``
+  -``WALT (1.01)``
 
 Fixed
 -----

@@ -1,0 +1,2 @@
+libgsl23
+libgomp1
