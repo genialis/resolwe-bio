@@ -40,7 +40,7 @@ def get_pca(expressions=pd.DataFrame(), n_components=2, gene_labels=[]):
     skipped_gene_labels = list(set(gene_labels).difference(expressions.index))
 
     if expressions.shape[0] < 2 or expressions.shape[1] < 2:
-        coordinates = [[0, 0] for i in range(len(expressions))]
+        coordinates = [[0.0, 0.0] for i in range(expressions.shape[1])]
         all_components = [[], []]
         all_explained_variance_ratios = [0.0, 0.0]
     else:
