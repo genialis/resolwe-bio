@@ -46,6 +46,18 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
         self.assertAlmostEqualGeneric(test_json['components'], saved_json['components'])
         self.assertEqual(len(pca.process_warning), 0)
 
+        inputs = {
+            'exps': [expression_1.pk],
+            'source': 'DICTYBASE',
+            'species': 'Dictyostelium discoideum'
+        }
+        pca = self.run_process('pca', inputs)
+        saved_json, test_json = self.get_json('pca_plot_single_sample.json.gz', pca.output['pca'])
+        self.assertAlmostEqualGeneric(test_json['flot']['data'], saved_json['flot']['data'])
+        self.assertAlmostEqualGeneric(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
+        self.assertAlmostEqualGeneric(test_json['components'], saved_json['components'])
+        self.assertEqual(len(pca.process_warning), 0)
+
     @with_resolwe_host
     @tag_process('pca')
     def test_pca_ncbi(self):

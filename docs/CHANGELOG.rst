@@ -22,6 +22,7 @@ Fixed
   more genes requested in gene filter are missing in selected expression files
   a warning is issued and hierarchical clustering of genes is computed with the
   rest of the genes instead of failing.
+- Fix PCA computation for single sample case
 
 
 =================
