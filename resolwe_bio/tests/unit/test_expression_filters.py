@@ -5,10 +5,10 @@ from resolwe.flow.models import Data, DescriptorSchema, Collection, Process, Rel
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import TestCase
 
-from resolwe_bio.expression_filters.relation import replicate_groups
+from resolwe_bio.expression_filters.relation import replicate_groups, background_data
 
 
-class TestRelationFilters(TestCase):
+class TestReplicateRelationFilters(TestCase):
 
     def test_repl_groups(self):
         p = Process.objects.create(
@@ -113,3 +113,89 @@ class TestRelationFilters(TestCase):
 
         with self.assertRaises(ValueError):
             replicate_groups([{'__id': d.id}])
+
+
+class TestBackgroundRelationFilters(TestCase):
+
+    def test_back_filter(self):
+        DescriptorSchema.objects.create(
+            slug='sample',
+            version='1.0.0',
+            contributor=self.contributor
+        )
+
+        collection = Collection.objects.create(
+            name='Test collection',
+            contributor=self.contributor
+        )
+
+        p = Process.objects.create(
+            type='data:test:process:',
+            slug='test-process',
+            contributor=self.contributor,
+            flow_collection='sample',
+            input_schema=[{
+                'name': 'ident',
+                'type': 'basic:string:'
+            }]
+        )
+
+        case_parent = Data.objects.create(
+            name='Case: parent object',
+            contributor=self.contributor,
+            process=p,
+            status=Data.STATUS_DONE,
+            input={'ident': 'case'},
+        )
+
+        next_p = Process.objects.create(
+            type='data:test:next:',
+            slug='test-next-process',
+            contributor=self.contributor,
+            flow_collection='sample',
+            input_schema=[{
+                'name': 'src',
+                'type': 'data:test:process:'
+            }]
+        )
+
+        case_current = Data.objects.create(
+            name='Case: current object',
+            contributor=self.contributor,
+            process=next_p,
+            status=Data.STATUS_DONE,
+            input={'src': case_parent.id}
+        )
+
+        background = Data.objects.create(name='Background',
+            contributor=self.contributor,
+            process=p,
+            status=Data.STATUS_DONE,
+            input={'ident': 'background'},
+        )
+
+        rel_type_background = RelationType.objects.get(name='background')
+        replicate_group = Relation.objects.create(
+            contributor=self.contributor,
+            collection=collection,
+            type=rel_type_background,
+            category='Background'
+        )
+
+        RelationPartition.objects.create(relation=replicate_group, entity=case_parent.entity_set.first(), label='case')
+        RelationPartition.objects.create(relation=replicate_group, entity=background.entity_set.first(), label='background')
+
+        def load_templates(template_name):
+            if template_name == 'background_data':
+                return '{{ some_data|background_data }}'
+
+        env = Environment(loader=FunctionLoader(load_templates))
+        env.filters['background_data'] = background_data
+        replicate_groups_template = env.get_template('background_data')
+
+        self.assertEqual(
+            replicate_groups_template.render(
+                some_data={'__id': case_parent.id, '__type': case_parent.process.type},
+                proc={'data_id': case_current.id}),
+            '{\'ident\': \'background\'}'
+        )

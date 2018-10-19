@@ -15,6 +15,8 @@ Changed
 
 Added
 -----
+- Add ``background_data`` Jinja filter that accepts a data object and returns
+  a corresponding background data object.
 
 Fixed
 -----

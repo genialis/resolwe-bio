@@ -7,8 +7,13 @@ Relations Template Tags
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
+import copy
+
+from jinja2 import contextfilter
+
 from resolwe.flow.expression_engines.jinja.filters import id_
-from resolwe.flow.models.entity import RelationPartition
+from resolwe.flow.models.entity import RelationPartition, Relation
+from resolwe.flow.models.utils import hydrate_input_references, hydrate_input_uploads
 
 from resolwe_bio.models import Sample
 
@@ -64,7 +69,43 @@ def replicate_groups(data):
     return repl_groups
 
 
+@contextfilter
+def background_data(context, data_obj):
+    """Get background data object"""
+    current_data_id = context['proc']['data_id']
+
+    partition = RelationPartition.objects.filter(
+        relation__type__name='background',
+        label = 'background',
+        relation__relationpartition__label='case',
+        relation__relationpartition__entity__data=data_obj['__id'],
+    )[:2]
+
+    if len(partition) == 0:
+        raise ValueError('Background sample not found for data {}'.format(data_obj['__id']))
+
+    if len(partition) > 1:
+        raise ValueError('More than one background sample defined for data: {}'.format(data_obj['__id']))
+
+    sample = partition[0].entity
+    data = sample.data.filter(process__type=data_obj['__type'])[:2]
+
+    if len(data) == 0:
+        raise ValueError('Background sample found but no matching data for data {}'.format(data_obj['__id']))
+
+    if len(data) > 1:
+        raise ValueError('Background sample found but 2 or more matching data for data {}'.format(data_obj['__id']))
+
+    data = data[0]
+    inputs = copy.deepcopy(data.input)
+    hydrate_input_references(inputs, data.process.input_schema)
+    hydrate_input_uploads(inputs, data.process.input_schema)
+
+    return inputs
+
+
 # A dictionary of filters that will be registered.
 filters = {  # pylint: disable=invalid-name
+    'background_data': background_data,
     'replicate_groups': replicate_groups,
 }
