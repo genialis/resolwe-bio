@@ -38,6 +38,8 @@ Changed
   - ``macs2-callpeak``
 - Attach ``macs2-callpeak``, ``macs14`` and ``rose2`` process data to
   the case/treatment sample.
+- Use ``resolwebio/dnaseq:4.0.0`` docker image in ``align-bwa-trim``
+  process
 
 Added
 -----
@@ -73,6 +75,15 @@ Added
   SnpEff (4.3K) tool.
 - Add spike-in names, rRNA and globin RNA cromosome names in
   ``resolwebio/common`` image
+- Add UCSC bedGraphtoBigWig tool for calculating BigWig in
+  ``bamtobigwig.sh`` script. In ``align-bwa-trim`` processor set this
+  option (that BigWig is calculated by UCSC tool instead of deepTools),
+  because it is much faster for amplicon files. In other processors update
+  the input parameters for ``bamtobigwig.sh``: ``alignment-bowtie``,
+  ``alignment-bowtie2``, ``alignment-bwa-mem``, ``alignment-bwa-sw``,
+  ``alignment-bwa-aln``, ``alignment-hisat2``, ``alignment-star``
+  ``alignment-subread``, ``upload-bam``, ``upload-bam-indexed`` and
+  ``upload-bam-secondary``.
 
 Fixed
 -----

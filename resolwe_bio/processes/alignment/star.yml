@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.7.0
+  version: 1.7.1
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -286,11 +286,23 @@
             SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
             e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
           required: false
+        - name: tool_bigwig
+          label: Tool to calculate BigWig
+          type: basic:string
+          default: deeptools
+          choices:
+            - label: deepTools
+              value: deeptools
+            - label: UCSC BedGraphToBigWig
+              value: bedgraphtobigwig
+          description: Tool to calculate BigWig.
         - name: bin_size_bigwig
           label: Bin Size for the output of BigWig
           type: basic:integer
           default: 50
-          description: Size of the bins, in bases, for the output of the bigwig
+          description: >
+            Size of the bins, in bases, for the output of the bigwig. Only possible if 'Tool to calculate BigWig'
+            is deepTools. If BigWig is calculated by UCSC BedGraphToBigWig then bin size is 1.
   output:
     - name: bam
       label: Alignment file
@@ -505,7 +517,7 @@
       re-save build {{genome.build}}
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${MATE1_NAME}.bam" {{ requirements.resources.cores }} {{ output_sam_bam.bin_size_bigwig }} 480 {{ genome.species }}
+      bamtobigwig.sh "${MATE1_NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }} {{ output_sam_bam.tool_bigwig }} {{ output_sam_bam.bin_size_bigwig }}
 
 
 - slug: alignment-star-index

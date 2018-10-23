@@ -14,7 +14,7 @@
       cores: 4
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:upload
   flow_collection: sample
   category: Import
@@ -111,7 +111,7 @@
         re-save build {{ build }}
 
         # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ species }}
+        bamtobigwig.sh "${NAME}.bam" {{ species }} {{ requirements.resources.cores }}
 
 - slug: upload-bam-indexed
   name: BAM file and index
@@ -124,7 +124,7 @@
       cores: 4
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:upload
   category: Import
   flow_collection: sample
@@ -212,7 +212,7 @@
         fi
 
         # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${BAM_NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ species }}
+        bamtobigwig.sh "${BAM_NAME}.bam" {{ species }} {{ requirements.resources.cores }}
 
 - slug: upload-bam-secondary
   name: Secondary hybrid BAM file
@@ -225,7 +225,7 @@
       cores: 4
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 0.3.0
+  version: 0.3.1
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import
@@ -297,4 +297,4 @@
         re-save build {{ build }}
 
         # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ species }}
+        bamtobigwig.sh "${NAME}.bam" {{ species }} {{ requirements.resources.cores }}

@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.3.8
+  version: 1.3.9
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -284,7 +284,7 @@
       fi
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${FW_NAME}_mapped.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
+      bamtobigwig.sh "${FW_NAME}_mapped.bam" {{ genome.species }} {{ requirements.resources.cores }}
 
 
 - slug: alignment-bowtie2
@@ -638,4 +638,4 @@
       re-save build {{genome.build}}
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${FW_NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}
+      bamtobigwig.sh "${FW_NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}

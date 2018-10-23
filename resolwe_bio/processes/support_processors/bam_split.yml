@@ -13,7 +13,7 @@
     resources:
       cores: 4
   data_name: "{{ bam.bam.file.split('.')[0] }}_{{ bam.build.split('_')[0] }}.bam"
-  version: 0.2.0
+  version: 0.2.1
   type: data:alignment:bam:primary
   flow_collection: sample
   category: Other
@@ -155,4 +155,4 @@
       re-save build ${BUILD1}
 
       # computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}_${BUILD1}.bam" {{ requirements.resources.cores }} 50 480 {{ species1 }}
+      bamtobigwig.sh "${NAME}_${BUILD1}.bam" {{ species1 }} {{ requirements.resources.cores }}
