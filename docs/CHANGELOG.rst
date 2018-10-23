@@ -37,6 +37,9 @@ Added
 
 Fixed
 -----
+- Fix ``htseq-count-raw`` process to correctly map features with associated
+  feature symbols.
+
 
 =================
 14.0.1 2018-10-23

@@ -239,7 +239,7 @@
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.4.2
+  version: 1.4.3
   type: data:expression:htseq:cpm
   category: Quantify
   flow_collection: sample
@@ -435,7 +435,7 @@
 
       create_expression_set.py \
         --expressions "${NAME}_rc.tab.gz" \
-        --source_db {{ gff.source }} \
+        --source_db {{ gtf.source }} \
         --species {{ alignments.species }} \
         --output_name "${NAME}_expressions" \
         --norm_expressions "${NAME}_cpm.tab.gz" \
