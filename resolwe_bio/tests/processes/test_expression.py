@@ -296,12 +296,28 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             }
             annotation = self.run_process('upload-gtf', inputs)
 
+            inputs = {
+                'src': 'feature_counts hs.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38_ens90',
+            }
+            annotation_hs = self.run_process('upload-gtf', inputs)
+
             bam = {
                 'src': 'reads.bam',
                 'species': 'Dictyostelium discoideum',
                 'build': 'dd-05-2009',
             }
             bam = self.run_process('upload-bam', bam)
+
+            inputs = {
+                'src': 'feature_counts hs_paired.bam',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38_ens90',
+            }
+            bam_paired = self.run_process('upload-bam', inputs)
+
             inputs = {
                 'alignments': bam.pk,
                 'gtf': annotation.pk,
@@ -311,10 +327,21 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process('htseq-count-raw', inputs)
         self.assertFile(expression, 'rc', 'reads_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_cpm.tab.gz', compression='gzip')
-        self.assertFile(expression, 'exp_set', 'htseq_cpm_exp_set.txt.gz', compression='gzip')
-        self.assertJSON(expression, expression.output['exp_set_json'], '', 'htseq_cpm_exp_set.json.gz')
         self.assertFields(expression, 'species', 'Dictyostelium discoideum')
         self.assertFields(expression, 'build', 'dd-05-2009')
+
+        inputs = {
+            'alignments': bam_paired.pk,
+            'gtf': annotation_hs.pk,
+        }
+        expression = self.run_process('htseq-count-raw', inputs)
+        self.assertFile(expression, 'rc', 'htseq_raw_rc.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp', 'htseq_raw_cpm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'exp_set', 'htseq_cpm_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(expression, expression.output['exp_set_json'], '', 'htseq_cpm_exp_set.json.gz')
+        self.assertFields(expression, 'species', 'Homo sapiens')
+        self.assertFields(expression, 'build', 'GRCh38_ens90')
+        self.assertFields(expression, 'feature_type', 'gene')
 
     @tag_process('index-fasta-nucl')
     def test_index_fasta_nucl(self):
