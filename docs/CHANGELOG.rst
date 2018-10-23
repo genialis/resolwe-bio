@@ -49,7 +49,8 @@ Fixed
   a warning is issued and hierarchical clustering of genes is computed with the
   rest of the genes instead of failing.
 - Fix PCA computation for single sample case
-
+- Fix ``htseq-count-raw`` process to correctly map features with associated
+  feature symbols.
 
 =================
 14.0.0 2018-10-09
