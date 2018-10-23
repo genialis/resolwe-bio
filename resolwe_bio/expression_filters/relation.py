@@ -7,8 +7,58 @@ Relations Template Tags
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from resolwe.flow.expression_engines.jinja.filters import id_
+from resolwe.flow.expression_engines.jinja.filters import id_, type_
 from resolwe.flow.models.entity import Entity, RelationPartition
+
+
+def background_pairs(data):
+    """Get a list of (case, background) pairs for given data.
+
+    A list of data objects is re-arranged to a list of (case, background) pairs
+    based on the background relation between their corresponding samples.
+
+    """
+    if not isinstance(data, list):
+        raise ValueError('Argument data must be a list')
+
+    if not data:
+        return []
+
+    data_types = [type_(d) for d in data]
+
+    if len(set(data_types)) != 1:
+        raise ValueError('All data must be of the same type')
+
+    data_ids = [id_(d) for d in data]
+    data_type = data_types[0]
+
+    backround_query = RelationPartition.objects.filter(
+        label='background',
+        entity__data__process__type=data_type,
+        relation__type__name='background',
+        relation__relationpartition__label='case',
+        relation__relationpartition__entity__data__in=data_ids,
+    ).values('entity__data', 'relation__relationpartition__entity__data')
+
+    returned_cases = set()
+    returned_backgrounds = set()
+    background_pairs_list = []
+    for backround_dict in backround_query:
+        case = backround_dict['relation__relationpartition__entity__data']
+        background = backround_dict['entity__data']
+
+        # Case must have been given in function args.
+        assert case in data_ids
+
+        background_pairs_list.append((case, background))
+        returned_cases.add(case)
+        returned_backgrounds.add(background)
+
+    # Append data without background
+    for case in set(data_ids).difference(returned_cases).difference(returned_backgrounds):
+        background_pairs_list.append((case, None))
+
+    return sorted(background_pairs_list)
 
 
 def replicate_groups(data):
@@ -64,5 +114,6 @@ def replicate_groups(data):
 
 # A dictionary of filters that will be registered.
 filters = {  # pylint: disable=invalid-name
+    'background_pairs': background_pairs,
     'replicate_groups': replicate_groups,
 }

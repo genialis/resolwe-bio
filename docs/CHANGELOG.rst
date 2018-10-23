@@ -16,6 +16,9 @@ Changed
 Added
 -----
 - Add biosample source field to ``sample`` descriptor schema
+- Add ``background_pairs`` Jinja expressions filter that accepts a list of
+  data objects and orders them in a list of pairs (case, background) based on
+  the background relation between corresponding samples.
 
 Fixed
 -----

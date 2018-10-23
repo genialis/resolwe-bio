@@ -5,10 +5,10 @@ from resolwe.flow.models import Data, DescriptorSchema, Collection, Process, Rel
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import TestCase
 
-from resolwe_bio.expression_filters.relation import replicate_groups
+from resolwe_bio.expression_filters.relation import background_pairs, replicate_groups
 
 
-class TestRelationFilters(TestCase):
+class TestReplicateGroupFilter(TestCase):
 
     def test_repl_groups(self):
         p = Process.objects.create(
@@ -114,3 +114,87 @@ class TestRelationFilters(TestCase):
 
         with self.assertRaises(ValueError):
             replicate_groups([{'__id': d.id}])
+
+
+class TestBackgroundPairsFilter(TestCase):
+
+    def test_background_pairs(self):
+        proc = Process.objects.create(
+            type='data:test:process:',
+            slug='test-process',
+            contributor=self.contributor,
+            entity_type='sample',
+            entity_descriptor_schema='sample'
+        )
+
+        proc2 = Process.objects.create(
+            type='data:test:process2:',
+            slug='test-process2',
+            contributor=self.contributor,
+            entity_type='sample',
+            entity_descriptor_schema='sample',
+            input_schema=[{'name': 'src', 'type': 'data:test:process:'}]
+        )
+
+        DescriptorSchema.objects.create(
+            slug='sample',
+            version='1.0.0',
+            contributor=self.contributor
+        )
+
+        collection = Collection.objects.create(
+            name='Test collection',
+            contributor=self.contributor
+        )
+
+        data = []
+        data2 = []
+        for i in range(6):
+            data.append(Data.objects.create(
+                name='Data {}'.format(i),
+                contributor=self.contributor,
+                process=proc,
+                status=Data.STATUS_DONE,
+            ))
+
+            data2.append(Data.objects.create(
+                name='Data2 {}'.format(i),
+                contributor=self.contributor,
+                process=proc2,
+                status=Data.STATUS_DONE,
+                input={'src': data[-1].id}
+            ))
+
+        rel_type_background = RelationType.objects.get(name='background')
+        background = Relation.objects.create(
+            contributor=self.contributor,
+            collection=collection,
+            type=rel_type_background,
+            category='Background'
+        )
+
+        RelationPartition.objects.create(relation=background, entity=data2[0].entity_set.first(), label='background')
+        RelationPartition.objects.create(relation=background, entity=data2[1].entity_set.first(), label='case')
+        RelationPartition.objects.create(relation=background, entity=data2[3].entity_set.first(), label='case')
+        RelationPartition.objects.create(relation=background, entity=data2[4].entity_set.first(), label='case')
+
+        def load_templates(template_name):
+            if template_name == 'background_pairs':
+                return '{{ some_data|background_pairs }}'
+
+        env = Environment(loader=FunctionLoader(load_templates))
+        env.filters['background_pairs'] = background_pairs
+        background_pairs_template = env.get_template('background_pairs')
+
+        self.assertEqual(
+            background_pairs_template.render(some_data=[{'__id': d.id, '__type': d.process.type} for d in data]),
+            '[(3, 1), (5, None), (7, 1), (9, 1), (11, None)]'
+        )
+        self.assertEqual(
+            background_pairs_template.render(some_data=[{'__id': d.id, '__type': d.process.type} for d in data2]),
+            '[(4, 2), (6, None), (8, 2), (10, 2), (12, None)]'
+        )
+
+        # Test list must be given
+        with self.assertRaises(ValueError):
+            background_pairs(42)
