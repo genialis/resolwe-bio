@@ -13,8 +13,8 @@
     resources:
       memory: 16384
       cores: 10
-  data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 0.0.5
+  data_name: "{{ alignment|sample_name|default('?') }}"
+  version: 0.0.6
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample

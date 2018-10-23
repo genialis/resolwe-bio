@@ -10,8 +10,8 @@
     executor:
       docker:
         image: resolwebio/chipseq:3.0.0
-  data_name: "{{ case.bam.file|basename|default('?') }}"
-  version: 3.0.0
+  data_name: "{{ case|sample_name|default('?') }}"
+  version: 3.0.1
   type: data:chipseq:callpeak:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED

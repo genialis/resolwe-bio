@@ -390,8 +390,8 @@
         image: resolwebio/rnaseq:3.6.1
     resources:
       cores: 10
-  data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.2.8
+  data_name: "{{ reads|sample_name|default('?') }}"
+  version: 1.2.9
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample

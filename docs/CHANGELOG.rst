@@ -24,6 +24,12 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``jbrowse-bam-coverage`` process
   step from the ``workflow-accel`` workflow. The bigwig coverage track
   is computed in ``align-bwa-trim`` process instead.
+- Use sample name as the name of the data object in:
+
+  - ``alignment-bwa-aln``
+  - ``alignment-bowtie2``
+  - ``qc-prepeak``
+  - ``macs2-callpeak``
 
 Added
 -----
