@@ -49,6 +49,8 @@ Added
 - Add ``shift`` (user-defined cross-correlation peak strandshift) input
   to ``qc-prepeak`` process
 - Add ATAC-seq workflow
+- Compute index for ``WALT`` aligner on genome upload and support
+  uploading the index together with the genome
 
 Fixed
 -----

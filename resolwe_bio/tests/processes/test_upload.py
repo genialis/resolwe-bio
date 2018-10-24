@@ -271,7 +271,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
                 'bowtie2_index': 'bt2_index.tar.gz',
                 'bwa_index': 'bwa_index.tar.gz',
                 'hisat2_index': 'hisat2_index.tar.gz',
-                'subread_index': 'subread_index.tar.gz'
+                'subread_index': 'subread_index.tar.gz',
+                'walt_index': 'walt_index.tar.gz',
             }
         }
         genome = self.run_process('upload-genome', inputs)
@@ -285,6 +286,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(genome, "index_hisat2", {'dir': 'hisat2_index'})
         del genome.output['index_subread']['total_size']  # Non-deterministic output.
         self.assertFields(genome, "index_subread", {'dir': 'subread_index'})
+        del genome.output['index_walt']['total_size']  # Non-deterministic output.
+        self.assertFields(genome, "index_walt", {'dir': 'walt_index'})
         del genome.output['fasta_track_jbrowse']['total_size']  # Non-deterministic output.
         self.assertFields(genome, 'fasta_track_jbrowse', {'refs': ['seq'],
                                                           'file': 'seq/refSeqs.json'})

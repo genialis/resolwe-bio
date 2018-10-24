@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.7.1
+        image: resolwebio/rnaseq:3.8.0
     resources:
       cores: 10
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.1.2
+  version: 3.2.0
   type: data:genome:fasta
   category: Import
   persistence: RAW
@@ -88,6 +88,13 @@
           description: >
             Subread index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
+        - name: walt_index
+          label: WALT index files
+          type: basic:file
+          required: false
+          description: >
+            WALT index files. Supported extensions (*.tar.gz).
+          validate_regex: '(\.tar\.gz)$'
   output:
     - name: fastagz
       label: Genome FASTA file (compressed)
@@ -109,6 +116,9 @@
       type: basic:dir
     - name: index_subread
       label: subread index
+      type: basic:dir
+    - name: index_walt
+      label: WALT index
       type: basic:dir
     - name: fai
       label: Fasta index
@@ -173,7 +183,7 @@
           "bowtie_index/${FASTA_NAME}_index" \
           --threads {{ requirements.resources.cores }}
         re-checkrc
-        re-progress 0.6
+        re-progress 0.4
       {% endif %}
 
       re-save-dir index_bt bowtie_index
@@ -189,7 +199,7 @@
           "bowtie2_index/${FASTA_NAME}_index" \
           --threads {{ requirements.resources.cores }}
         re-checkrc
-        re-progress 0.7
+        re-progress 0.5
       {% endif %}
 
       cp "${FASTA_NAME}.fasta" "bowtie2_index/${FASTA_NAME}_index.fa"
@@ -203,7 +213,7 @@
         mkdir BWA_index
         bwa index -p "BWA_index/${FASTA_NAME}.fasta" "${FASTA_NAME}.fasta"
         re-checkrc
-        re-progress 0.8
+        re-progress 0.6
       {% endif %}
 
       re-save-dir index_bwa BWA_index
@@ -216,7 +226,7 @@
         mkdir hisat2_index
         hisat2-build "${FASTA_NAME}.fasta" "hisat2_index/${FASTA_NAME}_index"
         re-checkrc
-        re-progress 0.9
+        re-progress 0.7
       {% endif %}
 
       re-save-dir index_hisat2 hisat2_index
@@ -229,7 +239,20 @@
         mkdir subread_index
         subread-buildindex "${FASTA_NAME}.fasta" -o "subread_index/${FASTA_NAME}_index"
         re-checkrc
-        re-progress 0.9
+        re-progress 0.8
       {% endif %}
 
       re-save-dir index_subread subread_index
+
+      {% if advanced.walt %}
+        re-import {{ advanced.walt_index.file_temp|default(advanced.walt_index.file) }} \
+        {{ advanced.walt_index.file }} "tar" "tar" 0.9 compress
+        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index walt_index
+      {% else %}
+        mkdir walt_index
+        makedb-walt -c "${FASTA_NAME}.fasta" -o "walt_index/${FASTA_NAME}.dbindex"
+        re-checkrc
+        re-progress 0.9
+      {% endif %}
+
+      re-save-dir index_walt walt_index
