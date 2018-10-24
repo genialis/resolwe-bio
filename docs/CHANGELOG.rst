@@ -24,6 +24,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``jbrowse-bam-coverage`` process
   step from the ``workflow-accel`` workflow. The bigwig coverage track
   is computed in ``align-bwa-trim`` process instead.
+- **BACKWARD INCOMPATIBLE:** Remove ``resolwebio/utils`` Docker image.
+  This image is replaced by the ``resolwebio/common`` image.
 - Use sample name as the name of the data object in:
 
   - ``alignment-bwa-aln``
