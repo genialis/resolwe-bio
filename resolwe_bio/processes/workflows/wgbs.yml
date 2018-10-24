@@ -3,9 +3,19 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 1.0.0
   type: data:workflow:wgbs
   category: Pipeline
+  description: >
+    This WGBS pipeline is comprised of three steps - alignment, computation of
+    methylation levels, and identification of hypo-methylated regions (HMRs).
+
+    First, reads are aligned by __WALT__ aligner. [WALT (Wildcard ALignment
+    Tool)](https://github.com/smithlabcode/walt) is fast and accurate read
+    mapping for bisulfite sequencing. Then, methylation level at each genomic
+    cytosine is calculated using __methcounts__. Finally, hypo-methylated
+    regions are identified using __hmr__. Both methcounts and hmr are part of
+    [MethPipe](http://smithlabresearch.org/software/methpipe/) package.
   input:
     - name: reads
       label: Input reads
@@ -13,38 +23,63 @@
     - name: genome
       label: genome
       type: data:genome:fasta
-    - name: genome_identifier
-      label: The UCSC Genome Browser identifier
-      type: basic:string
-      allow_custom_choice: true
-      choices:
-        - label: hg19
-          value: hg19
-        - label: hg18
-          value: hg18
-        - label: mm8
-          value: mm8
-        - label: mm9
-          value: mm9
-        - label: mm10
-          value: mm10
-    - name: threads
-      label: Threads
-      type: basic:integer
-      default: 1
+    - name: alignment
+      label: Alignment (WALT)
+      group:
+        - name: rm_dup
+          label: Remove duplicates
+          type: basic:boolean
+          default: true
+        - name: mismatch
+          label: Maximum allowed mismatches
+          type: basic:integer
+          default: 6
+        - name: number
+          label: Number of reads to map in one loop
+          type: basic:integer
+          required: false
+          description: >
+            Sets the number of reads to mapping in each loop. Larger number results in program
+            taking more memory. This is especially evident in paired-end mapping.
+    - name: methcounts
+      label: methcounts
+      group:
+        - name: cpgs
+          label: Only CpG context sites
+          type: basic:boolean
+          default: false
+          disabled: "methcounts.symmetric_cpgs"
+          description: >
+            Output file will contain methylation data for CpG context sites only. Choosing this
+            option will result in CpG content report only.
+        - name: symmetric_cpgs
+          label: Merge CpG pairs
+          type: basic:boolean
+          default: true
+          disabled: "methcounts.cpgs"
+          description: >
+            Merging CpG pairs results in symmetric methylation levels. Methylation is usually
+            symmetric (cytosines at CpG sites were methylated on both DNA strands). Choosing this
+            option will only keep the CpG sites data.
   run:
     language: workflow
     program:
-      - id: bsmap
-        run: bsmap
+      - id: walt
+        run: walt
         input:
-          genome: '{{input.genome}}'
-          reads: '{{input.reads}}'
-          threads: '{{input.threads}}'
-      - id: mcall
-        run: mcall
+          genome: '{{ input.genome }}'
+          reads: '{{ input.reads }}'
+          rm_dup: '{{ input.alignment.rm_dup }}'
+          mismatch: '{{ input.alignment.mismatch }}'
+          number: '{{ input.alignment.number }}'
+      - id: methcounts
+        run: methcounts
         input:
-          genome: '{{input.genome}}'
-          genome_identifier: '{{input.genome_identifier}}'
-          bam: '{{[steps.bsmap]}}'
-          threads: '{{input.threads}}'
+          genome: '{{ input.genome }}'
+          alignment: '{{ steps.walt }}'
+          cpgs: '{{ input.methcounts.cpgs }}'
+          symmetric_cpgs: '{{ input.methcounts.symmetric_cpgs }}'
+      - id: hmr
+        run: hmr
+        input:
+          methcounts: '{{ steps.methcounts }}'

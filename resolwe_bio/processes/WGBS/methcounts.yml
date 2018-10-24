@@ -1,0 +1,115 @@
+# =================
+# WGBS - methcounts
+# =================
+---
+
+- slug: methcounts
+  name: methcounts
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/wgbs:1.0.0
+  data_name: "{{ alignment|sample_name|default('?') }}"
+  version: 1.0.0
+  type: data:wgbs:methcounts
+  category: WGBS
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    The methcounts program takes the mapped reads and produces the methylation level at each
+    genomic cytosine, with the option to produce only levels for CpG-context cytosines.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: alignment
+      label: Mapped reads
+      type: data:alignment:mr
+      description: >
+         WGBS alignment file in Mapped Read (.mr) format.
+    - name: cpgs
+      label: Only CpG context sites
+      type: basic:boolean
+      default: false
+      disabled: "symmetric_cpgs"
+      description: >
+        Output file will contain methylation data for CpG context sites only. Choosing this option
+        will result in CpG content report only.
+    - name: symmetric_cpgs
+      label: Merge CpG pairs
+      type: basic:boolean
+      default: true
+      disabled: "cpgs"
+      description: >
+        Merging CpG pairs results in symmetric methylation levels. Methylation is usually
+        symmetric (cytosines at CpG sites were methylated on both DNA strands). Choosing this
+        option will only keep the CpG sites data.
+  output:
+    - name: meth
+      label: Methylation levels
+      type: basic:file
+    - name: stats
+      label: Statistics
+      type: basic:file
+    - name: bigwig
+      label: Methylation levels BigWig file
+      type: basic:file
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME=`basename {{ alignment.mr.file }} .mr.gz`
+
+      {% if not alignment.species == genome.species %}
+        re-error \
+          {{ ('Species of aligned reads (%s) and genome (%s) do not match. ' ~
+             'Please provide aligned reads and genome with the same species.')
+             |format(alignment.species, genome.species) }}
+      {% endif %}
+
+      {% if not alignment.build == genome.build %}
+        re-error \
+          {{ ('Builds of aligned reads (%s) and genome (%s) do not match. ' ~
+             'Please provide aligned reads and genome with the same build.')
+             |format(alignment.build, genome.build) }}
+      {% endif %}
+
+      methcounts \
+        -c {{ genome.fasta.file }} \
+        {% if cpgs %}-n{% endif %} \
+        -o "${NAME}_temp.meth" \
+        <(zcat {{ alignment.mr.file }})
+      re-checkrc "methcounts failed."
+      re-progress 0.6
+
+      levels -o "${NAME}_report.txt" "${NAME}_temp.meth"
+      re-checkrc
+      re-progress 0.7
+
+      {% if symmetric_cpgs %}
+        symmetric-cpgs -o "${NAME}.meth" "${NAME}_temp.meth"
+        re-checkrc
+      {% else %}
+        mv "${NAME}_temp.meth" "${NAME}.meth"
+      {% endif %}
+      re-progress 0.9
+
+      # Create a BigWig file
+      cut -f -2 {{ genome.fai.file }} > chrom.sizes
+      awk -v OFS="\t" '{print $1, $2, $2+1, $6}' "${NAME}.meth" | \
+      wigToBigWig /dev/stdin chrom.sizes "${NAME}.bw"
+
+      gzip "${NAME}.meth"
+
+      re-save-file meth "${NAME}.meth.gz"
+      re-save-file stats "${NAME}_report.txt"
+      re-save-file bigwig "${NAME}.bw"
+      re-save species {{ genome.species }}
+      re-save build {{ genome.build }}

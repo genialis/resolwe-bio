@@ -51,6 +51,12 @@ Added
 - Add ATAC-seq workflow
 - Compute index for ``WALT`` aligner on genome upload and support
   uploading the index together with the genome
+- Add ``Whole genome bisulfite sequencing`` workflow and related WGBS
+  processes:
+
+  - ``WALT``
+  - ``methcounts``
+  - ``HMR``
 
 Fixed
 -----

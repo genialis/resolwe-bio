@@ -1,0 +1,67 @@
+NUMBER OF CHROMOSOMES:	1
+METHYLATION LEVELS (all cytosine CONTEXT):
+	sites	3293
+	sites_covered	1956
+	fraction_covered	0.593987
+	mean_depth	6.29001
+	mean_depth_covered	10.5895
+	max_depth	219
+	mutations	40
+	mean_meth	0.100585
+	w_mean_meth	0.0767151
+	frac_meth	0.088647
+METHYLATION LEVELS (CpG CONTEXT):
+	sites	416
+	sites_covered	156
+	fraction_covered	0.375
+	mean_depth	2.69952
+	mean_depth_covered	7.19872
+	max_depth	110
+	mutations	8
+	mean_meth	0.650824
+	w_mean_meth	0.533393
+	frac_meth	0.671329
+METHYLATION LEVELS (symmetric CpG CONTEXT):
+	sites	208
+	sites_covered	102
+	fraction_covered	0.490385
+	mean_depth	4.88462
+	mean_depth_covered	9.96078
+	max_depth	136
+	mutations	8
+	mean_meth	0.707767
+	w_mean_meth	0.573819
+	frac_meth	0.765957
+METHYLATION LEVELS (CHH CONTEXT):
+	sites	2163
+	sites_covered	1318
+	fraction_covered	0.609339
+	mean_depth	6.32131
+	mean_depth_covered	10.3741
+	max_depth	187
+	mutations	21
+	mean_meth	0.0392438
+	w_mean_meth	0.0262561
+	frac_meth	0.0297256
+METHYLATION LEVELS (CCG CONTEXT):
+	sites	106
+	sites_covered	43
+	fraction_covered	0.40566
+	mean_depth	5.00943
+	mean_depth_covered	12.3488
+	max_depth	190
+	mutations	1
+	mean_meth	0.0686903
+	w_mean_meth	0.161959
+	frac_meth	0.0465116
+METHYLATION LEVELS (CXG CONTEXT):
+	sites	608
+	sites_covered	411
+	fraction_covered	0.675987
+	mean_depth	8
+	mean_depth_covered	11.8345
+	max_depth	219
+	mutations	4
+	mean_meth	0.037226
+	w_mean_meth	0.0466694
+	frac_meth	0.0148148

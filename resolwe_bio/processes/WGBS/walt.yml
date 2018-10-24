@@ -1,0 +1,156 @@
+# ==============
+# Aligner - WALT
+# ==============
+---
+
+- slug: walt
+  name: WALT
+  requirements:
+    expression-engine: jinja
+    resources:
+      memory: 16384
+      cores: 10
+    executor:
+      docker:
+        image: resolwebio/wgbs:1.0.0
+  data_name: "{{ reads|sample_name|default('?') }}"
+  version: 1.0.0
+  type: data:alignment:mr:walt
+  category: Align
+  flow_collection: sample
+  persistence: CACHED
+  description: >
+    WALT (Wildcard ALignment Tool) is a read mapping program for bisulfite sequencing in DNA
+    methylation studies.
+  input:
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+    - name: reads
+      label: Reads
+      type: data:reads:fastq
+    - name: rm_dup
+      label: Remove duplicates
+      type: basic:boolean
+      default: true
+    - name: mismatch
+      label: Maximum allowed mismatches
+      type: basic:integer
+      required: false
+    - name: number
+      label: Number of reads to map in one loop
+      type: basic:integer
+      required: false
+      description: >
+        Sets the number of reads to mapping in each loop. Larger number results in program taking
+        more memory. This is especially evident in paired-end mapping.
+  output:
+    - name: mr
+      label: Alignment file
+      type: basic:file
+      description: Position sorted alignment
+    - name: stats
+      label: Statistics
+      type: basic:file
+    - name: unmapped_f
+      label: Unmapped reads (mate 1)
+      type: basic:file
+      required: false
+    - name: unmapped_r
+      label: Unmapped reads (mate 2)
+      type: basic:file
+      required: false
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
+      GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
+      INDEX={{genome.index_walt.dir}}/"${GENOME_NAME}.dbindex"
+
+      FW_READS=()
+      RW_READS=()
+
+      {% for r in reads.fastq %}
+        FW_READS+=({{ r.file }})
+      {% endfor %}
+
+      cat "${FW_READS[@]}" > fw_reads.fastq.gz
+      gunzip fw_reads.fastq.gz
+
+      re-progress 0.2
+
+      {% if reads|type|subtype('data:reads:fastq:paired:') %}
+        {% for r in reads.fastq2 %}
+          RW_READS+=({{ r.file }})
+        {% endfor %}
+        cat "${RW_READS[@]}" > rw_reads.fastq.gz
+        gunzip rw_reads.fastq.gz
+      {% endif %}
+
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+        walt \
+          -reads fw_reads.fastq \
+          -index "${INDEX}" \
+          {% if mismatch is defined %}-mismatch {{ mismatch }}{% endif %} \
+          {% if number %}-number {{ number }}{% endif %} \
+          -thread {{requirements.resources.cores}} \
+          -output "${NAME}.mr" \
+          -u
+        re-checkrc "WALT alignment failed."
+        re-progress 0.7
+      {% else %}
+        walt \
+          -reads1 fw_reads.fastq \
+          -reads2 rw_reads.fastq \
+          -index "${INDEX}" \
+          {% if mismatch is defined %}-mismatch {{ mismatch }}{% endif %} \
+          {% if number %}-number {{ number }}{% endif %} \
+          -thread {{requirements.resources.cores}} \
+          -output "${NAME}.mr" \
+          -u
+        re-checkrc "WALT alignment failed."
+        re-progress 0.7
+      {% endif %}
+
+      LC_ALL=C sort -k 1,1 -k 2,2n -k 3,3n -k 6,6 -o "${NAME}_sorted.mr" "${NAME}.mr"
+      re-progress 0.8
+
+      {% if rm_dup %}
+        duplicate-remover -o "${NAME}.mr" "${NAME}_sorted.mr"
+        re-checkrc "Removing duplicates failed."
+      {% else %}
+        mv "${NAME}_sorted.mr" "${NAME}.mr"
+      {% endif %}
+
+      gzip "${NAME}.mr"
+      re-progress 0.9
+
+      mv "${NAME}.mr.mapstats" "${NAME}_report.txt"
+
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+        if [ -s "${NAME}.mr_unmapped" ]; then
+          gzip "${NAME}.mr_unmapped"
+          re-save-file unmapped_f "${NAME}.mr_unmapped.gz"
+        fi
+      {% else %}
+        if [ -s "${NAME}.mr_1_unmapped" ]; then
+          gzip "${NAME}.mr_1_unmapped"
+          re-save-file unmapped_f "${NAME}.mr_1_unmapped.gz"
+        fi
+        if [ -s "${NAME}.mr_2_unmapped" ]; then
+          gzip "${NAME}.mr_2_unmapped"
+          re-save-file unmapped_r "${NAME}.mr_2_unmapped.gz"
+        fi
+      {% endif %}
+
+      re-save-file mr "${NAME}.mr.gz"
+      re-save-file stats "${NAME}_report.txt"
+      re-save species {{ genome.species }}
+      re-save build {{ genome.build }}
