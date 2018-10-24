@@ -1,0 +1,1 @@
+https://github.com/genialis/biox/archive/257bffce58016f666e02bd96e2cfd37c13112c7f.tar.gz --hash=sha256:362dee4cfbeafe0199250965fbded9c0f6e59938a7b6bfc8c9817b6fb5b2e4d3

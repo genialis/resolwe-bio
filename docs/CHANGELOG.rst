@@ -63,6 +63,9 @@ Added
   - ``methcounts``
   - ``HMR``
 - Add bedClip to `resolwebio/chipseq:3.1.0` docker image
+- Add ``resolwebio/biox`` Docker image. This image is based on the
+  ``resolwebio/common`` image and includes Biox Python library for
+  Dictyostelium RNA-Seq analysis support.
 
 Fixed
 -----
