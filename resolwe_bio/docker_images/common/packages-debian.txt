@@ -1,0 +1,16 @@
+bowtie
+bowtie2
+bwa
+picard-tools
+python3-numpy
+python3-pandas
+python3-six
+python3-yaml
+r-base
+seqtk
+tabix
+zip
+
+# Required by FastQC
+default-jre
+libfindbin-libs-perl

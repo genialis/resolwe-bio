@@ -35,6 +35,11 @@ Added
   - ``MethPipe (3.4.3)``
   - ``WALT (1.01)``
   - ``wigToBigWig (kent-v365)``
+- Add ``resolwebio/common`` Docker image. This image includes common
+  bioinformatics utilities and can serve as a base image for other,
+  specialized ``resolwebio`` Docker images: ``resolwebio/biox``,
+  ``resolwebio/chipseq``, ``resolwebio/dnaseq``
+  and ``resolwebio/rnaseq``.
 
 Fixed
 -----

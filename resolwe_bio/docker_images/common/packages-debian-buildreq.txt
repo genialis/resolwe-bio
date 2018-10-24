@@ -1,0 +1,15 @@
+build-essential
+python3-dev
+python3-setuptools
+python3-wheel
+software-properties-common
+zlib1g-dev
+
+# Required for Samtools
+libbz2-dev
+liblzma-dev
+libxml2-dev
+
+# Required for R devtools
+libssl-dev
+libcurl4-openssl-dev
