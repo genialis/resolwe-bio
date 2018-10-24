@@ -66,6 +66,8 @@ Added
 - Add ``resolwebio/biox`` Docker image. This image is based on the
   ``resolwebio/common`` image and includes Biox Python library for
   Dictyostelium RNA-Seq analysis support.
+- Add ``resolwebio/snpeff`` Docker image. The image includes
+  SnpEff (4.3K) tool.
 
 Fixed
 -----
