@@ -58,6 +58,8 @@ Fixed
 - Fix Amplicon table gene hyperlinks for cases where multiple genes
   are associated with detected variant
 - Handle empty gene name in expression files in PCA
+- Fix PBC QC reporting  in ``qc-prepeak`` process for a case where
+  there are no duplicates in the input bam
 
 
 =================

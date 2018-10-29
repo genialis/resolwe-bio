@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 0.1.0
+  version: 0.1.1
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -142,6 +142,11 @@
         re-progress 0.3
 
         # Get PBC bottlenecking metrics
+        # m0: number of all genomic locations where reads mapped
+        # m1: number of genomic locations where only one read maps uniquely
+        # m2: number of genomic locations where 2 reads map uniquely
+        # mt: number of reads
+        # NRF = m0/mt, PBC1 = m1/m0, PBC2 = m2/m0
         bedtools bamtobed -i "${NAME}_filtered_tmp.bam" | \
         awk 'BEGIN{OFS="\t"}{print $1,$2,$3,$6}' | \
         grep -v 'chrM' | \
@@ -149,7 +154,13 @@
         uniq -c | \
         awk '
           BEGIN{mt=0;m0=0;m1=0;m2=0} ($1==1){m1=m1+1} ($1==2){m2=m2+1} {m0=m0+1} {mt=mt+$1}
-          END{printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2}
+          END{
+            # If there are no duplicates, PBC2 is not defined
+            if (m2 == 0)
+              printf "%d\t%d\t%d\t%d\t%f\t%f\tN/A\n",mt,m0,m1,m2,m0/mt,m1/m0
+            else
+              printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2
+          }
         ' | \
         cat <(echo -e {{ pbc_header }}) - > "${NAME}_pbc_qc.txt"
         re-checkrc "PBC QC failed"
@@ -215,6 +226,11 @@
         re-progress 0.4
 
         # Get PBC bottlenecking metrics
+        # m0: number of all genomic locations where reads mapped
+        # m1: number of genomic locations where only one read maps uniquely
+        # m2: number of genomic locations where 2 reads map uniquely
+        # mt: number of reads
+        # NRF = m0/mt, PBC1 = m1/m0, PBC2 = m2/m0
         bedtools bamtobed -bedpe -i "${NAME}_filtered.bam" | \
         awk 'BEGIN{OFS="\t"}{print $1,$2,$4,$6,$9,$10}' | \
         grep -v 'chrM' | \
@@ -222,7 +238,13 @@
         uniq -c | \
         awk '
           BEGIN{mt=0;m0=0;m1=0;m2=0} ($1==1){m1=m1+1} ($1==2){m2=m2+1} {m0=m0+1} {mt=mt+$1}
-          END{printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2}
+          END{
+            # If there are no duplicates, PBC2 is not defined
+            if (m2 == 0)
+              printf "%d\t%d\t%d\t%d\t%f\t%f\tN/A\n",mt,m0,m1,m2,m0/mt,m1/m0
+            else
+              printf "%d\t%d\t%d\t%d\t%f\t%f\t%f\n",mt,m0,m1,m2,m0/mt,m1/m0,m1/m2
+          }
         ' | \
         cat <(echo -e {{ pbc_header }}) - > "${NAME}_pbc_qc.txt"
         re-checkrc "PBC QC failed"
