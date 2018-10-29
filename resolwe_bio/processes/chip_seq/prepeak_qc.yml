@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 0.0.6
+  version: 0.1.0
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -43,6 +43,13 @@
       default: false
       description: >
         Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
+    - name: shift
+      label: User-defined cross-correlation peak strandshift
+      type: basic:integer
+      required: false
+      description: >
+        If defined, SPP tool will not try to estimate fragment length but will use the given value
+        as fragment length.
   output:
     - name: chip_qc
       label: QC report
@@ -250,6 +257,7 @@
         -c="${NAME}_subsampled.tagAlign.gz" \
         -p={{requirements.resources.cores}} \
         -filtchr=chrM \
+        {% if shift is defined %}-speak={{ shift }}{% endif %} \
         -out="${NAME}_cc_score.txt"
       re-checkrc "SPP processing failed"
       re-progress 0.9

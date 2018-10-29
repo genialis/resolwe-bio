@@ -46,6 +46,8 @@ Added
   specialized ``resolwebio`` Docker images: ``resolwebio/biox``,
   ``resolwebio/chipseq``, ``resolwebio/dnaseq``
   and ``resolwebio/rnaseq``.
+- Add ``shift`` (user-defined cross-correlation peak strandshift) input
+  to ``qc-prepeak`` process
 
 Fixed
 -----

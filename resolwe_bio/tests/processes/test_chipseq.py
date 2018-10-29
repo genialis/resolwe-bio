@@ -222,7 +222,6 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             "alignment": bam.id,
             'n_sub': 7000,
             'q_treshold': 25,
-            'tn5': True,
         }
         prepeak = self.run_process("qc-prepeak", inputs)
 
@@ -244,7 +243,6 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             "alignment": bam.id,
             'n_sub': 7000,
             'q_treshold': 25,
-            'tn5': True,
         }
         prepeak = self.run_process("qc-prepeak", inputs)
 
@@ -253,3 +251,14 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFields(prepeak, 'fraglen', 225)
         self.assertFile(prepeak, 'chip_qc', 'prepeak_pe_qc_report.txt')
         self.assertFileExists(prepeak, 'tagalign')
+
+        # Test Tn5 shifting (ATAC-seq) and peak shifting
+        inputs['tn5'] = True
+        inputs['shift'] = 0
+        prepeak = self.run_process("qc-prepeak", inputs)
+
+        self.assertFields(prepeak, 'species', 'Homo sapiens')
+        self.assertFields(prepeak, 'build', 'hg19')
+        self.assertFields(prepeak, 'fraglen', 0)
+        self.assertFile(prepeak, 'chip_qc', 'prepeak_pe_qc_report_tn5.txt')
+        self.assertFile(prepeak, 'tagalign', 'prepeak_pe_tn5.tagAlign.gz', compression='gzip')
