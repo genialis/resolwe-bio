@@ -7,4 +7,5 @@ Included bioinformatics tools:
 ------------------------------
 * MethPipe (3.4.3)
 * WALT (1.01)
+* wigToBigWig (kent-v365)
 

@@ -32,8 +32,9 @@ Added
   image
 - Add ``resolwebio/wgbs`` docker image including the following tools:
 
-  -``MethPipe (3.4.3)``
-  -``WALT (1.01)``
+  - ``MethPipe (3.4.3)``
+  - ``WALT (1.01)``
+  - ``wigToBigWig (kent-v365)``
 
 Fixed
 -----
