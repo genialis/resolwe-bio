@@ -1,0 +1,338 @@
+- slug: workflow-atac-seq
+  name: ATAC-Seq
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:atacseq
+  category: Pipeline
+  description: >
+    This ATAC-seq pipeline closely follows the official ENCODE DCC pipeline. It is comprised of
+    three steps; alignment, pre-peakcall QC, and calling peaks (with post-peakcall QC).
+
+    First, reads are aligned to a genome using
+    [Bowtie2](http://bowtie-bio.sourceforge.net/index.shtml) aligner. Next, pre-peakcall QC
+    metrics are calculated. QC report contains ENCODE 3 proposed QC metrics --
+    [NRF, PBC bottlenecking coefficients](https://www.encodeproject.org/data-standards/terms/),
+    [NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq). Finally, the peaks
+    are called using [MACS2](https://github.com/taoliu/MACS/). The post-peakcall QC report
+    includes additional QC metrics -- number of peaks, fraction of reads in peaks (FRiP), number
+    of reads in peaks, and if promoter regions BED file is provided, number of reads in
+    promoter regions, fraction of reads in promoter regions, number of peaks in promoter regions,
+    and fraction of reads in promoter regions.
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: promoter
+      label: Promoter regions BED file
+      type: data:bed
+      required: false
+      description: >
+        BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
+        of peaks and reads mapped to promoter regions.
+    - name: alignment
+      label: Alignment (Bowtie2)
+      group:
+        - name: mode
+          label: Alignment mode
+          type: basic:string
+          description: >
+            End to end: Bowtie 2 requires that the entire read align from one end to the other,
+            without any trimming (or "soft clipping") of characters from either end.
+            Local: Bowtie 2 does not require that the entire read align from one end to the other.
+            Rather, some characters may be omitted ("soft clipped") from the ends in order to
+            achieve the greatest possible alignment score.
+          default: --local
+          choices:
+            - label: end to end mode
+              value: --end-to-end
+            - label: local
+              value: --local
+        - name: speed
+          label: Speed vs. Sensitivity
+          type: basic:string
+          default: --sensitive
+          choices:
+            - label: Very fast
+              value: --very-fast
+            - label: Fast
+              value: --fast
+            - label: Sensitive
+              value: --sensitive
+            - label: Very sensitive
+              value: --very-sensitive
+        - name: PE_options
+          label: Paired end alignment options
+          group:
+            - name: use_se
+              label: Map as single-ended (for paired-end reads only)
+              type: basic:boolean
+              default: false
+              description: >
+                If this option is selected paired-end reads will be mapped as single-ended and
+                other paired-end options are ignored.
+            - name: discordantly
+              label: Report discordantly matched read
+              type: basic:boolean
+              default: true
+              description: >
+                If both mates have unique alignments, but the alignments do not match paired-end
+                expectations (orientation and relative distance) then alignment will be reported.
+                Useful for detecting structural variations.
+            - name: rep_se
+              label: Report single ended
+              type: basic:boolean
+              default: true
+              description: >
+                If paired alignment can not be found Bowtie2 tries to find alignments for the
+                individual mates.
+            - name: minins
+              label: Minimal distance
+              type: basic:integer
+              description: >
+                The minimum fragment length for valid paired-end alignments. 0 imposes no minimum.
+              default: 0
+            - name: maxins
+              label: Maximal distance
+              type: basic:integer
+              description: >
+                The maximum fragment length for valid paired-end alignments.
+              default: 2000
+        - name: start_trimming
+          label: Initial trimming
+          group:
+            - name: trim_5
+              label: Bases to trim from 5'
+              type: basic:integer
+              description: >
+                Number of bases to trim from from 5' (left) end of each read before alignment.
+              default: 0
+            - name: trim_3
+              label: Bases to trim from 3'
+              type: basic:integer
+              description: >
+                Number of bases to trim from from 3' (right) end of each read before alignment
+              default: 0
+        - name: trimming
+          label: Iterative trimming
+          description: >
+            Trimming options only apply to single-end reads and paired-end reads mapped as
+            single-ended.
+          group:
+            - name: trim_iter
+              label: Iterations
+              type: basic:integer
+              description: >
+                Number of iterations.
+              default: 0
+            - name: trim_nucl
+              label: Bases to trim
+              type: basic:integer
+              description: >
+                Number of bases to trim from 3' end in each iteration.
+              default: 2
+        - name: reporting
+          label: Reporting
+          group:
+            - name: rep_mode
+              label: Report mode
+              type: basic:string
+              description: >
+                Default mode: search for multiple alignments, report the best one;
+                -k mode: search for one or more alignments, report each;
+                -a mode: search for and report all alignments
+              default: def
+              choices:
+                - label: Default mode
+                  value: def
+                - label: -k mode
+                  value: k
+                - label: -a mode (very slow)
+                  value: a
+            - name: k_reports
+              label: Number of reports (for -k mode only)
+              type: basic:integer
+              description: >
+                Searches for at most X distinct, valid alignments for each read. The search
+                terminates when it can't find more distinct valid alignments, or when it finds X,
+                whichever happens first.
+              default: 5
+    - name: qc
+      label: Pre-peakcall QC
+      group:
+        - name: q_treshold
+          label: Quality filtering treshold
+          type: basic:integer
+          default: 30
+        - name: n_sub
+          label: Number of reads to subsample
+          type: basic:integer
+          default: 25000000
+        - name: tn5
+          label: TN5 shifting
+          type: basic:boolean
+          default: true
+          description: >
+            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by
+            5bp.
+        - name: shift
+          label: User-defined cross-correlation peak strandshift
+          type: basic:integer
+          default: 0
+          description: >
+            SPP tool will not try to estimate fragment length but will use the given value as
+            fragment length.
+    - name: peakcall
+      label: Peak calling (MACS2)
+      group:
+        - name: duplicates_prepeak
+          label: Number of duplicates
+          type: basic:string
+          default: "all"
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location.
+        - name: qvalue
+          label: Q-value cutoff
+          type: basic:decimal
+          required: false
+          disabled: "peakcall.pvalue_prepeak"
+          description: >
+            The qvalue (minimum FDR) cutoff to call significant regions. Default is 0.05. Q-values
+            are calculated from p-values using Benjamini-Hochberg procedure.
+        - name: pvalue_prepeak
+          label: P-value cutoff
+          type: basic:decimal
+          disabled: "peakcall.qvalue"
+          required: false
+          default: 0.00001
+          description: >
+            The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
+        - name: cap_num
+          label: Cap number of peaks by taking top N peaks
+          type: basic:integer
+          default: 300000
+          description: >
+            To keep all peaks set value to 0.
+        - name: nomodel_prepeak
+          label: Bypass building the shifting model
+          type: basic:boolean
+          default: true
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: extsize
+          label: extsize
+          type: basic:integer
+          default: 150
+          description: >
+            While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction
+            to fix-sized fragments. For example, if the size of binding region for your
+            transcription factor is 200 bp, and you want to bypass the model building by MACS,
+            this parameter can be set as 200. This option is only valid when --nomodel is set or
+            when MACS fails to build model and --fix-bimodal is on.
+        - name: shift
+          label: Shift
+          type: basic:integer
+          default: -75
+          description: >
+            Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You
+            can set an arbitrary shift in bp here. Please Use discretion while setting it other
+            than default value (0). When --nomodel is set, MACS will use this value to move
+            cutting ends (5') then apply --extsize from 5' to 3' direction to extend them to
+            fragments. When this value is negative, ends will be moved toward 3'->5' direction,
+            otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets,
+            or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting
+            loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if
+            format is BAMPE for paired-end data.
+        - name: bedgraph
+          label: Save fragment pileup and control lambda
+          type: basic:boolean
+          default: true
+          description: >
+            If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue
+            and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in
+            current directory named NAME+'_treat_pileup.bdg' for treatment data,
+            NAME+'_control_lambda.bdg' for local lambda values from control,
+            NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in -log10(pvalue) form), and
+            NAME+'_treat_qvalue.bdg' for q-value scores from Benjamini-Hochberg-Yekutieli
+            procedure.
+        - name: spmr
+          label: Save signal per million reads for fragment pileup profiles
+          type: basic:boolean
+          default: true
+          disabled: "peakcall.bedgraph === false"
+        - name: call_summits
+          label: Call summits
+          type: basic:boolean
+          default: true
+          description: >
+            MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff
+            setting) to deconvolve subpeaks within each peak called from general procedure. It's
+            highly recommended to detect adjacent binding events. While used, the output subpeaks
+            of a big peak region will have the same peak boundaries, and different scores and peak
+            summit positions.
+  run:
+    language: workflow
+    program:
+      - id: alignment
+        run: alignment-bowtie2
+        input:
+          genome: '{{ input.genome }}'
+          reads: '{{ input.reads }}'
+          mode: '{{ input.alignment.mode }}'
+          speed: '{{ input.alignment.speed }}'
+          PE_options:
+            use_se: '{{ input.alignment.PE_options.use_se }}'
+            discordantly: '{{ input.alignment.PE_options.discordantly }}'
+            rep_se: '{{ input.alignment.PE_options.rep_se }}'
+            minins: '{{ input.alignment.PE_options.minins }}'
+            maxins: '{{ input.alignment.PE_options.maxins }}'
+          start_trimming:
+            trim_5: '{{ input.alignment.start_trimming.trim_5 }}'
+            trim_3: '{{ input.alignment.start_trimming.trim_3 }}'
+          trimming:
+            trim_iter: '{{ input.alignment.trimming.trim_iter }}'
+            trim_nucl: '{{ input.alignment.trimming.trim_nucl }}'
+          reporting:
+            rep_mode: '{{ input.alignment.reporting.rep_mode }}'
+            k_reports: '{{ input.alignment.reporting.k_reports }}'
+      - id: qc
+        run: qc-prepeak
+        input:
+          alignment: '{{ steps.alignment }}'
+          q_treshold: '{{ input.qc.q_treshold }}'
+          n_sub: '{{ input.qc.n_sub }}'
+          tn5: '{{ input.qc.tn5 }}'
+          shift: '{{ input.qc.shift }}'
+      - id: peakcall
+        run: macs2-callpeak
+        input:
+          case: '{{ steps.alignment }}'
+          case_prepeak: '{{ steps.qc }}'
+          promoter: '{{ input.promoter }}'
+          settings:
+            duplicates_prepeak: '{{ input.peakcall.duplicates_prepeak }}'
+            pvalue_prepeak: '{{ input.peakcall.pvalue_prepeak }}'
+            qvalue: '{{ input.peakcall.qvalue }}'
+            cap_num: '{{ input.peakcall.cap_num }}'
+            nomodel_prepeak: '{{ input.peakcall.nomodel_prepeak }}'
+            extsize: '{{ input.peakcall.extsize }}'
+            shift: '{{ input.peakcall.shift }}'
+            bedgraph: '{{ input.peakcall.bedgraph }}'
+            spmr: '{{ input.peakcall.spmr }}'
+            fix_bimodal: '{{ input.peakcall.fix_bimodal }}'
+            call_summits: '{{ input.peakcall.call_summits }}'

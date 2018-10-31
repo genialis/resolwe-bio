@@ -48,6 +48,7 @@ Added
   and ``resolwebio/rnaseq``.
 - Add ``shift`` (user-defined cross-correlation peak strandshift) input
   to ``qc-prepeak`` process
+- Add ATAC-seq workflow
 
 Fixed
 -----
