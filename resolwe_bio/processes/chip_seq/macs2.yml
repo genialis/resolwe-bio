@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/chipseq:3.0.0
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 3.0.1
+  version: 3.0.2
   type: data:chipseq:callpeak:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
@@ -548,17 +548,8 @@
         head -n {{ settings.cap_num or -0 }} "${NAME}_peaks_tmp.narrowPeak" > "${NAME}_peaks.narrowPeak"
 
         {% if case_prepeak %}
-          FRAGLEN={{ case_prepeak.fraglen }}
           cp {{ case_prepeak.tagalign.file }} "${NAME}.tagAlign"
         {% else %}
-          # Get fragment length
-          {% if settings.extsize %}
-            FRAGLEN={{ settings.extsize }}
-          {% else %}
-            FRAGLEN=$(macs2 predictd -i {{ case.bam.file }} 2>&1 >/dev/null | grep -e 'predicted fragment length' | rev | cut -d ' ' -f 3 | rev)
-            re-checkrc "Error while estimating fragment size"
-          {% endif %}
-
           # Transform case bam file to tagAlign for either single-end or paired-end reads
           if [ $(samtools view -c -f 1 {{ case.bam.file }}) -eq 0 ]; then
             bedtools bamtobed -i {{ case.bam.file }} | \
@@ -572,6 +563,16 @@
             awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\tN\t1000\t%s\n%s\t%s\t%s\tN\t1000\t%s\n",$1,$2,$3,$9,$4,$5,$6,$10}' > "${NAME}.tagAlign"
             re-checkrc "Conversion to tagAlign failed"
           fi
+        {% endif %}
+
+        # Get fragment length
+        {% if settings.extsize %}
+          FRAGLEN={{ settings.extsize }}
+        {% elif case_prepeak %}
+          FRAGLEN={{ case_prepeak.fraglen }}
+        {% else %}
+          FRAGLEN=$(macs2 predictd -i {{ case.bam.file }} 2>&1 >/dev/null | grep -e 'predicted fragment length' | rev | cut -d ' ' -f 3 | rev)
+          re-checkrc "Error while estimating fragment size"
         {% endif %}
 
         # Shift reads on both strands for half of the fragment length in opposite directions

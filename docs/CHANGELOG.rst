@@ -60,6 +60,9 @@ Fixed
 - Handle empty gene name in expression files in PCA
 - Fix PBC QC reporting  in ``qc-prepeak`` process for a case where
   there are no duplicates in the input bam
+- Fix ``macs2-callpeak`` process so that user defined fragment lenth
+  has priority over the ``qc-prepeak`` estimated fragment length when
+  shifting reads for post-peakcall QC
 
 
 =================
