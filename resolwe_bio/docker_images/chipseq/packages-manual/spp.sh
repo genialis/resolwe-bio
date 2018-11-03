@@ -10,7 +10,7 @@ download_and_verify \
     https://github.com/kundajelab/phantompeakqualtools/archive/\${version}.tar.gz \
     phantompeakqualtools-\${version}
 
-sed -i '1i#!/usr/bin/env Rscript\n' run_spp.R
+sed -i '1i#!/usr/bin/env Rscript\nlibrary(caTools)\n' run_spp.R
 mv run_spp.R spp
 chmod +x spp
 rm README.md spp_*

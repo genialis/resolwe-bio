@@ -2,12 +2,7 @@ build-essential
 python-dev
 python-setuptools
 python-wheel
-python-software-properties
 software-properties-common
-
-# Required for R package 'devtools'
-libssl-dev
-libcurl4-openssl-dev
 
 # Required for SPP
 libboost-all-dev

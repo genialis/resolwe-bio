@@ -1,37 +1,5 @@
-bedtools
-picard-tools
-python
-python-pip
-r-base
-samtools
-tabix
-
-# required for bokeh (required for bamliquidator)
-python-flask
-python-requests
-python-tornado
-python-pandas
-python3-pandas
-python-jinja2
-python-colorama
-python-markdown
-python-pystache
-python-pygments
-python-six
-python-dateutil
-python-itsdangerous
-python-greenlet
-python-werkzeug
-python-markupsafe
-
-# required for bamliquidator
 python-numpy
-python-scipy
-python-pandas
-python-redis
-python-software-properties
-python-tables
-python-numexpr
+python-pip
 
 # required for SPP
 gawk

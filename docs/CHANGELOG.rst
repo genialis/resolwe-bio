@@ -26,6 +26,9 @@ Changed
   is computed in ``align-bwa-trim`` process instead.
 - **BACKWARD INCOMPATIBLE:** Remove ``resolwebio/utils`` Docker image.
   This image is replaced by the ``resolwebio/common`` image.
+- **BACKWARD INCOMPATIBLE:** Use ``resolwebio/common`` Docker image
+  as a base image for the ``resolwebio/biox``, ``resolwebio/chipseq`` and
+  ``resolwebio/rnaseq`` images.
 - Use sample name as the name of the data object in:
 
   - ``alignment-bwa-aln``

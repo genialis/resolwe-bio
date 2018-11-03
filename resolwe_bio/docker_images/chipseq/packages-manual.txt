@@ -1,7 +1,4 @@
-bamliquidator
 bedclip
-bedgraphtobigwig
-bedtobigbed
 bedops
 r-packages
 spp
