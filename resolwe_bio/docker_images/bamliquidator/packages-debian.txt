@@ -1,0 +1,30 @@
+python
+python-pip
+r-base
+samtools
+
+# required for bokeh (required for bamliquidator)
+python-colorama
+python-dateutil
+python-flask
+python-greenlet
+python-itsdangerous
+python-jinja2
+python-markdown
+python-markupsafe
+python-pandas
+python-pygments
+python-pystache
+python-requests
+python-tornado
+python-six
+python-werkzeug
+python3-pandas
+
+# required for bamliquidator
+python-numexpr
+python-numpy
+python-pandas
+python-redis
+python-scipy
+python-tables
