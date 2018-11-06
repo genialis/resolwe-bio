@@ -1,42 +1,28 @@
 # Docker image for RNA-Seq processes
 
-It is based on `ubuntu-18.04` version of [`docker.io/resolwebio/base`](
+The image is based on the [`docker.io/resolwebio/common`](
+https://hub.docker.com/r/resolwebio/common/) image, derived from the
+`ubuntu-18.04` version of [`docker.io/resolwebio/base`](
 https://hub.docker.com/r/resolwebio/base/) image.
 
 Included bioinformatics tools:
 ------------------------------
-* affy (v1.56.0)
 * BBMap (v37.90)
-* bedToBigBed (kent-v364)
-* Bedtools (2.27.1)
-* Bowtie (v1.2.2)
-* Bowtie2 (v2.3.4.1)
-* BWA (v0.7.17-r1188)
 * Cufflinks (v2.2.1)
 * Cutadapt (v1.16)
 * DESeq2 (v1.16.1)
 * DEXSeq (v1.24.2)
 * dexseq_prepare_annotation2 (v1.0.0)
-* deepTools (v3.0.2)
 * edgeR (v3.20.9)
-* FastQC (v0.11.7)
 * gotea (v0.0.4)
 * genometools (1.5.9)
-* HISAT2 (v2.1.0)
-* HTSeq (v0.9.1)
 * igvtools (v2.3.98)
 * jbrowse (v1.12.0)
 * loadSubread (0.0.1)
-* makedb (WALT 1.01)
-* Picard Tools (v2.18.5)
 * regtools (0.5.0)
 * RSEM (v1.4.0)
 * rtracklayer (v1.38.0)
-* SAMtools (v1.5)
 * Salmon (0.9.1)
 * STAR (v2.5.4b)
-* Subread (v1.6.0)
-* Tabix (v1.8)
-* TopHat (v2.1.1)
 * Trimmomatic (v0.36)
 * tximport (v1.6.0)

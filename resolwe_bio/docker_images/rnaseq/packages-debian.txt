@@ -1,31 +1,5 @@
-bowtie
-bowtie2
-bwa
 file
-picard-tools
-python-pip
-r-base-core
-tabix
-tophat
-
-# Required by FastQC
-default-jre
-libfindbin-libs-perl
-
-# Required by HTSeq
-libbz2-dev
-libncurses5-dev
-liblzma-dev
-zlib1g-dev
-
-# Required by SAMtools
-libcurl4-openssl-dev
-libssl-dev
 
 # Python modules
 python3-dev
 python3-matplotlib
-python3-numpy
-python3-pandas
-python3-sklearn
-python3-scipy
