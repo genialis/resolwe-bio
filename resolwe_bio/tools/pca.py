@@ -93,12 +93,19 @@ def save_pca(result={}, sample_ids=[], output_fn=None, max_size=10):
 
 def read_csv(fname):
     """Read CSV file and return Pandas DataFrame."""
-    dtype = {
-        'Gene': str,
-        'Expression': float,
-    }
-    csv = pd.read_csv(fname, sep='\t', header=0, dtype=dtype, low_memory=False)
-    return csv.set_index('Gene')
+    csv = pd.read_csv(
+        filepath_or_buffer=fname,
+        sep='\t',
+        header=0,
+        index_col=0,
+        dtype={
+            0: str,
+            1: float,
+        },
+        keep_default_na=False,
+    )
+    csv.index = csv.index.map(str)
+    return csv
 
 
 def get_csv(fnames):

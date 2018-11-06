@@ -49,6 +49,7 @@ Fixed
 - Handle integer expression values in hierarchical clustering
 - Fix Amplicon table gene hyperlinks for cases where multiple genes
   are associated with detected variant
+- Handle empty gene name in expression files in PCA
 
 
 =================

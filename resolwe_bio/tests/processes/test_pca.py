@@ -20,6 +20,20 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
                                                    f_type='TPM',
                                                    source='DICTYBASE',
                                                    species='Dictyostelium discoideum')
+            expression_noname_1 = self.prepare_expression(
+                f_rc='pca_exp_noname1.tab.gz',
+                f_exp='pca_exp_noname1.tab.gz',
+                f_type='TPM',
+                source='DICTYBASE',
+                species='Dictyostelium discoideum',
+            )
+            expression_noname_2 = self.prepare_expression(
+                f_rc='pca_exp_noname2.tab.gz',
+                f_exp='pca_exp_noname2.tab.gz',
+                f_type='TPM',
+                source='DICTYBASE',
+                species='Dictyostelium discoideum',
+            )
 
         inputs = {
             'exps': [expression_1.pk, expression_2.pk],
@@ -57,6 +71,16 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
         self.assertAlmostEqualGeneric(test_json['explained_variance_ratios'], saved_json['explained_variance_ratios'])
         self.assertAlmostEqualGeneric(test_json['components'], saved_json['components'])
         self.assertEqual(len(pca.process_warning), 0)
+
+        inputs = {
+            'exps': [
+                expression_noname_1.pk,
+                expression_noname_2.pk,
+            ],
+            'source': 'DICTYBASE',
+            'species': 'Dictyostelium discoideum',
+        }
+        pca = self.run_process('pca', inputs)
 
     @with_resolwe_host
     @tag_process('pca')
