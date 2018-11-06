@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Entity
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
@@ -71,6 +71,44 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 name='expression 7',
                 source='ENSEMBL',
                 species='Homo sapiens')
+            expression_8 = self.prepare_expression(
+                f_exp='clustering_int1.tab.gz',
+                f_type='TPM',
+                name='expression int 1',
+                source='ENSEMBL',
+                species='Homo sapiens',
+            )
+            expression_9 = self.prepare_expression(
+                f_exp='clustering_int2.tab.gz',
+                f_type='TPM',
+                name='expression int 2',
+                source='ENSEMBL',
+                species='Homo sapiens',
+            )
+
+        inputs = {
+            'exps': [
+                expression_8.pk,
+                expression_9.pk,
+            ],
+            'preprocessing': {
+                'log2': False,
+            },
+        }
+        clustering = self.run_process('clustering-hierarchical-samples', inputs)
+        saved_json, test_json = self.get_json('clustering_out_sample.json.gz', clustering.output['cluster'])
+        # correct sample IDs
+        saved_json['sample_ids'] = {
+            str(i): {
+                'id': Entity.objects.get(data=Data.objects.get(id=inputs['exps'][i])).id,
+            }
+            for i in range(len(inputs['exps']))
+        }
+        self.assertEqual(saved_json.keys(), test_json.keys())
+        for key in saved_json:
+            assert_method = self.assertAlmostEqualGeneric if key == 'linkage' else self.assertEqual
+            assert_method(saved_json[key], test_json[key])
+        self.assertEqual(len(clustering.process_warning), 0)
 
         inputs = {
             'exps': [
@@ -372,6 +410,37 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 name='expression 7',
                 source='ENSEMBL',
                 species='Homo sapiens')
+            expression_8 = self.prepare_expression(
+                f_exp='clustering_int1.tab.gz',
+                f_type='TPM',
+                name='expression int 1',
+                source='ENSEMBL',
+                species='Homo sapiens',
+            )
+            expression_9 = self.prepare_expression(
+                f_exp='clustering_int2.tab.gz',
+                f_type='TPM',
+                name='expression int 2',
+                source='ENSEMBL',
+                species='Homo sapiens',
+            )
+
+        inputs = {
+            'exps': [
+                expression_8.pk,
+                expression_9.pk,
+            ],
+            'preprocessing': {
+                'log2': False,
+            },
+        }
+        clustering = self.run_process('clustering-hierarchical-genes', inputs)
+        saved_json, test_json = self.get_json('clustering_out_genes.json.gz', clustering.output['cluster'])
+        self.assertEqual(saved_json.keys(), test_json.keys())
+        for key in saved_json:
+            assert_method = self.assertAlmostEqualGeneric if key == 'linkage' else self.assertEqual
+            assert_method(saved_json[key], test_json[key])
+        self.assertEqual(len(clustering.process_warning), 0)
 
         inputs = {
             'exps': [

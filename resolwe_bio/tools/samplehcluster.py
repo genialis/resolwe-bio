@@ -37,7 +37,18 @@ def parse_args():
 
 def get_expression(fname, sep='\t', gene_set=[]):
     """Read expressions from file and return only expressions of genes in gene_set."""
-    df = pd.read_csv(fname, sep=sep, header=0, index_col=0, compression='gzip')
+    df = pd.read_csv(
+        filepath_or_buffer=fname,
+        sep=sep,
+        header=0,
+        index_col=0,
+        compression='gzip',
+        dtype={
+            0: str,
+            1: float,
+        },
+        keep_default_na=False,
+    )
     df.index = df.index.map(str)
     if not gene_set:
         return df
