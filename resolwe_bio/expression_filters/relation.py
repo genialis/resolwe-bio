@@ -8,9 +8,7 @@ Relations Template Tags
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 from resolwe.flow.expression_engines.jinja.filters import id_
-from resolwe.flow.models.entity import RelationPartition
-
-from resolwe_bio.models import Sample
+from resolwe.flow.models.entity import Entity, RelationPartition
 
 
 def replicate_groups(data):
@@ -23,7 +21,7 @@ def replicate_groups(data):
     if len(data_ids) != len(set(data_ids)):
         raise ValueError('Repeated data objects not allowed')
 
-    samples = Sample.objects.filter(data__id__in=data_ids)
+    samples = Entity.objects.filter(data__id__in=data_ids)
 
     if len(samples) != len(data_ids):
         raise ValueError('Can not get replicates of data without sample')
@@ -47,7 +45,7 @@ def replicate_groups(data):
     # Ensure the correct order
     for d in data_ids:
         # This is slow because we are fetching samples one by one
-        sample_id = Sample.objects.filter(data__id=d).values('id').first()['id']
+        sample_id = Entity.objects.filter(data__id=d).values('id').first()['id']
 
         if sample_id in sample_group:
             group_label = sample_group[sample_id]

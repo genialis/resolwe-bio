@@ -43,6 +43,7 @@ Added
 
 Fixed
 -----
+- Fix Cuffnorm test
 
 
 =================
