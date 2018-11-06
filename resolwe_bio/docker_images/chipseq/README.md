@@ -7,6 +7,7 @@ Included bioinformatics tools
 -----------------------------
 * BAMLIQUIDATOR (v1.3.4)
 * BAMPLOT (v0.9.0)
+* bedClip (kent-v373)
 * bedGraphToBigWig (kent-v364)
 * bedToBigBed (kent-v364)
 * Bedops (v2.4.32)

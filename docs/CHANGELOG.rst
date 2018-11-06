@@ -57,6 +57,7 @@ Added
   - ``WALT``
   - ``methcounts``
   - ``HMR``
+- Add bedClip to `resolwebio/chipseq:3.1.0` docker image
 
 Fixed
 -----
