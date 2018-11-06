@@ -45,6 +45,7 @@ Fixed
 -----
 - Fix Cuffnorm test
 - Fix tests using deprecated flow_collection
+- Fix HTSeq CPM test
 
 
 =================
