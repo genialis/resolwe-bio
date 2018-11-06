@@ -15,7 +15,8 @@ class TestRelationFilters(TestCase):
             type='data:test:process',
             slug='test-process',
             contributor=self.contributor,
-            flow_collection='sample',
+            entity_type='sample',
+            entity_descriptor_schema='sample'
         )
 
         DescriptorSchema.objects.create(
