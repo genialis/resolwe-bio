@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:3.0.0
+        image: resolwebio/chipseq:3.1.0
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 3.0.2
+  version: 3.0.3
   type: data:chipseq:callpeak:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
@@ -521,16 +521,20 @@
       {% endif %}
 
       {% if settings.bedgraph %}
+        bedtools slop -i "${NAME}_treat_pileup.bdg" -g chrom.sizes -b 0 | bedClip stdin chrom.sizes "${NAME}_treat_pileup_clip.bdg"
+        re-checkrc "Preventing the extension of intervals beyond chromosome boundaries for treat_pileup.bgd bedGraph failed."
         # case sensitive sorting
-        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_treat_pileup.bdg" > "${NAME}_treat_pileup_sorted.bdg"
+        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_treat_pileup_clip.bdg" > "${NAME}_treat_pileup_sorted.bdg"
         # Create BigWig file for IGV and UCSC genome browsers
         bedGraphToBigWig "${NAME}_treat_pileup_sorted.bdg" chrom.sizes "${NAME}_treat_pileup.bw"
         re-checkrc "Creating bigWig from treat_pileup.bgd bedGraph failed."
         re-save-file treat_pileup "${NAME}_treat_pileup.bdg"
         re-save-file treat_pileup_bigwig "${NAME}_treat_pileup.bw"
 
+        bedtools slop -i "${NAME}_control_lambda.bdg" -g chrom.sizes -b 0 | bedClip stdin chrom.sizes "${NAME}_control_lambda_clip.bdg"
+        re-checkrc "Preventing the extension of intervals beyond chromosome boundaries for control_lambda.bgd bedGraph failed."
         # case sensitive sorting
-        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_control_lambda.bdg" > "${NAME}_control_lambda_sorted.bdg"
+        LC_COLLATE=C sort -k 1,1 -k 2,2n "${NAME}_control_lambda_clip.bdg" > "${NAME}_control_lambda_sorted.bdg"
         # Create BigWig file for IGV and UCSC genome browsers
         bedGraphToBigWig "${NAME}_control_lambda_sorted.bdg" chrom.sizes "${NAME}_control_lambda.bw"
         re-checkrc "Creating bigWig from control_lambda.bgd bedGraph failed."

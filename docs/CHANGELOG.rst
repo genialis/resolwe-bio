@@ -84,6 +84,8 @@ Fixed
 - Fix ``macs2-callpeak`` process so that user defined fragment lenth
   has priority over the ``qc-prepeak`` estimated fragment length when
   shifting reads for post-peakcall QC
+- Fix ``macs2-callpeak`` to prevent the extension of intervals beyond chromosome
+  boundaries in MACS2 bedgraph outputs.
 
 
 =================
