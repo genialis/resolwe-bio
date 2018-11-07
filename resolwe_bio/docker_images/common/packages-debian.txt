@@ -3,8 +3,8 @@ bowtie2
 bwa
 picard-tools
 python3-numpy
-python3-pandas
 python3-six
+python3-sklearn
 python3-yaml
 r-base
 seqtk
