@@ -5,15 +5,8 @@ zlib1g-dev
 libbz2-dev
 liblzma-dev
 
-
-# Required for R package 'devtools'
-libssl-dev
-
 # Required for Bioconductor packages
 liblapack-dev
-
-# Required for samtools
-libxml2-dev
 
 # Listed explicitly so they are removed correctly.
 gcc

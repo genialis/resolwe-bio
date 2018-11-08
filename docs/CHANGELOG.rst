@@ -27,8 +27,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``resolwebio/utils`` Docker image.
   This image is replaced by the ``resolwebio/common`` image.
 - **BACKWARD INCOMPATIBLE:** Use ``resolwebio/common`` Docker image
-  as a base image for the ``resolwebio/biox``, ``resolwebio/chipseq`` and
-  ``resolwebio/rnaseq`` images.
+  as a base image for the ``resolwebio/biox``, ``resolwebio/chipseq``,
+  ``resolwebio/dnaseq`` and ``resolwebio/rnaseq`` images.
 - **BACKWARD INCOMPATIBLE:** Remove ``resolwebio/legacy`` Docker image.
 - Use sample name as the name of the data object in:
 

@@ -1,8 +1,5 @@
-chrom-mappings
-primerclip
-r-packages
-samtools
+bokeh-assets
 gatk
 lofreq
-snpeff
-bokeh-assets
+primerclip
+r-packages
