@@ -41,7 +41,6 @@ download_and_verify \
     '' \
     GRCm38.p6_NCBI2UCSC.txt
 
-
 download_and_verify \
     chrom_mappings \
     assets \
@@ -50,3 +49,63 @@ download_and_verify \
     https://drive.google.com/uc?id=1u4AuJQfeR4pw9P6wYeFbnhu_JT2kIDkU \
     '' \
     rn6_ensembl2UCSC.txt
+
+# rRNA chromosome names for Homo sapiens
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Homo_sapiens_rRNA \
+    4ea6bf407616ad0e934494be51fe767755a5bc07f76e6d0ee3f30eb13c070760 \
+    https://drive.google.com/uc?id=1R6vBnBh-05yoUFfYyDkCTGhfJ06yrdah \
+    '' \
+    Homo_sapiens_rRNA.txt
+
+# rRNA chromosome names for Mus musculus
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Mus_musculus_rRNA \
+    775760d053fdabe4248425db6bb3181fe56433151ea5719f0e376608a57635ed \
+    https://drive.google.com/uc?id=1MNRvOk8nPjPXsSkZqIEFEZ9QlNLhvUes \
+    '' \
+    Mus_musculus_rRNA.txt
+
+# rRNA chromosome names for Rattus_norvegicus
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Rattus_norvegicus_rRNA \
+    2263632cdd7960058f5d304d29d455d502fbe311c1f69783c6f8b5cca08fa522 \
+    https://drive.google.com/uc?id=1OkHsmJRnKYTk_8QTpA3W1w7qrJaOr2Ei \
+    '' \
+    Rattus_norvegicus_rRNA.txt
+
+# globin chromosome names for Homo sapiens
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Homo_sapiens_globin_RNA \
+    5b4a699e4ea6ee9d473f1e542ba0002929730d7e55e2db1148947d5b56fa9c7c \
+    https://drive.google.com/uc?id=1dTEXjxE814egst94NB5HaO6tTom0NXxA \
+    '' \
+    Homo_sapiens_globin_RNA.txt
+
+# globin chromosome names for Mus musculus
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Mus_musculus_globin_RNA \
+    142bd5f98df669c15d09b47df9eb2a9c4dd7a918abda7dd2094fba9b523d68eb \
+    https://drive.google.com/uc?id=1zcb0KQYPYWxVDcK_FQCvrYQsusnUyc9h \
+    '' \
+    Mus_musculus_globin_RNA.txt
+
+# globin chromosome names for Rattus norvegicus
+download_and_verify \
+    chrom_mappings \
+    globin_rrna \
+    Rattus_norvegicus_globin_RNA \
+    2263632cdd7960058f5d304d29d455d502fbe311c1f69783c6f8b5cca08fa522 \
+    https://drive.google.com/uc?id=1NX4BmIsq72K8guYXqLnq1trfJdUzg822 \
+    '' \
+    Rattus_norvegicus_globin_RNA.txt

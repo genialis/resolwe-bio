@@ -69,6 +69,8 @@ Added
   Dictyostelium RNA-Seq analysis support.
 - Add ``resolwebio/snpeff`` Docker image. The image includes
   SnpEff (4.3K) tool.
+- Add spike-in names, rRNA and globin RNA cromosome names in
+  ``resolwebio/common`` image
 
 Fixed
 -----
