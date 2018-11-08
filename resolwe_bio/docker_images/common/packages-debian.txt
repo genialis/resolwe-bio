@@ -14,3 +14,6 @@ zip
 # Required by FastQC
 default-jre
 libfindbin-libs-perl
+
+# Required for deeptools
+libpython3.6-dev
