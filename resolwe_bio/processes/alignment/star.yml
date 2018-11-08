@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.6.1
+        image: resolwebio/rnaseq:4.0.0
     resources:
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.7.1
+  version: 1.8.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample

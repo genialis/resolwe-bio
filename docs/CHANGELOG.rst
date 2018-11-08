@@ -40,6 +40,10 @@ Changed
   the case/treatment sample.
 - Use ``resolwebio/dnaseq:4.0.0`` docker image in ``align-bwa-trim``
   process
+- Use ``resolwebio/rnaseq:4.0.0`` docker image in aligners:
+  ``alignment-bowtie``, ``alignment-bowtie2``, ``alignment-bwa-mem``,
+  ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,
+  ``alignment-star`` and ``alignment-subread``.
 
 Added
 -----
@@ -84,6 +88,8 @@ Added
   ``alignment-bwa-aln``, ``alignment-hisat2``, ``alignment-star``
   ``alignment-subread``, ``upload-bam``, ``upload-bam-indexed`` and
   ``upload-bam-secondary``.
+- In ``bamtobigwig.sh`` don't create BigWig when bam file was aligned on
+  globin RNA or rRNA (this are QC steps and BigWig is not needed).
 
 Fixed
 -----

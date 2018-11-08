@@ -15,6 +15,16 @@ if [ "${BAM_SEQUENCES}" == 0 ]; then
   exit 0
 fi
 
+# if BAM was created from globin reference sequence or rRNA sequence BiqWig file is not needed
+samtools idxstats "${bam_file}" | cut -f 1 | head -n -1 > bam_chrom_names.txt
+BAM_SOURCE=$(check_bam_source.py --infile bam_chrom_names.txt --species "${species}")
+re-checkrc "Checking bam source failed."
+
+if [ "${BAM_SOURCE}" == "globin_or_rrna" ]
+then
+  exit 0
+fi
+
 NAME=`basename "${bam_file}" .bam`
 
 time=`python -c "import os; print(max(os.path.getsize('${bam_file}') / 1024**3, 1) * ${time_limit})"`
