@@ -11,8 +11,11 @@
       docker:
         image: resolwebio/chipseq:3.1.0
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 3.0.3
+  version: 3.1.0
   type: data:chipseq:callpeak:macs2
+  entity:
+    type: sample
+    input: case
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
   description: >

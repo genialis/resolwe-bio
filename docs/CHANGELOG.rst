@@ -36,6 +36,8 @@ Changed
   - ``alignment-bowtie2``
   - ``qc-prepeak``
   - ``macs2-callpeak``
+- Attach ``macs2-callpeak``, ``macs14`` and ``rose2`` process data to
+  the case/treatment sample.
 
 Added
 -----
