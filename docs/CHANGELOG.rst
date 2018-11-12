@@ -107,6 +107,7 @@ Fixed
   shifting reads for post-peakcall QC
 - Fix ``macs2-callpeak`` to prevent the extension of intervals beyond chromosome
   boundaries in MACS2 bedgraph outputs.
+- Fix warning message in hierarchical clustering of genes to display gene names
 
 
 =================

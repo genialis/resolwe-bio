@@ -204,17 +204,17 @@ def main():
 
     if args.remove_const:
         expressions, matches = remove_const_genes(expressions)
-        gene_names = get_gene_names(list(expressions.index), args.source, args.species)
         if len(expressions.index) == 0:
             msg = ('All of the selected genes have constant expression across samples. '
                    'Hierarchical clustering of genes cannot be computed.')
             set_error(msg)
         if len(expressions.index) == 1:
+            gene_names = get_gene_names(list(expressions.index), args.source, args.species)
             msg = ('Only one of the selected genes ({}) has a non-constant expression across '
                    'samples. However, hierarchical clustering of genes cannot be computed with '
                    'just one gene.'.format(gene_names[0]))
             set_error(msg)
-        removed = [name for i, name in enumerate(gene_names) if not matches[i]]
+        removed = [name for i, name in enumerate(expressions.index) if not matches[i]]
         suffix = '' if len(removed) <= 3 else ', ...'
         if removed:
             removed_names = get_gene_names(removed[:3], args.source, args.species)
