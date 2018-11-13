@@ -44,6 +44,8 @@ Changed
   ``alignment-bowtie``, ``alignment-bowtie2``, ``alignment-bwa-mem``,
   ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,
   ``alignment-star`` and ``alignment-subread``.
+- Set memory limits in ``upload-genome``, ``trimmomatic-single`` and
+  ``trimmomatic-paired`` processes.
 
 Added
 -----

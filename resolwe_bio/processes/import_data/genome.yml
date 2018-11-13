@@ -12,9 +12,10 @@
         image: resolwebio/rnaseq:3.8.0
     resources:
       cores: 10
+      memory: 16384
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.2.0
+  version: 3.2.1
   type: data:genome:fasta
   category: Import
   persistence: RAW

@@ -9,11 +9,12 @@
     expression-engine: jinja
     resources:
       cores: 10
+      memory: 32768
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.2
+  version: 2.0.3
   type: data:reads:fastq:single:trimmomatic
   category: Trim
   flow_collection: sample
@@ -267,11 +268,12 @@
     expression-engine: jinja
     resources:
       cores: 10
+      memory: 32768
     executor:
       docker:
         image: resolwebio/rnaseq:3.2.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.1
+  version: 2.0.2
   type: data:reads:fastq:paired:trimmomatic
   category: Trim
   flow_collection: sample
