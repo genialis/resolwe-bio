@@ -3,6 +3,14 @@ require('argparse')
 require('DESeq2')
 require('tximport')
 
+#' Raise process error
+#' @param msg Error message
+error <- function(msg) {
+    msg <- gsub('\\n', '', msg)  # remove newline characters
+    message(paste('{"proc.error": "', msg, '"}', sep=''))
+    quit(status=1)
+}
+
 parser = ArgumentParser(description='Run DESeq2 differential expression')
 parser$add_argument('--cases', nargs='+', help='Cases', required=TRUE)
 parser$add_argument('--controls', nargs='+', help='Controls', required=TRUE)
@@ -19,7 +27,7 @@ sampleTable <- data.frame(condition=factor(conditions, levels=c('control', 'case
 if (args$format == 'rsem') {
     txi <- tximport(files, type='rsem')
     rownames(sampleTable) <- colnames(txi$counts)
-    dds <- DESeqDataSetFromTximport(txi, sampleTable, ~condition)
+    dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
 } else {
     data <- lapply(files, read.csv, sep='\t')
     for(i in 1:length(files)) {
@@ -29,12 +37,12 @@ if (args$format == 'rsem') {
     cts <- counts[,-1]
     rownames(cts) <- counts[,1]
     rownames(sampleTable) <- names(files)
-    dds <- DESeqDataSetFromMatrix(cts, sampleTable, ~condition)
+    dds <- tryCatch(DESeqDataSetFromMatrix(cts, sampleTable, ~condition), error=error)
 }
 
 dds <- dds[rowSums(counts(dds)) >= args$min_count_sum, ]
-dds = DESeq(dds)
+dds <- tryCatch(DESeq(dds), error=error)
 
-result = results(dds, cooksCutoff=FALSE)
-result = result[order(result$padj), ]
+result <- results(dds, cooksCutoff=FALSE)
+result <- result[order(result$padj), ]
 write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=FALSE, col.names=NA)

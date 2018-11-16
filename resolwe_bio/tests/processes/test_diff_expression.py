@@ -80,6 +80,36 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
 
     @with_resolwe_host
+    @tag_process('differentialexpression-deseq2')
+    def test_deseq2_expression_error(self):
+        with self.preparation_stage():
+            case = self.prepare_expression(
+                f_rc='deseq2_exp1.tab.gz',
+                source='UCSC',
+                species='Mus musculus',
+                build='mm10',
+            )
+            control = self.prepare_expression(
+                f_rc='deseq2_exp2.tab.gz',
+                source='UCSC',
+                species='Mus musculus',
+                build='mm10',
+            )
+
+        inputs = {
+            'case': [
+                case.pk,
+            ],
+            'control': [
+                control.pk,
+            ],
+        }
+        deseq2 = self.run_process('differentialexpression-deseq2', inputs, Data.STATUS_ERROR)
+        error_msg = [('Error in estimateSizeFactorsForMatrix(counts(object), locfunc = locfunc, : '
+                      'every gene contains at least one zero, cannot compute log geometric means')]
+        self.assertEqual(deseq2.process_error, error_msg)
+
+    @with_resolwe_host
     @tag_process('differentialexpression-edger')
     def test_edger(self):
         with self.preparation_stage():

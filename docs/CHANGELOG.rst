@@ -46,6 +46,7 @@ Changed
   ``alignment-star`` and ``alignment-subread``.
 - Set memory limits in ``upload-genome``, ``trimmomatic-single`` and
   ``trimmomatic-paired`` processes.
+- Improve error messages in differential expression process ``DESeq2``
 
 Added
 -----
