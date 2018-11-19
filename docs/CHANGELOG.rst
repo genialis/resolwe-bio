@@ -96,6 +96,8 @@ Added
 
 Fixed
 -----
+- **BACKWARD INCOMPATIBLE:** Use user-specificed distance metric in
+  hierarchical clustering
 - Fix Cuffnorm test
 - Fix tests using deprecated flow_collection
 - Fix HTSeq CPM test

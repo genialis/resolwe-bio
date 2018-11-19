@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-docstring,invalid-name,import-error
 """Hierarchical clustering of samples."""
 
 import argparse
 import json
-import sys
 
 import numpy as np
 import pandas as pd
-from scipy.stats import spearmanr, pearsonr, zscore
+from scipy.stats import spearmanr, zscore
 from scipy.cluster.hierarchy import dendrogram, linkage
-from scipy.spatial.distance import pdist
 
 import resdk
 from resolwe_runtime_utils import error, warning
@@ -86,8 +83,7 @@ def transform(expressions, log2=False, const=1.0, z_score=False, ddof=1):
         expressions = expressions.applymap(lambda x: np.log2(x + const))
         if expressions.isnull().values.any():
             msg = 'Cannot apply log2 to expression values.'
-            print(error(msg))
-            raise ValueError(msg)
+            set_error(msg)
     if z_score:
         expressions = expressions.apply(lambda x: zscore(x, ddof=ddof), axis=1, result_type='broadcast')
         expressions.fillna(value=0.0, inplace=True)
@@ -126,17 +122,20 @@ def get_clustering(
         order=False):
     """Compute linkage, order, and produce a dendrogram."""
     try:
-        link = linkage(y=expressions.transpose(), method=linkage_method, optimal_ordering=order)
+        link = linkage(
+            y=expressions.transpose(),
+            method=linkage_method,
+            metric=distance_metric,
+            optimal_ordering=order,
+        )
     except:
         msg = 'Cannot compute linkage.'
-        print(error(msg))
-        raise ValueError(msg)
+        set_error(msg)
     try:
         dend = dendrogram(link, no_plot=True)
     except:
         msg = 'Cannot compute dendrogram.'
-        print(error(msg))
-        raise ValueError(msg)
+        set_error(msg)
     return link, dend
 
 
