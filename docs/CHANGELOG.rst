@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+15.0.0 2018-11-20
+=================
 
 Changed
 -------
@@ -20,7 +20,7 @@ Changed
   ``prinseq-lite-single``, ``prinseq-lite-paired``,
   ``sortmerna-single``, ``sortmerna-paired``, ``bam-coverage``,
   ``hsqutils-dedup``, ``vc-samtools``, ``workflow-heat-seq`` and
-  ``alignment-tophat2``.
+  ``alignment-tophat2``
 - **BACKWARD INCOMPATIBLE:** Remove ``jbrowse-bam-coverage`` process
   step from the ``workflow-accel`` workflow. The bigwig coverage track
   is computed in ``align-bwa-trim`` process instead.
@@ -28,7 +28,7 @@ Changed
   This image is replaced by the ``resolwebio/common`` image.
 - **BACKWARD INCOMPATIBLE:** Use ``resolwebio/common`` Docker image
   as a base image for the ``resolwebio/biox``, ``resolwebio/chipseq``,
-  ``resolwebio/dnaseq`` and ``resolwebio/rnaseq`` images.
+  ``resolwebio/dnaseq`` and ``resolwebio/rnaseq`` images
 - **BACKWARD INCOMPATIBLE:** Remove ``resolwebio/legacy`` Docker image.
 - Use sample name as the name of the data object in:
 
@@ -37,7 +37,7 @@ Changed
   - ``qc-prepeak``
   - ``macs2-callpeak``
 - Attach ``macs2-callpeak``, ``macs14`` and ``rose2`` process data to
-  the case/treatment sample.
+  the case/treatment sample
 - Use ``resolwebio/dnaseq:4.0.0`` docker image in ``align-bwa-trim``
   process
 - Use ``resolwebio/rnaseq:4.0.0`` docker image in aligners:
@@ -45,7 +45,7 @@ Changed
   ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,
   ``alignment-star`` and ``alignment-subread``.
 - Set memory limits in ``upload-genome``, ``trimmomatic-single`` and
-  ``trimmomatic-paired`` processes.
+  ``trimmomatic-paired`` processes
 - Improve error messages in differential expression process ``DESeq2``
 
 Added
@@ -92,15 +92,12 @@ Added
   ``alignment-subread``, ``upload-bam``, ``upload-bam-indexed`` and
   ``upload-bam-secondary``.
 - In ``bamtobigwig.sh`` don't create BigWig when bam file was aligned on
-  globin RNA or rRNA (this are QC steps and BigWig is not needed).
+  globin RNA or rRNA (this are QC steps and BigWig is not needed)
 
 Fixed
 -----
 - **BACKWARD INCOMPATIBLE:** Use user-specificed distance metric in
   hierarchical clustering
-- Fix Cuffnorm test
-- Fix tests using deprecated flow_collection
-- Fix HTSeq CPM test
 - Handle integer expression values in hierarchical clustering
 - Fix Amplicon table gene hyperlinks for cases where multiple genes
   are associated with detected variant
@@ -110,9 +107,10 @@ Fixed
 - Fix ``macs2-callpeak`` process so that user defined fragment lenth
   has priority over the ``qc-prepeak`` estimated fragment length when
   shifting reads for post-peakcall QC
-- Fix ``macs2-callpeak`` to prevent the extension of intervals beyond chromosome
-  boundaries in MACS2 bedgraph outputs.
-- Fix warning message in hierarchical clustering of genes to display gene names
+- Fix ``macs2-callpeak`` to prevent the extension of intervals beyond
+  chromosome boundaries in MACS2 bedgraph outputs
+- Fix warning message in hierarchical clustering of genes to display gene
+  names
 
 
 =================
