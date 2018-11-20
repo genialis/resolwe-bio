@@ -1,0 +1,400 @@
+# =========================
+# ChIP-Seq - MACS 2.0 batch
+# =========================
+---
+
+- slug: macs2-batch
+  name: MACS2 batch
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/base:ubuntu-18.04
+  data_name: ChIP-Seq Call Peaks Batch
+  version: 1.0.0
+  type: data:chipseq:batch:macs2
+  category: ChIP-Seq:Call Peaks
+  persistence: CACHED
+  description: >
+    This process runs MACS2 in batch mode. MACS2 analysis is triggered
+    for pairs of samples as defined using treatment-background sample
+    relations. If there are no sample relations defined, each sample is
+    treated individually for the MACS analysis.
+
+    Model-based Analysis of ChIP-Seq (MACS 2.0), is used to identify
+    transcript factor binding sites. MACS 2.0 captures the influence of
+    genome complexity to evaluate the significance of enriched ChIP
+    regions, and MACS improves the spatial resolution of binding sites
+    through combining the information of both sequencing tag position
+    and orientation. It has also an option to link nearby peaks together
+    in order to call broad peaks. See
+    [here](https://github.com/taoliu/MACS/) for more information.
+
+    In addition to peak-calling, this process computes ChIP-Seq and
+    ATAC-Seq QC metrics. Process returns a QC metrics report, fragment
+    length estimation, and a deduplicated tagAlign file. QC report
+    contains ENCODE 3 proposed QC metrics --
+    [NRF](https://www.encodeproject.org/data-standards/terms/),
+    [PBC bottlenecking coefficients, NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq).
+  input:
+    - name: alignments
+      label: Aligned reads
+      type: list:data:alignment:bam
+      description: >
+        Select multiple treatment/background samples.
+    - name: promoter
+      label: Promoter regions BED file
+      type: data:bed
+      required: false
+      description: >
+        BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
+        of peaks and reads mapped to promoter regions.
+    - name: tagalign
+      label: Use tagAlign files
+      type: basic:boolean
+      default: false
+      description: >
+         Use filtered tagAlign files as case (treatment) and control
+         (background) samples. If extsize parameter is not set, run MACS
+         using input's estimated fragment length.
+    - name: prepeakqc_settings
+      label: Pre-peak QC settings
+      group:
+        - name: q_threshold
+          label: Quality filtering threshold
+          type: basic:integer
+          default: 30
+        - name: n_sub
+          label: Number of reads to subsample
+          type: basic:integer
+          default: 15000000
+        - name: tn5
+          label: TN5 shifting
+          type: basic:boolean
+          default: false
+          description: >
+            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
+        - name: shift
+          label: User-defined cross-correlation peak strandshift
+          type: basic:integer
+          required: false
+          description: >
+            If defined, SPP tool will not try to estimate fragment length but will use the given value
+            as fragment length.
+    - name: settings
+      label: MACS2 settings
+      group:
+        - name: duplicates
+          label: Number of duplicates
+          type: basic:string
+          required: false
+          hidden: "tagalign"
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location. The default is to keep one tag
+            at the same location.
+        - name: duplicates_prepeak
+          label: Number of duplicates
+          type: basic:string
+          hidden: "!tagalign"
+          required: false
+          default: all
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location. The default is to keep one tag
+            at the same location.
+        - name: qvalue
+          label: Q-value cutoff
+          type: basic:decimal
+          required: false
+          disabled: "settings.pvalue && settings.pvalue_prepeak"
+          description: >
+            The q-value (minimum FDR) cutoff to call significant regions. Q-values
+            are calculated from p-values using Benjamini-Hochberg procedure.
+        - name: pvalue
+          label: P-value cutoff
+          type: basic:decimal
+          required: false
+          disabled: "settings.qvalue"
+          hidden: "tagalign"
+          description: >
+            The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
+        - name: pvalue_prepeak
+          label: P-value cutoff
+          type: basic:decimal
+          disabled: "settings.qvalue"
+          hidden: "!tagalign || settings.qvalue"
+          default: 0.00001
+          description: >
+            The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
+        - name: cap_num
+          label: Cap number of peaks by taking top N peaks
+          type: basic:integer
+          default: 500000
+          disabled: "settings.broad"
+          description: >
+            To keep all peaks set value to 0.
+        - name: mfold_lower
+          label: MFOLD range (lower limit)
+          type: basic:integer
+          required: false
+          description: >
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: mfold_upper
+          label: MFOLD range (upper limit)
+          type: basic:integer
+          required: false
+          description: >
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: slocal
+          label: Small local region
+          type: basic:integer
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
+        - name: llocal
+          label: Large local region
+          type: basic:integer
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
+        - name: extsize
+          label: extsize
+          type: basic:integer
+          required: false
+          description: >
+            While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction
+            to fix-sized fragments. For example, if the size of binding region for your
+            transcription factor is 200 bp, and you want to bypass the model building by MACS,
+            this parameter can be set as 200. This option is only valid when --nomodel is set or
+            when MACS fails to build model and --fix-bimodal is on.
+        - name: shift
+          label: Shift
+          type: basic:integer
+          required: false
+          description: >
+            Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You
+            can set an arbitrary shift in bp here. Please Use discretion while setting it other
+            than default value (0). When --nomodel is set, MACS will use this value to move
+            cutting ends (5') then apply --extsize from 5' to 3' direction to extend them to
+            fragments. When this value is negative, ends will be moved toward 3'->5' direction,
+            otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets,
+            or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting
+            loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if
+            format is BAMPE for paired-end data. Default is 0.
+        - name: band_width
+          label: Band width
+          type: basic:integer
+          required: false
+          description: >
+            The band width which is used to scan the genome ONLY for model building. You can set
+            this parameter as the sonication fragment size expected from wet experiment. The
+            previous side effect on the peak detection process has been removed. So this parameter
+            only affects the model building.
+        - name: nolambda
+          label: Use backgroud lambda as local lambda
+          type: basic:boolean
+          default: false
+          description: >
+            With this flag on, MACS will use the background lambda as local lambda. This means
+            MACS will not consider the local bias at peak candidate regions.
+        - name: fix_bimodal
+          label: Turn on the auto paired-peak model process
+          type: basic:boolean
+          default: false
+          description: >
+            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            to build paired model, it will use the nomodel settings, the '--extsize' parameter
+            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
+        - name: nomodel
+          label: Bypass building the shifting model
+          type: basic:boolean
+          hidden: "tagalign"
+          default: false
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: nomodel_prepeak
+          label: Bypass building the shifting model
+          type: basic:boolean
+          default: true
+          hidden: "!tagalign"
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: down_sample
+          label: Down-sample
+          type: basic:boolean
+          default: false
+          description: >
+            When set, random sampling method will scale down the bigger sample. By default, MACS
+            uses linear scaling. This option will make the results unstable and irreproducible
+            since each time, random reads would be selected, especially the numbers (pileup,
+            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
+            instead.
+        - name: bedgraph
+          label: Save fragment pileup and control lambda
+          type: basic:boolean
+          default: true
+          description: >
+            If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue
+            and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in
+            current directory named NAME+'_treat_pileup.bdg' for treatment data,
+            NAME+'_control_lambda.bdg' for local lambda values from control,
+            NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in -log10(pvalue) form), and
+            NAME+'_treat_qvalue.bdg' for q-value scores from Benjamini-Hochberg-Yekutieli
+            procedure.
+        - name: spmr
+          label: Save signal per million reads for fragment pileup profiles
+          type: basic:boolean
+          default: true
+          disabled: "settings.bedgraph === false"
+        - name: call_summits
+          label: Call summits
+          type: basic:boolean
+          default: false
+          description: >
+            MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff
+            setting) to deconvolve subpeaks within each peak called from general procedure. It's
+            highly recommended to detect adjacent binding events. While used, the output subpeaks
+            of a big peak region will have the same peak boundaries, and different scores and peak
+            summit positions.
+        - name: broad
+          label: Composite broad regions
+          type: basic:boolean
+          default: false
+          disabled: "settings.call_summits === true"
+          description: >
+            When this flag is on, MACS will try to composite broad regions in BED12 (a
+            gene-model-like format) by putting nearby highly enriched regions into a broad region
+            with loose cutoff. The broad region is controlled by another cutoff through
+            --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
+        - name: broad_cutoff
+          label: Broad cutoff
+          type: basic:decimal
+          required: false
+          disabled: "settings.call_summits === true || settings.broad !== true"
+          description: >
+            Cutoff for broad region. This option is not available unless --broad is set. If -p is
+            set, this is a p-value cutoff, otherwise, it's a q-value cutoff. DEFAULT = 0.1
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      {% for case, background in alignments|background_pairs %}
+        echo 'run {' \
+          '"process": "macs2-callpeak",' \
+          '"input": {' \
+            '"case": {{ case }}' \
+            {% if background != None %} \
+              ',"control": {{ background }}' \
+            {% endif %} \
+            {% if promoter %} \
+              ',"promoter": {{ promoter|id }}' \
+            {% endif %} \
+            {% if tagalign %} \
+              ',"tagalign": {{ tagalign|lower }}' \
+            {% endif %} \
+            ',"prepeakqc_settings": {' \
+                '"q_threshold": {{ prepeakqc_settings.q_threshold }},' \
+                '"n_sub": {{ prepeakqc_settings.n_sub }},' \
+                '"tn5": {{ prepeakqc_settings.tn5|lower }}' \
+              {% if prepeakqc_settings.shift or prepeakqc_settings.shift == 0 %} \
+                ',"shift": {{ prepeakqc_settings.shift }}' \
+              {% endif %} \
+            '}', \
+            '"settings": {' \
+              '"cap_num": {{ settings.cap_num }},' \
+              '"nolambda": {{ settings.nolambda|lower }},' \
+              '"fix_bimodal": {{ settings.fix_bimodal|lower }},' \
+              '"nomodel": {{ settings.nomodel|lower }},' \
+              '"nomodel_prepeak": {{ settings.nomodel_prepeak|lower }},' \
+              '"down_sample": {{ settings.down_sample|lower }},' \
+              '"bedgraph": {{ settings.bedgraph|lower }},' \
+              '"spmr": {{ settings.spmr|lower }},' \
+              '"call_summits": {{ settings.call_summits|lower }},' \
+              '"broad": {{ settings.broad|lower }}' \
+              {% if settings.duplicates %} \
+                ',"duplicates": "{{ settings.duplicates }}"' \
+              {% endif %} \
+              {% if settings.duplicates_prepeak %} \
+                ',"duplicates_prepeak": "{{ settings.duplicates_prepeak }}"' \
+              {% endif %} \
+              {% if settings.qvalue or settings.qvalue == 0 %} \
+                ',"qvalue": {{ settings.qvalue }}' \
+              {% endif %} \
+              {% if settings.pvalue or settings.qvalue == 0 %} \
+                ',"pvalue": {{ settings.pvalue }}' \
+              {% endif %} \
+              {% if settings.pvalue_prepeak or settings.pvalue_prepeak == 0 %} \
+                ',"pvalue_prepeak": {{ settings.pvalue_prepeak }}' \
+              {% endif %} \
+              {% if settings.mfold_lower or settings.mfold_lower == 0 %} \
+                ',"mfold_lower": {{ settings.mfold_lower }}' \
+              {% endif %} \
+              {% if settings.mfold_upper or settings.mfold_upper == 0 %} \
+                ',"mfold_upper": {{ settings.mfold_upper }}' \
+              {% endif %} \
+              {% if settings.slocal or settings.slocal == 0 %} \
+                ',"slocal": {{ settings.slocal }}' \
+              {% endif %} \
+              {% if settings.llocal or settings.llocal == 0 %} \
+                ',"llocal": {{ settings.llocal }}' \
+              {% endif %} \
+              {% if settings.extsize or settings.extsize == 0 %} \
+                ',"extsize": {{ settings.extsize }}' \
+              {% endif %} \
+              {% if settings.shift or settings.shift == 0 %} \
+                ',"shift": {{ settings.shift }}' \
+              {% endif %} \
+              {% if settings.band_width or settings.band_width == 0 %} \
+                ',"band_width": {{ settings.band_width }}' \
+              {% endif %} \
+              {% if settings.broad_cutoff or settings.broad_cutoff == 0 %} \
+                ',"broad_cutoff": {{ settings.broad_cutoff }}' \
+              {% endif %} \
+            '}' \
+          '}' \
+        '}'
+      {% endfor %}

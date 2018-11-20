@@ -1,8 +1,13 @@
 # pylint: disable=missing-docstring
 from os.path import join
 
+from resolwe.flow.models import Data, Collection, Relation
+from resolwe.flow.models.entity import RelationPartition, RelationType
+
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
+
+from resolwe_bio.expression_filters.relation import background_pairs
 
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):
@@ -84,26 +89,42 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
     def test_macs2(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'macs2_case.bam',
+                'src': 'macs2/input/SRR5675973_chr17.bam',
                 'species': 'Homo sapiens',
                 'build': 'hg19',
             }
-            case_bam = self.run_process("upload-bam", inputs)
+            case_1 = self.run_process('upload-bam', inputs)
 
             inputs = {
-                'src': 'promoters_chr21_subregion.bed',
+                'src': 'macs2/input/SRR5675974_chr17.bam',
                 'species': 'Homo sapiens',
                 'build': 'hg19',
             }
-            promoters = self.run_process('upload-bed', inputs)
+            control_1 = self.run_process('upload-bam', inputs)
 
             inputs = {
-                'alignment': case_bam.id,
+                'src': 'macs2/input/SRR5675975_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
             }
-            prepeak = self.run_process("qc-prepeak", inputs)
+            case_2 = self.run_process('upload-bam', inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675976_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            control_2 = self.run_process('upload-bam', inputs)
+
+            promoters = self.run_process('upload-bed', {
+                'src': 'macs2/input/promoter_regions.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
 
         inputs = {
-            'case': case_bam.id,
+            'case': case_1.id,
+            'control': control_1.id,
             'promoter': promoters.id,
             'settings': {
                 'extsize': 298,
@@ -111,52 +132,49 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 'bedgraph': True,
             }
         }
-        macs2 = self.run_process("macs2-callpeak", inputs)
+        macs_sample1 = self.run_process("macs2-callpeak", inputs)
 
-        self.assertFields(macs2, 'species', 'Homo sapiens')
-        self.assertFields(macs2, 'build', 'hg19')
-        self.assertFile(macs2, 'chip_qc', 'postpeak_qc_report.txt')
-        self.assertFileExists(macs2, 'called_peaks')
-        self.assertFileExists(macs2, 'narrow_peaks')
-        self.assertFileExists(macs2, 'narrow_peaks_bigbed_igv_ucsc')
-        self.assertFileExists(macs2, 'summits')
-        self.assertFileExists(macs2, 'summits_tbi_jbrowse')
-        self.assertFileExists(macs2, 'summits_bigbed_igv_ucsc')
-        self.assertFileExists(macs2, 'treat_pileup')
-        self.assertFileExists(macs2, 'treat_pileup_bigwig')
-        self.assertFileExists(macs2, 'control_lambda')
-        self.assertFileExists(macs2, 'control_lambda_bigwig')
+        self.assertFields(macs_sample1, 'species', 'Homo sapiens')
+        self.assertFields(macs_sample1, 'build', 'hg19')
+        self.assertFile(macs_sample1, 'case_prepeak_qc', 'macs2/output/case_prepeak_qc.txt')
+        self.assertFile(macs_sample1, 'control_prepeak_qc', 'macs2/output/control_prepeak_qc.txt')
+        self.assertFile(macs_sample1, 'chip_qc', 'macs2/output/postpeak_qc_report.txt')
+        self.assertFileExists(macs_sample1, 'called_peaks')
+        self.assertFileExists(macs_sample1, 'narrow_peaks')
+        self.assertFileExists(macs_sample1, 'narrow_peaks_bigbed_igv_ucsc')
+        self.assertFileExists(macs_sample1, 'summits')
+        self.assertFileExists(macs_sample1, 'summits_tbi_jbrowse')
+        self.assertFileExists(macs_sample1, 'summits_bigbed_igv_ucsc')
+        self.assertFileExists(macs_sample1, 'treat_pileup')
+        self.assertFileExists(macs_sample1, 'treat_pileup_bigwig')
+        self.assertFileExists(macs_sample1, 'control_lambda')
+        self.assertFileExists(macs_sample1, 'control_lambda_bigwig')
 
-        # With "qc-prepeak" data object as input
+        # Use filtered tagAlign file for MACS2
         inputs = {
-            'case': case_bam.id,
-            'case_prepeak': prepeak.id,
-            'promoter': promoters.id,
+            'case': case_2.id,
+            'control': control_2.id,
+            'tagalign': True,
             'settings': {
                 'bedgraph': True,
             }
         }
-        macs2 = self.run_process("macs2-callpeak", inputs)
+        macs_sample2 = self.run_process("macs2-callpeak", inputs)
 
-        self.assertFields(macs2, 'species', 'Homo sapiens')
-        self.assertFields(macs2, 'build', 'hg19')
-        self.assertFileExists(macs2, 'chip_qc')
-        self.assertFileExists(macs2, 'called_peaks')
-        self.assertFileExists(macs2, 'narrow_peaks')
-        self.assertFileExists(macs2, 'narrow_peaks_bigbed_igv_ucsc')
-        self.assertFileExists(macs2, 'summits')
-        self.assertFileExists(macs2, 'summits_tbi_jbrowse')
-        self.assertFileExists(macs2, 'summits_bigbed_igv_ucsc')
+        self.assertFields(macs_sample2, 'species', 'Homo sapiens')
+        self.assertFields(macs_sample2, 'build', 'hg19')
+        self.assertFileExists(macs_sample2, 'chip_qc')
+        self.assertFileExists(macs_sample2, 'called_peaks')
+        self.assertFileExists(macs_sample2, 'narrow_peaks')
+        self.assertFileExists(macs_sample2, 'narrow_peaks_bigbed_igv_ucsc')
+        self.assertFileExists(macs_sample2, 'summits')
+        self.assertFileExists(macs_sample2, 'summits_tbi_jbrowse')
+        self.assertFileExists(macs_sample2, 'summits_bigbed_igv_ucsc')
 
         # Test "archive-samples"' QC report merge
-        sample_1 = case_bam.entity_set.first()
-        sample_1.data.add(macs2)
-        sample_1.name = 'Sample_1'
-        sample_1.save()
-
         inputs = {
-            'data': [prepeak.id, macs2.id],
-            'fields': ['chip_qc'],
+            'data': [macs_sample1.id, macs_sample2.id],
+            'fields': ['chip_qc', 'case_prepeak_qc'],
         }
         self.run_process('archive-samples', inputs)
 
@@ -262,3 +280,120 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFields(prepeak, 'fraglen', 0)
         self.assertFile(prepeak, 'chip_qc', 'prepeak_pe_qc_report_tn5.txt')
         self.assertFile(prepeak, 'tagalign', 'prepeak_pe_tn5.tagAlign.gz', compression='gzip')
+
+    @tag_process('macs2-batch')
+    def test_macs2_batch(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'macs2/input/SRR5675973_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            case_1 = self.run_process("upload-bam", inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675974_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            background_1 = self.run_process('upload-bam', inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675975_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            case_2 = self.run_process('upload-bam', inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675976_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            background_2 = self.run_process('upload-bam', inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675973_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            case_wo_background = self.run_process('upload-bam', inputs)
+
+            promoters = self.run_process('upload-bed', {
+                'src': 'macs2/input/promoter_regions.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
+
+            collection = Collection.objects.create(
+                name='Test collection',
+                contributor=self.contributor
+            )
+
+            rel_type_background = RelationType.objects.get(name='background')
+
+            background1 = Relation.objects.create(
+                contributor=self.contributor,
+                collection=collection,
+                type=rel_type_background,
+                category='Background'
+            )
+
+            background2 = Relation.objects.create(
+                contributor=self.contributor,
+                collection=collection,
+                type=rel_type_background,
+                category='Background2'
+            )
+
+            RelationPartition.objects.create(relation=background1, entity=case_1.entity_set.first(), label='case')
+            RelationPartition.objects.create(
+                relation=background1,
+                entity=background_1.entity_set.first(),
+                label='background'
+            )
+            RelationPartition.objects.create(relation=background2, entity=case_2.entity_set.first(), label='case')
+            RelationPartition.objects.create(
+                relation=background2,
+                entity=background_2.entity_set.first(),
+                label='background'
+            )
+
+            self.assertEqual(
+                background_pairs([
+                    {'__id': case_1.id, '__type': case_1.process.type},
+                    {'__id': background_1.id, '__type': background_1.process.type},
+                    {'__id': case_2.id, '__type': case_2.process.type},
+                    {'__id': background_2.id, '__type': background_2.process.type},
+                    {'__id': case_wo_background.id, '__type': case_wo_background.process.type},
+                ]),
+                [(1, 2), (3, 4), (5, None)]
+            )
+
+        self.run_process(
+            'macs2-batch', {
+                'alignments': [case_1.id, background_1.id, case_2.id, background_2.id, case_wo_background.id],
+                'promoter': promoters.id,
+                'tagalign': True,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        macs2 = Data.objects.last()
+
+        self.assertFields(macs2, 'species', 'Homo sapiens')
+        self.assertFields(macs2, 'build', 'hg19')
+        self.assertFile(macs2, 'case_prepeak_qc', 'macs2/output/batch_case_prepeak_qc.txt')
+        self.assertFile(macs2, 'chip_qc', 'macs2/output/batch_case_postpeak_qc_report.txt')
+        self.assertFileExists(macs2, 'called_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks')
+        self.assertFileExists(macs2, 'narrow_peaks_bigbed_igv_ucsc')
+        self.assertFileExists(macs2, 'summits')
+        self.assertFileExists(macs2, 'summits_tbi_jbrowse')
+        self.assertFileExists(macs2, 'summits_bigbed_igv_ucsc')
+        self.assertFileExists(macs2, 'treat_pileup')
+        self.assertFileExists(macs2, 'treat_pileup_bigwig')
+        self.assertFileExists(macs2, 'control_lambda')
+        self.assertFileExists(macs2, 'control_lambda_bigwig')
