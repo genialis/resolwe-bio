@@ -18,6 +18,8 @@ Added
 
 Fixed
 -----
+- Make ChIP-seq fields in ``sample`` descriptor schema visible when
+  ChIPmentation assay type is selected
 
 
 =================

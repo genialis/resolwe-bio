@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.1.0
+  version: 1.1.1
   schema:
     - name: general
       label: General
@@ -331,7 +331,7 @@
               value: other
         - name: chip_seq
           label: ChIP-seq
-          hidden: "experiment.assay_type != 'chip-seq'"
+          hidden: "experiment.assay_type != 'chip-seq' && experiment.assay_type != 'chipmentation'"
           group:
             - name: target_of_assay
               label: Target of assay
