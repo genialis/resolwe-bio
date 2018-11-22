@@ -1,0 +1,71 @@
+- slug: chipseq-bwa
+  name: Align reads using BWA ALN process
+  version: 0.0.1
+  description: >
+    Experiment descriptor schema for aligning reads using BWA ALN.
+    Default parameters are set as specified in ENCODE ChIP-seq pipeline.
+  schema:
+    - name: species
+      label: Species
+      type: basic:string
+      default: Homo sapiens
+      choices:
+        - label: Homo sapiens
+          value: Homo sapiens
+        - label: Mus musculus
+          value: Mus musculus
+        - label: Rattus norvegicus
+          value: Rattus norvegicus
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
+    - name: q
+      label: Quality threshold
+      type: basic:integer
+      default: 5
+      range: [0, 60]
+      hidden: "!advanced"
+      description: >
+        Parameter for dynamic read trimming.
+    - name: use_edit
+      label: Use maximum edit distance (excludes fraction of missing alignments)
+      type: basic:boolean
+      hidden: "!advanced"
+      default: false
+    - name: edit_value
+      label: Maximum edit distance
+      type: basic:integer
+      default: 5
+      hidden: "!use_edit || !advanced"
+    - name: fraction
+      label: Fraction of missing alignments
+      type: basic:decimal
+      default: 0.04
+      hidden: "use_edit || !advanced"
+      description: >
+        The fraction of missing alignments given 2% uniform base error
+        rate. The maximum edit distance is automatically chosen for
+        different read lengths.
+    - name: seeds
+      label: Use seeds
+      type: basic:boolean
+      hidden: "!advanced"
+      default: true
+    - name: seed_length
+      label: Seed length
+      type: basic:integer
+      default: 32
+      hidden: "!seeds || !advanced"
+      description: >
+        Take the first X subsequence as seed. If X is larger than the
+        query sequence, seeding will be disabled. For long reads,
+        this option is typically ranged from 25 to 35 for value 2 in
+        seed maximum edit distance.
+    - name: seed_dist
+      label: Seed maximum edit distance
+      type: basic:integer
+      default: 2
+      hidden: "!seeds || !advanced"

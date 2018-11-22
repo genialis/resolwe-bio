@@ -59,6 +59,9 @@ Added
 - Add ``background_pairs`` Jinja expressions filter that accepts a list of
   data objects and orders them in a list of pairs (case, background) based on
   the background relation between corresponding samples.
+- Add ``chipseq-bwa`` descriptor schema. This schema specifies the
+  default inputs for BWA ALN aligner process as defined in ENCODE
+  ChIP-Seq experiments.
 
 Fixed
 -----
