@@ -50,6 +50,8 @@ Changed
   ``coveragebed``, ``filtering-chemut``, ``lofreq``,
   ``picard-pcrmetrics``, ``upload-master-file``, ``upload-variants-vcf``
   and ``vc-gatk4-hc`` processes.
+- Expose reads quality filtering (q) parameter, reorganize inputs and
+  rename the stats output file in ``alignment-bwa-aln`` process.
 
 Added
 -----

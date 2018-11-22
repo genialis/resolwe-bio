@@ -391,7 +391,7 @@
     resources:
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.3.0
+  version: 1.4.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -405,22 +405,31 @@
     - name: reads
       label: Reads
       type: data:reads:fastq
-    - name: fraction
-      label: Fraction of missing alignments
-      type: basic:decimal
-      default: 0.04
+    - name: q
+      label: Quality threshold
+      type: basic:integer
+      default: 0
+      range: [0, 60]
       description: >
-        the fraction of missing alignments given 2% uniform base error rate
+        Parameter for dynamic read trimming.
     - name: use_edit
       label: Use maximum edit distance (excludes fraction of missing alignments)
       type: basic:boolean
       default: false
-      description: >
-        the fraction of missing alignments given 2% uniform base error rate
     - name: edit_value
       label: Maximum edit distance
       type: basic:integer
       default: 5
+      hidden: "!use_edit"
+    - name: fraction
+      label: Fraction of missing alignments
+      type: basic:decimal
+      default: 0.04
+      hidden: "use_edit"
+      description: >
+        The fraction of missing alignments given 2% uniform base error
+        rate. The maximum edit distance is automatically chosen for
+        different read lengths.
     - name: seeds
       label: Use seeds
       type: basic:boolean
@@ -429,12 +438,17 @@
       label: Seed length
       type: basic:integer
       default: 35
+      hidden: "!seeds"
       description: >
-        Take the first X subsequence as seed. If X is larger than the query sequence, seeding will be disabled. For long reads, this option is typically ranged from 25 to 35 for value 2 in seed maximum edit distance.
+        Take the first X subsequence as seed. If X is larger than the
+        query sequence, seeding will be disabled. For long reads,
+        this option is typically ranged from 25 to 35 for value 2 in
+        seed maximum edit distance.
     - name: seed_dist
       label: Seed maximum edit distance
       type: basic:integer
       default: 2
+      hidden: "!seeds"
   output:
     - name: bam
       label: Alignment file
@@ -495,6 +509,7 @@
           aln \
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          -q {{ q }} \
           "${INDEX}" \
           fw_reads.fastq > "${NAME}_align.sai"
 
@@ -508,6 +523,7 @@
           aln \
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          -q {{ q }} \
           "${INDEX}" \
           fw_reads.fastq > fw_align.sai
 
@@ -516,6 +532,7 @@
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
           "${INDEX}" \
+          -q {{ q }} \
           rw_reads.fastq > rw_align.sai
 
         bwa \
@@ -539,7 +556,7 @@
       re-checkrc
 
       echo "Calculating statistics"
-      samtools flagstat "${NAME}.bam" > "${NAME}_report.txt"
+      samtools flagstat "${NAME}.bam" > "${NAME}.stats.txt"
       re-checkrc
       re-progress 0.75
 
@@ -550,7 +567,7 @@
 
       re-save-file bam "${NAME}.bam"
       re-save-file bai "${NAME}.bam.bai"
-      re-save-file stats "${NAME}_report.txt"
+      re-save-file stats "${NAME}.stats.txt"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
 
