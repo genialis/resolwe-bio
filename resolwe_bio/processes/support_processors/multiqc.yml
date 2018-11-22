@@ -9,7 +9,7 @@
       docker:
         image: resolwebio/utils:1.5.0
   data_name: 'MultiQC report'
-  version: 0.0.1
+  version: 0.0.2
   type: data:multiqc
   category: other
   persistence: CACHED
@@ -104,6 +104,11 @@
         {% elif (d|type) == 'data:expression:featurecounts:' %}
             ln -s --backup=numbered {{ d['counts_summary'].file }} \
             "${DIRECTORY}"/{{ d['counts_summary'].file | basename }}
+
+        # Prepare MACS2 reports.
+        {% elif (d|type) == 'data:chipseq:callpeak:macs2:' %}
+            ln -s --backup=numbered {{ d['called_peaks'].file }} \
+            "${DIRECTORY}"/{{ d['called_peaks'].file | basename }}
 
         # Skip MultiQC reporting for unsupported data types.
         {% else %}

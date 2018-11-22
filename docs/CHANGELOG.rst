@@ -62,6 +62,7 @@ Added
 - Add ``chipseq-bwa`` descriptor schema. This schema specifies the
   default inputs for BWA ALN aligner process as defined in ENCODE
   ChIP-Seq experiments.
+- Add support for MACS2 result files to MultiQC process.
 
 Fixed
 -----
