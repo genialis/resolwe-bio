@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.1.1
+  version: 1.2.0
   schema:
     - name: general
       label: General
@@ -204,6 +204,13 @@
               value: other
             - label: N/A
               value: na
+        - name: biosample_source
+          label: Biosample source
+          type: basic:string
+          description: >
+            General description of where your sample was derived from, e.g. osteosarcoma, vastus
+            lateralis muscle, etc.
+          required: false
         - name: growth_protocol
           label: Growth protocol
           type: basic:string

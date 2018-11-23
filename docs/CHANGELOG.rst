@@ -15,6 +15,7 @@ Changed
 
 Added
 -----
+- Add biosample source field to ``sample`` descriptor schema
 
 Fixed
 -----
