@@ -29,7 +29,7 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
                 'reads': reads.id,
                 'genome': genome.id,
                 'promoter': promoters.id,
-                'peakcall': {'bedgraph': False},
+                'settings': {'bedgraph': False},
             }
         )
         for data in Data.objects.all():

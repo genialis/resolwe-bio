@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 2.0.0
   type: data:workflow:atacseq
   category: Pipeline
   description: >
@@ -13,13 +13,13 @@
     First, reads are aligned to a genome using
     [Bowtie2](http://bowtie-bio.sourceforge.net/index.shtml) aligner. Next, pre-peakcall QC
     metrics are calculated. QC report contains ENCODE 3 proposed QC metrics --
-    [NRF, PBC bottlenecking coefficients](https://www.encodeproject.org/data-standards/terms/),
-    [NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq). Finally, the peaks
-    are called using [MACS2](https://github.com/taoliu/MACS/). The post-peakcall QC report
-    includes additional QC metrics -- number of peaks, fraction of reads in peaks (FRiP), number
-    of reads in peaks, and if promoter regions BED file is provided, number of reads in
-    promoter regions, fraction of reads in promoter regions, number of peaks in promoter regions,
-    and fraction of reads in promoter regions.
+    [NRF](https://www.encodeproject.org/data-standards/terms/),
+    [PBC bottlenecking coefficients, NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq).
+    Finally, the peaks are called using [MACS2](https://github.com/taoliu/MACS/).
+    The post-peakcall QC report includes additional QC metrics -- number of peaks,
+    fraction of reads in peaks (FRiP), number of reads in peaks, and if promoter
+    regions BED file is provided, number of reads in promoter regions, fraction of
+    reads in promoter regions, number of peaks in promoter regions, and fraction of reads in promoter regions.
   input:
     - name: reads
       label: Input reads
@@ -161,11 +161,11 @@
                 terminates when it can't find more distinct valid alignments, or when it finds X,
                 whichever happens first.
               default: 5
-    - name: qc
-      label: Pre-peakcall QC
+    - name: prepeakqc_settings
+      label: Pre-peak QC settings
       group:
-        - name: q_treshold
-          label: Quality filtering treshold
+        - name: q_threshold
+          label: Quality filtering threshold
           type: basic:integer
           default: 30
         - name: n_sub
@@ -177,22 +177,30 @@
           type: basic:boolean
           default: true
           description: >
-            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by
-            5bp.
+            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
         - name: shift
           label: User-defined cross-correlation peak strandshift
           type: basic:integer
           default: 0
           description: >
-            SPP tool will not try to estimate fragment length but will use the given value as
-            fragment length.
-    - name: peakcall
-      label: Peak calling (MACS2)
+            If defined, SPP tool will not try to estimate fragment length but will use the given value
+            as fragment length.
+    - name: settings
+      label: MACS2 settings
       group:
-        - name: duplicates_prepeak
+        - name: tagalign
+          label: Use tagAlign files
+          type: basic:boolean
+          default: true
+          description: >
+            Use filtered tagAlign files as case (treatment) and control
+            (background) samples. If extsize parameter is not set, run MACS
+            using input's estimated fragment length.
+        - name: duplicates
           label: Number of duplicates
           type: basic:string
-          default: "all"
+          required: false
+          hidden: "settings.tagalign"
           choices:
             - label: "1"
               value: "1"
@@ -205,35 +213,105 @@
             same coordination and the same strand. The 'auto' option makes MACS calculate the
             maximum tags at the exact same location based on binomal distribution using 1e-5 as
             pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
-            this number of tags will be kept at the same location.
+            this number of tags will be kept at the same location. The default is to keep one tag
+            at the same location.
+        - name: duplicates_prepeak
+          label: Number of duplicates
+          type: basic:string
+          hidden: "!settings.tagalign"
+          required: false
+          default: all
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: >
+            It controls the MACS behavior towards duplicate tags at the exact same location -- the
+            same coordination and the same strand. The 'auto' option makes MACS calculate the
+            maximum tags at the exact same location based on binomal distribution using 1e-5 as
+            pvalue cutoff and the 'all' option keeps all the tags. If an integer is given, at most
+            this number of tags will be kept at the same location. The default is to keep one tag
+            at the same location.
         - name: qvalue
           label: Q-value cutoff
           type: basic:decimal
           required: false
-          disabled: "peakcall.pvalue_prepeak"
+          disabled: "settings.pvalue && settings.pvalue_prepeak"
           description: >
-            The qvalue (minimum FDR) cutoff to call significant regions. Default is 0.05. Q-values
+            The q-value (minimum FDR) cutoff to call significant regions. Q-values
             are calculated from p-values using Benjamini-Hochberg procedure.
+        - name: pvalue
+          label: P-value cutoff
+          type: basic:decimal
+          required: false
+          disabled: "settings.qvalue"
+          hidden: "settings.tagalign"
+          description: >
+            The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
         - name: pvalue_prepeak
           label: P-value cutoff
           type: basic:decimal
-          disabled: "peakcall.qvalue"
-          required: false
-          default: 0.00001
+          disabled: "settings.qvalue"
+          hidden: "!settings.tagalign || settings.qvalue"
+          default: 0.01
           description: >
-            The pvalue cutoff. If -p is specified, MACS2 will use pvalue instead of qvalue.
+            The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
         - name: cap_num
           label: Cap number of peaks by taking top N peaks
           type: basic:integer
           default: 300000
+          disabled: "settings.broad"
           description: >
             To keep all peaks set value to 0.
-        - name: nomodel_prepeak
-          label: Bypass building the shifting model
-          type: basic:boolean
-          default: true
+        - name: mfold_lower
+          label: MFOLD range (lower limit)
+          type: basic:integer
+          required: false
           description: >
-            While on, MACS will bypass building the shifting model.
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: mfold_upper
+          label: MFOLD range (upper limit)
+          type: basic:integer
+          required: false
+          description: >
+            This parameter is used to select the regions within MFOLD range of high-confidence
+            enrichment ratio against background to build model. The regions must be lower than
+            upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
+            using all regions not too low (>10) and not too high (<30) to build paired-peaks
+            model. If MACS can not find more than 100 regions to build model, it will use the
+            --extsize parameter to continue the peak detection ONLY if --fix-bimodal is set.
+        - name: slocal
+          label: Small local region
+          type: basic:integer
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
+        - name: llocal
+          label: Large local region
+          type: basic:integer
+          required: false
+          description: >
+            Slocal and llocal parameters control which two levels of regions will be checked
+            around the peak regions to calculate the maximum lambda as local lambda. By default,
+            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            region (--llocal) which captures the bias from a long range effect like an open
+            chromatin domain. You can tweak these according to your project. Remember that if the
+            region is set too small, a sharp spike in the input data may kill the significant
+            peak.
         - name: extsize
           label: extsize
           type: basic:integer
@@ -257,7 +335,55 @@
             otherwise 5'->3' direction. Recommended to keep it as default 0 for ChIP-Seq datasets,
             or -1 * half of EXTSIZE together with --extsize option for detecting enriched cutting
             loci such as certain DNAseI-Seq datasets. Note, you can't set values other than 0 if
-            format is BAMPE for paired-end data.
+            format is BAMPE for paired-end data. Default is 0.
+        - name: band_width
+          label: Band width
+          type: basic:integer
+          required: false
+          description: >
+            The band width which is used to scan the genome ONLY for model building. You can set
+            this parameter as the sonication fragment size expected from wet experiment. The
+            previous side effect on the peak detection process has been removed. So this parameter
+            only affects the model building.
+        - name: nolambda
+          label: Use backgroud lambda as local lambda
+          type: basic:boolean
+          default: false
+          description: >
+            With this flag on, MACS will use the background lambda as local lambda. This means
+            MACS will not consider the local bias at peak candidate regions.
+        - name: fix_bimodal
+          label: Turn on the auto paired-peak model process
+          type: basic:boolean
+          default: false
+          description: >
+            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            to build paired model, it will use the nomodel settings, the '--extsize' parameter
+            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
+        - name: nomodel
+          label: Bypass building the shifting model
+          type: basic:boolean
+          hidden: "settings.tagalign"
+          default: false
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: nomodel_prepeak
+          label: Bypass building the shifting model
+          type: basic:boolean
+          default: true
+          hidden: "!settings.tagalign"
+          description: >
+            While on, MACS will bypass building the shifting model.
+        - name: down_sample
+          label: Down-sample
+          type: basic:boolean
+          default: false
+          description: >
+            When set, random sampling method will scale down the bigger sample. By default, MACS
+            uses linear scaling. This option will make the results unstable and irreproducible
+            since each time, random reads would be selected, especially the numbers (pileup,
+            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
+            instead.
         - name: bedgraph
           label: Save fragment pileup and control lambda
           type: basic:boolean
@@ -274,7 +400,7 @@
           label: Save signal per million reads for fragment pileup profiles
           type: basic:boolean
           default: true
-          disabled: "peakcall.bedgraph === false"
+          disabled: "settings.bedgraph === false"
         - name: call_summits
           label: Call summits
           type: basic:boolean
@@ -285,6 +411,24 @@
             highly recommended to detect adjacent binding events. While used, the output subpeaks
             of a big peak region will have the same peak boundaries, and different scores and peak
             summit positions.
+        - name: broad
+          label: Composite broad regions
+          type: basic:boolean
+          default: false
+          disabled: "settings.call_summits === true"
+          description: >
+            When this flag is on, MACS will try to composite broad regions in BED12 (a
+            gene-model-like format) by putting nearby highly enriched regions into a broad region
+            with loose cutoff. The broad region is controlled by another cutoff through
+            --broad-cutoff. The maximum length of broad region length is 4 times of d from MACS.
+        - name: broad_cutoff
+          label: Broad cutoff
+          type: basic:decimal
+          required: false
+          disabled: "settings.call_summits === true || settings.broad !== true"
+          description: >
+            Cutoff for broad region. This option is not available unless --broad is set. If -p is
+            set, this is a p-value cutoff, otherwise, it's a q-value cutoff. DEFAULT = 0.1
   run:
     language: workflow
     program:
@@ -310,29 +454,37 @@
           reporting:
             rep_mode: '{{ input.alignment.reporting.rep_mode }}'
             k_reports: '{{ input.alignment.reporting.k_reports }}'
-      - id: qc
-        run: qc-prepeak
-        input:
-          alignment: '{{ steps.alignment }}'
-          q_treshold: '{{ input.qc.q_treshold }}'
-          n_sub: '{{ input.qc.n_sub }}'
-          tn5: '{{ input.qc.tn5 }}'
-          shift: '{{ input.qc.shift }}'
-      - id: peakcall
+      - id: macs2
         run: macs2-callpeak
         input:
-          case: '{{ steps.alignment }}'
-          case_prepeak: '{{ steps.qc }}'
-          promoter: '{{ input.promoter }}'
+          case: '{{steps.alignment}}'
+          promoter: '{{input.promoter}}'
+          tagalign: '{{input.settings.tagalign}}'
+          prepeakqc_settings:
+            q_threshold: '{{input.prepeakqc_settings.q_threshold}}'
+            n_sub: '{{input.prepeakqc_settings.n_sub}}'
+            tn5: '{{input.prepeakqc_settings.tn5}}'
+            shift: '{{input.prepeakqc_settings.shift}}'
           settings:
-            duplicates_prepeak: '{{ input.peakcall.duplicates_prepeak }}'
-            pvalue_prepeak: '{{ input.peakcall.pvalue_prepeak }}'
-            qvalue: '{{ input.peakcall.qvalue }}'
-            cap_num: '{{ input.peakcall.cap_num }}'
-            nomodel_prepeak: '{{ input.peakcall.nomodel_prepeak }}'
-            extsize: '{{ input.peakcall.extsize }}'
-            shift: '{{ input.peakcall.shift }}'
-            bedgraph: '{{ input.peakcall.bedgraph }}'
-            spmr: '{{ input.peakcall.spmr }}'
-            fix_bimodal: '{{ input.peakcall.fix_bimodal }}'
-            call_summits: '{{ input.peakcall.call_summits }}'
+            duplicates: '{{input.settings.duplicates}}'
+            duplicates_prepeak: '{{input.settings.duplicates_prepeak}}'
+            qvalue: '{{input.settings.qvalue}}'
+            pvalue: '{{input.settings.pvalue}}'
+            pvalue_prepeak: '{{input.settings.pvalue_prepeak}}'
+            cap_num: '{{input.settings.cap_num}}'
+            mfold_lower: '{{input.settings.mfold_lower}}'
+            mfold_upper: '{{input.settings.mfold_upper}}'
+            slocal: '{{input.settings.slocal}}'
+            llocal: '{{input.settings.llocal}}'
+            extsize: '{{input.settings.extsize}}'
+            shift: '{{input.settings.shift}}'
+            nolambda: '{{input.settings.nolambda}}'
+            fix_bimodal: '{{input.settings.fix_bimodal}}'
+            nomodel: '{{input.settings.nomodel}}'
+            nomodel_prepeak: '{{input.settings.nomodel_prepeak}}'
+            down_sample: '{{input.settings.down_sample}}'
+            bedgraph: '{{input.settings.bedgraph}}'
+            spmr: '{{input.settings.spmr}}'
+            call_summits: '{{input.settings.call_summits}}'
+            broad: '{{input.settings.broad}}'
+            broad_cutoff: '{{input.settings.broad_cutoff}}'

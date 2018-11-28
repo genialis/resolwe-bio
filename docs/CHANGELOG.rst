@@ -20,6 +20,8 @@ Changed
   (treatment/background) concept to trigger multiple MACS2 jobs
   automatically using the ``macs2-batch`` or ``macs2-rose2-batch``
   processes.
+- **BACKWARD INCOMPATIBLE:** Update ``workflow-atac-seq`` inputs to
+  match the updated ``macs2-callpeak`` process.
 - Use ``resolwebio/rnaseq:4.0.0`` Docker image in
   ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
   ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
