@@ -14,6 +14,12 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 14.x
 - **BACKWARD INCOMPATIBLE:** Remove obsolete processes ``findsimilar``.
+- **BACKWARD INCOMPATIBLE:** Include ENCODE-proposed QC analysis metrics
+  methodology in the ``macs2-callpeak`` process. Simplified MACS2
+  analysis inputs now allow the use of sample relations
+  (treatment/background) concept to trigger multiple MACS2 jobs
+  automatically using the ``macs2-batch`` or ``macs2-rose2-batch``
+  processes.
 - Use ``resolwebio/rnaseq:4.0.0`` Docker image in
   ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
   ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
@@ -63,6 +69,8 @@ Added
   default inputs for BWA ALN aligner process as defined in ENCODE
   ChIP-Seq experiments.
 - Add support for MACS2 result files to MultiQC process.
+- Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
+  processes.
 
 Fixed
 -----

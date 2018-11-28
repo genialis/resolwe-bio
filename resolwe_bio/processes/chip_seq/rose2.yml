@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:3.0.0
+        image: resolwebio/chipseq:3.1.0
   data_name: "{{ rankby|sample_name|default('?') }}"
-  version: 4.1.0
+  version: 4.2.0
   type: data:chipseq:rose2
   entity:
     type: sample
@@ -227,7 +227,7 @@
         --rankby {{ rankby.bam.file }} \
         {% if control %}--control {{ control.bam.file }}{% endif %} \
         --tss {{ tss }} \
-        {% if stitch is defined %}--stitch {{ stitch }} {% endif %} \
+        {% if stitch or stitch == 0 %}--stitch {{ stitch }} {% endif %} \
         {% if mask %}--mask {{ mask.bed.file }} {% endif %} \
         --out .
       re-checkrc "Rose2 run failed."

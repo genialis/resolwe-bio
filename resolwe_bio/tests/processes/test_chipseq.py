@@ -397,3 +397,79 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs2, 'treat_pileup_bigwig')
         self.assertFileExists(macs2, 'control_lambda')
         self.assertFileExists(macs2, 'control_lambda_bigwig')
+
+    @tag_process('macs2-rose2-batch')
+    def test_macs2_rose2_batch(self):
+        with self.preparation_stage():
+            inputs = {
+                'src': 'macs2/input/SRR5675973_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            case_1 = self.run_process("upload-bam", inputs)
+
+            inputs = {
+                'src': 'macs2/input/SRR5675974_chr17.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            background_1 = self.run_process('upload-bam', inputs)
+
+            promoters = self.run_process('upload-bed', {
+                'src': 'macs2/input/promoter_regions.bed',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
+
+            collection = Collection.objects.create(
+                name='Test collection',
+                contributor=self.contributor
+            )
+
+            rel_type_background = RelationType.objects.get(name='background')
+
+            background = Relation.objects.create(
+                contributor=self.contributor,
+                collection=collection,
+                type=rel_type_background,
+                category='Background'
+            )
+
+            RelationPartition.objects.create(relation=background, entity=case_1.entity_set.first(), label='case')
+            RelationPartition.objects.create(
+                relation=background,
+                entity=background_1.entity_set.first(),
+                label='background'
+            )
+
+            self.assertEqual(
+                background_pairs([
+                    {'__id': case_1.id, '__type': case_1.process.type},
+                    {'__id': background_1.id, '__type': background_1.process.type},
+                ]),
+                [(1, 2)]
+            )
+
+        self.run_process(
+            'macs2-rose2-batch', {
+                'alignments': [case_1.id, background_1.id],
+                'promoter': promoters.id,
+                'tagalign': True,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        rose2 = Data.objects.last()
+
+        # remove changing lines from the rose2 output
+        def filter_created(line):
+            return line.startswith(b'#Created')
+
+        self.assertFile(
+            rose2,
+            'all_enhancers',
+            'macs2/output/rose2_enhancer_table.txt',
+            file_filter=filter_created
+        )
