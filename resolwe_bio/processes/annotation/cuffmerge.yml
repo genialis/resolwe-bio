@@ -9,20 +9,21 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/rnaseq:4.0.0
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.2.4
+  version: 1.3.0
   type: data:annotation:cuffmerge
   category: Quantify
   persistence: CACHED
   description: >
-    Cufflinks includes a script called Cuffmerge that you can use to merge
-    together several Cufflinks assemblies. It also handles running Cuffcompare
-    for you, and automatically filters a number of transfrags that are probably
-    artfifacts. The main purpose of Cuffmerge is to make it easier to make an
-    assembly GTF file suitable for use with Cuffdiff. See
-    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffmerge/) for more
-    information.
+    Cufflinks includes a script called Cuffmerge that you can use to
+    merge together several Cufflinks assemblies. It also handles running
+    Cuffcompare for you, and automatically filters a number of
+    transfrags that are probably artfifacts. The main purpose of
+    Cuffmerge is to make it easier to make an assembly GTF file suitable
+    for use with Cuffdiff. See
+    [here](http://cole-trapnell-lab.github.io/cufflinks/cuffmerge/) for
+    more information.
   input:
     - name: expressions
       label: Cufflinks transcripts (GTF)
@@ -33,19 +34,32 @@
       type: list:data:annotation:gtf
       required: false
       description: >
-        Annotation files you wish to merge together with Cufflinks produced annotation files (e.g. upload Cufflinks annotation GTF file)
+        Annotation files you wish to merge together with Cufflinks
+        produced annotation files (e.g. upload Cufflinks annotation
+        GTF file)
     - name: gff
       label: Reference annotation (GTF/GFF3)
       type: data:annotation
       required: false
       description: >
-        An optional "reference" annotation GTF. The input assemblies are merged together with the reference GTF and included in the final output.
+        An optional "reference" annotation GTF. The input assemblies are
+        merged together with the reference GTF and included in the final
+        output.
     - name: genome
       label: Reference genome
       type: data:genome:fasta
       required: false
       description: >
-        This argument should point to the genomic DNA sequences for the reference. If a directory, it should contain one fasta file per contig. If a multifasta file, all contigs should be present. The merge script will pass this option to cuffcompare, which will use the sequences to assist in classifying transfrags and excluding artifacts (e.g. repeats). For example, Cufflinks transcripts consisting mostly of lower-case bases are classified as repeats. Note that <seq_dir> must contain one fasta file per reference chromosome, and each file must be named after the chromosome, and have a .fa or .fasta extension
+        This argument should point to the genomic DNA sequences for the
+        reference. If a directory, it should contain one fasta file per
+        contig. If a multifasta file, all contigs should be present.
+        The merge script will pass this option to cuffcompare, which
+        will use the sequences to assist in classifying transfrags
+        and excluding artifacts (e.g. repeats). For example,
+        Cufflinks transcripts consisting mostly of lower-case bases are
+        classified as repeats. Note that <seq_dir> must contain one
+        fasta file per reference chromosome, and each file must be
+        named after the chromosome, and have a .fa or .fasta extension
     - name: threads
       label: Use this many processor threads
       type: basic:integer

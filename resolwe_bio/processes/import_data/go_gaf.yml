@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.7.1
+        image: resolwebio/rnaseq:4.0.0
     resources:
       network: true
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'
-  version: 1.0.18
+  version: 1.1.0
   type: data:gaf:2:0
   category: Import
   persistence: RAW

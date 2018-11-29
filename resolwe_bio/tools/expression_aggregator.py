@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=invalid-name,import-error
 """Expression aggregator."""
 
@@ -117,7 +117,7 @@ def output_json(statistics, fname=None, compressed=False):
         with open(fname, 'w') as f:
             json.dump(statistics, f)
     else:
-        with gzip.open(fname, 'w') as f:
+        with gzip.open(fname, 'wt') as f:
             json.dump(statistics, f)
 
 

@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.1.0
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.1.2
+  version: 2.2.0
   type: data:differentialexpression:cuffdiff
   category: Differential Expression
   persistence: CACHED
@@ -48,7 +48,10 @@
       type: data:genome:fasta
       required: false
       description: >
-        Provide Cufflinks with a multifasta file (genome file) via this option to instruct it to run a bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates.
+        Provide Cufflinks with a multifasta file (genome file) via this
+        option to instruct it to run a bias detection and correction
+        algorithm which can significantly improve accuracy of transcript
+        abundance estimates.
     - name: multi_read_correct
       label: Do initial estimation procedure to more accurately weight reads with multiple genome mappings
       type: basic:boolean
@@ -63,7 +66,25 @@
       label: Library type
       type: basic:string
       description: >
-        In cases where Cufflinks cannot determine the platform and protocol used to generate input reads, you can supply this information manually, which will allow Cufflinks to infer source strand information with certain protocols. The available options are listed below. For paired-end data, we currently only support protocols where reads are point towards each other: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+        In cases where Cufflinks cannot determine the platform and
+        protocol used to generate input reads, you can supply this
+        information manually, which will allow Cufflinks to infer source
+        strand information with certain protocols. The available options
+        are listed below. For paired-end data, we currently only support
+        protocols where reads are point towards each other:
+        fr-unstranded - Reads from the left-most end of the fragment
+        (in transcript coordinates) map to the transcript strand, and
+        the right-most end maps to the opposite strand; fr-firststrand -
+        Same as above except we enforce the rule that the right-most end
+        of the fragment (in transcript coordinates) is the first
+        sequenced (or only sequenced for single-end reads).
+        Equivalently, it is assumed that only the strand generated
+        during first strand synthesis is sequenced; fr-secondstrand -
+        Same as above except we enforce the rule that the left-most end
+        of the fragment (in transcript coordinates) is the first
+        sequenced (or only sequenced for single-end reads).
+        Equivalently, it is assumed that only the strand generated
+        during second strand synthesis is sequenced.
       default: fr-unstranded
       choices:
         - label: fr-unstranded
@@ -76,7 +97,11 @@
       label: Library normalization method
       type: basic:string
       description: >
-        You can control how library sizes (i.e. sequencing depths) are normalized in Cufflinks and Cuffdiff. Cuffdiff has several methods that require multiple libraries in order to work. Library normalization methods supported by Cufflinks work on one library at a time.
+        You can control how library sizes (i.e. sequencing depths) are
+        normalized in Cufflinks and Cuffdiff. Cuffdiff has several
+        methods that require multiple libraries in order to work.
+        Library normalization methods supported by Cufflinks work on one
+        library at a time.
       default: geometric
       choices:
         - label: geometric
@@ -89,7 +114,16 @@
       label: Dispersion method
       type: basic:string
       description: >
-        Cuffdiff works by modeling the variance in fragment counts across replicates as a function of the mean fragment count across replicates. Strictly speaking, models a quantitity called dispersion - the variance present in a group of samples beyond what is expected from a simple Poisson model of RNA_Seq. You can control how Cuffdiff constructs its model of dispersion in locus fragment counts. Each condition that has replicates can receive its own model, or Cuffdiff can use a global model for all conditions. All of these policies are identical to those used by DESeq (Anders and Huber, Genome Biology, 2010).
+        Cuffdiff works by modeling the variance in fragment counts
+        across replicates as a function of the mean fragment count
+        across replicates. Strictly speaking, models a quantitity
+        called dispersion - the variance present in a group of samples
+        beyond what is expected from a simple Poisson model of RNA_Seq.
+        You can control how Cuffdiff constructs its model of dispersion
+        in locus fragment counts. Each condition that has replicates
+        can receive its own model, or Cuffdiff can use a global model
+        for all conditions. All of these policies are identical to those
+        used by DESeq (Anders and Huber, Genome Biology, 2010).
       default: pooled
       choices:
         - label: pooled

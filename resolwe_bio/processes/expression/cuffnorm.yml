@@ -11,9 +11,9 @@
       cores: 1
     executor:
       docker:
-        image: resolwebio/rnaseq:3.1.0
+        image: resolwebio/rnaseq:4.0.0
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 2.0.0
+  version: 2.1.0
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED

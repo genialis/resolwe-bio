@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.1.0
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.0.4
+  version: 2.1.0
   type: data:cufflinks:cufflinks
   category: Quantify
   flow_collection: sample
@@ -39,18 +39,45 @@
       type: data:genome:fasta
       required: false
       description: >
-        Provide Cufflinks with a multifasta file (genome file) via this option to instruct it to run a bias detection and correction algorithm which can significantly improve accuracy of transcript abundance estimates.
+        Provide Cufflinks with a multifasta file (genome file) via this
+        option to instruct it to run a bias detection and correction
+        algorithm which can significantly improve accuracy of transcript
+        abundance estimates.
     - name: mask_file
       label: Mask file
       type: data:annotation:gtf
       required: false
       description: >
-        Ignore all reads that could have come from transcripts in this GTF file. We recommend including any annotated rRNA, mitochondrial transcripts other abundant transcripts you wish to ignore in your analysis in this file. Due to variable efficiency of mRNA enrichment methods and rRNA depletion kits, masking these transcripts often improves the overall robustness of transcript abundance estimates.
+        Ignore all reads that could have come from transcripts in this
+        GTF file. We recommend including any annotated rRNA,
+        mitochondrial transcripts other abundant transcripts you wish
+        to ignore in your analysis in this file. Due to variable
+        efficiency of mRNA enrichment methods and rRNA depletion kits,
+        masking these transcripts often improves the overall robustness
+        of transcript abundance estimates.
     - name: library_type
       label: Library type
       type: basic:string
       description: >
-        In cases where Cufflinks cannot determine the platform and protocol used to generate input reads, you can supply this information manually, which will allow Cufflinks to infer source strand information with certain protocols. The available options are listed below. For paired-end data, we currently only support protocols where reads are point towards each other: fr-unstranded - Reads from the left-most end of the fragment (in transcript coordinates) map to the transcript strand, and the right-most end maps to the opposite strand; fr-firststrand - Same as above except we enforce the rule that the right-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during first strand synthesis is sequenced; fr-secondstrand - Same as above except we enforce the rule that the left-most end of the fragment (in transcript coordinates) is the first sequenced (or only sequenced for single-end reads). Equivalently, it is assumed that only the strand generated during second strand synthesis is sequenced.
+        In cases where Cufflinks cannot determine the platform and
+        protocol used to generate input reads, you can supply this
+        information manually, which will allow Cufflinks to infer source
+        strand information with certain protocols. The available options
+        are listed below. For paired-end data, we currently only support
+        protocols where reads are point towards each other: fr-unstranded
+        - Reads from the left-most end of the fragment (in transcript
+        coordinates) map to the transcript strand, and the right-most
+        end maps to the opposite strand; fr-firststrand - Same as above
+        except we enforce the rule that the right-most end of the
+        fragment (in transcript coordinates) is the first sequenced
+        (or only sequenced for single-end reads). Equivalently, it is
+        assumed that only the strand generated during first strand
+        synthesis is sequenced; fr-secondstrand - Same as above except
+        we enforce the rule that the left-most end of the fragment
+        (in transcript coordinates) is the first sequenced (or only
+        sequenced for single-end reads). Equivalently, it is assumed
+        that only the strand generated during second strand synthesis
+        is sequenced.
       default: fr-unstranded
       choices:
         - label: fr-unstranded
@@ -63,7 +90,16 @@
       label: Instruct Cufflinks how to use the provided annotation (GFF/GTF) file
       type: basic:string
       description: >
-        GTF-guide - tells Cufflinks to use the supplied reference annotation (GFF) to guide RABT assembly. Reference transcripts will be tiled with faux-reads to provide additional information in assembly. Output will include all reference transcripts as well as any novel genes and isoforms that are assembled. --GTF - tells Cufflinks to use the supplied reference annotation (a GFF file) to estimate isoform expression. It will not assemble novel transcripts, and the program will ignore alignments not structurally compatible with any reference transcript.
+        GTF-guide - tells Cufflinks to use the supplied reference
+        annotation (GFF) to guide RABT assembly. Reference transcripts
+        will be tiled with faux-reads to provide additional information
+        in assembly. Output will include all reference transcripts as
+        well as any novel genes and isoforms that are assembled. --GTF
+        - tells Cufflinks to use the supplied reference annotation
+        (a GFF file) to estimate isoform expression. It will not
+        assemble novel transcripts, and the program will ignore
+        alignments not structurally compatible with any reference
+        transcript.
       default: --GTF-guide
       choices:
         - label: Use supplied reference annotation to guide RABT assembly (--GTF-guide)
@@ -75,7 +111,8 @@
       type: basic:boolean
       default: false
       description: >
-        Run an initial estimation procedure that weights reads mapping to multiple locations more accurately.
+        Run an initial estimation procedure that weights reads mapping
+        to multiple locations more accurately.
   output:
     - name: transcripts
       label: Assembled transcript isoforms

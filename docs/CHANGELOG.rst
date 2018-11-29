@@ -12,6 +12,22 @@ Unreleased
 
 Changed
 -------
+- Use ``resolwebio/rnaseq:4.0.0`` Docker image in
+  ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
+  ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
+  ``cuffquant``, ``cutadapt-custom-single``, ``cutadapt-custom-paired``,
+  ``cutadapt-single``, ``cutadapt-paired``,
+  ``differentialexpression-deseq2``, ``differentialexpression-edger``,
+  ``expression-aggregator``, ``feature_counts``, ``goenrichment``,
+  ``htseq-count``, ``htseq-count-raw``, ``index-fasta-nucl``,
+  ``library-strandedness``, ``pca``, ``regtools-junctions-annotate``,
+  ``rsem``, ``salmon-index``, ``trimmomatic-single``,
+  ``trimmomatic-paired``, ``upload-expression``,
+  ``upload-expression-cuffnorm``, ``upload-expression-star``,
+  ``upload-fasta-nucl``, ``upload-fastq-single``,
+  ``upload-fastq-paired``, ``files-to-fastq-single``,
+  ``files-to-fastq-paired``, ``upload-gaf``, ``upload-genome``,
+  ``upload-gff3``, ``upload-gtf`` and ``upload-obo``.
 
 Added
 -----

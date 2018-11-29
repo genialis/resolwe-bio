@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.7.1
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 1
       memory: 2048
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.1
+  version: 1.3.0
   type: data:seq:nucleotide
   category: Import
   persistence: RAW

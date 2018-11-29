@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.7.1
+        image: resolwebio/rnaseq:4.0.0
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.22
+  version: 1.1.0
   type: data:ontology:obo
   category: Import
   persistence: RAW
@@ -39,5 +39,9 @@
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "obo" "obo" 0.8
+
       preprocessor obo "${NAME}.obo" obo_obj
-      echo "{\"proc.rc\":$?,\"obo\":{\"file\":\"${NAME}.obo.gz\"},\"obo_obj\":{\"file\":\"obo_obj\"}}"
+      re-checkrc "Preprocessing of the uploaded .obo file failed."
+
+      re-save-file obo "${NAME}.obo.gz"
+      re-save-file obo_obj obo_obj

@@ -10,9 +10,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.2.0
+        image: resolwebio/rnaseq:4.0.0
   data_name: "Converted GFF3 to GTF file"
-  version: 0.2.1
+  version: 0.3.0
   type: data:annotation:gtf
   category: Other
   description: >

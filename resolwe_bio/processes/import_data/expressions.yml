@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: '{{ exp_name }}'
-  version: 2.1.2
+  version: 2.2.0
   type: data:expression
   flow_collection: sample
   category: Import
@@ -214,13 +214,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: '{{ exp.file|default("?") }}'
-  version: 1.3.2
+  version: 1.4.0
   type: data:expression
   category: Import
   persistence: RAW
@@ -312,13 +312,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:3.4.0
+        image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: STAR expression '({{ rc.file|default("?") }})'
-  version: 1.2.2
+  version: 1.3.0
   type: data:expression:star
   category: Import
   persistence: RAW
@@ -336,7 +336,13 @@
       label: Is data from a strand specific assay?
       type: basic:string
       description: >
-        For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
+        For stranded=no, a read is considered overlapping with a feature
+        regardless of whether it is mapped to the same or the opposite
+        strand as the feature. For stranded=yes and single-end reads,
+        the read has to be mapped to the same strand as the feature.
+        For paired-end reads, the first read has to be on the same
+        strand and the second read on the opposite strand. For
+        stranded=reverse, these rules are reversed.
       default: "yes"
       choices:
         - label: "yes"
