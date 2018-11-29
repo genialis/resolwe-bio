@@ -60,6 +60,9 @@ Changed
   and ``vc-gatk4-hc`` processes.
 - Expose reads quality filtering (q) parameter, reorganize inputs and
   rename the stats output file in ``alignment-bwa-aln`` process.
+- Use ``resolwebio/chipseq:4.0.0`` Docker image in ``chipseq-genescore``,
+  ``chipseq-peakscore``, ``macs14``, ``upload-bed`` and ``qc-prepeak``
+  processes.
 
 Added
 -----

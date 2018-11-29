@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:3.0.0
+        image: resolwebio/chipseq:4.0.0
     resources:
       memory: 16384
       cores: 10
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 0.1.1
+  version: 0.2.0
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -111,7 +111,7 @@
         cut -f 1,11,15 >> align_metrics.txt
       {% else %}
         samtools flagstat {{ alignment.bam.file }} | \
-        sed -n '1p;3p' | \
+        sed -n '1p;5p' | \
         paste -s | \
         tr -d '(' | \
         tr ':' ' ' | \
@@ -191,7 +191,7 @@
         # mapping quality, and reads not mapped in proper pair
         # Sort by name for fixmate
         samtools view -F 1804 -f 2 -q {{ q_treshold }} -u {{ alignment.bam.file }} | \
-        samtools sort -n - "${NAME}_filtered"
+        samtools sort -n - -o "${NAME}_filtered.bam"
         re-checkrc "Samtools filtering and sorting failed"
         re-progress 0.1
 
@@ -204,7 +204,7 @@
         # proper pair
         # Sort by position
         samtools view -F 1804 -f 2 -b "${NAME}_filtered_tmp.bam" | \
-        samtools sort - "${NAME}_filtered"
+        samtools sort - -o "${NAME}_filtered.bam"
         re-checkrc "Samtools filtering and sorting failed"
         re-progress 0.3
 
@@ -221,7 +221,7 @@
         re-progress 0.3
 
         # Name sort for PBC bottlenecking calculation
-        samtools sort -n "${NAME}_filtered_tmp.bam" "${NAME}_filtered"
+        samtools sort -n "${NAME}_filtered_tmp.bam" -o "${NAME}_filtered.bam"
         re-checkrc "Samtools sorting failed"
         re-progress 0.4
 
@@ -253,7 +253,7 @@
         # Remove unmapped reads, unmaped mates, not primary alignments, reads not mapped in proper
         # pair, and duplicate reads
         samtools view -F 1804 -f 2 -u "${NAME}_filtered.bam" | \
-        samtools sort -n - "${NAME}_filtered_tmp"
+        samtools sort -n - -o "${NAME}_filtered_tmp.bam"
         re-checkrc "Samtools filtering and sorting failed"
         re-progress 0.6
 
@@ -292,7 +292,7 @@
       grep -e UNPAIRED_READS_EXAMINED -A 1 "${NAME}_duplicates_metrics.txt" > "${NAME}_duplicates_metrics_tmp.txt"
 
       paste align_metrics.txt "${NAME}_duplicates_metrics_tmp.txt" "${NAME}_pbc_qc.txt" "${NAME}_cc_score.txt" | \
-      cut -f 1,2,3,5,6,8,11,17,18,19,28,29 > "${NAME}_prepeak_qc_report.txt"
+      cut -f 1,2,3,5,6,9,12,18,19,20,29,30 > "${NAME}_prepeak_qc_report.txt"
 
       # Tn5 transposon shifting
       {% if tn5 %}

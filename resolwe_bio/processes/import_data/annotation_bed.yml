@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:2.1.0
+        image: resolwebio/chipseq:4.0.0
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.1
+  version: 1.3.0
   type: data:bed
   category: Import
   persistence: RAW
