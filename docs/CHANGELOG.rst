@@ -63,6 +63,8 @@ Changed
 - Use ``resolwebio/chipseq:4.0.0`` Docker image in ``chipseq-genescore``,
   ``chipseq-peakscore``, ``macs14``, ``upload-bed`` and ``qc-prepeak``
   processes.
+- Use ``resolwebio/bamliquidator:1.0.0`` Docker image in
+  ``bamliquidator`` and ``bamplot`` processes.
 
 Added
 -----

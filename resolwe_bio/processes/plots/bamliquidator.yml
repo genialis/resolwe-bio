@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: "resolwebio/chipseq:1.0.0"
+        image: resolwebio/bamliquidator:1.0.0
   data_name: "Bamliquidator"
-  version: 0.1.2
+  version: 0.2.0
   type: data:bam:plot:bamliquidator
   category: Other
   persistence: CACHED
@@ -114,7 +114,6 @@
     language: bash
     program: |
 
-
       re-save analysis_type {{ analysis_type }}
 
       {% if analysis_type == "bin" and (regions_bed or regions_gtf) %}
@@ -169,7 +168,7 @@
           BIN_SIZE=10000
         {% endif %}
 
-        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -b ${BIN_SIZE} -f ${SKIP_PLOT}
+        bamliquidator_batch "${ALL_MODE_PAR[@]}" -b ${BIN_SIZE} -f ${SKIP_PLOT}
         re-checkrc "Bamliquidator failed."
 
         {% if not skip_plot %}
@@ -181,7 +180,7 @@
 
       elif [ {{ analysis_type }} == "region" ]; then
 
-        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_gtf.annot.file }} --region_format gff -m
+        bamliquidator_batch "${ALL_MODE_PAR[@]}" -r {{ regions_gtf.annot.file }} --region_format gff -m
         re-checkrc "Bamliquidator failed."
 
         SAMPLE_NAMES=()
@@ -204,7 +203,7 @@
 
       elif [ {{ analysis_type }} == "bed" ]; then
 
-        bamliquidator_batch.py "${ALL_MODE_PAR[@]}" -r {{ regions_bed.bed.file }} --region_format bed
+        bamliquidator_batch "${ALL_MODE_PAR[@]}" -r {{ regions_bed.bed.file }} --region_format bed
         re-checkrc "Bamliquidator failed."
         zip -r output.zip output
         re-save-file output_dir output.zip
