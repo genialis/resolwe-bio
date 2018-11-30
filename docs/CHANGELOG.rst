@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 14.x
 - Use ``resolwebio/rnaseq:4.0.0`` Docker image in
   ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
   ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
