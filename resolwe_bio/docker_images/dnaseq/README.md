@@ -8,6 +8,6 @@ https://hub.docker.com/r/resolwebio/base/) image.
 Included bioinformatics tools:
 ------------------------------
 * CheMut
-* GATK (4.0.2.1)
+* GATK (4.0.11.0)
 * LoFreq (2.1.3.1)
 * Primerclip (v180308)

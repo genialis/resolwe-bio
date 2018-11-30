@@ -5,8 +5,8 @@
 download_and_verify \
     broadinstitute \
     gatk \
-    4.0.2.1 \
-    b8f6f2d39a5400b00f6430b4474df0ce3c36b4ddfd10e6e7a03537e87e9c3b76 \
+    4.0.11.0 \
+    5ee23159be7c65051335ac155444c6a49c4d8e3515d4227646c0686819934536 \
     https://github.com/broadinstitute/gatk/releases/download/\${version}/gatk-\${version}.zip \
     gatk-\${version}
 

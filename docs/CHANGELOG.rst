@@ -43,6 +43,9 @@ Changed
   ``prepare-geo-chipseq``, ``prepare-geo-rnaseq``, ``upload-cxb``,
   ``upload-geneset``, ``upload-header-sam``, ``upload-mappability``,
   ``upload-snpeff`` and ``upload-picard-pcrmetrics`` processes.
+- Update GATK4 to version 4.0.11.0 in ``resolwebio/dnaseq:4.1.0`` Docker
+  image. Install and use JDK v8 by default to ensure compatibility with
+  GATK4 package.
 
 Added
 -----
