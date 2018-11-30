@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name
-# XXX: Refactor to a comand line tool and remove pylint disable
-"""Conver differential expression to Excel table."""
-from __future__ import absolute_import, division, print_function
+"""Convert differential expression to Excel table."""
 
 import sys
 import xlrd  # pylint: disable=import-error

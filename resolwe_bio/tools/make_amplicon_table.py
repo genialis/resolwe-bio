@@ -1,7 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """Create amplicon variant table."""
-from __future__ import absolute_import, division, print_function
-
 from collections import defaultdict
 
 import argparse

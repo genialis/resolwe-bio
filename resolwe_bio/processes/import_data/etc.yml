@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/common:1.0.0
     resources:
       network: true
   data_name: Expression time course
-  version: 1.0.11
+  version: 1.1.0
   type: data:etc
   category: Import
   persistence: RAW

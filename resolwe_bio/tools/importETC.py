@@ -1,8 +1,6 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name,redefined-outer-name
-# XXX: Refactor to a comand line tool and remove pylint disable
 """Import expression time course."""
-from __future__ import absolute_import, division, print_function
 
 import csv
 import gzip
@@ -53,4 +51,4 @@ zipfile = gzip.GzipFile(
     fileobj=open('etc.json.gz', 'wb'),
     mtime=0,
 )
-zipfile.write(etcjson)
+zipfile.write(etcjson.encode('utf-8'))

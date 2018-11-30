@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/common:1.0.0
   data_name: Expression matrix
-  version: 1.0.12
+  version: 1.1.0
   type: data:expressionset
   category: Other
   persistence: CACHED
@@ -27,7 +27,6 @@
       label: Filter genes
       type: list:basic:string
       required: false
-      default: ['DDB_G0267184', 'DDB_G0267188', 'DDB_G0267204']
   output:
     - name: expset
       label: Expression set
@@ -48,7 +47,12 @@
         {% endif %}
       {% endfor %}
 
-      expressionmerge.py {% for e in exps %}{{e.exp.file}} {% endfor %} --experiments {% for e in exps %}{{e|name}} {% endfor %} {% if genes %}--genes {% for g in genes %}{{g}} {% endfor %}{% endif %} --intersection --out 'sample.tab'
-      re-checkrc
+      expressionmerge.py \
+        {% for e in exps %}{{e.exp.file}} {% endfor %} \
+        --experiments {% for e in exps %}{{e|name}} {% endfor %} \
+        {% if genes %}--genes {% for g in genes %}{{g}} {% endfor %}{% endif %} \
+        --intersection \
+        --out 'sample.tab'
+      re-checkrc "Merging of expressions failed."
       re-save expset_type "$EXPSET_TYPE"
       re-save-file expset sample.tab

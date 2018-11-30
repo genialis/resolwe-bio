@@ -33,6 +33,10 @@ Changed
   descriptor field value
 - Use ``resolwebio/biox:1.0.0`` Docker image in ``etc-bcm``,
   ``expression-dicty`` and ``mappability-bcm`` processes.
+- Use ``resolwebio/common:1.0.0`` Docker image in ``amplicon-table``,
+  ``mergeexpressions``, ``upload-diffexp``, ``upload-etc``,
+  ``upload-multiplexed-single`` and ``upload-multiplexed-paired``
+  processes.
 
 Added
 -----

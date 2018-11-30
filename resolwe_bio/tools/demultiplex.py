@@ -1,8 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name,redefined-outer-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """NGS reads demultiplexer."""
-from __future__ import absolute_import, division, print_function
 
 import argparse
 import gzip
@@ -73,7 +72,7 @@ def isnum(number):
 barcode_length = 0
 
 if args.mapping:
-    with open(args.mapping, 'rU') as fd:
+    with open(args.mapping, encoding='utf-8') as fd:
         for line in fd:
             line = line.rstrip()
             if not line:
@@ -137,7 +136,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             files['notmatched'] = gzip.open('Not_Matched_{}.fq.gz'.format(pool_name), 'wb')
             files['badquality'] = gzip.open('Bad_Quality_{}.fq.gz'.format(pool_name), 'wb')
 
-        filenames = list(set(f.name for f in files.values()))
+        filenames = list(sorted(set(f.name for f in files.values())))
 
         p = subprocess.Popen(
             'gzip -dc {} | wc -l'.format(barcodes_file),
@@ -175,11 +174,10 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
 
         while True:
             readid += 1
-
             r1 = f1.readline()
             if not r1:
                 break
-            r1 = r1.rstrip('\r').rstrip('\n').split('\t')
+            r1 = r1.decode('utf-8').rstrip('\r').rstrip('\n').split('\t')
             if len(r1) != 11:
                 print("SKIPPED: error in {} line in r1".format(readid))
                 continue
@@ -189,7 +187,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
             rbar = fbar.readline()
             if not rbar:
                 break
-            rbar = rbar.rstrip('\r').rstrip('\n').split('\t')
+            rbar = rbar.decode('utf-8').rstrip('\r').rstrip('\n').split('\t')
             if len(rbar) != 11:
                 print("SKIPPED: error in {} line in rbar".format(readid))
                 continue
@@ -200,7 +198,7 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
                 r2 = f2.readline()
                 if not r2:
                     break
-                r2 = r2.rstrip('\r').rstrip('\n').split('\t')
+                r2 = r2.decode('utf-8').rstrip('\r').rstrip('\n').split('\t')
                 if len(r2) != 11:
                     print("SKIPPED: error in {} line in r2".format(readid))
                     continue
@@ -215,24 +213,26 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
                 if p1 == '1' and p2 == '1':
                     if sbar in barcodes:
                         files[sbar].write(
-                            '@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n')
+                            ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
                         if reads2_file:
                             files[sbar + '2'].write(
-                                '@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n')
+                                ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode(
+                                    'utf-8'))
                         matched += 1
                     else:
                         files['notmatched'].write(
-                            '@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n')
+                            ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
                         if reads2_file:
                             files['notmatched2'].write(
-                                '@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n')
+                                ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode(
+                                    'utf-8'))
                         notmatched += 1
                 else:
                     files['badquality'].write(
-                        '@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n')
+                        ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
                     if reads2_file:
                         files['badquality2'].write(
-                            '@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n')
+                            ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode('utf-8'))
                     badquality += 1
             else:
                 print("SKIPPED: {}, p1: {}, p2: {}, pbar: {}".format(readid, p1, p2, pbar))

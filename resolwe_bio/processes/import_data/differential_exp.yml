@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/common:1.0.0
     resources:
       network: true
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.1.3
+  version: 1.2.0
   type: data:differentialexpression:upload
   category: Import
   persistence: RAW
@@ -157,20 +157,20 @@
       if [[ '.{{ src.file }}' =~ \.(xls)$ ]]; then
         re-import {{ src.file_temp }} {{ src.file }} "xls" "xls" 0.3 extract
         convert_DE_excel_table.py {{ src.file }} > "${NAME}.tab"
-        python $(which parse_diffexp.py) ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       elif [[ '.{{ src.file }}' =~ \.(xlsx)$ ]]; then
         re-import {{ src.file_temp }} {{ src.file }} "xlsx" "xlsx" 0.3 extract
         convert_DE_excel_table.py {{ src.file }} > "${NAME}.tab"
-        python $(which parse_diffexp.py) ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
       else
         re-import {{ src.file_temp }} {{ src.file }} "diff|tab|gz" "tab" 0.3
-        python $(which parse_diffexp.py) ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
+        parse_diffexp.py ${NAME}.tab de_data.json de_file.tab.gz ${GENE_ID} ${LOGFC} ${FDR} ${LOGODDS} ${FWER} ${PVALUE} ${STAT}
         re-checkrc
         re-progress 0.7
         gzip "${NAME}.tab"
@@ -182,4 +182,3 @@
       re-save species {{ species }}
       re-save build {{ build }}
       re-save feature_type {{ feature_type }}
-
