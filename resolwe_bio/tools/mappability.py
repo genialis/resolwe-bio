@@ -32,7 +32,7 @@ if genome_ext != '.fasta':
 if not os.path.isfile(args.gff_file):
     raise ValueError("File {} does not exist".format(args.gff_file))
 
-if os.path.splitext(args.gff_file)[1] not in ['.gtf', '.gff']:
+if os.path.splitext(args.gff_file)[1] not in ['.gtf', '.gff3']:
     raise ValueError("Expected .gff file got {}".format(args.gff_file))
 
 if args.verbose:

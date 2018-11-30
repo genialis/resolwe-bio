@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/biox:1.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.2.3
+  version: 1.3.0
   type: data:expression:polya
   category: Other
   flow_collection: sample
@@ -80,67 +80,37 @@
     program: |
       NAME=`basename {{ alignment.bam.file }} .bam`
 
-      function compute_coverage {
-        xtabcoverage.py --tab {{ proc.data_dir }}"/"{{ proc.data_id }}"/${1}" --tab-coverage-col 1 --gff3 {{ gff.annot.file }} > tmp.bedgraph
-        bedGraphToBigWig tmp.bedgraph chrom.sizes "${1}.bw"
-        rm tmp.bedgraph
-      }
-
-      echo "XEXPRESSION..."
       xexpression.py {{ gff.annot.file }} {{ alignment.bam.file }} --rc --rpkm --rpkum {{mappable.mappability.file}}
-      re-checkrc
+      re-checkrc "Calculation of expression values failed."
       re-progress 0.5
 
       xexpression.py {{ gff.annot.file }} {{ alignment.bam.file }} --rc --rpkm --rpkum {{mappable.mappability.file}} --mrna
+      re-checkrc "Calculation of expression values failed."
       samtools idxstats {{ alignment.bam.file }} | cut -f -2 | head -n -1 > chrom.sizes
+      re-checkrc "Samtools idxstats command failed."
 
-      re-save exp_type polyA
+      mv expression_rc.tab.gz ${NAME}_expression_rc.tab.gz
+      re-save-file rc_raw ${NAME}_expression_rc.tab.gz
 
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rc.tab.gz ]
-      then
-        mv expression_rc.tab.gz ${NAME}_expression_rc.tab.gz
-        compute_coverage ${NAME}_expression_rc.tab.gz
-        re-checkrc
-        re-save-file rc_raw ${NAME}_expression_rc.tab.gz ${NAME}_expression_rc.tab.gz.bw
-      fi
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rc_polya.tab.gz ]
-      then
-        mv expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz
-        compute_coverage ${NAME}_expression_rc_polya.tab.gz
-        re-checkrc
-        re-save-file rc ${NAME}_expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz.bw
-      fi
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkm.tab.gz ]
-      then
-        mv expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz
-        compute_coverage ${NAME}_expression_rpkm.tab.gz
-        re-checkrc
-        re-save-file rpkm ${NAME}_expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz.bw
-      fi
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkm_polya.tab.gz ]
-      then
-        mv expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz
-        compute_coverage ${NAME}_expression_rpkm_polya.tab.gz
-        re-checkrc
-        re-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz.bw
-      fi
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkum.tab.gz ]
-      then
-        mv expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz
-        compute_coverage ${NAME}_expression_rpkum.tab.gz
-        re-checkrc
-        re-save-file rpkum ${NAME}_expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz.bw
-      fi
-      if [ -f {{ proc.data_dir }}/{{ proc.data_id }}/expression_rpkum_polya.tab.gz ]
-      then
-        mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
-        compute_coverage ${NAME}_expression_rpkum_polya.tab.gz
-        re-checkrc
-        expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
-        re-checkrc
-        re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz.bw
-      fi
+      mv expression_rc_polya.tab.gz ${NAME}_expression_rc_polya.tab.gz
+      re-save-file rc ${NAME}_expression_rc_polya.tab.gz
+
+      mv expression_rpkm.tab.gz ${NAME}_expression_rpkm.tab.gz
+      re-save-file rpkm ${NAME}_expression_rpkm.tab.gz
+
+      mv expression_rpkm_polya.tab.gz ${NAME}_expression_rpkm_polya.tab.gz
+      re-save-file rpkmpolya ${NAME}_expression_rpkm_polya.tab.gz
+
+      mv expression_rpkum.tab.gz ${NAME}_expression_rpkum.tab.gz
+      re-save-file rpkum ${NAME}_expression_rpkum.tab.gz
+
+      mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
+      expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
+      re-checkrc
+      re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz
+
       re-save source {{gff.source}}
       re-save species {{alignment.species}}
       re-save build {{alignment.build}}
       re-save feature_type gene
+      re-save exp_type polyA

@@ -31,6 +31,8 @@ Changed
   ``upload-gff3``, ``upload-gtf`` and ``upload-obo``.
 - Order statistical groups in expression aggregator output by sample
   descriptor field value
+- Use ``resolwebio/biox:1.0.0`` Docker image in ``etc-bcm``,
+  ``expression-dicty`` and ``mappability-bcm`` processes.
 
 Added
 -----

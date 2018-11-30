@@ -191,6 +191,20 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(exp, 'exp_set', 'cuffnorm_out_exp_set.txt.gz', compression='gzip')
         self.assertJSON(exp, exp.output['exp_set_json'], '', 'cuffnorm_exp_set.json.gz')
 
+    @tag_process('mappability-bcm')
+    def test_mappability(self):
+        with self.preparation_stage():
+            genome = self.prepare_genome()
+            annotation = self.prepare_annotation_gff()
+
+        mappability = self.run_process('mappability-bcm', {
+            'genome': genome.id,
+            'gff': annotation.id,
+            'length': 50,
+        })
+
+        self.assertFileExists(mappability, 'mappability')
+
     @tag_process('expression-dicty', 'etc-bcm')
     def test_expression_dicty(self):
         with self.preparation_stage():
