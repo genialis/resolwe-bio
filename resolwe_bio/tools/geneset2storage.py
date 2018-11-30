@@ -1,6 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """Parse Gene set file."""
-from __future__ import absolute_import, division, print_function
 
 import argparse
 import gzip
@@ -31,7 +30,7 @@ def main():
             json.dump({'genes': geneset}, json_out, separators=(',', ':'), allow_nan=False)
 
         with gzip.open(args.output_file, 'w') as file_out:
-            file_out.write('\n'.join(geneset))
+            file_out.write('\n'.join(geneset).encode('utf-8'))
 
 
 if __name__ == "__main__":

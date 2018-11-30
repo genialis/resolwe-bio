@@ -1,9 +1,7 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Save ETC data to output file."""
-from __future__ import absolute_import, division, print_function
-
 import json
 import argparse
 import os
@@ -36,7 +34,7 @@ for etc in args.files:
 
     with utils.gzopen(etc) as f:
         etc_data = json.load(f)
-        x = experiments.next()
+        x = next(experiments)
         header = header + [x + ' - ' + tp + 'h' for tp in map(str, etc_data["etc"]["timePoints"])]
         gn = set([g for g in etc_data["etc"]["genes"]])
 

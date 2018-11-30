@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/base:ubuntu-18.04
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.2
+  version: 1.2.0
   type: data:cufflinks:cuffquant
   category: Import
   flow_collection: sample

@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/base:ubuntu-18.04
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.0.8
+  version: 1.1.0
   type: data:mappability:bcm
   category: Import
   persistence: RAW
@@ -35,4 +35,4 @@
     language: bash
     program: |
       re-import {{ src.file_temp }} {{ src.file }} "tab" "tab" 1.0 extract
-      re-save-file mappability ${NAME}.tab
+      re-save-file mappability "${NAME}.tab"

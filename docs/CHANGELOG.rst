@@ -37,6 +37,11 @@ Changed
   ``mergeexpressions``, ``upload-diffexp``, ``upload-etc``,
   ``upload-multiplexed-single`` and ``upload-multiplexed-paired``
   processes.
+- Use ``resolwebio/base:ubuntu-18.04`` Docker image in
+  ``create-geneset``, ``create-geneset-venn``,  ``mergeetc``,
+  ``prepare-geo-chipseq``, ``prepare-geo-rnaseq``, ``upload-cxb``,
+  ``upload-geneset``, ``upload-header-sam``, ``upload-mappability``,
+  ``upload-snpeff`` and ``upload-picard-pcrmetrics`` processes.
 
 Added
 -----
