@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/legacy:1.0.0
+        image: resolwebio/snpeff:1.0.0
     resources:
       memory: 16384
   data_name: "snpEff ({{ variants|sample_name|default('?') }})"
-  version: 0.1.9
+  version: 0.2.0
   type: data:snpeff
   category: Other
   flow_collection: sample
