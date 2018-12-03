@@ -17,7 +17,7 @@ throttle(["resolwe_bio"]) {
 
         // NOTE: Tests could hang unexpectedly and never release the Jenkins executor. Thus we set
         // a general timeout for tests' execution.
-        timeout(time: 60, unit: "MINUTES") {
+        timeout(time: 120, unit: "MINUTES") {
 
             try {
                 stage("Checkout") {
