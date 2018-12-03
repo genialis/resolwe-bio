@@ -100,6 +100,9 @@ Added
 - Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
   processes
 - Add feature symbols to expressions in ``archive-samples`` process
+- Add to ``resolwebio/rnaseq:4.2.0`` docker image:
+
+  - ERCC table
 
 Fixed
 -----
