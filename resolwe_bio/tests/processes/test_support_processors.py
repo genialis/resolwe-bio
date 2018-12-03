@@ -376,3 +376,54 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                          compression='gzip')
         self.assertFiles(seqtk_paired, 'fastq2', ['seqtk_subsampled_reads_paired_end_mate2.fastq.gz'],
                          compression='gzip')
+
+    @with_resolwe_host
+    @tag_process('spikein-qc')
+    def test_spikein_pairwise(self):
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(
+                f_exp='exp1_cpm_ercc_sirv.tab.gz',
+                f_type='CPM',
+                name='Sample 1',
+                source='ENSEMBL',
+                species='Homo sapiens')
+            expression_2 = self.prepare_expression(
+                f_exp='exp2_cpm_ercc_sirv.tab.gz',
+                f_type='CPM',
+                name='Sample 2',
+                source='ENSEMBL',
+                species='Homo sapiens')
+            expression_3 = self.prepare_expression(
+                f_exp='exp3_cpm_ercc_sirv.tab.gz',
+                f_type='CPM',
+                name='Sample 3',
+                source='ENSEMBL',
+                species='Homo sapiens')
+            expression_4 = self.prepare_expression(
+                f_exp='exp4_cpm_ercc_sirv.tab.gz',
+                f_type='CPM',
+                name='Sample without ERCC',
+                source='ENSEMBL',
+                species='Homo sapiens')
+
+        # SIRV Set 3
+        sirv_set3 = self.run_process('spikein-qc', {
+            'samples': [expression_1.pk, expression_2.pk, expression_3.pk, expression_4.pk],
+            'mix': 'sirv_set3',
+        })
+
+        self.assertEqual(sirv_set3.process_warning, [
+            'All ERCC spike-ins have zero expression in sample Sample without ERCC',
+        ])
+
+        self.assertFilesExist(sirv_set3, 'plots')
+        expected_names = [item['file'] for item in sirv_set3.output['plots']]
+        self.assertEqual(expected_names, [
+            "Sample 1 (ERCC spike-in's).png",
+            "Sample 2 (ERCC spike-in's).png",
+            "Sample 3 (ERCC spike-in's).png",
+        ])
+
+        self.assertFileExists(sirv_set3, 'report')
+
+        self.assertFileExists(sirv_set3, 'report_zip')

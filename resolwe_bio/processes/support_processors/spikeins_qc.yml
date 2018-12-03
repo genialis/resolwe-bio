@@ -1,0 +1,76 @@
+- slug: spikein-qc
+  name: Spike-ins quality control
+  requirements:
+    expression-engine: jinja
+    resources:
+      cores: 1
+    executor:
+      docker:
+        image: resolwebio/rnaseq:4.2.0
+  data_name: 'Spike-ins QC ({% for s in samples %}{{ s | sample_name }}{{ ", " if not loop.last }}{% endfor %})'
+  version: 0.0.1
+  type: data:spikeins
+  category: other
+  persistence: CACHED
+  description: >
+    Plot spike-ins measured abundances for samples quality control. The process will output
+    graphs showing the correlation between known concentration of ERCC spike-ins and sample's
+    measured abundance.
+  input:
+    - name: samples
+      label: Expressions with spike-ins
+      type: list:data:expression
+    - name: mix
+      label: Spike-ins mix
+      type: basic:string
+      choices:
+        - label: ERCC Mix 1
+          value: ercc_mix1
+        - label: ERCC Mix 2
+          value: ercc_mix2
+        - label: SIRV-Set 3
+          value: sirv_set3
+      description: >
+        Select spike-ins mix.
+  output:
+    - name: plots
+      label: Plot figures
+      type: list:basic:file
+    - name: report
+      label: HTML report with results
+      type: basic:file:html
+      hidden: true
+    - name: report_zip
+      label: ZIP file contining HTML report with results
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+      spikein_pairwise.py \
+        --sample_exps {% for s in samples %} {{ s.exp.file }} {% endfor %} \
+        --sample_names {% for s in samples %} {{ s | sample_name }} {% endfor %} \
+        --exp_types {% for s in samples %} {{ s.exp_type }} {% endfor %} \
+        --spikeins_mix {{ mix }}
+      re-checkrc "Plotting of spike-ins quality control failed."
+
+      PLOTS=(*.png)
+
+      re-save-file-list plots "${PLOTS[@]}"
+
+      mkdir report_ref/
+      mkdir report_ref/images
+      cp "${PLOTS[@]}" report_ref/images/
+      cp /opt/resolwebio/assets/genialis.css report_ref/genialis.css
+      cp -r /opt/resolwebio/assets/fonts report_ref/
+      spikeins_report.py \
+        --sample_names {% for s in samples %} {{ s | sample_name }} {% endfor %} \
+        --images_dir report_ref/images/ \
+        --template "/opt/resolwebio/assets/spikeins_qc_template.html"
+      re-checkrc "Spike-in report generation failed."
+
+      re-save-file report report.html report_ref/
+
+      zip -0 -r results.zip report.html report_ref/
+      re-save-file report_zip results.zip
+

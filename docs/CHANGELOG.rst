@@ -107,6 +107,7 @@ Added
   - ERCC table
   - common Genialis fonts and css file
   - spike-in QC report template
+- Add ``spikein-qc`` process.
 
 Fixed
 -----
