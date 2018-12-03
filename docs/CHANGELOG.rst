@@ -29,6 +29,8 @@ Changed
   ``upload-fastq-paired``, ``files-to-fastq-single``,
   ``files-to-fastq-paired``, ``upload-gaf``, ``upload-genome``,
   ``upload-gff3``, ``upload-gtf`` and ``upload-obo``.
+- Order statistical groups in expression aggregator output by sample
+  descriptor field value
 
 Added
 -----

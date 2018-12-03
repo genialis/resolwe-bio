@@ -37,7 +37,8 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
         inputs['exps'] = [expression3.id, expression4.id]
         expression_aggregator_mm = self.run_process('expression-aggregator', inputs)
 
-        inputs['exps'] = [expression1.id, expression2.id]
+        # List of samples with unordered descriptors.
+        inputs['exps'] = [expression2.id, expression1.id]
         expression_aggregator = self.run_process('expression-aggregator', inputs)
 
         saved_matrix, test_matrix = self.get_json('exp_matrix.json.gz', expression_aggregator.output['exp_matrix'])

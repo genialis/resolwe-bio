@@ -54,7 +54,7 @@ def load_expressions(aggregator, expression_fns=[], sep='\t', descriptors=[]):
     grouped_expressions = {
         gene: {
             descriptor: get_values(raw_expressions, descriptors, gene, descriptor)
-            for descriptor in set(descriptors)
+            for descriptor in sorted(set(descriptors))
             if get_values(raw_expressions, descriptors, gene, descriptor)
         }
         for gene in genes
