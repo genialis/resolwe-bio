@@ -13,6 +13,7 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 14.x
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes ``findsimilar``.
 - Use ``resolwebio/rnaseq:4.0.0`` Docker image in
   ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
   ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
