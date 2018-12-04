@@ -537,7 +537,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             })
 
             aligned_reads = self.run_process('upload-bam', {
-                'src': 'feature_counts_detect_strandedness.bam',
+                'src': 'feature counts_detect_strandedness.bam',
                 'species': 'Homo sapiens',
                 'build': 'ens_90',
             })

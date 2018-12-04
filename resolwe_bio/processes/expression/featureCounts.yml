@@ -14,7 +14,7 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.1.0
+  version: 2.1.1
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample

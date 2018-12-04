@@ -24,7 +24,7 @@ if [[ $# -lt 4 || $# -gt 5 ]]; then
     re-error "Usage: detect_strandedness.sh aligned_reads n_reads salmon_index threads [field]"
 fi
 
-TOTAL_READS=$(samtools view -c ${BAM})
+TOTAL_READS=$(samtools view -c "${BAM}")
 SAMPLING_RATE=$(python3 -c "f = ${N_READS}/${TOTAL_READS}; print(f) if f < 1.0 else print(1.0)")
 
 samtools view \

@@ -58,6 +58,8 @@ Fixed
 -----
 - Make ChIP-seq fields in ``sample`` descriptor schema visible when
   ChIPmentation assay type is selected
+- Fix handling of whitespace in input BAM file name in script
+  ``detect_strandedness.sh``
 
 
 =================
