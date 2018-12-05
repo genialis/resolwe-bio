@@ -14,7 +14,7 @@
       memory: 32768
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.8.0
+  version: 1.8.6
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -380,7 +380,7 @@
           --readFilesIn mate1.fastq \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
-          --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
+          --limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
           {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
           {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
@@ -421,7 +421,7 @@
           --readFilesIn mate1.fastq mate2.fastq \
           --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
-          --limitBAMsortRAM {{requirements.resources.memory * 1024 * 1024}} \
+          --limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
           {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
           {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \

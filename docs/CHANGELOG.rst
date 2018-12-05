@@ -85,6 +85,8 @@ Fixed
   ChIPmentation assay type is selected
 - Fix handling of whitespace in input BAM file name in script
   ``detect_strandedness.sh``
+- Limit the available memory for STAR aligner ``--limitBAMsortRAM``
+  parameter to 90% of the Docker requirements setting
 
 
 =================
