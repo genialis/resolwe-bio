@@ -369,7 +369,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                     {'__id': background_2.id, '__type': background_2.process.type},
                     {'__id': case_wo_background.id, '__type': case_wo_background.process.type},
                 ]),
-                [(1, 2), (3, 4), (5, None)]
+                [(case_1.id, background_1.id), (case_2.id, background_2.id), (case_wo_background.id, None)]
             )
 
         self.run_process(
@@ -449,7 +449,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                     {'__id': case_1.id, '__type': case_1.process.type},
                     {'__id': background_1.id, '__type': background_1.process.type},
                 ]),
-                [(1, 2)]
+                [(case_1.id, background_1.id)]
             )
 
         self.run_process(
