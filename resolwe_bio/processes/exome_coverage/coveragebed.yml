@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:3.2.1
+        image: resolwebio/dnaseq:4.1.0
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 4.0.3
+  version: 4.1.0
   type: data:coverage
   category: Other
   flow_collection: sample

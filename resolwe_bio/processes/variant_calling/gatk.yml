@@ -103,12 +103,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:3.1.0
+        image: resolwebio/dnaseq:4.1.0
     resources:
       memory: 16384
       cores: 4
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.0.2
+  version: 0.1.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample

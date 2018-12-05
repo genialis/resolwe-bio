@@ -46,6 +46,10 @@ Changed
 - Update GATK4 to version 4.0.11.0 in ``resolwebio/dnaseq:4.1.0`` Docker
   image. Install and use JDK v8 by default to ensure compatibility with
   GATK4 package.
+- Use ``resolwebio/dnaseq:4.1.0`` Docker image in ``align-bwa-trim``,
+  ``coveragebed``, ``filtering-chemut``, ``lofreq``,
+  ``picard-pcrmetrics``, ``upload-master-file``, ``upload-variants-vcf``
+  and ``vc-gatk4-hc`` processes.
 
 Added
 -----
