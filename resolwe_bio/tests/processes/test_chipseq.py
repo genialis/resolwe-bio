@@ -12,6 +12,8 @@ from resolwe_bio.expression_filters.relation import background_pairs
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):
 
+    fixtures = ['relationtypes.yaml']
+
     @tag_process('chipseq-peakscore', 'chipseq-genescore')
     def test_chipseq(self):
         with self.preparation_stage():
