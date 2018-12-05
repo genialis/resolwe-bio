@@ -188,11 +188,25 @@ class TestBackgroundPairsFilter(TestCase):
 
         self.assertEqual(
             background_pairs_template.render(some_data=[{'__id': d.id, '__type': d.process.type} for d in data]),
-            '[(3, 1), (5, None), (7, 1), (9, 1), (11, None)]'
+            '[({1}, {0}), ({2}, None), ({3}, {0}), ({4}, {0}), ({5}, None)]'.format(
+                data[0].id,
+                data[1].id,
+                data[2].id,
+                data[3].id,
+                data[4].id,
+                data[5].id
+            )
         )
         self.assertEqual(
             background_pairs_template.render(some_data=[{'__id': d.id, '__type': d.process.type} for d in data2]),
-            '[(4, 2), (6, None), (8, 2), (10, 2), (12, None)]'
+            '[({1}, {0}), ({2}, None), ({3}, {0}), ({4}, {0}), ({5}, None)]'.format(
+                data2[0].id,
+                data2[1].id,
+                data2[2].id,
+                data2[3].id,
+                data2[4].id,
+                data2[5].id
+            )
         )
 
         # Test list must be given
