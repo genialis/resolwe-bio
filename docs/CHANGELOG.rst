@@ -87,6 +87,7 @@ Fixed
   ``detect_strandedness.sh``
 - Limit the available memory for STAR aligner ``--limitBAMsortRAM``
   parameter to 90% of the Docker requirements setting
+- Set ``bbduk-single`` and ``bbduk-paired`` memory requirements to 8GB
 
 
 =================

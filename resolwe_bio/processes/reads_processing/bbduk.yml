@@ -14,9 +14,9 @@
         image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 10
-      memory: 2048
+      memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
@@ -543,9 +543,9 @@
         image: resolwebio/rnaseq:4.0.0
     resources:
       cores: 10
-      memory: 2048
+      memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
