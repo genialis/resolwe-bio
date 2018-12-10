@@ -11,10 +11,10 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
     resources:
-      memory: 32768
+      memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.8.6
+  version: 1.8.7
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -53,7 +53,7 @@
           type: basic:string
           default: exon
           description: >
-            Feature type in GTF file to be used as exons for building transcripts.
+            Feature type in GTF file to be used as exons for building transcripts
         - name: sjdbOverhang
           label: Junction length (sjdbOverhang)
           type: basic:integer
