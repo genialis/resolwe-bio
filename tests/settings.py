@@ -144,6 +144,7 @@ FLOW_DOCKER_VOLUME_EXTRA_OPTIONS = {
     'secrets': 'Z',
     'users': 'Z',
     'tools': 'z',
+    'runtime': 'Z',
 }
 
 FLOW_PROCESS_MAX_CORES = 1
