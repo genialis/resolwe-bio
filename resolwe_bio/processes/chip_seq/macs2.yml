@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.0
+  version: 4.0.1
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -799,24 +799,28 @@
       {% endif %}
 
       {% if settings.bedgraph %}
+        re-save-file treat_pileup "${CASE_NAME}_treat_pileup.bdg"
         bedtools slop -i "${CASE_NAME}_treat_pileup.bdg" -g chrom.sizes -b 0 | bedClip stdin chrom.sizes "${CASE_NAME}_treat_pileup_clip.bdg"
         re-checkrc "Preventing the extension of intervals beyond chromosome boundaries for treat_pileup.bgd bedGraph failed."
         # case sensitive sorting
         LC_COLLATE=C sort -k 1,1 -k 2,2n "${CASE_NAME}_treat_pileup_clip.bdg" > "${CASE_NAME}_treat_pileup_sorted.bdg"
+        # Merge possible overlapping regions
+        bedtools merge -d -1 -c 4 -o mean -i "${CASE_NAME}_treat_pileup_sorted.bdg" > "${CASE_NAME}_treat_pileup_sorted_merged.bdg"
         # Create BigWig file for IGV and UCSC genome browsers
-        bedGraphToBigWig "${CASE_NAME}_treat_pileup_sorted.bdg" chrom.sizes "${CASE_NAME}_treat_pileup.bw"
+        bedGraphToBigWig "${CASE_NAME}_treat_pileup_sorted_merged.bdg" chrom.sizes "${CASE_NAME}_treat_pileup.bw"
         re-checkrc "Creating bigWig from treat_pileup.bgd bedGraph failed."
-        re-save-file treat_pileup "${CASE_NAME}_treat_pileup.bdg"
         re-save-file treat_pileup_bigwig "${CASE_NAME}_treat_pileup.bw"
 
+        re-save-file control_lambda "${CASE_NAME}_control_lambda.bdg"
         bedtools slop -i "${CASE_NAME}_control_lambda.bdg" -g chrom.sizes -b 0 | bedClip stdin chrom.sizes "${CASE_NAME}_control_lambda_clip.bdg"
         re-checkrc "Preventing the extension of intervals beyond chromosome boundaries for control_lambda.bgd bedGraph failed."
         # case sensitive sorting
         LC_COLLATE=C sort -k 1,1 -k 2,2n "${CASE_NAME}_control_lambda_clip.bdg" > "${CASE_NAME}_control_lambda_sorted.bdg"
+        # Merge possible overlapping regions
+        bedtools merge -d -1 -c 4 -o mean -i "${CASE_NAME}_control_lambda_sorted.bdg" > "${CASE_NAME}_control_lambda_sorted_merged.bdg"
         # Create BigWig file for IGV and UCSC genome browsers
-        bedGraphToBigWig "${CASE_NAME}_control_lambda_sorted.bdg" chrom.sizes "${CASE_NAME}_control_lambda.bw"
+        bedGraphToBigWig "${CASE_NAME}_control_lambda_sorted_merged.bdg" chrom.sizes "${CASE_NAME}_control_lambda.bw"
         re-checkrc "Creating bigWig from control_lambda.bgd bedGraph failed."
-        re-save-file control_lambda "${CASE_NAME}_control_lambda.bdg"
         re-save-file control_lambda_bigwig "${CASE_NAME}_control_lambda.bw"
       {% endif %}
 
