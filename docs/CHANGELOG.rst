@@ -78,6 +78,7 @@ Added
 - Add support for MACS2 result files to MultiQC process.
 - Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
   processes.
+- Add feature symbols to expressions in ``archive-samples`` process
 
 Fixed
 -----

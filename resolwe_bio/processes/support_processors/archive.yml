@@ -5,8 +5,8 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/utils:1.2.0
-  version: 0.1.6
+        image: resolwebio/common:1.0.0
+  version: 0.2.0
   type: data:archive:samples
   category: Other
   persistence: TEMP
@@ -43,8 +43,25 @@
       EXP_TYPE=()
       REPORT_TYPE=()
 
+      EXP_FILE_PATHS=()
+      EXP_SAMPLE_NAMES=()
+      EXP_BUILDS=()
+      EXP_SPECIES=()
+      EXP_TYPES=()
+
+      # A change of variable in the loop is not visible outside of the loop. See
+      # https://stackoverflow.com/questions/9486393/ and
+      # https://stackoverflow.com/questions/36886650/ for details.
+      {% set info = {'exp_set_all': True} %}
+      {% for datum in data %}
+        {% if datum|type|subtype('data:expression:') and not datum.exp_set.file %}
+          {% set x=info.__setitem__('exp_set_all', False) %}
+        {% endif %}
+      {% endfor %}
+
       {% for d in data %}
-        {% for field in fields %}
+        # Always add 'exp' and 'exp_set' output fields to provide inputs
+        {% for field in fields|unique %}
           {% if d[field].file %}
             {% set link = d|sample_slug ~ '/' ~ field ~ '/' ~ d[field]|relative_path %}
             mkdir -p {{ link | dirname }}
@@ -72,7 +89,7 @@
         # Select data for IGV and organize by species / build.
         IGV_FILE={{ d.species }}_{{ d.build }}_temp_igv.txt
 
-        {% if (d|type).startswith('data:alignment:bam') %}
+        {% if d|type|subtype('data:alignment:bam:') %}
           mv {{ d|sample_slug }}/bai/{{ d.bai.file|basename }} {{ d|sample_slug }}/bam/{{ d.bai.file|basename }}
           rm -r {{ d|sample_slug }}/bai
           # In the first line of _temp_igv.txt file add build information and in the following lines add paths to bam files.
@@ -81,7 +98,7 @@
           fi
           echo {{ d|sample_slug }}/bam/{{ d.bam.file|basename }} >> "$IGV_FILE"
 
-        {% elif (d|type).startswith('data:variants:vcf') %}
+        {% elif d|type|subtype('data:variants:vcf:') %}
           # In the first line of _temp_igv.txt file add build information and in the following lines add paths to vcf files.
           if [[ ! -f "$IGV_FILE" ]]; then
             echo {{ d.build }} > "$IGV_FILE"
@@ -90,16 +107,14 @@
         {% endif %}
 
         # Store expression files and the corresponding info (sample names, build, species and expression type).
-        # Fetch data from exp output field explicitly.
-        {% if (d|type).startswith('data:expression') %}
-          {% set exp_link = d|sample_slug ~ '/exp/' ~ d['exp']|relative_path %}
-          mkdir -p {{ exp_link|dirname }}
-          ln -s --backup=numbered {{ d['exp'].file }} {{ exp_link }}
-          FILE_PATH+=({{ exp_link }})
-          SAMPLE_NAMES+=({{ d|sample_name }})
-          BUILD+=({{ d.build }})
-          SPECIES+=({{ d.species }})
-          EXP_TYPE+=({{ d.exp_type }})
+        # Fetch data from exp_set or exp output field explicitly.
+        {% set field = 'exp_set' if info['exp_set_all'] else 'exp' %}
+        {% if d|type|subtype('data:expression:') %}
+          EXP_FILE_PATHS+=({{ d[field].file }})
+          EXP_SAMPLE_NAMES+=({{ d|sample_name }})
+          EXP_BUILDS+=({{ d.build }})
+          EXP_SPECIES+=({{ d.species }})
+          EXP_TYPES+=({{ d.exp_type }})
         {% endif %}
 
         # Store ChIP pre-peakcall and postpeak QC sample and report info
@@ -120,14 +135,14 @@
       done
 
       # Skip expression merge if there are no expressions on the input.
-      if [ {{ "${#EXP_TYPE[@]}" }} != 0 ]
+      if [ {{ "${#EXP_TYPES[@]}" }} != 0 ]
       then
         expressionmerge_archive.py \
-          --file_path "${FILE_PATH[@]}" \
-          --sample_names "${SAMPLE_NAMES[@]}" \
-          --build "${BUILD[@]}" \
-          --species "${SPECIES[@]}" \
-          --exp_type "${EXP_TYPE[@]}"
+          --file-paths "${EXP_FILE_PATHS[@]}" \
+          --sample-names "${EXP_SAMPLE_NAMES[@]}" \
+          {% if not info['exp_set_all'] %} --exp-types "${EXP_TYPES[@]}" {% endif %} \
+          --builds "${EXP_BUILDS[@]}" \
+          --species "${EXP_SPECIES[@]}"
 
         re-checkrc "Merging expression files failed"
       fi

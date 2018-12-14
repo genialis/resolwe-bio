@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Process
 from resolwe.test import tag_process
 
 from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
@@ -103,6 +103,93 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             'data': [txt_file.id, bam.id, reads.id, vcf.id, expression_1.id, expression_2.id, expression_5.id,
                      expression_4.id, expression_3.id, multiqc.id],
             'fields': ['file', 'bam', 'bai', 'fastq', 'fastqc_url', 'fastqc_archive', 'vcf', 'exp_set', 'report']})
+
+    @with_resolwe_host
+    @tag_process('archive-samples')
+    def test_archive_samples_exp_set(self):
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(f_exp='exp_1_rc.tab.gz', f_type='RC')
+            expression_2 = self.prepare_expression(f_exp='exp_2_tpm.tab.gz', f_type='TPM', f_rc='exp_2_rc.tab.gz')
+
+        inputs = {
+            'data': [
+                expression_1.pk,
+                expression_2.pk,
+            ],
+            'fields': [
+                'exp_set',
+            ],
+        }
+        self.run_process('archive-samples', inputs)
+        # Structured zip files are not supported by assertFile. When implemented, add here
+        # self.assertFile(_, 'archive', 'test_archive_samples_exp_set.zip', compression='zip').
+
+    @with_resolwe_host
+    @tag_process('archive-samples')
+    def test_archive_samples_exp(self):
+        with self.preparation_stage():
+            # Upload expression without exp_set output.
+            Process.objects.create(
+                slug='exp',
+                type='data:expression:exp:',
+                contributor=self.contributor,
+                requirements={'expression-engine': 'jinja'},
+                data_name='Upload expression into exp output field',
+                entity_type='sample',
+                entity_descriptor_schema='sample',
+                input_schema=[
+                    {
+                        'name': 'exp',
+                        'type': 'basic:file:',
+                    }
+                ],
+                output_schema=[
+                    {
+                        'name': 'exp',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'exp_type',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': '''
+                        re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "tab|gz" tab 1.0 compress
+                        re-save-file exp "${NAME}.tab.gz"
+                        re-save exp_type RC
+                        re-save build ens
+                        re-save species "Homo sapiens"
+                    ''',
+                },
+            )
+            inputs = {
+                'exp': 'exp_1_rc.tab.gz',
+            }
+            expression_1 = self.run_process('exp', inputs)
+            expression_2 = self.prepare_expression(f_exp='exp_2_tpm.tab.gz', f_type='TPM', f_rc='exp_2_rc.tab.gz')
+
+        inputs = {
+            'data': [
+                expression_1.pk,
+                expression_2.pk,
+            ],
+            'fields': [
+                'exp_set',
+            ],
+        }
+        self.run_process('archive-samples', inputs)
+        # Structured zip files are not supported by assertFile. When implemented, add here
+        # self.assertFile(_, 'archive', 'test_archive_samples_exp.zip', compression='zip').
 
     @tag_process('prepare-geo-chipseq')
     def test_prepare_geo_chipseq(self):
