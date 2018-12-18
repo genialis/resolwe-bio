@@ -1,39 +1,30 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-# Use codecs' open for a consistent encoding
-from codecs import open
-from os import path
-from setuptools import find_packages, setup
+import os.path
+import setuptools
 
+# Get long description from README.
+with open('README.rst', 'r') as fh:
+    long_description = fh.read()
 
-base_dir = path.abspath(path.dirname(__file__))
-
-# Get the long description from the README file
-with open(path.join(base_dir, 'README.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
-# Get package metadata from 'resolwe.__about__.py' file
+# Get package metadata from '__about__.py' file.
 about = {}
-with open(path.join(base_dir, 'resolwe_bio', '__about__.py'), encoding='utf-8') as f:
-    exec(f.read(), about)
+base_dir = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(base_dir, 'resolwe_bio', '__about__.py'), 'r') as fh:
+    exec(fh.read(), about)
 
-setup(
+setuptools.setup(
     name=about['__title__'],
-
     version=about['__version__'],
-
     description=about['__summary__'],
     long_description=long_description,
-
-    url=about['__url__'],
-
+    long_description_content_type='text/x-rst',
     author=about['__author__'],
     author_email=about['__email__'],
-
+    url=about['__url__'],
     license=about['__license__'],
-
-    # exclude tests from built/installed package
-    packages=find_packages(exclude=['tests', 'tests.*', '*.tests', '*.tests.*']),
+    # Exclude tests from built/installed package.
+    packages=setuptools.find_packages(
+        exclude=['tests', 'tests.*', '*.tests', '*.tests.*']
+    ),
     package_data={
         'resolwe_bio': [
             'descriptors/*.yml',
@@ -45,11 +36,11 @@ setup(
             'tools/*.sh',
         ]
     },
-    zip_safe=False,
+    python_requires='>=3.6, <3.7',
     install_requires=(
         'Django~=1.11.0',
-        # XXX: Remove django-autoslug after all migrations that import
-        # it are deleted
+        # XXX: Remove django-autoslug after all migrations that import it are
+        # deleted.
         'django-autoslug==1.9.3',
         'djangorestframework~=3.9.0',
         'elasticsearch-dsl~=5.4.0',
@@ -58,46 +49,35 @@ setup(
         'wrapt>=1.10.8',
         'django-filter~=2.0.0',
     ),
-    python_requires='>=3.6, <3.7',
-    extras_require = {
-        'docs':  [
-            # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't work with our custom
-            # page template
+    extras_require={
+        'docs': [
+            # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't
+            # work with our custom page template.
             'Sphinx~=1.5.6',
             'sphinx_rtd_theme',
         ],
-        'package': [
-            'twine',
-            'wheel',
-        ],
+        'package': ['twine', 'wheel'],
         'test': [
-            'check-manifest',
             # pycodestyle 2.3.0 raises false-positive for variables
             # starting with 'def'
             # https://github.com/PyCQA/pycodestyle/issues/617
             'pycodestyle~=2.2.0',
             'pydocstyle>=1.0.0',
             'pylint~=1.8.0',
-            'readme_renderer',
             'tblib>=1.3.0',
+            'check-manifest',
+            'readme_renderer',
         ],
     },
-
-    test_suite='resolwe_bio.tests',
-
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',
         'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Topic :: Software Development :: Libraries :: Python Modules',
-
         'License :: OSI Approved :: Apache Software License',
-
         'Operating System :: OS Independent',
-
         'Programming Language :: Python',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
