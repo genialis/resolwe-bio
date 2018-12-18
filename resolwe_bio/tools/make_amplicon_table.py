@@ -44,12 +44,12 @@ def _tsv_to_list(table_file, has_header=False, delimiter='\t', pick_columns=None
 def snp_url(snpid):
     """Create url SNP ID."""
     if snpid.startswith('rs'):
-        url = 'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
+        url = r'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
         pass
     elif snpid.startswith('COSM'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
     elif snpid.startswith('COSN'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
     return url

@@ -30,15 +30,15 @@ parser.add_argument('--afthreshold', help="Allele Frequency lower threshold.")
 def _escape_latex(string):
     """Format normal string to be LaTeX compliant."""
     string = string.replace('\\', '\\\\')
-    string = string.replace('&', '\&')
-    string = string.replace('%', '\%')
-    string = string.replace('$', '\$')
-    string = string.replace('#', '\#')
-    string = string.replace('_', '\_')
-    string = string.replace('{', '\{')
-    string = string.replace('}', '\}')
-    string = string.replace('~', '\textasciitilde ')
-    string = string.replace('^', '\textasciicircum ')
+    string = string.replace('&', r'\&')
+    string = string.replace('%', r'\%')
+    string = string.replace('$', r'\$')
+    string = string.replace('#', r'\#')
+    string = string.replace('_', r'\_')
+    string = string.replace('{', r'\{')
+    string = string.replace('}', r'\}')
+    string = string.replace('~', r'\textasciitilde ')
+    string = string.replace('^', r'\textasciicircum ')
     return string
 
 
@@ -100,7 +100,7 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, wide_
             for col_index in long_columns:
                 # Insert spaces, so that wrapping can happen,
                 # Don't insert spaces in columns with hyperlinks or other specified uncut columns.
-                if ('\href' in line[col_index] or col_index in uncut_columns):
+                if (r'\href' in line[col_index] or col_index in uncut_columns):
                     new_val = line[col_index]
                 else:
                     new_val = cut_to_pieces(line[col_index], 8)
@@ -120,11 +120,11 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, wide_
 def snp_href(snpid):
     """Create LaTeX hyperlink for given SNP ID."""
     if snpid.startswith('rs'):
-        url = 'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
+        url = r'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
     elif snpid.startswith('COSM'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
     elif snpid.startswith('COSN'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
     return '\\href{{{}}}{{{}}}'.format(url, _escape_latex(snpid))
@@ -391,7 +391,7 @@ if __name__ == '__main__':
         template = template.replace('{#QCTABLE#}', qc_table)
 
         # Make table with amplicons that have < 100% coverage
-        non_cov_header = ['Sample', 'Amplicon', '\% Covered', '\% of mean coverage']
+        non_cov_header = ['Sample', 'Amplicon', r'\% Covered', r'\% of mean coverage']
         non_cov_data = []
         for i, sample in sorted_samples:
             for line in data[sample]['cov_list']:

@@ -28,7 +28,7 @@ def main():
     """Invoke when run directly as a program."""
     args = parse_arguments()
 
-    df = pd.read_csv(args.infile, sep='\s+', names=["amplicon", "meancov", "gene"])
+    df = pd.read_csv(args.infile, sep=r'\s+', names=["amplicon", "meancov", "gene"])
 
     df['offsetcov'] = df['meancov'] + 0.1  # shift zero values by 0.1
     df = df.dropna().reset_index(drop=True)

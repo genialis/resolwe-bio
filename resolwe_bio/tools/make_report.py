@@ -28,15 +28,15 @@ def escape_latex(string):
     https://en.wikibooks.org/wiki/LaTeX/Basics#Reserved_Characters
     """
     string = string.replace('\\', '\\\\')
-    string = string.replace('&', '\&')
-    string = string.replace('%', '\%')
-    string = string.replace('$', '\$')
-    string = string.replace('#', '\#')
-    string = string.replace('_', '\_')
-    string = string.replace('{', '\{')
-    string = string.replace('}', '\}')
-    string = string.replace('~', '\textasciitilde ')
-    string = string.replace('^', '\textasciicircum ')
+    string = string.replace('&', r'\&')
+    string = string.replace('%', r'\%')
+    string = string.replace('$', r'\$')
+    string = string.replace('#', r'\#')
+    string = string.replace('_', r'\_')
+    string = string.replace('{', r'\{')
+    string = string.replace('}', r'\}')
+    string = string.replace('~', r'\textasciitilde ')
+    string = string.replace('^', r'\textasciicircum ')
     return string
 
 
@@ -118,7 +118,7 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, uncut
     for line in data:
         if long_columns:
             for col_index in long_columns:
-                if ('\href' in line[col_index] or col_index in uncut_columns):
+                if (r'\href' in line[col_index] or col_index in uncut_columns):
                     # If hyperlink line or `uncut_columns`, don't do a thing.
                     new_val = line[col_index]
                 else:
@@ -136,11 +136,11 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, uncut
 def snp_href(snpid):
     """Create LaTeX hyperlink for given SNP ID."""
     if snpid.startswith('rs'):
-        url = 'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
+        url = r'http://www.ncbi.nlm.nih.gov/snp/?term={}'.format(snpid)
     elif snpid.startswith('COSM'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/mutation/overview?genome=37\&id={}'.format(snpid.lstrip('COSM'))
     elif snpid.startswith('COSN'):
-        url = 'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
+        url = r'http://cancer.sanger.ac.uk/cosmic/ncv/overview?genome=37\&id={}'.format(snpid.lstrip('COSN'))
     else:
         return snpid
     return '\\href{{{}}}{{{}}}'.format(url, escape_latex(snpid))
@@ -237,8 +237,8 @@ if __name__ == '__main__':
             uncovered_amplicons = [['/', '/']]
             message = 'All amplicons are completely covered with short reads.'
             sentence_text = '\\medskip \\noindent \n {{\\boldfont ' + message + '}} \n\n \\lightfont \n'
-        caption = 'Amplicons with coverage $<$ 100\%'
-        table_text = list_to_tex_table(uncovered_amplicons, header=['Amplicon name', '\% covered'], caption=caption)
+        caption = r'Amplicons with coverage $<$ 100\%'
+        table_text = list_to_tex_table(uncovered_amplicons, header=['Amplicon name', r'\% covered'], caption=caption)
         template = template.replace('{#BAD_AMPLICON_TABLE#}', sentence_text + table_text)
 
         # Make tables with variants for each variant caller.
