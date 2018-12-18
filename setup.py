@@ -66,7 +66,7 @@ setuptools.setup(
             'pylint~=1.8.0',
             'tblib>=1.3.0',
             'check-manifest',
-            'readme_renderer',
+            'twine',
         ],
     },
     classifiers=[
