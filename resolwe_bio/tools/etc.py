@@ -35,10 +35,10 @@ if args.names:
         if ndx > 0:
             try:
                 times.append(int(name[ndx + 2:ndx + 4]))
-            except:  # pylint: disable=bare-except
+            except Exception:
                 try:
                     times.append(int(name[ndx - 2:ndx]))
-                except:  # pylint: disable=bare-except
+                except Exception:
                     pass
     if len(times) > 0 and len(times) != len(files):
         raise AttributeError("Found some times but not for all time points.")

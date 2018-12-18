@@ -54,7 +54,7 @@ def main():
             file_name = get_file_name(session, file_id, headers)
             download_file(session, file_id, file_name, headers)
             output(args.output, 'filename={}'.format(file_name))
-    except:
+    except Exception:
         if args.verbose:
             traceback.print_exc()
         else:

@@ -127,12 +127,12 @@ def get_clustering(
             metric=distance_metric,
             optimal_ordering=order,
         )
-    except:
+    except Exception:
         msg = 'Cannot compute linkage.'
         set_error(msg)
     try:
         dend = dendrogram(link, no_plot=True)
-    except:
+    except Exception:
         msg = 'Cannot compute dendrogram.'
         set_error(msg)
     return link, dend
