@@ -298,7 +298,7 @@
       memory: 8192
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.4.1
+  version: 1.5.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample
@@ -331,8 +331,23 @@
           value: --local
     - name: speed
       label: Speed vs. Sensitivity
+      description: >
+        A quick setting for aligning fast or accurately. This option is a shortcut for parameters as follows:
+
+        For --end-to-end:
+         --very-fast            -D 5 -R 1 -N 0 -L 22 -i S,0,2.50
+         --fast                 -D 10 -R 2 -N 0 -L 22 -i S,0,2.50
+         --sensitive            -D 15 -R 2 -N 0 -L 22 -i S,1,1.15 (default)
+         --very-sensitive       -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+
+        For --local:
+         --very-fast-local      -D 5 -R 1 -N 0 -L 25 -i S,1,2.00
+         --fast-local           -D 10 -R 2 -N 0 -L 22 -i S,1,1.75
+         --sensitive-local      -D 15 -R 2 -N 0 -L 20 -i S,1,0.75 (default)
+         --very-sensitive-local -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+
       type: basic:string
-      default: --sensitive
+      required: false
       choices:
         - label: Very fast
           value: --very-fast
@@ -375,6 +390,63 @@
           description: |
             The maximum fragment length for valid paired-end alignments.
           default: 500
+    - name: alignment_options
+      label: Alignment options
+      group:
+        - name: N
+          label: Number of mismatches allowed in seed alignment (N)
+          type: basic:integer
+          required: false
+          description: >
+            Sets the number of mismatches to allowed in a seed alignment during multiseed alignment. Can be set to 0 or
+            1. Setting this higher makes alignment slower (often much slower) but increases sensitivity. Default: 0.
+        - name: L
+          label: Length of seed substrings (L)
+          type: basic:integer
+          required: false
+          description: >
+            Sets the length of the seed substrings to align during multiseed alignment. Smaller values make alignment
+            slower but more sensitive. Default: the --sensitive preset is used by default for end-to-end alignment and
+            --sensitive-local for local alignment. See documentation for details.
+        - name: gbar
+          label: Disallow gaps within positions (gbar)
+          type: basic:integer
+          required: false
+          description: >
+            Disallow gaps within <int> positions of the beginning or end of the read. Default: 4.
+        - name: mp
+          label: Maximal and minimal mismatch penalty (mp)
+          type: basic:string
+          required: false
+          description: >
+            Sets the maximum (MX) and minimum (MN) mismatch penalties, both integers. A number less than or equal to
+            MX and greater than or equal to MN is subtracted from the alignment score for each position where a read
+            character aligns to a reference character, the characters do not match, and neither is an N. If
+            --ignore-quals is specified, the number subtracted quals MX. Otherwise, the number subtracted is
+            MN + floor((MX-MN)(MIN(Q, 40.0)/40.0)) where Q is the Phred quality value. Default for MX, MN: 6,2.
+        - name: rdg
+          label: Set read gap open and extend penalties (rdg)
+          type: basic:string
+          required: false
+          description: >
+            Sets the read gap open (<int1>) and extend (<int2>) penalties. A read gap of length N gets a penalty of
+            <int1> + N * <int2>. Default: 5,3.
+        - name: rfg
+          label: Set reference gap open and close penalties (rfg)
+          type: basic:string
+          required: false
+          description: >
+            Sets the reference gap open (<int1>) and extend (<int2>) penalties. A reference gap of length N gets a
+            penalty of <int1> + N * <int2>. Default: 5,3.
+        - name: score_min
+          label: Minimum alignment score needed for "valid" alignment (score_min)
+          type: basic:string
+          required: false
+          description: >
+            Sets a function governing the minimum alignment score needed for an alignment to be considered "valid" (i.e.
+            good enough to report). This is a function of read length. For instance, specifying L,0,-0.6 sets the
+            minimum-score function to f(x) = 0 + -0.6 * x, where x is the read length. The default in
+            --end-to-end mode is L,-0.6,-0.6 and the default in --local mode is G,20,8.
     - name: start_trimming
       label: Initial trimming
       group:
@@ -475,6 +547,7 @@
         fi
       fi
 
+      echo "klele sn"
       s_mode={{ speed }}
       if [ {{ mode }} == --local ]; then
         s_mode={{ speed }}-local
@@ -510,10 +583,19 @@
       echo "ALIGNING with bowtie2:"
       {% if reads|type|subtype('data:reads:fastq:single:') or PE_options.use_se %}
         bowtie2 \
-          {{mode}} $a_mode $s_mode \
+          {{ mode }} $a_mode \
+          {% if speed %} $s_mode {% endif %} \
           -p {{requirements.resources.cores}} \
           --trim5 {{start_trimming.trim_5}} \
           --trim3 {{start_trimming.trim_3}} \
+          {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
+          {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
+          {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
+          {% endif %} \
+          {% if alignment_options.mp %} --mp {{ alignment_options.mp }} {% endif %} \
+          {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
+          {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
+          {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
           -x "${INDEX}" \
           -U "${fw_reads}" \
           -S "${FW_NAME}_align_unsorted.sam" \
@@ -528,11 +610,20 @@
           {% for c in range(1, trimming.trim_iter + 1) %}
             echo -e "\nTrimming iteration "{{ c }}"; "{{ c * trimming.trim_nucl }}" bases trimmed" >> "report.txt"
             bowtie2 \
-              {{mode}} $a_mode $s_mode \
+              {{ mode }} $a_mode \
+              {% if speed %} $s_mode {% endif %} \
               -x "${INDEX}" \
               -p {{requirements.resources.cores}} \
               --trim5 {{start_trimming.trim_5}} \
-              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
+              --trim3 {{c * trimming.trim_nucl + start_trimming.trim_3 }} \
+              {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
+              {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
+              {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
+              {% endif %} \
+              {% if alignment_options.mp %} --mp {{ alignment_options.mp }} {% endif %} \
+              {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
+              {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
+              {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
               -U "${FW_NAME}_unmapped"{{ c }}".fq" \
               -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
               --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" 2>> "report.txt"
@@ -550,15 +641,24 @@
 
       {% else %}
         bowtie2 \
-          {{mode}} $a_mode $s_mode \
+          {{ mode }} $a_mode \
+          {% if speed %} $s_mode {% endif %} \
           -x "${INDEX}" \
-          -p {{requirements.resources.cores}} \
-          --trim5 {{start_trimming.trim_5}} \
-          --trim3 {{start_trimming.trim_3}} \
-          {% if not PE_options.discordantly %}--no-discordant{% endif %} \
-          {% if not PE_options.rep_se %}--no-mixed{% endif %} \
-          --minins {{ PE_options.minins}} \
-          --maxins {{ PE_options.maxins}} \
+          -p {{ requirements.resources.cores }} \
+          --trim5 {{ start_trimming.trim_5 }} \
+          --trim3 {{ start_trimming.trim_3 }} \
+          {% if not PE_options.discordantly %} --no-discordant {% endif %} \
+          {% if not PE_options.rep_se %} --no-mixed {% endif %} \
+          {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
+          {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
+          {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
+          {% endif %} \
+          {% if alignment_options.mp %} --mp {{ alignment_options.mp }} {% endif %} \
+          {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
+          {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
+          {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+          --minins {{ PE_options.minins }} \
+          --maxins {{ PE_options.maxins }} \
           -1 "${fw_reads}" \
           -2 "${rw_reads}" \
           -S "${FW_NAME}_align_unsorted.sam" \
@@ -572,15 +672,24 @@
           {% for c in range(1, trimming.trim_iter + 1) %}
             echo -e "\nTrimming iteration "{{ c }}"; "{{ c * trimming.trim_nucl }}" bases trimmed" >> "report.txt"
             bowtie2 \
-              {{mode}} $a_mode $s_mode \
+              {{ mode }} $a_mode \
+              {% if speed %} $s_mode {% endif %} \
               -x "${INDEX}" \
-              -p {{requirements.resources.cores}} \
-              --trim5 {{start_trimming.trim_5}} \
-              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
-              {% if not PE_options.discordantly %}--no-discordant{% endif %} \
-              {% if not PE_options.rep_se %}--no-mixed{% endif %} \
-              --minins {{ PE_options.minins}} \
-              --maxins {{ PE_options.maxins}} \
+              -p {{requirements.resources.cores }} \
+              --trim5 {{start_trimming.trim_5 }} \
+              --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3 }} \
+              {% if not PE_options.discordantly %} --no-discordant {% endif %} \
+              {% if not PE_options.rep_se %} --no-mixed {% endif %} \
+              {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
+              {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
+              {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
+              {% endif %} \
+              {% if alignment_options.mp %} --mp {{ alignment_options.mp }} {% endif %} \
+              {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
+              {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
+              {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+              --minins {{ PE_options.minins }} \
+              --maxins {{ PE_options.maxins }} \
               -1 "${FW_NAME}_unmapped"{{ c }}"_1.fq" \
               -2 "${FW_NAME}_unmapped"{{ c }}"_2.fq" \
               -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
@@ -638,4 +747,4 @@
       re-save build {{genome.build}}
 
       #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${FW_NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}
+      bamtobigwig.sh "${FW_NAME}.bam" {{ requirements.resources.cores }} 50 480 {{ genome.species }}

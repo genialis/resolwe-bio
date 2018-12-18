@@ -54,11 +54,15 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             reads_paired = self.prepare_paired_reads(mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
                                                      mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'])
 
+        # Values for alignment options are default according to the documentation. However, L may not be set
+        # correctly as there is some incongruency. See https://github.com/BenLangmead/bowtie2/issues/215
         inputs = {
             'genome': genome.pk,
             'reads': reads.pk,
             'trimming': {'trim_iter': 2, 'trim_nucl': 4},
-            'reporting': {'rep_mode': "def"}
+            'reporting': {'rep_mode': "def"},
+            'alignment_options': {'N': 0, 'gbar': 4, 'L': 22, 'mp': '6', 'rdg': '5,3', 'rfg': '5,3',
+                                  'score_min': 'L,-0.6,-0.6'}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_reads_report.txt')
@@ -69,7 +73,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'genome': genome.id,
             'reads': reads_paired.id,
             'trimming': {'trim_iter': 2, 'trim_nucl': 4},
-            'reporting': {'rep_mode': "def"}
+            'reporting': {'rep_mode': "def"},
+            'alignment_options': {'N': 0, 'gbar': 4, 'L': 22, 'mp': '6,2', 'rdg': '5,3', 'rfg': '5,3',
+                                  'score_min': 'L,-0.6,-0.6'}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_paired_end_report.txt')
@@ -79,7 +85,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'reads': reads_paired.id,
             'trimming': {'trim_iter': 2, 'trim_nucl': 4},
             'reporting': {'rep_mode': "def"},
-            'PE_options': {'use_se': True}
+            'PE_options': {'use_se': True},
+            'alignment_options': {'N': 0, 'gbar': 4, 'L': 22, 'mp': '6,2', 'rdg': '5,3', 'rfg': '5,3',
+                                  'score_min': 'L,-0.6,-0.6'}
         }
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_use_SE_report.txt')

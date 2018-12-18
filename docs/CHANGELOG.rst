@@ -28,6 +28,7 @@ Changed
   schemas: ``rna-seq-quantseq``, ``bcm-workflow-rnaseq``,
   ``bcm-workflow-chipseq``, ``bcm-workflow-wgbs``, ``dicty-align-reads``,
   ``dicty-etc``, ``affy`` and ``workflow-chip-seq``.
+- Expose additional parameters of ``bowtie2`` process
 
 Fixed
 -----
