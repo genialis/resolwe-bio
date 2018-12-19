@@ -6,14 +6,14 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+16.0.0 2018-12-19
+=================
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 14.x
-- **BACKWARD INCOMPATIBLE:** Remove obsolete processes ``findsimilar``.
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes ``findsimilar``
 - **BACKWARD INCOMPATIBLE:** Include ENCODE-proposed QC analysis metrics
   methodology in the ``macs2-callpeak`` process. Simplified MACS2
   analysis inputs now allow the use of sample relations
@@ -21,7 +21,7 @@ Changed
   automatically using the ``macs2-batch`` or ``macs2-rose2-batch``
   processes.
 - **BACKWARD INCOMPATIBLE:** Update ``workflow-atac-seq`` inputs to
-  match the updated ``macs2-callpeak`` process.
+  match the updated ``macs2-callpeak`` process
 - Use ``resolwebio/rnaseq:4.0.0`` Docker image in
   ``alignment-star-index``, ``bbduk-single``, ``bbduk-paired``,
   ``cuffdiff``, ``cufflinks``, ``cuffmerge``, ``cuffnorm``,
@@ -37,47 +37,47 @@ Changed
   ``upload-fasta-nucl``, ``upload-fastq-single``,
   ``upload-fastq-paired``, ``files-to-fastq-single``,
   ``files-to-fastq-paired``, ``upload-gaf``, ``upload-genome``,
-  ``upload-gff3``, ``upload-gtf`` and ``upload-obo``.
+  ``upload-gff3``, ``upload-gtf`` and ``upload-obo``
 - Order statistical groups in expression aggregator output by sample
   descriptor field value
 - Use ``resolwebio/biox:1.0.0`` Docker image in ``etc-bcm``,
-  ``expression-dicty`` and ``mappability-bcm`` processes.
+  ``expression-dicty`` and ``mappability-bcm`` processes
 - Use ``resolwebio/common:1.0.0`` Docker image in ``amplicon-table``,
   ``mergeexpressions``, ``upload-diffexp``, ``upload-etc``,
   ``upload-multiplexed-single`` and ``upload-multiplexed-paired``
-  processes.
+  processes
 - Use ``resolwebio/base:ubuntu-18.04`` Docker image in
   ``create-geneset``, ``create-geneset-venn``,  ``mergeetc``,
   ``prepare-geo-chipseq``, ``prepare-geo-rnaseq``, ``upload-cxb``,
   ``upload-geneset``, ``upload-header-sam``, ``upload-mappability``,
-  ``upload-snpeff`` and ``upload-picard-pcrmetrics`` processes.
+  ``upload-snpeff`` and ``upload-picard-pcrmetrics`` processes
 - Update GATK4 to version 4.0.11.0 in ``resolwebio/dnaseq:4.1.0`` Docker
   image. Install and use JDK v8 by default to ensure compatibility with
   GATK4 package.
 - Use ``resolwebio/dnaseq:4.1.0`` Docker image in ``align-bwa-trim``,
   ``coveragebed``, ``filtering-chemut``, ``lofreq``,
   ``picard-pcrmetrics``, ``upload-master-file``, ``upload-variants-vcf``
-  and ``vc-gatk4-hc`` processes.
+  and ``vc-gatk4-hc`` processes
 - Expose reads quality filtering (q) parameter, reorganize inputs and
-  rename the stats output file in ``alignment-bwa-aln`` process.
+  rename the stats output file in ``alignment-bwa-aln`` process
 - Use ``resolwebio/chipseq:4.0.0`` Docker image in ``chipseq-genescore``,
   ``chipseq-peakscore``, ``macs14``, ``upload-bed`` and ``qc-prepeak``
-  processes.
+  processes
 - Use ``resolwebio/bamliquidator:1.0.0`` Docker image in
-  ``bamliquidator`` and ``bamplot`` processes.
+  ``bamliquidator`` and ``bamplot`` processes
 
 Added
 -----
 - Add biosample source field to ``sample`` descriptor schema
 - Add ``background_pairs`` Jinja expressions filter that accepts a list of
   data objects and orders them in a list of pairs (case, background) based on
-  the background relation between corresponding samples.
+  the background relation between corresponding samples
 - Add ``chipseq-bwa`` descriptor schema. This schema specifies the
   default inputs for BWA ALN aligner process as defined in ENCODE
   ChIP-Seq experiments.
-- Add support for MACS2 result files to MultiQC process.
+- Add support for MACS2 result files to MultiQC process
 - Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
-  processes.
+  processes
 - Add feature symbols to expressions in ``archive-samples`` process
 
 Fixed
