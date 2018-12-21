@@ -25,8 +25,8 @@ parser.add_argument('-m', '--mapping', help='barcode mapping file')
 parser.add_argument('--progress-start', type=float, default=0., help="initial progress")
 args = parser.parse_args()
 
-if (not (args.s or (args.__dict__['1'] and args.__dict__['2'])) or
-        (args.s and args.__dict__['1'] and args.__dict__['2'])):
+if (not (args.s or (args.__dict__['1'] and args.__dict__['2']))
+        or (args.s and args.__dict__['1'] and args.__dict__['2'])):
     sys.stderr.write('Give either unpaired reads or both paired read mates.')
     print()
     exit(1)

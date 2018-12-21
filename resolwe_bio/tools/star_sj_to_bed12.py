@@ -91,9 +91,9 @@ bed_file.loc[:, 'block_sizes'] = (
 # 12: block starts (a comma-separated list of block starts, relative to SJ start)
 # = 0, (SJ end - SJ start + maximum spliced alignment overhang +1 )
 bed_file.loc[:, 'block_starts'] = (
-    '0' +    # first block allways starts at SJ start
-    ',' +
-    ((sj_file.iloc[:, 2]) - (sj_file.iloc[:, 1]) + (sj_file.iloc[:, 8]) + 1).astype(str)
+    '0'    # first block allways starts at SJ start
+    + ','
+    + ((sj_file.iloc[:, 2]) - (sj_file.iloc[:, 1]) + (sj_file.iloc[:, 8]) + 1).astype(str)
 )
 
 bed_file.to_csv('junctions_unsorted.bed', sep='\t', index=False, header=False)

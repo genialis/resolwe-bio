@@ -92,8 +92,8 @@ def list_to_tex_table(data, header=None, caption=None, long_columns=False, wide_
 
     if header:
         lines.append('\\rowcolor{darkblue1}')
-        lines.append('\\leavevmode\\color{white}\\textbf{' +
-                     '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
+        lines.append('\\leavevmode\\color{white}\\textbf{'
+                     + '}& \\leavevmode\\color{white}\\textbf{'.join(header) + '} \\\\')
 
     for line in data:
         if long_columns:
@@ -309,10 +309,10 @@ def prepare_vcf_table(varfile, sample, variants):
 
     # Create hyperlink, and format amino acid changes:
     vcf_table = [
-        line[:-3] +
-        [' '.join(map(gene_href, line[-3].split(',')))] +
-        [' '.join(map(snp_href, line[-2].split(';')))] +
-        [' '.join(format_aa_change(line[-1].split(',')))]
+        line[:-3]
+        + [' '.join(map(gene_href, line[-3].split(',')))]
+        + [' '.join(map(snp_href, line[-2].split(';')))]
+        + [' '.join(format_aa_change(line[-1].split(',')))]
         for line in vcf_table
     ]
     return vcf_table, common_columns
