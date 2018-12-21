@@ -58,12 +58,9 @@ setuptools.setup(
         ],
         'package': ['twine', 'wheel'],
         'test': [
-            # pycodestyle 2.3.0 raises false-positive for variables
-            # starting with 'def'
-            # https://github.com/PyCQA/pycodestyle/issues/617
-            'pycodestyle~=2.2.0',
-            'pydocstyle>=1.0.0',
-            'pylint~=1.8.0',
+            'pycodestyle~=2.4.0',
+            'pydocstyle~=3.0.0',
+            'pylint~=1.9.1',
             'tblib>=1.3.0',
             'check-manifest',
             'twine',
