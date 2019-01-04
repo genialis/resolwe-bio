@@ -103,8 +103,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
     @tag_process('cutadapt-paired')
     def test_cutadapt_paired(self):
         with self.preparation_stage():
-            reads = self.prepare_paired_reads(mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
-                                              mate2=['cutadapt_reverse.fastq.gz'])
+            reads = self.prepare_paired_reads(mate1=['cutadapt mate1.fastq.gz'],
+                                              mate2=['cutadapt mate2.fastq.gz'])
 
             primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
             primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
@@ -156,8 +156,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             reads_single = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
             reads_paired = self.prepare_paired_reads(
-                mate1=['cutadapt forward1.fastq.gz', 'cutadapt_forward2.fastq.gz'],
-                mate2=['cutadapt_reverse.fastq.gz']
+                mate1=['cutadapt mate1.fastq.gz'],
+                mate2=['cutadapt mate2.fastq.gz']
             )
 
         inputs_single = {'reads': reads_single.id}

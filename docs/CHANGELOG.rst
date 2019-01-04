@@ -17,6 +17,9 @@ Added
 -----
 - Add ``dnaio`` Python library to ``resolwebio/rnaseq:4.1.0`` Docker
   image
+- Add the ``FASTQ`` file validator script to the ``upload-fastq-single``,
+  ``upload-fastq-paired``, ``files-to-fastq-single`` and
+  ``files-to-fastq-paired`` processes.
 
 Fixed
 -----

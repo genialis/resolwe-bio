@@ -171,34 +171,82 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('upload-fastq-paired')
     def test_upload_paired_end_reads(self):
+        inputs = {
+            'src1': ['mate1_reordered.fastq.gz', 'mate1_diff_num_reads.fastq.gz'],
+            'src2': ['mate2_reordered.fastq.gz'],
+        }
+        wrong_mates = self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
+        error_msg = ["The number of mate-pair files in split-lane samples must match. 2 and 1 "
+                     "input files were given for the -fq and -fq2 inputs, respectively."]
+        self.assertEqual(wrong_mates.process_error, error_msg)
+
+        inputs = {
+            'src1': ['mate1_reordered.fastq.gz', 'mate1_reordered.fastq.gz'],
+            'src2': ['mate2_reordered.fastq.gz'],
+        }
+        wrong_mates2 = self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
+        error_msg = ["Non-unique input file names detected: ['mate1_reordered.fastq.gz']."]
+        self.assertEqual(wrong_mates2.process_error, error_msg)
+
+        inputs = {
+            'src1': ['mate1_diff_num_reads.fastq.gz'],
+            'src2': ['mate2_diff_num_reads.fastq.gz'],
+        }
+        diff_numb_reads = self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
+        error_msg = ["Format error in mate-pairs mate1_diff_num_reads.fastq.gz and mate2_diff_num_reads.fastq.gz. "
+                     "Error in sequence file at unknown line: Reads are improperly paired. "
+                     "There are more reads in file 2 than in file 1."]
+        self.assertEqual(diff_numb_reads.process_error, error_msg)
+
+        inputs = {
+            'src1': ['mate1_reordered.fastq.gz'],
+            'src2': ['mate2_reordered.fastq.gz'],
+        }
+        unordered_reads = self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
+        error_msg = ["Format error in mate-pairs mate1_reordered.fastq.gz and mate2_reordered.fastq.gz. "
+                     "Error in sequence file at unknown line: Reads are improperly paired. Read "
+                     "name 'read1/1 some text' in file 1 does not match 'read2/2' in file 2."]
+        self.assertEqual(unordered_reads.process_error, error_msg)
+
         inputs = {'src1': ['mate1.fastq.gz'], 'src2': ['mate2.fastq.gz']}
         self.run_process('upload-fastq-paired', inputs, Data.STATUS_ERROR)
 
-        inputs = {'src1': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'],
-                  'src2': ['00Hr.fastq.gz', '20Hr.fastq.gz']}
-
+        inputs = {'src1': ['rRNA forw.fastq.gz'], 'src2': ['rRNA_rew.fastq.gz']}
         reads = self.run_process('upload-fastq-paired', inputs)
-        self.assertFiles(reads, 'fastq', ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'], compression='gzip')
-        self.assertFiles(reads, 'fastq2', ['00Hr.fastq.gz', '20Hr.fastq.gz'], compression='gzip')
+        self.assertFiles(reads, 'fastq', ['rRNA forw.fastq.gz'], compression='gzip')
+        self.assertFiles(reads, 'fastq2', ['rRNA_rew.fastq.gz'], compression='gzip')
         del reads.output['fastqc_url'][0]['total_size']  # Non-deterministic output.
-        del reads.output['fastqc_url'][1]['total_size']  # Non-deterministic output.
         self.assertFields(reads, 'fastqc_url', [{'file': 'fastqc/rRNA forw_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA forw_fastqc'],
-                                                 'size': 343222},
-                                                {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
-                                                 'refs': ['fastqc/rRNA_rew_fastqc'],
-                                                 'size': 323297}])
+                                                 'size': 343222}])
         del reads.output['fastqc_url2'][0]['total_size']  # Non-deterministic output.
-        del reads.output['fastqc_url2'][1]['total_size']  # Non-deterministic output.
-        self.assertFields(reads, 'fastqc_url2', [{'file': 'fastqc/00Hr_fastqc/fastqc_report.html',
-                                                  'refs': ['fastqc/00Hr_fastqc'],
-                                                  'size': 327878},
-                                                 {'file': 'fastqc/20Hr_fastqc/fastqc_report.html',
-                                                  'refs': ['fastqc/20Hr_fastqc'],
-                                                  'size': 287245}])
+        self.assertFields(reads, 'fastqc_url2', [{'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
+                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
+                                                  'size': 323297}])
 
     @tag_process('upload-fastq-single')
     def test_upload_single_end_reads(self):
+        empty_input = self.run_process('upload-fastq-single', {'src': ['empty.fastq.gz']}, Data.STATUS_ERROR)
+        error_msg = ['Input file empty.fastq.gz contains no read sequences.']
+        self.assertEqual(empty_input.process_error, error_msg)
+
+        garbage_input = self.run_process('upload-fastq-single', {'src': ['garbage.fastq.gz']}, Data.STATUS_ERROR)
+        error_msg = ["Error in file garbage.fastq.gz. Error in FASTQ file at line 1: Line expected "
+                     "to start with '@', but found 'S'"]
+        self.assertEqual(garbage_input.process_error, error_msg)
+
+        garbage_input_2 = self.run_process('upload-fastq-single', {'src': ['garbage2.fastq.gz']}, Data.STATUS_ERROR)
+        error_msg = ["Error in file garbage2.fastq.gz. Error in FASTQ file at line 3: Sequence descriptions "
+                     "don't match ('Some random content' != '+++'). The second sequence description must "
+                     "be either empty or equal to the first description."]
+        self.assertEqual(garbage_input_2.process_error, error_msg)
+
+        missing_qual = self.run_process('upload-fastq-single', {'src': ['missing_qual.fastq.gz']}, Data.STATUS_ERROR)
+        error_msg = ["Error in file missing_qual.fastq.gz. Error in FASTQ file at line 16: "
+                     "Premature end of file encountered. The incomplete final record was: "
+                     "'@read4/1\nGACAGGCCGTTTGAATGTTGACGGGATGTT\n+\n'"]
+        self.assertEqual(missing_qual.process_error, error_msg)
+
         inputs = {'src': ['mate1.fastq.gz']}
         self.run_process('upload-fastq-single', inputs, Data.STATUS_ERROR)
 

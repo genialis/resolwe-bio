@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.1.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.1.0
+  version: 2.2.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -49,6 +49,14 @@
       {% endfor %}
 
       FASTQ=(*.fastq)
+      FASTQGZ=(*.fastq.gz)
+
+      re-save-file-list fastq "${FASTQGZ[@]}"
+
+      echo "Validating FASTQ file(s)..."
+      validate_fastq.py -fq "${FASTQGZ[@]}"
+      re-checkrc "Validation of FASTQ file(s) failed."
+
       echo "Postprocessing FastQC..."
       mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
@@ -76,9 +84,6 @@
         fi
       done
 
-      FASTQGZ=(*.fastq.gz)
-      re-save-file-list fastq "${FASTQGZ[@]}"
-
       FASTQC=(*_fastqc.zip)
       FASTQC_URL=()
 
@@ -97,12 +102,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.1.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.1.0
+  version: 2.2.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -176,6 +181,13 @@
 
       FASTQ=(*.fastq)
 
+      re-save-file-list fastq "${FW_FASTQGZ[@]}"
+      re-save-file-list fastq2 "${RW_FASTQGZ[@]}"
+
+      echo "Validating FASTQ file(s)..."
+      validate_fastq.py -fq "${FW_FASTQGZ[@]}" -fq2 "${RW_FASTQGZ[@]}"
+      re-checkrc "Validation of FASTQ file(s) failed."
+
       echo "Postprocessing FastQC..."
       mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
@@ -218,8 +230,6 @@
         fi
       done
 
-      re-save-file-list fastq "${FW_FASTQGZ[@]}"
-      re-save-file-list fastq2 "${RW_FASTQGZ[@]}"
       re-save-file-list fastqc_archive "${FW_FASTQC[@]}"
       re-save-file-list fastqc_archive2 "${RW_FASTQC[@]}"
       re-save-list fastqc_url "${FW_FASTQC_URL[@]}"
@@ -231,9 +241,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.1.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -265,6 +275,11 @@
       {% endfor %}
 
       FASTQGZ=(*.fastq.gz)
+
+      echo "Validating FASTQ file(s)..."
+      validate_fastq.py -fq "${FASTQGZ[@]}"
+      re-checkrc "Validation of FASTQ file(s) failed."
+
       echo "Postprocessing FastQC..."
       mkdir "fastqc" && fastqc "${FASTQGZ[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
@@ -312,9 +327,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.1.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -389,8 +404,11 @@
         RW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       {% endfor %}
 
-      FASTQ=(*.fastq)
+      echo "Validating FASTQ file(s)..."
+      validate_fastq.py -fq "${FW_FASTQGZ[@]}" -fq2 "${RW_FASTQGZ[@]}"
+      re-checkrc "Validation of FASTQ file(s) failed."
 
+      FASTQ=(*.fastq)
       echo "Postprocessing FastQC..."
       mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
