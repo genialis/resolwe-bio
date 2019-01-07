@@ -105,6 +105,7 @@ Added
 - Add to ``resolwebio/rnaseq:4.2.0`` docker image:
 
   - ERCC table
+  - common Genialis fonts and css file
 
 Fixed
 -----

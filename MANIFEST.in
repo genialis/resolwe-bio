@@ -14,4 +14,4 @@ recursive-include resolwe_bio/kb/tests *.py
 recursive-include resolwe_bio/tests/files *
 prune resolwe_bio/tests/files/large
 # include files needed to build Docker images
-recursive-include resolwe_bio/docker_images Dockerfile Dockerfile.* README.md *.sh *.txt *.tex *pdf .placeholder *.html *.yml *.png
+recursive-include resolwe_bio/docker_images Dockerfile Dockerfile.* README.md *.sh *.txt *.tex *pdf .placeholder *.html *.yml *.png *.css *.eot *.svg *.ttf *.woff *.woff2
