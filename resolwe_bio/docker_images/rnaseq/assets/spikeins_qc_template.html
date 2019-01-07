@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="report_ref/genialis.css">
+</head>
+<body>
+
+<h1> QC report for spike-in standards for selected samples. </h1>
+
+<p> Date: {{today}} </p>
+
+<p>
+  Samples analyzed in this report:
+  <ul>
+    {% for sample_name in sample_names %}
+    <li>{{ sample_name }}</li>
+    {% endfor %}
+  </ul>
+</p>
+
+<h2> Measured abundance vs. expected concentration </h2>
+
+<p>
+  <b>
+    Scatter plot of measured abundance (in counts) of ERCC transcripts
+    in log2 scale and their known concentration [attomoles/ul] in the
+    sample in log2 scale.
+  </b>
+The number of undetected ERCC transcripts are noted in
+the legend and are marked with gray points in the scatter plot. The
+coefficient of determination (R-squared value) is calculated by
+comparing measured abundance of ERCCs in the sample with known
+concentration of ERCC spike-ins.
+</p>
+
+<p>
+The histogram above the scatter plot shows the number of ERCCs per
+input concentration. Missing ERCC transcripts are colored in gray.
+</p>
+
+<p>
+The scatter plot helps to infer the following:
+<ol>
+  <li>
+    How well the RNA-seq experiment has measured the known concentration
+    of the spike-ins. The strength of this linear relationship is
+    described with coefficient of determination, which is the fraction
+    of variation in the dependent variable (measured abundance) that is
+    predictable from the independent variable (input concentration). In
+    general, values above 0.9 for example are considered ideal.
+  </li>
+  <li>
+    Whether the data spans the expected dynamic range (ERCC abundances
+    span a 2^20 dynamic range). Based on the limit of detection for the
+    experiment, one can identify and omit any endogenous genes in the
+    sample that are insufficiently expressed for reliable analysis.
+  </li>
+</ol>
+</p>
+
+{% for ercc_img in ercc_imgs %}
+  <p>
+  {% if ercc_img.path %}
+    <img src="{{ercc_img.path}}" width="600">
+  {% else %}
+    No ERCC transcripts detected in {{ercc_img.sample_name}}.
+  {% endif %}
+  </p>
+  <br>
+{% endfor %}
+
+</body>
+</html>
