@@ -15,6 +15,8 @@ Changed
 
 Added
 -----
+- Add ``dnaio`` Python library to ``resolwebio/rnaseq:4.1.0`` Docker
+  image
 
 Fixed
 -----
