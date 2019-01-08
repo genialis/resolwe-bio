@@ -209,30 +209,30 @@ def read_multiplexed(reads1_file, reads2_file, barcodes_file, pool_maps, progres
                 p2 = p1
 
             if r1[:7] == r2[:7] == rbar[:7] and p1 == p2 == pbar:
-                plusline = '+' + ':'.join(r1[:7]) + ' ' + sbar
+                idline = '@' + ':'.join(r1[:7]) + ' ' + sbar
                 if p1 == '1' and p2 == '1':
                     if sbar in barcodes:
                         files[sbar].write(
-                            ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
+                            (idline + '\n' + s1 + '\n' + '+' + '\n' + r1[-2] + '\n').encode('utf-8'))
                         if reads2_file:
                             files[sbar + '2'].write(
-                                ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode(
+                                (idline + '\n' + s2 + '\n' + '+' + '\n' + r2[-2] + '\n').encode(
                                     'utf-8'))
                         matched += 1
                     else:
                         files['notmatched'].write(
-                            ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
+                            (idline + '\n' + s1 + '\n' + '+' + '\n' + r1[-2] + '\n').encode('utf-8'))
                         if reads2_file:
                             files['notmatched2'].write(
-                                ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode(
+                                (idline + '\n' + s2 + '\n' + '+' + '\n' + r2[-2] + '\n').encode(
                                     'utf-8'))
                         notmatched += 1
                 else:
                     files['badquality'].write(
-                        ('@' + str(readid) + '\n' + s1 + '\n' + plusline + '\n' + r1[-2] + '\n').encode('utf-8'))
+                        (idline + '\n' + s1 + '\n' + '+' + '\n' + r1[-2] + '\n').encode('utf-8'))
                     if reads2_file:
                         files['badquality2'].write(
-                            ('@' + str(readid) + '\n' + s2 + '\n' + plusline + '\n' + r2[-2] + '\n').encode('utf-8'))
+                            (idline + '\n' + s2 + '\n' + '+' + '\n' + r2[-2] + '\n').encode('utf-8'))
                     badquality += 1
             else:
                 print("SKIPPED: {}, p1: {}, p2: {}, pbar: {}".format(readid, p1, p2, pbar))

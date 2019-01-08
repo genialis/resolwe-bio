@@ -23,6 +23,8 @@ Added
 
 Fixed
 -----
+- Fix the format of the output ``FASTQ`` file in the ``demultiplex.py``
+  script.
 
 
 =================
