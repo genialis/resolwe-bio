@@ -100,6 +100,8 @@ Added
 - Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
   processes
 - Add feature symbols to expressions in ``archive-samples`` process
+- Set ``MPLBACKEND`` evirnoment variable to ``Agg`` in
+  ``resolwebio/common:1.0.1`` Docker image
 - Add to ``resolwebio/rnaseq:4.2.0`` docker image:
 
   - ERCC table
