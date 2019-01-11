@@ -19,12 +19,20 @@ Added
   image
 - Add the ``FASTQ`` file validator script to the ``upload-fastq-single``,
   ``upload-fastq-paired``, ``files-to-fastq-single`` and
-  ``files-to-fastq-paired`` processes.
+  ``files-to-fastq-paired`` processes
+- Add to ``resolwebio/rnaseq:4.2.0`` docker image:
+
+  - ERCC table
+  - common Genialis fonts and css file
+  - spike-in QC report template
+- Add ``spikein-qc`` process
+- Set ``MPLBACKEND`` evirnoment variable to ``Agg`` in
+  ``resolwebio/common:1.0.1`` Docker image
 
 Fixed
 -----
 - Fix the format of the output ``FASTQ`` file in the ``demultiplex.py``
-  script.
+  script
 
 
 =================
@@ -100,14 +108,6 @@ Added
 - Add ``macs2-batch``, ``macs2-rose2-batch`` and ``workflow-macs-rose``
   processes
 - Add feature symbols to expressions in ``archive-samples`` process
-- Set ``MPLBACKEND`` evirnoment variable to ``Agg`` in
-  ``resolwebio/common:1.0.1`` Docker image
-- Add to ``resolwebio/rnaseq:4.2.0`` docker image:
-
-  - ERCC table
-  - common Genialis fonts and css file
-  - spike-in QC report template
-- Add ``spikein-qc`` process.
 
 Fixed
 -----
