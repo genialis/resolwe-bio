@@ -268,7 +268,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
 
         self.assertFields(prepeak, 'species', 'Homo sapiens')
         self.assertFields(prepeak, 'build', 'hg19')
-        self.assertFields(prepeak, 'fraglen', 225)
+        self.assertFields(prepeak, 'fraglen', 235)
         self.assertFile(prepeak, 'chip_qc', 'prepeak_pe_qc_report.txt')
         self.assertFileExists(prepeak, 'tagalign')
 

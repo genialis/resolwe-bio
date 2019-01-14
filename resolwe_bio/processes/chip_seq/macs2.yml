@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.1
+  version: 4.0.2
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -562,8 +562,18 @@
 
           # Transform deduplicated bam to tagAlign
           bedtools bamtobed -i "${NAME}_filtered.bam" | \
-          awk 'BEGIN{OFS="\t"}{$4="N";$5="1000";print $0}' > "${NAME}.tagAlign"
+          awk 'BEGIN{OFS="\t"}{$4="N";$5="1000";print $0}' > "${NAME}_tmp.tagAlign"
           re-checkrc "Conversion to tagAlign failed"
+
+          # Tn5 transposon shifting
+          {% if prepeakqc_settings.tn5 %}
+            awk -F $'\t' 'BEGIN {OFS = FS}{
+              if ($6 == "+") {$2 = $2 + 4}
+              else if ($6 == "-") {$3 = $3 - 5} print $0
+            }' "${NAME}_tmp.tagAlign" > "${NAME}.tagAlign"
+          {% else %}
+            mv "${NAME}_tmp.tagAlign" "${NAME}.tagAlign"
+          {% endif %}
 
           # Subsample tagAlign
           grep -v "chrM" "${NAME}.tagAlign" | \
@@ -638,13 +648,23 @@
 
           # Transform deduplicated bam to tagAlign
           bedtools bamtobed -bedpe -mate1 -i "${NAME}_filtered_tmp.bam" | \
-          awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\tN\t1000\t%s\n%s\t%s\t%s\tN\t1000\t%s\n",$1,$2,$3,$9,$4,$5,$6,$10}' > "${NAME}.tagAlign"
+          awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\tN\t1000\t%s\n%s\t%s\t%s\tN\t1000\t%s\n",$1,$2,$3,$9,$4,$5,$6,$10}' > "${NAME}_tmp.tagAlign"
           re-checkrc "Conversion to tagAlign failed"
+
+          # Tn5 transposon shifting
+          {% if prepeakqc_settings.tn5 %}
+            awk -F $'\t' 'BEGIN {OFS = FS}{
+              if ($6 == "+") {$2 = $2 + 4}
+              else if ($6 == "-") {$3 = $3 - 5} print $0
+            }' "${NAME}_tmp.tagAlign" > "${NAME}.tagAlign"
+          {% else %}
+            mv "${NAME}_tmp.tagAlign" "${NAME}.tagAlign"
+          {% endif %}
 
           # Subsample tagAlign
           grep -v "chrM" "${NAME}.tagAlign" | \
+          sed 'N;s/\n/\t/' | \
           shuf -n {{ prepeakqc_settings.n_sub }} --random-source="${NAME}.tagAlign" | \
-          sed 'N;s/\\n/\\t/' | \
           awk 'BEGIN{OFS="\t"}{printf "%s\t%s\t%s\t%s\t%s\t%s\n",$1,$2,$3,$4,$5,$6}' | \
           gzip -nc > "${NAME}_subsampled.tagAlign.gz"
           re-checkrc "Subsampling failed"
@@ -675,20 +695,13 @@
         paste "${NAME}_align_metrics.txt" "${NAME}_duplicates_metrics_tmp.txt" "${NAME}_pbc_qc.txt" "${NAME}_cc_score.txt" | \
         cut -f 1,2,3,5,6,9,12,18,19,20,29,30 > "${NAME}_prepeak_qc_report.txt"
 
-        # Tn5 transposon shifting
-        {% if prepeakqc_settings.tn5 %}
-          awk -F $'\t' 'BEGIN {OFS = FS}{
-            if ($6 == "+") {$2 = $2 + 4}
-            else if ($6 == "-") {$3 = $3 - 5} print $0
-          }' "${NAME}.tagAlign" | gzip -c > "${NAME}_tn5.tagAlign.gz"
-        {% endif %}
-
         gzip "${NAME}.tagAlign"
 
         {% if alignment == control %}
             re-save-file control_prepeak_qc "${NAME}_prepeak_qc_report.txt"
             TAGALIGN_OUT_FIELD="control_tagalign"
             {% if prepeakqc_settings.tn5 %}
+              mv "${NAME}.tagAlign.gz" "${NAME}_tn5.tagAlign.gz"
               re-save-file ${TAGALIGN_OUT_FIELD} "${NAME}_tn5.tagAlign.gz"
               CONTROL_TAGALIGN="${NAME}_tn5.tagAlign.gz"
             {% else %}
@@ -699,6 +712,7 @@
             re-save-file case_prepeak_qc "${NAME}_prepeak_qc_report.txt"
             TAGALIGN_OUT_FIELD="case_tagalign"
             {% if prepeakqc_settings.tn5 %}
+              mv "${NAME}.tagAlign.gz" "${NAME}_tn5.tagAlign.gz"
               re-save-file ${TAGALIGN_OUT_FIELD} "${NAME}_tn5.tagAlign.gz"
               CASE_TAGALIGN="${NAME}_tn5.tagAlign.gz"
             {% else %}

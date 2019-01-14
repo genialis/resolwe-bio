@@ -33,6 +33,8 @@ Fixed
 -----
 - Fix the format of the output ``FASTQ`` file in the ``demultiplex.py``
   script
+- Fix NSC and RSC QC metric calculation for ATAC-seq and paired-end
+  ChIP-seq samples in ``macs2-callpeak`` and ``qc-prepeak`` processes
 
 
 =================
