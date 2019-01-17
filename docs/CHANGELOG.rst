@@ -6,27 +6,28 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+16.1.0 2019-01-17
+=================
 
 Changed
 -------
 
 Added
 -----
-- Add ``dnaio`` Python library to ``resolwebio/rnaseq:4.1.0`` Docker
-  image
 - Add the ``FASTQ`` file validator script to the ``upload-fastq-single``,
   ``upload-fastq-paired``, ``files-to-fastq-single`` and
   ``files-to-fastq-paired`` processes
-- Add to ``resolwebio/rnaseq:4.2.0`` docker image:
+- Add ``spikein-qc`` process
+- Add to ``resolwebio/rnaseq:4.1.0`` Docker image:
+
+  - ``dnaio`` Python library
+- Add to ``resolwebio/rnaseq:4.2.0`` Docker image:
 
   - ERCC table
   - common Genialis fonts and css file
   - spike-in QC report template
-- Add ``spikein-qc`` process
-- Set ``MPLBACKEND`` evirnoment variable to ``Agg`` in
+- Set ``MPLBACKEND`` environment variable to ``Agg`` in
   ``resolwebio/common:1.0.1`` Docker image
 
 Fixed
