@@ -396,7 +396,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             expression_3 = self.prepare_expression(
                 f_exp='exp3_cpm_ercc_sirv.tab.gz',
                 f_type='CPM',
-                name='Sample 3',
+                name='Sample3.txt',  # Test for sample names that might look like filename extensions
                 source='ENSEMBL',
                 species='Homo sapiens')
             expression_4 = self.prepare_expression(
@@ -421,7 +421,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(expected_names, [
             "Sample 1 (ERCC spike-in's).png",
             "Sample 2 (ERCC spike-in's).png",
-            "Sample 3 (ERCC spike-in's).png",
+            "Sample3.txt (ERCC spike-in's).png",
         ])
 
         self.assertFileExists(sirv_set3, 'report')

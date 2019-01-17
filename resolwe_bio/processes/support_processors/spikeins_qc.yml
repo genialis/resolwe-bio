@@ -8,7 +8,7 @@
       docker:
         image: resolwebio/rnaseq:4.2.0
   data_name: 'Spike-ins QC ({% for s in samples %}{{ s | sample_name }}{{ ", " if not loop.last }}{% endfor %})'
-  version: 0.0.1
+  version: 0.0.2
   type: data:spikeins
   category: other
   persistence: CACHED

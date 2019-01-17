@@ -207,7 +207,7 @@ def plot_histogram_scatter(expected, zero, nonzero, spikein_type, sample_name, e
     )
     title = "{} ({} spike-in's)".format(sample_name, spikein_type)
     fig.suptitle(title)
-    plt.savefig(title)
+    plt.savefig(title + '.png', format='png')
     plt.close()
 
 
