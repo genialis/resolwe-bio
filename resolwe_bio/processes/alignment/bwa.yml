@@ -241,7 +241,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.3.0
+  version: 1.3.1
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -333,6 +333,7 @@
           -b {{missmatch}} \
           -q {{gap_o}} \
           -r {{gap_e}} \
+          -t {{ requirements.resources.cores }} \
           "${INDEX}" \
           fw_reads.fastq 1> "${NAME}_align_unsorted.sam"
       {% else %}
@@ -342,6 +343,7 @@
           -b {{missmatch}} \
           -q {{gap_o}} \
           -r {{gap_e}} \
+          -t {{ requirements.resources.cores }} \
           "${INDEX}" \
           fw_reads.fastq \
           rw_reads.fastq 1> "${NAME}_align_unsorted.sam"
@@ -391,7 +393,7 @@
     resources:
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.4.0
+  version: 1.4.1
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -509,6 +511,7 @@
           aln \
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          -t {{ requirements.resources.cores }} \
           -q {{ q }} \
           "${INDEX}" \
           fw_reads.fastq > "${NAME}_align.sai"
@@ -523,6 +526,7 @@
           aln \
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          -t {{ requirements.resources.cores }} \
           -q {{ q }} \
           "${INDEX}" \
           fw_reads.fastq > fw_align.sai
@@ -531,6 +535,7 @@
           aln \
           {% if use_edit %}-n {{edit_value}}{% else %}-n {{fraction}}{% endif %} \
           {% if seeds %}-l {{ seed_length }} -k {{ seed_dist }}{% endif %} \
+          -t {{ requirements.resources.cores }} \
           "${INDEX}" \
           -q {{ q }} \
           rw_reads.fastq > rw_align.sai
