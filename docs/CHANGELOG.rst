@@ -13,7 +13,12 @@ Unreleased
 Changed
 -------
 - Enable multithreading mode in ``alignment-bwa-aln`` and
-  ``alignment-bwa-sw`` processes
+  ``alignment-bwa-sw``
+
+Fixed
+-----
+- Remove ``pip`` ``--process-dependency-links`` argument in testenv
+  settings
 
 
 =================
