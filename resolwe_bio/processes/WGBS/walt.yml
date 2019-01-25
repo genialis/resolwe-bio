@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.0.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.0.0
+  version: 1.0.1
   type: data:alignment:mr:walt
   category: Align
   flow_collection: sample
@@ -119,7 +119,12 @@
         re-progress 0.7
       {% endif %}
 
-      LC_ALL=C sort -k 1,1 -k 2,2n -k 3,3n -k 6,6 -o "${NAME}_sorted.mr" "${NAME}.mr"
+      LC_ALL=C \
+      sort \
+        -k 1,1 -k 2,2n -k 3,3n -k 6,6 \
+        -S{{ requirements.resources.memory }}M \
+        -o "${NAME}_sorted.mr" \
+        "${NAME}.mr"
       re-progress 0.8
 
       {% if rm_dup %}

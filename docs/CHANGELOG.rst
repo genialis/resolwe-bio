@@ -19,6 +19,8 @@ Fixed
 -----
 - Remove ``pip`` ``--process-dependency-links`` argument in testenv
   settings
+- Fix walt getting killed when ``sort`` runs out of memory. The ``sort``
+  command buffer size was limited to the process memory limit.
 
 
 =================
