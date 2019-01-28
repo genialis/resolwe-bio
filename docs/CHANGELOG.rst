@@ -14,6 +14,8 @@ Changed
 -------
 - Enable multithreading mode in ``alignment-bwa-aln`` and
   ``alignment-bwa-sw``
+- Lineary lower the timeout for BigWig calculation when running on
+  multiple cores
 
 Fixed
 -----

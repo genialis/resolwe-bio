@@ -31,7 +31,7 @@ time=`python -c "import os; print(max(os.path.getsize('${bam_file}') / 1024**3, 
 
 if [ "${tool}" == "deeptools" ]
 then
-  timeout "${time}" \
+  timeout "$((${time}/${number_of_cores}))" \
     bamCoverage \
       --binSize "${bin_size}" \
       --bam "${bam_file}" \
@@ -54,7 +54,7 @@ then
 else
   samtools idxstats "${bam_file}" | cut -f -2 | head -n -1 > chrom.sizes
   re-checkrc "Creating a file with chromosome sizes failed."
-  timeout "${time}" \
+  timeout "$((${time}/${number_of_cores}))" \
     genomeCoverageBed \
       -bg \
       -ibam "${bam_file}" \
