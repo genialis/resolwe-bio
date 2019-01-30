@@ -13,28 +13,23 @@
       docker:
         image: resolwebio/base:ubuntu-18.04
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 1.1.0
+  version: 2.0.0
   type: data:other:geo:chipseq
   category: Other
   persistence: CACHED
   description: >
-    Prepare ChIP-Seq data for GEO upload.
+    Prepare ChIP-seq data for GEO upload.
   input:
     - name: reads
       label: Reads
       type: list:data:reads:fastq
       description: >
         List of reads objects. Fastq files will be used.
-    - name: macs14
-      label: Macs14
-      type: list:data:chipseq:callpeak:macs14
+    - name: macs
+      label: MACS
+      type: list:data:chipseq:callpeak
       description: >
-        List of macs14 objects. Wiggle files will be used.
-    - name: relations
-      label: Relations
-      type: list:basic:string
-      description: >
-        Sample to background mapper. Accepted format <sample name>:<background sample name>.
+        List of MACS2 or MACS14 objects. BedGraph (MACS2) or Wiggle (MACS14) files will be used.
     - name: name
       label: Collection name
       type: basic:string
@@ -52,19 +47,14 @@
       NAME={{ name }}_ChIP-Seq
       mkdir "${NAME}"
 
-      {% set macs_first = macs14|first %}
-
+      {% set macs_first = macs|first %}
+      {% set sample_ids = reads|map('sample_id') %}
       declare -A SAMPLE_TO_PAIRED
-      declare -A SAMPLE_TO_BACKGROUND
 
-      {% for relation in relations %}
-        SAMPLE_TO_BACKGROUND[{{ relation.split(':')[0].split('.')[0] }}]={{ relation.split(':')[1].split('.')[0] }}
-      {% endfor %}
-
-      echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}".txt
+      echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}.txt"
 
       {% for read in reads %}
-        SAMPLE_NAME=`basename {{ read|sample_name }} .fastq.gz`
+        SAMPLE_NAME=$(basename {{ read|sample_name }} .fastq.gz)
         PAIRED=SE
         MATE1_LABEL=""
         MATE2_LABEL=""
@@ -85,9 +75,9 @@
           awk '(NR + 2) % 4 == 0' > subsample.txt
 
           # Find the most occurance read length in subsample.txt
-          LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+          LENGTH=$(awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1)
 
-          echo -e "${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+          echo -e "${SAMPLE_NAME}${MATE1_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}.txt"
         {% endfor %}
         {% if read|type|subtype('data:reads:fastq:paired:') %}
           {% for fastq in read.fastq2 %}
@@ -100,36 +90,54 @@
             awk '(NR + 2) % 4 == 0' > subsample.txt
 
             # Find the most occurance read length in subsample.txt
-            LENGTH=`awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1`
+            LENGTH=$(awk '{print length}' subsample.txt | sort | uniq -c | awk -F ' ' '{print $2}' | sort -r | head -n1)
 
-            echo -e "${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}".txt
+            echo -e "${SAMPLE_NAME}${MATE2_LABEL}.fastq.gz\t${SAMPLE_NAME}\t${MD5}\t${PAIRED}\t${LENGTH}" >> "${NAME}.txt"
           {% endfor %}
         {% endif %}
       {% endfor %}
 
-      {% for macs in macs14 %}
-        {% if macs_first.species != macs.species %}
+      {% for mac in macs %}
+        {% if macs_first.species != mac.species %}
           re-warning "All macs data objects must be of the same Species."
-          re-error "Macs {{ macs_first|name }} is {{ macs_first.species }}, while {{ macs|name }} is {{ macs.species }}."
-        {% elif macs_first.build != macs.build %}
+          re-error "Macs {{ macs_first|name }} is {{ mac_first.species }}, while {{ mac|name }} is {{ mac.species }}."
+        {% elif macs_first.build != mac.build %}
           re-warning "All macs data objects must share the same build information."
-          re-error "Macs {{ macs_first|name }} has {{ macs_first.build }}, while {{ macs|name }}  has {{ macs.build }} build information."
+          re-error "Macs {{ macs_first|name }} has {{ macs_first.build }}, while {{ mac|name }}  has {{ mac.build }} build information."
         {% endif %}
 
-        SAMPLE_NAME=`basename {{ macs|sample_name }} .fastq.gz`
+        SAMPLE_NAME=$(basename {{ mac|sample_name }} .fastq.gz)
+        {% set sample_id = mac|input('control')|sample_id %}
+        {% set background_ids = [] %}
+        {% if mac|type|subtype('data:chipseq:callpeak:macs14') %}
 
-        unzip -o {{ macs.wiggle.file }}
+          unzip -o {{ mac.wiggle.file }}
 
-        gzip -cd "`basename {{ macs.wiggle.file }} .zip`"/treat/*.gz > "${NAME}"/"${SAMPLE_NAME}".wig
-        MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.wig"))
-        echo -e "${SAMPLE_NAME}.wig\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}".txt
+          gzip -cd "$(basename {{ mac.wiggle.file }} .zip)"/treat/*.gz > "${NAME}/${SAMPLE_NAME}.wig"
+          MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.wig"))
+          echo -e "${SAMPLE_NAME}.wig\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}.txt"
 
-        BACKGROUND="${SAMPLE_TO_BACKGROUND[${SAMPLE_NAME}]}"
-        if [ -n "${BACKGROUND}" ] && [ ! -e "${NAME}"/"${BACKGROUND}".wig ]; then
-          gzip -cd "`basename {{ macs.wiggle.file }} .zip`"/control/*.gz > "${NAME}"/"${BACKGROUND}".wig
-          MD5=($(md5sum "${NAME}"/"${BACKGROUND}".wig))
-          echo -e "${BACKGROUND}.wig\t${BACKGROUND}\t${MD5}\t${SAMPLE_TO_PAIRED[${BACKGROUND}]}" >> "${NAME}".txt
-        fi
+          {% if sample_id in sample_ids and sample_id not in background_ids %}
+            {{ ':' if not background_ids.append(sample_id) }}
+            BACKGROUND=$(basename {{ mac|input('control')|sample_name }} .fastq.gz)
+            gzip -cd "`basename {{ mac.wiggle.file }} .zip`"/control/*.gz > "${NAME}/${BACKGROUND}.wig"
+            MD5=($(md5sum "${NAME}/${BACKGROUND}.wig"))
+            echo -e "${BACKGROUND}.wig\t${BACKGROUND}\t${MD5}\t${SAMPLE_TO_PAIRED[${BACKGROUND}]}" >> "${NAME}.txt"
+          {% endif %}
+
+        {% else %}
+          cp {{ mac.treat_pileup.file }} "${NAME}/${SAMPLE_NAME}.bdg"
+          MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.bdg"))
+          echo -e "${SAMPLE_NAME}.bdg\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}.txt"
+         {% if sample_id in sample_ids and sample_id not in background_ids %}
+            {{ ':' if not background_ids.append(sample_id) }}
+            BACKGROUND=$(basename {{ mac|input('control')|sample_name }} .fastq.gz)
+            cp {{ mac.control_lambda.file }} "${NAME}/${BACKGROUND}.bdg"
+            MD5=($(md5sum "${NAME}/${BACKGROUND}.bdg"))
+            echo -e "${BACKGROUND}.bdg\t${BACKGROUND}\t${MD5}\t${SAMPLE_TO_PAIRED[${BACKGROUND}]}" >> "${NAME}.txt"
+          {% endif %}
+
+        {% endif %}
       {% endfor %}
 
       tar -zcvf "${NAME}".tar.gz "${NAME}"

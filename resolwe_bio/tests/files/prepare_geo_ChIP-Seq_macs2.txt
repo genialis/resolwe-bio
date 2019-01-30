@@ -1,0 +1,12 @@
+File_name	Sample_name	md5sum	SE/PE	Read_length
+fw reads_R1.fastq.gz	fw reads	eaa3c759b7cf5cff1a94952828d2d413	PE	50
+fw reads_R1.fastq.gz	fw reads	0bca22b84ca5b82a571b0156e9fdd656	PE	50
+fw reads_R2.fastq.gz	fw reads	bbec38a66e06ac53ba2dfa4936cf2771	PE	50
+fw reads_R2.fastq.gz	fw reads	b62b291d441a12f57975cdd60be838c8	PE	50
+reads.fastq.gz	reads	889e4237c7d7efff8f105362c640870c	SE	35
+SRR2124780_1 1k.fastq.gz	SRR2124780_1 1k	492e77f918c20349009987eeb73f0c5e	SE	101
+fw reads.bdg	fw reads	378cd0e59c2589e0f88752b1f88bff12	PE
+reads.bdg	reads	e309b94c15e9fe2d63c1f1eaa5f0e193	SE
+SRR2124780_1 1k.bdg	SRR2124780_1 1k	c06962f847e56e7b2a18d98aa89b611f	SE
+
+Genome_build - hg19

@@ -16,6 +16,12 @@ Changed
 - Processes ``alignment-star`` and ``alignment-star-index`` now use Docker
   image ``resolwebio/rnaseq:4.2.1`` which contains STAR version ``2.7.0a``
 
+Added
+-----
+- Make ``prepare-geo-chipseq`` work with both
+  ``data:chipseq:callpeak:macs2`` and
+  ``data:chipseq:callpeak:macs14`` as inputs
+
 
 =================
 16.2.0 2019-01-28

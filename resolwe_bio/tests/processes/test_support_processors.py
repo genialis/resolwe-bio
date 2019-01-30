@@ -199,33 +199,72 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             reads_2 = self.prepare_reads()
             reads_3 = self.prepare_reads(['SRR2124780_1 1k.fastq.gz'])
 
-            case_bam = self.prepare_bam(fn='macs14_case.bam', species='Homo sapiens',
-                                        build='hg19')
-            control_bam = self.prepare_bam(fn='macs14_control.bam', species='Homo sapiens',
-                                           build='hg19')
+            macs14_case_bam = self.prepare_bam(fn='macs14_case.bam', species='Homo sapiens',
+                                               build='hg19')
+            macs14_control_bam = self.prepare_bam(fn='macs14_control.bam', species='Homo sapiens',
+                                                  build='hg19')
 
-            inputs = {"treatment": case_bam.id,
-                      "control": control_bam.id}
-            macs14_1 = self.run_process("macs14", inputs)
+            macs2_case_bam = self.prepare_bam(fn='macs2/input/SRR5675973_chr17.bam',
+                                              species='Homo sapiens', build='hg19')
+            macs2_control_bam = self.prepare_bam(fn='macs2/input/SRR5675974_chr17.bam',
+                                                 species='Homo sapiens', build='hg19')
+
+            # Run macs14
+            inputs = {'treatment': macs14_case_bam.id,
+                      'control': macs14_control_bam.id}
+            macs14_1 = self.run_process('macs14', inputs)
+            macs14_1.entity_set.all().delete()
             reads_1.entity_set.first().data.add(macs14_1)
+
+            macs14_control_bam.entity_set.all().delete()
+            reads_2.entity_set.first().data.add(macs14_control_bam)
 
             # Run macs14 without control/background sample
             del inputs['control']
-            macs14_2 = self.run_process("macs14", inputs)
+            macs14_2 = self.run_process('macs14', inputs)
+            macs14_2.entity_set.all().delete()
             reads_3.entity_set.first().data.add(macs14_2)
 
-            sample_1 = reads_1.entity_set.last().name
-            sample_2 = reads_2.entity_set.last().name
+            # Run macs2
+            inputs = {
+                'case': macs2_case_bam.id,
+                "control": macs2_control_bam.id,
+                'settings': {
+                    'extsize': 298,
+                    'nomodel': True,
+                    'bedgraph': True,
+                },
+            }
+            macs2_1 = self.run_process('macs2-callpeak', inputs)
+            macs2_1.entity_set.all().delete()
+            reads_1.entity_set.first().data.add(macs2_1)
+
+            macs2_control_bam.entity_set.all().delete()
+            reads_2.entity_set.first().data.add(macs2_control_bam)
+
+            # Run macs2 without control/background sample
+            del inputs['control']
+            macs2_2 = self.run_process('macs2-callpeak', inputs)
+            macs2_2.entity_set.all().delete()
+            reads_3.entity_set.first().data.add(macs2_2)
 
         inputs = {
-            "reads": [reads_1.id, reads_2.id, reads_3.id],
-            "macs14": [macs14_1.id, macs14_2.id],
-            "relations": ["{}:{}".format(sample_1, sample_2)],
-            "name": "prepare_geo"
+            'reads': [reads_1.id, reads_2.id, reads_3.id],
+            'macs': [macs14_1.id, macs14_2.id],
+            'name': 'prepare_geo',
         }
-        prepare_geo_chipseq = self.run_process("prepare-geo-chipseq", inputs)
+        prepare_geo_chipseq = self.run_process('prepare-geo-chipseq', inputs)
 
-        self.assertFile(prepare_geo_chipseq, 'table', 'prepare_geo_ChIP-Seq.txt')
+        self.assertFile(prepare_geo_chipseq, 'table', 'prepare_geo_ChIP-Seq_macs14.txt')
+
+        inputs = {
+            'reads': [reads_1.id, reads_2.id, reads_3.id],
+            'macs': [macs2_1.id, macs2_2.id],
+            'name': 'prepare_geo',
+        }
+        prepare_geo_chipseq = self.run_process('prepare-geo-chipseq', inputs)
+
+        self.assertFile(prepare_geo_chipseq, 'table', 'prepare_geo_ChIP-Seq_macs2.txt')
 
     @with_resolwe_host
     @tag_process('prepare-geo-rnaseq')
