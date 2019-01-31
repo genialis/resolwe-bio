@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Bump STAR aligner version to 2.7.0a in ``resolwebio/rnaseq:4.2.1``
+
 
 =================
 16.2.0 2019-01-28
