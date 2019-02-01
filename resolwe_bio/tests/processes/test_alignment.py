@@ -102,7 +102,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
         inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
         star_index = self.run_process('alignment-star-index', inputs_gff3)
-        self.assertAlmostEqual(star_index.output['index']['size'], 1566163829, delta=5)
+        self.assertAlmostEqual(star_index.output['index']['size'], 1566163859, delta=5)
 
     @with_resolwe_host
     @tag_process('alignment-star')
