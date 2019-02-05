@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.2
+  version: 4.0.3
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -505,6 +505,12 @@
           tr -d '(' | \
           tr ' ' '\t' | \
           cut -f 1,11,15 >> "${NAME}_align_metrics.txt"
+        {% elif alignment|type|subtype('data:alignment:bam:bowtie2') %}
+          TOTAL_READS=$(head -n 1 {{ alignment.stats.file }} | tr ' ' '\t' | cut -f 1)
+          TOTAL_READS=$((TOTAL_READS * 2))
+          MAPPED_READS=$(samtools view -c {{ alignment.bam.file }})
+          MAPPED_PRCT=$(tail -n 1 {{ alignment.stats.file }} | tr ' ' '\t' | cut -f 1)
+          echo -e "${TOTAL_READS}\t${MAPPED_READS}\t${MAPPED_PRCT}" >> "${NAME}_align_metrics.txt"
         {% else %}
           samtools flagstat {{ alignment.bam.file }} | \
           sed -n '1p;5p' | \

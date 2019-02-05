@@ -36,3 +36,4 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
         macs2 = Data.objects.last()
         self.assertFile(macs2, 'chip_qc', 'atac_seq_report.txt')
+        self.assertFile(macs2, 'case_prepeak_qc', 'atac_seq_prepeak_report.txt')

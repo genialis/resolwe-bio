@@ -22,6 +22,12 @@ Added
   ``data:chipseq:callpeak:macs2`` and
   ``data:chipseq:callpeak:macs14`` as inputs
 
+Fixed
+-----
+- Report correct total mapped reads and mapped reads percentage in
+  prepeak QC report for ``data:alignment:bam:bowtie2`` inputs in
+  ``macs2-callpeak`` process
+
 
 =================
 16.2.0 2019-01-28
