@@ -23,6 +23,6 @@ Included bioinformatics tools:
 * RSEM (v1.4.0)
 * rtracklayer (v1.38.0)
 * Salmon (0.9.1)
-* STAR (v2.7.0a)
+* STAR (v2.7.0c)
 * Trimmomatic (v0.36)
 * tximport (v1.6.0)

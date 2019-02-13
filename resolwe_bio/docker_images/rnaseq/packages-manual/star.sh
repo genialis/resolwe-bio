@@ -5,8 +5,8 @@
 download_and_verify \
     alexdobin \
     star \
-    2.7.0a \
-    d0771c620176b8d53df5ced818b4dd0f2c8ac537bc44828cdfefddc0fd05caa1 \
+    2.7.0c \
+    6b44f0d4bd97f5007c6124c39970abd036b28e648cece260b3506b89ff0b20b5 \
     https://github.com/alexdobin/STAR/archive/\${version}.tar.gz \
     STAR-\${version}
 

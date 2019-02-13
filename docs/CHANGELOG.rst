@@ -12,7 +12,7 @@ Unreleased
 
 Changed
 -------
-- Bump STAR aligner version to 2.7.0a in ``resolwebio/rnaseq:4.2.1``
+- Bump STAR aligner version to 2.7.0c in ``resolwebio/rnaseq:4.2.2``
 - Processes ``alignment-star`` and ``alignment-star-index`` now use Docker
   image ``resolwebio/rnaseq:4.2.1`` which contains STAR version ``2.7.0a``
 - Persistence of ``basespace-file-import`` process changed from ``RAW`` to
