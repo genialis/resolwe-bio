@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/base:ubuntu-18.04
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 2.0.0
+  version: 2.0.1
   type: data:other:geo:chipseq
   category: Other
   persistence: CACHED
@@ -48,7 +48,7 @@
       mkdir "${NAME}"
 
       {% set macs_first = macs|first %}
-      {% set sample_ids = reads|map('sample_id') %}
+      {% set sample_ids = reads|map('sample_id')|list %}
       declare -A SAMPLE_TO_PAIRED
 
       echo -e "File_name\tSample_name\tmd5sum\tSE/PE\tRead_length" > "${NAME}.txt"
@@ -97,6 +97,7 @@
         {% endif %}
       {% endfor %}
 
+      {% set background_ids = [] %}
       {% for mac in macs %}
         {% if macs_first.species != mac.species %}
           re-warning "All macs data objects must be of the same Species."
@@ -107,8 +108,7 @@
         {% endif %}
 
         SAMPLE_NAME=$(basename {{ mac|sample_name }} .fastq.gz)
-        {% set sample_id = mac|input('control')|sample_id %}
-        {% set background_ids = [] %}
+        {% set background_id = mac|input('control')|sample_id %}
         {% if mac|type|subtype('data:chipseq:callpeak:macs14') %}
 
           unzip -o {{ mac.wiggle.file }}
@@ -117,8 +117,8 @@
           MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.wig"))
           echo -e "${SAMPLE_NAME}.wig\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}.txt"
 
-          {% if sample_id in sample_ids and sample_id not in background_ids %}
-            {{ ':' if not background_ids.append(sample_id) }}
+          {% if background_id in sample_ids and background_id not in background_ids %}
+            {% set do = background_ids.append(background_id) %}
             BACKGROUND=$(basename {{ mac|input('control')|sample_name }} .fastq.gz)
             gzip -cd "`basename {{ mac.wiggle.file }} .zip`"/control/*.gz > "${NAME}/${BACKGROUND}.wig"
             MD5=($(md5sum "${NAME}/${BACKGROUND}.wig"))
@@ -129,8 +129,8 @@
           cp {{ mac.treat_pileup.file }} "${NAME}/${SAMPLE_NAME}.bdg"
           MD5=($(md5sum "${NAME}/${SAMPLE_NAME}.bdg"))
           echo -e "${SAMPLE_NAME}.bdg\t${SAMPLE_NAME}\t${MD5}\t${SAMPLE_TO_PAIRED[${SAMPLE_NAME}]}" >> "${NAME}.txt"
-         {% if sample_id in sample_ids and sample_id not in background_ids %}
-            {{ ':' if not background_ids.append(sample_id) }}
+          {% if background_id in sample_ids and background_id not in background_ids %}
+            {% set do = background_ids.append(background_id) %}
             BACKGROUND=$(basename {{ mac|input('control')|sample_name }} .fastq.gz)
             cp {{ mac.control_lambda.file }} "${NAME}/${BACKGROUND}.bdg"
             MD5=($(md5sum "${NAME}/${BACKGROUND}.bdg"))
