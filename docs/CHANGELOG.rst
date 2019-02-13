@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Bump MultiQC to 1.7.0 and add QoRTs (1.3.0) package to
+  ``resolwebio/common:1.1.0`` Docker image
+
 
 =================
 16.3.0 2019-02-19
@@ -22,6 +27,8 @@ Changed
   image ``resolwebio/rnaseq:4.2.2`` which contains STAR version ``2.7.0c``
 - Persistence of ``basespace-file-import`` process changed from ``RAW`` to
   ``TEMP``
+- Bump MultiQC to 1.7.0 and add QoRTs (1.3.0) package to
+  ``resolwebio/common:1.1.0`` Docker image
 
 Added
 -----

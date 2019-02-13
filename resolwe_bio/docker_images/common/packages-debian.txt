@@ -17,3 +17,6 @@ libfindbin-libs-perl
 
 # Required for deeptools
 libpython3.6-dev
+
+# Required for MultiQC
+python3-setuptools

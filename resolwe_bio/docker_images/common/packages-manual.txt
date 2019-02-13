@@ -5,6 +5,7 @@ chrom-mappings
 fastqc
 hisat2
 makedb-walt
+qorts
 r-packages
 samtools
 sra-toolkit
