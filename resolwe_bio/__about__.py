@@ -8,7 +8,7 @@ __url__ = 'https://github.com/genialis/resolwe-bio'
 
 # Semantic versioning is used. For more information see:
 # https://packaging.python.org/en/latest/distributing/#semantic-versioning-preferred
-__version__ = '16.3.0'
+__version__ = "16.4.0a1"
 
 __author__ = 'Genialis, Inc.'
 __email__ = 'dev-team@genialis.com'
