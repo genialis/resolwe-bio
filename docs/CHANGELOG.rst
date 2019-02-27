@@ -17,6 +17,12 @@ Changed
   - add QoRTs (1.3.0) package
   - bump MultiQC to 1.7.0
   - bump Subread package to 1.6.3
+- Expose ``maxns`` input parameter in ``bbduk-single`` and
+  ``bbduk-paired`` processes. Make this parameter available in workflows
+  ``workflow-bbduk-star-featurecounts-qc-single``,
+  ``workflow-bbduk-star-featurecounts-qc-paired``,
+  ``workflow-bbduk-star-featurecounts-single`` and
+  ``workflow-bbduk-star-featurecounts-paired``.
 
 
 =================

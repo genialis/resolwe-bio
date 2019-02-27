@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.2.0
+  version: 1.3.0
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
   description: >
@@ -63,6 +63,12 @@
           type: basic:integer
           default: 1
           hidden: '!preprocessing.show_advanced'
+        - name: maxns
+          label: Max Ns after trimming [maxns=-1]
+          type: basic:integer
+          default: -1
+          description: >
+            If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: trim_quality
           label: Quality below which to trim reads from the right end
           type: basic:integer
@@ -380,6 +386,7 @@
             min_k: '{{ input.preprocessing.min_k }}'
             quality_trim: r
             trim_quality: '{{ input.preprocessing.trim_quality }}'
+            maxns: '{{ input.preprocessing.maxns }}'
       - id: alignment
         run: alignment-star
         input:
@@ -438,7 +445,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.2.0
+  version: 1.3.0
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
   description: >
@@ -498,6 +505,12 @@
           type: basic:integer
           default: 1
           hidden: '!preprocessing.show_advanced'
+        - name: maxns
+          label: Max Ns after trimming [maxns=-1]
+          type: basic:integer
+          default: -1
+          description: >
+            If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: trim_quality
           label: Quality below which to trim reads from the right end
           type: basic:integer
@@ -815,6 +828,7 @@
             min_k: '{{ input.preprocessing.min_k }}'
             quality_trim: r
             trim_quality: '{{ input.preprocessing.trim_quality }}'
+            maxns: '{{ input.preprocessing.maxns }}'
             trim_pairs_evenly: true
             trim_by_overlap: true
       - id: alignment

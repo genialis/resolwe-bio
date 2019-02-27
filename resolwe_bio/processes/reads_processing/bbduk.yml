@@ -16,7 +16,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.1
+  version: 2.2.0
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
@@ -302,6 +302,12 @@
           default: 1.0
           description: >
             Discard reads with higher GC content.
+        - name: maxns
+          label: Max Ns after trimming [maxns=-1]
+          type: basic:integer
+          default: -1
+          description: >
+            If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: toss_junk
           label: Discard reads with invalid characters as bases [tossjunk=f]
           type: basic:boolean
@@ -494,6 +500,7 @@
         restrictright={{ operations.restrict_right }} \
         mingc={{ operations.min_GC }} \
         maxgc={{ operations.max_GC }} \
+        maxns={{ operations.maxns }} \
         tossjunk={{ bool[operations.toss_junk] }} \
         chastityfilter={{ bool[header_parsing.chastity_filter] }} \
         barcodefilter={{ bool[header_parsing.barcode_filter] }} \
@@ -545,7 +552,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.1
+  version: 2.2.0
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
@@ -855,6 +862,12 @@
           default: 1.0
           description: >
             Discard reads with higher GC content.
+        - name: maxns
+          label: Max Ns after trimming [maxns=-1]
+          type: basic:integer
+          default: -1
+          description: >
+            If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: toss_junk
           label: Discard reads with invalid characters as bases [tossjunk=f]
           type: basic:boolean
@@ -1069,6 +1082,7 @@
         restrictright={{ operations.restrict_right }} \
         mingc={{ operations.min_GC }} \
         maxgc={{ operations.max_GC }} \
+        maxns={{ operations.maxns }} \
         tossjunk={{ bool[operations.toss_junk] }} \
         chastityfilter={{ bool[header_parsing.chastity_filter] }} \
         barcodefilter={{ bool[header_parsing.barcode_filter] }} \
