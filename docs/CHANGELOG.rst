@@ -13,6 +13,8 @@ Unreleased
 Added
 -----
 - Add ``qorts-qc`` (Quality of RNA-seq Tool-Set QC) process.
+- Add ``workflow-bbduk-star-fc-quant-single`` and
+  ``workflow-bbduk-star-fc-quant-paired`` processes
 
 Changed
 -------
