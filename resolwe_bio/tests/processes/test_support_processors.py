@@ -466,3 +466,31 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertFileExists(sirv_set3, 'report')
 
         self.assertFileExists(sirv_set3, 'report_zip')
+
+    @tag_process('qorts-qc')
+    def test_qorts_qc(self):
+        with self.preparation_stage():
+            alignment = self.run_process('upload-bam', {
+                'src': 'qorts/input/hs paired.bam',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
+
+            annotation = self.run_process('upload-gtf', {
+                'src': 'qorts/input/hs annotation.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            })
+
+        inputs = {
+            'alignment': alignment.id,
+            'annotation': annotation.id,
+            'options': {
+                'stranded': 'reverse',
+            },
+        }
+        qorts_report = self.run_process('qorts-qc', inputs)
+        self.assertFileExists(qorts_report, 'plot')
+        self.assertFileExists(qorts_report, 'summary')
+        self.assertFileExists(qorts_report, 'qorts_data')

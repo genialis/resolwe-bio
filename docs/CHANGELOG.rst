@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``qorts-qc`` (Quality of RNA-seq Tool-Set QC) process.
+
 Changed
 -------
 - Update ``resolwebio/common:1.1.0`` Docker image:
