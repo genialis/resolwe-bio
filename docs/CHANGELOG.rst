@@ -30,6 +30,7 @@ Changed
 - Save CPM-normalized expressions in ``feature_counts`` process. Control
   the default expression normalization type (``exp_type``) using the
   ``normalization_type`` input
+- Bump MultiQC to version 1.7.0 in ``multiqc`` process
 
 
 =================
