@@ -125,6 +125,7 @@ FLOW_EXPRESSION_ENGINES = [
 FLOW_EXECUTION_ENGINES = [
     'resolwe.flow.execution_engines.bash',
     'resolwe.flow.execution_engines.workflow',
+    'resolwe.flow.execution_engines.python',
 ]
 
 # Check if any Manager settings are set via environment variables
@@ -173,7 +174,7 @@ FLOW_PROCESSES_FINDERS = (
     'resolwe.flow.finders.AppDirectoriesFinder',
 )
 
-FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/tests/'),)
+FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/processes/'),)
 
 # Do not skip tests that fail on Docker executor if this is set via environment
 # variable

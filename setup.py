@@ -39,6 +39,7 @@ setup(
             'descriptors/*.yml',
             'fixtures/*.yaml',
             'processes/**/*.yml',
+            'processes/**/*.py',
             'tools/*.py',
             'tools/*.R',
             'tools/*.sh',
