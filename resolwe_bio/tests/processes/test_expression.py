@@ -475,6 +475,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process('feature_counts', inputs)
         self.assertFile(expression, 'rc', 'feature_counts_out_rc.tab.gz', compression='gzip')
         self.assertFile(expression, 'fpkm', 'feature_counts_out_fpkm.tab.gz', compression='gzip')
+        self.assertFile(expression, 'cpm', 'feature_counts_out_cpm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'feature_counts_out_tpm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp_set', 'feature_counts_out_exp_set.txt.gz', compression='gzip')
         self.assertJSON(expression, expression.output['exp_set_json'], '', 'feature_counts_exp_set.json.gz')

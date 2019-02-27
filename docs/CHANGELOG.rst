@@ -23,6 +23,9 @@ Changed
   ``workflow-bbduk-star-featurecounts-qc-paired``,
   ``workflow-bbduk-star-featurecounts-single`` and
   ``workflow-bbduk-star-featurecounts-paired``.
+- Save CPM-normalized expressions in ``feature_counts`` process. Control
+  the default expression normalization type (``exp_type``) using the
+  ``normalization_type`` input
 
 
 =================

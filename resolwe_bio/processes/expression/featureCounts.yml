@@ -14,7 +14,7 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.1.1
+  version: 2.2.0
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -123,6 +123,19 @@
             output table. In GTF files this is usually 'gene_id', in GFF3 files
             this is often 'ID', and 'transcript_id' is frequently a valid
             choice for both annotation formats.
+    - name: normalization_type
+      label: Normalization type
+      type: basic:string
+      description: >
+        The default expression normalization type.
+      default: TPM
+      choices:
+        - label: TPM
+          value: TPM
+        - label: CPM
+          value: CPM
+        - label: FPKM
+          value: FPKM
     - name: show_advanced
       label: Show advanced options
       type: basic:boolean
@@ -382,14 +395,20 @@
     - name: fpkm
       label: FPKM
       type: basic:file
+    - name: tpm
+      label: TPM
+      type: basic:file
+    - name: cpm
+      label: CPM
+      type: basic:file
     - name: exp
-      label: TPM (Transcripts Per Million)
+      label: Default expression output
       type: basic:file
     - name: exp_json
-      label: TPM (json)
+      label: Default expression output (json)
       type: basic:json
     - name: exp_type
-      label: Expression Type (default output)
+      label: Expression normalization type (on default output)
       type: basic:string
     - name: exp_set
       label: Expressions
@@ -581,13 +600,27 @@
       add_header.py rc_wo_header.txt rc.txt
       add_header.py fpkm_wo_header.tab fpkm.tab
       add_header.py tpm_wo_header.tab tpm.tab
+      add_header.py cpm_wo_header.tab cpm.tab
 
       gzip -c featureCounts_rc.txt > {{ name ~ '_featureCounts_rc.txt.gz' }}
       gzip -c rc.txt > {{ name ~ '_rc.tab.gz' }}
       gzip -c fpkm.tab > {{ name ~ '_fpkm.tab.gz' }}
       gzip -c tpm.tab > {{ name ~ '_tpm.tab.gz' }}
+      gzip -c cpm.tab > {{ name ~ '_cpm.tab.gz' }}
 
-      expression2storage.py --output json.txt {{ name ~ '_tpm.tab.gz' }}
+      {% if normalization_type == 'TPM' %}
+        expression2storage.py --output json.txt {{ name ~ '_tpm.tab.gz' }}
+        {% set default_exp_output = name ~ '_tpm.tab.gz' %}
+      {% elif normalization_type == 'CPM' %}
+        expression2storage.py --output json.txt {{ name ~ '_cpm.tab.gz' }}
+        {% set default_exp_output = name ~ '_cpm.tab.gz' %}
+      {% elif normalization_type == 'FPKM' %}
+        expression2storage.py --output json.txt {{ name ~ '_fpkm.tab.gz' }}
+        {% set default_exp_output = name ~ '_fpkm.tab.gz' %}
+      {% else %}
+        re-error "Unsupported expression normalization type used."
+      {% endif %}
+
       re-checkrc
       re-save exp_json json.txt
       re-progress 0.95
@@ -597,8 +630,8 @@
         --source_db {{ annotation.annotation.source }} \
         --species {{ alignment.aligned_reads.species }} \
         --output_name {{ name ~ '_expressions' }} \
-        --norm_expressions {{ name ~ '_fpkm.tab.gz' }} {{ name ~ '_tpm.tab.gz' }} \
-        --norm_expressions_type FPKM TPM
+        --norm_expressions {{ name ~ '_fpkm.tab.gz' }} {{ name ~ '_tpm.tab.gz' }} {{ name ~ '_cpm.tab.gz' }} \
+        --norm_expressions_type FPKM TPM CPM
       re-checkrc
 
       re-save-file feature_counts_output {{ name ~ '_featureCounts_rc.txt.gz' }}
@@ -608,10 +641,12 @@
       {% endif %}
       re-save-file rc {{ name ~ '_rc.tab.gz' }}
       re-save-file fpkm {{ name ~ '_fpkm.tab.gz' }}
-      re-save-file exp {{ name ~ '_tpm.tab.gz' }}
+      re-save-file tpm {{ name ~ '_tpm.tab.gz' }}
+      re-save-file cpm {{ name ~ '_cpm.tab.gz' }}
+      re-save-file exp {{ default_exp_output }}
       re-save-file exp_set {{ name ~ '_expressions.txt.gz' }}
       re-save exp_set_json {{ name ~ '_expressions.json' }}
-      re-save exp_type 'TPM'
+      re-save exp_type {{ normalization_type }}
       re-save source {{ annotation.annotation.source }}
       re-save species {{ alignment.aligned_reads.species }}
       re-save build {{ alignment.aligned_reads.build }}
