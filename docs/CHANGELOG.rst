@@ -40,6 +40,7 @@ Changed
   process
 - Use ``resolwebio/common:1.1.0`` base image for the
   ``resolwebio/rnaseq:4.3.0`` Docker image
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 15.x
 
 
 =================
