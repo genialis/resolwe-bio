@@ -12,8 +12,11 @@ Unreleased
 
 Changed
 -------
-- Bump MultiQC to 1.7.0 and add QoRTs (1.3.0) package to
-  ``resolwebio/common:1.1.0`` Docker image
+- Update ``resolwebio/common:1.1.0`` Docker image:
+
+  - add QoRTs (1.3.0) package
+  - bump MultiQC to 1.7.0
+  - bump Subread package to 1.6.3
 
 
 =================
@@ -27,8 +30,6 @@ Changed
   image ``resolwebio/rnaseq:4.2.2`` which contains STAR version ``2.7.0c``
 - Persistence of ``basespace-file-import`` process changed from ``RAW`` to
   ``TEMP``
-- Bump MultiQC to 1.7.0 and add QoRTs (1.3.0) package to
-  ``resolwebio/common:1.1.0`` Docker image
 
 Added
 -----
