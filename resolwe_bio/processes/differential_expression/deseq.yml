@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.3.0
+  version: 2.0.0
   type: data:differentialexpression:deseq2
   category: Differential Expression
   persistence: CACHED
@@ -34,12 +34,45 @@
       description: >
         Control samples (replicates)
     - name: filter
-      label: Minimum expression count summed over all samples
-      type: basic:integer
-      default: 10
-      description: >
-        Filter genes in the expression matrix input. Remove genes where the
-        expression count sum over all samples is below the threshold.
+      label: Gene filtering options
+      group:
+        - name: count
+          label: Filter genes based on expression count
+          type: basic:boolean
+          default: true
+        - name: min_count_sum
+          label: Minimum raw gene expression count summed over all samples
+          type: basic:integer
+          default: 10
+          description: >
+            Filter genes in the expression matrix input. Remove genes where the
+            expression count sum over all samples is below the threshold.
+          hidden: '!filter.count'
+        - name: cook
+          label: Filter genes based on Cook's distance
+          type: basic:boolean
+          default: false
+        - name: cooks_cutoff
+          label: Threshold on Cook's distance
+          type: basic:decimal
+          required: false
+          hidden: '!filter.cook'
+          description: >
+            If one or more samples have Cook's distance larger than the threshold set here, the
+            p-value for the row is set to NA. If left empty, the default threshold of 0.99 quantile
+            of the F(p, m-p) distribution is used, where p is the number of coefficients being
+            fitted and m is the number of samples. This test excludes Cook's distance of samples
+            belonging to experimental groups with only two samples.
+        - name: independent
+          label: Apply independent gene filtering
+          type: basic:boolean
+          default: false
+        - name: alpha
+          label: Significance cut-off used for optimizing independent gene filtering
+          type: basic:decimal
+          default: 0.1
+          hidden: '!filter.independent'
+          description: The value should be set to adjusted p-value cut-off (FDR).
   output:
     - name: raw
       label: Differential expression
@@ -110,7 +143,9 @@
       deseq.R \
         --cases {% for c in case %} {{ c.rc.file if not rsem else c.genes.file }} {% endfor %} \
         --controls {% for c in control %} {{ c.rc.file if not rsem else c.genes.file }} {% endfor %} \
-        --min-count-sum {{ filter }} \
+        {% if filter.count %} --min-count-sum {{ filter.min_count_sum }} {% endif %} \
+        {% if filter.cook and filter.cooks_cutoff is defined %} --cooks-cutoff {{ filter.cooks_cutoff }} {% endif %} \
+        {% if filter.independent %} --alpha {{ filter.alpha }} {% endif %} \
         {% if rsem %} --format rsem {% endif %}
       re-checkrc "Error computing differential expression (DESeq2)."
 

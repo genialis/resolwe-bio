@@ -15,6 +15,8 @@ Added
 - Add ``qorts-qc`` (Quality of RNA-seq Tool-Set QC) process.
 - Add ``workflow-bbduk-star-fc-quant-single`` and
   ``workflow-bbduk-star-fc-quant-paired`` processes
+- Add independent gene filtering and gene filtering based on Cook's distance
+  in ``DESeq2`` differential expression process
 
 Changed
 -------
@@ -33,6 +35,9 @@ Changed
   the default expression normalization type (``exp_type``) using the
   ``normalization_type`` input
 - Bump MultiQC to version 1.7.0 in ``multiqc`` process
+- **BACKWARD INCOMPATIBLE**: Move gene filtering by expression count
+  input to ``filter.min_count_sum`` in ``DESeq2`` differential expression
+  process
 
 
 =================
