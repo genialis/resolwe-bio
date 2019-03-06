@@ -38,6 +38,8 @@ Changed
 - **BACKWARD INCOMPATIBLE**: Move gene filtering by expression count
   input to ``filter.min_count_sum`` in ``DESeq2`` differential expression
   process
+- Use ``resolwebio/common:1.1.0`` base image for the
+  ``resolwebio/rnaseq:4.3.0`` Docker image
 
 
 =================
