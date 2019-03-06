@@ -41,6 +41,8 @@ Changed
 - Use ``resolwebio/common:1.1.0`` base image for the
   ``resolwebio/rnaseq:4.3.0`` Docker image
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 15.x
+- Use ``resolwebio/rnaseq:4.3.0`` with Subread/featureCounts version
+  1.6.3 in ``feature_counts`` process
 
 
 =================
