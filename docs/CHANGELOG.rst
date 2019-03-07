@@ -20,6 +20,10 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE**: Move gene filtering by expression count
+  input to ``filter.min_count_sum`` in ``DESeq2`` differential expression
+  process
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 15.x
 - Update ``resolwebio/common:1.1.0`` Docker image:
 
   - add QoRTs (1.3.0) package
@@ -35,12 +39,8 @@ Changed
   the default expression normalization type (``exp_type``) using the
   ``normalization_type`` input
 - Bump MultiQC to version 1.7.0 in ``multiqc`` process
-- **BACKWARD INCOMPATIBLE**: Move gene filtering by expression count
-  input to ``filter.min_count_sum`` in ``DESeq2`` differential expression
-  process
 - Use ``resolwebio/common:1.1.0`` base image for the
   ``resolwebio/rnaseq:4.3.0`` Docker image
-- **BACKWARD INCOMPATIBLE:** Require Resolwe 15.x
 - Use ``resolwebio/rnaseq:4.3.0`` with Subread/featureCounts version
   1.6.3 in ``feature_counts`` process
 
