@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add shRNAde (v1.0) R package to the ``resolwebio/rnaseq:4.4.0`` Docker image
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 16.x
@@ -58,8 +62,6 @@ Changed
   the default expression normalization type (``exp_type``) using the
   ``normalization_type`` input.
 - Bump MultiQC to version 1.7.0 in ``multiqc`` process
-- Use ``resolwebio/common:1.1.0`` base image for the
-  ``resolwebio/rnaseq:4.3.0`` Docker image
 - Use ``resolwebio/rnaseq:4.3.0`` with Subread/featureCounts version
   1.6.3 in ``feature_counts`` process
 

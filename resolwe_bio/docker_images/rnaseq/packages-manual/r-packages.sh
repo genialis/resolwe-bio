@@ -14,4 +14,5 @@ Rscript --slave --no-save --no-restore-history -e " \
   library(devtools); \
   install_github('jkokosar/RNASeqT'); \
   install_github('jvrakor/Subread_to_DEXSeq', subdir = 'loadSubread'); \
+  install_github('genialis/shRNAde'); \
 "
