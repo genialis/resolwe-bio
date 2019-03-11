@@ -1,0 +1,167 @@
+- slug: workflow-trim-align-quant
+  name: Trim, align and quantify using a library as a reference.
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:trimalquant
+  category: Pipeline
+  input:
+    - name: reads
+      label: Untrimmed reads.
+      type: data:reads:fastq:single
+      description: >
+        First stage of shRNA pipeline. Trims 5' adapters, then 3' adapters using the same error rate setting, aligns
+        reads to a reference library and quantifies species.
+    - name: trimming_options
+      label: Trimming options
+      group:
+        - name: up_primers_seq
+          label: 5' adapter sequence
+          type: list:basic:string
+          required: true
+          description: >
+            A string of 5' adapter sequence.
+        - name: down_primers_seq
+          label: 3' adapter sequence
+          type: list:basic:string
+          required: true
+          description: >
+            A string of 3' adapter sequence.
+        - name: error_rate_5end
+          label: Error rate for 5'
+          type: basic:decimal
+          required: false
+          default: 0.1
+          description: >
+            Maximum allowed error rate (no. of errors divided by the length of the matching region) for 5' trimming.
+        - name: error_rate_3end
+          label: Error rate for 3'
+          type: basic:decimal
+          required: false
+          default: 0.1
+          description: >
+            Maximum allowed error rate (no. of errors divided by the length of the matching region) for 3' trimming.
+    - name: alignment_options
+      label: Alignment options
+      group:
+        - name: genome
+          label: Reference library
+          type: data:genome:fasta
+          description: >
+            Choose the reference library against which to align reads.
+        - name: mode
+          label: Alignment mode
+          type: basic:string
+          description: >
+            End to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
+            local: Bowtie 2 does not require that the entire read align from one end to the other. Rather, some characters may be omitted ("soft clipped") from the ends in order to achieve the greatest possible alignment score.
+          default: --end-to-end
+          choices:
+          - label: end to end mode
+            value: --end-to-end
+          - label: local
+            value: --local
+        - name: N
+          label: Number of mismatches allowed in seed alignment (N)
+          type: basic:integer
+          required: false
+          description: >
+            Sets the number of mismatches to allowed in a seed alignment during multiseed alignment. Can be set to 0 or
+            1. Setting this higher makes alignment slower (often much slower) but increases sensitivity. Default: 0.
+        - name: L
+          label: Length of seed substrings (L)
+          type: basic:integer
+          required: false
+          description: >
+            Sets the length of the seed substrings to align during multiseed alignment. Smaller values make alignment
+            slower but more sensitive. Default: the --sensitive preset is used by default for end-to-end alignment and
+            --sensitive-local for local alignment. See documentation for details.
+        - name: gbar
+          label: Disallow gaps within positions (gbar)
+          type: basic:integer
+          required: false
+          description: >
+            Disallow gaps within <int> positions of the beginning or end of the read. Default: 4.
+        - name: mp
+          label: Maximal and minimal mismatch penalty (mp)
+          type: basic:string
+          required: false
+          description: >
+            Sets the maximum (MX) and minimum (MN) mismatch penalties, both integers. A number less than or equal to
+            MX and greater than or equal to MN is subtracted from the alignment score for each position where a read
+            character aligns to a reference character, the characters do not match, and neither is an N. If
+            --ignore-quals is specified, the number subtracted quals MX. Otherwise, the number subtracted is
+            MN + floor((MX-MN)(MIN(Q, 40.0)/40.0)) where Q is the Phred quality value. Default for MX, MN: 6,2.
+        - name: rdg
+          label: Set read gap open and extend penalties (rdg)
+          type: basic:string
+          required: false
+          description: >
+            Sets the read gap open (<int1>) and extend (<int2>) penalties. A read gap of length N gets a penalty of
+            <int1> + N * <int2>. Default: 5,3.
+        - name: rfg
+          label: Set reference gap open and close penalties (rfg)
+          type: basic:string
+          required: false
+          description: >
+            Sets the reference gap open (<int1>) and extend (<int2>) penalties. A reference gap of length N gets a
+            penalty of <int1> + N * <int2>. Default: 5,3.
+        - name: score_min
+          label: Minimum alignment score needed for "valid" alignment (score-min)
+          type: basic:string
+          required: false
+          description: >
+            Sets a function governing the minimum alignment score needed for an alignment to be considered "valid" (i.e.
+            good enough to report). This is a function of read length. For instance, specifying L,0,-0.6 sets the
+            minimum-score function to f(x) = 0 + -0.6 * x, where x is the read length. The default in
+            --end-to-end mode is L,-0.6,-0.6 and the default in --local mode is G,20,8.
+    - name: quant_options
+      label: Quantification options
+      group:
+        - name: readlengths
+          label: Species lengths threshold
+          type: basic:integer
+          description: >
+            Species with read lengths below specified threshold will be removed from final output. Default is no
+            removal.
+        - name: alignscores
+          label: Align scores filter threshold
+          type: basic:integer
+          description: >
+            Species with align score below specified threshold will be removed from final output. Default is no removal.
+  run:
+    language: workflow
+    program:
+      - id: cutadapt5prime
+        run: cutadapt-single
+        input:
+          reads: '{{ input.reads }}'
+          up_primers_seq: '{{ input.trimming_options.up_primers_seq }}'
+          error_rate: '{{ input.trimming_options.error_rate_5end }}'
+      - id: cutadapt3prime
+        run: cutadapt-single
+        input:
+          reads: '{{ steps.cutadapt5prime }}'
+          down_primers_seq: '{{ input.trimming_options.down_primers_seq }}'
+          error_rate: '{{ input.trimming_options.error_rate_3end }}'
+      - id: align_bowtie2
+        run: alignment-bowtie2
+        input:
+          genome: '{{ input.alignment_options.genome }}'
+          reads: '{{ steps.cutadapt3prime }}'
+          mode: '{{ input.alignment_options.mode }}'
+          alignment_options:
+            N: '{{ input.alignment_options.N }}'
+            L: '{{ input.alignment_options.L }}'
+            gbar: '{{ input.alignment_options.gbar}}'
+            mp: '{{ input.alignment_options.mp }}'
+            rdg: '{{ input.alignment_options.rdg }}'
+            rfg: '{{ input.alignment_options.rfg }}'
+            score_min: '{{ input.alignment_options.score_min }}'
+      - id: shrna_quant
+        run: shrna-quant
+        input:
+          alignment: '{{ steps.align_bowtie2 }}'
+          readlengths: '{{ input.quant_options.readlengths }}'
+          alignscores: '{{ input.quant_options.alignscores }}'

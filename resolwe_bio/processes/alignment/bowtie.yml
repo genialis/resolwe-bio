@@ -331,7 +331,7 @@
           value: --local
     - name: speed
       label: Speed vs. Sensitivity
-      description: >
+      description: |
         A quick setting for aligning fast or accurately. This option is a shortcut for parameters as follows:
 
         For --end-to-end:
@@ -397,14 +397,14 @@
           label: Number of mismatches allowed in seed alignment (N)
           type: basic:integer
           required: false
-          description: >
+          description: |
             Sets the number of mismatches to allowed in a seed alignment during multiseed alignment. Can be set to 0 or
             1. Setting this higher makes alignment slower (often much slower) but increases sensitivity. Default: 0.
         - name: L
           label: Length of seed substrings (L)
           type: basic:integer
           required: false
-          description: >
+          description: |
             Sets the length of the seed substrings to align during multiseed alignment. Smaller values make alignment
             slower but more sensitive. Default: the --sensitive preset is used by default for end-to-end alignment and
             --sensitive-local for local alignment. See documentation for details.
@@ -412,13 +412,13 @@
           label: Disallow gaps within positions (gbar)
           type: basic:integer
           required: false
-          description: >
+          description: |
             Disallow gaps within <int> positions of the beginning or end of the read. Default: 4.
         - name: mp
           label: Maximal and minimal mismatch penalty (mp)
           type: basic:string
           required: false
-          description: >
+          description: |
             Sets the maximum (MX) and minimum (MN) mismatch penalties, both integers. A number less than or equal to
             MX and greater than or equal to MN is subtracted from the alignment score for each position where a read
             character aligns to a reference character, the characters do not match, and neither is an N. If
@@ -428,21 +428,21 @@
           label: Set read gap open and extend penalties (rdg)
           type: basic:string
           required: false
-          description: >
+          description: |
             Sets the read gap open (<int1>) and extend (<int2>) penalties. A read gap of length N gets a penalty of
             <int1> + N * <int2>. Default: 5,3.
         - name: rfg
           label: Set reference gap open and close penalties (rfg)
           type: basic:string
           required: false
-          description: >
+          description: |
             Sets the reference gap open (<int1>) and extend (<int2>) penalties. A reference gap of length N gets a
             penalty of <int1> + N * <int2>. Default: 5,3.
         - name: score_min
           label: Minimum alignment score needed for "valid" alignment (score_min)
           type: basic:string
           required: false
-          description: >
+          description: |
             Sets a function governing the minimum alignment score needed for an alignment to be considered "valid" (i.e.
             good enough to report). This is a function of read length. For instance, specifying L,0,-0.6 sets the
             minimum-score function to f(x) = 0 + -0.6 * x, where x is the read length. The default in
@@ -547,7 +547,6 @@
         fi
       fi
 
-      echo "klele sn"
       s_mode={{ speed }}
       if [ {{ mode }} == --local ]; then
         s_mode={{ speed }}-local

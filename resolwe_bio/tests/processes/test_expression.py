@@ -556,3 +556,35 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         expression = self.run_process('feature_counts', inputs)
         self.assertFile(expression, 'exp', 'auto_detect_strand_tpm.tab.gz', compression='gzip')
+
+    @tag_process('shrna-quant')
+    def test_shrna_quant(self):
+        with self.preparation_stage():
+            pf_in = './shrna_diffexp/input/'
+            pf_out = './shrna_diffexp/output/'
+
+            species = 'Homo sapiens'
+            build = 'custom-from-file'
+            bam_single_inputs = {
+                'src': pf_in + 'SM18_ss.bam',
+                'species': species,
+                'build': build
+            }
+            bam = self.run_process('upload-bam', bam_single_inputs)
+
+        inputs = {
+            'alignment': bam.id,
+            'readlengths': 26,
+            'alignscores': -6
+        }
+
+        quant = self.run_process('shrna-quant', inputs)
+        self.assertFile(quant, 'rc', pf_out + 'SM18_ss_count_matrix.txt.gz', compression='gzip')
+        self.assertFile(quant, 'exp', pf_out + 'SM18_ss_count_matrix.txt.gz', compression='gzip')
+        self.assertFields(quant, 'exp_type', 'RC')
+        self.assertJSON(quant, quant.output['exp_json'], '', pf_out + 'SM18_ss_json.txt.gz')
+        self.assertFields(quant, 'source', 'shRNA-gene-sequences')
+        self.assertFields(quant, 'species', species)
+        self.assertFields(quant, 'build', build)
+        self.assertFields(quant, 'feature_type', 'shRNA')
+        self.assertFile(quant, 'mapped_species', pf_out + 'SM18_ss_mapped_species.txt.gz', compression='gzip')

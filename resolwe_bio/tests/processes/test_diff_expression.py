@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring
-from resolwe.flow.models import Data
+from resolwe.flow.models import Data, Process
 from resolwe.test import tag_process
 
 from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
@@ -163,3 +163,109 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')
         self.assertFields(diff_exp, 'build', 'dd-05-2009')
         self.assertFields(diff_exp, 'feature_type', 'gene')
+
+    @with_resolwe_host
+    @tag_process('differentialexpression-shrna')
+    def test_shrna_diffexp(self):
+        with self.preparation_stage():
+            pf_in = 'shrna_diffexp/input/'
+            pf_out = 'shrna_diffexp/output/'
+
+            # Prepare parameter file.
+            parameter_file = self.run_process('upload-file', {'src': pf_in + 'template_doDE_inputs.xlsx'})
+
+            # Prepare mock upload process.
+            process = Process.objects.create(
+                name='Upload shRNA expression files produced by shrna-quant.',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                data_name="shRNA expression ({{ reads|sample_name|default('?') }})",
+                # data_name="shRNA expression ({{ input_data | name | default('?') }})",
+                contributor=self.contributor,
+                type='data:expression:shrna2quant:',
+                input_schema=[
+                    {
+                        'name': 'exp',
+                        'type': 'basic:file:',
+                    }
+                ],
+                output_schema=[
+                    {
+                        'name': 'exp',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'rc',
+                        'type': 'basic:file:'
+                    },
+                    {
+                        'name': 'exp_type',
+                        'type': 'basic:string:'
+                    },
+                    {
+                        'name': 'source',
+                        'type': 'basic:string:'
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:'
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:'
+                    },
+                    {
+                        'name': 'feature_type',
+                        'type': 'basic:string:'
+                    },
+                    {
+                        'name': 'mapped_species',
+                        'type': 'basic:file:'
+                    }
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+            re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "txt" "txt" 0.1 compress
+            
+            cp "${NAME}".txt.gz "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
+            
+            re-save-file exp "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
+            re-save-file rc "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
+            re-save exp_type 'RC'
+            re-save source 'shRNA-gene-sequences'
+            re-save species 'Homo sapiens'
+            re-save build 'custom-from-file'
+            re-save feature_type 'shRNA'
+            # Uploading fake mapped species file, do not use in tests.
+            re-save-file mapped_species "${NAME}".txt.gz
+            """
+                }
+            )
+
+            sample_filenames = [pf_in + f'sample-{i}.txt.gz' for i in list(range(1, 13))]
+
+            list_expressions = []
+            for i in sample_filenames:
+                list_expressions.append(self.run_process(process.slug, {'exp': i}))
+
+        inputs = {
+            'parameter_file': parameter_file.id,
+            'expression_data': [i.pk for i in list_expressions]
+        }
+
+        de_res = self.run_process('differentialexpression-shrna', inputs)
+
+        self.assertFile(de_res, 'deseq_results', pf_out + 'deseq_results.txt.gz', compression='gzip')
+        self.assertFile(de_res, 'class_results', pf_out + 'class_results.txt.gz', compression='gzip')
+        self.assertFile(de_res, 'beneficial_counts', pf_out + 'beneficial_counts.txt.gz', compression='gzip')
+        self.assertFile(de_res, 'lethal_counts', pf_out + 'lethal_counts.txt.gz', compression='gzip')

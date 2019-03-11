@@ -1,0 +1,140 @@
+# =======================
+# Expression from bowtie2
+# =======================
+---
+
+- slug: shrna-quant
+  name: Quantify shRNA species using bowtie2
+  requirements:
+    expression-engine: jinja
+    executor:
+      docker:
+        image: resolwebio/rnaseq:3.7.1
+    resources:
+      cores: 1
+  data_name: "{{ alignment|sample_name|default('?') }}"
+  version: 1.0.0
+  type: data:expression:shrna2quant
+  category: Quantify
+  flow_collection: sample
+  persistence: CACHED
+  description: |
+    Based on `bowtie2` output (.bam file) calculate number of mapped species. Input is limited to results from
+    `bowtie2` since `YT:Z:` tag used to fetch aligned species is specific to this process. Result is a count matrix
+    (successfully mapped reads) where species are in rows columns contain read specifics (count, species name,
+    sequence, `AS:i:` tag value).
+  input:
+    - name: alignment
+      label: Alignment
+      type: data:alignment:bam
+      required: true
+    - name: readlengths
+      label: Species lengths threshold
+      type: basic:integer
+      description: |
+          Species with read lengths below specified threshold will be removed from final output. Default is no removal.
+    - name: alignscores
+      label: Align scores filter threshold
+      type: basic:integer
+      description:
+        Species with align score below specified threshold will be removed from final output. Default is no removal.
+  output:
+    - name: exp
+      label: Normalized expression
+      type: basic:file
+    - name: rc
+      label: Read counts
+      type: basic:file
+      required: false
+    - name: exp_json
+      label: Expression (json)
+      type: basic:json
+    - name: exp_type
+      label: Expression type
+      type: basic:string
+    - name: source
+      label: Gene ID source
+      type: basic:string
+    - name: species
+      label: Species
+      type: basic:string
+    - name: build
+      label: Build
+      type: basic:string
+    - name: feature_type
+      label: Feature type
+      type: basic:string
+    - name: mapped_species
+      label: Mapped species
+      type: basic:file
+  run:
+    runtime: polyglot
+    language: bash
+    program: |
+
+      # Prepare sample name.
+      {% set alignment_fn = alignment.bam.file|basename %}
+      {% set name = alignment_fn[:-4] if alignment_fn.endswith('.bam') else alignment_fn %}
+
+      # Prepare output files and compressed output files.
+      {% set sp_mapped = name ~ '_mapped_species.txt' %} # file for mapped species
+      {% set sp_mapped_gz = sp_mapped ~ '.gz' %} # compressed file of mapped species
+      {% set count_matrix = name ~ '_count_matrix.txt' %}
+      {% set count_matrix_gz = count_matrix ~ '.gz' %}
+
+      # Extract read species counts and alignment score.
+      echo "Generating mapped species lists."
+
+      # Convert .bam file from a binary into tabular (.sam) form so that awk is able to read it.
+      # -h includes header in sam format.
+      # To find mapped species, search for rows with tags AS:i: and YT:Z:.
+      # YT:Z: is specific to bowtie2, see http://bowtie-bio.sourceforge.net/bowtie2/manual.shtml
+
+      samtools view -h {{ alignment.bam.file }} | \
+        awk '/YT:Z:/ && /AS:i:/' | \
+        cut -f 3,10,12 | \
+        sort | \
+        uniq -c | \
+        sort -k 2,2 -k 1,1nr -k 4,4n > {{ sp_mapped }}
+
+      # cut -f 3,10,12 will output only fields 3,10,12
+      # -k2,2 does sort on and only on column 2. if ,2 is omitted, it sorts from column 2 onwards
+      # n stands for numeric ordering: nr stands for numeric reverse
+      # uniq -c counts the number of (sorted and) identical lines
+
+      re-checkrc "Failed to produce mapped species file"
+      re-progress 0.5
+
+      # Convert mapping file to expression file using an R script.
+      mapped_species_to_expression.R \
+        --input={{ sp_mapped }} \
+        --name={{ name }} \
+        {% if readlengths %}--readlengths={{ readlengths }} {% endif %} \
+        {% if alignscores %}--alignscores={{ alignscores }} {% endif %}
+      # output is automatically {{ name }}_count_matrix.txt
+
+      re-checkrc "Failed to convert mappings file to expression file"
+      re-progress 0.8
+
+      # Result is compressed file with ending .gz (which we've already defined in the header).
+      gzip {{ sp_mapped }}
+      re-checkrc "Failed to compress mapped species"
+      gzip {{ count_matrix }}
+      re-checkrc "Failed to compress count matrix"
+
+      re-save exp_type "RC"
+      re-save-file exp {{ count_matrix_gz }}
+      re-save-file mapped_species {{ sp_mapped_gz }}
+      re-save-file rc {{ count_matrix_gz }}
+
+      expression2storage.py --output json.txt {{ count_matrix_gz }}
+      re-checkrc
+
+      re-save species {{ alignment.species }}
+      re-save exp_json json.txt
+      re-save source "shRNA-gene-sequences"
+      re-save build {{ alignment.build }}
+      re-save feature_type "shRNA"
+
+      echo "Done."
+      re-progress 1.0
