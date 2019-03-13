@@ -12,8 +12,12 @@
     executor:
       docker:
         image: resolwebio/rnaseq:4.0.0
+    relations:
+      - type: group
+        category: Replicate
+        required: True
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED

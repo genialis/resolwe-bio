@@ -10,8 +10,14 @@
     executor:
       docker:
         image: resolwebio/base:ubuntu-18.04
+    relations:
+      - type: background
+        labels:
+          - background
+          - case
+        required: True
   data_name: ChIP-Seq Call Peaks Batch
-  version: 1.0.0
+  version: 1.0.1
   type: data:chipseq:batch:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
