@@ -16,6 +16,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Rename and improve descriptions of
   processes specific to CATS RNA-seq kits. Remove related
   ``cutadapt-star-htseq`` descriptor schema.
+- **BACKWARD INCOMPATIBLE:** Remove ``workflow-accel-gatk4`` pipeline.
+  Remove ``amplicon-panel``, ``amplicon-panel-advanced`` and
+  ``amplicon-master-file`` descriptor schemas.
 
 
 =================

@@ -6,7 +6,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class AmpliconWorkflowTestCase(BioProcessTestCase):
-    @tag_process('workflow-accel', 'workflow-accel-gatk4')
+    @tag_process('workflow-accel')
     def test_amplicon_workflow(self):
         with self.preparation_stage():
             inputs = {
@@ -41,31 +41,6 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
 
         self.run_process(
             'workflow-accel', {
-                'reads': reads.id,
-                'genome': genome.id,
-                'master_file': master_file.id,
-                'adapters': adapters.id,
-                'preprocess_bam': {
-                    'known_vars': [dbsnp.id],
-                    'known_indels': [indels.id]
-                },
-                'gatk': {
-                    'dbsnp': dbsnp.id,
-                    'mbq': 20,
-                    'stand_call_conf': 20
-                },
-                'lofreq': {
-                    'min_bq': 20,
-                    'min_alt_bq': 20
-                },
-                'var_annot': {
-                    'known_vars_db': [dbsnp.id]
-                },
-            }
-        )
-
-        self.run_process(
-            'workflow-accel-gatk4', {
                 'reads': reads.id,
                 'genome': genome.id,
                 'master_file': master_file.id,
