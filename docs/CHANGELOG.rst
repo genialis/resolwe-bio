@@ -13,6 +13,9 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 16.x
+- **BACKWARD INCOMPATIBLE:** Rename and improve descriptions of
+  processes specific to CATS RNA-seq kits. Remove related
+  ``cutadapt-star-htseq`` descriptor schema.
 
 
 =================
