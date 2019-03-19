@@ -6,13 +6,13 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+17.0.0 2019-03-19
+=================
 
 Added
 -----
-- Add ``qorts-qc`` (Quality of RNA-seq Tool-Set QC) process.
+- Add ``qorts-qc`` (Quality of RNA-seq Tool-Set QC) process
 - Add ``workflow-bbduk-star-fc-quant-single`` and
   ``workflow-bbduk-star-fc-quant-paired`` processes
 - Add independent gene filtering and gene filtering based on Cook's distance
@@ -37,7 +37,7 @@ Changed
   ``workflow-bbduk-star-featurecounts-paired``.
 - Save CPM-normalized expressions in ``feature_counts`` process. Control
   the default expression normalization type (``exp_type``) using the
-  ``normalization_type`` input
+  ``normalization_type`` input.
 - Bump MultiQC to version 1.7.0 in ``multiqc`` process
 - Use ``resolwebio/common:1.1.0`` base image for the
   ``resolwebio/rnaseq:4.3.0`` Docker image
