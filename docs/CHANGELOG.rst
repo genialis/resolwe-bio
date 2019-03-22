@@ -14,9 +14,18 @@ Added
 -----
 - Add shRNAde (v1.0) R package to the ``resolwebio/rnaseq:4.4.0`` Docker image
 - Add ``resolwebio/scseq`` Docker image
+<<<<<<< HEAD
 - Add shRNA differential expression process. This is a two-step process which
   trims, aligns and quantifies short hairpin RNA species. These are then used
   in a differential expression.
+=======
+- Add ``sc-seq`` processes:
+
+  - ``cellranger-mkref``
+  - ``cellranger-count``
+  - ``upload-sc-10x``
+  - ``upload-bam-scseq-indexed``
+>>>>>>> Add scseq processes
 
 Changed
 -------
