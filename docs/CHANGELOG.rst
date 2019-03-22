@@ -17,6 +17,12 @@ Added
 - Add shRNA differential expression process. This is a two-step process which
   trims, aligns and quantifies short hairpin RNA species. These are then used
   in a differential expression.
+- Add ``sc-seq`` processes:
+
+  - ``cellranger-mkref``
+  - ``cellranger-count``
+  - ``upload-sc-10x``
+  - ``upload-bam-scseq-indexed``
 
 Changed
 -------
