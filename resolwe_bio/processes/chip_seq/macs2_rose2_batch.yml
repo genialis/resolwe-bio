@@ -4,7 +4,7 @@
 ---
 
 - slug: macs2-rose2-batch
-  name: MACS2-ROSE2 batch
+  name: ChIP-seq (MACS2-ROSE2)
   requirements:
     expression-engine: jinja
     executor:
@@ -17,11 +17,11 @@
           - case
         required: True
   data_name: ChIP-Seq Workflow Batch
-  version: 1.0.1
+  version: 1.0.2
   type: data:chipseq:batch:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
-  description: >
+  description: |
     This process runs MACS2 in batch mode. MACS2 analysis is triggered
     for pairs of samples as defined using treatment-background sample
     relations. If there are no sample relations defined, each sample is
@@ -57,10 +57,17 @@
       type: list:data:alignment:bam
       description: >
         Select multiple treatment/background samples.
+    - name: advanced
+      label: Show advanced options
+      type: basic:boolean
+      default: false
+      description: >
+        Inspect and modify parameters.
     - name: promoter
       label: Promoter regions BED file
       type: data:bed
       required: false
+      hidden: "!advanced"
       description: >
         BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
         of peaks and reads mapped to promoter regions.
@@ -68,12 +75,14 @@
       label: Use tagAlign files
       type: basic:boolean
       default: false
+      hidden: "!advanced"
       description: >
          Use filtered tagAlign files as case (treatment) and control
          (background) samples. If extsize parameter is not set, run MACS
          using input's estimated fragment length.
     - name: prepeakqc_settings
       label: Pre-peak QC settings
+      hidden: "!advanced"
       group:
         - name: q_threshold
           label: Quality filtering threshold
@@ -98,6 +107,7 @@
             as fragment length.
     - name: settings
       label: MACS2 settings
+      hidden: "!advanced"
       group:
         - name: duplicates
           label: Number of duplicates
@@ -334,6 +344,7 @@
             set, this is a p-value cutoff, otherwise, it's a q-value cutoff. DEFAULT = 0.1
     - name: rose_settings
       label: ROSE2 settings
+      hidden: "!advanced"
       group:
         - name: tss
           label: TSS exclusion
