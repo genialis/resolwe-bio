@@ -8,7 +8,7 @@ Views
 from elasticsearch_dsl.query import Q
 
 from rest_framework import viewsets, mixins, permissions
-from rest_framework_filters.backends import DjangoFilterBackend
+from django_filters.rest_framework.backends import DjangoFilterBackend
 
 from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
 

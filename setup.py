@@ -51,16 +51,12 @@ setup(
         # XXX: Remove django-autoslug after all migrations that import
         # it are deleted
         'django-autoslug==1.9.3',
-        'djangorestframework~=3.7.0',
-        'djangorestframework-filters~=0.10.0',
+        'djangorestframework~=3.9.0',
         'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=16.0a1, ==16.*',
         'wrapt>=1.10.8',
-        # XXX: djangorestframework-filters has too open requirement for
-        # django-filter and doesn't work with the latest version, so we
-        # have to pin it
-        'django-filter~=1.0.0',
+        'django-filter~=2.0.0',
     ),
     python_requires='>=3.6, <3.7',
     extras_require = {

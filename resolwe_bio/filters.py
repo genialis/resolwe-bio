@@ -7,7 +7,7 @@ Resolwe Bio Filters
 """
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import rest_framework_filters as filters
+import django_filters as filters
 
 from resolwe.flow.filters import CollectionFilter, DataFilter
 from resolwe_bio.models import Sample
@@ -29,12 +29,7 @@ class BioCollectionFilter(CollectionFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
-
-    class Meta(CollectionFilter.Meta):
-        """Filter configuration."""
-
-        fields = CollectionFilter.Meta.fields + ['sample']
+    sample = filters.ModelChoiceFilter(field_name='entity', queryset=Sample.objects.all())
 
 
 class BioDataFilter(DataFilter):
@@ -53,9 +48,4 @@ class BioDataFilter(DataFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(name='entity', queryset=Sample.objects.all())
-
-    class Meta(DataFilter.Meta):
-        """Filter configuration."""
-
-        fields = DataFilter.Meta.fields + ['sample']
+    sample = filters.ModelChoiceFilter(field_name='entity', queryset=Sample.objects.all())
