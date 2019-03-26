@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 - Add shRNAde (v1.0) R package to the ``resolwebio/rnaseq:4.4.0`` Docker image
+- Add ``resolwebio/scseq`` Docker image
 
 Changed
 -------
