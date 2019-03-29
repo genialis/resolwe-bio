@@ -3,10 +3,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:htseq:single
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps, preprocessing,
     alignment, and quantification.
 
@@ -29,13 +29,13 @@
     - name: star_index
       label: Star index
       type: data:genomeindex:star
-      description: >
+      description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
       label: Adapters
       type: list:data:seq:nucleotide
       required: false
-      description: >
+      description: |
         Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
     - name: annotation
       label: annotation
@@ -96,10 +96,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:htseq:paired
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps, preprocessing,
     alignment, and quantification.
 
@@ -122,13 +122,13 @@
     - name: star_index
       label: Star index
       type: data:genomeindex:star
-      description: >
+      description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
       label: Adapters
       type: list:data:seq:nucleotide
       required: false
-      description: >
+      description: |
         Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
     - name: annotation
       label: Annotation

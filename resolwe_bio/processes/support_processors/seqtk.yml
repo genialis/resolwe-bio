@@ -9,12 +9,12 @@
       cores: 1
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:single:seqtk
-  category: other
+  category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     [Seqtk](https://github.com/lh3/seqtk) is a fast and lightweight tool for
     processing sequences in the FASTA or FASTQ format. The Seqtk "sample" command
     enables subsampling of the large FASTQ file(s).
@@ -38,7 +38,7 @@
           type: basic:decimal
           required: false
           range: [0, 1.0]
-          description: >
+          description: |
             Use the fraction of reads [0 - 1.0] from the orignal input file instead
             of the absolute number of reads. If set, this will override the
             "Number of reads" input parameter.
@@ -46,7 +46,7 @@
           label: 2-pass mode
           type: basic:boolean
           default: false
-          description: >
+          description: |
             Enable two-pass mode when down-sampling. Two-pass mode is twice
             as slow but with much reduced memory.
   output:
@@ -99,12 +99,12 @@
       cores: 1
       memory: 2048
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.0
+  version: 1.0.1
   type: data:reads:fastq:paired:seqtk
-  category: other
+  category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     [Seqtk](https://github.com/lh3/seqtk) is a fast and lightweight tool for
     processing sequences in the FASTA or FASTQ format. The Seqtk "sample" command
     enables subsampling of the large FASTQ file(s).
@@ -128,7 +128,7 @@
           type: basic:decimal
           required: false
           range: [0, 1.0]
-          description: >
+          description: |
             Use the fraction of reads [0 - 1.0] from the orignal input file instead
             of the absolute number of reads. If set, this will override the
             "Number of reads" input parameter.
@@ -136,7 +136,7 @@
           label: 2-pass mode
           type: basic:boolean
           default: false
-          description: >
+          description: |
             Enable two-pass mode when down-sampling. Two-pass mode is twice
             as slow but with much reduced memory.
   output:

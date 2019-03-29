@@ -13,17 +13,17 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:ontology:obo
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Upload gene ontology in OBO format.
   input:
     - name: src
       label: Gene ontology (OBO)
       type: basic:file
-      description: >
+      description: |
         Gene ontology in OBO format.
       required: true
       validate_regex: '\.obo(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'

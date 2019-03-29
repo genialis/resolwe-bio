@@ -11,12 +11,12 @@
       docker:
         image: resolwebio/bamliquidator:1.0.0
   data_name: "bamplot"
-  version: 1.3.0
+  version: 1.3.1
   type: data:bam:plot:bamplot
-  category: plotting
+  category: Plot
   persistence: CACHED
-  description: >
-    Plotting a single locus from a bam.
+  description: |
+    Plot a single locus from a bam.
   input:
     - name: genome
       label: Genome
@@ -40,31 +40,31 @@
       label: Region string
       type: data:annotation:gtf
       required: false
-      description: >
+      description: |
          Enter .gff file.
     - name: input_region
       label: Region string
       type: basic:string
       required: false
-      description: >
+      description: |
          Enter genomic region e.g. chr1:+:1-1000.
     - name: bam
       label: Bam
       type: list:data:alignment:bam
       required: false
-      description: >
+      description: |
          bam to plot from
     - name: stretch_input
       label: Stretch-input
       required: false
       type: basic:integer
-      description: >
+      description: |
          Stretch the input regions to a minimum length in bp, e.g. 10000 (for 10kb).
     - name: color
       label: Color
       type: basic:string
       default: '255,0,0:255,125,0'
-      description: >
+      description: |
          Enter a colon separated list of colors e.g. 255,0,0:255,125,0, default samples the rainbow.
     - name: sense
       label: Sense
@@ -77,19 +77,19 @@
           value: reverse
         - label: Both
           value: both
-      description: >
+      description: |
          Map to forward, reverse or'both strands. Default maps to both.
     - name: extension
       label: Extension
       type: basic:integer
       default: 200
-      description: >
+      description: |
          Extends reads by n bp. Default value is 200bp.
     - name: rpm
       label: rpm
       type: basic:boolean
       required: false
-      description: >
+      description: |
          Normalizes density to reads per million (rpm) Default is False.
     - name: yscale
       label: y scale
@@ -100,13 +100,13 @@
           value: relative
         - label: uniform
           value: uniform
-      description: >
+      description: |
         Choose either relative or uniform y axis scaling. Default is relative scaling.
     - name: names
       label: Names
       type: list:basic:string
       required: false
-      description: >
+      description: |
          Enter a comma separated list of names for your bams.
     - name: plot
       label: Single or multiple polt
@@ -119,31 +119,31 @@
           value: multiple
         - label: merge
           value: merge
-      description: >
+      description: |
         Choose either all lines on a single plot or multiple plots.
     - name: title
       label: Title
       type: basic:string
       default: output
-      description: >
+      description: |
          Specify a title for the output plot(s), default will be the coordinate region.
     - name: scale
       label: Scale
       type: basic:string
       required: false
-      description: >
+      description: |
          Enter a comma separated list of multiplicative scaling factors for your bams. Default is none.
     - name: bed
       label: Bed
       type: list:data:bed
       required: false
-      description: >
+      description: |
          Add a space-delimited list of bed files to plot.
     - name: multi_page
       label: Multi page
       type: basic:boolean
       default: false
-      description: >
+      description: |
          If flagged will create a new pdf for each region.
   output:
     - name: plot

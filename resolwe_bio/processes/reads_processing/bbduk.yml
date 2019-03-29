@@ -16,12 +16,12 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.0
+  version: 2.2.1
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     BBDuk combines the most common data-quality-related trimming, filtering,
     and masking operations into a single high-performance tool. It is capable
     of quality-trimming and filtering, adapter-trimming, contaminant-filtering
@@ -39,7 +39,7 @@
       label: Minimum length [minlength=10]
       type: basic:integer
       default: 10
-      description: >
+      description: |
         Reads shorter than the minimum length will be discarded after trimming.
     - name: show_advanced
       label: Show advanced parameters
@@ -53,7 +53,7 @@
           label: Sequences [ref]
           type: list:data:seq:nucleotide
           required: false
-          description: >
+          description: |
             Reference sequences include adapters, contaminants, and degenerate sequences. They can
             be provided in a multi-sequence FASTA file or as a set of literal sequences below.
         - name: literal_sequences
@@ -61,7 +61,7 @@
           type: list:basic:string
           required: false
           default: []
-          description: >
+          description: |
             Literal sequences can be specified by inputting them one by one and pressing Enter
             after each sequence.
     - name: processing
@@ -72,7 +72,7 @@
           label: Kmer length [k=27]
           type: basic:integer
           default: 27
-          description: >
+          description: |
             Kmer length used for finding contaminants. Contaminants shorter than Kmer length will
             not be found. Kmer length must be at least 1.
         - name: check_reverse_complements
@@ -89,13 +89,13 @@
           label: Minimum number of kmer hits [minkmerhits=1]
           type: basic:integer
           default: 1
-          description: >
+          description: |
             Reads need at least this many matching kmers to be considered matching the reference.
         - name: min_kmer_fraction
           label: Minimum kmer fraction [minkmerfraction=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             A read needs at least this fraction of its total kmers to hit a reference in order to
             be considered a match. If this and 'Minimum number of kmer hits' are set, the greater is
             used.
@@ -103,7 +103,7 @@
           label: Minimum coverage fraction [mincovfraction=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             A read needs at least this fraction of its total bases to be covered by reference kmers
             to be considered a match. If specified, 'Minimum coverage fraction' overrides 'Minimum
             number of kmer hits' and 'Minimum kmer fraction'.
@@ -140,7 +140,7 @@
             Forbid matching of read kmers containing N [forbidn=f]
           type: basic:boolean
           default: false
-          description: >
+          description: |
             By default, these will match a reference 'A' if 'Maximum Hamming distance for kmers' > 0
             or 'Maximum edit distance from reference kmers' > 0, to increase sensitivity.
         - name: find_best_match
@@ -167,7 +167,7 @@
           label: Symbol to replace bases matching reference kmers [kmask=f]
           type: basic:string
           default: f
-          description: >
+          description: |
              Allows any non-whitespace character other than t or f. Processes short kmers on both
              ends.
         - name: mask_fully_covered
@@ -180,7 +180,7 @@
             [mink=0]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             -1 means disabled. Enabling this will disable treating the middle base of a kmer as a
             wildcard to increase sensitivity in the presence of errors.
         - name: quality_trim
@@ -200,7 +200,7 @@
               value: l
             - label: Use sliding window
               value: w
-          description: >
+          description: |
             Performed after looking for kmers. If enabled, set also 'Average quality below which to
             trim region'.
         - name: trim_quality
@@ -218,25 +218,25 @@
           label: Minimum length fraction [mlf=0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             Reads shorter than this fraction of original length after trimming will be discarded.
         - name: max_length
           label: Maximum length [maxlength]
           type: basic:integer
           required: false
-          description: >
+          description: |
             Reads longer than this after trimming will be discarded.
         - name: min_average_quality
           label: Minimum average quality [minavgquality=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
               Reads with average quality (after trimming) below this will be discarded.
         - name: min_average_quality_bases
           label: Number of initial bases to calculate minimum average quality from [maqb=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
             Used only if positive.
         - name: min_base_quality
           label: >
@@ -255,13 +255,13 @@
           label: Minimum number of overlapping bases [minoverlap=14]
           type: basic:integer
           default: 14
-          description: >
+          description: |
             Require this many bases of overlap for detection.
         - name: min_insert
           label: Minimum insert size [mininsert=40]
           type: basic:integer
           default: 40
-          description: >
+          description: |
             Require insert size of at least this for overlap. Should be reduced to 16 for small RNA
             sequencing.
         - name: force_trim_left
@@ -280,7 +280,7 @@
           label: Modulo to right-trim reads [forcetrimmod=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
             Trim reads to the largest multiple of modulo.
         - name: restrict_left
           label: Number of leftmost bases to look in for kmer matches [restrictleft=0]
@@ -294,19 +294,19 @@
           label: Minimum GC content [mingc=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             Discard reads with lower GC content.
         - name: max_GC
           label: Maximum GC content [maxgc=1.0]
           type: basic:decimal
           default: 1.0
-          description: >
+          description: |
             Discard reads with higher GC content.
         - name: maxns
           label: Max Ns after trimming [maxns=-1]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: toss_junk
           label: Discard reads with invalid characters as bases [tossjunk=f]
@@ -337,7 +337,7 @@
           type: list:basic:string
           required: false
           default: []
-          description: >
+          description: |
             Literal barcode sequences can be specified by inputting them one by one and pressing
             Enter after each sequence.
         - name: x_min
@@ -368,7 +368,7 @@
           label: Minimum entropy [entropy=-1]
           type: basic:decimal
           default: -1.0
-          description: >
+          description: |
             Set between 0 and 1 to filter reads with entropy below that value. Higher is more
             stringent.
         - name: entropy_window
@@ -396,7 +396,7 @@
           label: Disable grouping of bases for reads >50bp [nogroup]
           type: basic:boolean
           default: false
-          description: >
+          description: |
             All reports will show data for every base in the read. Using this option will cause
             fastqc to crash and burn if you use it on really long reads.
   output:
@@ -552,12 +552,12 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.0
+  version: 2.2.1
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     BBDuk combines the most common data-quality-related trimming, filtering,
     and masking operations into a single high-performance tool. It is capable
     of quality-trimming and filtering, adapter-trimming, contaminant-filtering
@@ -575,7 +575,7 @@
       label: Minimum length [minlength=10]
       type: basic:integer
       default: 10
-      description: >
+      description: |
         Reads shorter than the minimum length will be discarded after trimming.
     - name: show_advanced
       label: Show advanced parameters
@@ -589,7 +589,7 @@
           label: Sequences [ref]
           type: list:data:seq:nucleotide
           required: false
-          description: >
+          description: |
             Reference sequences include adapters, contaminants, and degenerate sequences. They can
             be provided in a multi-sequence FASTA file or as a set of literal sequences below.
         - name: literal_sequences
@@ -597,7 +597,7 @@
           type: list:basic:string
           required: false
           default: []
-          description: >
+          description: |
             Literal sequences can be specified by inputting them one by one and pressing Enter
             after each sequence.
     - name: processing
@@ -608,7 +608,7 @@
           label: Kmer length [k=27]
           type: basic:integer
           default: 27
-          description: >
+          description: |
             Kmer length used for finding contaminants. Contaminants shorter than kmer length will
             not be found. Kmer length must be at least 1.
         - name: check_reverse_complements
@@ -625,13 +625,13 @@
           label: Minimum number of kmer hits [minkmerhits=1]
           type: basic:integer
           default: 1
-          description: >
+          description: |
             Reads need at least this many matching kmers to be considered as matching the reference.
         - name: min_kmer_fraction
           label: Minimum kmer fraction [minkmerfraction=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             A read needs at least this fraction of its total kmers to hit a reference in order to
             be considered a match. If this and 'Minimum number of kmer hits' are set, the greater is
             used.
@@ -639,7 +639,7 @@
           label: Minimum coverage fraction [mincovfraction=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             A read needs at least this fraction of its total bases to be covered by reference kmers
             to be considered a match. If specified, 'Minimum coverage fraction' overrides 'Minimum
             number of kmer hits' and 'Minimum kmer fraction'.
@@ -675,7 +675,7 @@
           label: Forbid matching of read kmers containing N [forbidn=f]
           type: basic:boolean
           default: false
-          description: >
+          description: |
             By default, these will match a reference 'A' if 'Maximum Hamming distance for kmers' > 0
             or 'Maximum edit distance from reference kmers' > 0, to increase sensitivity.
         - name: remove_if_either_bad
@@ -712,7 +712,7 @@
           label: Symbol to replace bases matching reference kmers [kmask=f]
           type: basic:string
           default: f
-          description: >
+          description: |
              Allows any non-whitespace character other than t or f. Processes short kmers on both
              ends.
         - name: mask_fully_covered
@@ -725,7 +725,7 @@
             [mink=0]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             -1 means disabled. Enabling this will disable treating the middle base of a kmer as a
             wildcard to increase sensitivity in the presence of errors.
         - name: quality_trim
@@ -745,7 +745,7 @@
               value: l
             - label: Use sliding window
               value: w
-          description: >
+          description: |
             Performed after looking for kmers. If enabled, set also 'Average quality below which to
             trim region'.
         - name: trim_quality
@@ -763,25 +763,25 @@
           label: Minimum length fraction [mlf=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             Reads shorter than this fraction of original length after trimming will be discarded.
         - name: max_length
           label: Maximum length [maxlength]
           type: basic:integer
           required: false
-          description: >
+          description: |
             Reads longer than this after trimming will be discarded.
         - name: min_average_quality
           label: Minimum average quality [minavgquality=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
               Reads with average quality (after trimming) below this will be discarded.
         - name: min_average_quality_bases
           label: Number of initial bases to calculate minimum average quality from [maqb=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
             Used only if positive.
         - name: min_base_quality
           label: >
@@ -810,13 +810,13 @@
           label: Minimum number of overlapping bases [minoverlap=14]
           type: basic:integer
           default: 14
-          description: >
+          description: |
             Require this many bases of overlap for detection.
         - name: min_insert
           label: Minimum insert size [mininsert=40]
           type: basic:integer
           default: 40
-          description: >
+          description: |
             Require insert size of at least this for overlap. Should be reduced to 16 for small RNA
             sequencing.
         - name: trim_pairs_evenly
@@ -840,7 +840,7 @@
           label: Modulo to right-trim reads [forcetrimmod=0]
           type: basic:integer
           default: 0
-          description: >
+          description: |
             Trim reads to the largest multiple of modulo.
         - name: restrict_left
           label: Number of leftmost bases to look in for kmer matches [restrictleft=0]
@@ -854,19 +854,19 @@
           label: Minimum GC content [mingc=0.0]
           type: basic:decimal
           default: 0.0
-          description: >
+          description: |
             Discard reads with lower GC content.
         - name: max_GC
           label: Maximum GC content [maxgc=1.0]
           type: basic:decimal
           default: 1.0
-          description: >
+          description: |
             Discard reads with higher GC content.
         - name: maxns
           label: Max Ns after trimming [maxns=-1]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: toss_junk
           label: Discard reads with invalid characters as bases [tossjunk=f]
@@ -897,7 +897,7 @@
           type: list:basic:string
           required: false
           default: []
-          description: >
+          description: |
             Literal barcode sequences can be specified by inputting them one by one and pressing
             Enter after each sequence.
         - name: x_min
@@ -928,7 +928,7 @@
           label: Minimum entropy [entropy=-1.0]
           type: basic:decimal
           default: -1.0
-          description: >
+          description: |
             Set between 0 and 1 to filter reads with entropy below that value. Higher is more
             stringent.
         - name: entropy_window
@@ -956,7 +956,7 @@
           label: Disable grouping of bases for reads >50bp [nogroup]
           type: basic:boolean
           default: false
-          description: >
+          description: |
             All reports will show data for every base in the read. Using this option will cause
             fastqc to crash and burn if you use it on really long reads.
   output:

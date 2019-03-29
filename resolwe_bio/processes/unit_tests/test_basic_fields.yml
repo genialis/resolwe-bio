@@ -11,10 +11,10 @@
       docker:
         image: resolwe/base:fedora-26
   data_name: "Test"
-  version: 1.1.0
+  version: 1.1.1
   type: data:test:fields
   persistence: CACHED
-  description: >
+  description: |
     Test with all basic input fields whose values are printed by the processor and returned unmodified as output fields.
   input:
     - name: boolean

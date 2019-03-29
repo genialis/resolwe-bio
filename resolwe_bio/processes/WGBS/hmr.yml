@@ -11,18 +11,18 @@
       docker:
         image: resolwebio/wgbs:1.0.0
   data_name: "{{ methcounts|sample_name|default('?') }}"
-  version: 1.0.0
+  version: 1.0.1
   type: data:wgbs:hmr
   category: WGBS
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
      	Identify hypo-methylated regions.
   input:
     - name: methcounts
       label: Methylation levels
       type: data:wgbs:methcounts
-      description: >
+      description: |
          Methylation levels data calculated using methcounts.
   output:
     - name: hmr

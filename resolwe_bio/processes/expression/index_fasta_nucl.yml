@@ -6,11 +6,11 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.3.0
+  version: 0.3.1
   type: data:index:expression
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Generate gene expression indices.
   input:
     - name: nucl
@@ -58,7 +58,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       hidden: "!(nucl && nucl_genome == 'ts')"

@@ -9,10 +9,10 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Library strandedness ({{ reads|sample_name }})'
-  version: 0.1.0
+  version: 0.1.1
   type: data:strandedness
   persistence: CACHED
-  description: >
+  description: |
     This process uses the Salmon transcript quantification tool to
     automatically infer the NGS library strandedness. For more details, please
     see the Salmon
@@ -21,20 +21,20 @@
     - name: reads
       label: Sequencing reads
       type: data:reads:fastq
-      description: >
+      description: |
         Sequencing reads in .fastq format. Both single and paired-end
         libraries are supported
     - name: read_number
       label: Number of input reads
       type: basic:integer
       default: 50000
-      description: >
+      description: |
         Number of sequencing reads that are subsampled from each of the
         original .fastq files before library strand detection
     - name: salmon_index
       label: Transcriptome index file
       type: data:index:salmon
-      description: >
+      description: |
         Transcriptome index file created using the Salmon indexing tool.
         cDNA (transcriptome) sequences used for index file creation must be
         derived from the same species as the input sequencing reads to
@@ -43,7 +43,7 @@
     - name: strandedness
       label: Library strandedness type
       type: basic:string
-      description: >
+      description: |
         The predicted library strandedness type. The codes U and IU
         indicate 'strand non-specific' library for single or paired-end
         reads, respectively. Codes SF and ISF correspond to the
@@ -55,13 +55,13 @@
     - name: fragment_ratio
       label: Compatible fragment ratio
       type: basic:decimal
-      description: >
+      description: |
         The ratio of fragments that support the predicted library
         strandedness type
     - name: log
       label: Log file
       type: basic:file
-      description: >
+      description: |
         Analysis log file.
   run:
     runtime: polyglot

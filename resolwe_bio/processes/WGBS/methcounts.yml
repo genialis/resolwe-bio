@@ -11,12 +11,12 @@
       docker:
         image: resolwebio/wgbs:1.0.0
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 1.0.0
+  version: 1.0.1
   type: data:wgbs:methcounts
   category: WGBS
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     The methcounts program takes the mapped reads and produces the methylation level at each
     genomic cytosine, with the option to produce only levels for CpG-context cytosines.
   input:
@@ -26,14 +26,14 @@
     - name: alignment
       label: Mapped reads
       type: data:alignment:mr
-      description: >
+      description: |
          WGBS alignment file in Mapped Read (.mr) format.
     - name: cpgs
       label: Only CpG context sites
       type: basic:boolean
       default: false
       disabled: "symmetric_cpgs"
-      description: >
+      description: |
         Output file will contain methylation data for CpG context sites only. Choosing this option
         will result in CpG content report only.
     - name: symmetric_cpgs
@@ -41,7 +41,7 @@
       type: basic:boolean
       default: true
       disabled: "cpgs"
-      description: >
+      description: |
         Merging CpG pairs results in symmetric methylation levels. Methylation is usually
         symmetric (cytosines at CpG sites were methylated on both DNA strands). Choosing this
         option will only keep the CpG sites data.

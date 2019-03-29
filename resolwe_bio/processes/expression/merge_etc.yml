@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/base:ubuntu-18.04
   data_name: "Merged ETC"
-  version: 1.1.0
+  version: 1.1.1
   type: data:expressionset:etc
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Merge Expression Time Course (ETC) data.
   input:
     - name: exps

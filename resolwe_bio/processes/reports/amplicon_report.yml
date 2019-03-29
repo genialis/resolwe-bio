@@ -10,12 +10,12 @@
       docker:
         image: resolwebio/latex:1.0.7
   data_name: "Report ({{ coverage|sample_name|default('?') }})"
-  version: 1.0.3
+  version: 1.0.4
   type: data:report:amplicon
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Create amplicon report.
   input:
     - name: pcr_metrics

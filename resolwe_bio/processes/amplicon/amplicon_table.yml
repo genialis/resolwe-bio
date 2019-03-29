@@ -11,12 +11,12 @@
       docker:
         image: resolwebio/common:1.0.0
   data_name: "{{table_name}}"
-  version: 1.0.0
+  version: 1.0.1
   type: data:varianttable:amplicon
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Create variant table for use together with the genome browser.
   input:
     - name: master_file

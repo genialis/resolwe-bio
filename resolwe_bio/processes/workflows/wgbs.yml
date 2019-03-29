@@ -1,12 +1,12 @@
 - slug: workflow-wgbs
-  name: Whole genome bisulfite sequencing
+  name: WGBS
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.2
   type: data:workflow:wgbs
   category: Pipeline
-  description: >
+  description: |
     This WGBS pipeline is comprised of three steps - alignment, computation of
     methylation levels, and identification of hypo-methylated regions (HMRs).
 
@@ -18,10 +18,10 @@
     [MethPipe](http://smithlabresearch.org/software/methpipe/) package.
   input:
     - name: reads
-      label: Input reads
+      label: Select sample(s)
       type: data:reads:fastq
     - name: genome
-      label: genome
+      label: Genome
       type: data:genome:fasta
     - name: alignment
       label: Alignment (WALT)
@@ -38,7 +38,7 @@
           label: Number of reads to map in one loop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Sets the number of reads to mapping in each loop. Larger number results in program
             taking more memory. This is especially evident in paired-end mapping.
     - name: methcounts
@@ -49,7 +49,7 @@
           type: basic:boolean
           default: false
           disabled: "methcounts.symmetric_cpgs"
-          description: >
+          description: |
             Output file will contain methylation data for CpG context sites only. Choosing this
             option will result in CpG content report only.
         - name: symmetric_cpgs
@@ -57,7 +57,7 @@
           type: basic:boolean
           default: true
           disabled: "methcounts.cpgs"
-          description: >
+          description: |
             Merging CpG pairs results in symmetric methylation levels. Methylation is usually
             symmetric (cytosines at CpG sites were methylated on both DNA strands). Choosing this
             option will only keep the CpG sites data.

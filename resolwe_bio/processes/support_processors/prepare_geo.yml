@@ -13,22 +13,22 @@
       docker:
         image: resolwebio/base:ubuntu-18.04
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 2.0.1
+  version: 2.0.2
   type: data:other:geo:chipseq
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Prepare ChIP-seq data for GEO upload.
   input:
     - name: reads
       label: Reads
       type: list:data:reads:fastq
-      description: >
+      description: |
         List of reads objects. Fastq files will be used.
     - name: macs
       label: MACS
       type: list:data:chipseq:callpeak
-      description: >
+      description: |
         List of MACS2 or MACS14 objects. BedGraph (MACS2) or Wiggle (MACS14) files will be used.
     - name: name
       label: Collection name
@@ -157,22 +157,22 @@
       docker:
         image: resolwebio/base:ubuntu-18.04
   data_name: 'Prepare GEO ({{name}} - RNA-Seq)'
-  version: 0.1.0
+  version: 0.1.1
   type: data:other:geo:rnaseq
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Prepare RNA-Seq data for GEO upload.
   input:
     - name: reads
       label: Reads
       type: list:data:reads:fastq
-      description: >
+      description: |
         List of reads objects. Fastq files will be used.
     - name: expressions
       label: Expressions
       type: list:data:expression
-      description: >
+      description: |
         Cuffnorm data object. Expression table will be used.
     - name: name
       label: Collection name

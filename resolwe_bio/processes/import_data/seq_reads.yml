@@ -14,12 +14,12 @@
       cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.2.0
+  version: 2.2.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import single-end reads in FASTQ format, which is a text-based format for
     storing both a biological sequence (usually nucleotide sequence) and its
     corresponding quality scores.
@@ -27,7 +27,7 @@
     - name: src
       label: Reads
       type: list:basic:file
-      description: >
+      description: |
         Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
@@ -107,12 +107,12 @@
       cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.2.0
+  version: 2.2.1
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
   persistence: RAW
-  description: >
+  description: |
     Import paired-end reads in FASTQ format, which is a text-based format for
     storing both a biological sequence (usually nucleotide sequence) and its
     corresponding quality scores.
@@ -120,13 +120,13 @@
     - name: src1
       label: Mate1
       type: list:basic:file
-      description: >
+      description: |
         Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
     - name: src2
       label: Mate2
       type: list:basic:file
-      description: >
+      description: |
         Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
   output:
@@ -243,18 +243,18 @@
       docker:
         image: resolwebio/rnaseq:4.1.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.2.0
+  version: 1.2.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Convert FASTQ files to single-end reads.
   input:
     - name: src
       label: Reads
       type: list:data:file
-      description: >
+      description: |
         Sequencing reads in FASTQ format
   output:
     - name: fastq
@@ -329,12 +329,12 @@
       docker:
         image: resolwebio/rnaseq:4.1.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.2.0
+  version: 1.2.1
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
   persistence: RAW
-  description: >
+  description: |
     Convert FASTQ files to paired-end reads.
   input:
     - name: src1

@@ -11,14 +11,14 @@
       docker:
         image: resolwebio/chipseq:3.1.0
   data_name: "{{ rankby|sample_name|default('?') }}"
-  version: 4.2.0
+  version: 4.2.1
   type: data:chipseq:rose2
   entity:
     type: sample
     input: input
   category: ChIP-Seq:Post Process
   persistence: CACHED
-  description: >
+  description: |
     For identification of super enhancers R2 uses the Rank Ordering of
     Super-Enhancers algorithm (ROSE2). This takes the peaks called by RSEG for
     acetylation and calculates the distances in-between to judge whether they
@@ -39,31 +39,31 @@
     - name: rankby
       label: BAM File
       type: data:alignment:bam
-      description: >
+      description: |
         bamfile to rank enhancer by
     - name: control
       label: Control BAM File
       type: data:alignment:bam
       required: false
-      description: >
+      description: |
         bamfile to rank enhancer by
     - name: tss
       label: TSS exclusion
       type: basic:integer
       default: 0
-      description: >
+      description: |
         Enter a distance from TSS to exclude. 0 = no TSS exclusion
     - name: stitch
       label: Stitch
       type: basic:integer
       required: false
-      description: >
+      description: |
         Enter a max linking distance for stitching. If not given, optimal stitching parameter will be determined automatically.
     - name: mask
       label: Masking BED file
       type: data:bed
       required: false
-      description: >
+      description: |
         Mask a set of regions from analysis. Provide a BED of masking regions.
   output:
     - name: all_enhancers

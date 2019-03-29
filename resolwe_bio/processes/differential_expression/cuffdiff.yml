@@ -13,11 +13,11 @@
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.2.0
+  version: 2.2.1
   type: data:differentialexpression:cuffdiff
   category: Differential Expression
   persistence: CACHED
-  description: >
+  description: |
     Cuffdiff finds significant changes in transcript expression, splicing, and
     promoter use.  You can use it to find differentially expressed genes and
     transcripts, as well as genes that are being differentially regulated at
@@ -36,18 +36,18 @@
       label: Group labels
       type: list:basic:string
       default: [control, case]
-      description: >
+      description: |
         Define labels for each sample group.
     - name: annotation
       label: Annotation (GTF/GFF3)
       type: data:annotation
-      description: >
+      description: |
         A transcript annotation file produced by cufflinks, cuffcompare, or other tool.
     - name: genome
       label: Run bias detection and correction algorithm
       type: data:genome:fasta
       required: false
-      description: >
+      description: |
         Provide Cufflinks with a multifasta file (genome file) via this
         option to instruct it to run a bias detection and correction
         algorithm which can significantly improve accuracy of transcript
@@ -60,12 +60,12 @@
       label: Allowed FDR
       type: basic:decimal
       default: 0.05
-      description: >
+      description: |
         The allowed false discovery rate. The default is 0.05.
     - name: library_type
       label: Library type
       type: basic:string
-      description: >
+      description: |
         In cases where Cufflinks cannot determine the platform and
         protocol used to generate input reads, you can supply this
         information manually, which will allow Cufflinks to infer source
@@ -96,7 +96,7 @@
     - name: library_normalization
       label: Library normalization method
       type: basic:string
-      description: >
+      description: |
         You can control how library sizes (i.e. sequencing depths) are
         normalized in Cufflinks and Cuffdiff. Cuffdiff has several
         methods that require multiple libraries in order to work.
@@ -113,7 +113,7 @@
     - name: dispersion_method
       label: Dispersion method
       type: basic:string
-      description: >
+      description: |
         Cuffdiff works by modeling the variance in fragment counts
         across replicates as a function of the mean fragment count
         across replicates. Strictly speaking, models a quantitity

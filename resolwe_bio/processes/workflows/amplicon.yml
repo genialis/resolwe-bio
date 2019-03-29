@@ -3,9 +3,9 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 4.0.0
+  version: 4.0.1
   category: Pipeline
-  description: >
+  description: |
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
     The raw amplicon sequencing reads are quality trimmed using Trimmomatic.
     The quality of the raw and trimmed data is assesed using the FASTQC tool.
@@ -32,7 +32,7 @@
     - name: adapters
       label: Adapters
       type: data:seq:nucleotide
-      description: >
+      description: |
         Provide an Illumina sequencing adapters file (.fasta) with adapters to be removed by Trimmomatic.
     - name: preprocess_bam
       label: Indel realignment and base recalibration options
@@ -53,13 +53,13 @@
           label: Min Base Quality
           type: basic:integer
           default: 20
-          description: >
+          description: |
             Minimum base quality required to consider a base for calling.
         - name: stand_call_conf
           label: Min call confidence threshold
           type: basic:integer
           default: 20
-          description: >
+          description: |
             The minimum phred-scaled confidence threshold at which variants should be called.
     - name: lofreq
       label: LoFreq options

@@ -8,11 +8,11 @@
       docker:
         image: resolwebio/rnaseq:4.2.0
   data_name: 'Spike-ins QC ({% for s in samples %}{{ s | sample_name }}{{ ", " if not loop.last }}{% endfor %})'
-  version: 0.0.2
+  version: 0.0.3
   type: data:spikeins
-  category: other
+  category: Other
   persistence: CACHED
-  description: >
+  description: |
     Plot spike-ins measured abundances for samples quality control. The process will output
     graphs showing the correlation between known concentration of ERCC spike-ins and sample's
     measured abundance.
@@ -30,7 +30,7 @@
           value: ercc_mix2
         - label: SIRV-Set 3
           value: sirv_set3
-      description: >
+      description: |
         Select spike-ins mix.
   output:
     - name: plots

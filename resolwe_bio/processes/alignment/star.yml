@@ -14,12 +14,12 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.8.9
+  version: 1.8.10
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Spliced Transcripts Alignment to a Reference (STAR) software is based on
     an alignment algorithm that uses sequential maximum mappable seed search
     in uncompressed suffix arrays followed by seed clustering and stitching
@@ -36,13 +36,13 @@
     - name: genome
       label: Indexed reference genome
       type: data:genomeindex:star
-      description: >
+      description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: annotation
       label: Annotation file (GTF/GFF3)
       type: data:annotation
       required: false
-      description: >
+      description: |
         Insert known annotations into genome indices at the mapping stage.
     - name: annotation_options
       label: Annotation file options
@@ -52,13 +52,13 @@
           label: --sjdbGTFfeatureExon
           type: basic:string
           default: exon
-          description: >
+          description: |
             Feature type in GTF file to be used as exons for building transcripts
         - name: sjdbOverhang
           label: Junction length (sjdbOverhang)
           type: basic:integer
           default: 100
-          description: >
+          description: |
             This parameter specifies the length of the genomic sequence around the annotated junction
             to be used in constructing the splice junction database.
             Ideally, this length should be equal to the ReadLength-1, where ReadLength is the
@@ -69,7 +69,7 @@
       label: The data is unstranded
       type: basic:boolean
       default: false
-      description: >
+      description: |
         For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute,
         which STAR will generate with --outSAMstrandField intronMotif option.
         As required, the XS strand attribute will be generated for all alignments that contain splice junctions.
@@ -82,7 +82,7 @@
       label: Remove non-cannonical junctions (Cufflinks compatibility)
       type: basic:boolean
       default: false
-      description: >
+      description: |
         It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
     - name: detect_chimeric
       label: Detect chimeric and circular alignments
@@ -91,7 +91,7 @@
           label: Detect chimeric and circular alignments
           type: basic:boolean
           default: false
-          description: >
+          description: |
             To switch on detection of chimeric (fusion) alignments (in addition to normal mapping),
             --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments".
             Each segment is non-chimeric on its own, but the segments are chimeric to each other
@@ -112,7 +112,7 @@
           label: Output in transcript coordinates
           type: basic:boolean
           default: false
-          description: >
+          description: |
             With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript
             coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic
             coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various
@@ -122,7 +122,7 @@
           type: basic:boolean
           default: false
           disabled: "t_coordinates.quantmode != true"
-          description: >
+          description: |
             By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed.
             Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the
             transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
@@ -131,7 +131,7 @@
           type: basic:boolean
           default: false
           disabled: "t_coordinates.quantmode != true"
-          description: >
+          description: |
             With --quantMode GeneCounts option STAR will count number reads per gene while mapping.
             A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read
             are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters.
@@ -146,7 +146,7 @@
           label: Type of filtering
           type: basic:string
           default: Normal
-          description: >
+          description: |
             Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain
             junctions that passed filtering into SJ.out.tab
           choices:
@@ -158,34 +158,34 @@
           label: --outFilterMultimapNmax
           type: basic:integer
           required: false
-          description: >
+          description: |
             Read alignments will be output only if the read maps fewer than this value,
             otherwise no alignments will be output (default: 10).
         - name: outFilterMismatchNmax
           label: --outFilterMismatchNmax
           type: basic:integer
           required: false
-          description: >
+          description: |
             Alignment will be output only if it has fewer mismatches than this value (default: 10).
         - name: outFilterMismatchNoverLmax
           label: --outFilterMismatchNoverLmax
           type: basic:decimal
           required: false
-          description: >
+          description: |
             Max number of mismatches per pair relative to read length: for 2x100b, max number of
             mismatches is 0.06*200=8 for the paired read.
         - name: outFilterScoreMin
           label: --outFilterScoreMin
           type: basic:integer
           required: false
-          description: >
+          description: |
             Alignment will be output only if its score is higher than or equal to this value (default: 0).
         - name: outFilterMismatchNoverReadLmax
           label: --outFilterMismatchNoverReadLmax
           type: basic:decimal
           range: [0, 1.0]
           required: false
-          description: >
+          description: |
             Alignment will be output only if its ratio of mismatches to *read* length is less than
             or equal to this value (default: 1.0).
     - name: alignment
@@ -195,40 +195,40 @@
           label: --alignSJoverhangMin
           type: basic:integer
           required: false
-          description: >
+          description: |
             Minimum overhang (i.e. block size) for spliced alignments (default: 5).
         - name: alignSJDBoverhangMin
           label: --alignSJDBoverhangMin
           type: basic:integer
           required: false
-          description: >
+          description: |
             Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
         - name: alignIntronMin
           label: --alignIntronMin
           type: basic:integer
           required: false
-          description: >
+          description: |
             Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin,
             otherwise it is considered Deletion (default: 21).
         - name: alignIntronMax
           label: --alignIntronMax
           type: basic:integer
           required: false
-          description: >
+          description: |
             Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins)
             (default: 0).
         - name: alignMatesGapMax
           label: --alignMatesGapMax
           type: basic:integer
           required: false
-          description: >
+          description: |
             Maximum gap between two mates, if 0, max intron gap will be determined by
             (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
         - name: alignEndsType
           label: --alignEndsType
           type: basic:string
           required: false
-          description: >
+          description: |
             Type of read ends alignment (default: Local).
           default: Local
           choices:
@@ -247,7 +247,7 @@
           label: --twopassMode
           type: basic:boolean
           default: false
-          description: >
+          description: |
              Perform first-pass mapping, extract junctions, insert them into genome index, and
              re-map all reads in the second mapping pass.
     - name: output_sam_bam
@@ -256,7 +256,7 @@
         - name: outSAMunmapped
           label: --outSAMunmapped
           type: basic:string
-          description: >
+          description: |
             Output of unmapped reads in the SAM format.
           required: false
           default: None
@@ -268,7 +268,7 @@
         - name: outSAMattributes
           label: --outSAMattributes
           type: basic:string
-          description: >
+          description: |
              a string of desired SAM attributes, in the order desired for the output SAM.
           required: false
           default: Standard
@@ -282,7 +282,7 @@
         - name: outSAMattrRGline
           label: --outSAMattrRGline
           type: basic:string
-          description: >
+          description: |
             SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
             e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
           required: false
@@ -300,7 +300,7 @@
           label: Bin Size for the output of BigWig
           type: basic:integer
           default: 50
-          description: >
+          description: |
             Size of the bins, in bases, for the output of the bigwig. Only possible if 'Tool to calculate BigWig'
             is deepTools. If BigWig is calculated by UCSC BedGraphToBigWig then bin size is 1.
   output:
@@ -531,11 +531,11 @@
       memory: 32768
       cores: 1
   data_name: "{{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }}"
-  version: 1.5.2
+  version: 1.5.3
   type: data:genomeindex:star
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Generate genome indices files from the supplied reference genome sequence
     and GTF files.
   input:
@@ -559,13 +559,13 @@
           label: --sjdbGTFfeatureExon
           type: basic:string
           default: exon
-          description: >
+          description: |
             Feature type in GTF file to be used as exons for building transcripts.
         - name: sjdbOverhang
           label: Junction length (sjdbOverhang)
           type: basic:integer
           default: 100
-          description: >
+          description: |
             This parameter specifies the length of the genomic sequence around the annotated junction
             to be used in constructing the splice junction database.
             Ideally, this length should be equal to the ReadLength-1, where ReadLength is the
@@ -579,7 +579,7 @@
           label: Small genome adjustment
           type: basic:integer
           required: false
-          description: >
+          description: |
             For small genomes, the parameter --genomeSAindexNbases needs to be scaled down,
             with a typical value of min(14, log2(GenomeLength)/2 - 1).
             For example, for 1 megaBase genome, this is equal to 9, for 100 kiloBase genome, this is equal to 7.
@@ -587,7 +587,7 @@
           label: Large number of references adjustment
           type: basic:integer
           required: false
-          description: >
+          description: |
             If you are using a genome with a large (>5,000) number of references (chrosomes/scaffolds),
             you may need to reduce the --genomeChrBinNbits to reduce RAM consumption.
             The following scaling is recommended: --genomeChrBinNbits = min(18, log2(GenomeLength / NumberOfReferences)).
@@ -596,7 +596,7 @@
           label: Sufflux array sparsity
           type: basic:integer
           required: false
-          description: >
+          description: |
             Suffux array sparsity, i.e. distance between indices: use bigger numbers to decrease
             needed RAM at the cost of mapping speed reduction (integer > 0, default = 1).
   output:

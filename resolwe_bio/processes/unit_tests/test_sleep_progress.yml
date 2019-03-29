@@ -11,10 +11,10 @@
       docker:
         image: resolwe/base:fedora-26
   data_name: "Test"
-  version: 1.1.0
+  version: 1.1.1
   type: data:test:result
   persistence: CACHED
-  description: >
+  description: |
     Test for the progress bar by sleeping 5 times for the specified amount of time.
   input:
     - name: t

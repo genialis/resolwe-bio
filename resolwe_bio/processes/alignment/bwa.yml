@@ -13,12 +13,12 @@
     resources:
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.2.0
+  version: 2.2.1
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     BWA MEM is a read aligner for mapping low-divergent sequences against a
     large reference genome. Designed for longer sequences ranged from 70bp to
     1Mbp. The algorithm works by seeding alignments with maximal exact matches
@@ -36,25 +36,25 @@
       label: Minimum seed length
       type: basic:integer
       default: 19
-      description: >
+      description: |
         Minimum seed length. Matches shorter than minimum seed length will be missed. The alignment speed is usually insensitive to this value unless it significantly deviates 20.
     - name: band_w
       label: Band width
       type: basic:integer
       default: 100
-      description: >
+      description: |
         Gaps longer than this will not be found.
     - name: re_seeding
       label: Re-seeding factor
       type: basic:decimal
       default: 1.5
-      description: >
+      description: |
         Trigger re-seeding for a MEM longer than minSeedLen*FACTOR. This is a key heuristic parameter for tuning the performance. Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy.
     - name: m
       label: Mark shorter split hits as secondary
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Mark shorter split hits as secondary (for Picard compatibility)
     - name: scoring
       label: Scoring
@@ -79,13 +79,13 @@
         label: Clipping penalty
         type: basic:integer
         default: 5
-        description: >
+        description: |
           Clipping is applied if final alignment score is smaller than (best score reaching the end of query) - (Clipping penalty)
       - name: unpaired_p
         label: Penalty for an unpaired read pair
         type: basic:integer
         default: 9
-        description: >
+        description: |
           Affinity to force pair. Score: scoreRead1+scoreRead2-Penalty
     - name: reporting
       label: Reporting
@@ -94,13 +94,13 @@
         label: Report all found alignments
         type: basic:boolean
         default: false
-        description: >
+        description: |
           Output all found alignments for single-end or unpaired paired-end reads. These alignments will be flagged as secondary alignments.
       - name: report_tr
         label: Report threshold score
         type: basic:integer
         default: 30
-        description: >
+        description: |
           Don't output alignment with score lower than defined number. This option only affects output.
   output:
     - name: bam
@@ -241,12 +241,12 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.3.1
+  version: 1.3.2
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Read aligner for mapping low-divergent sequences against a large reference genome. Designed for longer sequences ranged from 70bp to 1Mbp. The paired-end mode only works for reads Illumina short-insert libraries.
   input:
     - name: genome
@@ -393,12 +393,12 @@
     resources:
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.4.1
+  version: 1.4.2
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Read aligner for mapping low-divergent sequences against a large reference genome. Designed for Illumina sequence reads up to 100bp.
   input:
     - name: genome
@@ -412,7 +412,7 @@
       type: basic:integer
       default: 0
       range: [0, 60]
-      description: >
+      description: |
         Parameter for dynamic read trimming.
     - name: use_edit
       label: Use maximum edit distance (excludes fraction of missing alignments)
@@ -428,7 +428,7 @@
       type: basic:decimal
       default: 0.04
       hidden: "use_edit"
-      description: >
+      description: |
         The fraction of missing alignments given 2% uniform base error
         rate. The maximum edit distance is automatically chosen for
         different read lengths.
@@ -441,7 +441,7 @@
       type: basic:integer
       default: 35
       hidden: "!seeds"
-      description: >
+      description: |
         Take the first X subsequence as seed. If X is larger than the
         query sequence, seeding will be disabled. For long reads,
         this option is typically ranged from 25 to 35 for value 2 in

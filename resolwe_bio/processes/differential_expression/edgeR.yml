@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Differential expression (case vs. control)'
-  version: 1.1.0
+  version: 1.1.1
   type: data:differentialexpression:edger
   category: Differential Expression
   persistence: CACHED
-  description: >
+  description: |
     Empirical Analysis of Digital Gene Expression Data in R (edgeR).
     Differential expression analysis of RNA-seq expression profiles with
     biological replication. Implements a range of statistical methodology
@@ -30,18 +30,18 @@
     - name: case
       label: Case
       type: list:data:expression
-      description: >
+      description: |
         Case samples (replicates)
     - name: control
       label: Control
       type: list:data:expression
-      description: >
+      description: |
         Control samples (replicates)
     - name: filter
       label: Raw counts filtering threshold
       type: basic:integer
       default: 10
-      description: >
+      description: |
         Filter genes in the expression matrix input. Remove genes where the
         number of counts in all samples is below the threshold.
   output:

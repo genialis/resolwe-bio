@@ -8,18 +8,18 @@
     resources:
       network: true
   data_name: Metabolic Pathway
-  version: 1.0.0
+  version: 1.0.1
   type: data:metabolicpathway
   category: Import
   persistence: RAW
   scheduling_class: batch
-  description: >
+  description: |
     Upload pathway json.
   input:
     - name: src
       label: Pathway file
       type: basic:file
-      description: >
+      description: |
         JSON file. Supported extensions: '.json', '.json.gz'
       validate_regex: '(\.json)(\.gz)?$'
     - name: source

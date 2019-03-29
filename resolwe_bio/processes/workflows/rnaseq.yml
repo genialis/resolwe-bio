@@ -3,10 +3,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:htseq
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps, preprocessing,
     alignment, and quantification.
 
@@ -41,14 +41,14 @@
         - name: seed_mismatches
           label: Seed mismatches
           type: basic:integer
-          description: >
+          description: |
              Specifies the maximum mismatch count which will still allow a full
              match to be performed.
           default: 2
         - name: simple_clip_threshold
           label: Simple clip threshold
           type: basic:integer
-          description: >
+          description: |
             Specifies how accurate the match between any adapter etc. sequence
             must be against a read.
           default: 10
@@ -61,13 +61,13 @@
       label: Trailing quality
       type: basic:integer
       default: 28
-      description: >
+      description: |
         Remove low quality bases from the end. Specifies the minimum quality
         required to keep a base.
     - name: stranded
       label: Is data from a strand specific assay?
       type: basic:string
-      description: >
+      description: |
         In strand non-specific assay a read is considered overlapping with a
         feature regardless of whether it is mapped to the same or the opposite
         strand as the feature. In strand-specific forward assay and single
@@ -87,7 +87,7 @@
       label: ID attribute
       type: basic:string
       default: gene_id
-      description: >
+      description: |
         GFF attribute to be used as feature ID. Several GFF lines with the
         same feature ID will be considered as parts of the same feature. The
         feature ID is used to identity the counts in the output table.
@@ -125,10 +125,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:htseq
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps, preprocessing,
     alignment, and quantification.
 
@@ -163,21 +163,21 @@
         - name: seed_mismatches
           label: Seed mismatches
           type: basic:integer
-          description: >
+          description: |
              Specifies the maximum mismatch count which will still allow a full
              match to be performed.
           default: 2
         - name: palindrome_clip_threshold
           label: Palindrome clip threshold
           type: basic:integer
-          description: >
+          description: |
             Specifies how accurate the match between the two 'adapter ligated'
             reads must be for PE palindrome read alignment.
           default: 30
         - name: simple_clip_threshold
           label: Simple clip threshold
           type: basic:integer
-          description: >
+          description: |
             Specifies how accurate the match between any adapter etc. sequence
             must be against a read.
           default: 10
@@ -190,13 +190,13 @@
       label: Trailing quality
       type: basic:integer
       default: 28
-      description: >
+      description: |
         Remove low quality bases from the end. Specifies the minimum quality
         required to keep a base.
     - name: stranded
       label: Is data from a strand specific assay?
       type: basic:string
-      description: >
+      description: |
         In strand non-specific assay a read is considered overlapping with a
         feature regardless of whether it is mapped to the same or the opposite
         strand as the feature. In strand-specific forward assay and single
@@ -216,7 +216,7 @@
       label: ID attribute
       type: basic:string
       default: gene_id
-      description: >
+      description: |
         GFF attribute to be used as feature ID. Several GFF lines with the
         same feature ID will be considered as parts of the same feature. The
         feature ID is used to identity the counts in the output table.

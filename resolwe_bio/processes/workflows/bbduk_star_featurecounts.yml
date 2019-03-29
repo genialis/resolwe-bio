@@ -3,10 +3,10 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.3.0
+  version: 1.3.1
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps preprocessing, alignment,
     and quantification.
 
@@ -44,7 +44,7 @@
           hidden: '!preprocessing.show_advanced'
           required: false
           default: []
-          description: >
+          description: |
             Custom adapter sequences can be specified by inputting them one by one and pressing Enter
             after each sequence.
         - name: kmer_length
@@ -67,7 +67,7 @@
           label: Max Ns after trimming [maxns=-1]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: trim_quality
           label: Quality below which to trim reads from the right end
@@ -87,7 +87,7 @@
         - name: genome
           label: Indexed reference genome
           type: data:genomeindex:star
-          description: >
+          description: |
             Genome index prepared by STAR aligner indexing tool.
         - name: show_advanced
           label: Show advanced parameters
@@ -98,14 +98,14 @@
           type: basic:boolean
           default: false
           hidden: '!alignment.show_advanced'
-          description: >
+          description: |
             For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute, which STAR will generate with --outSAMstrandField intronMotif option. As required, the XS strand attribute will be generated for all alignments that contain splice junctions. The spliced alignments that have undefined strand (i.e. containing only non-canonical unannotated junctions) will be suppressed. If you have stranded RNA-seq data, you do not need to use any specific STAR options. Instead, you need to run Cufflinks with the library option --library-type options. For example, cufflinks --library-type fr-firststrand should be used for the standard dUTP protocol, including Illumina's stranded Tru-Seq. This option has to be used only for Cufflinks runs and not for STAR runs.
         - name: noncannonical
           label: Remove non-cannonical junctions (Cufflinks compatibility)
           type: basic:boolean
           default: false
           hidden: '!alignment.show_advanced'
-          description: >
+          description: |
             It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
         - name: detect_chimeric
           label: Detect chimeric and circular alignments
@@ -115,7 +115,7 @@
               label: Detect chimeric and circular alignments
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
             - name: chimSegmentMin
               label: --chimSegmentMin
@@ -130,21 +130,21 @@
               label: Output in transcript coordinates
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
             - name: singleend
               label: Allow soft-clipping and indels
               type: basic:boolean
               default: false
               disabled: "t_coordinates.quantmode != true"
-              description: >
+              description: |
                 By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
             - name: gene_counts
               label: Count reads
               type: basic:boolean
               default: false
               disabled: "t_coordinates.quantmode != true"
-              description: >
+              description: |
                 With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
         - name: filtering
           label: Output Filtering
@@ -154,7 +154,7 @@
               label: Type of filtering
               type: basic:string
               default: Normal
-              description: >
+              description: |
                 Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
               choices:
                 - label: Normal
@@ -165,25 +165,25 @@
               label: --outFilterMultimapNmax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
             - name: outFilterMismatchNmax
               label: --outFilterMismatchNmax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Alignment will be output only if it has fewer mismatches than this value (default: 10).
             - name: outFilterMismatchNoverLmax
               label: --outFilterMismatchNoverLmax
               type: basic:decimal
               required: false
-              description: >
+              description: |
                 Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
             - name: outFilterScoreMin
               label: --outFilterScoreMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Alignment will be output only if its score is higher than or equal to this value (default: 0).
         - name: alignment
           label: Alignment and Seeding
@@ -193,37 +193,37 @@
               label: --alignSJoverhangMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum overhang (i.e. block size) for spliced alignments (default: 5).
             - name: alignSJDBoverhangMin
               label: --alignSJDBoverhangMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
             - name: alignIntronMin
               label: --alignIntronMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
             - name: alignIntronMax
               label: --alignIntronMax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
             - name: alignMatesGapMax
               label: --alignMatesGapMax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
             - name: alignEndsType
               label: --alignEndsType
               type: basic:string
               required: false
-              description: >
+              description: |
                 Type of read ends alignment (default: Local).
               default: Local
               choices:
@@ -242,7 +242,7 @@
             - name: outSAMunmapped
               label: --outSAMunmapped
               type: basic:string
-              description: >
+              description: |
                 Output of unmapped reads in the SAM format.
               required: false
               default: None
@@ -254,7 +254,7 @@
             - name: outSAMattributes
               label: --outSAMattributes
               type: basic:string
-              description: >
+              description: |
                  a string of desired SAM attributes, in the order desired for the output SAM.
               required: false
               default: Standard
@@ -268,7 +268,7 @@
             - name: outSAMattrRGline
               label: --outSAMattrRGline
               type: basic:string
-              description: >
+              description: |
                 SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
                 e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
               required: false
@@ -296,7 +296,7 @@
               value: reverse
             - label: Detect automatically
               value: auto
-          description: >
+          description: |
             In strand non-specific assay a read is considered overlapping with a
             feature regardless of whether it is mapped to the same or the opposite
             strand as the feature. In strand-specific forward assay and single
@@ -309,7 +309,7 @@
           type: data:index:salmon
           required: false
           hidden: "quantification.assay_type != 'auto'"
-          description: >
+          description: |
             Transcriptome index file created using the Salmon indexing tool.
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
@@ -319,7 +319,7 @@
           type: basic:integer
           default: 5000000
           hidden: "quantification.assay_type != 'auto'"
-          description: >
+          description: |
             Alignment (.bam) file subsample size. Increase the number of reads
             to make automatic detection more reliable. Decrease the number of
             reads to make automatic detection run faster.
@@ -328,7 +328,7 @@
           type: basic:string
           default: exon
           hidden: '!quantification.show_advanced'
-          description: >
+          description: |
             Feature class (3rd column in GTF/GFF3 file) to be used. All other
             features will be ignored.
         - name: feature_type
@@ -341,7 +341,7 @@
               value: gene
             - label: transcript
               value: transcript
-          description: >
+          description: |
             The type of feature the quantification program summarizes over
             (e.g. gene or transcript-level analysis). The value of this
             parameter needs to be chosen in line with 'ID attribute' below.
@@ -360,7 +360,7 @@
               value: ID
             - label: geneid
               value: geneid
-          description: >
+          description: |
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID will be considered as parts of the same
             feature. The feature ID is used to identify the counts in the
@@ -445,10 +445,10 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.3.0
+  version: 1.3.1
   type: data:workflow:rnaseq:featurecounts
   category: Pipeline
-  description: >
+  description: |
     This RNA-seq pipeline is comprised of three steps preprocessing, alignment,
     and quantification.
 
@@ -486,7 +486,7 @@
           hidden: '!preprocessing.show_advanced'
           default: []
           required: false
-          description: >
+          description: |
             Custom adapter sequences can be specified by inputting them one by one and pressing Enter
             after each sequence.
         - name: kmer_length
@@ -509,7 +509,7 @@
           label: Max Ns after trimming [maxns=-1]
           type: basic:integer
           default: -1
-          description: >
+          description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: trim_quality
           label: Quality below which to trim reads from the right end
@@ -529,7 +529,7 @@
         - name: genome
           label: Indexed reference genome
           type: data:genomeindex:star
-          description: >
+          description: |
             Genome index prepared by STAR aligner indexing tool.
         - name: show_advanced
           label: Show advanced parameters
@@ -540,14 +540,14 @@
           type: basic:boolean
           default: false
           hidden: '!alignment.show_advanced'
-          description: >
+          description: |
             For unstranded RNA-seq data, Cufflinks/Cuffdiff require spliced alignments with XS strand attribute, which STAR will generate with --outSAMstrandField intronMotif option. As required, the XS strand attribute will be generated for all alignments that contain splice junctions. The spliced alignments that have undefined strand (i.e. containing only non-canonical unannotated junctions) will be suppressed. If you have stranded RNA-seq data, you do not need to use any specific STAR options. Instead, you need to run Cufflinks with the library option --library-type options. For example, cufflinks --library-type fr-firststrand should be used for the standard dUTP protocol, including Illumina's stranded Tru-Seq. This option has to be used only for Cufflinks runs and not for STAR runs.
         - name: noncannonical
           label: Remove non-cannonical junctions (Cufflinks compatibility)
           type: basic:boolean
           default: false
           hidden: '!alignment.show_advanced'
-          description: >
+          description: |
             It is recommended to remove the non-canonical junctions for Cufflinks runs using --outFilterIntronMotifs RemoveNoncanonical.
         - name: detect_chimeric
           label: Detect chimeric and circular alignments
@@ -557,7 +557,7 @@
               label: Detect chimeric and circular alignments
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 To switch on detection of chimeric (fusion) alignments (in addition to normal mapping), --chimSegmentMin should be set to a positive value. Each chimeric alignment consists of two "segments". Each segment is non-chimeric on its own, but the segments are chimeric to each other (i.e. the segments belong to different chromosomes, or different strands, or are far from each other). Both segments may contain splice junctions, and one of the segments may contain portions of both mates. --chimSegmentMin parameter controls the minimum mapped length of the two segments that is allowed. For example, if you have 2x75 reads and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome and 20b on the other will be output, while 135 + 15 won't be.
             - name: chimSegmentMin
               label: --chimSegmentMin
@@ -572,21 +572,21 @@
               label: Output in transcript coordinates
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 With --quantMode TranscriptomeSAM option STAR will output alignments translated into transcript coordinates in the Aligned.toTranscriptome.out.bam file (in addition to alignments in genomic coordinates in Aligned.*.sam/bam files). These transcriptomic alignments can be used with various transcript quantification software that require reads to be mapped to transcriptome, such as RSEM or eXpress.
             - name: singleend
               label: Allow soft-clipping and indels
               type: basic:boolean
               default: false
               disabled: "t_coordinates.quantmode != true"
-              description: >
+              description: |
                 By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
             - name: gene_counts
               label: Count reads
               type: basic:boolean
               default: false
               disabled: "t_coordinates.quantmode != true"
-              description: >
+              description: |
                 With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
         - name: filtering
           label: Output Filtering
@@ -596,7 +596,7 @@
               label: Type of filtering
               type: basic:string
               default: Normal
-              description: >
+              description: |
                 Normal: standard filtering using only current alignment; BySJout: keep only those reads that contain junctions that passed filtering into SJ.out.tab
               choices:
                 - label: Normal
@@ -607,25 +607,25 @@
               label: --outFilterMultimapNmax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Read alignments will be output only if the read maps fewer than this value, otherwise no alignments will be output (default: 10).
             - name: outFilterMismatchNmax
               label: --outFilterMismatchNmax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Alignment will be output only if it has fewer mismatches than this value (default: 10).
             - name: outFilterMismatchNoverLmax
               label: --outFilterMismatchNoverLmax
               type: basic:decimal
               required: false
-              description: >
+              description: |
                 Max number of mismatches per pair relative to read length: for 2x100b, max number of mismatches is 0.06*200=8 for the paired read.
             - name: outFilterScoreMin
               label: --outFilterScoreMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Alignment will be output only if its score is higher than or equal to this value (default: 0).
         - name: alignment
           label: Alignment and Seeding
@@ -635,37 +635,37 @@
               label: --alignSJoverhangMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum overhang (i.e. block size) for spliced alignments (default: 5).
             - name: alignSJDBoverhangMin
               label: --alignSJDBoverhangMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum overhang (i.e. block size) for annotated (sjdb) spliced alignments (default: 3).
             - name: alignIntronMin
               label: --alignIntronMin
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Minimum intron size: genomic gap is considered intron if its length >= alignIntronMin, otherwise it is considered Deletion (default: 21).
             - name: alignIntronMax
               label: --alignIntronMax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Maximum intron size, if 0, max intron size will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
             - name: alignMatesGapMax
               label: --alignMatesGapMax
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Maximum gap between two mates, if 0, max intron gap will be determined by (2pow(winBinNbits)*winAnchorDistNbins) (default: 0).
             - name: alignEndsType
               label: --alignEndsType
               type: basic:string
               required: false
-              description: >
+              description: |
                 Type of read ends alignment (default: Local).
               default: Local
               choices:
@@ -684,7 +684,7 @@
             - name: outSAMunmapped
               label: --outSAMunmapped
               type: basic:string
-              description: >
+              description: |
                 Output of unmapped reads in the SAM format.
               required: false
               default: None
@@ -696,7 +696,7 @@
             - name: outSAMattributes
               label: --outSAMattributes
               type: basic:string
-              description: >
+              description: |
                  a string of desired SAM attributes, in the order desired for the output SAM.
               required: false
               default: Standard
@@ -710,7 +710,7 @@
             - name: outSAMattrRGline
               label: --outSAMattrRGline
               type: basic:string
-              description: >
+              description: |
                 SAM/BAM read group line. The first word contains the read group identifier and must start with "ID:",
                 e.g. --outSAMattrRGline ID:xxx CN:yy "DS:z z z"
               required: false
@@ -738,7 +738,7 @@
               value: reverse
             - label: Detect automatically
               value: auto
-          description: >
+          description: |
             In strand non-specific assay a read is considered overlapping with a
             feature regardless of whether it is mapped to the same or the opposite
             strand as the feature. In strand-specific forward assay and single
@@ -751,7 +751,7 @@
           type: data:index:salmon
           required: false
           hidden: "quantification.assay_type != 'auto'"
-          description: >
+          description: |
             Transcriptome index file created using the Salmon indexing tool.
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
@@ -761,7 +761,7 @@
           type: basic:integer
           default: 5000000
           hidden: "quantification.assay_type != 'auto'"
-          description: >
+          description: |
             Alignment (.bam) file subsample size. Increase the number of reads
             to make automatic detection more reliable. Decrease the number of
             reads to make automatic detection run faster.
@@ -770,7 +770,7 @@
           type: basic:string
           default: exon
           hidden: '!quantification.show_advanced'
-          description: >
+          description: |
             Feature class (3rd column in GTF/GFF3 file) to be used. All other
             features will be ignored.
         - name: feature_type
@@ -783,7 +783,7 @@
               value: gene
             - label: transcript
               value: transcript
-          description: >
+          description: |
             The type of feature the quantification program summarizes over
             (e.g. gene or transcript-level analysis). The value of this
             parameter needs to be chosen in line with 'ID attribute' below.
@@ -802,7 +802,7 @@
               value: ID
             - label: geneid
               value: geneid
-          description: >
+          description: |
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID are considered as parts of the same
             feature. The feature ID is used to identify the counts in the

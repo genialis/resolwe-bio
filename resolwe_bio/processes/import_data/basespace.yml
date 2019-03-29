@@ -11,11 +11,11 @@
       network: true
       secrets: true
   data_name: 'BaseSpace ({{ file_id|default("?") }})'
-  version: 1.0.2
+  version: 1.0.3
   type: data:file
   category: Import
   persistence: TEMP
-  description: >
+  description: |
     Import a file from Illumina BaseSpace.
   input:
     - name: file_id
@@ -24,7 +24,7 @@
     - name: access_token_secret
       label: BaseSpace access token
       type: basic:secret
-      description: >
+      description: |
         BaseSpace access token secret handle needed to download the file.
   output:
     - name: file

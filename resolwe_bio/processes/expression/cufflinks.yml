@@ -13,12 +13,12 @@
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.1.0
+  version: 2.1.1
   type: data:cufflinks:cufflinks
   category: Quantify
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Cufflinks assembles transcripts, estimates their abundances, and tests for
     differential expression and regulation in RNA-Seq samples. It accepts
     aligned RNA-Seq reads and assembles the alignments into a parsimonious set
@@ -38,7 +38,7 @@
       label: Run bias detection and correction algorithm
       type: data:genome:fasta
       required: false
-      description: >
+      description: |
         Provide Cufflinks with a multifasta file (genome file) via this
         option to instruct it to run a bias detection and correction
         algorithm which can significantly improve accuracy of transcript
@@ -47,7 +47,7 @@
       label: Mask file
       type: data:annotation:gtf
       required: false
-      description: >
+      description: |
         Ignore all reads that could have come from transcripts in this
         GTF file. We recommend including any annotated rRNA,
         mitochondrial transcripts other abundant transcripts you wish
@@ -58,7 +58,7 @@
     - name: library_type
       label: Library type
       type: basic:string
-      description: >
+      description: |
         In cases where Cufflinks cannot determine the platform and
         protocol used to generate input reads, you can supply this
         information manually, which will allow Cufflinks to infer source
@@ -89,7 +89,7 @@
     - name: annotation_usage
       label: Instruct Cufflinks how to use the provided annotation (GFF/GTF) file
       type: basic:string
-      description: >
+      description: |
         GTF-guide - tells Cufflinks to use the supplied reference
         annotation (GFF) to guide RABT assembly. Reference transcripts
         will be tiled with faux-reads to provide additional information
@@ -110,7 +110,7 @@
       label: Do initial estimation procedure to more accurately weight reads with multiple genome mappings
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Run an initial estimation procedure that weights reads mapping
         to multiple locations more accurately.
   output:

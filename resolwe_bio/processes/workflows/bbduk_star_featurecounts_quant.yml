@@ -3,10 +3,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
-  description: >
+  description: |
     This 3' mRNA-Seq pipeline is comprised of QC, preprocessing,
     alignment and quantification steps.
 
@@ -27,13 +27,13 @@
     - name: star_index
       label: Star index
       type: data:genomeindex:star
-      description: >
+      description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
       label: Adapters
       type: list:data:seq:nucleotide
       required: false
-      description: >
+      description: |
         Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
     - name: annotation
       label: Annotation
@@ -65,7 +65,7 @@
               type: basic:decimal
               required: false
               range: [0, 1.0]
-              description: >
+              description: |
                 Use the fraction of reads in range [0.0, 1.0] from the orignal input file instead
                 of the absolute number of reads. If set, this will override the
                 "Number of reads" input parameter.
@@ -73,7 +73,7 @@
               label: 2-pass mode
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Enable two-pass mode when down-sampling. Two-pass mode is twice
                 as slow but with much reduced memory.
     - name: qc
@@ -82,12 +82,12 @@
         - name: rrna_reference
           label: Indexed rRNA reference sequence
           type: data:genomeindex:star
-          description: >
+          description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
           type: data:genomeindex:star
-          description: >
+          description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:
     language: workflow
@@ -180,10 +180,10 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
-  description: >
+  description: |
     This 3' mRNA-Seq pipeline is comprised of QC, preprocessing,
     alignment and quantification steps.
 
@@ -204,13 +204,13 @@
     - name: star_index
       label: Star index
       type: data:genomeindex:star
-      description: >
+      description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
       label: Adapters
       type: list:data:seq:nucleotide
       required: false
-      description: >
+      description: |
         Provide a list of sequencing adapters files (.fasta) to be removed by BBDuk.
     - name: annotation
       label: Annotation
@@ -242,7 +242,7 @@
               type: basic:decimal
               required: false
               range: [0, 1.0]
-              description: >
+              description: |
                 Use the fraction of reads in range [0.0, 1.0] from the orignal input file instead
                 of the absolute number of reads. If set, this will override the
                 "Number of reads" input parameter.
@@ -250,7 +250,7 @@
               label: 2-pass mode
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Enable two-pass mode when down-sampling. Two-pass mode is twice
                 as slow but with much reduced memory.
     - name: qc
@@ -259,12 +259,12 @@
         - name: rrna_reference
           label: Indexed rRNA reference sequence
           type: data:genomeindex:star
-          description: >
+          description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
           type: data:genomeindex:star
-          description: >
+          description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:
     language: workflow

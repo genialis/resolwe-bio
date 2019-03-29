@@ -13,12 +13,12 @@
     resources:
       network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.2.0
+  version: 3.2.1
   type: data:goea
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Identify significantly enriched Gene Ontology terms for given genes.
   input:
     - name: ontology
@@ -37,7 +37,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name. This field is required if gene subset is set.
       allow_custom_choice: true
       choices:

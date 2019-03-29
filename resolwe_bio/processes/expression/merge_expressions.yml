@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/common:1.0.0
   data_name: Expression matrix
-  version: 1.1.0
+  version: 1.1.1
   type: data:expressionset
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Merge expression data to create an expression matrix where each column
     represents all the gene expression levels from a single experiment, and
     each row represents the expression of a gene across all experiments.

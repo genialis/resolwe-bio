@@ -14,14 +14,14 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.3
+  version: 4.0.4
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
     input: case
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
-  description: >
+  description: |
     Model-based Analysis of ChIP-Seq (MACS 2.0), is used to identify transcript
     factor binding sites. MACS 2.0 captures the influence of genome complexity
     to evaluate the significance of enriched ChIP regions, and MACS improves
@@ -48,14 +48,14 @@
       label: Promoter regions BED file
       type: data:bed
       required: false
-      description: >
+      description: |
         BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
         of peaks and reads mapped to promoter regions.
     - name: tagalign
       label: Use tagAlign files
       type: basic:boolean
       default: false
-      description: >
+      description: |
          Use filtered tagAlign files as case (treatment) and control
          (background) samples. If extsize parameter is not set, run MACS
          using input's estimated fragment length.
@@ -74,13 +74,13 @@
           label: TN5 shifting
           type: basic:boolean
           default: false
-          description: >
+          description: |
             Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
         - name: shift
           label: User-defined cross-correlation peak strandshift
           type: basic:integer
           required: false
-          description: >
+          description: |
             If defined, SPP tool will not try to estimate fragment length but will use the given value
             as fragment length.
     - name: settings
@@ -98,7 +98,7 @@
               value: "auto"
             - label: "all"
               value: "all"
-          description: >
+          description: |
             It controls the MACS behavior towards duplicate tags at the exact same location -- the
             same coordination and the same strand. The 'auto' option makes MACS calculate the
             maximum tags at the exact same location based on binomal distribution using 1e-5 as
@@ -118,7 +118,7 @@
               value: "auto"
             - label: "all"
               value: "all"
-          description: >
+          description: |
             It controls the MACS behavior towards duplicate tags at the exact same location -- the
             same coordination and the same strand. The 'auto' option makes MACS calculate the
             maximum tags at the exact same location based on binomal distribution using 1e-5 as
@@ -130,7 +130,7 @@
           type: basic:decimal
           required: false
           disabled: "settings.pvalue && settings.pvalue_prepeak"
-          description: >
+          description: |
             The q-value (minimum FDR) cutoff to call significant regions. Q-values
             are calculated from p-values using Benjamini-Hochberg procedure.
         - name: pvalue
@@ -139,7 +139,7 @@
           required: false
           disabled: "settings.qvalue"
           hidden: "tagalign"
-          description: >
+          description: |
             The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
         - name: pvalue_prepeak
           label: P-value cutoff
@@ -147,20 +147,20 @@
           disabled: "settings.qvalue"
           hidden: "!tagalign || settings.qvalue"
           default: 0.00001
-          description: >
+          description: |
             The p-value cutoff. If specified, MACS2 will use p-value instead of q-value cutoff.
         - name: cap_num
           label: Cap number of peaks by taking top N peaks
           type: basic:integer
           default: 500000
           disabled: "settings.broad"
-          description: >
+          description: |
             To keep all peaks set value to 0.
         - name: mfold_lower
           label: MFOLD range (lower limit)
           type: basic:integer
           required: false
-          description: >
+          description: |
             This parameter is used to select the regions within MFOLD range of high-confidence
             enrichment ratio against background to build model. The regions must be lower than
             upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
@@ -171,7 +171,7 @@
           label: MFOLD range (upper limit)
           type: basic:integer
           required: false
-          description: >
+          description: |
             This parameter is used to select the regions within MFOLD range of high-confidence
             enrichment ratio against background to build model. The regions must be lower than
             upper limit, and higher than the lower limit of fold enrichment. DEFAULT:10,30 means
@@ -182,7 +182,7 @@
           label: Small local region
           type: basic:integer
           required: false
-          description: >
+          description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
             MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
@@ -194,7 +194,7 @@
           label: Large local region
           type: basic:integer
           required: false
-          description: >
+          description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
             MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
@@ -206,7 +206,7 @@
           label: extsize
           type: basic:integer
           required: false
-          description: >
+          description: |
             While '--nomodel' is set, MACS uses this parameter to extend reads in 5'->3' direction
             to fix-sized fragments. For example, if the size of binding region for your
             transcription factor is 200 bp, and you want to bypass the model building by MACS,
@@ -216,7 +216,7 @@
           label: Shift
           type: basic:integer
           required: false
-          description: >
+          description: |
             Note, this is NOT the legacy --shiftsize option which is replaced by --extsize! You
             can set an arbitrary shift in bp here. Please Use discretion while setting it other
             than default value (0). When --nomodel is set, MACS will use this value to move
@@ -230,7 +230,7 @@
           label: Band width
           type: basic:integer
           required: false
-          description: >
+          description: |
             The band width which is used to scan the genome ONLY for model building. You can set
             this parameter as the sonication fragment size expected from wet experiment. The
             previous side effect on the peak detection process has been removed. So this parameter
@@ -239,14 +239,14 @@
           label: Use backgroud lambda as local lambda
           type: basic:boolean
           default: false
-          description: >
+          description: |
             With this flag on, MACS will use the background lambda as local lambda. This means
             MACS will not consider the local bias at peak candidate regions.
         - name: fix_bimodal
           label: Turn on the auto paired-peak model process
           type: basic:boolean
           default: false
-          description: >
+          description: |
             Whether turn on the auto paired-peak model process. If it's set, when MACS failed
             to build paired model, it will use the nomodel settings, the '--extsize' parameter
             to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
@@ -255,20 +255,20 @@
           type: basic:boolean
           hidden: "tagalign"
           default: false
-          description: >
+          description: |
             While on, MACS will bypass building the shifting model.
         - name: nomodel_prepeak
           label: Bypass building the shifting model
           type: basic:boolean
           default: true
           hidden: "!tagalign"
-          description: >
+          description: |
             While on, MACS will bypass building the shifting model.
         - name: down_sample
           label: Down-sample
           type: basic:boolean
           default: false
-          description: >
+          description: |
             When set, random sampling method will scale down the bigger sample. By default, MACS
             uses linear scaling. This option will make the results unstable and irreproducible
             since each time, random reads would be selected, especially the numbers (pileup,
@@ -278,7 +278,7 @@
           label: Save fragment pileup and control lambda
           type: basic:boolean
           default: true
-          description: >
+          description: |
             If this flag is on, MACS will store the fragment pileup, control lambda, -log10pvalue
             and -log10qvalue scores in bedGraph files. The bedGraph files will be stored in
             current directory named NAME+'_treat_pileup.bdg' for treatment data,
@@ -295,7 +295,7 @@
           label: Call summits
           type: basic:boolean
           default: false
-          description: >
+          description: |
             MACS will now reanalyze the shape of signal profile (p or q-score depending on cutoff
             setting) to deconvolve subpeaks within each peak called from general procedure. It's
             highly recommended to detect adjacent binding events. While used, the output subpeaks
@@ -306,7 +306,7 @@
           type: basic:boolean
           default: false
           disabled: "settings.call_summits === true"
-          description: >
+          description: |
             When this flag is on, MACS will try to composite broad regions in BED12 (a
             gene-model-like format) by putting nearby highly enriched regions into a broad region
             with loose cutoff. The broad region is controlled by another cutoff through
@@ -316,7 +316,7 @@
           type: basic:decimal
           required: false
           disabled: "settings.call_summits === true || settings.broad !== true"
-          description: >
+          description: |
             Cutoff for broad region. This option is not available unless --broad is set. If -p is
             set, this is a p-value cutoff, otherwise, it's a q-value cutoff. DEFAULT = 0.1
   output:

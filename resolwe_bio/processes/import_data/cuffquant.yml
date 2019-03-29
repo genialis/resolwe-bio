@@ -13,18 +13,18 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.0
+  version: 1.2.1
   type: data:cufflinks:cuffquant
   category: Import
   flow_collection: sample
   persistence: RAW
-  description: >
+  description: |
         Upload Cuffquant results file (.cxb)
   input:
     - name: src
       label: Cuffquant file
       type: basic:file
-      description: >
+      description: |
         Upload Cuffquant results file. Supported extention: *.cxb
       required: true
       validate_regex: '\.(cxb)$'
@@ -46,7 +46,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:

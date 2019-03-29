@@ -30,9 +30,9 @@ class QortsQC(Process):
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = '1.0.1'
+    version = '1.0.2'
     process_type = 'data:qorts:qc'
-    category = 'other'
+    category = 'Other'
     entity = {
         'type': 'sample',
         'input': 'alignment',

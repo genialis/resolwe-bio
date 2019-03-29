@@ -11,12 +11,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'PCA'
-  version: 2.1.0
+  version: 2.1.1
   type: data:pca
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Principal component analysis (PCA)
   input:
     - name: exps
@@ -34,7 +34,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name. This field is required if gene subset is set.
       allow_custom_choice: true
       required: false

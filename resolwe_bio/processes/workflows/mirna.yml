@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.4
+  version: 0.0.5
   type: data:workflow:mirna
   category: Pipeline
   input:
@@ -11,7 +11,7 @@
     - name: reads
       label: Input miRNA reads.
       type: data:reads:fastq
-      description: >
+      description: |
         Note that these reads should already be void of adapters.
     - name: genome
       label: Genome
@@ -34,7 +34,7 @@
           value: ID
         - label: geneid
           value: geneid
-      description: >
+      description: |
         GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
         with the same feature ID will be considered as parts of the same
         feature. The feature ID is used to identify the counts in the
@@ -46,7 +46,7 @@
       label: Feature class
       type: basic:string
       default: miRNA
-      description: >
+      description: |
         Feature class (3rd column in GFF file) to be used, all features of other
         types are ignored.
   run:

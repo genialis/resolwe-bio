@@ -1,6 +1,7 @@
 - slug: sample-vaccinesurvey
   name: Vaccinesurvey sample annotation
   description: Vaccinesurvey sample annotation
+  version: 1.0.0
   schema:
     - name: sample
       label: Sample annotation
@@ -8,7 +9,7 @@
         - name: annotator
           label: Annotator/Scientist
           type: basic:string
-          description: >
+          description: |
             The name of the person that prepared the data.
         - name: study_code
           label: Study code identifying patient

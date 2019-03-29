@@ -11,12 +11,12 @@
       docker:
         image: resolwebio/biox:1.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.3.0
+  version: 1.3.1
   type: data:expression:polya
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Dictyostelium-specific pipeline. Developed by Bioinformatics Laboratory,
     Faculty of Computer and Information Science, University of Ljubljana,
     Slovenia and Shaulsky Lab, Department of Molecular and Human Genetics,

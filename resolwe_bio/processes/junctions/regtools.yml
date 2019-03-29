@@ -9,7 +9,7 @@
     {{ alignment_star|sample_name|default('') }}
     {{ alignment|sample_name|default('') }}
     {{ input_bed_junctions.bed.file|default('') }}
-  version: 0.2.0
+  version: 0.2.1
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja
@@ -39,7 +39,7 @@
     - name: alignment_star
       label: STAR alignment
       type: data:alignment:bam:star
-      description: >
+      description: |
         Splice junctions detected by STAR aligner (SJ.out.tab STAR output file). Please provide one
         input 'STAR alignment' or 'Alignment' by any aligner or directly 'Junctions in BED12 format'.
       required: false
@@ -47,14 +47,14 @@
       label: Alignment
       type: data:alignment:bam
       required: false
-      description: >
+      description: |
         Aligned reads from which splice junctions are going to be extracted. Please provide one input
         'STAR alignment' or 'Alignment' by any aligner or directly 'Junctions in BED12 format'.
     - name: input_bed_junctions
       label: Junctions in BED12 format
       type: data:bed
       required: false
-      description: >
+      description: |
         Splice junctions in BED12 format. Please provide one input 'STAR alignment' or 'Alignment'
         by any aligner or directly 'Junctions in BED12 format'.
   output:

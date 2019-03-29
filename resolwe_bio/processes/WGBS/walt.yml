@@ -14,12 +14,12 @@
       docker:
         image: resolwebio/wgbs:1.0.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.0.1
+  version: 1.0.2
   type: data:alignment:mr:walt
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     WALT (Wildcard ALignment Tool) is a read mapping program for bisulfite sequencing in DNA
     methylation studies.
   input:
@@ -41,7 +41,7 @@
       label: Number of reads to map in one loop
       type: basic:integer
       required: false
-      description: >
+      description: |
         Sets the number of reads to mapping in each loop. Larger number results in program taking
         more memory. This is especially evident in paired-end mapping.
   output:

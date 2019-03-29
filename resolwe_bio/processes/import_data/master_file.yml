@@ -13,11 +13,11 @@
     resources:
       network: true
   data_name: '{{ panel_name }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:masterfile:amplicon
   category: Import
   persistence: CACHED
-  description: >
+  description: |
     This should be a tab delimited file (*.txt).
     Please check the [example](http://genial.is/amplicon-masterfile) file for details.
   input:

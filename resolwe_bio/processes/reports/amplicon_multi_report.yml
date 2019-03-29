@@ -6,12 +6,12 @@
     executor:
       docker:
         image: resolwebio/latex:1.0.7
-  version: 0.2.4
+  version: 0.2.5
   type: "data:archive:samples:amplicon"
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Create an archive of output files. The ouput folder structure is
     organized by sample slug and data object's output-field names.
     Additionally, create multi-sample report for selected samples.

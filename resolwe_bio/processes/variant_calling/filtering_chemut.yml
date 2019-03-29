@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/dnaseq:4.1.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.3.0
+  version: 1.3.1
   type: data:variants:vcf:filtering
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum
   input:
     - name: variants
@@ -24,7 +24,7 @@
     - name: analysis_type
       label: Analysis type
       type: basic:string
-      description: >
+      description: |
         Choice of the analysis type. Use "SNV" or "INDEL" options for the analysis of haploid VCF files prepared by using GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively. Choose options SNV_CHR2 or INDEL_CHR2 to run the GATK analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
       choices:
         - label: SNV
@@ -52,12 +52,12 @@
     - name: summary
       label: Summary
       type: basic:file
-      description: >
+      description: |
         Summarize the input parameters and results.
     - name: vcf
       label: Variants
       type: basic:file
-      description: >
+      description: |
         A genome VCF file of variants that passed the filters.
     - name: tbi
       label: Tabix index
@@ -66,43 +66,43 @@
       label: Variants filtered
       type: basic:file
       required: false
-      description: >
+      description: |
         A data frame of variants that passed the filters.
     - name: variants_filtered_alt
       label: Variants filtered (multiple alt. alleles)
       type: basic:file
       required: false
-      description: >
+      description: |
         A data frame of variants that contain more than two alternative alleles. These vairants are likely to be false positives.
     - name: gene_list_all
       label: Gene list (all)
       type: basic:file
       required: false
-      description: >
+      description: |
         Genes that are mutated at least once.
     - name: gene_list_top
       label: Gene list (top)
       type: basic:file
       required: false
-      description: >
+      description: |
         Genes that are mutated at least twice.
     - name: mut_chr
       label: Mutations (by chr)
       type: basic:file
       required: false
-      description: >
+      description: |
         List mutations in individual chromosomes.
     - name: mut_strain
       label: Mutations (by strain)
       type: basic:file
       required: false
-      description: >
+      description: |
         List mutations in individual strains.
     - name: strain_by_gene
       label: Strain (by gene)
       type: basic:file
       required: false
-      description: >
+      description: |
         List mutants that carry mutations in individual genes.
     - name: species
       label: Species

@@ -13,12 +13,12 @@
     resources:
       cores: 10
   data_name: "Alignment ({{ reads.fastq.0.file|basename|default('?') }})"
-  version: 2.1.0
+  version: 2.1.1
   type: data:alignment:bam:subread
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Subread is an accurate and efficient general-purpose read aligner which
     can align both genomic DNA-seq and RNA-seq reads. It can also be used to
     discover genomic mutations including short indels and structural variants.
@@ -40,34 +40,34 @@
           type: basic:integer
           required: false
           default: 5
-          description: >
+          description: |
             Specify the number of INDEL bases allowed in the mapping.
         - name: consensus
           label: Consensus threshold
           type: basic:integer
           required: false
           default: 3
-          description: >
+          description: |
             Specify the consensus threshold, which is the minimal number of consensus subreads required for reporting a hit.
         - name: mis_matched_bp
           label: Max number of mis-matched bases
           type: basic:integer
           required: false
           default: 3
-          description: >
+          description: |
             Specify the maximum number of mis-matched bases allowed in the alignment.
         - name: cpu_number
           label: Number of threads/CPUs
           type: basic:integer
           required: false
           default: 1
-          description: >
+          description: |
             Specify the number of threads/CPUs used for mapping
         - name: multi_mapping
           label: Report multi-mapping reads in addition to uniquely mapped reads.
           type: basic:boolean
           required: false
-          description: >
+          description: |
             Reads that were found to have more than one best mapping location are going to be reported.
     - name: PE_options
       label: Paired end alignment options
@@ -76,7 +76,7 @@
           label: reads orientation
           type: basic:string
           required: false
-          description: >
+          description: |
             Specify the orientation of the two reads from the same pair.
           default: "fr"
           choices:
@@ -91,7 +91,7 @@
           type: basic:integer
           required: false
           default: 1
-          description: >
+          description: |
             Specify the minimum number of consensus subreads both reads from the sam pair must have.
   output:
     - name: bam

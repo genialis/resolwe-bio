@@ -13,12 +13,12 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.4.0
+  version: 1.4.1
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     An ultrafast memory-efficient short read aligner.
   input:
     - name: genome
@@ -30,7 +30,7 @@
     - name: mode
       label: Alignment mode
       type: basic:string
-      description: >
+      description: |
         When the -n option is specified (which is the default), bowtie determines which alignments are valid according to the following policy, which is similar to Maq's default policy.
         1. Alignments may have no more than N mismatches (where N is a number 0-3, set with -n) in the first L bases (where L is a number 5 or greater, set with -l) on the high-quality (left) end of the read. The first L bases are called the "seed".
         2. The sum of the Phred quality values at all mismatched positions (not just in the seed) may not exceed E (set with -e). Where qualities are unavailable (e.g. if the reads are from a FASTA file), the Phred quality defaults to 40.
@@ -44,21 +44,21 @@
     - name: m
       label: Allowed mismatches
       type: basic:integer
-      description: >
+      description: |
         When used with "Use qualities (-n)" it is the maximum number of mismatches permitted in the "seed", i.e. the first L base pairs of the read (where L is set with -l/--seedlen). This may be 0, 1, 2 or 3 and the default is 2
         When used with "Use mismatches (-v)" report alignments with at most <int> mismatches.
       default: 2
     - name: l
       label: Seed length (for -n only)
       type: basic:integer
-      description: >
+      description: |
         Only for "Use qualities (-n)". Seed length (-l) is the number of bases on the high-quality end of the read to which the -n ceiling applies. The lowest permitted setting is 5 and the default is 28. bowtie is faster for larger values of -l.
       default: 28
     - name: use_se
       label: Map as single-ended (for paired end reads only)
       type: basic:boolean
       default: false
-      description: >
+      description: |
         If this option is selected paired-end reads will be mapped as single-ended.
     - name: start_trimming
       label: Initial trimming
@@ -66,13 +66,13 @@
         - name: trim_5
           label: Bases to trim from 5'
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from from 5' (left) end of each read before alignment
           default: 0
         - name: trim_3
           label: Bases to trim from 3'
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from from 3' (right) end of each read before alignment
           default: 0
     - name: trimming
@@ -81,13 +81,13 @@
         - name: trim_nucl
           label: Bases to trim
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from 3' end in each iteration.
           default: 2
         - name: trim_iter
           label: Iterations
           type: basic:integer
-          description: >
+          description: |
             Number of iterations.
           default: 0
     - name: reporting
@@ -96,7 +96,7 @@
         - name: r
           label: Reporting mode
           type: basic:string
-          description: >
+          description: |
             Report up to <int> valid alignments per read or pair (-k) (default: 1). Validity of alignments is determined by the alignment policy (combined effects of -n, -v, -l, and -e). If more than one valid alignment exists and the --best and --strata options are specified, then only those alignments belonging to the best alignment "stratum" will be reported. Bowtie is designed to be very fast for small -k but bowtie can become significantly slower as -k increases. If you would like to use Bowtie for larger values of -k, consider building an index with a denser suffix-array sample, i.e. specify a smaller -o/--offrate when invoking bowtie-build for the relevant index (see the Performance tuning section for details).
           default: -a -m 1 --best --strata
           choices:
@@ -298,12 +298,12 @@
       memory: 8192
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.4.0
+  version: 1.4.1
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Bowtie is an ultrafast, memory-efficient short read aligner. It aligns
     short DNA sequences (reads) to the human genome at a rate of over 25
     million 35-bp reads per hour. Bowtie indexes the genome with a
@@ -320,7 +320,7 @@
     - name: mode
       label: Alignment mode
       type: basic:string
-      description: >
+      description: |
         End to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
         local: Bowtie 2 does not require that the entire read align from one end to the other. Rather, some characters may be omitted ("soft clipped") from the ends in order to achieve the greatest possible alignment score.
       default: --end-to-end
@@ -349,30 +349,30 @@
           label: Map as single-ended (for paired-end reads only)
           type: basic:boolean
           default: false
-          description: >
+          description: |
             If this option is selected paired-end reads will be mapped as single-ended and other paired-end options are ignored.
         - name: discordantly
           label: Report discordantly matched read
           type: basic:boolean
           default: true
-          description: >
+          description: |
             If both mates have unique alignments, but the alignments do not match paired-end expectations (orientation and relative distance) then alignment will be reported. Useful for detecting structural variations.
         - name: rep_se
           label: Report single ended
           type: basic:boolean
           default: true
-          description: >
+          description: |
             If paired alignment can not be found Bowtie2 tries to find alignments for the individual mates.
         - name: minins
           label: Minimal distance
           type: basic:integer
-          description: >
+          description: |
             The minimum fragment length for valid paired-end alignments. 0 imposes no minimum.
           default: 0
         - name: maxins
           label: Maximal distance
           type: basic:integer
-          description: >
+          description: |
             The maximum fragment length for valid paired-end alignments.
           default: 500
     - name: start_trimming
@@ -381,13 +381,13 @@
         - name: trim_5
           label: Bases to trim from 5'
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from from 5' (left) end of each read before alignment
           default: 0
         - name: trim_3
           label: Bases to trim from 3'
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from from 3' (right) end of each read before alignment
           default: 0
     - name: trimming
@@ -396,13 +396,13 @@
         - name: trim_iter
           label: Iterations
           type: basic:integer
-          description: >
+          description: |
             Number of iterations.
           default: 0
         - name: trim_nucl
           label: Bases to trim
           type: basic:integer
-          description: >
+          description: |
             Number of bases to trim from 3' end in each iteration.
           default: 2
     - name: reporting
@@ -411,7 +411,7 @@
         - name: rep_mode
           label: Report mode
           type: basic:string
-          description: >
+          description: |
             Default mode: search for multiple alignments, report the best one;
             -k mode: search for one or more alignments, report each;
             -a mode: search for and report all alignments
@@ -426,7 +426,7 @@
         - name: k_reports
           label: Number of reports (for -k mode only)
           type: basic:integer
-          description: >
+          description: |
             Searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.          default: 5
           default: 5
   output:

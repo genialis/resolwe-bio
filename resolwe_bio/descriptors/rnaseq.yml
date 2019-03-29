@@ -1,6 +1,6 @@
 - slug: rna-seq
   name: RNA-seq
-  version: 1.0.0
+  version: 1.0.1
   description: RNA-seq template
   schema:
     - name: species
@@ -25,7 +25,7 @@
           value: 'yes'
         - label: Strand-specific reverse
           value: reverse
-      description: >
+      description: |
         In strand non-specific assay a read is considered overlapping with a
         feature regardless of whether it is mapped to the same or the opposite
         strand as the feature. In strand-specific forward assay and single
@@ -37,7 +37,7 @@
       label: Advanced options
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Inspect and modify parameters.
     - name: adapters
       label: Adapters
@@ -54,13 +54,13 @@
       type: basic:integer
       hidden: "!advanced"
       default: 10
-      description: >
+      description: |
         Trimmed reads shorter than the minimum read length will be discarded.
     - name: trailing
       label: Trailing quality
       type: basic:integer
       hidden: "!advanced"
       default: 28
-      description: >
+      description: |
         The minimum quality required to keep a base. Bases with lower quality
         will be removed from the end of reads.

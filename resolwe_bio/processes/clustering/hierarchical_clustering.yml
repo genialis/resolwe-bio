@@ -13,12 +13,12 @@
     resources:
       network: true
   data_name: 'Hierarchical clustering of samples'
-  version: 3.0.0
+  version: 3.0.1
   type: data:clustering:hierarchical:sample
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Hierarchical clustering of samples.
   input:
     - name: exps
@@ -48,7 +48,7 @@
         - name: species
           label: Species
           type: basic:string
-          description: >
+          description: |
             Species latin name. This field is required if gene subset is set.
           allow_custom_choice: true
           required: false
@@ -182,12 +182,12 @@
       memory: 16384
       network: true
   data_name: 'Hierarchical clustering of genes'
-  version: 3.0.0
+  version: 3.0.1
   type: data:clustering:hierarchical:gene
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Hierarchical clustering of genes.
   input:
     - name: exps
@@ -217,7 +217,7 @@
         - name: species
           label: Species
           type: basic:string
-          description: >
+          description: |
             Species latin name. This field is required if gene subset is set.
           allow_custom_choice: true
           required: false

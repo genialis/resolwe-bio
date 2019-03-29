@@ -14,12 +14,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: "{{ (alignments|sample_name) }}"
-  version: 1.1.0
+  version: 1.1.1
   type: data:expression:rsem
   category: Quantify
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     RSEM is a software package for estimating gene and isoform expression
     levels from RNA-Seq data. The RSEM package supports threads for parallel
     computation of the EM algorithm, single-end and paired-end read data,

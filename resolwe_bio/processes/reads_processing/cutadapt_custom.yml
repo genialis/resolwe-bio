@@ -13,12 +13,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.1.1
+  version: 1.1.2
   type: data:reads:fastq:single:cutadapt
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Cutadapt process configured to be used with the Diagenode CATS kits.
   input:
     - name: reads
@@ -79,12 +79,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
-  version: 1.1.1
+  version: 1.1.2
   type: data:reads:fastq:paired:cutadapt
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Cutadapt process configured to be used with the Diagenode CATS kits.
   input:
     - name: reads

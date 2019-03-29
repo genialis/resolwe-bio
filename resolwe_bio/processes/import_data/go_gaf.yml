@@ -13,17 +13,17 @@
     resources:
       network: true
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'
-  version: 1.1.0
+  version: 1.1.1
   type: data:gaf:2:0
   category: Import
   persistence: RAW
-  description: >
+  description: |
         GO annotation file (GAF v2.0) relating gene ID and associated GO terms
   input:
     - name: src
       label: GO annotation file (GAF v2.0)
       type: basic:file
-      description: >
+      description: |
         Upload GO annotation file (GAF v2.0) relating gene ID and associated GO terms
     - name: source
       label: Gene ID database

@@ -17,11 +17,11 @@
         category: Replicate
         required: True
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 2.1.1
+  version: 2.1.2
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED
-  description: >
+  description: |
     Cufflinks includes a program, Cuffnorm, that you can use to generate
     tables of expression values that are properly normalized for library
     size. Cuffnorm takes a GTF2/GFF3 file of transcripts as input,
@@ -40,13 +40,13 @@
     - name: annotation
       label: Annotation (GTF/GFF3)
       type: data:annotation
-      description: >
+      description: |
         A transcript annotation file produced by cufflinks, cuffcompare, or other source.
     - name: useERCC
       label: ERCC spike-in normalization
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Use ERRCC spike-in controls for normalization.
   output:
     - name: genes_count

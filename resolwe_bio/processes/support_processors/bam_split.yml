@@ -13,12 +13,12 @@
     resources:
       cores: 4
   data_name: "{{ bam.bam.file.split('.')[0] }}_{{ bam.build.split('_')[0] }}.bam"
-  version: 0.3.0
+  version: 0.3.1
   type: data:alignment:bam:primary
   flow_collection: sample
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Split hybrid bam file into two bam files.
   input:
     - name: bam
@@ -28,13 +28,13 @@
       label: Primary header sam file (optional)
       type: data:sam:header
       required: false
-      description: >
+      description: |
         If no header file is provided, the headers will be extracted from the hybrid alignment bam file.
     - name: header2
       label: Secondary header sam file (optional)
       type: data:sam:header
       required: false
-      description: >
+      description: |
         If no header file is provided, the headers will be extracted from the hybrid alignment bam file.
   output:
     - name: bam

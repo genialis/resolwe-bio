@@ -15,19 +15,19 @@
       memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:geneset
   category: Import
   persistence: RAW
   scheduling_class: interactive
-  description: >
+  description: |
     Import a set of genes. Provide one gene ID per line in a .tab, .tab.gz, or
     .txt file format.
   input:
     - name: src
       label: Gene set
       type: basic:file
-      description: >
+      description: |
         List of genes (.tab/.txt, one Gene ID per line. Supported extensions: .tab, .tab.gz (preferred), tab.*
       validate_regex: '(\.(tab|txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
     - name: source
@@ -48,7 +48,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -99,18 +99,18 @@
       cores: 1
       memory: 1024
   data_name: Gene set
-  version: 1.1.0
+  version: 1.1.1
   type: data:geneset
   category: Import
   persistence: RAW
   scheduling_class: interactive
-  description: >
+  description: |
     Create a gene set from a list of genes.
   input:
     - name: genes
       label: Genes
       type: list:basic:string
-      description: >
+      description: |
         List of genes.
     - name: source
       label: Gene ID source
@@ -130,7 +130,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -182,18 +182,18 @@
       memory: 1024
       network: true
   data_name: Gene set (Venn)
-  version: 1.1.0
+  version: 1.1.1
   type: data:geneset:venn
   category: Import
   persistence: RAW
   scheduling_class: interactive
-  description: >
+  description: |
     Create a gene set from a Venn diagram.
   input:
     - name: genes
       label: Genes
       type: list:basic:string
-      description: >
+      description: |
         List of genes.
     - name: source
       label: Gene ID source
@@ -213,7 +213,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -232,7 +232,7 @@
     - name: venn
       label: Venn diagram
       type: basic:file
-      description: >
+      description: |
         JSON file. Supported extensions: .json.gz
       validate_regex: '(\.json)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
   output:

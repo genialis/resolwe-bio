@@ -14,12 +14,12 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.3.0
+  version: 2.3.1
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     featureCounts is a highly efficient general-purpose read summarization
     program that counts mapped reads for genomic features such as genes, exons,
     promoter, gene bodies, genomic bins and chromosomal locations. It can be
@@ -38,7 +38,7 @@
           label: Assay type
           type: basic:string
           default: non_specific
-          description: >
+          description: |
             Indicate if strand-specific read counting should be performed. For
             paired-end reads, strand of the first read is taken as the strand
             of the whole fragment. FLAG field is used to tell if a read is
@@ -60,7 +60,7 @@
           type: data:index:salmon
           required: false
           hidden: "alignment.assay_type != 'auto'"
-          description: >
+          description: |
             Transcriptome index file created using the Salmon indexing tool.
             cDNA (transcriptome) sequences used for index file creation must be
             derived from the same species as the input sequencing reads to
@@ -70,7 +70,7 @@
           type: basic:integer
           default: 5000000
           hidden: "alignment.assay_type != 'auto'"
-          description: >
+          description: |
             Alignment (.bam) file subsample size. Increase the number of reads
             to make automatic detection more reliable. Decrease the number of
             reads to make automatic detection run faster.
@@ -80,13 +80,13 @@
         - name: annotation
           label: Annotation
           type: data:annotation
-          description: >
+          description: |
             GTF and GFF3 annotation formats are supported.
         - name: feature_class
           label: Feature class
           type: basic:string
           default: exon
-          description: >
+          description: |
             Feature class (3rd column in GTF/GFF3 file) to be used. All other
             features will be ignored.
         - name: feature_type
@@ -98,7 +98,7 @@
               value: gene
             - label: transcript
               value: transcript
-          description: >
+          description: |
             The type of feature the quantification program summarizes over
             (e.g. gene or transcript-level analysis). The value of this
             parameter needs to be chosen in line with 'ID attribute' below.
@@ -116,7 +116,7 @@
               value: ID
             - label: geneid
               value: geneid
-          description: >
+          description: |
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID will be considered as parts of the same
             feature. The feature ID is used to identify the counts in the
@@ -126,7 +126,7 @@
     - name: normalization_type
       label: Normalization type
       type: basic:string
-      description: >
+      description: |
         The default expression normalization type.
       default: TPM
       choices:
@@ -140,7 +140,7 @@
       label: Show advanced options
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Inspect and modify parameters
     - name: advanced
       label: Advanced
@@ -153,7 +153,7 @@
               label: Perform read counting at feature level
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Count reads for exons rather than genes.
         - name: overlap
           label: Overlap between reads and features
@@ -169,7 +169,7 @@
                 for read assignment
               type: basic:integer
               default: 1
-              description: >
+              description: |
                 Number of overlapping bases is counted from both reads if
                 paired-end. If a negative value is provided, then a gap of up
                 to specified size will be allowed between read and the feature
@@ -180,7 +180,7 @@
                 required for read assignment
               type: basic:decimal
               default: 0.0
-              description: >
+              description: |
                 Value should be within range [0, 1]. Number of overlapping
                 bases is counted from both reads if paired end. Both this
                 option and 'Minimum number of overlapping bases in a read
@@ -192,7 +192,7 @@
                 that is required for overlapping with a read or a read pair
               type: basic:decimal
               default: 0.0
-              description: >
+              description: |
                 Value should be within range [0, 1].
             - name: largest_overlap
               label: >
@@ -214,7 +214,7 @@
               label: Reduce reads to their 5'-most or 3'-most base
               type: basic:integer
               required: false
-              description: >
+              description: |
                 Read counting is performed based on the single base the read
                 is reduced to.
         - name: multi_mapping_reads
@@ -224,7 +224,7 @@
               label: Count multi-mapping reads
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 For a multi-mapping read, all its reported alignments will be
                 counted. The 'NH' tag in BAM input is used to detect
                 multi-mapping reads.
@@ -239,7 +239,7 @@
                 !advanced.multi_mapping_reads.count_multi_mapping_reads &&
                 !advanced.overlap.allow_multi_overlap
               required: false
-              description: >
+              description: |
                 This option must be used together with 'Count multi-mapping
                 reads' or 'Assign reads to all their overlapping features or
                 meta-features' or both. When 'Count multi-mapping reads' is
@@ -260,7 +260,7 @@
               label: Minimum mapping quality score
               type: basic:integer
               default: 0
-              description: >
+              description: |
                 The minimum mapping quality score a read must satisfy in order
                 to be counted. For paired-end reads, at least one end should
                 satisfy this criterion.
@@ -276,14 +276,14 @@
               label: Count only primary alignments
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Primary alignments are identified using bit 0x100 in BAM
                 FLAG field.
             - name: ignore_dup
               label: Ignore duplicate reads in read counting
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Duplicate reads are identified using bit Ox400 in BAM FLAG
                 field. The whole read pair is ignored if one of the reads is a
                 duplicate read for paired-end data.
@@ -294,7 +294,7 @@
               label: Count number of reads supporting each exon-exon junction
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Junctions are identified from those exon-spanning reads in
                 input (containing 'N' in CIGAR string).
             - name: genome
@@ -302,7 +302,7 @@
               type: data:genome
               disabled: '!advanced.exon_exon_junctions.junc_counts'
               required: false
-              description: >
+              description: |
                 Reference sequences used in read mapping that produced the
                 provided BAM files. This optional argument can be used to
                 improve read counting for junctions.
@@ -322,7 +322,7 @@
                 Check fragment length when assigning fragments to meta-features
                 or features
               type: basic:boolean
-              description: >
+              description: |
                 Use minimum and maximum fragment/template length to set
                 thresholds.
               default: false
@@ -342,7 +342,7 @@
               label: Do not count chimeric fragments
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Do not count read pairs that have their two ends mapped to
                 different chromosomes or mapped to same chromosome but on
                 different strands.
@@ -357,7 +357,7 @@
               label: Assign reads by read group
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 RG tag is required to be present in the input BAM files.
         - name: long_reads
           label: Long reads
@@ -378,14 +378,14 @@
               label: Maximum number of 'M' operations allowed in a CIGAR string
               type: basic:integer
               default: 10
-              description: >
+              description: |
                 Both 'X' and '=' are treated as 'M' and adjacent 'M' operations
                 are merged in the CIGAR string.
             - name: verbose
               label: Output verbose information
               type: basic:boolean
               default: false
-              description: >
+              description: |
                 Output verbose information for debugging, such as unmatched
                 chromosome / contig names.
   output:
@@ -426,7 +426,7 @@
       label: Read assignments
       type: basic:file
       required: false
-      description: >
+      description: |
         Read assignment results for each read (or fragment if paired end).
     - name: strandedness_report
       label: Strandedness report file

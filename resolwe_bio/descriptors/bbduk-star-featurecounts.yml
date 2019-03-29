@@ -1,7 +1,8 @@
 - slug: rna-seq-bbduk-star-featurecounts
   name: "Pipeline: BBDuk - STAR - featureCounts"
-  version: 0.1.2
-  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
+  version: 0.1.3
+  description: |
+    "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
     quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
     Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
@@ -28,7 +29,7 @@
       label: Show advanced options
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Inspect and modify parameters.
     - name: assay_type
       label: Assay type
@@ -44,7 +45,7 @@
           value: forward
         - label: Strand-specific reverse
           value: reverse
-      description: >
+      description: |
         In strand non-specific assay a read is considered overlapping with a
         feature regardless of whether it is mapped to the same or the opposite
         strand as the feature. In strand-specific forward assay and single
@@ -57,7 +58,7 @@
       type: basic:integer
       default: 28
       hidden: '!advanced'
-      description: >
+      description: |
         The minimum quality required to keep a base. Bases with lower quality
         will be removed from the right end of reads.
     - name: min_length
@@ -65,5 +66,5 @@
       type: basic:integer
       default: 30
       hidden: '!advanced'
-      description: >
+      description: |
         Trimmed reads shorter than the minimum read length will be discarded.

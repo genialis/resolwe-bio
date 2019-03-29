@@ -14,12 +14,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:reads:fastq:single:trimmomatic
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Trimmomatic performs a variety of useful trimming tasks including removing
     adapters for Illumina paired-end and single-end data. FastQC is performed
     for quality control checks on trimmed raw sequence data, which are the
@@ -39,7 +39,7 @@
           label: Adapter sequences
           type: data:seq:nucleotide
           required: false
-          description: >
+          description: |
             Adapter sequence in FASTA format that will be removed from the read.
             This field as well as 'Seed mismatches' and 'Simple clip threshold' parameters are needed to perform Illuminacliping.
         - name: seed_mismatches
@@ -48,7 +48,7 @@
           disabled: >
             !illuminaclip.adapters
           required: false
-          description: >
+          description: |
              Specifies the maximum mismatch count which will still allow a full match to be performed.
              This field as well as 'Adapter sequences' and 'Simple clip threshold' parameter are needed to perform Illuminacliping.
         - name: simple_clip_threshold
@@ -57,7 +57,7 @@
           disabled: >
             !illuminaclip.adapters
           required: false
-          description: >
+          description: |
             Specifies how accurate the match between any adapter etc. sequence must be against a read.
             This field as well as 'Adapter sequences' and 'Seed mismatches' parameter are needed to perform Illuminacliping.
     - name: slidingwindow
@@ -67,7 +67,7 @@
           label: Window size
           type: basic:integer
           required: false
-          description: >
+          description: |
             Specifies the number of bases to average across.
             This field as well as 'Required quality' are needed to perform a 'Sliding window' trimming (cutting once the
             average quality within the window falls below a threshold).
@@ -75,7 +75,7 @@
           label: Required quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Specifies the average quality required in window size.
             This field as well as 'Window size' are needed to perform a 'Sliding window' trimming (cutting once the
             average quality within the window falls below a threshold).
@@ -86,7 +86,7 @@
           label: Target length
           type: basic:integer
           required: false
-          description: >
+          description: |
             This specifies the read length which is likely to allow the location of the read within the target sequence
             to be determined. This field as well as 'Strictness' are needed to perform 'Maxinfo' feature (an adaptive quality
             trimmer which balances read length and error rate to maximise the value of each read).
@@ -94,7 +94,7 @@
           label: Strictness
           type: basic:decimal
           required: false
-          description: >
+          description: |
             This value, which should be set between 0 and 1, specifies the balance between preserving as much read
             length as possible vs. removal of incorrect bases. A low value of this parameter (<0.2) favours longer reads,
             while a high value (>0.8) favours read correctness. This field as well as 'Target length' are needed to perform
@@ -106,25 +106,25 @@
           label: Leading quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from the beginning, if below a threshold quality.
         - name: trailing
           label: Trailing quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from the end, if below a threshold quality.
         - name: crop
           label: Crop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the read to a specified length by removing bases from the end.
         - name: headcrop
           label: Headcrop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the specified number of bases from the start of the read.
     - name: reads_filtering
       label: Reads filtering
@@ -133,13 +133,13 @@
           label: Minimum length
           type: basic:integer
           required: false
-          description: >
+          description: |
             Drop the read if it is below a specified length.
         - name: average_quality
           label: Average quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Drop the read if the average quality is below the specified level.
   output:
     - name: fastq
@@ -273,12 +273,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:reads:fastq:paired:trimmomatic
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Trimmomatic performs a variety of useful trimming tasks including removing
     adapters for Illumina paired-end and single-end data. FastQC is performed
     for quality control checks on trimmed raw sequence data, which are the
@@ -298,7 +298,7 @@
           label: Adapter sequences
           type: data:seq:nucleotide
           required: false
-          description: >
+          description: |
             Adapter sequence in FASTA format that will be removed from the read.
             This field as well as 'Seed mismatches', 'Simple clip threshold' and 'Palindrome clip threshold' parameters are
             needed to perform Illuminacliping. 'Minimum adapter length' and 'Keep both reads' are optional parameters.
@@ -308,7 +308,7 @@
           disabled: >
             !illuminaclip.adapters
           required: false
-          description: >
+          description: |
             Specifies the maximum mismatch count which will still allow a full match to be performed.
             This field as well as 'Adapter sequence', 'Simple clip threshold' and 'Palindrome clip threshold' parameters are
             needed to perform Illuminacliping.
@@ -318,7 +318,7 @@
           disabled: >
             !illuminaclip.adapters
           required: false
-          description: >
+          description: |
             Specifies how accurate the match between any adapter etc. sequence must be against a read.
             This field as well as 'Adapter sequence', 'Seed mismatches' and 'Palindrome clip threshold' parameters are
             needed to perform Illuminacliping.
@@ -328,7 +328,7 @@
           disabled: >
             !illuminaclip.adapters
           required: false
-          description: >
+          description: |
             Specifies how accurate the match between the two 'adapter ligated' reads must be for PE palindrome read alignment.
             This field as well as 'Adapter sequence', 'Simple clip threshold' and 'Seed mismatches' parameters are
             needed to perform Illuminacliping.
@@ -340,7 +340,7 @@
             !illuminaclip.simple_clip_threshold &&
             !illuminaclip.palindrome_clip_threshold
           default: 8
-          description: >
+          description: |
              In addition to the alignment score, palindrome mode can verify that a minimum length of adapter has been
              detected. If unspecified, this defaults to 8 bases, for historical reasons. However, since palindrome mode
              has a very low false positive rate, this can be safely reduced, even down to 1, to allow shorter adapter
@@ -355,7 +355,7 @@
             !illuminaclip.palindrome_clip_threshold &&
             !illuminaclip.min_adapter_length
           required: false
-          description: >
+          description: |
             After read-though has been detected by palindrome mode, and the adapter sequence removed, the reverse read
             contains the same sequence information as the forward read, albeit in reverse complement. For this reason,
             the default behaviour is to entirely drop the reverse read.By specifying this parameter, the reverse read
@@ -370,7 +370,7 @@
           label: Window size
           type: basic:integer
           required: false
-          description: >
+          description: |
             Specifies the number of bases to average across.
             This field as well as 'Required quality' are needed to perform a 'Sliding window' trimming (cutting once the
             average quality within the window falls below a threshold).
@@ -378,7 +378,7 @@
           label: Required quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Specifies the average quality required.
             This field as well as 'Window size' are needed to perform a 'Sliding window' trimming (cutting once the
             average quality within the window falls below a threshold).
@@ -389,7 +389,7 @@
           label: Target length
           type: basic:integer
           required: false
-          description: >
+          description: |
             This specifies the read length which is likely to allow the location of the read within the target sequence
             to be determined. This field as well as 'Strictness' are needed to perform 'Maxinfo' feature (an adaptive quality
             trimmer which balances read length and error rate to maximise the value of each read).
@@ -397,7 +397,7 @@
           label: Strictness
           type: basic:decimal
           required: false
-          description: >
+          description: |
             This value, which should be set between 0 and 1, specifies the balance between preserving as much read
             length as possible vs. removal of incorrect bases. A low value of this parameter (<0.2) favours longer reads,
             while a high value (>0.8) favours read correctness. This field as well as 'Target length' are needed to perform
@@ -409,25 +409,25 @@
           label: Leading quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from the beginning. Specifies the minimum quality required to keep a base.
         - name: trailing
           label: Trailing
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from the end. Specifies the minimum quality required to keep a base.
         - name: crop
           label: Crop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the read to a specified length by removing bases from the end.
         - name: headcrop
           label: Headcrop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the specified number of bases from the start of the read.
     - name: reads_filtering
       label: Reads filtering
@@ -436,13 +436,13 @@
           label: Minimum length
           type: basic:integer
           required: false
-          description: >
+          description: |
             Drop the read if it is below a specified length.
         - name: average_quality
           label: Average quality
           type: basic:integer
           required: false
-          description: >
+          description: |
             Drop the read if the average quality is below the specified level.
   output:
     - name: fastq

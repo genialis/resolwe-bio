@@ -14,18 +14,18 @@
       memory: 16384
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.2.1
+  version: 1.2.2
   type: data:alignment:bam:bwatrim
   category: Other
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Align with BWA mem and trim the sam output. The process uses the memory-optimized Primertrim tool.
   input:
     - name: master_file
       label: Master file
       type: data:masterfile:amplicon
-      description: >
+      description: |
         Amplicon experiment design file that holds the information about the primers to be removed.
     - name: genome
       label: Reference genome
@@ -37,25 +37,25 @@
       label: Minimum seed length
       type: basic:integer
       default: 19
-      description: >
+      description: |
         Minimum seed length. Matches shorter than minimum seed length will be missed. The alignment speed is usually insensitive to this value unless it significantly deviates 20.
     - name: band_w
       label: Band width
       type: basic:integer
       default: 100
-      description: >
+      description: |
         Gaps longer than this will not be found.
     - name: re_seeding
       label: Re-seeding factor
       type: basic:decimal
       default: 1.5
-      description: >
+      description: |
         Trigger re-seeding for a MEM longer than minSeedLen*FACTOR. This is a key heuristic parameter for tuning the performance. Larger value yields fewer seeds, which leads to faster alignment speed but lower accuracy.
     - name: m
       label: Mark shorter split hits as secondary
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Mark shorter split hits as secondary (for Picard compatibility)
     - name: scoring
       label: Scoring
@@ -80,13 +80,13 @@
         label: Clipping penalty
         type: basic:integer
         default: 5
-        description: >
+        description: |
           Clipping is applied if final alignment score is smaller than (best score reaching the end of query) - (Clipping penalty)
       - name: unpaired_p
         label: Penalty for an unpaired read pair
         type: basic:integer
         default: 9
-        description: >
+        description: |
           Affinity to force pair. Score: scoreRead1+scoreRead2-Penalty
     - name: reporting
       label: Reporting
@@ -95,13 +95,13 @@
         label: Report all found alignments
         type: basic:boolean
         default: false
-        description: >
+        description: |
           Output all found alignments for single-end or unpaired paired-end reads. These alignments will be flagged as secondary alignments.
       - name: report_tr
         label: Report threshold score
         type: basic:integer
         default: 30
-        description: >
+        description: |
           Don't output alignment with score lower than defined number. This option only affects output.
   output:
     - name: bam

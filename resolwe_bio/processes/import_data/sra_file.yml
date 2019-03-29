@@ -15,11 +15,11 @@
       memory: 1024
       network: true
   data_name: "{{ sra_accession }}"
-  version: 0.1.0
+  version: 0.1.1
   type: data:sra
   category: Import
   persistence: TEMP
-  description: >
+  description: |
     Import single or paired-end reads from Sequence Read Archive (SRA) via an
     SRA accession number. SRA stores raw sequencing data and alignment
     information from high-throughput sequencing platforms.
@@ -99,12 +99,12 @@
       memory: 1024
       network: true
   data_name: "{{ sra_accession }}"
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import single-end reads from Sequence Read Archive (SRA) via an
     SRA accession number. SRA stores raw sequencing data and alignment
     information from high-throughput sequencing platforms.
@@ -210,12 +210,12 @@
       memory: 1024
       network: true
   data_name: "{{ sra_accession }}"
-  version: 0.1.0
+  version: 0.1.1
   type: data:reads:fastq:paired
   flow_collection: sample
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import paired-end reads from Sequence Read Archive (SRA) via an
     SRA accession number. SRA stores raw sequencing data and alignment
     information from high-throughput sequencing platforms.

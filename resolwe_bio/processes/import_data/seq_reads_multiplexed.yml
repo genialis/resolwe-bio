@@ -4,7 +4,7 @@
 ---
 
 - slug: upload-multiplexed-single
-  name: Reads (multiplexed, single)
+  name: Reads (QSEQ multiplexed, single)
   requirements:
     expression-engine: jinja
     executor:
@@ -13,11 +13,11 @@
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:multiplexed:qseq:single
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Upload multiplexed NGS reds in QSEQ format.
   input:
     - name: reads
@@ -25,21 +25,21 @@
       type: basic:file
       required: true
       validate_regex: '(\.(qseq)(|\.txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
-      description: >
+      description: |
         NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
     - name: barcodes
       label: NGS barcodes
       type: basic:file
       required: true
       validate_regex: '(\.(qseq)(|\.txt)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
-      description: >
+      description: |
         Barcodes in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
     - name: annotation
       label: Barcode mapping
       type: basic:file
       validate_regex: '(\.csv|\.tsv)$'
       required: true
-      description: >
+      description: |
         A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
   output:
     - name: qseq_reads
@@ -85,7 +85,7 @@
       re-save-file qseq_barcodes ${BARCODES_NAME}.qseq.gz
 
 - slug: upload-multiplexed-paired
-  name: Reads (multiplexed, paired)
+  name: Reads (QSEQ multiplexed, paired)
   requirements:
     expression-engine: jinja
     executor:
@@ -94,11 +94,11 @@
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.1.0
+  version: 1.1.1
   type: data:multiplexed:qseq:paired
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Upload multiplexed NGS reds in QSEQ format.
   input:
     - name: reads
@@ -106,28 +106,28 @@
       type: basic:file
       required: true
       validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
-      description: >
+      description: |
         NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
     - name: reads2
       label: Multiplexed downstream reads
       type: basic:file
       required: true
       validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
-      description: >
+      description: |
         NGS reads in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
     - name: barcodes
       label: NGS barcodes
       type: basic:file
       required: true
       validate_regex: '((\.qseq|\.qseq\.txt)(\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
-      description: >
+      description: |
         Barcodes in QSeq format. Supported extensions: .qseq.txt.bz2 (preferred), .qseq.* or .qseq.txt.*.
     - name: annotation
       label: Barcode mapping
       type: basic:file
       validate_regex: '(\.csv|\.tsv)$'
       required: true
-      description: >
+      description: |
         A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
   output:
     - name: qseq_reads

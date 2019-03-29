@@ -15,24 +15,24 @@
       memory: 16384
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.3.0
+  version: 3.3.1
   type: data:genome:fasta
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import genome sequence in FASTA format which includes .fasta.gz
     (preferred), .fa., .fna., or .fasta extensions.
   input:
     - name: src
       label: Genome sequence (FASTA)
       type: basic:file
-      description: >
+      description: |
         Genome sequence in FASTA format. Supported extensions: .fasta.gz (preferred), .fa.*, .fna.* or .fasta.*
       validate_regex: '\.(fasta|fa|fna|fsa)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -58,42 +58,42 @@
           label: Bowtie index files
           type: basic:file
           required: false
-          description: >
+          description: |
             Bowtie index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
         - name: bowtie2_index
           label: Bowtie2 index files
           type: basic:file
           required: false
-          description: >
+          description: |
             Bowtie2 index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
         - name: bwa_index
           label: BWA index files
           type: basic:file
           required: false
-          description: >
+          description: |
             BWA index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
         - name: hisat2_index
           label: HISAT2 index files
           type: basic:file
           required: false
-          description: >
+          description: |
             HISAT2 index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
         - name: subread_index
           label: subread index files
           type: basic:file
           required: false
-          description: >
+          description: |
             Subread index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
         - name: walt_index
           label: WALT index files
           type: basic:file
           required: false
-          description: >
+          description: |
             WALT index files. Supported extensions (*.tar.gz).
           validate_regex: '(\.tar\.gz)$'
   output:

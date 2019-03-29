@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.2.0
+  version: 1.2.1
   schema:
     - name: general
       label: General
@@ -37,7 +37,7 @@
         - name: strain
           label: Strain
           type: basic:string
-          description: >
+          description: |
             If using an animal model, this is strain information of that model, e.g. C57BL6,
             Sprague Dawley, etc.
           required: false
@@ -45,14 +45,14 @@
         - name: genotype
           label: Genotype
           type: basic:string
-          description: >
+          description: |
             Genotype of your sample, e.g. P53+/-, Tg2576, etc.
           required: false
         - name: biosample_type
           label: Biosample type
           type: basic:string
           required: false
-          description: >
+          description: |
             Source of samples/biological material, e.g. cell line, tissue, primary cell lines, etc.
           choices:
             - label: Cell line
@@ -66,7 +66,7 @@
         - name: primary_cell_line
           label: Primary cell line
           type: basic:string
-          description: >
+          description: |
             Search for your tissue type: http://www.ontobee.org/ontology/UBERON and enter the UBERON
             number e.g. thymus - UBERON:0002370.
           required: false
@@ -81,7 +81,7 @@
           label: Cell type
           type: basic:string
           required: false
-          description: >
+          description: |
             Type of cell, e.g. embryonic stem cell.
         - name: organ
           label: Organ / tissue
@@ -207,28 +207,28 @@
         - name: biosample_source
           label: Biosample source
           type: basic:string
-          description: >
+          description: |
             General description of where your sample was derived from, e.g. osteosarcoma, vastus
             lateralis muscle, etc.
           required: false
         - name: growth_protocol
           label: Growth protocol
           type: basic:string
-          description: >
+          description: |
             Describe the conditions that were used to grow or maintain organisms or cells prior to
             extract preparation.
           required: false
         - name: biosample_treatment
           label: Biosample treatment
           type: basic:string
-          description: >
+          description: |
             If your sample was treated with a chemical agent search for the CHEBI number at
             https://www.ebi.ac.uk/chebi/, e.g. cisplatin, CHEBI:27899.
           required: false
         - name: treatment_protocol
           label: Treatment protocol
           type: basic:string
-          description: >
+          description: |
             Describe how your sample was treated, at different timepoints, if using non-chemical
             treatments e.g. exercise, aging, etc.
           required: false
@@ -258,13 +258,13 @@
         - name: extract_protocol
           label: Extract protocol
           type: basic:string
-          description: >
+          description: |
             Describe the protocols used to extract and prepare the material to be sequenced.
           required: false
         - name: molecule
           label: Library made from / Molecule
           type: basic:string
-          description: >
+          description: |
             Select what molecule your samples are from, e.g. totalRNA, polyA RNA, genomic DNA, etc.
           required: false
           choices:
@@ -285,7 +285,7 @@
         - name: library_depleted_in
           label: Library depleted in
           type: basic:string
-          description: >
+          description: |
             Select how your library was depleted, otherwise choose N/A.
           required: false
           choices:
@@ -303,7 +303,7 @@
         - name: replication_type
           label: Replication type
           type: basic:string
-          description: >
+          description: |
             Select what replication type you used. For more info, go to
             https://www.encodeproject.org/data-standards/terms/.
           required: false
@@ -343,7 +343,7 @@
             - name: target_of_assay
               label: Target of assay
               type: basic:string
-              description: >
+              description: |
                 Target in a ChIP-seq experiment, e.g. transcription factor, histone mark, etc.
               required: false
               choices:

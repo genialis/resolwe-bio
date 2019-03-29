@@ -13,12 +13,12 @@
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.4.0
+  version: 1.4.1
   type: data:expression:htseq:normalized
   category: Quantify
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     HTSeq-count is useful for preprocessing RNA-Seq alignments for differential
     expression calling. It counts the number of reads that map to a genomic
     feature (e.g. gene).
@@ -38,7 +38,7 @@
     - name: mode
       label: Mode
       type: basic:string
-      description: >
+      description: |
         Mode to handle reads overlapping more than one feature. Possible values for <mode> are union, intersection-strict and intersection-nonempty
       default: union
       choices:
@@ -51,7 +51,7 @@
     - name: stranded
       label: Is data from a strand specific assay?
       type: basic:string
-      description: >
+      description: |
         For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
       default: "yes"
       choices:
@@ -65,13 +65,13 @@
       label: Feature class
       type: basic:string
       default: exon
-      description: >
+      description: |
         Feature class (3rd column in GFF file) to be used. All other features will be ignored.
     - name: id_attribute
       label: ID attribute
       type: basic:string
       default: gene_id
-      description: >
+      description: |
         GFF attribute to be used as feature ID. Several GFF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
     - name: feature_type
       label: Feature type
@@ -82,13 +82,13 @@
           value: gene
         - label: transcript
           value: transcript
-      description: >
+      description: |
         The type of feature the quantification program summarizes over (e.g. gene or transcript-level analysis).
     - name: name_ordered
       label: Use name-ordered BAM file for counting reads
       type: basic:boolean
       default: true
-      description: >
+      description: |
         Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM
         files, but requires more computational time. Setting this to false may cause the process
         to fail for large BAM files due to buffer overflow.
@@ -239,12 +239,12 @@
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.5.0
+  version: 1.5.1
   type: data:expression:htseq:cpm
   category: Quantify
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     HTSeq-count is useful for preprocessing RNA-Seq alignments for differential
     expression calling. It counts the number of reads that map to a genomic
     feature (e.g. gene). For computationally efficient quantification consider
@@ -268,7 +268,7 @@
     - name: mode
       label: Mode
       type: basic:string
-      description: >
+      description: |
         Mode to handle reads overlapping more than one feature. Possible values for <mode> are union, intersection-strict and intersection-nonempty
       default: union
       choices:
@@ -281,7 +281,7 @@
     - name: stranded
       label: Is data from a strand specific assay?
       type: basic:string
-      description: >
+      description: |
         For stranded=no, a read is considered overlapping with a feature regardless of whether it is mapped to the same or the opposite strand as the feature. For stranded=yes and single-end reads, the read has to be mapped to the same strand as the feature. For paired-end reads, the first read has to be on the same strand and the second read on the opposite strand. For stranded=reverse, these rules are reversed
       default: "yes"
       choices:
@@ -295,13 +295,13 @@
       label: Feature class
       type: basic:string
       default: exon
-      description: >
+      description: |
         Feature class (3rd column in GTF file) to be used. All other features will be ignored.
     - name: id_attribute
       label: ID attribute
       type: basic:string
       default: gene_id
-      description: >
+      description: |
         GFF attribute to be used as feature ID. Several GTF lines with the same feature ID will be considered as parts of the same feature. The feature ID is used to identity the counts in the output table.
     - name: feature_type
       label: Feature type
@@ -312,13 +312,13 @@
           value: gene
         - label: transcript
           value: transcript
-      description: >
+      description: |
         The type of feature the quantification program summarizes over (e.g. gene or transcript-level analysis).
     - name: name_ordered
       label: Use name-ordered BAM file for counting reads
       type: basic:boolean
       default: true
-      description: >
+      description: |
         Use name-sorted BAM file for reads quantification. Improves compatibility with larger BAM
         files, but requires more computational time. Setting this to false may cause the process
         to fail for large BAM files due to buffer overflow.

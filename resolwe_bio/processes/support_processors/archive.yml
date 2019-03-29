@@ -6,12 +6,12 @@
     executor:
       docker:
         image: resolwebio/common:1.0.0
-  version: 0.2.0
+  version: 0.2.1
   type: data:archive:samples
   category: Other
   persistence: TEMP
   scheduling_class: interactive
-  description: >
+  description: |
     Create an archive of output files. The ouput folder
     structure is organized by sample slug and data object's
     output-field names.

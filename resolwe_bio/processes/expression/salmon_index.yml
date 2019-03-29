@@ -9,16 +9,16 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 0.1.0
+  version: 0.1.1
   type: data:index:salmon
   persistence: CACHED
-  description: >
+  description: |
     Generete index files for Salmon transcript quantification tool.
   input:
     - name: nucl
       label: Nucleotide sequence
       type: data:seq:nucleotide
-      description: >
+      description: |
         A CDS sequence file in .fasta format.
     - name: source
       label: Source of attribute ID
@@ -38,7 +38,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -61,7 +61,7 @@
       label: Size of k-mers
       type: basic:integer
       default: 31
-      description: >
+      description: |
         The size of k-mers that should be used for the quasi index.
         We find that a k of 31 seems to work well for reads of 75bp or longer,
         but you might consider a smaller k if you plan to deal with shorter reads.

@@ -15,11 +15,11 @@
       memory: 4096
       network: true
   data_name: '{{ src.file }}'
-  version: 3.2.0
+  version: 3.2.1
   type: data:annotation:gff3
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import a General Feature Format (GFF) file which is a file format used for
     describing genes and other features of DNA, RNA and protein sequences. See
     [here](https://useast.ensembl.org/info/website/upload/gff3.html) and
@@ -29,7 +29,7 @@
     - name: src
       label: Annotation (GFF3)
       type: basic:file
-      description: >
+      description: |
         Annotation in GFF3 format. Supported extensions are: .gff, .gff3 and .gtf
       validate_regex: '\.(gff|gff3|gtf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: source
@@ -50,7 +50,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:
@@ -131,11 +131,11 @@
       memory: 4096
       network: true
   data_name: '{{ src.file }}'
-  version: 3.2.0
+  version: 3.2.1
   type: data:annotation:gtf
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Import a Gene Transfer Format (GTF) file.  It is a file format used to
     hold information about gene structure. It is a tab-delimited text format
     based on the general feature format (GFF), but contains some additional
@@ -146,7 +146,7 @@
     - name: src
       label: Annotation (GTF)
       type: basic:file
-      description: >
+      description: |
         Annotation in GTF format.
       validate_regex: '\.(gtf|gff)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: source
@@ -167,7 +167,7 @@
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:

@@ -13,17 +13,17 @@
     resources:
       network: true
   data_name: Expression time course
-  version: 1.1.0
+  version: 1.1.1
   type: data:etc
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Upload Expression time course.
   input:
     - name: src
       label: Expression time course file (xls or tab)
       type: basic:file
-      description: >
+      description: |
         Expression time course
       required: true
       validate_regex: '\.(xls|xlsx|tab)$'

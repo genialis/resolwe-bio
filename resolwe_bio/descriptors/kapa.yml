@@ -1,17 +1,18 @@
 - slug: kapa-rna-seq-bbduk-star-featurecounts
   name: "KAPA RNA-Seq pipeline: BBDuk - STAR - featureCounts"
-  version: 0.0.3
-  description: "This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
-    quantification.\n\nFirst, reads are preprocessed by __BBDuk__ which removes adapters, trims
+  version: 0.0.4
+  description: |
+    This RNA-seq pipeline is comprised of three steps: preprocessing, alignment, and
+    quantification. First, reads are preprocessed by BBDuk which removes adapters, trims
     reads for quality from the 3'-end, and discards reads that are too short after trimming.
-    Compared to similar tools, BBDuk is regarded for its computational efficiency.\n\nNext,
-    preprocessed reads are aligned by __STAR__ aligner. At the time of implementation, STAR is
+    Compared to similar tools, BBDuk is regarded for its computational efficiency. Next,
+    preprocessed reads are aligned by STAR aligner. At the time of implementation, STAR is
     considered a state-of-the-art tool that consistently produces accurate results from diverse sets
     of reads, and performs well even with default settings. For more information see [this
-    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106).\n\nFinally, aligned
-    reads are summarized to genes by __featureCounts__. Gaining wide adoption among the
+    comparison of RNA-seq aligners](https://www.nature.com/articles/nmeth.4106). Finally, aligned
+    reads are summarized to genes by featureCounts. Gaining wide adoption among the
     bioinformatics community, featureCounts yields expressions in a computationally efficient
-    manner.\n\nAll three tools in this workflow support parallelization to accelerate the analysis."
+    manner. All three tools in this workflow support parallelization to accelerate the analysis.
   schema:
     - name: species
       label: Species
@@ -49,7 +50,7 @@
       label: Show advanced options
       type: basic:boolean
       default: false
-      description: >
+      description: |
         Inspect and modify parameters.
     - name: adapters
       label: Remove adapters
@@ -59,14 +60,14 @@
           label: Illumina adapters
           type: basic:boolean
           default: true
-          description: >
+          description: |
             Remove standard Illumina adapter set.
         - name: custom_sequences
           label: Custom adapter sequences
           type: list:basic:string
           default: []
           required: false
-          description: >
+          description: |
             Custom adapter sequences can be specified by inputting them one by one and pressing Enter
             after each sequence.
     - name: reads_trimming
@@ -77,12 +78,12 @@
           label: Trailing quality
           type: basic:integer
           default: 28
-          description: >
+          description: |
             The minimum quality required to keep a base. Bases with lower quality
             will be removed from the right end of reads.
         - name: min_length
           label: Minimum read length
           type: basic:integer
           default: 30
-          description: >
+          description: |
             Trimmed reads shorter than the minimum read length will be discarded.

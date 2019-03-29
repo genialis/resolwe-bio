@@ -13,24 +13,24 @@
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:variants:vcf
   category: Import
   persistence: RAW
-  description: >
+  description: |
     Upload variants in VCF format.
   input:
     - name: src
       label: Variants (VCF)
       type: basic:file
-      description: >
+      description: |
         Variants in VCF format.
       required: true
       validate_regex: '\.(vcf)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z)$'
     - name: species
       label: Species
       type: basic:string
-      description: >
+      description: |
         Species latin name.
       allow_custom_choice: true
       choices:

@@ -13,12 +13,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.2.0
+  version: 1.2.1
   type: data:reads:fastq:single:cutadapt
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Cutadapt finds and removes adapter sequences, primers, poly-A tails and
     other types of unwanted sequence from high-throughput sequencing reads.
     More information about Cutadapt can be found
@@ -47,70 +47,70 @@
       label: Poly-A tail
       type: basic:integer
       required: false
-      description: >
+      description: |
         Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
     - name: leading
       label: Quality on 5 prime
       type: basic:integer
       required: false
-      description: >
+      description: |
         Remove low quality bases from 5 prime. Specifies the minimum quality required to keep a base.
     - name: trailing
       label: Quality on 3 prime
       type: basic:integer
       required: false
-      description: >
+      description: |
         Remove low quality bases from the 3 prime. Specifies the minimum quality required to keep a base.
     - name: crop
       label: Crop
       type: basic:integer
       required: false
-      description: >
+      description: |
        Cut the read to a specified length by removing bases from the end
     - name: headcrop
       label: Headcrop
       type: basic:integer
       required: false
-      description: >
+      description: |
        Cut the specified number of bases from the start of the read
     - name: min_overlap
       label: Minimal overlap
       type: basic:integer
       default: 3
-      description: >
+      description: |
        Minimum overlap for an adapter match
     - name: minlen
       label: Min length
       type: basic:integer
       required: false
-      description: >
+      description: |
         Drop the read if it is below a specified length
     - name: max_n
       label: Max numebr of N-s
       type: basic:integer
       required: false
-      description: >
+      description: |
         Discard reads having more 'N' bases than specified.
     - name: match_read_wildcards
       label: Match read wildcards
       type: basic:boolean
       required: false
       default: false
-      description: >
+      description: |
         Interpret IUPAC wildcards in reads.
     - name: times
       label: Times
       type: basic:integer
       required: false
       default: 1
-      description: >
+      description: |
         Remove up to COUNT adapters from each read.
     - name: error_rate
       label: Error rate
       type: basic:decimal
       required: false
       default: 0.1
-      description: >
+      description: |
         Maximum allowed error rate (no. of errors divided by the length of the matching region).
   output:
     - name: fastq
@@ -214,12 +214,12 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.0
+  version: 2.1.1
   type: data:reads:fastq:paired:cutadapt
   category: Trim
   flow_collection: sample
   persistence: CACHED
-  description: >
+  description: |
     Cutadapt finds and removes adapter sequences, primers, poly-A tails and
     other types of unwanted sequence from high-throughput sequencing reads.
     More information about Cutadapt can be found
@@ -267,25 +267,25 @@
           label: Times
           type: basic:integer
           default: 1
-          description: >
+          description: |
             Remove up to COUNT adapters from each read.
         - name: error_rate
           label: Error rate
           type: basic:decimal
           default: 0.1
-          description: >
+          description: |
             Maximum allowed error rate (no. of errors divided by the length of the matching region).
         - name: min_overlap
           label: Minimal overlap
           type: basic:integer
           default: 3
-          description: >
+          description: |
             Minimum overlap for an adapter match.
         - name: match_read_wildcards
           label: Match read wildcards
           type: basic:boolean
           default: false
-          description: >
+          description: |
             Interpret IUPAC wildcards in reads.
     - name: modify_reads
       label: Modifying reads
@@ -294,25 +294,25 @@
           label: Quality on 5 prime
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from 5 prime. Specifies the minimum quality required to keep a base.
         - name: trailing
           label: Quality on 3 prime
           type: basic:integer
           required: false
-          description: >
+          description: |
             Remove low quality bases from the 3 prime. Specifies the minimum quality required to keep a base.
         - name: crop
           label: Crop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the specified number of bases from the end of the reads.
         - name: headcrop
           label: Headcrop
           type: basic:integer
           required: false
-          description: >
+          description: |
             Cut the specified number of bases from the start of the reads.
     - name: filtering
       label: Filtering of processed reads
@@ -321,13 +321,13 @@
           label: Min length
           type: basic:integer
           required: false
-          description: >
+          description: |
             Drop the read if it is below a specified.
         - name: max_n
           label: Max numebr of N-s
           type: basic:integer
           required: false
-          description: >
+          description: |
             Discard reads having more 'N' bases than specified.
         - name: pair_filter
           label: Which of the reads have to match the filtering criterion
@@ -338,7 +338,7 @@
               value: any
             - label: Both of the reads in a paired-end read have to match the filtering criterion
               value: both
-          description: >
+          description: |
             Which of the reads in a paired-end read have to match the filtering criterion in order for the pair to be
             filtered.
   output:

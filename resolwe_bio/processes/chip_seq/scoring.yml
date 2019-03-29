@@ -66,7 +66,7 @@
       docker:
         image: resolwebio/chipseq:4.0.0
   data_name: "Gene score ({{ peakscore.peak_score.file|basename|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:chipseq:genescore
   category: Other
   persistence: TEMP
@@ -80,19 +80,19 @@
       label: FDR threshold
       type: basic:decimal
       default: 0.00005
-      description: >
+      description: |
         FDR threshold value (default = 0.00005).
     - name: pval
       label: Pval threshold
       type: basic:decimal
       default: 0.00005
-      description: >
+      description: |
         Pval threshold value (default = 0.00005).
     - name: logratio
       label: Log-ratio threshold
       type: basic:decimal
       default: 2.0
-      description: >
+      description: |
         Log-ratio threshold value (default = 2).
   output:
     - name: genescore

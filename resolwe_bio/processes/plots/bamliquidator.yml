@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/bamliquidator:1.0.0
   data_name: "Bamliquidator"
-  version: 0.2.0
+  version: 0.2.1
   type: data:bam:plot:bamliquidator
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Set of tools for analyzing the density of short DNA sequence read alignments in the BAM file format.
   input:
     - name: analysis_type
@@ -41,7 +41,7 @@
       type: basic:integer
       hidden: "analysis_type != 'bin'"
       required: False
-      description: >
+      description: |
         Number of base pairs in each bin. The smaller the bin size the longer the runtime and the larger the data files.
         Default is 100000.
     - name: regions_gtf
@@ -58,7 +58,7 @@
       label: Extension
       type: basic:integer
       default: 200
-      description: >
+      description: |
         Extends reads by number of bp
     - name: sense
       label: Mapping strand to gff file
@@ -79,14 +79,14 @@
       label: Black list
       type: list:basic:string
       required: False
-      description: >
+      description: |
         One or more chromosome patterns to skip during bin liquidation. Default is to skip any
         chromosomes that contain any of the following substrings chrUn _random Zv9_ _hap.
     - name: threads
       label: Threads
       type: basic:integer
       default: 1
-      description: >
+      description: |
         Number of threads to run concurrently during liquidation.
   output:
     - name: analysis_type

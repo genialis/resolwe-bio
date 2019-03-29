@@ -11,11 +11,11 @@
       docker:
         image: resolwebio/biox:1.0.0
   data_name: "Expression time course"
-  version: 1.1.0
+  version: 1.1.1
   type: data:etc
   category: Other
   persistence: CACHED
-  description: >
+  description: |
     Select gene expression data and form a time course.
   input:
     - name: expressions
