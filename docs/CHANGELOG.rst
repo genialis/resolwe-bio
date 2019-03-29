@@ -19,6 +19,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``workflow-accel-gatk4`` pipeline.
   Remove ``amplicon-panel``, ``amplicon-panel-advanced`` and
   ``amplicon-master-file`` descriptor schemas.
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and descriptor
+  schemas: ``rna-seq-quantseq``, ``bcm-workflow-rnaseq``,
+  ``bcm-workflow-chipseq``, ``bcm-workflow-wgbs``, ``dicty-align-reads``,
+  ``dicty-etc``, ``affy`` and ``workflow-chip-seq``.
 
 
 =================
