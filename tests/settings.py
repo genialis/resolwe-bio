@@ -169,6 +169,12 @@ REST_FRAMEWORK = {
     ),
 }
 
+# Time
+
+USE_TZ = True
+
+TIME_ZONE = 'UTC'
+
 FLOW_PROCESSES_FINDERS = (
     'resolwe.flow.finders.FileSystemProcessesFinder',
     'resolwe.flow.finders.AppDirectoriesFinder',
