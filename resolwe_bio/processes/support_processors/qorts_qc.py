@@ -30,7 +30,7 @@ class QortsQC(Process):
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = '1.0.0'
+    version = '1.0.1'
     process_type = 'data:qorts:qc'
     category = 'other'
     entity = {
@@ -75,8 +75,8 @@ class QortsQC(Process):
             '--skipFunctions', 'writeDESeq,writeDEXSeq',
             '--randomSeed', 42,
             '--generatePlots',
-            inputs.alignment.bam['file'],
-            inputs.annotation.annot['file'],
+            inputs.alignment.bam.path,
+            inputs.annotation.annot.path,
             'qorts_output',
         ]
 
@@ -84,7 +84,7 @@ class QortsQC(Process):
 
         # Detect if aligned reads in BAM file are of single or paired-end type
         # The samtools view command counts the number of reads with the SAM flag "read paired (0x1)"
-        if Cmd['samtools']('view', '-c', '-f', '1', inputs.alignment.bam['file']).strip() == '0':
+        if Cmd['samtools']('view', '-c', '-f', '1', inputs.alignment.bam.path).strip() == '0':
             optional_args.append('--singleEnded')
 
         if inputs.options.stranded == 'forward':
