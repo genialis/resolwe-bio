@@ -29,6 +29,11 @@ Changed
   ``bcm-workflow-chipseq``, ``bcm-workflow-wgbs``, ``dicty-align-reads``,
   ``dicty-etc``, ``affy`` and ``workflow-chip-seq``.
 
+Fixed
+-----
+- Bump memory requirements in ``seqtk-sample-single`` and
+  seqtk-sample-paired`` processes
+
 
 =================
 17.0.0 2019-03-19
