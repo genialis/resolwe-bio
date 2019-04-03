@@ -62,5 +62,12 @@ if [[ -n "${FIELD}" ]]; then
     re-save-file "${FIELD}" results/lib_format_counts.json
 fi
 
-RUN="import json; print(json.load(open('results/lib_format_counts.json')).get('expected_format', ''))"
-STRANDEDNESS=${strand_codes[`python -c "${RUN}"`]}
+RUN="import json; print(json.load(open('results/lib_format_counts.json')).get('expected_format', 'not_detected'))"
+STRAND_CODE=`python -c "${RUN}"`
+
+if test "${strand_codes[${STRAND_CODE}]}"
+    then
+        STRANDEDNESS=${strand_codes[${STRAND_CODE}]}
+    else
+        re-error "Automated detection of strandedness failed. Re-run analysis with user-selected strandedness mode."
+fi
