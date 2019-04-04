@@ -476,6 +476,17 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 'build': 'ens_90',
             })
 
+            cds = self.run_process('upload-fasta-nucl', {
+                'src': 'qorts/input/salmon_cds.fa.gz'
+            })
+            inputs = {
+                'nucl': cds.id,
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            }
+            salmon_index = self.run_process('salmon-index', inputs)
+
             annotation = self.run_process('upload-gtf', {
                 'src': 'qorts/input/hs annotation.gtf.gz',
                 'source': 'ENSEMBL',
@@ -487,7 +498,9 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             'alignment': alignment.id,
             'annotation': annotation.id,
             'options': {
-                'stranded': 'reverse',
+                'stranded': 'auto',
+                'cdna_index': salmon_index.id,
+                'adjustPhredScore': 31,
             },
         }
         qorts_report = self.run_process('qorts-qc', inputs)

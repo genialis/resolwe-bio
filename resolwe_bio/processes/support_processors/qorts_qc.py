@@ -1,4 +1,5 @@
 """QoRTs QC."""
+import json
 import os
 
 from resolwe.process import (
@@ -6,10 +7,23 @@ from resolwe.process import (
     DataField,
     FileField,
     GroupField,
+    IntegerField,
     Process,
     SchedulingClass,
     StringField,
 )
+
+
+STRAND_CODES = {
+    'IU': 'non_specific',
+    'U': 'non_specific',
+    'ISF': 'forward',
+    'OSF': 'forward',
+    'SF': 'forward',
+    'ISR': 'reverse',
+    'OSR': 'reverse',
+    'SR': 'reverse',
+}
 
 
 class QortsQC(Process):
@@ -21,7 +35,7 @@ class QortsQC(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/common:1.1.0',
+                'image': 'resolwebio/rnaseq:4.4.0',
             },
         },
         'resources': {
@@ -30,7 +44,7 @@ class QortsQC(Process):
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = '1.0.2'
+    version = '1.1.0'
     process_type = 'data:qorts:qc'
     category = 'Other'
     entity = {
@@ -56,7 +70,31 @@ class QortsQC(Process):
                     ('non_specific', 'Strand non-specific'),
                     ('forward', 'Strand-specific forward'),
                     ('reverse', 'Strand-specific reverse'),
+                    ('auto', 'Detect automatically'),
                 ],
+            )
+
+            cdna_index = DataField(
+                'index:salmon',
+                label="cDNA index file",
+                required=False,
+                hidden="options.stranded != 'auto'"
+            )
+
+            n_reads = IntegerField(
+                label="Number of reads in subsampled alignment file",
+                default=5000000,
+                hidden="options.stranded != 'auto'"
+            )
+
+            maxPhredScore = IntegerField(
+                label="Max Phred Score",
+                required=False,
+            )
+
+            adjustPhredScore = IntegerField(
+                label="Adjust Phred Score",
+                required=False,
             )
 
         options = GroupField(Options, label="Options")
@@ -70,8 +108,22 @@ class QortsQC(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+        lib_strand = ''
+        if inputs.options.stranded == 'auto':
+            detect_strandedness_inputs = [
+                inputs.alignment.bam.path,
+                inputs.options.n_reads,
+                inputs.options.cdna_index.index.path,
+                self.requirements.resources.cores,
+            ]
+            Cmd['detect_strandedness.sh'](detect_strandedness_inputs)
+            try:
+                lib_strand = STRAND_CODES[json.load(open('results/lib_format_counts.json')).get('expected_format', '')]
+            except KeyError:
+                self.error("Library strandedness autodetection failed. Use manual selection options instead.")
+
+        # Default and required arguments
         args = [
-            'QC',
             '--skipFunctions', 'writeDESeq,writeDEXSeq',
             '--randomSeed', 42,
             '--generatePlots',
@@ -87,16 +139,19 @@ class QortsQC(Process):
         if Cmd['samtools']('view', '-c', '-f', '1', inputs.alignment.bam.path).strip() == '0':
             optional_args.append('--singleEnded')
 
-        if inputs.options.stranded == 'forward':
+        if inputs.options.stranded == 'forward' or lib_strand == 'forward':
             optional_args.extend(['--stranded', '--stranded_fr_secondstrand'])
-        elif inputs.options.stranded == 'reverse':
+        elif inputs.options.stranded == 'reverse' or lib_strand == 'reverse':
             optional_args.append('--stranded')
 
-        # Insert optional arguments before the required arguments
-        for argument in optional_args:
-            args.insert(3, argument)
+        if inputs.options.maxPhredScore or inputs.options.maxPhredScore == 0:
+            optional_args.extend(['--maxPhredScore', inputs.options.maxPhredScore])
 
-        Cmd['QoRTs'](args)
+        if inputs.options.adjustPhredScore or inputs.options.adjustPhredScore == 0:
+            optional_args.extend(['--adjustPhredScore', inputs.options.adjustPhredScore])
+
+        # join optional and required arguments
+        Cmd['QoRTs'](['QC'] + optional_args + args)
 
         # Compress QoRTs output folder
         Cmd['zip'](['-r', 'qorts_report.zip', 'qorts_output'])
