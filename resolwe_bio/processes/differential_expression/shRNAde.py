@@ -1,3 +1,4 @@
+"""Differential expression of shRNA."""
 import gzip
 
 from shutil import copy
@@ -43,9 +44,8 @@ class ShortHairpinRNADifferentialExpression(Process):
     data_name = '{{ parameter_file.file|default("?") }}'
 
     class Input:
-        """
-        Input fields to process ShortHairpinRNADifferentialExpression.
-        """
+        """Input fields to process ShortHairpinRNADifferentialExpression."""
+
         parameter_file = DataField(
             data_type='file',
             label='Excel parameter file (.xlsx)',
@@ -63,25 +63,28 @@ class ShortHairpinRNADifferentialExpression(Process):
         )
 
     class Output:
-        """
-        Output fields to process ShortHairpinRNADifferentialExpression.
-        """
+        """Output fields to process ShortHairpinRNADifferentialExpression."""
+
         deseq_results = FileField(label='DESeq2 results')
         class_results = FileField(label='Results classified based on thresholds provided by the user')
         beneficial_counts = FileField(label='shRNAs considered as beneficial based on user input')
         lethal_counts = FileField(label='shRNAs considered as lethal based on user input')
 
     def run(self, inputs, outputs):
-        # These are the steps for running the process:
-        # (1) Prepare data to be pulled into R for processing. Place data objects into expression_files/ folder.
-        # (2) Pass parameter file for R's shRNAde::doDE() and execute the function.
-        # (3) Prepare outputs.
+        """Run differential expression of shRNA.
 
+        These are the steps for running the process:
+
+          1.) Prepare data to be pulled into R for processing. Place data
+              objects into expression_files/ folder.
+          2.) Pass parameter file for R's shRNAde::doDE() and execute the
+              function.
+          3.) Prepare outputs.
+        """
         dir_expressions = './expression_files'
         os.mkdir(dir_expressions)
 
-        # (1)
-        # Move expression files and extract files.
+        # (1) Move expression files and extract files.
         sample_list = [copy(src=x.exp.path, dst=dir_expressions) for x in inputs.expression_data]
 
         for fl in sample_list:
@@ -97,8 +100,7 @@ class ShortHairpinRNADifferentialExpression(Process):
         run_cmd = Cmd['Rscript']['-e'][r_input]
         run_cmd()
 
-        # (3)
-        # Compress results before storing them.
+        # (3) Compress results before storing them.
         result_deseq = 'deseq_results.txt'
         result_class = 'class_results.txt'
         result_beneficial = 'beneficial_counts.txt'
