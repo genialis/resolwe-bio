@@ -236,9 +236,9 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
                     'language': 'bash',
                     'program': r"""
             re-import {{ exp.file_temp|default(exp.file) }} {{ exp.file }} "txt" "txt" 0.1 compress
-            
+
             cp "${NAME}".txt.gz "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
-            
+
             re-save-file exp "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
             re-save-file rc "${NAME}"_trimmed_trimmed_count_matrix.txt.gz
             re-save exp_type 'RC'
