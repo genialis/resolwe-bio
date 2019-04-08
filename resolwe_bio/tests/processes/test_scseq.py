@@ -61,6 +61,7 @@ class ScSeqProcessorTestCase(BioProcessTestCase):
         # Test 'upload-bam-scseq-indexed' process
         bam = Data.objects.last()
         self.assertFileExists(bam, 'bam')
-        self.assertFile(bam, 'bai', '10x_scseq.bam.bai')
+        self.assertFileExists(bam, 'bai')
+        self.assertFile(bam, 'stats', '10x_scseq_stats.txt')
         self.assertFields(bam, 'species', 'Homo sapiens')
         self.assertFields(bam, 'build', 'GRCh38.93')
