@@ -152,13 +152,13 @@ class CellRangerCount(Process):
                          'chemistry if there is an error in automatic detection.'),
             choices=[
                 ("auto", "auto"),
-                ("Single Cell 3′", "threeprime"),
-                ("Single Cell 5′", "fiveprime"),
-                ("Single Cell 3′ v1", "SC3Pv1"),
-                ("Single Cell 3′ v2", "SC3Pv2"),
-                ("Single Cell 3′ v3", "SC3Pv3"),
-                ("Single Cell 5′ paired-end", "C5P-PE"),
-                ("Single Cell 5′ R2-only", "SC5P-R2"),
+                ("Single Cell 3'", "threeprime"),
+                ("Single Cell 5'", "fiveprime"),
+                ("Single Cell 3' v1", "SC3Pv1"),
+                ("Single Cell 3' v2", "SC3Pv2"),
+                ("Single Cell 3' v3", "SC3Pv3"),
+                ("Single Cell 5' paired-end", "C5P-PE"),
+                ("Single Cell 5' R2-only", "SC5P-R2"),
             ],
         )
         trim_r1 = IntegerField(
@@ -166,7 +166,7 @@ class CellRangerCount(Process):
             required=False,
             description=('Hard-trim the input R1 sequence to this length. Note that the length '
                          'includes the Barcode and UMI sequences so do not set this below 26 for '
-                         'Single Cell 3′ v2 or Single Cell 5′. This and "Trim R2" are useful for '
+                         'Single Cell 3\' v2 or Single Cell 5\'. This and "Trim R2" are useful for '
                          'determining the optimal read length for sequencing.'),
         )
         trim_r2 = IntegerField(
