@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.5
+  version: 1.0.0
   type: data:workflow:rnaseq:cuffquant
   category: Pipeline
   input:
@@ -24,6 +24,8 @@
         input:
           genome: '{{input.genome}}'
           reads: '{{input.reads}}'
+          spliced_alignments:
+            cufflinks: true
       - id: cuffquant
         run: cuffquant
         input:

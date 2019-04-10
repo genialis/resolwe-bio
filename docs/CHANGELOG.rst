@@ -43,8 +43,9 @@ Changed
 Fixed
 -----
 - Bump memory requirements in ``seqtk-sample-single`` and
-  seqtk-sample-paired`` processes
+  ``seqtk-sample-paired`` processes
 - Fix ``cellranger-count`` html report
+- Mark spliced-alignments with XS flags in ``workflow-rnaseq-cuffquant``
 
 
 =================
