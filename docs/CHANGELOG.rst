@@ -44,6 +44,7 @@ Fixed
 -----
 - Bump memory requirements in ``seqtk-sample-single`` and
   seqtk-sample-paired`` processes
+- Fix ``cellranger-count`` html report
 
 
 =================

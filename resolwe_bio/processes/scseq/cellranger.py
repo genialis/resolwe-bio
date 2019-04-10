@@ -28,14 +28,14 @@ class CellRangerMkref(Process):
     slug = 'cellranger-mkref'
     name = 'Cell Ranger Mkref'
     process_type = 'data:genomeindex:10x'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'scRNA-Seq'
     sheduling_class = SchedulingClass.BATCH
     requirements = {
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/scseq:1.0.1'
+                'image': 'resolwebio/scseq:1.1.0'
             }
         },
         'resources': {
@@ -111,7 +111,7 @@ class CellRangerCount(Process):
     slug = 'cellranger-count'
     name = 'Cell Ranger Count'
     process_type = 'data:scexpression:10x'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'scRNA-Seq'
     sheduling_class = SchedulingClass.BATCH
     entity = {
@@ -121,7 +121,7 @@ class CellRangerCount(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/scseq:1.0.1'
+                'image': 'resolwebio/scseq:1.1.0'
             }
         },
         'resources': {
