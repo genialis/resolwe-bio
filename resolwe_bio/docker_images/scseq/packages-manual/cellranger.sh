@@ -5,7 +5,7 @@
 vendor=10x
 name=cellranger
 version=3.0.2
-fileid=1gcmVmluV-D039lo1gkOtEq04qUw6D56k
+fileid=1HYqfowTCgZE6S3iDUR82I0gqeccORa_t
 
 echo "Downloading '${vendor}/${name}' version '${version}'..."
 
