@@ -3,7 +3,6 @@
 import os
 
 from shutil import move
-from resolwe_runtime_utils import export
 from resolwe.process import (
     Cmd,
     DataField,
@@ -36,7 +35,7 @@ class CellRangerMkref(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/scseq:1.0.0'
+                'image': 'resolwebio/scseq:1.0.1'
             }
         },
         'resources': {
@@ -122,7 +121,7 @@ class CellRangerCount(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/scseq:1.0.0'
+                'image': 'resolwebio/scseq:1.0.1'
             }
         },
         'resources': {
@@ -254,8 +253,8 @@ class CellRangerCount(Process):
         bai_name = '{}.bam.bai'.format(sample_name)
         bam_path = os.path.join(output_dir, 'possorted_genome_bam.bam')
         bai_path = os.path.join(output_dir, 'possorted_genome_bam.bam.bai')
-        print(export(move(bam_path, bam_name)))  # TODO: fix when self.export() is available
-        print(export(move(bai_path, bai_name)))
+        move(bam_path, bam_name)
+        move(bai_path, bai_name)
         process_inputs = {
             'src': bam_name,
             'src2': bai_name,
