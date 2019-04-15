@@ -41,7 +41,7 @@ def replace_labels(table_name):
     # Replace cuffnorm automatic header values with sample names
     for i, label in enumerate(header[1:]):
         sample = samples_files[files_ids[label.strip('\n')]]
-        header[i + 1] = '{}_Group{}'.format(sample, reps_samples[sample])
+        header[i + 1] = '{}_Group{}'.format(sample, reps_samples[sample]).replace(" ", "_")
 
     with open(table_name, 'w') as genes_table:
         genes_table.write('\t'.join(header) + '\n')

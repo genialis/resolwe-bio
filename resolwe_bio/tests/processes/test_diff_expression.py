@@ -11,7 +11,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
     def test_cuffdiff(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'cuffquant_1.cxb',
+                'src': 'cuffquant 1.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'

@@ -157,7 +157,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
     @tag_process('upload-cxb', 'upload-expression-cuffnorm')
     def test_upload_cuffquant_expr(self):
         inputs = {
-            'src': 'cuffquant_1.cxb',
+            'src': 'cuffquant 1.cxb',
             'source': 'UCSC',
             'species': 'Homo sapiens',
             'build': 'hg19'}

@@ -17,7 +17,7 @@
         category: Replicate
         required: True
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 2.1.2
+  version: 2.1.3
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED
@@ -160,29 +160,27 @@
         re-error "Two or more samples have the same name!"
       {% endif %}
 
-      experiment='{% for experiment in cuffquant %}{{ experiment.cxb.file }},{% endfor %}'
-      experiment=${experiment%?} #removes comma at the end
+      {% set experiment = cuffquant|map(attribute='cxb.file')|join(',') %}
 
       {% set replicates = cuffquant|replicate_groups|join(',') %}
       echo "Group labels:"
       echo {{ replicates }}
 
-      sample_names='{% for cq in cuffquant %}{{ cq|sample_name }},{% endfor %}'
-      sample_names=${sample_names%?}
+      {% set sample_names = cuffquant|map('sample_name')|join(',')|replace(' ', '_') %}
 
       labels=`cuffnorm_group_labels.py {{ replicates }}` #construction of group labels
       labels=${labels%?}
 
-      experiments=`cufflinks_sample_groups.py ${experiment} {{ replicates }}` #put into correct format for cuffnorm
-
+      # put into correct format for cuffnorm
+      eval sample_groups=(`cufflinks_sample_groups.py {{ experiment }} {{ replicates }}`)
       re-progress 0.1
 
-      cuffnorm --output-dir ./ --num-threads {{ requirements.resources.cores }} {{ annotation.annot.file }} ${experiments}
+      cuffnorm --output-dir ./ --num-threads {{ requirements.resources.cores }} {{ annotation.annot.file }} "${sample_groups[@]}"
       re-checkrc 'Cuffnorm analysis failed.'
       re-progress 0.8
 
       # Replace all cuffnorm output tables headers with sample names.
-      cuffnorm_output_table_headers.py {{ replicates }} ${sample_names} ${experiment}
+      cuffnorm_output_table_headers.py {{ replicates }} {{ sample_names }} {{ experiment }}
 
       # Run normalizeRNASeq.
       Rscript --slave --no-save --no-restore-history -e " \
@@ -198,7 +196,7 @@
 
       {% if useERCC %}
         {% for exp in cuffquant %}
-          S_NAME={{ exp|sample_name }}
+          S_NAME={{ exp|sample_name|replace(' ', '_') }}
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_norm.txt "${S_NAME}" -n
           re-checkrc 'Expression file parsing failed.'
           mv expression.tab "${S_NAME}_expression.tab"
@@ -207,7 +205,7 @@
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
-          S_NAME={{ exp|sample_name }}
+          S_NAME={{ exp|sample_name|replace(' ', '_') }}
           parse_cuffnorm.py cuffnorm_all_fpkm_exprs_raw.txt "${S_NAME}" -n
           re-checkrc 'Expression file parsing failed.'
           mv expression.tab "${S_NAME}_expression.tab"

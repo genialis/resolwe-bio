@@ -46,6 +46,7 @@ Fixed
   ``seqtk-sample-paired`` processes
 - Fix ``cellranger-count`` html report
 - Mark spliced-alignments with XS flags in ``workflow-rnaseq-cuffquant``
+- Fix whitespace handling in ``cuffnorm`` process
 
 
 =================

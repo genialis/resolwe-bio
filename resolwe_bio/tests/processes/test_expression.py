@@ -105,7 +105,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             )
 
             inputs = {
-                'src': 'cuffquant_1.cxb',
+                'src': 'cuffquant 1.cxb',
                 'source': 'UCSC',
                 'species': 'Homo sapiens',
                 'build': 'hg19'

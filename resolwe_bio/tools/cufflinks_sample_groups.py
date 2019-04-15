@@ -20,6 +20,7 @@ for s, r in zip(samples, replicates):
 
 return_string = ""
 for x in sorted(d):
-    return_string = return_string + ",".join(d[x]) + " "
+    sample_groups = ','.join(d[x])
+    return_string = return_string + "'{}' ".format(sample_groups)
 
 print(return_string)
