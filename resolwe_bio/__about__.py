@@ -1,4 +1,6 @@
 """Central place for package metadata."""
+from pkg_resources import DistributionNotFound, get_distribution
+
 
 # NOTE: We use __title__ instead of simply __name__ since the latter would
 #       interfere with a global variable __name__ denoting object's name.
@@ -6,9 +8,11 @@ __title__ = 'resolwe-bio'
 __summary__ = 'Bioinformatics pipelines for the Resolwe platform'
 __url__ = 'https://github.com/genialis/resolwe-bio'
 
-# Semantic versioning is used. For more information see:
-# https://packaging.python.org/en/latest/distributing/#semantic-versioning-preferred
-__version__ = "18.0.0a6"
+try:
+    __version__ = get_distribution(__title__).version
+except DistributionNotFound:
+    # Package is not (yet) installed.
+    pass
 
 __author__ = 'Genialis, Inc.'
 __email__ = 'dev-team@genialis.com'
