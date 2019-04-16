@@ -6,9 +6,25 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+18.0.0 2019-04-16
+=================
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 16.x
+- **BACKWARD INCOMPATIBLE:** Rename and improve descriptions of
+  processes specific to CATS RNA-seq kits. Remove related
+  ``cutadapt-star-htseq`` descriptor schema.
+- **BACKWARD INCOMPATIBLE:** Remove ``workflow-accel-gatk4`` pipeline.
+  Remove ``amplicon-panel``, ``amplicon-panel-advanced`` and
+  ``amplicon-master-file`` descriptor schemas.
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and descriptor
+  schemas: ``rna-seq-quantseq``, ``bcm-workflow-rnaseq``,
+  ``bcm-workflow-chipseq``, ``bcm-workflow-wgbs``, ``dicty-align-reads``,
+  ``dicty-etc``, ``affy`` and ``workflow-chip-seq``
+- Expose additional parameters of ``bowtie2`` process
+- Support strandedness auto detection in ``qorts-qc`` process
 
 Added
 -----
@@ -23,22 +39,6 @@ Added
   - ``cellranger-count``
   - ``upload-sc-10x``
   - ``upload-bam-scseq-indexed``
-
-Changed
--------
-- **BACKWARD INCOMPATIBLE:** Require Resolwe 16.x
-- **BACKWARD INCOMPATIBLE:** Rename and improve descriptions of
-  processes specific to CATS RNA-seq kits. Remove related
-  ``cutadapt-star-htseq`` descriptor schema.
-- **BACKWARD INCOMPATIBLE:** Remove ``workflow-accel-gatk4`` pipeline.
-  Remove ``amplicon-panel``, ``amplicon-panel-advanced`` and
-  ``amplicon-master-file`` descriptor schemas.
-- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and descriptor
-  schemas: ``rna-seq-quantseq``, ``bcm-workflow-rnaseq``,
-  ``bcm-workflow-chipseq``, ``bcm-workflow-wgbs``, ``dicty-align-reads``,
-  ``dicty-etc``, ``affy`` and ``workflow-chip-seq``.
-- Expose additional parameters of ``bowtie2`` process
-- Support strandedness auto detection in ``qorts-qc`` process
 
 Fixed
 -----
