@@ -180,6 +180,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         }
         self.run_process('archive-samples', inputs)
 
+        # Run "archive-samples" without QC reports
+        inputs['fields'] = ['called_peaks']
+        self.run_process('archive-samples', inputs)
+
     @skipUnlessLargeFiles('rose2_case.bam', 'rose2_control.bam')
     @tag_process('rose2')
     def test_rose2(self):

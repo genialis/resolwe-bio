@@ -6,7 +6,7 @@
     executor:
       docker:
         image: resolwebio/common:1.0.0
-  version: 0.2.1
+  version: 0.2.2
   type: data:archive:samples
   category: Other
   persistence: TEMP
@@ -118,7 +118,7 @@
         {% endif %}
 
         # Store ChIP pre-peakcall and postpeak QC sample and report info
-        {% if d|type|subtype('data:chipseq:callpeak:macs2') and d.chip_qc and d.case_prepeak_qc %}
+        {% if d|type|subtype('data:chipseq:callpeak:macs2') and d.chip_qc and d.case_prepeak_qc and 'chip_qc' in fields %}
           FILE_PATH+=({{ d|sample_slug }}/case_prepeak_qc/{{ d.case_prepeak_qc.file|basename }})
           FILE_PATH+=({{ d|sample_slug }}/chip_qc/{{ d.chip_qc.file|basename }})
           SAMPLE_NAMES+=({{ d|sample_slug }} {{ d|sample_slug }})

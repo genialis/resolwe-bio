@@ -10,14 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
-Changed
--------
-
-Added
------
-
 Fixed
 -----
+- Fix ``archive-samples`` to work with ``data:chipseq:callpeak:macs2``
+  data objects when downloading only peaks without QC reports
 
 
 =================
