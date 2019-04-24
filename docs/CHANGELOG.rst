@@ -13,6 +13,11 @@ Unreleased
 Changed
 -------
 - Use Genialis fork of MultiQC 1.8.0b in ``resolwebio/common:1.1.2``
+- Support Samtools idxstats and QoRTs QC reports in ``multiqc`` process
+
+Added
+-----
+- Add ``samtools-idxstats`` process
 
 Fixed
 -----

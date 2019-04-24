@@ -7,9 +7,9 @@
       memory: 1024
     executor:
       docker:
-        image: resolwebio/common:1.1.0
+        image: resolwebio/common:1.1.2
   data_name: 'MultiQC report'
-  version: 1.0.1
+  version: 1.1.0
   type: data:multiqc
   category: Other
   persistence: CACHED
@@ -109,6 +109,16 @@
         {% elif (d|type) == 'data:chipseq:callpeak:macs2:' %}
             ln -s --backup=numbered {{ d['called_peaks'].file }} \
             "${DIRECTORY}"/{{ d['called_peaks'].file | basename }}
+
+        # Prepare Samtools idxstats reports.
+        {% elif (d|type) == 'data:samtools:idxstats:' %}
+            ln -s --backup=numbered {{ d['report'].file }} \
+            "${DIRECTORY}"/{{ d['report'].file | basename }}
+
+        # Prepare QoRTs reports.
+        {% elif (d|type) == 'data:qorts:qc:' %}
+            ln -s --backup=numbered {{ d['summary'].file }} \
+            "${DIRECTORY}"/{{ d['summary'].file | basename }}
 
         # Skip MultiQC reporting for unsupported data types.
         {% else %}

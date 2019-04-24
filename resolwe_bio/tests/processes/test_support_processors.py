@@ -365,6 +365,18 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 'reads': paired_reads.id,
             })
 
+            samtools_idxstats = self.run_process('samtools-idxstats', {
+                'alignment': star_alignment.id,
+            })
+
+            qorts_report = self.run_process('qorts-qc', {
+                'alignment': star_alignment.id,
+                'annotation': annotation.id,
+                'options': {
+                    'maxPhredScore': 42,
+                },
+            })
+
         multiqc = self.run_process('multiqc', {
             'data': [
                 reads.id,
@@ -372,6 +384,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 filtered_reads.id,
                 bam_samtools.id,
                 star_alignment.id,
+                samtools_idxstats.id,
+                qorts_report.id,
             ],
             'advanced': {
                 'dirs': True,
@@ -507,3 +521,11 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertFileExists(qorts_report, 'plot')
         self.assertFileExists(qorts_report, 'summary')
         self.assertFileExists(qorts_report, 'qorts_data')
+
+    @tag_process('samtools-idxstats')
+    def test_samtools_idxstats(self):
+        with self.preparation_stage():
+            alignment = self.prepare_bam(fn='alignment_position_sorted.bam')
+
+        idxstats = self.run_process('samtools-idxstats', {'alignment': alignment.id})
+        self.assertFile(idxstats, 'report', 'samtools_idxstats_report.txt')
