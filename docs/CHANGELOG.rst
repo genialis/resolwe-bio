@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Use Genialis fork of MultiQC 1.8.0b in ``resolwebio/common:1.1.2``
+
 Fixed
 -----
 - Fix ``archive-samples`` to work with ``data:chipseq:callpeak:macs2``
