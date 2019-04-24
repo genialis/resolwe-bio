@@ -14,6 +14,12 @@ Changed
 -------
 - Use Genialis fork of MultiQC 1.8.0b in ``resolwebio/common:1.1.2``
 - Support Samtools idxstats and QoRTs QC reports in ``multiqc`` process
+- Support ``samtools-idxstats`` QC step in workflows:
+
+  - ``workflow-bbduk-star-featurecounts-qc-single``
+  - ``workflow-bbduk-star-featurecounts-qc-paired``
+  - ``workflow-bbduk-star-fc-quant-single``
+  - ``workflow-bbduk-star-fc-quant-paired``
 
 Added
 -----
