@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 1.0.2
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -170,6 +170,7 @@
             steps.downsampling,
             steps.alignment_qc_rrna,
             steps.alignment_qc_globin
+            steps.qorts
             ] }}'
           advanced:
             dirs: true
@@ -180,7 +181,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 1.0.2
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
   description: |
@@ -347,6 +348,7 @@
             steps.downsampling,
             steps.alignment_qc_rrna,
             steps.alignment_qc_globin
+            steps.qorts
             ] }}'
           advanced:
             dirs: true
