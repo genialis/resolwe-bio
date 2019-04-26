@@ -20,6 +20,7 @@ Changed
   - ``workflow-bbduk-star-featurecounts-qc-paired``
   - ``workflow-bbduk-star-fc-quant-single``
   - ``workflow-bbduk-star-fc-quant-paired``
+- Simplify ``cellranger-count`` outputs' folder structure
 
 Added
 -----

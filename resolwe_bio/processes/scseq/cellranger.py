@@ -13,7 +13,6 @@ from resolwe.process import (
     Process,
     SchedulingClass,
     StringField,
-    UrlField,
 )
 
 
@@ -111,7 +110,7 @@ class CellRangerCount(Process):
     slug = 'cellranger-count'
     name = 'Cell Ranger Count'
     process_type = 'data:scexpression:10x'
-    version = '1.0.1'
+    version = '1.0.2'
     category = 'scRNA-Seq'
     sheduling_class = SchedulingClass.BATCH
     entity = {
@@ -264,15 +263,21 @@ class CellRangerCount(Process):
         }
         self.run_process('upload-bam-scseq-indexed', process_inputs)
 
-        filtered_dir = os.path.join(output_dir, 'filtered_feature_bc_matrix')
-        raw_dir = os.path.join(output_dir, 'raw_feature_bc_matrix')
+        report_file = 'report_summary.html'
+        move(os.path.join(output_dir, 'web_summary.html'), report_file)
+
+        filtered_dir = 'filtered_feature_bc_matrix'
+        raw_dir = 'raw_feature_bc_matrix'
+        move(os.path.join(output_dir, filtered_dir), './')
+        move(os.path.join(output_dir, raw_dir), './')
+
         outputs.matrix_filtered = os.path.join(filtered_dir, 'matrix.mtx.gz')
         outputs.genes_filtered = os.path.join(filtered_dir, 'features.tsv.gz')
         outputs.barcodes_filtered = os.path.join(filtered_dir, 'barcodes.tsv.gz')
         outputs.matrix_raw = os.path.join(raw_dir, 'matrix.mtx.gz')
         outputs.genes_raw = os.path.join(raw_dir, 'features.tsv.gz')
         outputs.barcodes_raw = os.path.join(raw_dir, 'barcodes.tsv.gz')
-        outputs.report = os.path.join(output_dir, 'web_summary.html')
+        outputs.report = report_file
         outputs.build = inputs.genome_index.build
         outputs.species = inputs.genome_index.species
         outputs.source = inputs.genome_index.source
