@@ -25,6 +25,7 @@ Changed
 Added
 -----
 - Add ``samtools-idxstats`` process
+- Improve ``cellranger-count`` and ``cellranger-mkref`` logging
 
 Fixed
 -----

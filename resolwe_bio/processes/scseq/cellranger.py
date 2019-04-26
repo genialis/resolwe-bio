@@ -2,6 +2,7 @@
 """Cell ranger scRNA-Seq analysis."""
 import os
 
+from plumbum import TEE
 from shutil import move
 from resolwe.process import (
     Cmd,
@@ -27,7 +28,7 @@ class CellRangerMkref(Process):
     slug = 'cellranger-mkref'
     name = 'Cell Ranger Mkref'
     process_type = 'data:genomeindex:10x'
-    version = '1.0.1'
+    version = '1.0.2'
     category = 'scRNA-Seq'
     sheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -89,7 +90,9 @@ class CellRangerMkref(Process):
         cmd = cmd['--fasta={}'.format(inputs.genome.fasta.path)]
         cmd = cmd['--nthreads={}'.format(self.requirements.resources.cores)]
         cmd = cmd['--memgb={}'.format(int(self.requirements.resources.memory * 0.9 / 1024))]
-        cmd()
+        return_code, _, _ = cmd & TEE(retcode=None)
+        if return_code:
+            self.error("Error while running cellranger mkref.")
 
         os.rename(genome_build, 'cellranger_index')
 
@@ -110,7 +113,7 @@ class CellRangerCount(Process):
     slug = 'cellranger-count'
     name = 'Cell Ranger Count'
     process_type = 'data:scexpression:10x'
-    version = '1.0.2'
+    version = '1.0.3'
     category = 'scRNA-Seq'
     sheduling_class = SchedulingClass.BATCH
     entity = {
@@ -243,7 +246,9 @@ class CellRangerCount(Process):
             cmd = cmd['--r2-length={}'.format(inputs.trim_r2)]
         if inputs.force_cells:
             cmd = cmd['--force-cells={}'.format(inputs.force_cells)]
-        cmd()
+        return_code, _, _ = cmd & TEE(retcode=None)
+        if return_code:
+            self.error("Error while running cellranger count.")
 
         output_dir = '{}/outs'.format(sample_name)
 
