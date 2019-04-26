@@ -1,9 +1,12 @@
 """Import ScRNA-Seq reads."""
 import os
 
+from plumbum import TEE
 from shutil import move
 from resolwe.process import (
+    Cmd,
     FileField,
+    FileHtmlField,
     ListField,
     Process,
     SchedulingClass,
@@ -16,7 +19,7 @@ class ImportScRNA10x(Process):
     slug = 'upload-sc-10x'
     name = 'Reads (scRNA 10x)'
     process_type = 'data:screads:10x:'
-    version = '1.0.0'
+    version = '1.1.0'
     category = 'Import'
     sheduling_class = SchedulingClass.BATCH
     entity = {
@@ -27,7 +30,7 @@ class ImportScRNA10x(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/base:ubuntu-18.04'
+                'image': 'resolwebio/common:1.1.2'
             }
         }
     }
@@ -54,6 +57,14 @@ class ImportScRNA10x(Process):
 
         barcodes = ListField(FileField(), label='Barcodes')
         reads = ListField(FileField(), label='Reads')
+        fastqc_url_barcodes = ListField(
+            FileHtmlField(),
+            label='Quality control with FastQC (Barcodes)',
+        )
+        fastqc_url_reads = ListField(
+            FileHtmlField(),
+            label='Quality control with FastQC (Reads)',
+        )
 
     def run(self, inputs, outputs):
         """Run the analysis."""
@@ -67,5 +78,27 @@ class ImportScRNA10x(Process):
         barcodes_files = [os.path.basename(fastq.path) for fastq in inputs.barcodes]
         reads_files = [os.path.basename(fastq.path) for fastq in inputs.reads]
 
+        cmd = Cmd['fastqc']
+        for fastq in barcodes_files + reads_files:
+            cmd = cmd['{}'.format(fastq)]
+        cmd = cmd['--extract']
+        cmd = cmd['--outdir=./']
+        _, _, stderr = cmd & TEE
+        # FastQC writes both progress and errors to stderr and exits with code 0.
+        # Catch if file is empty, wrong format... (Failed to process) or
+        # if file path does not exist, file cannot be read (Skipping).
+        if 'Failed to process' in stderr or 'Skipping' in stderr:
+            self.error('Failed while processing with FastQC.')
+
+        barcodes_fastqcs = []
+        reads_fastqcs = []
+        for barcodes, reads in zip(barcodes_files, reads_files):
+            barcodes_name = barcodes.strip('.fastq.gz')
+            reads_name = reads.strip('.fastq.gz')
+            barcodes_fastqcs.append('{}_fastqc.html'.format(barcodes_name))
+            reads_fastqcs.append('{}_fastqc.html'.format(reads_name))
+
         outputs.barcodes = barcodes_files
         outputs.reads = reads_files
+        outputs.fastqc_url_barcodes = barcodes_fastqcs
+        outputs.fastqc_url_reads = reads_fastqcs

@@ -26,6 +26,7 @@ Added
 -----
 - Add ``samtools-idxstats`` process
 - Improve ``cellranger-count`` and ``cellranger-mkref`` logging
+- Add FastQC report to ``upload-sc-10x`` process
 
 Fixed
 -----
