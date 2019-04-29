@@ -62,7 +62,7 @@ class Feature(models.Model):
     name = models.CharField(max_length=1024)
     full_name = models.CharField(max_length=350, blank=True)
     description = models.TextField(blank=True)
-    aliases = ArrayField(models.CharField(max_length=256), default=[], blank=True)
+    aliases = ArrayField(models.CharField(max_length=256), default=list, blank=True)
 
     class Meta:
         """Feature Meta options."""
