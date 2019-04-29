@@ -16,6 +16,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 6.x
 - **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 2.2
 
+Added
+-----
+- Support Python 3.7
+
 
 =================
 19.0.0 2019-05-07
