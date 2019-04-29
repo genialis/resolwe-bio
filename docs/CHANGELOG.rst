@@ -13,6 +13,7 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 17.x
+- **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 6.x
 
 
 =================

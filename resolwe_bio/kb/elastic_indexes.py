@@ -69,10 +69,10 @@ class FeatureSearchDocument(BaseDocument):
 
     )
 
-    class Meta:
+    class Index:
         """Meta class for feature search document."""
 
-        index = 'feature_search'
+        name = 'feature_search'
 
 
 class FeatureSearchIndex(BaseIndex):
@@ -103,10 +103,10 @@ class MappingSearchDocument(BaseDocument):
     target_id = dsl.Keyword()
     target_species = dsl.Keyword()
 
-    class Meta:
+    class Index:
         """Meta class for mapping search document."""
 
-        index = 'mapping_search'
+        name = 'mapping_search'
 
 
 class MappingSearchIndex(BaseIndex):
