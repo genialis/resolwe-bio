@@ -27,7 +27,6 @@ autocomplete_search_analyzer = dsl.analyzer('autocomplete_search', tokenizer='ke
 class FeatureSearchDocument(BaseDocument):
     """Index for feature search."""
 
-    # pylint: disable=no-member
     source = dsl.Keyword()
     feature_id = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
@@ -41,7 +40,7 @@ class FeatureSearchDocument(BaseDocument):
         },
     )
     species = dsl.Keyword()
-    type = dsl.Keyword()  # pylint: disable=invalid-name
+    type = dsl.Keyword()
     sub_type = dsl.Keyword(index=False)
     name = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
@@ -94,7 +93,6 @@ class FeatureSearchIndex(BaseIndex):
 class MappingSearchDocument(BaseDocument):
     """Index for mapping search."""
 
-    # pylint: disable=no-member
     relation_type = dsl.Keyword(index=False)
     source_db = dsl.Keyword()
     source_id = dsl.Keyword()

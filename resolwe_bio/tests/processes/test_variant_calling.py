@@ -261,7 +261,6 @@ class VariantCallingTestCase(BioProcessTestCase):
             'var_source': 'lofreq',
         })
         self.assertFile(final_var_lf, 'annotation', '56GSID.lf.finalvars.txt')
-        # pylint: disable=deprecated-method
         self.assertRegex(final_var_lf.process_warning[0], r'Inconsistency for entry .*')
 
         final_var_gatk = self.run_process('snpeff', {

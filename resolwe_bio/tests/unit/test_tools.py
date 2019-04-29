@@ -6,7 +6,6 @@ import six
 
 class TestTools(TestCase):
 
-    # pylint: disable=import-error,no-name-in-module
     def test_tools_is_not_a_package(self):
         if six.PY2:
             with self.assertRaises(ImportError):
@@ -17,4 +16,4 @@ class TestTools(TestCase):
             # have no '__file__' attribute
             import resolwe_bio.tools
             with self.assertRaises(AttributeError):
-                resolwe_bio.tools.__file__  # pylint: disable=no-member,pointless-statement
+                resolwe_bio.tools.__file__  # pylint: disable=pointless-statement

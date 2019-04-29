@@ -132,7 +132,7 @@ class FeatureViewSet(mixins.ListModelMixin,
             )
             self.kwargs[self.lookup_field] = feature.pk
             return super(FeatureViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
-        except (Feature.DoesNotExist, KeyError):  # pylint: disable=no-member
+        except (Feature.DoesNotExist, KeyError):
             return super(FeatureViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member
 
 
@@ -217,5 +217,5 @@ class MappingViewSet(mixins.ListModelMixin,
             )
             self.kwargs[self.lookup_field] = mapping.pk
             return super(MappingViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
-        except (Mapping.DoesNotExist, KeyError):  # pylint: disable=no-member
+        except (Mapping.DoesNotExist, KeyError):
             return super(MappingViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member

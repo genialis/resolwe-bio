@@ -1,4 +1,4 @@
-# pylint: disable=missing-docstring,invalid-name
+# pylint: disable=missing-docstring
 from resolwe.test import tag_process
 from resolwe.flow.models import Data
 from resolwe_bio.utils.test import KBBioProcessTestCase
