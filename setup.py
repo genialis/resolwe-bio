@@ -39,9 +39,6 @@ setuptools.setup(
     python_requires='>=3.6, <3.7',
     install_requires=(
         'Django~=1.11.0',
-        # XXX: Remove django-autoslug after all migrations that import it are
-        # deleted.
-        'django-autoslug==1.9.3',
         'djangorestframework~=3.9.0',
         'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
