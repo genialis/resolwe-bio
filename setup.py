@@ -45,7 +45,7 @@ setuptools.setup(
         'djangorestframework~=3.9.0',
         'elasticsearch-dsl~=5.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
-        'resolwe >=16.0a1, ==16.*',
+        'resolwe >=17.0a1, ==17.*',
         # XXX: Temporarily pin urllib to 1.24.x, since requests 2.21.0
         # has requirement urllib3<1.25,>=1.21.1
         'urllib3~=1.24.2',
