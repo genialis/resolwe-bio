@@ -5,8 +5,6 @@ Resolwe Bio Filters
 ===================
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import django_filters as filters
 
 from resolwe.flow.filters import CollectionFilter, DataFilter

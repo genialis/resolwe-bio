@@ -1,6 +1,4 @@
 """Elastic search indexes for knowledge base."""
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import elasticsearch_dsl as dsl
 
 from resolwe.elastic.indices import BaseDocument, BaseIndex

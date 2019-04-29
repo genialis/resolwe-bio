@@ -1,6 +1,4 @@
 # pylint: disable=missing-docstring
-import six
-
 from django.core.exceptions import ValidationError
 
 from resolwe.flow.models import Data
@@ -299,7 +297,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         diff_exp = self.run_process('upload-diffexp', inputs)
         saved_json, test_json = self.get_json('diff_exp_check_types.json.gz', diff_exp.output['de_json'])
         self.assertEqual(test_json, saved_json)
-        all(self.assertIsInstance(gene, six.text_type) for gene in test_json['gene_id'])
+        all(self.assertIsInstance(gene, str) for gene in test_json['gene_id'])
 
     @tag_process('upload-genome')
     def test_upload_genome(self):
