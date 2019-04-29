@@ -1,5 +1,5 @@
 # pylint: disable=missing-docstring,invalid-name,no-member
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from rest_framework import status
 from rest_framework.test import APITestCase

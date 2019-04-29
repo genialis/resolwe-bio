@@ -1,6 +1,6 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from rest_framework import routers
 
@@ -21,9 +21,9 @@ search_router.register(r'kb/feature/autocomplete', FeatureAutocompleteViewSet, '
 search_router.register(r'kb/mapping/search', MappingSearchViewSet, 'kb_mapping_search')
 
 urlpatterns = [  # pylint: disable=invalid-name
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     # XXX: Temporary fix to work with Resolwe 2.0.0, which requires 'resolwe-api' namespace to be available when
     # reporting errors when running processes.
-    url(r'^api-resolwe/', include(resolwe_router.urls, namespace='resolwe-api')),
-    url(r'^api/', include(api_router.urls + search_router.urls + resolwe_router.urls, namespace='resolwebio-api')),
+    path('api-resolwe/', include((resolwe_router.urls, 'resolwe-api'))),
+    path('api/', include((api_router.urls + search_router.urls + resolwe_router.urls, 'resolwebio-api'))),
 ]
