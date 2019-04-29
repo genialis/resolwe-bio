@@ -14,6 +14,7 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 17.x
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 6.x
+- **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 2.2
 
 
 =================
