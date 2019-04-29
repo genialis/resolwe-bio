@@ -40,7 +40,7 @@ setuptools.setup(
     install_requires=(
         'Django~=1.11.0',
         'djangorestframework~=3.9.0',
-        'elasticsearch-dsl~=5.4.0',
+        'elasticsearch-dsl~=6.3.1',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=17.0a1, ==17.*',
         # XXX: Temporarily pin urllib to 1.24.x, since requests 2.21.0
