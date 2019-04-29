@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 17.x
 - Use Genialis fork of MultiQC 1.8.0b in ``resolwebio/common:1.1.2``
 - Support Samtools idxstats and QoRTs QC reports in ``multiqc`` process
 - Support ``samtools-idxstats`` QC step in workflows:
