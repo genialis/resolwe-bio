@@ -26,6 +26,7 @@ Changed
 
 Added
 -----
+- Support Python 3.7
 - Add ``samtools-idxstats`` process
 
 Fixed
