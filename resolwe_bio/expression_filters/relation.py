@@ -5,8 +5,6 @@ Relations Template Tags
 =======================
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from resolwe.flow.expression_engines.jinja.filters import id_, type_
 from resolwe.flow.models.entity import Entity, RelationPartition
 

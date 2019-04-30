@@ -1,6 +1,4 @@
 # pylint: disable=missing-docstring
-import six
-
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
 
@@ -110,4 +108,4 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
         }
         pca = self.run_process('pca', inputs)
         saved_json, test_json = self.get_json('pca_plot_ncbi.json.gz', pca.output['pca'])
-        six.assertCountEqual(self, test_json['zero_gene_symbols'], saved_json['zero_gene_symbols'])
+        self.assertCountEqual(test_json['zero_gene_symbols'], saved_json['zero_gene_symbols'])

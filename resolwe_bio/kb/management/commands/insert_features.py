@@ -5,7 +5,6 @@ Insert Knowledge Base Features
 ==============================
 
 """
-from __future__ import absolute_import, division, print_function, unicode_literals
 import csv
 import json
 import logging
