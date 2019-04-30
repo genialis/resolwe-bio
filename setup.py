@@ -38,7 +38,7 @@ setuptools.setup(
             'tools/*.sh',
         ]
     },
-    python_requires='>=3.6, <3.9',
+    python_requires='>=3.6, <3.10',
     install_requires=(
         'Django~=3.1.7',
         'djangorestframework~=3.12.2',
@@ -53,7 +53,7 @@ setuptools.setup(
             'sphinx_rtd_theme',
             'pyasn1>=0.4.8',
         ],
-        'package': ['twine', 'wheel'],
+        'package': ['setuptools_scm', 'twine', 'wheel'],
         'test': [
             'black',
             'flake8>=3.8.4',
