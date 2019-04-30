@@ -113,6 +113,23 @@ throttle(["resolwe_bio"]) {
                     }
                 }
 
+                stage("Release") {
+                    GIT_TAG = sh(script: "git tag --points-at HEAD", returnStdout: true).trim()
+                    if (GIT_TAG =~ /^\d+\.\d+\.\d+/) {
+                        // Create a pristine working directory for a clean build.
+                        sh "git reset --hard"
+                        sh "git clean -dx --force"
+
+                        withEnv([
+                            "TWINE_USERNAME=genialis-bot",
+                            "TWINE_PASSWORD=credentials('pypi-genialis-bot')",
+                            "TOX_WORKDIR=${tox_workdir}"
+                        ]) {
+                            sh "tox -e build"
+                        }
+                    }
+                }
+
                 stage("Clean") {
                     // Clean up the workspace directory after a successful build to free the disk
                     // space.

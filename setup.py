@@ -56,7 +56,7 @@ setuptools.setup(
             'Sphinx~=1.5.6',
             'sphinx_rtd_theme',
         ],
-        'package': ['twine', 'wheel'],
+        'package': ['setuptools_scm', 'twine', 'wheel'],
         'test': [
             'pycodestyle~=2.5.0',
             'pydocstyle~=3.0.0',
