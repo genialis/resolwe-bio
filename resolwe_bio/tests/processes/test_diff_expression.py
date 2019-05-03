@@ -48,7 +48,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
             expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', source='DICTYBASE')
             expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', source='DICTYBASE')
             expression_3 = self.prepare_expression(f_rc='exp_3_rc.tab.gz', source='DICTYBASE')
-            expression_4 = self.prepare_expression(f_rc='exp_4_rc.tab.gz', source='DICTYBASE')
+            expression_4 = self.prepare_expression(f_rc='exp 4_rc.tab.gz', source='DICTYBASE')
 
         inputs = {
             'case': [expression_1.pk, expression_3.pk],
@@ -61,6 +61,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         diff_exp = self.run_process('differentialexpression-deseq2', inputs)
 
         self.assertFileExists(diff_exp, 'raw')
+        self.assertFile(diff_exp, 'count_matrix', 'deseq2_count_matrix.tab.gz', compression='gzip')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2.json.gz')
         self.assertFields(diff_exp, 'source', 'DICTYBASE')
         self.assertFields(diff_exp, 'species', 'Dictyostelium discoideum')

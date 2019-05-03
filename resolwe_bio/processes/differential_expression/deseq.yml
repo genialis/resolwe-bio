@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Differential expression (case vs. control)'
-  version: 2.0.1
+  version: 2.1.0
   type: data:differentialexpression:deseq2
   category: Differential Expression
   persistence: CACHED
@@ -83,6 +83,9 @@
     - name: de_file
       label: Results table (file)
       type: basic:file
+    - name: count_matrix
+      label: Count matrix
+      type: basic:file
     - name: source
       label: Gene ID database
       type: basic:string
@@ -100,7 +103,6 @@
     language: bash
     program: |
       {% set expressions = case + control %}
-
       {% set rsem = expressions|type|subtype('data:expression:rsem:')|all %}
 
       {% if not rsem and not expressions|map(attribute='rc.file')|all %}
@@ -162,10 +164,12 @@
         --stat stat
 
       gzip diffexp_deseq2.tab
+      gzip count_matrix.tab
 
       re-save de_json de_data.json
       re-save-file raw diffexp_deseq2.tab.gz
       re-save-file de_file de_file.tab.gz
+      re-save-file count_matrix count_matrix.tab.gz
       re-save source {{ (case|first).source }}
       re-save species {{ (case|first).species }}
       re-save build {{ (case|first).build }}

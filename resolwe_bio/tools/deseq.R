@@ -21,6 +21,7 @@ parser$add_argument('--format', choices=c('rc', 'rsem'), default='rc')
 args = parser$parse_args()
 
 files <- c(args$controls, args$cases)
+file_names <- basename(files)
 names(files) <- paste0('sample', 1:length(files))
 
 conditions <- c(rep('control', length(args$controls)), rep('case', length(args$cases)))
@@ -48,3 +49,6 @@ dds <- tryCatch(DESeq(dds), error=error)
 result <- results(dds, cooksCutoff=args$cooks_cutoff, alpha=args$alpha)
 result <- result[order(result$padj), ]
 write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=FALSE, col.names=NA)
+# Use file names for the column headers in the count matrix output file
+colnames(dds) <- file_names
+write.table(counts(dds), file='count_matrix.tab', sep='\t', quote=FALSE, col.names=NA)

@@ -23,6 +23,8 @@ Changed
 - Simplify ``cellranger-count`` outputs' folder structure
 - Bump STAR aligner to version 2.7.0f in ``resolwebio/rnaseq:4.4.1``
   Docker image
+- Save filtered count-matrix output file produced by DESeq2 differential
+  expression process
 
 Added
 -----
