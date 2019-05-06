@@ -38,6 +38,8 @@ Fixed
 -----
 - Fix ``archive-samples`` to work with ``data:chipseq:callpeak:macs2``
   data objects when downloading only peaks without QC reports
+- Fix parsing gene set files with empty lines to avoid saving gene sets
+  with empty string elements
 
 
 =================

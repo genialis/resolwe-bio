@@ -20,7 +20,8 @@ def main():
     args = parse_arguments()
 
     with open(args.geneset_file, 'rU') as infile:
-        genes = [str(gene.strip()) for gene in infile]
+        # skip empty lines in input gene set file
+        genes = [str(line.strip()) for line in infile if line.strip()]
         geneset = sorted(set(genes))
 
         if len(genes) != len(geneset):

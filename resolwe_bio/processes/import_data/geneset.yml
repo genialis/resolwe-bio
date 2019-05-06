@@ -15,7 +15,7 @@
       memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.1
+  version: 1.1.2
   type: data:geneset
   category: Import
   persistence: RAW
@@ -99,7 +99,7 @@
       cores: 1
       memory: 1024
   data_name: Gene set
-  version: 1.1.1
+  version: 1.1.2
   type: data:geneset
   category: Import
   persistence: RAW
@@ -182,7 +182,7 @@
       memory: 1024
       network: true
   data_name: Gene set (Venn)
-  version: 1.1.1
+  version: 1.1.2
   type: data:geneset:venn
   category: Import
   persistence: RAW
