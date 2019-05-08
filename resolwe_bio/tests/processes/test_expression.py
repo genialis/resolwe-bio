@@ -498,6 +498,43 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertFields(expression, 'feature_type', 'gene')
 
+    @with_resolwe_host
+    @tag_process('feature_counts')
+    def test_feature_counts_rpkum(self):
+        with self.preparation_stage():
+            genome = self.prepare_genome()
+            reads = self.prepare_reads()
+            annotation = self.prepare_annotation(fn='annotation dicty.gtf.gz')
+            annotation_gff = self.prepare_annotation_gff()
+
+            aligned_reads = self.run_process('alignment-hisat2', {
+                'genome': genome.pk,
+                'reads': reads.pk
+            })
+
+            mappability = self.run_process("mappability-bcm", {
+                "genome": genome.id,
+                "gff": annotation_gff.id,
+                "length": 50,
+            })
+
+        feature_counts = self.run_process('feature_counts', {
+            'alignment': {
+                'aligned_reads': aligned_reads.id,
+            },
+            'annotation': {
+                'annotation': annotation.id,
+                'id_attribute': 'transcript_id',
+            },
+            'normalization_type': 'RPKUM',
+            'mappability': mappability.id,
+        })
+        self.assertFile(feature_counts, 'exp', 'expression_fc_rpkum.tab.gz', compression='gzip')
+        self.assertFields(feature_counts, "source", "DICTYBASE")
+        self.assertFields(feature_counts, 'species', 'Dictyostelium discoideum')
+        self.assertFields(feature_counts, 'build', 'dd-05-2009')
+        self.assertFields(feature_counts, 'feature_type', 'gene')
+
     @tag_process('salmon-index')
     def test_salmon_index(self):
         with self.preparation_stage():

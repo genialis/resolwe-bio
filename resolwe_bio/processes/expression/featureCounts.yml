@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.3.0
+        image: resolwebio/rnaseq:4.4.2
     resources:
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.3.1
+  version: 2.4.0
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -136,6 +136,15 @@
           value: CPM
         - label: FPKM
           value: FPKM
+        - label: RPKUM
+          value: RPKUM
+    - name: mappability
+      label: Mappability
+      type: data:mappability:bcm
+      required: false
+      hidden: "normalization_type != 'RPKUM'"
+      description: |
+        Genome mappability information
     - name: show_advanced
       label: Show advanced options
       type: basic:boolean
@@ -478,6 +487,10 @@
         {% endif %}
       {% endif %}
 
+      {% if normalization_type == 'RPKUM' and not mappability %}
+        re-error "Genome mappability file is a required input for the RPKUM normalization."
+      {% endif %}
+
       # Avoid reporting the full path to the alignment (.bam) file in the counts summary file.
       # This is to prevent the FeatureCounts results to be reported as a separate sample in the MultiQC report
       ln -s {{ alignment.aligned_reads.bam.file }} {{ alignment.aligned_reads.bam.file | basename }}
@@ -617,6 +630,13 @@
       {% elif normalization_type == 'FPKM' %}
         expression2storage.py --output json.txt {{ name ~ '_fpkm.tab.gz' }}
         {% set default_exp_output = name ~ '_fpkm.tab.gz' %}
+      {% elif normalization_type == 'RPKUM' %}
+        expression_rpkum.py \
+         -c {{ name ~ '_rc.tab.gz' }} \
+         -m {{ mappability.mappability.file }} \
+         -o {{ name ~ '_rpkum.tab.gz' }}
+        expression2storage.py --output json.txt {{ name ~ '_rpkum.tab.gz' }}
+        {% set default_exp_output = name ~ '_rpkum.tab.gz' %}
       {% else %}
         re-error "Unsupported expression normalization type used."
       {% endif %}
