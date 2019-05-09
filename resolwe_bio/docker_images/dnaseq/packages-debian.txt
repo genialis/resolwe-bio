@@ -2,3 +2,4 @@ openjdk-8-jre
 python
 python3-setuptools
 python3-wheel
+parallel

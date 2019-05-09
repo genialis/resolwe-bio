@@ -25,6 +25,11 @@ Added
 - Support Python 3.7
 - Add Tabix (1.7-2) to ``resolwebio/wgbs`` docker image
 - Add JBrowse index output to ``hmr`` process
+- Add ``bamclipper`` tool and ``parallel`` package to ``resolwebio/dnaseq:4.2.0`` image
+
+Fixed
+-----
+- Fix building problems of ``resolwebio/dnaseq`` docker
 
 
 =================
