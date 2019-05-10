@@ -35,16 +35,16 @@ class QortsQC(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/rnaseq:4.4.0',
+                'image': 'resolwebio/rnaseq:4.4.2',
             },
         },
         'resources': {
             'cores': 1,
-            'memory': 4096,
+            'memory': 16384,
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = '1.1.0'
+    version = '1.2.0'
     process_type = 'data:qorts:qc'
     category = 'Other'
     entity = {
@@ -150,8 +150,10 @@ class QortsQC(Process):
         if inputs.options.adjustPhredScore or inputs.options.adjustPhredScore == 0:
             optional_args.extend(['--adjustPhredScore', inputs.options.adjustPhredScore])
 
+        memory_limit = '-Xmx{}g'.format(self.requirements.resources.memory // 1024)
+
         # join optional and required arguments
-        Cmd['QoRTs'](['QC'] + optional_args + args)
+        Cmd['QoRTs']([memory_limit, 'QC'] + optional_args + args)
 
         # Compress QoRTs output folder
         Cmd['zip'](['-r', 'qorts_report.zip', 'qorts_output'])

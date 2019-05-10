@@ -19,6 +19,8 @@ Changed
   ``resolwebio/common:1.1.3`` Docker image
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
   ``resolwebio/rnaseq:4.4.2``
+- Use ``resolwebio/rnaseq:4.4.2`` Docker image and bump memory
+  requirements for ``qorts-qc`` process
 
 Added
 -----
