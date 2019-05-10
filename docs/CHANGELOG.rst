@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+- Use ``resolwebio/rnaseq:4.4.2`` Docker image and bump memory
+  requirements for ``qorts-qc`` process
+
+
 =================
 19.0.0 2019-05-07
 =================
