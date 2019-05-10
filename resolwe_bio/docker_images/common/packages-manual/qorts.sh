@@ -13,7 +13,7 @@ download_and_verify \
 cat <<'EOF' >QoRTs
 #!/bin/bash
 
-java -Xmx4g -jar /opt/hartleys/qorts/QoRTs.jar "$@"
+java "${1}" -jar /opt/hartleys/qorts/QoRTs.jar "${@:2}"
 EOF
 chmod +x QoRTs
 

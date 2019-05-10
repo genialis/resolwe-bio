@@ -15,6 +15,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 17.x
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 6.x
 - **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 2.2
+- Allow setting the Java memory usage flags for the QoRTs tool in
+  ``resolwebio/common:1.1.3`` Docker image
 
 Added
 -----
