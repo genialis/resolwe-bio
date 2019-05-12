@@ -14,6 +14,7 @@ Fixed
 -----
 - Use ``resolwebio/rnaseq:4.4.2`` Docker image and bump memory
   requirements for ``qorts-qc`` process
+- Bump memory requirements for ``multiqc`` process
 
 
 =================

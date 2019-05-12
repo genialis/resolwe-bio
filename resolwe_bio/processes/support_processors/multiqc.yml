@@ -4,12 +4,12 @@
     expression-engine: jinja
     resources:
       cores: 1
-      memory: 1024
+      memory: 8192
     executor:
       docker:
         image: resolwebio/common:1.1.2
   data_name: 'MultiQC report'
-  version: 1.1.0
+  version: 1.1.1
   type: data:multiqc
   category: Other
   persistence: CACHED
