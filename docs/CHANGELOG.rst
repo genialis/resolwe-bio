@@ -19,15 +19,23 @@ Changed
   ``resolwebio/common:1.1.3`` Docker image
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
   ``resolwebio/rnaseq:4.4.2``
-- Use ``resolwebio/rnaseq:4.4.2`` Docker image and bump memory
-  requirements for ``qorts-qc`` process
-- Bump memory requirements for ``multiqc`` process
 
 Added
 -----
 - Support Python 3.7
 - Add Tabix (1.7-2) to ``resolwebio/wgbs`` docker image
-- Add Jbrowse index output to ``hmr`` process
+- Add JBrowse index output to ``hmr`` process
+
+
+=================
+19.0.1 2019-05-13
+=================
+
+Fixed
+-----
+- Use ``resolwebio/rnaseq:4.4.2`` Docker image that enforces the memory limit
+  and bump memory requirements for ``qorts-qc`` process
+- Bump memory requirements for ``multiqc`` process
 
 
 =================
