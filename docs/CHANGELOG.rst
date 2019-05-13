@@ -19,6 +19,7 @@ Changed
   ``resolwebio/common:1.1.3`` Docker image
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
   ``resolwebio/rnaseq:4.4.2``
+- Bump GATK4 version to 4.1.2.0 in ``resolwebio/dnaseq:4.2.0``
 
 Added
 -----
