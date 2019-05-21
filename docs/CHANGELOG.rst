@@ -15,6 +15,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 17.x
 - **BACKWARD INCOMPATIBLE:** Use Elasticsearch version 6.x
 - **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 2.2
+- **BACKWARD INCOMPATIBLE:** Remove
+  ``workflow-bbduk-star-featurecounts-single`` and
+  ``workflow-bbduk-star-featurecounts-paired`` processes
 - Allow setting the Java memory usage flags for the QoRTs tool in
   ``resolwebio/common:1.1.3`` Docker image
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
