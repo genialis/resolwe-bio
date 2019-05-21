@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.3.0
+  version: 1.4.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -62,7 +62,8 @@
           label: Minimum k-mer length at right end of reads used for trimming
           type: basic:integer
           default: 11
-          hidden: '!preprocessing.show_advanced'
+          hidden: "!preprocessing.show_advanced"
+          disabled: "preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0"
         - name: hamming_distance
           label: Maximum Hamming distance for k-mers
           type: basic:integer
@@ -72,6 +73,7 @@
           label: Max Ns after trimming [maxns=-1]
           type: basic:integer
           default: -1
+          hidden: '!preprocessing.show_advanced'
           description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
         - name: trim_quality
@@ -460,17 +462,18 @@
       - id: preprocessing
         run: bbduk-single
         input:
+          show_advanced: true
           reads: '{{ input.preprocessing.reads }}'
           min_length: '{{ input.preprocessing.min_length }}'
           reference:
-            sequences: '{{ input.preprocessing.adapters }}'
+            sequences: '{{ input.preprocessing.adapters or [] }}'
             literal_sequences: '{{ input.preprocessing.custom_adapter_sequences }}'
           processing:
             kmer_length: '{{ input.preprocessing.kmer_length }}'
             hamming_distance: '{{ input.preprocessing.hamming_distance }}'
           operations:
-            k_trim: r
-            min_k: '{{ input.preprocessing.min_k }}'
+            k_trim: "{{ 'r' if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else 'f' }}"
+            min_k: '{{ input.preprocessing.min_k if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else -1 }}'
             quality_trim: r
             trim_quality: '{{ input.preprocessing.trim_quality }}'
             maxns: '{{ input.preprocessing.maxns }}'
@@ -564,7 +567,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.3.0
+  version: 1.4.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -623,7 +626,8 @@
           label: Minimum k-mer length at right end of reads used for trimming
           type: basic:integer
           default: 11
-          hidden: '!preprocessing.show_advanced'
+          hidden: "!preprocessing.show_advanced"
+          disabled: "preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0"
         - name: hamming_distance
           label: Maximum Hamming distance for k-mers
           type: basic:integer
@@ -635,6 +639,7 @@
           default: -1
           description: |
             If non-negative, reads with more Ns than this (after trimming) will be discarded.
+          hidden: '!preprocessing.show_advanced'
         - name: trim_quality
           label: Quality below which to trim reads from the right end
           type: basic:integer
@@ -1021,17 +1026,18 @@
       - id: preprocessing
         run: bbduk-paired
         input:
+          show_advanced: true
           reads: '{{ input.preprocessing.reads }}'
           min_length: '{{ input.preprocessing.min_length }}'
           reference:
-            sequences: '{{ input.preprocessing.adapters }}'
+            sequences: '{{ input.preprocessing.adapters or [] }}'
             literal_sequences: '{{ input.preprocessing.custom_adapter_sequences }}'
           processing:
             kmer_length: '{{ input.preprocessing.kmer_length }}'
             hamming_distance: '{{ input.preprocessing.hamming_distance }}'
           operations:
-            k_trim: r
-            min_k: '{{ input.preprocessing.min_k }}'
+            k_trim: "{{ 'r' if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else 'f' }}"
+            min_k: '{{ input.preprocessing.min_k if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else -1 }}'
             quality_trim: r
             trim_quality: '{{ input.preprocessing.trim_quality }}'
             maxns: '{{ input.preprocessing.maxns }}'

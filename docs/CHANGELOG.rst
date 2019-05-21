@@ -40,7 +40,9 @@ Added
 Fixed
 -----
 - Fix building problems of ``resolwebio/dnaseq`` docker
-
+- Fix handling of no-adapters input in workflows
+  ``workflow-bbduk-star-featurecounts-qc-single`` and
+  ``workflow-bbduk-star-featurecounts-qc-paired``
 
 =================
 19.0.1 2019-05-13
