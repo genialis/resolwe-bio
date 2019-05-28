@@ -224,8 +224,8 @@
     resources:
       cores: 4
       network: true
-  data_name: '{{ src.file|default("?") }}'
-  version: 0.4.1
+  data_name: "{{ bam|sample_name|default('?') }}"
+  version: 0.5.0
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import
@@ -254,6 +254,8 @@
       choices:
         - label: Drosophila melanogaster
           value: Drosophila melanogaster
+        - label: Mus musculus
+          value: Mus musculus
     - name: build
       label: Build
       type: basic:string
