@@ -9,7 +9,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 0.1.1
+  version: 0.1.2
   type: data:index:salmon
   persistence: CACHED
   description: |
@@ -85,7 +85,7 @@
       mkdir salmon_index
 
       salmon --no-version-check index \
-        -t {{ nucl.fasta.file }} \
+        -t {{ nucl.fastagz.file }} \
         -i salmon_index \
         -p {{ requirements.resources.cores }} \
         --type quasi \

@@ -470,7 +470,9 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             'species': 'Dictyostelium discoideum',
         }
         seq = self.run_process('upload-fasta-nucl', inputs)
-        self.assertFile(seq, 'fasta', 'genome.fasta.gz', compression='gzip')
+        self.assertFile(seq, 'fastagz', 'genome.fasta.gz', compression='gzip')
+        self.assertFile(seq, 'fasta', 'genome.fasta')
+        self.assertFile(seq, 'fai', 'genome.fasta.fai')
         self.assertFields(seq, 'species', 'Dictyostelium discoideum')
 
     @tag_process('upload-variants-vcf')

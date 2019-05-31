@@ -16,7 +16,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.1
+  version: 2.2.2
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
@@ -430,10 +430,10 @@
         cat {{ read.file }} >>{{ input_reads }}
       {% endfor %}
       {% for ref in reference.sequences %}
-        cat {{ ref.fasta.file }} >>{{ input_references }}
+        cat {{ ref.fastagz.file }} >>{{ input_references }}
       {% endfor %}
       {% for barc in header_parsing.barcode_files %}
-        cat {{ barc.fasta.file }} >>{{ input_barcodes }}
+        cat {{ barc.fastagz.file }} >>{{ input_barcodes }}
       {% endfor %}
 
       {% if header_parsing.barcode_files %}
@@ -552,7 +552,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.1
+  version: 2.2.2
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
@@ -1006,10 +1006,10 @@
         cat {{ read.file }} >>{{ input_rv_reads }}
       {% endfor %}
       {% for ref in reference.sequences %}
-        cat {{ ref.fasta.file }} >>{{ input_references }}
+        cat {{ ref.fastagz.file }} >>{{ input_references }}
       {% endfor %}
       {% for barc in header_parsing.barcode_files %}
-        cat {{ barc.fasta.file }} >>{{ input_barcodes }}
+        cat {{ barc.fastagz.file }} >>{{ input_barcodes }}
       {% endfor %}
 
       {% if header_parsing.barcode_files %}

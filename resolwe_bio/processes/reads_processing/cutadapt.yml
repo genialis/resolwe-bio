@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.2.1
+  version: 1.2.2
   type: data:reads:fastq:single:cutadapt
   category: Trim
   flow_collection: sample
@@ -162,14 +162,6 @@
       up_primers='{% for primer in up_primers_seq %}-g {{primer}} {% endfor %}'
       up_primers=${up_primers%?}
 
-      # Decompress primer files
-      {% if up_primers_file %}
-        gunzip -c {{up_primers_file.fasta.file}} > 5_primers.fasta
-      {% endif %}
-      {% if down_primers_file %}
-        gunzip -c {{down_primers_file.fasta.file}} > 3_primers.fasta
-      {% endif %}
-
       # Run Cutadapt
       cutadapt \
         {% if headcrop is defined %}-u {{headcrop}}{% endif %} \
@@ -179,8 +171,8 @@
         {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
         {% if down_primers_seq %}$down_primers{% endif %} \
         {% if up_primers_seq %}$up_primers{% endif %} \
-        {% if down_primers_file %}-a file:3_primers.fasta{% endif %} \
-        {% if up_primers_file %}-g file:5_primers.fasta{% endif %} \
+        {% if down_primers_file %}-a file:{{down_primers_file.fasta.file}}{% endif %} \
+        {% if up_primers_file %}-g file:{{up_primers_file.fasta.file}}{% endif %} \
         {% if minlen is defined %}-m {{minlen}}{% endif %} \
         {% if times is defined %}--times {{ times }} {% endif %} \
         {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
@@ -214,7 +206,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.1
+  version: 2.1.2
   type: data:reads:fastq:paired:cutadapt
   category: Trim
   flow_collection: sample
@@ -415,20 +407,6 @@
       up_primers_rev='{% for primer in adapters.mate2_5prime_seq %}-G {{primer}} {% endfor %}'
       up_primers_rev=${up_primers_rev%?}
 
-      # Decompress primer files
-      {% if adapters.mate1_5prime_file %}
-        gunzip -c {{adapters.mate1_5prime_file.fasta.file}} > 5_primers_fwd.fasta
-      {% endif %}
-      {% if adapters.mate1_3prime_file %}
-        gunzip -c {{adapters.mate1_3prime_file.fasta.file}} > 3_primers_fwd.fasta
-      {% endif %}
-      {% if adapters.mate2_5prime_file %}
-        gunzip -c {{adapters.mate2_5prime_file.fasta.file}} > 5_primers_rev.fasta
-      {% endif %}
-      {% if adapters.mate2_3prime_file %}
-        gunzip -c {{adapters.mate2_3prime_file.fasta.file}} > 3_primers_rev.fasta
-      {% endif %}
-
       cutadapt \
         {% if filtering.minlen is defined%}--minimum-length={{ filtering.minlen }}{% endif %} \
         {% if modify_reads.headcrop is defined %}--cut={{ modify_reads.headcrop }}{% endif %} \
@@ -437,12 +415,12 @@
         {% if modify_reads.leading is defined %}--quality-cutoff={{ modify_reads.leading }},0{% endif %} \
         {% if adapters.mate1_3prime_seq %}$down_primers_fwd{% endif %} \
         {% if adapters.mate1_5prime_seq %}$up_primers_fwd{% endif %} \
-        {% if adapters.mate1_3prime_file %}-a file:3_primers_fwd.fasta{% endif %} \
-        {% if adapters.mate1_5prime_file %}-g file:5_primers_fwd.fasta{% endif %} \
+        {% if adapters.mate1_3prime_file %}-a file:{{adapters.mate1_3prime_file.fasta.file}}{% endif %} \
+        {% if adapters.mate1_5prime_file %}-g file:{{adapters.mate1_5prime_file.fasta.file}}{% endif %} \
         {% if adapters.mate2_3prime_seq %}$down_primers_rev{% endif %} \
         {% if adapters.mate2_5prime_seq %}$up_primers_rev{% endif %} \
-        {% if adapters.mate2_3prime_file %}-A file:3_primers_rev.fasta{% endif %} \
-        {% if adapters.mate2_5prime_file %}-G file:5_primers_rev.fasta{% endif %} \
+        {% if adapters.mate2_3prime_file %}-A file:{{adapters.mate2_3prime_file.fasta.file}}{% endif %} \
+        {% if adapters.mate2_5prime_file %}-G file:{{adapters.mate2_5prime_file.fasta.file}}{% endif %} \
         {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
         {% if adapters.match_read_wildcards %}--match-read-wildcards {% endif %} \
         --pair-filter={{ filtering.pair_filter }} \

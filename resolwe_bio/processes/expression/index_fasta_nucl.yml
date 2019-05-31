@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.3.1
+  version: 0.3.2
   type: data:index:expression
   category: Other
   persistence: CACHED
@@ -115,7 +115,7 @@
       {% endif %}
 
       {% if nucl %}
-        gunzip -c {{ nucl.fasta.file }} > nucl.fasta
+        ln -s {{ nucl.fasta.file }} nucl.fasta
         {% if nucl_genome == 'ts' %}
           rsem-prepare-reference \
             nucl.fasta \
@@ -127,9 +127,10 @@
             rsem/index
         {% endif %}
       {% else %}
+        ln -s {{ genome.fasta.file }} genome.fasta
         rsem-prepare-reference \
           --gtf annotation \
-          {{ genome.fasta.file }} \
+          genome.fasta \
           rsem/index
       {% endif %}
       re-checkrc 'RSEM index build failed.'

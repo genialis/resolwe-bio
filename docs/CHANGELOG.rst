@@ -24,6 +24,9 @@ Changed
   ``rna-seq-bbduk-star-featurecounts``, ``quantseq``,
   ``rna-seq-cutadapt-star-featurecounts`` and
   ``kapa-rna-seq-bbduk-star-featurecounts``.
+- **BACKWARD INCOMPATIBLE:** In ``upload-fasta-nucl`` process, store
+  compressed and uncompressed FASTA files in ``fastagz`` and ``fasta``
+  ouput fields, respectively
 - Allow setting the Java memory usage flags for the QoRTs tool in
   ``resolwebio/common:1.1.3`` Docker image
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
@@ -43,6 +46,7 @@ Fixed
 - Fix handling of no-adapters input in workflows
   ``workflow-bbduk-star-featurecounts-qc-single`` and
   ``workflow-bbduk-star-featurecounts-qc-paired``
+
 
 =================
 19.0.1 2019-05-13
