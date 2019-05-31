@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/wgbs:1.0.0
+        image: resolwebio/wgbs:1.1.0
   data_name: "{{ methcounts|sample_name|default('?') }}"
-  version: 1.0.1
+  version: 1.1.0
   type: data:wgbs:hmr
   category: WGBS
   flow_collection: sample
@@ -28,6 +28,9 @@
     - name: hmr
       label: Hypo-methylated regions
       type: basic:file
+    - name: tbi_jbrowse
+      label: Bed file index for Jbrowse
+      type: basic:file
     - name: species
       label: Species
       type: basic:string
@@ -40,12 +43,14 @@
     program: |
       NAME=`basename {{ methcounts.meth.file }} .meth.gz`
 
-      hmr -o "${NAME}.hmr" <(zcat {{ methcounts.meth.file }})
+      hmr -o "${NAME}.bed" <(zcat {{ methcounts.meth.file }})
       re-checkrc "HMR analysis failed."
       re-progress 0.8
 
-      gzip "${NAME}.hmr"
+      bgzip -c "${NAME}.bed" > "${NAME}.bed.gz"
+      tabix -p bed "${NAME}.bed.gz"
 
-      re-save-file hmr "${NAME}.hmr.gz"
+      re-save-file hmr "${NAME}.bed.gz"
+      re-save-file tbi_jbrowse "${NAME}.bed.gz.tbi"
       re-save species {{ methcounts.species }}
       re-save build {{ methcounts.build }}
