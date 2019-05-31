@@ -6,6 +6,6 @@ https://hub.docker.com/r/resolwebio/base/) image.
 Included bioinformatics tools:
 ------------------------------
 * MethPipe (3.4.3)
+* Tabix (1.7-2)
 * WALT (1.01)
 * wigToBigWig (kent-v365)
-

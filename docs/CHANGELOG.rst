@@ -23,6 +23,7 @@ Changed
 Added
 -----
 - Support Python 3.7
+- Add Tabix (1.7-2) to ``resolwebio/wgbs`` docker image
 
 
 =================
