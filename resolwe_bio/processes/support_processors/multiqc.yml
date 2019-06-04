@@ -30,7 +30,6 @@
         - name: dirs
           label: --dirs
           type: basic:boolean
-          default: false
           description: |
             Prepend directory to sample names.
         - name: fullnames
@@ -42,7 +41,6 @@
         - name: config
           label: Use configuration file
           type: basic:boolean
-          default: false
           description: |
             Use Genialis configuration file for MultiQC report.
         - name: cl_config

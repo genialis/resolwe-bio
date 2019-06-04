@@ -32,6 +32,8 @@ Changed
 - Use ``resolwebio/common:1.1.3`` Docker image as a base image for
   ``resolwebio/rnaseq:4.4.2``
 - Bump GATK4 version to 4.1.2.0 in ``resolwebio/dnaseq:4.2.0``
+- Use MultiQC configuration file and prepend directory name to sample
+  names by default in ``multiqc`` process
 
 Added
 -----
