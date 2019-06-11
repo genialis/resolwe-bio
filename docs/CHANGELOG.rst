@@ -16,6 +16,7 @@ Changed
   process
 - Bump memory requirements in ``seqtk-sample-single`` and
   ``seqtk-sample-paired`` processes
+- Bump Salmon to v0.14.0 in ``resolwebio/rnaseq:4.5.0`` Docker image
 
 Added
 -----

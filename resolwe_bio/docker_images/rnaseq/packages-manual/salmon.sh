@@ -5,10 +5,10 @@
 download_and_verify \
     combine-lab \
     salmon \
-    0.9.1 \
-    67d19cec3ad4df4f6b24f1d64be39f445227e197c451e2eeb2aa0b71ee59d093 \
+    0.14.0 \
+    d1c4a969e735f21050cb3a9595e581a9ff21bb94a3c744cb61a6ab8079b66750 \
     https://github.com/COMBINE-lab/salmon/releases/download/v\${version}/Salmon-\${version}_linux_x86_64.tar.gz \
-    Salmon-latest_linux_x86_64
+    salmon-latest_linux_x86_64
 
 rm sample_data.tgz
 
