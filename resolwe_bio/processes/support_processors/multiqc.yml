@@ -9,7 +9,7 @@
       docker:
         image: resolwebio/common:1.1.2
   data_name: 'MultiQC report'
-  version: 1.1.1
+  version: 1.1.2
   type: data:multiqc
   category: Other
   persistence: CACHED
@@ -30,6 +30,7 @@
         - name: dirs
           label: --dirs
           type: basic:boolean
+          default: true
           description: |
             Prepend directory to sample names.
         - name: fullnames
@@ -41,6 +42,7 @@
         - name: config
           label: Use configuration file
           type: basic:boolean
+          default: true
           description: |
             Use Genialis configuration file for MultiQC report.
         - name: cl_config
