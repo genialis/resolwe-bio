@@ -542,6 +542,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         inputs = {
             'nucl': cds.id,
+            'perfect_hash': True,
+            'gencode': False,
+            'keep_duplicates': True,
             'source': 'ENSEMBL',
             'species': 'Homo sapiens',
             'build': 'ens_90',

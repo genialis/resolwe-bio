@@ -1,32 +1,66 @@
 - slug: salmon-index
-  name: Salmon index
+  name: Salmon Index
   requirements:
     expression-engine: jinja
     resources:
       cores: 8
-      memory: 8192
+      memory: 16384
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.5.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 0.1.2
+  version: 1.0.0
   type: data:index:salmon
   persistence: CACHED
   description: |
-    Generete index files for Salmon transcript quantification tool.
+    Generate index files for Salmon transcript quantification tool.
   input:
     - name: nucl
       label: Nucleotide sequence
       type: data:seq:nucleotide
       description: |
-        A CDS sequence file in .fasta format.
+        A CDS sequence file in .FASTA format.
+    - name: decoys
+      label: Decoys
+      type: data:file
+      required: false
+      description: |
+        Treat these sequences as decoys that may have sequence
+        homologous to some known transcript.
+    - name: gencode
+      label: Gencode
+      type: basic:boolean
+      default: false
+      description: |
+        This flag will expect the input transcript FASTA
+        to be in GENCODE format, and will split the
+        transcript name at the first '|' character.  These
+        reduced names will be used in the output and when
+        looking for these transcripts in a gene to
+        transcript GTF.
+    - name: keep_duplicates
+      label: Keep duplicates
+      type: basic:boolean
+      default: false
+      description: |
+        This flag will disable the default indexing
+        behavior of discarding sequence-identical
+        duplicate transcripts.  If this flag is passed,
+        then duplicate transcripts that appear in the
+        input will be retained and quantified separately.
+    - name: perfect_hash
+      label: Perfect hash
+      type: basic:boolean
+      default: false
+      description: |
+        Build the index using a perfect hash rather than a dense hash.
+        This will require less memory (especially during
+        quantification), but will take longer to construct.
     - name: source
       label: Source of attribute ID
       type: basic:string
       allow_custom_choice: true
       choices:
-        - label: AFFY
-          value: AFFY
         - label: DICTYBASE
           value: DICTYBASE
         - label: ENSEMBL
@@ -50,10 +84,6 @@
           value: Rattus norvegicus
         - label: Dictyostelium discoideum
           value: Dictyostelium discoideum
-        - label: Odocoileus virginianus texanus
-          value: Odocoileus virginianus texanus
-        - label: Solanum tuberosum
-          value: Solanum tuberosum
     - name: build
       label: Genome build
       type: basic:string
@@ -63,8 +93,9 @@
       default: 31
       description: |
         The size of k-mers that should be used for the quasi index.
-        We find that a k of 31 seems to work well for reads of 75bp or longer,
-        but you might consider a smaller k if you plan to deal with shorter reads.
+        We find that a k of 31 seems to work well for reads of 75bp
+        or longer, but you might consider a smaller k if you plan to
+        deal with shorter reads.
   output:
     - name: index
       label: Salmon index
@@ -86,9 +117,12 @@
 
       salmon --no-version-check index \
         -t {{ nucl.fastagz.file }} \
+        {% if decoys %} -d {{ decoys.file.file }} {% endif %} \
+        {% if gencode %} --gencode {% endif %} \
+        {% if keep_duplicates %} --keepDuplicates {% endif %} \
+        {% if perfect_hash %} --perfectHash {% endif %} \
         -i salmon_index \
         -p {{ requirements.resources.cores }} \
-        --type quasi \
         -k {{ kmerlen }}
 
       re-checkrc 'Salmon index build failed.'
