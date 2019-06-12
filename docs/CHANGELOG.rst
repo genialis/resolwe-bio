@@ -35,6 +35,8 @@ Changed
 - Use MultiQC configuration file and prepend directory name to sample
   names by default in ``multiqc`` process
 - Bump ``resolwebio/common`` to 1.1.3 in ``resolwebio/dnaseq:4.2.0``
+- Process ``vc-gatk4-hc`` now also accepts BED files through parameter
+  ``intervals_bed``
 
 Added
 -----

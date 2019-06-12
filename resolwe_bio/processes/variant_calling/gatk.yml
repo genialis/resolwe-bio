@@ -11,7 +11,7 @@
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.3.3
+  version: 0.4.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -29,7 +29,16 @@
       label: Intervals (from master file)
       type: data:masterfile:amplicon
       description: |
-        Use this option to perform the analysis over only part of the genome.
+        Use this option to perform the analysis over only part of the genome. This option is not compatible with
+        ``intervals_bed`` option.
+      required: false
+    - name: intervals_bed
+      label: Intervals (from BED file)
+      type: data:bed
+      description: |
+        Use this option to perform the analysis over only part of the genome. This options is not compatible with
+        ``intervals`` option.
+      required: false
     - name: dbsnp
       label: dbSNP file
       type: data:variants:vcf
@@ -70,6 +79,18 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
+      # If user input both, intervals and intervals_bed, raise an error because only
+      # one of the fields is required.
+      {% if intervals and intervals_bed %}
+        echo "{\"proc.error\":\"You have specified intervals and intervals_bed, whereas only one is permitted.\"}"
+      {% endif %}
+
+      {% if intervals %}
+        INTERVALS={{ intervals.bedfile.file }}
+      {% else %}
+        INTERVALS={{ intervals_bed.bed.file }}
+      {% endif %}
+
       java -jar /usr/gitc/GATK36.jar \
         -T HaplotypeCaller \
         -R {{genome.fasta.file}} \
@@ -78,7 +99,7 @@
         -stand_emit_conf {{stand_emit_conf}} \
         -mbq {{mbq}} \
         --dbsnp {{ dbsnp.vcf.file }} \
-        -L {{intervals.bedfile.file}} \
+        -L ${INTERVALS} \
         -o "${SAMPLE_SLUG}.gatkHC.vcf"
 
       echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
@@ -108,7 +129,7 @@
       memory: 16384
       cores: 4
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.1.1
+  version: 0.2.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -126,7 +147,16 @@
       label: Intervals (from master file)
       type: data:masterfile:amplicon
       description: |
-        Use this option to perform the analysis over only part of the genome.
+        Use this option to perform the analysis over only part of the genome. This option is not compatible with
+        ``intervals_bed`` option.
+      required: false
+    - name: intervals_bed
+      label: Intervals (from BED file)
+      type: data:bed
+      description: |
+        Use this option to perform the analysis over only part of the genome. This options is not compatible with
+        ``intervals`` option.
+      required: false
     - name: dbsnp
       label: dbSNP file
       type: data:variants:vcf
@@ -168,6 +198,18 @@
     program: |
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
+      # If user input both, intervals and intervals_bed, raise an error because only
+      # one of the fields is required.
+      {% if intervals and intervals_bed %}
+        re-error "You have specified intervals and intervals_bed, whereas only one is permitted."
+      {% endif %}
+
+      {% if intervals %}
+        INTERVALS={{ intervals.bedfile.file }}
+      {% else %}
+        INTERVALS={{ intervals_bed.bed.file }}
+      {% endif %}
+
       gatk HaplotypeCaller \
         -R {{genome.fasta.file}} \
         -I {{alignment.bam.file}} \
@@ -175,7 +217,7 @@
         --stand-call-conf {{ stand_call_conf }} \
         --max-reads-per-alignment-start {{ max_reads }} \
         --dbsnp {{ dbsnp.vcf.file }} \
-        -L {{intervals.bedfile.file}} \
+        -L ${INTERVALS} \
         -O "${SAMPLE_SLUG}.gatkHC.vcf"
 
       re-checkrc "GATK HaplotypeCaller failed."

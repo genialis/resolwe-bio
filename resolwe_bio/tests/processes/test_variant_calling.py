@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 from os.path import join
 
+from resolwe.flow.models import Data
 from resolwe.test import tag_process
 from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import skipUnlessLargeFiles, BioProcessTestCase
@@ -159,6 +160,12 @@ class VariantCallingTestCase(BioProcessTestCase):
             genome = self.run_process('upload-genome', inputs)
 
             master_file = self.prepare_amplicon_master_file()
+            bed_file = self.run_process('upload-bed', {
+                'src': './haplotypecaller/input/56G_masterfile_test_merged_targets_5col.bed',
+                'species': 'Homo sapiens',
+                'build': 'b37'
+            })
+
             dbsnp_input = {
                 'src': 'dbsnp_138.b37.chr2_small.vcf.gz',
                 'species': 'Homo sapiens',
@@ -197,6 +204,59 @@ class VariantCallingTestCase(BioProcessTestCase):
         )
         self.assertFields(gatk4_vars, 'build', 'b37')
         self.assertFields(gatk4_vars, 'species', 'Homo sapiens')
+
+        # This chunk checks that user is specifying only master file or bed
+        # file, but not both. Once we remove the dependence on master file,
+        # this test will be obsolete.
+        gatk3_incol = self.run_process('vc-gatk-hc', {
+            'alignment': alignment.id,
+            'intervals': master_file.id,
+            'intervals_bed': bed_file.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        }, Data.STATUS_ERROR)
+        self.assertEqual(gatk3_incol.process_error[0],
+                         'You have specified intervals and intervals_bed, whereas only one is permitted.')
+
+        gatk4_incol = self.run_process('vc-gatk4-hc', {
+            'alignment': alignment.id,
+            'intervals': master_file.id,
+            'intervals_bed': bed_file.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        }, Data.STATUS_ERROR)
+        self.assertEqual(gatk4_incol.process_error[0],
+                         'You have specified intervals and intervals_bed, whereas only one is permitted.')
+
+        gatk3_bed = self.run_process('vc-gatk-hc', {
+            'alignment': alignment.id,
+            'intervals_bed': bed_file.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        })
+
+        gatk4_bed = self.run_process('vc-gatk4-hc', {
+            'alignment': alignment.id,
+            'intervals_bed': bed_file.id,
+            'genome': genome.id,
+            'dbsnp': dbsnp.id
+        })
+
+        self.assertFile(
+            gatk4_bed,
+            'vcf',
+            '56GSID_10k.gatkHC4.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
+
+        self.assertFile(
+            gatk3_bed,
+            'vcf',
+            '56GSID_10k.gatkHC.vcf.gz',
+            file_filter=filter_vcf_variable,
+            compression='gzip'
+        )
 
     @skipUnlessLargeFiles('56GSID_10k.realigned.bqsrCal.bam')
     @tag_process('lofreq')
