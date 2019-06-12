@@ -223,3 +223,27 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             ],
         }
         self.assertFields(filtered_reads, "fastqc_url2", [report2])
+
+    @tag_process('bamclipper')
+    def test_bamclipper(self):
+        species = 'Homo sapiens'
+        build = 'fake_genome_RSEM'
+
+        with self.preparation_stage():
+            bam = self.prepare_bam(
+                fn='./bamclipper/input/STK11.bam',
+                species=species,
+                build=build
+            )
+
+            inputs_bedpe = {'src': './bamclipper/input/STK11.bedpe',
+                            'species': species, 'build': build}
+            bedpe = self.run_process('upload-bedpe', inputs_bedpe)
+
+        inputs_bamclipper = {'alignment': bam.id, 'bedpe': bedpe.id}
+        clipped = self.run_process('bamclipper', inputs_bamclipper)
+
+        self.assertFile(clipped, 'stats', './bamclipper/output/STK11.primerclipped.bam_stats.txt')
+        self.assertFile(clipped, 'bigwig', './bamclipper/output/STK11.primerclipped.bw')
+        self.assertFields(clipped, 'species', species)
+        self.assertFields(clipped, 'build', build)

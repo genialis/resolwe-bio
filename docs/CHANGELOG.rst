@@ -47,6 +47,7 @@ Added
 - Support ``hg19_mm10`` hybrid genome in ``bam-split`` process
 - Support mappability-based normalization (RPKUM) in featureCounts
 - Add BEDPE upload process
+- Add ``bamclipper`` process
 
 Fixed
 -----
