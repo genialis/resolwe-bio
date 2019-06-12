@@ -34,6 +34,19 @@ class DefaultUnzipFasta(DataDefaultOperation):
         # Decompress.
         with gzip.open(fastagz, 'rb') as infile, open(fasta, 'wb') as outfile:
             shutil.copyfileobj(infile, outfile)
+        # Change owner of this file to the same owner as fastagz:
+        fastagz_stat = os.stat(fastagz)
+        os.chown(fasta, fastagz_stat.st_uid, fastagz_stat.st_gid)
+
+        # Set modification time of fai file to "now". This is because
+        # bedtools requires that modification time of fai is larger than
+        # the one of fasta.
+        fai = os.path.join(
+            settings.FLOW_EXECUTOR['DATA_DIR'],
+            data.location.subpath,
+            data.output['fai']['file']
+        )
+        os.utime(fai)
 
         size = os.path.getsize(fasta)
         return {
