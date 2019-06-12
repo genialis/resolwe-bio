@@ -46,6 +46,7 @@ Added
 - Add ``bamclipper`` tool and ``parallel`` package to ``resolwebio/dnaseq:4.2.0`` image
 - Support ``hg19_mm10`` hybrid genome in ``bam-split`` process
 - Support mappability-based normalization (RPKUM) in featureCounts
+- Add BEDPE upload process
 
 Fixed
 -----

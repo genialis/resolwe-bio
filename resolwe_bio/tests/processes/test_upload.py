@@ -543,3 +543,21 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
                                              '10x_S1_L002_R1_001.fastq.gz'], compression='gzip')
         self.assertFiles(reads, 'reads', ['10x_S1_L001_R2_001.fastq.gz',
                                           '10x_S1_L002_R2_001.fastq.gz'], compression='gzip')
+
+    @tag_process('upload-bedpe')
+    def test_upload_bedpe(self):
+        species = 'Homo sapiens'
+        build = 'fake_genome_RSEM'
+        in_file = './annotation_bedpe/input/alk.bedpe'
+
+        inputs_bedpe = {
+            'src': in_file,
+            'species': species,
+            'build': build
+        }
+
+        bedpe = self.run_process('upload-bedpe', inputs_bedpe)
+
+        self.assertFile(bedpe, 'bedpe', in_file)
+        self.assertFields(bedpe, 'species', species)
+        self.assertFields(bedpe, 'build', build)
