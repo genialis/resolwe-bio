@@ -1,0 +1,299 @@
+- slug: workflow-wes
+  name: Whole exome sequencing (WES) analysis
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 0.0.1
+  type: data:workflow:wes
+  category: Pipeline
+  input:
+    - name: reads
+      label: Raw untrimmed reads
+      type: data:reads:fastq:paired
+      required: true
+      description: |
+        Raw paired-end reads.
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      required: true
+      description: |
+        Against which genome to align. Further processes depend on this genome (e.g. BQSR step).
+    # bamclipper
+    - name: bamclipper_bedpe
+      label: BEDPE file used for clipping using Bamclipper
+      type: data:bedpe
+      required: true
+      description: |
+        BEDPE file used for clipping using Bamclipper tool.
+    # bqsr
+    - name: known_sites
+      label: Known sites of variation used in BQSR
+      type: list:data:variants:vcf
+      required: true
+      description: |
+        Known sites of variation as a VCF file.
+    - name: intervals
+      label: Intervals
+      type: data:bed
+      required: true
+      description: |
+        Use intervals to narrow the analysis to defined regions. This usually help cutting down on process time.
+    - name: hc_dbsnp
+      label: dbSNP for GATK4's HaplotypeCaller
+      type: data:variants:vcf
+      required: true
+      description: |
+        dbSNP database of variants for variant calling.
+    - name: advanced
+      label: Advanced parameters
+      group:
+        - name: trimming
+          label: Parameters for the trimming step
+          group:
+            - name: adapters
+              label: Adapter sequences
+              type: data:seq:nucleotide
+              required: false
+              description: |
+                Adapter sequence in FASTA format that will be removed from the read.
+                This field as well as 'Seed mismatches', 'Simple clip threshold' and 'Palindrome clip threshold'
+                parameters are  needed to perform Illuminacliping. 'Minimum adapter length' and 'Keep both reads' are
+                optional parameters.
+            - name: seed_mismatches
+              label: Seed mismatches
+              type: basic:integer
+              disabled: >
+                !advanced.trimming.adapters
+              required: false
+              description: |
+                Specifies the maximum mismatch count which will still allow a full match to be performed.
+                This field as well as 'Adapter sequence', 'Simple clip threshold' and 'Palindrome clip threshold'
+                parameters are needed to perform Illuminacliping.
+            - name: simple_clip_threshold
+              label: Simple clip threshold
+              type: basic:integer
+              disabled: >
+                !advanced.trimming.adapters
+              required: false
+              description: |
+                Specifies how accurate the match between any adapter etc. sequence must be against a read.
+                This field as well as 'Adapter sequences' and 'Seed mismatches' parameter are needed to perform Illuminacliping.
+            - name: min_adapter_length
+              label: Minimum adapter length
+              type: basic:integer
+              disabled: >
+                !advanced.trimming.seed_mismatches &&
+                !advanced.trimming.simple_clip_threshold &&
+                !advanced.trimming.palindrome_clip_threshold
+              default: 8
+              description: |
+                In addition to the alignment score, palindrome mode can verify that a minimum length of adapter has been
+                detected. If unspecified, this defaults to 8 bases, for historical reasons. However, since palindrome mode
+                has a very low false positive rate, this can be safely reduced, even down to 1, to allow shorter adapter
+                fragments to be removed. This field is optional for preforming Illuminaclip. 'Adapter sequences', 'Seed mismatches',
+                'Simple clip threshold' and 'Palindrome clip threshold' are also needed in order to use this parameter.
+            - name: palindrome_clip_threshold
+              label: Palindrome clip threshold
+              type: basic:integer
+              disabled: >
+                !advanced.trimming.adapters
+              required: false
+              description: |
+                Specifies how accurate the match between the two 'adapter ligated' reads must be for PE palindrome read alignment.
+                This field as well as 'Adapter sequence', 'Simple clip threshold' and 'Seed mismatches' parameters are
+                needed to perform Illuminaclipping.
+            - name: leading
+              label: Leading quality
+              type: basic:integer
+              required: false
+              description: |
+                Remove low quality bases from the beginning, if below a threshold quality.
+            - name: trailing
+              label: Trailing quality
+              type: basic:integer
+              required: false
+              description: |
+                Remove low quality bases from the end, if below a threshold quality.
+            - name: minlen
+              label: Minimum length
+              type: basic:integer
+              required: false
+              description: |
+                Drop the read if it is below a specified length.
+        - name: align
+          label: Aligning parameters
+          group:
+            - name: seed_l
+              label: Minimum seed length
+              type: basic:integer
+              default: 19
+              description: |
+                Minimum seed length. Matches shorter than minimum seed length will be missed. The alignment speed is
+                usually insensitive to this value unless it significantly deviates 20.
+            - name: band_w
+              label: Band width
+              type: basic:integer
+              default: 100
+              description: |
+                Gaps longer than this will not be found.
+            - name: m
+              label: Mark shorter split hits as secondary
+              type: basic:boolean
+              default: false
+              description: |
+                Mark shorter split hits as secondary (for Picard compatibility)
+            - name: re_seeding
+              label: Re-seeding factor
+              type: basic:decimal
+              default: 1.5
+              description: |
+                Trigger re-seeding for a MEM longer than minSeedLen*FACTOR. This is a key heuristic parameter for
+                tuning the performance. Larger value yields fewer seeds, which leads to faster alignment speed but
+                lower accuracy.
+            - name: scoring
+              label: Scoring
+              group:
+                - name: match
+                  label: Score of a match
+                  type: basic:integer
+                  default: 1
+                - name: mismatch
+                  label: Mismatch penalty
+                  type: basic:integer
+                  default: 4
+                - name: gap_o
+                  label: Gap open penalty
+                  type: basic:integer
+                  default: 6
+                - name: gap_e
+                  label: Gap extension penalty
+                  type: basic:integer
+                  default: 1
+                - name: clipping
+                  label: Clipping penalty
+                  type: basic:integer
+                  default: 5
+                  description: |
+                    Clipping is applied if final alignment score is smaller than (best score reaching the end of query) - (Clipping penalty)
+                - name: unpaired_p
+                  label: Penalty for an unpaired read pair
+                  type: basic:integer
+                  default: 9
+                  description: |
+                    Affinity to force pair. Score: scoreRead1+scoreRead2-Penalty
+            - name: report_tr
+              label: Report threshold score
+              type: basic:integer
+              default: 30
+              description: |
+                Don't output alignment with score lower than defined number. This option only affects output.
+        - name: markduplicates
+          label: MarkDuplicates parameters
+          group:
+            - name: md_skip
+              label: Skip GATK's MarkDuplicates step
+              type: basic:boolean
+              default: false
+            - name: md_remove_duplicates
+              label: Remove found duplicates
+              type: basic:boolean
+              default: false
+            - name: md_validation_stringency
+              label: Validation stringency
+              type: basic:string
+              default: STRICT
+            - name: md_assume_sort_order
+              label: Assume sort oder
+              type: basic:string
+              default: ''
+        - name: bqsr
+          label: BaseQualityScoreResource
+          group:
+            - name: read_group
+              label: Read group (@RG)
+              type: basic:string
+              required: false
+              description: |
+                If BAM file has not been prepared using a ``@RG`` tag, you can add it here.
+        - name: hc
+          label: HaplotypeCaller parameters
+          group:
+            - name: stand_call_conf
+              label: Min call confidence threshold
+              type: basic:integer
+              default: 20
+              description: |
+                The minimum phred-scaled confidence threshold at which variants should be called.
+            - name: mbq
+              label: Min Base Quality
+              type: basic:integer
+              default: 20
+              description: |
+                Minimum base quality required to consider a base for calling.
+  run:
+    language: workflow
+    program:
+      - id: trimmomatic
+        run: trimmomatic-paired
+        input:
+          reads: '{{ input.reads }}'
+          illuminaclip:
+            adapters: '{{ input.advanced.trimming.adapters }}'
+            seed_mismatches: '{{ input.advanced.trimming.seed_mismatches }}'
+            simple_clip_threshold: '{{ input.advanced.trimming.simple_clip_threshold }}'
+            palindrome_clip_threshold: '{{ input.advanced.trimming.palindrome_clip_threshold }}'
+            min_adapter_length: '{{ input.advanced.trimming.min_adapter_length }}'
+          trim_bases:
+            trailing: '{{ input.advanced.trimming.trailing }}'
+            leading: '{{ input.advanced.trimming.leading }}'
+          reads_filtering:
+            minlen: '{{ input.advanced.trimming.minlen }}'
+      - id: bwa
+        run: alignment-bwa-mem
+        input:
+          genome: '{{ input.genome }}'
+          reads: '{{ steps.trimmomatic }}'
+          seed_l: '{{ input.advanced.align.seed_l }}'
+          band_w: '{{ input.advanced.align.band_w }}'
+          m: '{{ input.advanced.align.m }}'
+          re_seeding: '{{ input.advanced.align.re_seeding }}'
+          scoring:
+            match: '{{ input.advanced.align.scoring.match }}'
+            missmatch: '{{ input.advanced.align.scoring.mismatch }}'
+            gap_o: '{{ input.advanced.align.scoring.gap_o }}'
+            gap_e: '{{ input.advanced.align.scoring.gap_e }}'
+            clipping: '{{ input.advanced.align.scoring.clipping }}'
+            unpaired_p: '{{ input.advanced.align.scoring.unpaired_p }}'
+          reporting:
+            report_tr: '{{ input.advanced.align.report_tr }}'
+      - id: bamclipper
+        run: bamclipper
+        input:
+          alignment: '{{ steps.bwa }}'
+          bedpe: '{{ input.bamclipper_bedpe }}'
+      - id: markduplicates
+        run: markduplicates
+        input:
+          bam: '{{ steps.bamclipper }}'
+          skip: '{{ input.advanced.markduplicates.md_skip }}'
+          remove_duplicates: '{{ input.advanced.markduplicates.md_remove_duplicates }}'
+          validation_stringency: '{{ input.advanced.markduplicates.md_validation_stringency }}'
+          assume_sort_order: '{{ input.advanced.markduplicates.md_assume_sort_order }}'
+      - id: bqsr
+        run: bqsr
+        input:
+          bam: '{{ steps.markduplicates }}'
+          reference: '{{ input.genome }}'
+          known_sites: '{{ input.known_sites }}'
+          intervals: '{{ input.intervals }}'
+          read_group: '{{ input.advanced.bqsr.read_group }}'
+      - id: hc
+        run: vc-gatk4-hc
+        input:
+          alignment: '{{ steps.bqsr }}'
+          genome: '{{ input.genome }}'
+          intervals_bed: '{{ input.intervals }}'
+          dbsnp: '{{ input.hc_dbsnp }}'
+          stand_call_conf: '{{ input.advanced.hc.stand_call_conf }}'
+          mbq: '{{ input.advanced.hc.mbq }}'

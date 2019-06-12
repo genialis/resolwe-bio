@@ -50,6 +50,7 @@ Added
 - Add ``bamclipper`` process
 - Add ``markduplicates`` process
 - Add ``bqsr`` (BaseQualityScoreRecalibrator) process
+- Add whole exome sequencing (WES) pipeline
 
 Fixed
 -----
