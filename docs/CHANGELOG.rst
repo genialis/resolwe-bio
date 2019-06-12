@@ -48,6 +48,7 @@ Added
 - Support mappability-based normalization (RPKUM) in featureCounts
 - Add BEDPE upload process
 - Add ``bamclipper`` process
+- Add ``markduplicates`` process
 
 Fixed
 -----

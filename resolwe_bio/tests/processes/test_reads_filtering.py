@@ -247,3 +247,36 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFile(clipped, 'bigwig', './bamclipper/output/STK11.primerclipped.bw')
         self.assertFields(clipped, 'species', species)
         self.assertFields(clipped, 'build', build)
+
+    @tag_process('markduplicates')
+    def test_markduplicates(self):
+        species = 'Homo sapiens'
+        build = 'custombuild'
+        primerclipped = './bamclipper/output/STK11.primerclipped.bam'
+
+        with self.preparation_stage():
+            bam = self.prepare_bam(
+                fn=primerclipped,
+                species=species,
+                build=build)
+
+        # Teste if skipped. Input bam should always equal output bam.
+        md_inputs = {'bam': bam.id, 'skip': True}
+        skipped_md = self.run_process('markduplicates', md_inputs)
+        self.assertFile(skipped_md, 'bam', primerclipped)
+
+        # Test that removal of duplicates works.
+        md_inputs = {'bam': bam.id, 'remove_duplicates': True}
+        removed_md = self.run_process('markduplicates', md_inputs)
+
+        def filter_startedon(line):
+            return line.startswith(b'# Started on:') or line.startswith(b'# MarkDuplicates')
+
+        self.assertFileExists(removed_md, 'bam')
+        self.assertFileExists(removed_md, 'bai')
+        self.assertFile(removed_md, 'stats', './markduplicate/output/STK11.primerclipped.markduplicates.bam_stats.txt')
+        self.assertFile(removed_md, 'bigwig', './markduplicate/output/STK11.primerclipped.markduplicates.bw')
+        self.assertFile(removed_md, 'metrics_file', './markduplicate/output/STK11.primerclipped_metrics.txt',
+                        file_filter=filter_startedon)
+        self.assertFields(removed_md, 'species', species)
+        self.assertFields(removed_md, 'build', build)
