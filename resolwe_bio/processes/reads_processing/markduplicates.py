@@ -24,7 +24,7 @@ class MarkDuplicates(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/dnaseq:4.2.1'
+                'image': 'resolwebio/dnaseq:4.2.0'
             }
         },
     }

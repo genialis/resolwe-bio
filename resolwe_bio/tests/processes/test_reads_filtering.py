@@ -280,3 +280,69 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                         file_filter=filter_startedon)
         self.assertFields(removed_md, 'species', species)
         self.assertFields(removed_md, 'build', build)
+
+    @tag_process('bqsr')
+    def test_bqsr(self):
+        species = 'Homo sapiens'
+        build = 'custom_build'
+        with self.preparation_stage():
+            input_genome = {
+                # Based on b37 genome, chromosome 19 has been cut from beginning up to position 1207173.
+                # This includes an exon of STK11. Cutting from the start of the chromosome was done so that
+                # there is no need to shift any subsequent bed and vcf files.
+                'src': './bqsr/input/hs_b37_chr19_upto_stk11.fasta.gz',
+                'species': species,
+                'build': build
+            }
+            input_bam = {
+                'src': './markduplicate/output/STK11.primerclipped.markduplicates.bam',
+                'species': species,
+                'build': build
+            }
+
+            ks_dbsnp = []
+            # dbSNP vcf has been cut to only specific region using VCFtools - 0.1.15. dbSNP database version is 138.
+            # vcftools --gzvcf dbsnp_138.b37.vcf.gz \
+            # --chr 19 \
+            # --from-bp 1206985 \
+            # --to-bp 1207173 \
+            # --recode --recode-INFO-all \
+            # --stdout > dbsnp_STK11.vcf
+            # Header has been fixed by removing all but contig 19. Length has also been changed
+            # to 1207200.
+            for i in ['./bqsr/input/dbsnp_STK11.vcf.gz']:  # add more files if needed
+                ks_dbsnp.append(
+                    self.run_process('upload-variants-vcf', {'src': i, 'species': species, 'build': build})
+                )
+
+            intervals = self.run_process('upload-bed', {
+                'src': './bqsr/input/STK11.bed',
+                'species': species,
+                'build': build})
+
+            bam = self.run_process('upload-bam', input_bam)
+            reference = self.run_process('upload-genome', input_genome)
+
+            bqsr_inputs = {
+                'bam': bam.id,
+                'reference': reference.id,
+                'known_sites': [i.id for i in ks_dbsnp],
+                'intervals': intervals.id
+            }
+            bqsr = self.run_process('bqsr', bqsr_inputs)
+
+            self.assertFileExists(bqsr, 'bam')
+            self.assertFileExists(bqsr, 'bai')
+            self.assertFile(bqsr, 'stats', './bqsr/output/STK11.primerclipped.markduplicates.bam_stats.txt')
+            self.assertFile(bqsr, 'bigwig', './bqsr/output/STK11.primerclipped.markduplicates.bw')
+            self.assertFile(bqsr, 'recal_table',
+                            './bqsr/output/STK11.primerclipped.markduplicates_recalibration.table')
+            self.assertFields(bqsr, 'species', species)
+            self.assertFields(bqsr, 'build', build)
+
+            # Check if read groups has successfully been added.
+            bqsr_inputs['read_group'] = '-LB=DAB\t-PL=Illumina\t-PU=barcode\t-SM=sample1'
+            bqsr_rg = self.run_process('bqsr', bqsr_inputs)
+
+            self.assertFileExists(bqsr_rg, 'bam')
+            self.assertFileExists(bqsr_rg, 'bai')

@@ -49,6 +49,7 @@ Added
 - Add BEDPE upload process
 - Add ``bamclipper`` process
 - Add ``markduplicates`` process
+- Add ``bqsr`` (BaseQualityScoreRecalibrator) process
 
 Fixed
 -----
