@@ -7,21 +7,21 @@ from resolwe.process import Process, Cmd, SchedulingClass, DataField, \
 
 
 class BQSR(Process):
-    """
-    A two pass process of BaseRecalibrator and ApplyBQSR from GATK.
+    r"""A two pass process of BaseRecalibrator and ApplyBQSR from GATK.
 
-    See [GATK website](https://software.broadinstitute.org/gatk/documentation/tooldocs/current
-    /org_broadinstitute_hellbender_tools_walkers_bqsr_BaseRecalibrator.php) for more information.
+    See [GATK website](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/\
+    org_broadinstitute_hellbender_tools_walkers_bqsr_BaseRecalibrator.php)
+    for more information.
 
-    It is possible to modify read group using [AddOrReplaceGroups](
-    https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0/picard_sam_AddOrReplaceReadGroups.php)
+    It is possible to modify read group using [AddOrReplaceGroups](https://software.broadinstitute.org/gatk/\
+    documentation/tooldocs/4.0.11.0/picard_sam_AddOrReplaceReadGroups.php)
     through ``read_group`` input field.
     """
 
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -41,9 +41,12 @@ class BQSR(Process):
         bam = DataField('alignment:bam', label='BAM file containing reads')
         reference = DataField('genome:fasta', label='Reference genome file')
         known_sites = ListField(
-            DataField('variants:vcf', description='Known sites in (.vcf).'),
-            label='One or more databases of known polymorphic sites used to exclude regions around known '
-                  'polymorphisms from analysis.'
+            DataField(
+                data_type='variants:vcf',
+                description='One or more databases of known polymorphic sites used to exclude regions around known '
+                            'polymorphisms from analysis.'
+            ),
+            label='List of known sites of variation',
         )
         intervals = DataField(
             data_type='bed',
@@ -51,15 +54,16 @@ class BQSR(Process):
                   'the process by restricting calculations to specific genome regions.'
         )
         read_group = StringField(
-            label='Replace read groups in a BAM file.This argument enables the user to replace all read groups in the '
-                  'INPUT file with a single new read group and assign all reads to this read group in the OUTPUT BAM '
-                  'file. Addition or replacement is performed using Picard\'s AddOrReplaceReadGroups tool. Input '
-                  'should take the form of -name=value delimited by a ``\t``, '
-                  'e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See [tool\'s documentation]('
-                  'https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0'
-                  '/picard_sam_AddOrReplaceReadGroups.php) for more information on tag names. Note that PL, LB, '
-                  'PU and SM are require fields. See caveats of rewriting read groups in the documentation linked '
-                  'above.',
+            label='Replace read groups in BAM',
+            description='Replace read groups in a BAM file.This argument enables the user to replace all read groups '
+                        'in the INPUT file with a single new read group and assign all reads to this read group in '
+                        'the OUTPUT BAM file. Addition or replacement is performed using Picard\'s '
+                        'AddOrReplaceReadGroups tool. Input should take the form of -name=value delimited by a '
+                        '``\t``, e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See [tool\'s documentation]('
+                        'https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0'
+                        '/picard_sam_AddOrReplaceReadGroups.php) for more information on tag names. Note that PL, '
+                        'LB, PU and SM are require fields. See caveats of rewriting read groups in the documentation '
+                        'linked above.',
             default=''
         )
 

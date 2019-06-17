@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.1
+  version: 1.0.0
   type: data:workflow:wes
   category: Pipeline
   input:
@@ -203,10 +203,28 @@
               label: Validation stringency
               type: basic:string
               default: STRICT
+              choices:
+                - label: STRICT
+                  value: STRICT
+                - label: SILENT
+                  value: SILENT
             - name: md_assume_sort_order
               label: Assume sort oder
               type: basic:string
               default: ''
+              choices:
+                - label: as in BAM header (default)
+                  value: ''
+                - label: unsorted
+                  value: unsorted
+                - label: queryname
+                  value: queryname
+                - label: coordinate
+                  value: coordinate
+                - label: duplicate
+                  value: duplicate
+                - label: unknown
+                  value: unknown
         - name: bqsr
           label: BaseQualityScoreResource
           group:
@@ -215,7 +233,14 @@
               type: basic:string
               required: false
               description: |
-                If BAM file has not been prepared using a ``@RG`` tag, you can add it here.
+                If BAM file has not been prepared using a @RG tag, you can add it here. This argument enables
+                the user to replace all read groups in the INPUT file with a single new read group and assign all
+                reads to this read group in the OUTPUT BAM file. Addition or replacement is performed using
+                Picard's AddOrReplaceReadGroups tool. Input should take the form of -name=value delimited by a
+                \t, e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See [tool's documentation](https://software
+                .broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0/picard_sam_AddOrReplaceReadGroups.php) for
+                more information on tag names. Note that PL, LB, PU and SM are require fields. See caveats of
+                rewriting read groups in the documentation linked above.
         - name: hc
           label: HaplotypeCaller parameters
           group:

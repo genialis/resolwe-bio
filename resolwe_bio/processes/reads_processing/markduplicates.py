@@ -16,7 +16,7 @@ class MarkDuplicates(Process):
     slug = 'markduplicates'
     name = 'MarkDuplicates'
     process_type = 'data:alignment:bam:markduplicate:'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -35,8 +35,8 @@ class MarkDuplicates(Process):
 
         bam = DataField('alignment:bam', label='Alignment BAM file')
         skip = BooleanField(
-            label='Skip MarkDuplication step if required so by the workflow. '
-                  'Defaults to false.',
+            label='Skip MarkDuplicates step',
+            description='MarkDuplicates step can be skipped.',
             default=False,
         )
         remove_duplicates = BooleanField(
@@ -65,10 +65,11 @@ class MarkDuplicates(Process):
                         'Possible values are unsorted, queryname, coordinate '
                         'and unknown.',
             choices=[
-                ('', 'null'),
+                ('', 'as in BAM header (default)'),
                 ('unsorted', 'unsorted'),
                 ('queryname', 'queryname'),
                 ('coordinate', 'coordinate'),
+                ('duplicate', 'duplicate'),
                 ('unknown', 'unknown')
             ],
             default=''
@@ -119,7 +120,7 @@ class MarkDuplicates(Process):
                 md_inputs.extend(['--REMOVE_DUPLICATES', f'{rmd}'])
 
             if inputs.assume_sort_order:
-                md_inputs.extend(['--ASSUME_SORT_ORDER', f'{inputs.input.assume_sort_order}'])
+                md_inputs.extend(['--ASSUME_SORT_ORDER', f'{inputs.assume_sort_order}'])
 
             Cmd['gatk']['MarkDuplicates'](md_inputs)
         else:
