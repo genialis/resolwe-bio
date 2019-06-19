@@ -21,6 +21,7 @@ Changed
 
 Added
 -----
+- Add ``salmon-quant`` process
 
 Fixed
 -----

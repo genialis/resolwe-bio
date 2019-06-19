@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+import os
+
 from resolwe.flow.models import Data, Collection, Relation
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import tag_process
@@ -556,6 +558,55 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_index, 'source', 'ENSEMBL')
         self.assertFields(salmon_index, 'species', 'Homo sapiens')
         self.assertFields(salmon_index, 'build', 'ens_90')
+
+    @with_resolwe_host
+    @tag_process('salmon-quant')
+    def test_salmon_quant(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads([os.path.join('salmon_quant', 'input', 'hs sim_reads_single.fastq.gz')])
+            annotation = self.prepare_annotation(
+                os.path.join('salmon_quant', 'input', 'hs annotation.gtf.gz'),
+                source='ENSEMBL',
+                species='Homo sapiens',
+                build='ens_92',
+            )
+            transcripts = self.run_process('upload-fasta-nucl', {
+                'src': os.path.join('salmon_quant', 'input', 'hs cdna.fasta.gz'),
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_92',
+            })
+            salmon_index = self.run_process('salmon-index', {
+                'nucl': transcripts.id,
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_92',
+            })
+
+        inputs = {
+            'reads': reads.id,
+            'salmon_index': salmon_index.id,
+            'annotation': annotation.id,
+            'options': {
+                'min_assigned_frag': 5,
+                'gc_bias': True,
+                'seq_bias': True,
+                'validate_mappings': True,
+                'range_factorization_bins': 4,
+                'incompat_prior': 0.05,
+                'min_score_fraction': 0.7,
+                'consensus_slack': 0.25,
+                'no_length_correction': False,
+                'discard_orphans_quasi': True,
+            }
+        }
+        salmon_quant = self.run_process('salmon-quant', inputs)
+        self.assertFile(
+            salmon_quant,
+            'exp_set',
+            os.path.join('salmon_quant', 'output', 'salmon_quant_tpm.tab.gz'),
+            compression='gzip',
+        )
 
     @with_resolwe_host
     @tag_process('feature_counts')
