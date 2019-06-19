@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+=================
+20.0.0 2019-06-19
+=================
 
 Changed
 -------
@@ -19,11 +19,11 @@ Changed
   ``workflow-bbduk-star-featurecounts-single``,
   ``workflow-bbduk-star-featurecounts-paired``,
   ``workflow-cutadapt-star-featurecounts-single`` and
-  ``workflow-cutadapt-star-featurecounts-paired``.
+  ``workflow-cutadapt-star-featurecounts-paired``
 - **BACKWARD INCOMPATIBLE:** Remove obsolete descriptor schemas:
   ``rna-seq-bbduk-star-featurecounts``, ``quantseq``,
   ``rna-seq-cutadapt-star-featurecounts`` and
-  ``kapa-rna-seq-bbduk-star-featurecounts``.
+  ``kapa-rna-seq-bbduk-star-featurecounts``
 - **BACKWARD INCOMPATIBLE:** In ``upload-fasta-nucl`` process, store
   compressed and uncompressed FASTA files in ``fastagz`` and ``fasta``
   ouput fields, respectively
