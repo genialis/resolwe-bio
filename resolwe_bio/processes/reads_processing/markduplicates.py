@@ -9,8 +9,7 @@ from resolwe.process import Process, Cmd, SchedulingClass, DataField, \
 class MarkDuplicates(Process):
     """Remove duplicate reads from BAM file.
 
-    Tool from Picard, wrapped by GATK4. See [here](https://software.broadinstitute.org/gatk/documentation/tooldocs
-    /current/picard_sam_markduplicates_MarkDuplicates.php) for more information.
+    Tool from Picard, wrapped by GATK4. See GATK MarkDuplicates for more information.
     """
 
     slug = 'markduplicates'
@@ -54,6 +53,7 @@ class MarkDuplicates(Process):
                         'otherwise need to be decoded. Default is STRICT.',
             choices=[
                 ('STRICT', 'STRICT'),
+                ('LENIENT', 'LENIENT'),
                 ('SILENT', 'SILENT')
             ],
             default='STRICT',
