@@ -81,7 +81,7 @@ class WESTestCase(BioProcessTestCase):
                     'md_assume_sort_order': ''
                 },
                 'bqsr': {
-                    'read_group': '-LB=DAB\t-PL=Illumina\t-PU=barcode\t-SM=sample1'
+                    'read_group': '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1'
                 },
                 'hc': {
                     'stand_call_conf': 3,

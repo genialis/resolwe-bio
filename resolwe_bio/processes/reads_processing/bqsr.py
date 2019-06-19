@@ -7,15 +7,12 @@ from resolwe.process import Process, Cmd, SchedulingClass, DataField, \
 
 
 class BQSR(Process):
-    r"""A two pass process of BaseRecalibrator and ApplyBQSR from GATK.
+    """A two pass process of BaseRecalibrator and ApplyBQSR from GATK.
 
-    See [GATK website](https://software.broadinstitute.org/gatk/documentation/tooldocs/current/\
-    org_broadinstitute_hellbender_tools_walkers_bqsr_BaseRecalibrator.php)
-    for more information.
+    See GATK website for more information on BaseRecalibrator.
 
-    It is possible to modify read group using [AddOrReplaceGroups](https://software.broadinstitute.org/gatk/\
-    documentation/tooldocs/4.0.11.0/picard_sam_AddOrReplaceReadGroups.php)
-    through ``read_group`` input field.
+    It is possible to modify read group using GATK's AddOrReplaceGroups through Replace read groups in BAM
+    (``read_group``) input field.
     """
 
     slug = 'bqsr'
@@ -50,8 +47,9 @@ class BQSR(Process):
         )
         intervals = DataField(
             data_type='bed',
-            label='One or more genomic intervals over which to operate. This field is optional, but it can speed up '
-                  'the process by restricting calculations to specific genome regions.'
+            label='One or more genomic intervals over which to operate.',
+            description='This field is optional, but it can speed up the process by restricting calculations to '
+                        'specific genome regions.'
         )
         read_group = StringField(
             label='Replace read groups in BAM',
@@ -59,11 +57,9 @@ class BQSR(Process):
                         'in the INPUT file with a single new read group and assign all reads to this read group in '
                         'the OUTPUT BAM file. Addition or replacement is performed using Picard\'s '
                         'AddOrReplaceReadGroups tool. Input should take the form of -name=value delimited by a '
-                        '``\t``, e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See [tool\'s documentation]('
-                        'https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0'
-                        '/picard_sam_AddOrReplaceReadGroups.php) for more information on tag names. Note that PL, '
-                        'LB, PU and SM are require fields. See caveats of rewriting read groups in the documentation '
-                        'linked above.',
+                        '";", e.g. "-ID=1;-LB=GENIALIS;-PL=ILLUMINA;-PU=BARCODE;-SM=SAMPLENAME1". See tool\'s '
+                        'documentation for more information on tag names. Note that PL, LB, PU and SM are require '
+                        'fields. See caveats of rewriting read groups in the documentation.',
             default=''
         )
 
@@ -87,9 +83,9 @@ class BQSR(Process):
 
         species = inputs.bam.species
 
-        # Parse read_group argument from a string, delimited by a \t and =
+        # Parse read_group argument from a string, delimited by a ; and =
         # into a form that will be accepted by AddOrReplaceReadGroups tool.
-        # E.g. '-LB=DAB\t-PL=Illumina\t-PU=barcode\t-SM=sample1' should become
+        # E.g. '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1' should become
         # ['-LB', 'DAB', '-PL', 'Illumina', '-PU', 'barcode', '-SM', 'sample1']
         # prepended by INPUT and OUTPUT.
         if inputs.read_group:
@@ -98,7 +94,7 @@ class BQSR(Process):
                 '--OUTPUT', f'{bam_rg}'
             ]
 
-            for x in inputs.read_group.split('\t'):
+            for x in inputs.read_group.split(';'):
                 arrg.extend(x.split('='))
 
             Cmd['gatk']['AddOrReplaceReadGroups'](arrg)

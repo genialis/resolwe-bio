@@ -341,7 +341,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             self.assertFields(bqsr, 'build', build)
 
             # Check if read groups has successfully been added.
-            bqsr_inputs['read_group'] = '-LB=DAB\t-PL=Illumina\t-PU=barcode\t-SM=sample1'
+            bqsr_inputs['read_group'] = '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1'
             bqsr_rg = self.run_process('bqsr', bqsr_inputs)
 
             self.assertFileExists(bqsr_rg, 'bam')
