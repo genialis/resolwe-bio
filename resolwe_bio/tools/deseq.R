@@ -17,7 +17,8 @@ parser$add_argument('--controls', nargs='+', help='Controls', required=TRUE)
 parser$add_argument('--min-count-sum', type='integer', help='Minimum count sum', default=0)
 parser$add_argument('--cooks-cutoff', type='double', help="Cook's cut-off", default=FALSE)
 parser$add_argument('--alpha', type='double', help="Alpha", default=0.1)
-parser$add_argument('--format', choices=c('rc', 'rsem'), default='rc')
+parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon'), default='rc')
+parser$add_argument('--tx2gene', help='Transcript to gene mapping')
 args = parser$parse_args()
 
 files <- c(args$controls, args$cases)
@@ -30,6 +31,10 @@ sampleTable <- data.frame(condition=factor(conditions, levels=c('control', 'case
 if (args$format == 'rsem') {
     txi <- tximport(files, type='rsem')
     rownames(sampleTable) <- colnames(txi$counts)
+    dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
+} else if (args$format == 'salmon') {
+    tx2gene = read.table(args$tx2gene)
+    txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
     dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
 } else {
     data <- lapply(files, read.csv, sep='\t')
