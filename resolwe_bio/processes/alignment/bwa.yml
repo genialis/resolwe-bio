@@ -11,9 +11,9 @@
       docker:
         image: resolwebio/rnaseq:4.0.0
     resources:
-      cores: 10
+      cores: 20
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.2.1
+  version: 2.2.2
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample

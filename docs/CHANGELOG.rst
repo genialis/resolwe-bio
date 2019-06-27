@@ -6,6 +6,22 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Bump the number of allocated CPU cores to 20 in ``alignment-bwa-mem``
+  process
+
+Added
+-----
+
+Fixed
+-----
+
+
 =================
 20.0.0 2019-06-19
 =================
