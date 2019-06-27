@@ -14,6 +14,8 @@ Changed
 -------
 - Bump the number of allocated CPU cores to 20 in ``alignment-bwa-mem``
   process
+- Bump memory requirements in ``seqtk-sample-single`` and
+  ``seqtk-sample-paired`` processes
 
 Added
 -----
