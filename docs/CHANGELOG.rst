@@ -18,6 +18,9 @@ Changed
   ``seqtk-sample-paired`` processes
 - Bump Salmon to v0.14.0 in ``resolwebio/rnaseq:4.5.0`` Docker image
 - Expose additional inputs in ``salmon-index`` process
+- Use ``resolwebio/rnaseq:4.5.0`` Docker image in processes that call
+  Salmon tool (``library-strandedness``, ``feature_counts`` and
+  ``qorts-qc``)
 
 Added
 -----
