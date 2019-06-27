@@ -22,6 +22,7 @@ Changed
 - Use ``resolwebio/rnaseq:4.5.0`` Docker image in processes that call
   Salmon tool (``library-strandedness``, ``feature_counts`` and
   ``qorts-qc``)
+- Implement dropdown menu for ``upload-bedpe`` process
 
 Added
 -----

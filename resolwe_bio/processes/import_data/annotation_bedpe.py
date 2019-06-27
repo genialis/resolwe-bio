@@ -10,7 +10,7 @@ class ImportBEDPEFile(Process):
     name = 'BEDPE file'
     process_type = 'data:bedpe:'
     data_name = '{{ src.file|default("?") }}'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'Import'
     requirements = {
         'expression-engine': 'jinja',
@@ -30,7 +30,17 @@ class ImportBEDPEFile(Process):
         """Input parameters."""
 
         src = FileField(label='Select BEDPE file to upload')
-        species = StringField(label='Species')
+        species = StringField(
+            label='Species',
+            choices=[
+                ('Homo sapiens', 'Homo sapiens'),
+                ('Mus musculus', 'Mus musculus'),
+                ('Rattus norvegicus', 'Rattus norvegicus'),
+                ('Dictyostelium discoideum', 'Dictyostelium discoideum'),
+                ('Odocoileus virginianus texanus', 'Odocoileus virginianus texanus'),
+                ('Solanum tuberosum', 'Solanum tuberosum'),
+            ]
+        )
         build = StringField(label='Build')
 
     class Output:
