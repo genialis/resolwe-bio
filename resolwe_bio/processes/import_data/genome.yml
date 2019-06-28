@@ -15,7 +15,7 @@
       memory: 16384
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.3.1
+  version: 3.3.2
   type: data:genome:fasta
   category: Import
   persistence: RAW
@@ -141,13 +141,13 @@
     runtime: polyglot
     language: bash
     program: |
-      re-import {{ src.file_temp }} {{ src.file }} "fasta|fa|fna|fsa" "fasta" 0.5
-      FASTA_NAME=${NAME}
+      re-import {{ src.file_temp }} {{ src.file }} "fasta|fa|fna|fsa" fasta 0.1
+      FASTA_NAME="${NAME}"
 
       # If last line empty, remove this line from a FASTA file. Improves Cufflinks compatibility.
       if [ "$(tail -n 1 "${FASTA_NAME}.fasta")" == "" ]; then
         echo "Removing empty line at the end of FASTA file."
-        sed -i '$ d' ${FASTA_NAME}.fasta
+        sed -i '$ d' "${FASTA_NAME}.fasta"
         rm "${FASTA_NAME}.fasta.gz"
         gzip -c -k "${FASTA_NAME}.fasta" > "${FASTA_NAME}.fasta.gz"
       fi
@@ -170,90 +170,96 @@
       re-save-file dict "${FASTA_NAME}.dict"
       re-save-file fasta_track_jbrowse seq/refSeqs.json seq
 
-      re-save species {{species}}
-      re-save build {{build}}
+      re-save species {{ species }}
+      re-save build {{ build }}
 
+      rename_index () {
+        IN_NAME="$1"
+        DIR_NAME="$2"
+        PREFIX="$3"
+        mkdir TEMP
+        tar xzf "${IN_NAME}" --directory TEMP
+        FULL_DIR=`ls -d TEMP/*/`
+        PREFIX_LEN=`python -c "import os; print(len(os.path.commonprefix(os.listdir('${FULL_DIR}'))))"`
+        if [ -z "${PREFIX_LEN}" ] || [ "${PREFIX_LEN}" -lt 1 ]; then
+          re-error "Error determining index prefix"
+        fi
+        for FN in TEMP/*/*; do
+          BN=`basename "${FN}"`
+          mv "${FN}" "${DIR_NAME}/${PREFIX}.${BN:PREFIX_LEN}"
+        done
+        rm -r TEMP
+      }
+
+      {% set directory = 'bowtie_index' %}
+      mkdir {{ directory }}
       {% if advanced.bowtie_index %}
-        re-import {{ advanced.bowtie_index.file_temp|default(advanced.bowtie_index.file) }} \
-        {{ advanced.bowtie_index.file }} "tar" "tar" compress 0.6
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie_index
+        re-import {{ advanced.bowtie_index.file_temp }} {{ advanced.bowtie_index.file }} tar tar 0.2 compress
+        rename_index "${NAME}.tar.gz" {{ directory }} "${FASTA_NAME}_index"
       {% else %}
-        mkdir bowtie_index
-        bowtie-build \
-          "${FASTA_NAME}.fasta" \
-          "bowtie_index/${FASTA_NAME}_index" \
-          --threads {{ requirements.resources.cores }}
-        re-checkrc
+        bowtie-build "${FASTA_NAME}.fasta" {{ directory }}/"${FASTA_NAME}_index" --threads {{ requirements.resources.cores }}
+        re-checkrc "Error building Bowtie index"
+        re-progress 0.2
+      {% endif %}
+      re-save-dir index_bt {{ directory }}
+
+      {% set directory = 'bowtie2_index' %}
+      mkdir {{ directory }}
+      {% if advanced.bowtie2_index %}
+        re-import {{ advanced.bowtie2_index.file_temp }} {{ advanced.bowtie2_index.file }} tar tar 0.3 compress
+        rename_index "${NAME}.tar.gz" {{ directory }} "${FASTA_NAME}_index"
+      {% else %}
+        bowtie2-build "${FASTA_NAME}.fasta" {{ directory }}/"${FASTA_NAME}_index" --threads {{ requirements.resources.cores }}
+        re-checkrc "Error building Bowtie2 index"
+        re-progress 0.3
+      {% endif %}
+      cp "${FASTA_NAME}.fasta" {{ directory }}/"${FASTA_NAME}_index.fa"
+      re-save-dir index_bt2 {{ directory }}
+
+      {% set directory = 'BWA_index' %}
+      mkdir {{ directory }}
+      {% if advanced.bwa_index %}
+        re-import {{ advanced.bwa_index.file_temp }} {{ advanced.bwa_index.file }} tar tar 0.4 compress
+        rename_index "${NAME}.tar.gz" {{ directory }} "${FASTA_NAME}.fasta"
+      {% else %}
+        bwa index -p {{ directory }}/"${FASTA_NAME}.fasta" "${FASTA_NAME}.fasta"
+        re-checkrc "Error building BWA index"
         re-progress 0.4
       {% endif %}
+      re-save-dir index_bwa {{ directory }}
 
-      re-save-dir index_bt bowtie_index
-
-      {% if advanced.bowtie2_index %}
-        re-import {{ advanced.bowtie2_index.file_temp|default(advanced.bowtie2_index.file) }} \
-        {{ advanced.bowtie2_index.file }} "tar" "tar" 0.7 compress
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index bowtie2_index
+      {% set directory = 'hisat2_index' %}
+      mkdir {{ directory }}
+      {% if advanced.hisat2_index %}
+        re-import {{ advanced.hisat2_index.file_temp }} {{ advanced.hisat2_index.file }} tar tar 0.5 compress
+        rename_index "${NAME}.tar.gz" {{ directory }} "${FASTA_NAME}_index"
       {% else %}
-        mkdir bowtie2_index
-        bowtie2-build \
-          "$FASTA_NAME.fasta" \
-          "bowtie2_index/${FASTA_NAME}_index" \
-          --threads {{ requirements.resources.cores }}
-        re-checkrc
+        hisat2-build "${FASTA_NAME}.fasta" {{ directory }}/"${FASTA_NAME}_index"
+        re-checkrc "Error building HISAT2 index"
         re-progress 0.5
       {% endif %}
+      re-save-dir index_hisat2 {{ directory }}
 
-      cp "${FASTA_NAME}.fasta" "bowtie2_index/${FASTA_NAME}_index.fa"
-      re-save-dir index_bt2 bowtie2_index
-
-      {% if advanced.bwa_index %}
-        re-import {{ advanced.bwa_index.file_temp|default(advanced.bwa_index.file) }} \
-        {{ advanced.bwa_index.file }} "tar" "tar" 0.8 compress
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}.fasta BWA_index --bwa
+      {% set directory = 'subread_index' %}
+      mkdir {{ directory }}
+      {% if advanced.subread_index %}
+        re-import {{ advanced.subread_index.file_temp }} {{ advanced.subread_index.file }} tar tar 0.6 compress
+        rename_index "${NAME}.tar.gz" {{ directory }} "${FASTA_NAME}_index"
       {% else %}
-        mkdir BWA_index
-        bwa index -p "BWA_index/${FASTA_NAME}.fasta" "${FASTA_NAME}.fasta"
-        re-checkrc
+        subread-buildindex "${FASTA_NAME}.fasta" -o {{ directory }}/"${FASTA_NAME}_index"
+        re-checkrc "Error building Subread index"
         re-progress 0.6
       {% endif %}
+      re-save-dir index_subread {{ directory }}
 
-      re-save-dir index_bwa BWA_index
-
-      {% if advanced.hisat2_index %}
-        re-import {{ advanced.hisat2_index.file_temp|default(advanced.hisat2_index.file) }} \
-        {{ advanced.hisat2_index.file }} "tar" "tar" 0.9 compress
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index hisat2_index
-      {% else %}
-        mkdir hisat2_index
-        hisat2-build "${FASTA_NAME}.fasta" "hisat2_index/${FASTA_NAME}_index"
-        re-checkrc
-        re-progress 0.7
-      {% endif %}
-
-      re-save-dir index_hisat2 hisat2_index
-
-      {% if advanced.subread_index %}
-        re-import {{ advanced.subread_index.file_temp|default(advanced.subread_index.file) }} \
-        {{ advanced.subread_index.file }} "tar" "tar" 0.9 compress
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index subread_index
-      {% else %}
-        mkdir subread_index
-        subread-buildindex "${FASTA_NAME}.fasta" -o "subread_index/${FASTA_NAME}_index"
-        re-checkrc
-        re-progress 0.8
-      {% endif %}
-
-      re-save-dir index_subread subread_index
-
+      {% set directory = 'walt_index' %}
+      mkdir {{ directory }}
       {% if advanced.walt %}
-        re-import {{ advanced.walt_index.file_temp|default(advanced.walt_index.file) }} \
-        {{ advanced.walt_index.file }} "tar" "tar" 0.9 compress
-        format_index_files.py ${NAME}.tar.gz ${FASTA_NAME}_index walt_index
+        re-import {{ advanced.walt_index.file_temp|default(advanced.walt_index.file) }} {{ advanced.walt_index.file }} tar tar 0.9 compress
+        format_index_files.py "${NAME}.tar.gz" "${FASTA_NAME}_index" {{ directory }}
       {% else %}
-        mkdir walt_index
-        makedb-walt -c "${FASTA_NAME}.fasta" -o "walt_index/${FASTA_NAME}.dbindex"
-        re-checkrc
+        makedb-walt -c "${FASTA_NAME}.fasta" -o {{ directory }}/"${FASTA_NAME}.dbindex"
+        re-checkrc "Error building WALT index"
         re-progress 0.9
       {% endif %}
-
-      re-save-dir index_walt walt_index
+      re-save-dir index_walt {{ directory }}

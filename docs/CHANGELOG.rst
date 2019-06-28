@@ -23,6 +23,7 @@ Added
 
 Fixed
 -----
+- Fix genome upload process to correctly handle filenames with dots
 
 
 =================
