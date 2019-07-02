@@ -24,6 +24,10 @@ Added
 Fixed
 -----
 - Fix genome upload process to correctly handle filenames with dots
+- Fix merging of expressions in ``archive-samples`` process. Previously
+  some genes were missing in the merged expression files. The genes that
+  were present had expression values correctly assigned. The process was
+  optimized for performance and now supports parallelization.
 
 
 =================

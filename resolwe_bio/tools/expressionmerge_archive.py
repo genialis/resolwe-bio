@@ -2,8 +2,8 @@
 """Merge columns of multiple experiments by gene id with sample name for header."""
 
 import argparse
-from collections import Counter
 import csv
+import multiprocessing
 import os
 
 import numpy as np
@@ -38,12 +38,6 @@ if __name__ == "__main__":
                 reader = pd.read_csv(exp_file, index_col='Gene', delimiter='\t', dtype=str)
                 df = pd.concat([df, reader], axis=1)
 
-            # Add numbers to duplicated sample names.
-            counts = Counter(header)
-            for sample_name, num in counts.items():
-                if num > 1:
-                    for suffix in range(1, num + 1):
-                        header[header.index(sample_name)] = '{}_{}'.format(sample_name, suffix)
             df.columns = header
             name = '_'.join([species, build, exp_type, 'all_expressions.txt'])
             df.to_csv(name, sep='\t', na_rep=na_rep)
@@ -52,34 +46,51 @@ if __name__ == "__main__":
     # This is a multi-column file with feature ids, gene symbols and one or more expression values.
     else:
         multi_index = ['FEATURE_ID', 'GENE_SYMBOL']
-        expressions = [
-            pd.read_csv(file_path, index_col=multi_index, delimiter='\t', dtype=str)
-            for file_path in args.file_paths
-        ]
-        column_labels = {}
-        for (expression, build, species) in zip(expressions, args.builds, args.species):
-            for column_label in expression.columns.values:
+
+        def read_csv(file_path):
+            """Return DataFrame representation of CSV file."""
+            return pd.read_csv(file_path, index_col=multi_index, delimiter='\t', dtype=str)
+
+        expressions = multiprocessing.Pool().map(read_csv, args.file_paths)
+
+        items = []
+        for (species, build, expression) in zip(args.species, args.builds, expressions):
+            for column_label in expression.columns:
                 if column_label in multi_index:
                     continue
-                column_labels.setdefault((build, species), set()).add(column_label)
-        for (build, species), columns in column_labels.items():
-            for column_label in columns:
-                df = pd.DataFrame()
-                header = []
-                for i in range(len(args.file_paths)):
-                    if not (args.builds[i] == build and args.species[i] == species):
-                        continue
-                    header.append(args.sample_names[i])
-                    if column_label in expressions[i]:
-                        df = pd.concat([df, expressions[i][column_label]], axis=1).drop_duplicates()
-                    else:
-                        empty_df = pd.DataFrame({column_label: na_rep}, index=df.index)
-                        df = pd.concat([df, empty_df], axis=1).drop_duplicates()
-                counts = Counter(header)
-                for sample_name, num in counts.items():
-                    if num > 1:
-                        for suffix in range(1, num + 1):
-                            header[header.index(sample_name)] = '{}_{}'.format(sample_name, suffix)
-                df.columns = header
-                name = '_'.join([species, build, column_label, 'all_expressions.txt'])
-                df.to_csv(name, sep='\t', na_rep=na_rep)
+                item = {
+                    'species': species,
+                    'build': build,
+                    'column_label': column_label,
+                }
+                if item not in items:
+                    items.append(item)
+
+        def merge_expressions(item):
+            """Merge expressions of multiple samples and save them into CSV file."""
+            dfs = [
+                expressions[i][item['column_label']]
+                for i in range(len(args.file_paths))
+                if (
+                    args.species[i] == item['species']
+                    and args.builds[i] == item['build']
+                    and item['column_label'] in expressions[i].columns
+                )
+            ]
+            df = pd.concat(dfs, axis=1)
+
+            header = [
+                args.sample_names[i]
+                for i in range(len(args.file_paths))
+                if (
+                    args.species[i] == item['species']
+                    and args.builds[i] == item['build']
+                    and item['column_label'] in expressions[i].columns
+                )
+            ]
+            df.columns = header
+
+            name = '_'.join([item['species'], item['build'], item['column_label'], 'all_expressions.txt'])
+            df.to_csv(name, sep='\t', na_rep=na_rep)
+
+        multiprocessing.Pool().map(merge_expressions, items)
