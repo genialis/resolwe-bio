@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+from resolwe.flow.models import Data
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -346,3 +347,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
             self.assertFileExists(bqsr_rg, 'bam')
             self.assertFileExists(bqsr_rg, 'bai')
+
+            bqsr_inputs['read_group'] = '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1;-SM=sample2'
+            bqsr_dbltag = self.run_process('bqsr', bqsr_inputs, Data.STATUS_ERROR)
+            self.assertEqual(bqsr_dbltag.process_error[0], 'You have duplicate tags in read_group argument.')

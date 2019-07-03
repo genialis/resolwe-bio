@@ -23,6 +23,8 @@ Changed
   Salmon tool (``library-strandedness``, ``feature_counts`` and
   ``qorts-qc``)
 - Implement dropdown menu for ``upload-bedpe`` process
+- Add validation stringency parameter to ``bqsr`` process and propagate
+  it to the ``workflow-wes`` as well
 
 Added
 -----

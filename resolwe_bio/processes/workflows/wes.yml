@@ -3,9 +3,24 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 2.0.0
   type: data:workflow:wes
   category: Pipeline
+  description: |
+    Whole exome sequencing pipeline analyzes Illumina panel data. It consists of trimming, aligning, soft clipping,
+    (optional) marking of duplicates, recalibration of base quality scores and finally, calling of variants.
+
+    The tools used are Trimmomatic which performs trimming. Aligning is performed using BWA (mem). Soft clipping of
+    Illumina primer sequences is done using bamclipper tool. Marking of duplicates (MarkDuplicates), recalibration of
+    base quality scores (ApplyBQSR) and calling of variants (HaplotypeCaller) is done using GATK4 bundle of
+    bioinformatics tools.
+
+    To successfully run this pipeline, you will need a genome (FASTA), paired-end (FASTQ) files, BEDPE file for
+    bamclipper, known sites of variation (dbSNP) (VCF), dbSNP database of variations (can be the same as known sites of
+    variation), intervals on which target capture was done (BED) and illumina adapter sequences (FASTA). Make sure that
+    specified resources match the genome used in the alignment step.
+
+    Result is a file of called variants (VCF).
   input:
     - name: reads
       label: Raw untrimmed reads
@@ -45,6 +60,20 @@
       required: true
       description: |
         dbSNP database of variants for variant calling.
+    - name: validation_stringency
+      label: Validation stringency for all SAM files read by this program. Setting stringency to SILENT
+        can improve performance when processing a BAM file in which variable-length data (read,
+        qualities, tags) do not otherwise need to be decoded. Default is STRICT. This setting is used
+        in BaseRecalibrator and ApplyBQSR processes.
+      type: basic:string
+      default: STRICT
+      choices:
+        - label: STRICT
+          value: STRICT
+        - label: SILENT
+          value: SILENT
+        - label: LENIENT
+          value: LENIENT
     - name: advanced
       label: Advanced parameters
       group:
@@ -199,15 +228,6 @@
               label: Remove found duplicates
               type: basic:boolean
               default: false
-            - name: md_validation_stringency
-              label: Validation stringency
-              type: basic:string
-              default: STRICT
-              choices:
-                - label: STRICT
-                  value: STRICT
-                - label: SILENT
-                  value: SILENT
             - name: md_assume_sort_order
               label: Assume sort oder
               type: basic:string
@@ -237,10 +257,9 @@
                 the user to replace all read groups in the INPUT file with a single new read group and assign all
                 reads to this read group in the OUTPUT BAM file. Addition or replacement is performed using
                 Picard's AddOrReplaceReadGroups tool. Input should take the form of -name=value delimited by a
-                \t, e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See [tool's documentation](https://software
-                .broadinstitute.org/gatk/documentation/tooldocs/4.0.11.0/picard_sam_AddOrReplaceReadGroups.php) for
-                more information on tag names. Note that PL, LB, PU and SM are require fields. See caveats of
-                rewriting read groups in the documentation linked above.
+                \t, e.g. "-ID=1\t-PL=Illumina\t-SM=sample_1". See AddOrReplaceReadGroups documentation for more
+                information on tag names. Note that PL, LB, PU and SM are required fields. See caveats of rewriting
+                read groups in the documentation linked above.
         - name: hc
           label: HaplotypeCaller parameters
           group:
@@ -303,7 +322,7 @@
           bam: '{{ steps.bamclipper }}'
           skip: '{{ input.advanced.markduplicates.md_skip }}'
           remove_duplicates: '{{ input.advanced.markduplicates.md_remove_duplicates }}'
-          validation_stringency: '{{ input.advanced.markduplicates.md_validation_stringency }}'
+          validation_stringency: '{{ input.validation_stringency }}'
           assume_sort_order: '{{ input.advanced.markduplicates.md_assume_sort_order }}'
       - id: bqsr
         run: bqsr
@@ -313,6 +332,7 @@
           known_sites: '{{ input.known_sites }}'
           intervals: '{{ input.intervals }}'
           read_group: '{{ input.advanced.bqsr.read_group }}'
+          validation_stringency: '{{ input.validation_stringency }}'
       - id: hc
         run: vc-gatk4-hc
         input:

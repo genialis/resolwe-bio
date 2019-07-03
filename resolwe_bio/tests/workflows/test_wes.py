@@ -48,6 +48,7 @@ class WESTestCase(BioProcessTestCase):
             'known_sites': [i.id for i in kbase],
             'intervals': intervals.id,
             'hc_dbsnp': kbase[0].id,
+            'validation_stringency': 'LENIENT',
             'advanced': {
                 'trimming': {
                     'adapters': adapters.id,
@@ -77,7 +78,6 @@ class WESTestCase(BioProcessTestCase):
                 'markduplicates': {
                     'md_skip': False,
                     'md_remove_duplicates': False,
-                    'md_validation_stringency': 'STRICT',
                     'md_assume_sort_order': ''
                 },
                 'bqsr': {

@@ -18,7 +18,7 @@ class BQSR(Process):
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.0.1'
+    version = '1.1.0'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -62,6 +62,19 @@ class BQSR(Process):
                         'fields. See caveats of rewriting read groups in the documentation.',
             default=''
         )
+        validation_stringency = StringField(
+            label='Validation stringency',
+            description='Validation stringency for all SAM files read by this program. Setting stringency to SILENT '
+                        'can improve performance when processing a BAM file in which variable-length data (read, '
+                        'qualities, tags) do not otherwise need to be decoded. Default is STRICT. This setting is '
+                        'used in BaseRecalibrator and ApplyBQSR processes.',
+            choices=[
+                ('STRICT', 'STRICT'),
+                ('LENIENT', 'LENIENT'),
+                ('SILENT', 'SILENT'),
+            ],
+            default='STRICT',
+        )
 
     class Output:
         """Output fields to BaseQualityScoreRecalibrator."""
@@ -91,11 +104,26 @@ class BQSR(Process):
         if inputs.read_group:
             arrg = [
                 '--INPUT', f'{inputs.bam.bam.path}',
-                '--OUTPUT', f'{bam_rg}'
+                '--VALIDATION_STRINGENCY', f'{inputs.validation_stringency}',
+                '--OUTPUT', f'{bam_rg}',
             ]
 
+            present_tags = []
             for x in inputs.read_group.split(';'):
-                arrg.extend(x.split('='))
+                split_tag = x.split('=')
+                arrg.extend(split_tag)
+                present_tags.append(split_tag[0])
+
+            # Check that there are no double entries of tags.
+            present_tag_set = set(present_tags)
+            if len(present_tag_set) != len(present_tags):
+                self.error('You have duplicate tags in read_group argument.')
+
+            # This gracefully checks that all mandatory variables are present.
+            mandatory_tags = {'-LB', '-PL', '-PU', '-SM'}
+            check_tags = mandatory_tags.issubset(present_tag_set)
+            if not check_tags:
+                self.error(f'Missing mandatory read_group argument (-PL, -LB, -PU and -SM are mandatory).')
 
             Cmd['gatk']['AddOrReplaceReadGroups'](arrg)
         else:
@@ -109,7 +137,8 @@ class BQSR(Process):
             '--input', f'{bam_rg}',
             '--output', f'{recal_table}',
             '--reference', f'{inputs.reference.fasta.path}',
-            '--intervals', f'{inputs.intervals.bed.path}'
+            '--intervals', f'{inputs.intervals.bed.path}',
+            '--read-validation-stringency', f'{inputs.validation_stringency}',
         ]
 
         # Add known sites to the input parameters of BaseRecalibrator.
@@ -124,9 +153,10 @@ class BQSR(Process):
         # Apply base recalibration.
         ab_inputs = [
             '--input', f'{bam_rg}',
+            '--output', f'{bam}',
             '--reference', f'{inputs.reference.fasta.path}',
             '--bqsr-recal-file', f'{recal_table}',
-            '--output', f'{bam}'
+            '--read-validation-stringency', f'{inputs.validation_stringency}',
         ]
         Cmd['gatk']['ApplyBQSR'](ab_inputs)
 
