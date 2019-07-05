@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 18.x
 - Bump the number of allocated CPU cores to 20 in ``alignment-bwa-mem``
   process
 - Bump memory requirements in ``seqtk-sample-single`` and
