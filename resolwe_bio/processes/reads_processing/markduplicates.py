@@ -15,7 +15,7 @@ class MarkDuplicates(Process):
     slug = 'markduplicates'
     name = 'MarkDuplicates'
     process_type = 'data:alignment:bam:markduplicate:'
-    version = '1.0.1'
+    version = '1.1.0'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}

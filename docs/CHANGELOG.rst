@@ -25,6 +25,8 @@ Changed
 - Implement dropdown menu for ``upload-bedpe`` process
 - Add validation stringency parameter to ``bqsr`` process and propagate
   it to the ``workflow-wes`` as well
+- Add LENIENT value to validation stringency parameter of the ``markduplicates``
+  process
 
 Added
 -----
