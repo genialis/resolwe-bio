@@ -43,7 +43,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads.fastq.0.file|default('?') }}"
-    version = '1.0.0'
+    version = '1.0.1'
     process_type = 'data:expression:salmon'
     category = 'Quantify'
     entity = {
@@ -257,14 +257,14 @@ class SalmonQuant(Process):
         # Prepare optional inputs
         if inputs.options.seq_bias and not inputs.options.no_length_correction:
             args.append('--seqBias')
-        else:
+        elif inputs.options.seq_bias and inputs.options.no_length_correction:
             self.warning("Since bias correction relies on modifying effective lengths, "
                          "you cannot enable bias correction simultaneously with the "
                          "--noLengthCorrection option. Skipping --seqBias option.")
 
         if inputs.options.gc_bias and not inputs.options.no_length_correction:
             args.append('--gcBias')
-        else:
+        elif inputs.options.gc_bias and inputs.options.no_length_correction:
             self.warning("Since bias correction relies on modifying effective lengths, "
                          "you cannot enable bias correction simultaneously with the "
                          "--noLengthCorrection option. Skipping --gcBias option.")
