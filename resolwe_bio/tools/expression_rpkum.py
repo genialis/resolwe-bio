@@ -5,6 +5,7 @@ import gzip
 import math
 import sys
 
+import numpy as np
 import pandas as pd
 
 from os.path import basename
@@ -21,9 +22,9 @@ def parse_arguments():
 
 
 def parse_expression_file(exp_file):
-    """Parse expression file to a Pandas dataframe."""
+    """Parse expression file to a Pandas Series."""
     try:
-        df = pd.read_csv(
+        expression = pd.read_csv(
             exp_file,
             sep='\t',
             compression='gzip',
@@ -33,15 +34,16 @@ def parse_expression_file(exp_file):
                 'Gene': str,
                 'Expression': float,
             },
+            squeeze=True,
         )
-        return df.dropna()
+        return expression.dropna()
     except (ValueError, OSError) as parse_error:
         print(error("Failed to read input file {}. {}".format(basename(exp_file), parse_error)))
         sys.exit(1)
 
 
 def parse_mapability_file(mapability_file):
-    """Parse mapability file to a Pandas dataframe."""
+    """Parse mapability file to a Pandas Series."""
     try:
         mappability = pd.read_csv(
             mapability_file,
@@ -52,30 +54,12 @@ def parse_mapability_file(mapability_file):
                 'gene_id': str,
                 'coverage': float,
             },
+            squeeze=True,
         )
         return mappability.dropna()
     except (ValueError, OSError) as parse_error:
         print(error("Failed to read mappability file {}. {}".format(basename(exp_file), parse_error)))
         sys.exit(1)
-
-
-def get_coverage(gene_id, mappability):
-    """Return gene coverage from the mapability file."""
-    try:
-        return mappability.loc[gene_id]['coverage']
-    except KeyError:
-        print(error("Feature ID {} is not present in the mappability file. "
-                    "Make sure that the expressions and mappability file are "
-                    "derived from the same annotations (GTF/GFF) file.".format(gene_id)))
-        sys.exit(1)
-
-
-def rpkum(rc, cov, lib_size):
-    """Compute RPKUM."""
-    if cov == 0:
-        return 0
-    else:
-        return (math.pow(10, 9) * rc) / (lib_size * cov)
 
 
 def main():
@@ -84,14 +68,26 @@ def main():
 
     mappability = parse_mapability_file(args.mappability)
     expression = parse_expression_file(args.counts)
-    lib_size = expression['Expression'].sum()
 
-    # Compute RPKUM expression
-    expression['Expression'] = expression.apply(
-        lambda row: rpkum(row.Expression, get_coverage(row.name, mappability), lib_size),
-        axis=1
+    missing_genes = expression.index.difference(mappability.index)
+    if len(missing_genes) > 0:
+        print(error("Feature ID {} is not present in the mappability file. "
+                    "Make sure that the expressions and mappability file are "
+                    "derived from the same annotations (GTF/GFF) file.".format(missing_genes[0])))
+        sys.exit(1)
+
+    lib_size = expression.sum()
+
+    result = 10 ** 9 * expression / lib_size / mappability
+    result[mappability == 0] = 0.0
+
+    result.loc[expression.index].to_csv(
+        args.output,
+        index_label='Gene',
+        header=['Expression'],
+        sep='\t',
+        compression='gzip',
     )
-    expression.to_csv(args.output, columns=['Expression'], header=True, index=True, sep='\t', compression='gzip')
 
 
 if __name__ == "__main__":

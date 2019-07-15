@@ -27,6 +27,7 @@ Changed
   it to the ``workflow-wes`` as well
 - Add LENIENT value to validation stringency parameter of the ``markduplicates``
   process
+- Improve performance of RPKUM normalization in ``featureCounts`` process
 
 Added
 -----
