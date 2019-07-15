@@ -4,8 +4,8 @@ Resolwe Bioinformatics
 
 |build| |coverage| |docs| |pypi_version| |pypi_pyversions|
 
-.. |build| image:: https://ci.genialis.io/buildStatus/icon?job=genialis-github/resolwe-bio/master
-    :target: https://ci.genialis.io/job/resolwe-bio/job/master/
+.. |build| image:: https://public.ci.genialis.io/buildStatus/icon/resolwe-bio/master
+    :target: https://ci.genialis.io/blue/organizations/jenkins/resolwe-bio/activity
     :alt: Build Status
 
 .. |coverage| image:: https://img.shields.io/codecov/c/github/genialis/resolwe-bio/master.svg
