@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Bump Cutadapt to v2.4 and use ``resolwebio/common:1.2.0`` as a base
+  image in ``resolwebio/rnaseq:4.6.0``
+
 Added
 -----
 - Add pigz package to ``resolwebio/common:1.2.0`` Docker image
