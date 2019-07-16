@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+21.0.0 - 2019-07-16
+===================
 
 Changed
 -------
@@ -25,8 +25,8 @@ Changed
 - Implement dropdown menu for ``upload-bedpe`` process
 - Add validation stringency parameter to ``bqsr`` process and propagate
   it to the ``workflow-wes`` as well
-- Add LENIENT value to validation stringency parameter of the ``markduplicates``
-  process
+- Add LENIENT value to validation stringency parameter of the
+  ``markduplicates`` process
 - Improve performance of RPKUM normalization in ``featureCounts`` process
 
 Added
