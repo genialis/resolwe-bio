@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+- Fix ``spikeins-qc`` process to correctly handle the case where all
+  expressions are without spikeins
+
+
 ===================
 21.0.0 - 2019-07-16
 ===================

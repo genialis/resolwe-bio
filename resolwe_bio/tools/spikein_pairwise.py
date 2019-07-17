@@ -222,6 +222,8 @@ def main():
 
     expected = get_expected(spikeins_mix, log2=True)
 
+    min_one_has_spikeins = False  # At least one sample has spikeins = False
+    warnings = []
     for sample_name, sample_exp in zip(args.sample_names, args.sample_exps):
 
         measured_zero = get_measured(sample_exp, sample_name, exp_type, only_zero=True)
@@ -232,9 +234,10 @@ def main():
 
         # Get only ERCC spike-in's and plot the histogram-scatter figure.
         if merged_nonzero.iloc[merged_nonzero.index.str.startswith('ERCC'), :].empty:
-            print(warning('All ERCC spike-ins have zero expression in sample {}'.format(sample_name)))
+            warnings.append('All ERCC spike-ins have zero expression in sample {}'.format(sample_name))
             continue
 
+        min_one_has_spikeins = True
         plot_histogram_scatter(
             expected=expected.iloc[expected.index.str.startswith('ERCC')],
             zero=merged_zero.iloc[merged_zero.index.str.startswith('ERCC'), :],
@@ -243,6 +246,15 @@ def main():
             sample_name=sample_name,
             exp_type=exp_type,
         )
+
+    if min_one_has_spikeins:
+        for message in warnings:
+            print(warning(message))
+    else:
+        # In case all samples have zero expression for all spikeins,
+        # rather print one warning that says so (instead of printing
+        # warning for each of the samples).
+        print(warning('All ERCC spike-ins in all samples have zero expression.'))
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@
       docker:
         image: resolwebio/rnaseq:4.2.0
   data_name: 'Spike-ins QC ({% for s in samples %}{{ s | sample_name }}{{ ", " if not loop.last }}{% endfor %})'
-  version: 0.0.3
+  version: 1.0.0
   type: data:spikeins
   category: Other
   persistence: CACHED
@@ -36,13 +36,16 @@
     - name: plots
       label: Plot figures
       type: list:basic:file
+      required: false
     - name: report
       label: HTML report with results
       type: basic:file:html
+      required: false
       hidden: true
     - name: report_zip
       label: ZIP file contining HTML report with results
       type: basic:file
+      required: false
   run:
     runtime: polyglot
     language: bash
@@ -53,6 +56,11 @@
         --exp_types {% for s in samples %} {{ s.exp_type }} {% endfor %} \
         --spikeins_mix {{ mix }}
       re-checkrc "Plotting of spike-ins quality control failed."
+
+      NO_PLOTS=`python -c "import os; pngs=[f for f in os.listdir('.') if f.endswith('.png')] or ''; print(pngs)"`
+      if [ -z $NO_PLOTS ]; then
+        exit 0
+      fi
 
       PLOTS=(*.png)
 
