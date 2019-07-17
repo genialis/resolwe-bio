@@ -18,6 +18,8 @@ Fixed
 -----
 - Fix ``spikeins-qc`` process to correctly handle the case where all
   expressions are without spikeins
+- Fix an error in ``macs2-callpeak`` process that prevented correct
+  reporting of build/species mismatch between inputs
 
 
 ===================

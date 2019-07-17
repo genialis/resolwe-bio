@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.4
+  version: 4.0.5
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -419,12 +419,12 @@
              'BAM %s has %s while %s has %s species information.')
              |format(case|name, case.species, control|name, control.species) }}
       {% elif promoter and promoter.species != case.species %}
-        re-error
+        re-error \
           {{ ('All input files must share the same species information. ' ~
              'Case BAM %s has %s while promoter BED %s has %s species information.')
              |format(case|name, case.species, promoter|name, promoter.species) }}
       {% elif promoter and promoter.build != case.build %}
-        re-error
+        re-error \
           {{ ('All input files must share the same genome build information. ' ~
              'Case BAM %s has %s while promoter BED %s has %s build information.')
              |format(case|name, case.build, promoter|name, promoter.build) }}
