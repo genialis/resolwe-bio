@@ -25,6 +25,8 @@ Fixed
   expressions are without spikeins
 - Fix an error in ``macs2-callpeak`` process that prevented correct
   reporting of build/species mismatch between inputs
+- Support UCSC annotations in ``feature_counts`` process by assigning
+  empty string gene_ids to the "unknown" gene
 
 
 ===================

@@ -465,6 +465,20 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             }
             bam_paired = self.run_process('upload-bam', inputs)
 
+            inputs = {
+                'src': 'cuffquant_mapping.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            }
+            bam_ucsc = self.run_process('upload-bam', inputs)
+
+            annotation_ucsc = self.prepare_annotation(
+                fn='hg19_chr20_small_modified.gtf.gz',
+                source='UCSC',
+                species='Homo sapiens',
+                build='hg19',
+            )
+
         inputs = {
             'alignment': {
                 'aligned_reads': bam_paired.id,
@@ -499,6 +513,16 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(expression, 'fpkm', 'reads_fpkm.tab.gz', compression='gzip')
         self.assertFile(expression, 'exp', 'reads_tpm.tab.gz', compression='gzip')
         self.assertFields(expression, 'feature_type', 'gene')
+
+        inputs = {
+            'alignment': {
+                'aligned_reads': bam_ucsc.id,
+            },
+            'annotation': {
+                'annotation': annotation_ucsc.id,
+            },
+        }
+        self.run_process('feature_counts', inputs)
 
     @with_resolwe_host
     @tag_process('feature_counts')

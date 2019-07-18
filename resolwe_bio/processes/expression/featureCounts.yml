@@ -14,7 +14,7 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.4.2
+  version: 2.5.0
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -514,10 +514,21 @@
          if annotation.annotation|type|subtype('data:annotation:gtf')
          else 'gff3' %}
 
+      # Replace empty gene_id entries in annotation file if source is UCSC
+      {% if annotation.annotation.source == 'UCSC' and annotation.annotation|type|subtype('data:annotation:gtf') %}
+        awk -F'\t' '
+          {OFS = FS}
+          {gsub("gene_id \"\"","gene_id \"unknown\"",$9); print $0 }
+        ' {{ annotation.annotation.annot.file }} > annotation_filtered.gtf
+        {% set annotation_file = 'annotation_filtered.gtf' %}
+      {% else %}
+        {% set annotation_file = annotation.annotation.annot.file %}
+      {% endif %}
+
       if [[ $(samtools view -c -f 1 {{ alignment.aligned_reads.bam.file | basename }}) == 0 ]]
       then
         featureCounts \
-          -a {{ annotation.annotation.annot.file }} \
+          -a {{ annotation_file }} \
           -o featureCounts_rc.txt \
           -F GTF \
           -t {{ annotation.feature_class }} \
@@ -554,7 +565,7 @@
           {{ alignment.aligned_reads.bam.file | basename }}
       else
         featureCounts \
-          -a {{ annotation.annotation.annot.file }} \
+          -a {{ annotation_file }} \
           -o featureCounts_rc.txt \
           -F GTF \
           -t {{ annotation.feature_class }} \
@@ -602,7 +613,7 @@
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
 
       expression_fpkm_tpm.R  \
-        {{ annotation.annotation.annot.file }} \
+        {{ annotation_file }} \
         {{ annotation_fmt }} \
         {{ annotation.feature_class }} \
         {{ annotation.id_attribute }} \
