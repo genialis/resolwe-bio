@@ -2,6 +2,7 @@ bowtie
 bowtie2
 bwa
 picard-tools
+pigz
 python3-numpy
 python3-six
 python3-sklearn

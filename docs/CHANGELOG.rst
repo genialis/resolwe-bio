@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add pigz package to ``resolwebio/common:1.2.0`` Docker image
+
 Fixed
 -----
 - Fix ``spikeins-qc`` process to correctly handle the case where all
