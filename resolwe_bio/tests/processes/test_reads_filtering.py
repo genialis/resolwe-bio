@@ -77,10 +77,17 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'reads': reads.id,
-            'polya_tail': 5,
-            'down_primers_seq': ['AGCACCT'],
-            'up_primers_seq': ['AGCTAAA'],
-            'minlen': 10
+            'adapters': {
+                'polya_tail': 5,
+                'down_primers_seq': ['AGCACCT'],
+                'up_primers_seq': ['AGCTAAA'],
+            },
+            'modify_reads': {
+                'nextseq_trim': 20,
+            },
+            'filtering': {
+                'minlen': 10,
+            }
         }
 
         cutadapt_single = self.run_process('cutadapt-single', inputs)
@@ -90,10 +97,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
         inputs = {
             'reads': reads.id,
-            'polya_tail': 5,
-            'down_primers_file': primers_down.id,
-            'up_primers_file': primers_up.id,
-            'minlen': 10
+            'adapters': {
+                'polya_tail': 5,
+                'down_primers_file': primers_down.id,
+                'up_primers_file': primers_up.id,
+            },
+            'filtering': {
+                'minlen': 10,
+            }
         }
 
         cutadapt_single = self.run_process('cutadapt-single', inputs)

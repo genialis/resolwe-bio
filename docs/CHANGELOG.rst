@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Unify ``cutadapt-single`` and
+  ``cutadapt-paired`` process inputs and refactor to use Cutadapt v2.4
+
+
 ===================
 21.0.1 - 2019-07-26
 ===================

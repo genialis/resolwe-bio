@@ -1,19 +1,15 @@
-# =============================================
-# Processors for reads procesing - Cutadapt
-# =============================================
-#
-# Processors for NGS reads filtering/trimming
----
-
 - slug: cutadapt-single
   name: Cutadapt (single-end)
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.7.0
+    resources:
+      cores: 10
+      memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.2.2
+  version: 2.0.0
   type: data:reads:fastq:single:cutadapt
   category: Trim
   flow_collection: sample
@@ -25,93 +21,112 @@
     [here](http://cutadapt.readthedocs.io/en/stable/).
   input:
     - name: reads
-      label: NGS reads
+      label: Select sample(s)
       type: data:reads:fastq:single
-    - name: up_primers_file
-      label: 5 prime adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: down_primers_file
-      label: 3 prime adapter file
-      type: data:seq:nucleotide
-      required: false
-    - name: up_primers_seq
-      label: 5 prime adapter sequence
-      type: list:basic:string
-      required: false
-    - name: down_primers_seq
-      label: 3 prime adapter sequence
-      type: list:basic:string
-      required: false
-    - name: polya_tail
-      label: Poly-A tail
-      type: basic:integer
-      required: false
-      description: |
-        Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
-    - name: leading
-      label: Quality on 5 prime
-      type: basic:integer
-      required: false
-      description: |
-        Remove low quality bases from 5 prime. Specifies the minimum quality required to keep a base.
-    - name: trailing
-      label: Quality on 3 prime
-      type: basic:integer
-      required: false
-      description: |
-        Remove low quality bases from the 3 prime. Specifies the minimum quality required to keep a base.
-    - name: crop
-      label: Crop
-      type: basic:integer
-      required: false
-      description: |
-       Cut the read to a specified length by removing bases from the end
-    - name: headcrop
-      label: Headcrop
-      type: basic:integer
-      required: false
-      description: |
-       Cut the specified number of bases from the start of the read
-    - name: min_overlap
-      label: Minimal overlap
-      type: basic:integer
-      default: 3
-      description: |
-       Minimum overlap for an adapter match
-    - name: minlen
-      label: Min length
-      type: basic:integer
-      required: false
-      description: |
-        Drop the read if it is below a specified length
-    - name: max_n
-      label: Max numebr of N-s
-      type: basic:integer
-      required: false
-      description: |
-        Discard reads having more 'N' bases than specified.
-    - name: match_read_wildcards
-      label: Match read wildcards
-      type: basic:boolean
-      required: false
-      default: false
-      description: |
-        Interpret IUPAC wildcards in reads.
-    - name: times
-      label: Times
-      type: basic:integer
-      required: false
-      default: 1
-      description: |
-        Remove up to COUNT adapters from each read.
-    - name: error_rate
-      label: Error rate
-      type: basic:decimal
-      required: false
-      default: 0.1
-      description: |
-        Maximum allowed error rate (no. of errors divided by the length of the matching region).
+    - name: adapters
+      label: Adapters
+      group:
+        - name: up_primers_file
+          label: 5 prime adapter file
+          type: data:seq:nucleotide
+          required: false
+        - name: down_primers_file
+          label: 3 prime adapter file
+          type: data:seq:nucleotide
+          required: false
+        - name: up_primers_seq
+          label: 5 prime adapter sequence
+          type: list:basic:string
+          required: false
+        - name: down_primers_seq
+          label: 3 prime adapter sequence
+          type: list:basic:string
+          required: false
+        - name: polya_tail
+          label: Poly-A tail
+          type: basic:integer
+          required: false
+          description: |
+            Length of poly-A tail, example - AAAN -> 3, AAAAAN -> 5
+        - name: min_overlap
+          label: Minimal overlap
+          type: basic:integer
+          default: 3
+          description: |
+            Minimum overlap for an adapter match
+    - name: modify_reads
+      label: Read trimming
+      group:
+        - name: nextseq_trim
+          label: NextSeq-specific quality trimming
+          type: basic:integer
+          required: false
+          description: |
+            NextSeq-specific quality trimming (each read). Trims also dark
+            cycles appearing as high-quality G bases. This option is mutually
+            exclusive with the use of regular (-g) quality trimming.
+        - name: leading
+          label: Quality on 5 prime
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from 5 prime. Specifies the minimum
+            quality required to keep a base. This option is mutually
+            exclusive with the use of NextSeq-specific quality trimming.
+        - name: trailing
+          label: Quality on 3 prime
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from the 3 prime. Specifies the minimum
+            quality required to keep a base. This option is mutually
+            exclusive with the use of NextSeq-specific quality trimming.
+        - name: crop
+          label: Crop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the read to a specified length by removing bases from the end
+        - name: headcrop
+          label: Headcrop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the specified number of bases from the start of the read
+    - name: filtering
+      label: Filtering of processed reads
+      group:
+        - name: minlen
+          label: Min length
+          type: basic:integer
+          required: false
+          description: |
+            Drop the read if it is below a specified length
+        - name: max_n
+          label: Max numebr of N-s
+          type: basic:integer
+          required: false
+          description: |
+            Discard reads having more 'N' bases than specified.
+        - name: match_read_wildcards
+          label: Match read wildcards
+          type: basic:boolean
+          required: false
+          default: false
+          description: |
+            Interpret IUPAC wildcards in reads.
+        - name: times
+          label: Times
+          type: basic:integer
+          default: 1
+          description: |
+            Remove up to COUNT adapters from each read.
+        - name: error_rate
+          label: Error rate
+          type: basic:decimal
+          default: 0.1
+          description: |
+            Maximum allowed error rate (no. of errors divided by the length of the matching region).
   output:
     - name: fastq
       label: Reads file
@@ -130,24 +145,29 @@
     language: bash
     program: |
 
-      {% if not up_primers_file
-       and not down_primers_file
-       and not up_primers_seq
-       and not down_primers_seq
-       and not polya_tail
-       and not leading
-       and not trailing
-       and not crop
-       and not headcrop
-       and not minlen %}
+      {% if not adapters.up_primers_file
+       and not adapters.down_primers_file
+       and not adapters.up_primers_seq
+       and not adapters.down_primers_seq
+       and not adapters.polya_tail
+       and not modify_reads.nextseq_trim
+       and not modify_reads.leading
+       and not modify_reads.trailing
+       and not modify_reads.crop
+       and not modify_reads.headcrop
+       and not filtering.minlen %}
         re-error "At least one parameter required"
       {% endif %}
 
-      {% if down_primers_file and down_primers_seq %}
+      {% if modify_reads.nextseq_trim is defined and (modify_reads.trailing is defined or modify_reads.trailing is defined) %}
+        re-error "NextSeq/NovaSeq-specific quality trimming is mutually exclusive with the use of regular (-g) quality trimming."
+      {% endif %}
+
+      {% if adapters.down_primers_file and adapters.down_primers_seq %}
         re-error "3' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
 
-      {% if up_primers_file and up_primers_seq %}
+      {% if adapters.up_primers_file and adapters.up_primers_seq %}
         re-error "5' adapters should be either a sequence or in a .fasta file, not both"
       {% endif %}
 
@@ -156,29 +176,27 @@
       READS=({% for read in reads.fastq %}{{read.file}} {% endfor %})
       cat "${READS[@]}" > in_reads.fastq.gz
 
-      polya_tail={% if polya_tail %}{{ polya_tail }}{% endif %}
-      down_primers='{% for primer in down_primers_seq %}-a {{primer}} {% endfor %}'
-      down_primers=${down_primers%?}
-      up_primers='{% for primer in up_primers_seq %}-g {{primer}} {% endfor %}'
-      up_primers=${up_primers%?}
+      polya_tail={% if adapters.polya_tail %}{{ adapters.polya_tail }}{% endif %}
 
       # Run Cutadapt
       cutadapt \
-        {% if headcrop is defined %}-u {{headcrop}}{% endif %} \
-        {% if crop is defined %}-u -{{crop}}{% endif %} \
-        {% if trailing is defined %}-q {{ trailing }}{% endif %} \
-        {% if leading is defined %}-q {{ leading }},0{% endif %} \
-        {% if polya_tail %}-a A{$polya_tail}N{1}{% endif %} \
-        {% if down_primers_seq %}$down_primers{% endif %} \
-        {% if up_primers_seq %}$up_primers{% endif %} \
-        {% if down_primers_file %}-a file:{{down_primers_file.fasta.file}}{% endif %} \
-        {% if up_primers_file %}-g file:{{up_primers_file.fasta.file}}{% endif %} \
-        {% if minlen is defined %}-m {{minlen}}{% endif %} \
-        {% if times is defined %}--times {{ times }} {% endif %} \
-        {% if match_read_wildcards %}--match-read-wildcards {% endif %} \
-        {% if error_rate is defined %}--error-rate {{ error_rate }} {% endif %} \
-        {% if max_n is defined %}--max-n {{ max_n }} {% endif %} \
-        -O {{min_overlap}} \
+        {% if modify_reads.headcrop is defined %}-u {{ modify_reads.headcrop }}{% endif %} \
+        {% if modify_reads.crop is defined %}-u -{{ modify_reads.crop }}{% endif %} \
+        {% if modify_reads.nextseq_trim is defined %}--nextseq-trim {{ modify_reads.nextseq_trim }}{% endif %} \
+        {% if modify_reads.trailing is defined %}-q {{ modify_reads.trailing }}{% endif %} \
+        {% if modify_reads.leading is defined %}-q {{ modify_reads.leading }},0{% endif %} \
+        {% if adapters.polya_tail %}-a A{$polya_tail}{% endif %} \
+        {% if adapters.down_primers_seq %}-a {{ adapters.down_primers_seq|join(' ') }}{% endif %} \
+        {% if adapters.up_primers_seq %}-g {{ adapters.up_primers_seq|join(' ') }}{% endif %} \
+        {% if adapters.down_primers_file %}-a file:{{adapters.down_primers_file.fasta.file}}{% endif %} \
+        {% if adapters.up_primers_file %}-g file:{{adapters.up_primers_file.fasta.file}}{% endif %} \
+        {% if filtering.minlen is defined %}-m {{ filtering.minlen }}{% endif %} \
+        {% if filtering.match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
+        --times {{ filtering.times }} \
+        --error-rate {{ filtering.error_rate }} \
+        -j {{ requirements.resources.cores }} \
+        -O {{ adapters.min_overlap }} \
         -o "${NAME}_trimmed.fastq.gz" in_reads.fastq.gz > report.txt
       re-checkrc "Failed while running cutadapt"
       re-progress 0.7
@@ -187,16 +205,7 @@
       re-save-file report report.txt
 
       # Run FastQC analysis
-      mkdir "fastqc" && fastqc "${NAME}_trimmed.fastq.gz" --extract --outdir="fastqc" >&2
-      re-checkrc "Failed while processing with FastQC."
-      re-progress 0.9
-
-      mv "fastqc/${NAME}_trimmed_fastqc.zip" "${NAME}_trimmed_fastqc.zip"
-
-      FASTQC_URL="{\"file\":\"fastqc/${NAME}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_trimmed_fastqc\"]}"
-
-      re-save-file-list fastqc_archive "${NAME}_trimmed_fastqc.zip"
-      re-save-list fastqc_url "${FASTQC_URL}"
+      fastqc.sh "${NAME}_trimmed.fastq.gz" fastqc fastqc_archive fastqc_url
 
 - slug: cutadapt-paired
   name: Cutadapt (paired-end)
@@ -204,9 +213,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.7.0
+    resources:
+      cores: 10
+      memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.1.2
+  version: 2.2.0
   type: data:reads:fastq:paired:cutadapt
   category: Trim
   flow_collection: sample
@@ -218,7 +230,7 @@
     [here](http://cutadapt.readthedocs.io/en/stable/).
   input:
     - name: reads
-      label: NGS reads
+      label: Select sample(s)
       type: data:reads:fastq:paired
     - name: adapters
       label: Adapters
@@ -282,6 +294,14 @@
     - name: modify_reads
       label: Modifying reads
       group:
+        - name: nextseq_trim
+          label: NextSeq-specific quality trimming
+          type: basic:integer
+          required: false
+          description: |
+            NextSeq-specific quality trimming (each read). Trims also dark
+            cycles appearing as high-quality G bases. This option is mutually
+            exclusive with the use of regular (-g) quality trimming.
         - name: leading
           label: Quality on 5 prime
           type: basic:integer
@@ -368,6 +388,7 @@
        and not adapters.mate2_5prime_seq
        and not adapters.mate1_3prime_seq
        and not adapters.mate2_3prime_seq
+       and not modify_reads.nextseq_trim
        and not modify_reads.leading
        and not modify_reads.trailing
        and not modify_reads.crop
@@ -375,6 +396,10 @@
        and not filtering.minlen
        and not filtering.max_n %}
         re-error "At least one parameter required"
+      {% endif %}
+
+      {% if modify_reads.nextseq_trim is defined and (modify_reads.trailing is defined or modify_reads.trailing is defined) %}
+        re-error "NextSeq/NovaSeq-specific quality trimming is mutually exclusive with the use of regular (-g) quality trimming."
       {% endif %}
 
       {% if adapters.mate1_3prime_file and adapters.mate1_3prime_seq %}
@@ -398,27 +423,19 @@
       RW_READS=({% for read in reads.fastq2 %}{{read.file}} {% endfor %})
       cat "${RW_READS[@]}" > in_rw_reads.fastq.gz
 
-      down_primers_fwd='{% for primer in adapters.mate1_3prime_seq %}-a {{primer}} {% endfor %}'
-      down_primers_fwd=${down_primers_fwd%?}
-      down_primers_rev='{% for primer in adapters.mate2_3prime_seq %}-A {{primer}} {% endfor %}'
-      down_primers_rev=${down_primers_rev%?}
-      up_primers_fwd='{% for primer in adapters.mate1_5prime_seq %}-g {{primer}} {% endfor %}'
-      up_primers_fwd=${up_primers_fwd%?}
-      up_primers_rev='{% for primer in adapters.mate2_5prime_seq %}-G {{primer}} {% endfor %}'
-      up_primers_rev=${up_primers_rev%?}
-
       cutadapt \
         {% if filtering.minlen is defined%}--minimum-length={{ filtering.minlen }}{% endif %} \
         {% if modify_reads.headcrop is defined %}--cut={{ modify_reads.headcrop }}{% endif %} \
         {% if modify_reads.crop is defined %}--cut=-{{ modify_reads.crop }}{% endif %} \
+        {% if modify_reads.nextseq_trim is defined %}--nextseq-trim {{ modify_reads.nextseq_trim }}{% endif %} \
         {% if modify_reads.trailing is defined %}--quality-cutoff={{ modify_reads.trailing }}{% endif %} \
         {% if modify_reads.leading is defined %}--quality-cutoff={{ modify_reads.leading }},0{% endif %} \
-        {% if adapters.mate1_3prime_seq %}$down_primers_fwd{% endif %} \
-        {% if adapters.mate1_5prime_seq %}$up_primers_fwd{% endif %} \
+        {% if adapters.mate1_3prime_seq %}-a {{ adapters.mate1_3prime_seq|join(' ') }}{% endif %} \
+        {% if adapters.mate1_5prime_seq %}-g {{ adapters.mate1_5prime_seq|join(' ') }}{% endif %} \
         {% if adapters.mate1_3prime_file %}-a file:{{adapters.mate1_3prime_file.fasta.file}}{% endif %} \
         {% if adapters.mate1_5prime_file %}-g file:{{adapters.mate1_5prime_file.fasta.file}}{% endif %} \
-        {% if adapters.mate2_3prime_seq %}$down_primers_rev{% endif %} \
-        {% if adapters.mate2_5prime_seq %}$up_primers_rev{% endif %} \
+        {% if adapters.mate2_3prime_seq %}-A {{ adapters.mate2_3prime_seq|join(' ') }}{% endif %} \
+        {% if adapters.mate2_5prime_seq %}-G {{ adapters.mate2_5prime_seq|join(' ') }}{% endif %} \
         {% if adapters.mate2_3prime_file %}-A file:{{adapters.mate2_3prime_file.fasta.file}}{% endif %} \
         {% if adapters.mate2_5prime_file %}-G file:{{adapters.mate2_5prime_file.fasta.file}}{% endif %} \
         {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
@@ -427,6 +444,7 @@
         --error-rate {{ adapters.error_rate }} \
         --times {{ adapters.times }} \
         --overlap={{ adapters.min_overlap }} \
+        -j {{ requirements.resources.cores }} \
         -o "${NAME1}_trimmed.fastq.gz" \
         -p "${NAME2}_trimmed.fastq.gz" \
         in_fw_reads.fastq.gz in_rw_reads.fastq.gz >> report.txt
@@ -438,17 +456,5 @@
       re-save-file report report.txt
 
       # Run FastQC analysis
-      mkdir "fastqc" && fastqc "${NAME1}_trimmed.fastq.gz" "${NAME2}_trimmed.fastq.gz" --extract --outdir="fastqc" >&2
-      re-checkrc "Failed while processing with FastQC."
-      re-progress 0.9
-
-      mv "fastqc/${NAME1}_trimmed_fastqc.zip" "${NAME1}_trimmed_fastqc.zip"
-      mv "fastqc/${NAME2}_trimmed_fastqc.zip" "${NAME2}_trimmed_fastqc.zip"
-
-      FASTQC_URL1="{\"file\":\"fastqc/${NAME1}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_trimmed_fastqc\"]}"
-      FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_trimmed_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_trimmed_fastqc\"]}"
-
-      re-save-file-list fastqc_archive "${NAME1}_trimmed_fastqc.zip"
-      re-save-file-list fastqc_archive2 "${NAME2}_trimmed_fastqc.zip"
-      re-save-list fastqc_url "${FASTQC_URL1}"
-      re-save-list fastqc_url2 "${FASTQC_URL2}"
+      fastqc.sh "${NAME1}_trimmed.fastq.gz" fastqc fastqc_archive fastqc_url
+      fastqc.sh "${NAME2}_trimmed.fastq.gz" fastqc fastqc_archive2 fastqc_url2
