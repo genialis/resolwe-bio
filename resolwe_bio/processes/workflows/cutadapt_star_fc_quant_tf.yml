@@ -1,0 +1,171 @@
+- slug: workflow-cutadapt-star-fc-quant-single
+  name: Cutadapt - STAR - FeatureCounts (3' mRNA-Seq, single-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:quant:featurecounts:single
+  category: Pipeline
+  description: |
+    This 3' mRNA-Seq pipeline is comprised of QC, preprocessing,
+    alignment and quantification steps.
+
+    Reads are preprocessed by __Cutadapt__ which removes adapters, trims
+    reads for quality from the 3'-end, and discards reads that are too short
+    after trimming. Preprocessed reads are aligned by __STAR__
+    aligner. For read-count quantification, the __FeatureCounts__ tool
+    is used.
+
+    QC operates on downsampled reads and includes QoRTs QC analysis and
+    alignment of input reads to the rRNA/globin reference sequences.
+    The reported alignment rate is used to asses the rRNA/globin
+    sequence depletion rate.
+  input:
+    - name: reads
+      label: Select sample(s)
+      type: data:reads:fastq:single
+    - name: star_index
+      label: Genome
+      type: data:genomeindex:star
+      description: |
+        Genome index prepared by STAR aligner indexing tool.
+    - name: annotation
+      label: Annotation
+      type: data:annotation
+      description: |
+        Genome annotation file (GTF).
+    - name: rrna_reference
+      label: Indexed rRNA reference sequence
+      type: data:genomeindex:star
+      description: |
+        Reference sequence index prepared by STAR aligner indexing tool.
+    - name: globin_reference
+      label: Indexed Globin reference sequence
+      type: data:genomeindex:star
+      description: |
+        Reference sequence index prepared by STAR aligner indexing tool.
+    - name: show_advanced
+      label: Show advanced parameters
+      type: basic:boolean
+      default: false
+    - name: cutadapt
+      label: Cutadapt filtering
+      hidden: '!show_advanced'
+      group:
+        - name: quality_cutoff
+          label: Reads quality cutoff
+          type: basic:integer
+          required: false
+          description: |
+            Trim low-quality bases from 3' end of each read before
+            adapter removal. The use of this option will override the use
+            of NextSeq/NovaSeq-specific trim option.
+    - name: downsampling
+      label: Downsampling (Seqtk)
+      hidden: '!show_advanced'
+      group:
+        - name: n_reads
+          label: Number of reads
+          type: basic:integer
+          default: 1000000
+        - name: seed
+          label: Seed
+          type: basic:integer
+          default: 11
+        - name: fraction
+          label: Fraction
+          type: basic:decimal
+          required: false
+          range: [0, 1.0]
+          description: |
+            Use the fraction of reads in range [0.0, 1.0] from the orignal input file instead
+            of the absolute number of reads. If set, this will override the
+            "Number of reads" input parameter.
+        - name: two_pass
+          label: 2-pass mode
+          type: basic:boolean
+          default: false
+          description: |
+            Enable two-pass mode when down-sampling. Two-pass mode is twice
+            as slow but with much reduced memory.
+  run:
+    language: workflow
+    program:
+      - id: cutadapt
+        run: cutadapt-3prime-single
+        input:
+          reads: '{{ input.reads }}'
+          options:
+            quality_cutoff: '{{ input.cutadapt.quality_cutoff }}'
+      - id: star
+        run: alignment-star
+        input:
+          genome: '{{ input.star_index }}'
+          reads: '{{ steps.cutadapt }}'
+          unstranded: true
+          filtering:
+            outFilterType: BySJout
+            outFilterMultimapNmax: 20
+            outFilterMismatchNmax: 999
+            outFilterMismatchNoverLmax: 0.6
+          alignment:
+            alignSJoverhangMin: 8
+            alignSJDBoverhangMin: 1
+            alignIntronMin: 20
+            alignIntronMax: 1000000
+            alignMatesGapMax: 1000000
+          output_sam_bam:
+            outSAMattributes: 'NH HI NM MD'
+      - id: featureCounts
+        run: feature_counts
+        input:
+          normalization_type: 'CPM'
+          alignment:
+            aligned_reads: '{{ steps.star }}'
+            assay_type: 'forward'
+          annotation:
+            annotation: '{{ input.annotation }}'
+      - id: downsampling
+        run: seqtk-sample-single
+        input:
+          reads: '{{ steps.cutadapt }}'
+          n_reads: '{{ input.downsampling.n_reads }}'
+          advanced:
+            seed: '{{ input.downsampling.seed }}'
+            fraction: '{{ input.downsampling.fraction }}'
+            two_pass: '{{ input.downsampling.two_pass }}'
+      - id: alignment_qc_rrna
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.rrna_reference }}'
+      - id: alignment_qc_globin
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.globin_reference }}'
+      - id: qorts
+        run: qorts-qc
+        input:
+          alignment: '{{ steps.star }}'
+          annotation: '{{ input.annotation }}'
+          options:
+            stranded: 'forward'
+      - id: idxstats
+        run: samtools-idxstats
+        input:
+          alignment: '{{ steps.star }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.cutadapt,
+            steps.star,
+            steps.featureCounts,
+            steps.downsampling,
+            steps.alignment_qc_rrna,
+            steps.alignment_qc_globin,
+            steps.qorts,
+            steps.idxstats
+            ] }}'

@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.4.1
+        image: resolwebio/rnaseq:4.7.0
     resources:
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.8.11
+  version: 1.8.12
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -273,12 +273,14 @@
           required: false
           default: Standard
           choices:
-            - label: None
-              value: None
             - label: Standard
               value: Standard
             - label: All
               value: All
+            - label: NH HI NM MD
+              value: NH HI NM MD
+            - label: None
+              value: None
         - name: outSAMattrRGline
           label: --outSAMattrRGline
           type: basic:string
@@ -403,14 +405,14 @@
           {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
           {% if two_pass_mapping.two_pass_mode %} --twopassMode Basic {% endif %} \
           {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
-          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
+          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes|safe}}{% endif %} \
           {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
         if [ -f Unmapped.out.mate1 ]
         then
           mv Unmapped.out.mate1 "${MATE1_NAME}_unmapped.out.mate1.fastq"
-          gzip "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          pigz "${MATE1_NAME}_unmapped.out.mate1.fastq"
           re-save-file unmapped_f "${MATE1_NAME}_unmapped.out.mate1.fastq.gz"
         fi
 
@@ -444,21 +446,21 @@
           {% if alignment.alignEndsType %}--alignEndsType {{alignment.alignEndsType}}{% endif %} \
           {% if two_pass_mapping.two_pass_mode %} --twopassMode Basic {% endif %} \
           {% if output_sam_bam.outSAMunmapped %}--outSAMunmapped {{output_sam_bam.outSAMunmapped}}{% endif %} \
-          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes}}{% endif %} \
+          {% if output_sam_bam.outSAMattributes %}--outSAMattributes {{output_sam_bam.outSAMattributes|safe}}{% endif %} \
           {% if output_sam_bam.outSAMattrRGline %}--outSAMattrRGline {{output_sam_bam.outSAMattrRGline}}{% endif %}
         re-checkrc "Reads alignment failed!"
 
         if [ -f Unmapped.out.mate1 ]
         then
           mv "Unmapped.out.mate1" "${MATE1_NAME}_unmapped.out.mate1.fastq"
-          gzip "${MATE1_NAME}_unmapped.out.mate1.fastq"
+          pigz "${MATE1_NAME}_unmapped.out.mate1.fastq"
           re-save-file unmapped_f "${MATE1_NAME}_unmapped.out.mate1.fastq.gz"
         fi
 
         if [ -f Unmapped.out.mate2 ]
         then
           mv "Unmapped.out.mate2" "${MATE2_NAME}_unmapped.out.mate2.fastq"
-          gzip "${MATE2_NAME}_unmapped.out.mate2.fastq"
+          pigz "${MATE2_NAME}_unmapped.out.mate2.fastq"
           re-save-file unmapped_r "${MATE2_NAME}_unmapped.out.mate2.fastq.gz"
         fi
 
@@ -493,7 +495,7 @@
 
       {% if t_coordinates.gene_counts %}
         mv ReadsPerGene.out.tab "${MATE1_NAME}.tab"
-        gzip "${MATE1_NAME}.tab"
+        pigz "${MATE1_NAME}.tab"
         re-save-file gene_counts "${MATE1_NAME}.tab.gz"
         cp "${MATE1_NAME}.tab.gz" "${MATE1_NAME}_1.tab.gz"
         cp "${MATE1_NAME}.tab.gz" "${MATE1_NAME}_2.tab.gz"
@@ -526,12 +528,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.4.1
+        image: resolwebio/rnaseq:4.7.0
     resources:
       memory: 32768
       cores: 1
   data_name: "{{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }}"
-  version: 1.5.4
+  version: 1.5.5
   type: data:genomeindex:star
   category: Other
   persistence: CACHED

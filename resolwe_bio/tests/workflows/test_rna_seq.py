@@ -201,6 +201,78 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(fc_paired, 'species', 'Homo sapiens')
 
     @with_resolwe_host
+    @tag_process('workflow-cutadapt-star-fc-quant-single')
+    def test_cutadapt_star_fc_quant_workflow(self):
+        with self.preparation_stage():
+            reads = self.run_processor('upload-fastq-single', {
+                'src': ['hs_single bbduk_star_htseq_reads_single.fastq.gz']
+            })
+
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'hs genome.fasta.gz'
+            })
+
+            annotation = self.run_process('upload-gtf', {
+                'src': 'hs annotation.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            })
+
+            star_index = self.run_process('alignment-star-index', {
+                'annotation': annotation.id,
+                'genome2': star_index_fasta.id
+            })
+
+            rrna_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'Homo_sapiens_rRNA.fasta.gz',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'rRNA',
+            })
+
+            rrna_star_index = self.run_process('alignment-star-index', {
+                'genome2': rrna_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
+            globin_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'Homo_sapiens_globin_reference.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'globin',
+            })
+
+            globin_star_index = self.run_process('alignment-star-index', {
+                'genome2': globin_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
+        self.run_process(
+            'workflow-cutadapt-star-fc-quant-single', {
+                'reads': reads.id,
+                'star_index': star_index.id,
+                'annotation': annotation.id,
+                'rrna_reference': rrna_star_index.id,
+                'globin_reference': globin_star_index.id,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        feature_counts = Data.objects.filter(process__slug='feature_counts').last()
+        self.assertFile(feature_counts, 'rc', 'workflow_cutadapt_star_fc_quant_single_rc.tab.gz', compression='gzip')
+        self.assertFile(feature_counts, 'exp', 'workflow_cutadapt_star_fc_quant_single_cpm.tab.gz', compression='gzip')
+        self.assertFields(feature_counts, 'exp_type', 'CPM')
+        self.assertFields(feature_counts, 'source', 'ENSEMBL')
+        self.assertFields(feature_counts, 'species', 'Homo sapiens')
+
+    @with_resolwe_host
     @tag_process('workflow-bbduk-star-featurecounts-qc-single', 'workflow-bbduk-star-featurecounts-qc-paired')
     def test_bbduk_star_featurecounts_workflow(self):
         with self.preparation_stage():

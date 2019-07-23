@@ -18,6 +18,7 @@ Changed
 Added
 -----
 - Add ``cutadapt-3prime-single`` process
+- Add ``workflow-cutadapt-star-fc-quant-single`` process
 
 
 ===================
