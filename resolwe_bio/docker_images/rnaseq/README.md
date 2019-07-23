@@ -24,6 +24,8 @@ Included bioinformatics tools:
 * rtracklayer (v1.38.0)
 * Salmon (0.14.0)
 * STAR (v2.7.0f)
+* StringTie (v1.3.6)
 * Trimmomatic (v0.36)
 * tximport (v1.6.0)
 * shRNAde (v1.0)
+* UMI-tools (v1.0.0)

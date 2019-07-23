@@ -10,4 +10,5 @@ regtools
 rsem
 salmon
 star
+stringtie
 trimmomatic

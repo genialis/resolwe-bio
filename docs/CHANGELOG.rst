@@ -18,6 +18,8 @@ Changed
 Added
 -----
 - Add pigz package to ``resolwebio/common:1.2.0`` Docker image
+- Add StringTie and UMI-tools to ``resolwebio/rnaseq:4.7.0`` Docker
+  image
 
 Fixed
 -----
