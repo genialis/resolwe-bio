@@ -15,6 +15,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Unify ``cutadapt-single`` and
   ``cutadapt-paired`` process inputs and refactor to use Cutadapt v2.4
 
+Added
+-----
+- Add ``cutadapt-3prime-single`` process
+
 
 ===================
 21.0.1 - 2019-07-26

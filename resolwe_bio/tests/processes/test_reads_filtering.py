@@ -187,6 +187,25 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_paired, 'fastq2', ['cutadapt_custom_paired_reverse_trimmed.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-3prime-single')
+    def test_cutadapt_3prime_single(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
+
+        inputs = {
+            'reads': reads.id,
+            'options': {
+                'nextseq_trim': 10,
+                'min_len': 20,
+                'min_overlap': 20,
+                'times': 2,
+            },
+        }
+        cutadapt_single = self.run_process('cutadapt-3prime-single', inputs)
+
+        self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_3prime_single_trimmed.fastq.gz'],
+                         compression='gzip')
+
     @tag_process('bbduk-single')
     def test_bbduk_single(self):
         with self.preparation_stage():
