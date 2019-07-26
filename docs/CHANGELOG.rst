@@ -24,6 +24,8 @@ Added
 -----
 - Add ``cutadapt-3prime-single`` process
 - Add ``workflow-cutadapt-star-fc-quant-single`` process
+- Add argument ``skip`` to ``bamclipper`` which enables skipping of
+  the said process
 
 
 ===================

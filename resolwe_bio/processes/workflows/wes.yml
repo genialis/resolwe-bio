@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 2.1.0
   type: data:workflow:wes
   category: Pipeline
   description: |
@@ -34,13 +34,6 @@
       required: true
       description: |
         Against which genome to align. Further processes depend on this genome (e.g. BQSR step).
-    # bamclipper
-    - name: bamclipper_bedpe
-      label: BEDPE file used for clipping using Bamclipper
-      type: data:bedpe
-      required: true
-      description: |
-        BEDPE file used for clipping using Bamclipper tool.
     # bqsr
     - name: known_sites
       label: Known sites of variation used in BQSR
@@ -217,6 +210,21 @@
               default: 30
               description: |
                 Don't output alignment with score lower than defined number. This option only affects output.
+        - name: bamclipper
+          label: Bamclipper parameters
+          group:
+            - name: bedpe
+              label: BEDPE file used for clipping using Bamclipper
+              type: data:bedpe
+              required: false
+              description: |
+                BEDPE file used for clipping using Bamclipper tool.
+            - name: skip
+              label: Skip Bamclipper step
+              type: basic:boolean
+              default: false
+              description: |
+                Use this option to skip Bamclipper step.
         - name: markduplicates
           label: MarkDuplicates parameters
           group:
@@ -315,7 +323,8 @@
         run: bamclipper
         input:
           alignment: '{{ steps.bwa }}'
-          bedpe: '{{ input.bamclipper_bedpe }}'
+          bedpe: '{{ input.advanced.bamclipper.bedpe }}'
+          skip: '{{ input.advanced.bamclipper.skip }}'
       - id: markduplicates
         run: markduplicates
         input:

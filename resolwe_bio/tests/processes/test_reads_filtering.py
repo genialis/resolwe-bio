@@ -259,10 +259,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
     def test_bamclipper(self):
         species = 'Homo sapiens'
         build = 'fake_genome_RSEM'
+        align_input = './bamclipper/input/STK11.bam'
 
         with self.preparation_stage():
             bam = self.prepare_bam(
-                fn='./bamclipper/input/STK11.bam',
+                fn=align_input,
                 species=species,
                 build=build
             )
@@ -271,6 +272,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                             'species': species, 'build': build}
             bedpe = self.run_process('upload-bedpe', inputs_bedpe)
 
+        # Test if bamclipper has been skipped.
+        bc_skip_inputs = {'alignment': bam.id, 'skip': True}
+        skipped_bc = self.run_process('bamclipper', bc_skip_inputs)
+        self.assertFile(skipped_bc, 'bam', align_input)
+        bc_data = Data.objects.last()
+        self.assertEqual(bc_data.process_info, ['Skipping bamclipper step.'])
+
+        # Test bamclipper.
         inputs_bamclipper = {'alignment': bam.id, 'bedpe': bedpe.id}
         clipped = self.run_process('bamclipper', inputs_bamclipper)
 

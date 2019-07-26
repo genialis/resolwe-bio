@@ -44,7 +44,6 @@ class WESTestCase(BioProcessTestCase):
         input_workflow = {
             'reads': reads.pk,
             'genome': genome.id,
-            'bamclipper_bedpe': bc_bedpe.id,
             'known_sites': [i.id for i in kbase],
             'intervals': intervals.id,
             'hc_dbsnp': kbase[0].id,
@@ -75,6 +74,10 @@ class WESTestCase(BioProcessTestCase):
                     },
                     'report_tr': 30
                 },
+                'bamclipper': {
+                    'bedpe': bc_bedpe.id,
+                    'skip': False
+                },
                 'markduplicates': {
                     'md_skip': False,
                     'md_remove_duplicates': False,
@@ -93,3 +96,11 @@ class WESTestCase(BioProcessTestCase):
         self.run_process('workflow-wes', input_workflow)
         wes = Data.objects.last()
         self.assertFileExists(wes, 'vcf')
+
+        # Test skipping bamclipper
+        input_workflow_skipbc = input_workflow
+        input_workflow_skipbc['advanced']['bamclipper']['skip'] = True
+        self.run_process('workflow-wes', input_workflow_skipbc)
+        wes_skip = Data.objects.filter(process__slug='bamclipper').last()
+
+        self.assertEqual(wes_skip.process_info, ['Skipping bamclipper step.'])
