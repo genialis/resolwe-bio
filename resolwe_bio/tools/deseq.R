@@ -14,6 +14,7 @@ error <- function(msg) {
 parser = ArgumentParser(description='Run DESeq2 differential expression')
 parser$add_argument('--cases', nargs='+', help='Cases', required=TRUE)
 parser$add_argument('--controls', nargs='+', help='Controls', required=TRUE)
+parser$add_argument('--beta-prior', action='store_true')
 parser$add_argument('--min-count-sum', type='integer', help='Minimum count sum', default=0)
 parser$add_argument('--cooks-cutoff', type='double', help="Cook's cut-off", default=FALSE)
 parser$add_argument('--alpha', type='double', help="Alpha", default=0.1)
@@ -49,7 +50,7 @@ if (args$format == 'rsem') {
 }
 
 dds <- dds[rowSums(counts(dds)) >= args$min_count_sum, ]
-dds <- tryCatch(DESeq(dds), error=error)
+dds <- tryCatch(DESeq(dds, betaPrior=args$beta_prior), error=error)
 
 result <- results(dds, cooksCutoff=args$cooks_cutoff, alpha=args$alpha)
 result <- result[order(result$padj), ]

@@ -14,6 +14,8 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Unify ``cutadapt-single`` and
   ``cutadapt-paired`` process inputs and refactor to use Cutadapt v2.4
+- Expose BetaPrior parameter in ``differentialexpression-deseq2``
+  process
 
 Added
 -----
