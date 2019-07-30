@@ -154,12 +154,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             }
             sample_6 = self.run_process("upload-cxb", inputs)
 
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_1.entity_set.first(), label='1')
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_2.entity_set.first(), label='1')
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_3.entity_set.first(), label='2')
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_4.entity_set.first(), label='2')
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_5.entity_set.first(), label='2')
-            RelationPartition.objects.create(relation=replicate_group, entity=sample_6.entity_set.first(), label='3')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_1.entity, label='1')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_2.entity, label='1')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_3.entity, label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_4.entity, label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_5.entity, label='2')
+            RelationPartition.objects.create(relation=replicate_group, entity=sample_6.entity, label='3')
 
             annotation = self.prepare_annotation(fn='hg19_chr20_small.gtf.gz', source='UCSC',
                                                  species='Homo sapiens', build='hg19')

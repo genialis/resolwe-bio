@@ -352,16 +352,16 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 category='Background2'
             )
 
-            RelationPartition.objects.create(relation=background1, entity=case_1.entity_set.first(), label='case')
+            RelationPartition.objects.create(relation=background1, entity=case_1.entity, label='case')
             RelationPartition.objects.create(
                 relation=background1,
-                entity=background_1.entity_set.first(),
+                entity=background_1.entity,
                 label='background'
             )
-            RelationPartition.objects.create(relation=background2, entity=case_2.entity_set.first(), label='case')
+            RelationPartition.objects.create(relation=background2, entity=case_2.entity, label='case')
             RelationPartition.objects.create(
                 relation=background2,
-                entity=background_2.entity_set.first(),
+                entity=background_2.entity,
                 label='background'
             )
 
@@ -441,10 +441,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 category='Background'
             )
 
-            RelationPartition.objects.create(relation=background, entity=case_1.entity_set.first(), label='case')
+            RelationPartition.objects.create(relation=background, entity=case_1.entity, label='case')
             RelationPartition.objects.create(
                 relation=background,
-                entity=background_1.entity_set.first(),
+                entity=background_1.entity,
                 label='background'
             )
 

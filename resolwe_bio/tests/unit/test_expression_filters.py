@@ -47,14 +47,14 @@ class TestReplicateGroupFilter(TestCase):
             category='Replicate'
         )
 
-        RelationPartition.objects.create(relation=replicate_group, entity=data[0].entity_set.first(), label='Group2')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[1].entity_set.first(), label='Group2')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[2].entity_set.first(), label='Group2')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[3].entity_set.first(), label='Group1')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[4].entity_set.first(), label='Group1')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[6].entity_set.first(), label='X')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[7].entity_set.first(), label='X')
-        RelationPartition.objects.create(relation=replicate_group, entity=data[8].entity_set.first(), label='X')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[0].entity, label='Group2')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[1].entity, label='Group2')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[2].entity, label='Group2')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[3].entity, label='Group1')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[4].entity, label='Group1')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[6].entity, label='X')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[7].entity, label='X')
+        RelationPartition.objects.create(relation=replicate_group, entity=data[8].entity, label='X')
 
         # Test replicate groups order
         self.assertEqual(replicate_groups([{'__id': d.id} for d in data]), [1, 1, 1, 2, 2, 3, 4, 4, 4, 5])
@@ -85,7 +85,7 @@ class TestReplicateGroupFilter(TestCase):
             category='Replicate'
         )
 
-        RelationPartition.objects.create(relation=replicate_group2, entity=data[0].entity_set.first(), label='Group3')
+        RelationPartition.objects.create(relation=replicate_group2, entity=data[0].entity, label='Group3')
 
         # Test ValueError if two relations
         with self.assertRaises(ValueError):
@@ -173,10 +173,10 @@ class TestBackgroundPairsFilter(TestCase):
             category='Background'
         )
 
-        RelationPartition.objects.create(relation=background, entity=data2[0].entity_set.first(), label='background')
-        RelationPartition.objects.create(relation=background, entity=data2[1].entity_set.first(), label='case')
-        RelationPartition.objects.create(relation=background, entity=data2[3].entity_set.first(), label='case')
-        RelationPartition.objects.create(relation=background, entity=data2[4].entity_set.first(), label='case')
+        RelationPartition.objects.create(relation=background, entity=data2[0].entity, label='background')
+        RelationPartition.objects.create(relation=background, entity=data2[1].entity, label='case')
+        RelationPartition.objects.create(relation=background, entity=data2[3].entity, label='case')
+        RelationPartition.objects.create(relation=background, entity=data2[4].entity, label='case')
 
         def load_templates(template_name):
             if template_name == 'background_pairs':

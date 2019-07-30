@@ -213,17 +213,17 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             inputs = {'treatment': macs14_case_bam.id,
                       'control': macs14_control_bam.id}
             macs14_1 = self.run_process('macs14', inputs)
-            macs14_1.entity_set.all().delete()
-            reads_1.entity_set.first().data.add(macs14_1)
+            macs14_1.entity = reads_1.entity
+            macs14_1.save()
 
-            macs14_control_bam.entity_set.all().delete()
-            reads_2.entity_set.first().data.add(macs14_control_bam)
+            macs14_control_bam.entity = reads_2.entity
+            macs14_control_bam.save()
 
             # Run macs14 without control/background sample
             del inputs['control']
             macs14_2 = self.run_process('macs14', inputs)
-            macs14_2.entity_set.all().delete()
-            reads_3.entity_set.first().data.add(macs14_2)
+            macs14_2.entity = reads_3.entity
+            macs14_2.save()
 
             # Run macs2
             inputs = {
@@ -236,17 +236,17 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 },
             }
             macs2_1 = self.run_process('macs2-callpeak', inputs)
-            macs2_1.entity_set.all().delete()
-            reads_1.entity_set.first().data.add(macs2_1)
+            macs2_1.entity = reads_1.entity
+            macs2_1.save()
 
-            macs2_control_bam.entity_set.all().delete()
-            reads_2.entity_set.first().data.add(macs2_control_bam)
+            macs2_control_bam.entity = reads_2.entity
+            macs2_control_bam.save()
 
             # Run macs2 without control/background sample
             del inputs['control']
             macs2_2 = self.run_process('macs2-callpeak', inputs)
-            macs2_2.entity_set.all().delete()
-            reads_3.entity_set.first().data.add(macs2_2)
+            macs2_2.entity = reads_3.entity
+            macs2_2.save()
 
         inputs = {
             'reads': [reads_1.id, reads_2.id, reads_3.id],
@@ -277,13 +277,11 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             expression_1 = self.prepare_expression(f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type="TPM")
             expression_2 = self.prepare_expression(f_rc='exp_2_rc.tab.gz', f_exp='exp_2_tpm.tab.gz', f_type="TPM")
 
-            # Delete expression samples
-            expression_1.entity_set.all().delete()
-            expression_2.entity_set.all().delete()
-
             # Add expressions to reads samples
-            reads_1.entity_set.first().data.add(expression_1)
-            reads_2.entity_set.first().data.add(expression_2)
+            expression_1.entity = reads_1.entity
+            expression_1.save()
+            expression_2.entity = reads_2.entity
+            expression_2.save()
 
         inputs = {
             "reads": [reads_1.id, reads_2.id],
