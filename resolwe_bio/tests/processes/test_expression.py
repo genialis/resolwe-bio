@@ -3,11 +3,11 @@ import os
 
 from resolwe.flow.models import Data, Collection, Relation
 from resolwe.flow.models.entity import RelationPartition, RelationType
-from resolwe.test import tag_process
+from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.expression_filters.relation import replicate_groups
 
-from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class ExpressionProcessorTestCase(KBBioProcessTestCase):

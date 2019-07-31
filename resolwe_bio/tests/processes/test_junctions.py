@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
-from resolwe.test import tag_process
+from resolwe.test import tag_process, with_resolwe_host
 
-from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class JunctionsProcessorTestCase(KBBioProcessTestCase):

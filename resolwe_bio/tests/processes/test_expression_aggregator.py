@@ -1,7 +1,7 @@
 # pylint: disable=missing-docstring
 from resolwe.flow.models import Data
-from resolwe.test import tag_process
-from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
+from resolwe.test import tag_process, with_resolwe_host
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class ExpressionAggregatorTestCase(KBBioProcessTestCase):

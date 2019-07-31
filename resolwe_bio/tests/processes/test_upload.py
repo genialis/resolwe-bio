@@ -2,8 +2,8 @@
 from django.core.exceptions import ValidationError
 
 from resolwe.flow.models import Data
-from resolwe.test import tag_process
-from resolwe_bio.utils.test import with_resolwe_host, KBBioProcessTestCase
+from resolwe.test import tag_process, with_resolwe_host
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class UploadProcessorTestCase(KBBioProcessTestCase):

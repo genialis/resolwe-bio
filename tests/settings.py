@@ -16,6 +16,8 @@ RESOLWE_HOST_URL = 'https://dummy.host.local'
 
 DEBUG = True
 
+ALLOWED_HOSTS = ['*']
+
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
