@@ -206,6 +206,31 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFiles(cutadapt_single, 'fastq', ['cutadapt_3prime_single_trimmed.fastq.gz'],
                          compression='gzip')
 
+    @tag_process('cutadapt-corall-single')
+    def test_cutadapt_corall_single(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['./corall/input/corall_single.fastq.gz'])
+
+        cutadapt_single = self.run_process('cutadapt-corall-single', {'reads': reads.id})
+
+        self.assertFiles(cutadapt_single, 'fastq', ['./corall/output/single_trimmed.fastq.gz'],
+                         compression='gzip')
+
+    @tag_process('cutadapt-corall-paired')
+    def test_cutadapt_corall_paired(self):
+        with self.preparation_stage():
+            reads_paired = self.prepare_paired_reads(
+                mate1=['./corall/input/corall_mate1.fastq.gz'],
+                mate2=['./corall/input/corall_mate2.fastq.gz']
+            )
+
+        cutadapt_paired = self.run_process('cutadapt-corall-paired', {'reads': reads_paired.id})
+
+        self.assertFiles(cutadapt_paired, 'fastq', ['./corall/output/mate1_trimmed.fastq.gz'],
+                         compression='gzip')
+        self.assertFiles(cutadapt_paired, 'fastq2', ['./corall/output/mate2_trimmed.fastq.gz'],
+                         compression='gzip')
+
     @tag_process('bbduk-single')
     def test_bbduk_single(self):
         with self.preparation_stage():

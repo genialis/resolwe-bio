@@ -35,6 +35,9 @@ Added
 - Add ``workflow-cutadapt-star-fc-quant-single`` process
 - Add argument ``skip`` to ``bamclipper`` which enables skipping of
   the said process
+- Add ``cutadapt-corall-single`` and ``cutadapt-corall-paired``
+  processes for pre-processing of reads obtained using Corall Total
+  RNA-seq library prep kit
 
 
 ===================
