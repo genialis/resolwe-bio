@@ -38,6 +38,7 @@ Added
 - Add ``cutadapt-corall-single`` and ``cutadapt-corall-paired``
   processes for pre-processing of reads obtained using Corall Total
   RNA-seq library prep kit
+- Add ``umi-tools-dedup`` process
 
 
 ===================

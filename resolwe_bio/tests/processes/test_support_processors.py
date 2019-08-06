@@ -527,3 +527,24 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
         idxstats = self.run_process('samtools-idxstats', {'alignment': alignment.id})
         self.assertFile(idxstats, 'report', 'samtools_idxstats_report.txt')
+
+    @tag_process('umi-tools-dedup')
+    def test_umi_tools_dedup(self):
+        with self.preparation_stage():
+            bam_single = self.run_process('upload-bam', {
+                'src': './corall/input/corall_single.bam',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38',
+            })
+
+            bam_paired = self.run_process('upload-bam', {
+                'src': './corall/input/corall_paired.bam',
+                'species': 'Homo sapiens',
+                'build': 'GRCh38',
+            })
+
+        dedup_single = self.run_process('umi-tools-dedup', {'alignment': bam_single.id})
+        self.assertFile(dedup_single, 'stats', './corall/output/dedup_single_stats.txt')
+
+        dedup_paired = self.run_process('umi-tools-dedup', {'alignment': bam_paired.id})
+        self.assertFile(dedup_paired, 'stats', './corall/output/dedup_paired_stats.txt')
