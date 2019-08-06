@@ -39,6 +39,7 @@ Added
   processes for pre-processing of reads obtained using Corall Total
   RNA-seq library prep kit
 - Add ``umi-tools-dedup`` process
+- Add ``stringtie`` process
 
 
 ===================
