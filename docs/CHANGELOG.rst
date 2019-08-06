@@ -28,6 +28,7 @@ Changed
 - Use ``resolwebio/common:1.3.0`` as a base image for
   ``resolwebio/rnaseq:4.8.0``
 - Update StringTie to v2.0.0 in ``resolwebio/rnaseq:4.8.0``
+- Support StringTie analysis results in DESeq2 tool
 
 Added
 -----

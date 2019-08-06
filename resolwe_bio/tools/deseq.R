@@ -18,7 +18,7 @@ parser$add_argument('--beta-prior', action='store_true')
 parser$add_argument('--min-count-sum', type='integer', help='Minimum count sum', default=0)
 parser$add_argument('--cooks-cutoff', type='double', help="Cook's cut-off", default=FALSE)
 parser$add_argument('--alpha', type='double', help="Alpha", default=0.1)
-parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon'), default='rc')
+parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon', 'stringtie'), default='rc')
 parser$add_argument('--tx2gene', help='Transcript to gene mapping')
 args = parser$parse_args()
 
@@ -36,6 +36,12 @@ if (args$format == 'rsem') {
 } else if (args$format == 'salmon') {
     tx2gene = read.table(args$tx2gene)
     txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+    dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
+} else if (args$format == 'stringtie') {
+    # Read the first input sample to get the transcript_id -> gene_id mapping table
+    tx2gene_tmp <- read.table(files[1], sep = '\t', header = TRUE)
+    tx2gene <- tx2gene_tmp[, c("t_name", "gene_id")]
+    txi <- tximport(files, type = "stringtie", tx2gene = tx2gene)
     dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
 } else {
     data <- lapply(files, read.csv, sep='\t')
