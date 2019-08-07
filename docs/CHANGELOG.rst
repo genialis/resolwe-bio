@@ -41,6 +41,8 @@ Added
   RNA-seq library prep kit
 - Add ``umi-tools-dedup`` process
 - Add ``stringtie`` process
+- Add ``workflow-corall-single`` and ``workflow-corall-paired``
+  workflows optimized for Corall Total RNA-seq library prep kit data
 
 
 ===================

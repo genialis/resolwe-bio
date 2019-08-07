@@ -564,3 +564,96 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(workflow, 'rc', 'workflow_rnaseq_paired_rc.tab.gz', compression='gzip')
         self.assertFields(workflow, 'exp_type', 'TPM')
         self.assertFields(workflow, 'source', 'DICTYBASE')
+
+    @with_resolwe_host
+    @tag_process('workflow-corall-single', 'workflow-corall-paired')
+    def test_corall(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['./corall/input/corall_single.fastq.gz'])
+
+            reads_paired = self.prepare_paired_reads(
+                mate1=['./corall/input/corall_mate1.fastq.gz'],
+                mate2=['./corall/input/corall_mate2.fastq.gz']
+            )
+
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': './corall/input/hs_genome_chr2_1_45000.fasta.gz'
+            })
+
+            annotation = self.run_process('upload-gtf', {
+                'src': './corall/input/hs_annotation_chr2_1_45000.gtf.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens_90'
+            })
+
+            star_index = self.run_process('alignment-star-index', {
+                'annotation': annotation.id,
+                'genome2': star_index_fasta.id
+            })
+
+            rrna_reference = self.run_process('upload-fasta-nucl', {
+                'src': './corall/input/Homo_sapiens_rRNA.fasta.gz',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'rRNA',
+            })
+
+            rrna_star_index = self.run_process('alignment-star-index', {
+                'genome2': rrna_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
+            globin_reference = self.run_process('upload-fasta-nucl', {
+                'src': './corall/input/Homo_sapiens_globin_reference.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'globin',
+            })
+
+            globin_star_index = self.run_process('alignment-star-index', {
+                'genome2': globin_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
+        self.run_process(
+            'workflow-corall-single', {
+                'reads': reads.id,
+                'star_index': star_index.id,
+                'annotation': annotation.id,
+                'rrna_reference': rrna_star_index.id,
+                'globin_reference': globin_star_index.id,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        exp = Data.objects.filter(process__slug='stringtie').last()
+        self.assertFile(exp, 'exp_set', './corall/output/corall_workfow_expression_single.txt.gz', compression='gzip')
+        self.assertFields(exp, 'exp_type', 'TPM')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFields(exp, 'species', 'Homo sapiens')
+
+        self.run_process(
+            'workflow-corall-paired', {
+                'reads': reads_paired.id,
+                'star_index': star_index.id,
+                'annotation': annotation.id,
+                'rrna_reference': rrna_star_index.id,
+                'globin_reference': globin_star_index.id,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        exp = Data.objects.filter(process__slug='stringtie').last()
+        self.assertFile(exp, 'exp_set', './corall/output/corall_workfow_expression_paired.txt.gz', compression='gzip')
+        self.assertFields(exp, 'exp_type', 'TPM')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFields(exp, 'species', 'Homo sapiens')
