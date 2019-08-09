@@ -17,6 +17,8 @@ Changed
   ``cutadapt-paired`` process inputs and refactor to use Cutadapt v2.4
 - Expose BetaPrior parameter in ``differentialexpression-deseq2``
   process
+- Install R from CRAN-maintained repositories in Docker images build
+  from the ``resolwebio/base:ubuntu-18.04`` base image
 
 Added
 -----
