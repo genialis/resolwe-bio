@@ -18,6 +18,7 @@ Included tools:
 * HTSeq (0.9.1)
 * MultiQC (1.8.0b)
 * QoRTs (1.3.0)
+* Rsamtools (2.0.0)
 * Samtools (1.9)
 * Seqtk (1.2-r94)
 * SRA Toolkit (v2.9.0)
