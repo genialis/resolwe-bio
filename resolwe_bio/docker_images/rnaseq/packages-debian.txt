@@ -6,3 +6,6 @@ python3-matplotlib
 
 # Required for tximport dependency GenomicFeatures
 libmariadbclient-dev
+
+# Required for DESeq2 and tximport
+libxml2

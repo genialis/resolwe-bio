@@ -5,9 +5,9 @@
 download_and_verify \
     ccb-jhu \
     stringtie \
-    1.3.6 \
-    5905874f484dc7086c18e1f7bed8164d6f38119ab45d28db05dd9134c9a22f02 \
-    http://ccb.jhu.edu/software/stringtie/dl/stringtie-\${version}.Linux_x86_64.tar.gz \
+    2.0 \
+    00229938ee771ec5cd3596e846a83fc9f82aebd08cc5e6287f5fa23860830413 \
+    https://github.com/gpertea/stringtie/releases/download/v\${version}/stringtie-\${version}.Linux_x86_64.tar.gz \
     stringtie-\${version}.Linux_x86_64 \
     stringtie-\${version}.tar.gz
 

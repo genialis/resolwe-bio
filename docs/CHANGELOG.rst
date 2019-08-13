@@ -25,6 +25,9 @@ Changed
   - Bump Resdk to v10.1.0
   - Install gawk package
   - Fix Docker image build issues
+- Use ``resolwebio/common:1.3.0`` as a base image for
+  ``resolwebio/rnaseq:4.8.0``
+- Update StringTie to v2.0.0 in ``resolwebio/rnaseq:4.8.0``
 
 Added
 -----

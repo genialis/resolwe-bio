@@ -13,7 +13,7 @@ sed -e 's/^#.*$//g' -e '/^$/d' /var/cache/build/packages-r.txt | \
 # XXX: Use notary (https://github.com/ropenscilabs/notary) when ready.
 sed -e 's/^#.*$//g' -e '/^$/d' /var/cache/build/packages-r-bioconductor.txt | \
     Rscript --slave --no-save --no-restore-history \
-        -e "source('http://www.bioconductor.org/biocLite.R'); biocLite(readLines('stdin'))"
+        -e "BiocManager::install(readLines('stdin'))"
 
 # XXX: This is unverifiable and thus may compromise the whole image.
 # XXX: Use notary (https://github.com/ropenscilabs/notary) when ready.
