@@ -5,13 +5,15 @@
 download_and_verify \
     ccb-jhu \
     hisat2 \
-    2.1.0 \
-    7f68df59db7db93b8a4710d934d75577ac9138ecccc2a8b26d700925354c09bc \
-    ftp://ftp.ccb.jhu.edu/pub/infphilo/hisat2/downloads/hisat2-\${version}-Linux_x86_64.zip \
+    0f01dc6397a \
+    53ca877e4c9af975d58301643d5745f680ce391850b33f3c8db5a62a59f518d8 \
+    https://github.com/DaehwanKimLab/hisat2/archive/\${version}.zip \
     hisat2-\${version}
 
-# remove debugging files, documentation and examples
-rm *-debug
+# build from source
+make
+
+# remove documentation and examples
 rm -r doc
 rm -r example
 

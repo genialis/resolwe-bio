@@ -19,6 +19,12 @@ Changed
   process
 - Install R from CRAN-maintained repositories in Docker images build
   from the ``resolwebio/base:ubuntu-18.04`` base image
+- Prepare ``resolwebio/common:1.3.0`` Docker image:
+
+  - Install R v3.6.1
+  - Bump Resdk to v10.1.0
+  - Install gawk package
+  - Fix Docker image build issues
 
 Added
 -----
