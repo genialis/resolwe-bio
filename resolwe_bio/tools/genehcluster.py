@@ -111,7 +111,7 @@ def is_const(values):
 def remove_const_genes(expressions):
     """Remove genes with constant expression profile across samples."""
     matches = expressions.apply(lambda x: not is_const(x), axis=1)
-    return expressions.loc[matches], matches.values.tolist()
+    return expressions.loc[matches], matches[~matches].index.tolist()
 
 
 def get_clustering(
@@ -202,7 +202,7 @@ def main():
     expressions = transform(expressions, log2=args.log2, z_score=args.z_score)
 
     if args.remove_const:
-        expressions, matches = remove_const_genes(expressions)
+        expressions, removed = remove_const_genes(expressions)
         if len(expressions.index) == 0:
             msg = ('All of the selected genes have constant expression across samples. '
                    'Hierarchical clustering of genes cannot be computed.')
@@ -213,7 +213,6 @@ def main():
                    'samples. However, hierarchical clustering of genes cannot be computed with '
                    'just one gene.'.format(gene_names[0]))
             set_error(msg)
-        removed = [name for i, name in enumerate(expressions.index) if not matches[i]]
         suffix = '' if len(removed) <= 3 else ', ...'
         if removed:
             removed_names = get_gene_names(removed[:3], args.source, args.species)
@@ -222,8 +221,6 @@ def main():
                    'genes with correlation distance '
                    'metric.'.format(len(removed), ', '.join(removed_names) + suffix))
             print(warning(msg))
-    else:
-        matches = [True] * len(expressions.index)
 
     suffix = '' if len(excluded) <= 3 else ', ...'
     if excluded:

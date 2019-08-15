@@ -44,6 +44,12 @@ Added
 - Add ``workflow-corall-single`` and ``workflow-corall-paired``
   workflows optimized for Corall Total RNA-seq library prep kit data
 
+Fixed
+-----
+- Fix warning message in hierarchical clustering of genes. Incorrect
+  gene names were reported in the warning message about removed
+  genes. Computation of hierarchical clustering was correct.
+
 
 ===================
 21.0.1 - 2019-07-26
