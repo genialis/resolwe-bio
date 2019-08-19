@@ -12,7 +12,7 @@ import resdk
 from resolwe_runtime_utils import error, warning  # pylint: disable=import-error
 
 
-CHUNK_SIZE = 10000
+CHUNK_SIZE = 1000
 
 
 def parse_arguments():
