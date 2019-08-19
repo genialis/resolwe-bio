@@ -2,7 +2,7 @@
 import os
 import shutil
 
-from plumbum import BG, TEE
+from plumbum import TEE
 
 from resolwe.process import (
     Process,
@@ -26,7 +26,7 @@ class CutadaptCorallSingle(Process):
     slug = 'cutadapt-corall-single'
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = 'data:reads:fastq:single:cutadapt:'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'Other'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -148,8 +148,8 @@ class CutadaptCorallSingle(Process):
             Cmd['cutadapt'][first_pass_input]
             | Cmd['cutadapt'][second_pass_input]
             | Cmd['cutadapt'][third_pass_input]
-            | Cmd['cutadapt'][fourth_pass_input]
-        ) & BG(stdout=open('cutadapt_report.txt', 'a'), stderr=open('cutadapt_report.txt', 'a'))
+            | Cmd['cutadapt'][fourth_pass_input] > 'cutadapt_report.txt'
+        )()
 
         # Prepare final FASTQC report
         fastqc_args = ['{}_trimmed.fastq.gz'.format(name), 'fastqc', 'fastqc_archive', 'fastqc_url', '--nogroup']
@@ -171,7 +171,7 @@ class CutadaptCorallPaired(Process):
     slug = 'cutadapt-corall-paired'
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = 'data:reads:fastq:paired:cutadapt:'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'Other'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -313,8 +313,8 @@ class CutadaptCorallPaired(Process):
             Cmd['cutadapt'][first_pass_input]
             | Cmd['cutadapt'][second_pass_input]
             | Cmd['cutadapt'][third_pass_input]
-            | Cmd['cutadapt'][fourth_pass_input]
-        ) & BG(stdout=open('cutadapt_report.txt', 'a'), stderr=open('cutadapt_report.txt', 'a'))
+            | Cmd['cutadapt'][fourth_pass_input] > 'cutadapt_report.txt'
+        )()
 
         # Prepare final FASTQC report
         fastqc_args = ['{}_trimmed.fastq.gz'.format(name_mate1), 'fastqc', 'fastqc_archive', 'fastqc_url']
