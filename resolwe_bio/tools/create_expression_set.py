@@ -81,7 +81,7 @@ def main():
 
     # Fetch features from KB and add them to {feature_id: feature_name} mapping dict
     for fsublist in features_sublists:
-        features = res.feature.filter(source=args.source_db, species=args.species, feature_id=fsublist)
+        features = res.feature.filter(source=args.source_db, species=args.species, feature_id__in=fsublist)
         feature_dict.update({f.feature_id: f.name for f in features})
 
     # Map gene symbols to feature IDs
