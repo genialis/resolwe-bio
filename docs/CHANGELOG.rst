@@ -6,13 +6,13 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+22.0.0 - 2019-08-20
+===================
 
 Changed
 -------
-- - **BACKWARD INCOMPATIBLE:** Require Resolwe 19.x
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 19.x
 - **BACKWARD INCOMPATIBLE:** Unify ``cutadapt-single`` and
   ``cutadapt-paired`` process inputs and refactor to use Cutadapt v2.4
 - Expose BetaPrior parameter in ``differentialexpression-deseq2``
