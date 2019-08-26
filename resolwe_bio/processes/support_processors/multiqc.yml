@@ -7,9 +7,9 @@
       memory: 8192
     executor:
       docker:
-        image: resolwebio/common:1.1.2
+        image: resolwebio/common:1.3.1
   data_name: 'MultiQC report'
-  version: 1.1.2
+  version: 1.2.0
   type: data:multiqc
   category: Other
   persistence: CACHED
@@ -33,6 +33,13 @@
           default: true
           description: |
             Prepend directory to sample names.
+        - name: dirs_depth
+          label: --dirs-depth
+          type: basic:integer
+          default: -1
+          description: |
+            Prepend a specified number of directories to sample names.
+            Enter a negative number to take from start of path.
         - name: fullnames
           label: --fullnames
           type: basic:boolean
@@ -68,9 +75,7 @@
       export LC_ALL=C.UTF-8
 
       {% for d in data %}
-        # Use slugs instead of sample names, since dots in the folder name
-        # breake the MultiQC "--dirs" parameter behaviour.
-        DIRECTORY={{ d | sample_slug }}
+        DIRECTORY={{ d | sample_name }}
         mkdir -p "${DIRECTORY}"
 
         # Prepare FastQC data for single reads objects.
@@ -117,8 +122,14 @@
 
         # Prepare QoRTs reports.
         {% elif (d|type) == 'data:qorts:qc:' %}
+            mkdir "${DIRECTORY}"/QoRTs
             ln -s --backup=numbered {{ d['summary'].file }} \
-            "${DIRECTORY}"/{{ d['summary'].file | basename }}
+            "${DIRECTORY}"/QoRTs/{{ d['summary'].file | basename }}
+
+        # Prepare Salmon reports.
+        {% elif (d|type) == 'data:expression:salmon:' %}
+            ln -s --backup=numbered {{ d['salmon_output'].dir }} \
+            "${DIRECTORY}"
 
         # Skip MultiQC reporting for unsupported data types.
         {% else %}
@@ -129,9 +140,10 @@
 
       multiqc . \
         {% if advanced.dirs %} -d {% endif %} \
+        {% if advanced.dirs_depth is defined %} -dd {{ advanced.dirs_depth }} {% endif %} \
         {% if advanced.fullnames %} -s {% endif %} \
         {% if advanced.config %} -c '/opt/resolwebio/assets/multiqc_config.yml' {% endif %} \
-        {% if advanced.cl_config %} --cl-config {{ cl_config }} {% endif %}
+        {% if advanced.cl_config %} --cl-config {{ advanced.cl_config }} {% endif %}
 
       re-save-file report multiqc_report.html
       re-save-dir report_data multiqc_data
