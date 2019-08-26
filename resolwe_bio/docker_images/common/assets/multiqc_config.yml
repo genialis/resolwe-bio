@@ -22,6 +22,7 @@ extra_fn_clean_exts:
     - _preprocessed
     - _downsampled
     - .rRNA
+    - fastqgz
 
 # Opt-out of remotely checking that you're running the latest version
 no_version_check: True
@@ -79,5 +80,7 @@ module_order:
         path_filters:
           - '*.globin.Log.final.out'
     - samtools
+    - qorts
     - featureCounts
+    - salmon
     - picard

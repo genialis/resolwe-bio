@@ -6,6 +6,17 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Update order of QC reports in MultiQC configuration file. The updated
+  configuration file is part of the ``resolwebio/common:1.3.1``
+  Docker image.
+
+
 ===================
 22.0.0 - 2019-08-20
 ===================
