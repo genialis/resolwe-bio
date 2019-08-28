@@ -17,7 +17,7 @@ Included bioinformatics tools:
 * gotea (v0.0.4)
 * genometools (1.5.9)
 * igvtools (v2.3.98)
-* jbrowse (v1.12.0)
+* jbrowse (v1.16.6)
 * loadSubread (0.0.1)
 * regtools (0.5.0)
 * RSEM (v1.4.0)

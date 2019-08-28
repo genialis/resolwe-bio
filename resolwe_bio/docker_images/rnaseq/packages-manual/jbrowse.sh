@@ -5,9 +5,9 @@
 download_and_verify \
     gmod \
     jbrowse \
-    1.12.0 \
-    a8bb2a56f1ca0470df2d072811db1f90fd6756feed92d8656eba1e6f67f438d3 \
-    https://jbrowse.org/releases/JBrowse-\${version}.zip \
+    1.16.6 \
+    4e196691b80e7b84dcb1d56191e4f18bf4b7c2b543c3d5e9c58a30178837cec4 \
+    https://github.com/GMOD/jbrowse/releases/download/\${version}-release/JBrowse-\${version}.zip \
     JBrowse-\${version}
 
 # patch setup.sh script to prevent formatting of example data and building

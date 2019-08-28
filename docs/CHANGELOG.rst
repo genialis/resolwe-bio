@@ -15,6 +15,8 @@ Changed
 - Update order of QC reports in MultiQC configuration file. The updated
   configuration file is part of the ``resolwebio/common:1.3.1``
   Docker image.
+- Bump Jbrowse to version 1.16.6 in ``resolwebio/rnaseq:4.9.0`` Docker
+  image
 
 
 ===================
