@@ -1,0 +1,561 @@
+- slug: workflow-bbduk-salmon-qc-single
+  name: "BBDuk - Salmon - QC (single-end)"
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:rnaseq:salmon
+  category: Pipeline
+  description: |
+    Alignment-free RNA-seq pipeline. Salmon tool and tximport package
+    are used in quantification step to produce gene-level abundance
+    estimates.
+
+    rRNA and globin-sequence contamination rate in the sample is
+    determined using STAR aligner. Quality-trimmed reads are down-sampled
+    (using Seqtk tool) and aligned to the genome, rRNA and globin
+    reference sequences. The rRNA and globin-sequence alignment rates
+    indicate the percentage of the reads in the sample that are of
+    rRNA and globin origin, respectively. Alignment of down-sampled data
+    to a whole genome reference sequence is used to produce an alignment
+    file suitable for Samtools and QoRTs QC analysis.
+
+    Per-sample analysis results and QC data is summarized by the MultiQC
+    tool.
+  input:
+      - name: reads
+        label: Select sample(s)
+        type: data:reads:fastq:single
+      - name: salmon_index
+        label: Salmon index
+        type: data:index:salmon
+      - name: genome
+        label: Indexed reference genome
+        type: data:genomeindex:star
+        description: |
+          Genome index prepared by STAR aligner indexing tool.
+      - name: annotation
+        label: Annotation
+        type: data:annotation
+      - name: rrna_reference
+        label: Indexed rRNA reference sequence
+        type: data:genomeindex:star
+        description: |
+          Reference sequence index prepared by STAR aligner indexing tool.
+      - name: globin_reference
+        label: Indexed Globin reference sequence
+        type: data:genomeindex:star
+        description: |
+          Reference sequence index prepared by STAR aligner indexing tool.
+      - name: show_advanced
+        label: Show advanced parameters
+        type: basic:boolean
+        default: false
+      - name: preprocessing
+        label: Preprocessing (BBDuk)
+        hidden: '!show_advanced'
+        group:
+          - name: adapters
+            label: Adapters
+            type: list:data:seq:nucleotide
+            required: false
+          - name: custom_adapter_sequences
+            label: Custom adapter sequences [literal]
+            type: list:basic:string
+            required: false
+            default: []
+            description: |
+              Custom adapter sequences can be specified by inputting them one by one and pressing Enter
+              after each sequence.
+          - name: kmer_length
+            label: K-mer length
+            type: basic:integer
+            default: 23
+            description: K-mer length must be smaller or equal to the length of adapters.
+          - name: min_k
+            label: Minimum k-mer length at right end of reads used for trimming
+            type: basic:integer
+            default: 11
+            disabled: "preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0"
+          - name: hamming_distance
+            label: Maximum Hamming distance for k-mers
+            type: basic:integer
+            default: 1
+          - name: maxns
+            label: Max Ns after trimming [maxns=-1]
+            type: basic:integer
+            default: -1
+            description: |
+              If non-negative, reads with more Ns than this (after trimming) will be discarded.
+          - name: trim_quality
+            label: Quality below which to trim reads from the right end
+            type: basic:integer
+            default: 10
+            description: Phred algorithm is used, which is more accurate than naive trimming.
+          - name: min_length
+            label: Minimum read length
+            type: basic:integer
+            default: 20
+            description: Reads shorter than minimum read length after trimming are discarded.
+      - name: quantification
+        label: Quantification (Salmon)
+        hidden: '!show_advanced'
+        group:
+          - name: seq_bias
+            label: Perform sequence-specific bias correction
+            type: basic:boolean
+            default: true
+          - name: gc_bias
+            label: Perform fragment GC bias correction.
+            type: basic:boolean
+            default: false
+          - name: validate_mappings
+            label: Validate mappings using alignment-based verification.
+            type: basic:boolean
+            default: true
+          - name: consensus_slack
+            label: Consensus slack
+            type: basic:decimal
+            required: false
+            hidden: '!quantification.validate_mappings'
+            description: |
+                The amount of slack allowed in the quasi-mapping
+                consensus mechanism.  Normally, a transcript must
+                cover all hits to be considered for mapping.
+                If this is set to a fraction, X, greater than 0
+                (and in [0,1)), then a transcript can fail
+                to cover up to (100 * X)% of the hits before it
+                is discounted as a mapping candidate. The default
+                value of this option is 0.2 if --validateMappings
+                is given and 0 otherwise".
+          - name: min_score_fraction
+            label: Minimum alignment score fraction
+            type: basic:decimal
+            hidden: '!quantification.validate_mappings'
+            default: 0.65
+            description: |
+                The fraction of the optimal possible alignment
+                score that a mapping must achieve in order to be
+                considered valid - should be in (0,1].
+          - name: range_factorization_bins
+            label: Range factorization bins
+            type: basic:integer
+            default: 4
+            description: |
+                Factorizes the likelihood used in
+                quantification by adopting a new notion
+                of equivalence classes based on the
+                conditional probabilities with which
+                fragments are generated from different
+                transcripts.  This is a more
+                fine-grained factorization than the
+                normal rich equivalence classes.  The
+                default value (0) corresponds to the
+                standard rich equivalence classes, and
+                larger values imply a more fine-grained
+                factorization.  If range factorization
+                is enabled, a common value to select
+                for this parameter is 4.
+          - name: min_assigned_frag
+            label: Minimum number of assigned fragments
+            type: basic:integer
+            default: 10
+            description: |
+              The minimum number of fragments that must be assigned to
+              the transcriptome for quantification to proceed.å
+      - name: downsampling
+        label: Downsampling (Seqtk)
+        hidden: '!show_advanced'
+        group:
+          - name: n_reads
+            label: Number of reads
+            type: basic:integer
+            default: 10000000
+          - name: seed
+            label: Seed
+            type: basic:integer
+            default: 11
+          - name: fraction
+            label: Fraction
+            type: basic:decimal
+            required: false
+            range: [0, 1.0]
+            description: |
+              Use the fraction of reads [0 - 1.0] from the orignal input file instead
+              of the absolute number of reads. If set, this will override the
+              "Number of reads" input parameter.
+          - name: two_pass
+            label: 2-pass mode
+            type: basic:boolean
+            default: false
+            description: |
+              Enable two-pass mode when down-sampling. Two-pass mode is twice
+              as slow but with much reduced memory.
+  run:
+    language: workflow
+    program:
+      - id: preprocessing
+        run: bbduk-single
+        input:
+          show_advanced: true
+          reads: '{{ input.reads }}'
+          min_length: '{{ input.preprocessing.min_length }}'
+          reference:
+            sequences: '{{ input.preprocessing.adapters or [] }}'
+            literal_sequences: '{{ input.preprocessing.custom_adapter_sequences }}'
+          processing:
+            kmer_length: '{{ input.preprocessing.kmer_length }}'
+            hamming_distance: '{{ input.preprocessing.hamming_distance }}'
+          operations:
+            k_trim: "{{ 'r' if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else 'f' }}"
+            min_k: '{{ input.preprocessing.min_k if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else -1 }}'
+            quality_trim: r
+            trim_quality: '{{ input.preprocessing.trim_quality }}'
+            maxns: '{{ input.preprocessing.maxns }}'
+      - id: quantification
+        run: salmon-quant
+        input:
+          reads: '{{ steps.preprocessing }}'
+          salmon_index: '{{ input.salmon_index }}'
+          annotation: '{{ input.annotation }}'
+          options:
+            seq_bias: '{{ input.quantification.seq_bias }}'
+            gc_bias: '{{ input.quantification.gc_bias }}'
+            validate_mappings: '{{ input.quantification.validate_mappings }}'
+            consensus_slack: '{{ input.quantification.consensus_slack }}'
+            min_score_fraction: '{{ input.quantification.min_score_fraction }}'
+            range_factorization_bins: '{{ input.quantification.range_factorization_bins }}'
+            min_assigned_frag: '{{ input.quantification.min_assigned_frag }}'
+      - id: downsampling
+        run: seqtk-sample-single
+        input:
+          reads: '{{ steps.preprocessing }}'
+          n_reads: '{{ input.downsampling.n_reads }}'
+          advanced:
+            seed: '{{ input.downsampling.seed }}'
+            fraction: '{{ input.downsampling.fraction }}'
+            two_pass: '{{ input.downsampling.two_pass }}'
+      - id: alignment_qc
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.genome }}'
+      - id: alignment_qc_rrna
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.rrna_reference }}'
+      - id: alignment_qc_globin
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.globin_reference }}'
+      - id: qorts
+        run: qorts-qc
+        input:
+          alignment: '{{ steps.alignment_qc }}'
+          annotation: '{{ input.annotation }}'
+          options:
+            stranded: 'auto'
+            cdna_index: '{{ input.salmon_index }}'
+            n_reads: 5000000
+      - id: idxstats
+        run: samtools-idxstats
+        input:
+          alignment: '{{ steps.alignment_qc }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.preprocessing,
+            steps.quantification,
+            steps.downsampling,
+            steps.alignment_qc,
+            steps.alignment_qc_rrna,
+            steps.alignment_qc_globin,
+            steps.qorts,
+            steps.idxstats
+            ] }}'
+
+- slug: workflow-bbduk-salmon-qc-paired
+  name: "BBDuk - Salmon - QC (paired-end)"
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:rnaseq:salmon
+  category: Pipeline
+  description: |
+    Alignment-free RNA-seq pipeline. Salmon tool and tximport package
+    are used in quantification step to produce gene-level abundance
+    estimates.
+
+    rRNA and globin-sequence contamination rate in the sample is
+    determined using STAR aligner. Quality-trimmed reads are down-sampled
+    (using Seqtk tool) and aligned to the genome, rRNA and globin
+    reference sequences. The rRNA and globin-sequence alignment rates
+    indicate the percentage of the reads in the sample that are of
+    rRNA and globin origin, respectively. Alignment of down-sampled data
+    to a whole genome reference sequence is used to produce an alignment
+    file suitable for Samtools and QoRTs QC analysis.
+
+    Per-sample analysis results and QC data is summarized by the MultiQC
+    tool.
+  input:
+      - name: reads
+        label: Select sample(s)
+        type: data:reads:fastq:paired
+      - name: salmon_index
+        label: Salmon index
+        type: data:index:salmon
+      - name: genome
+        label: Indexed reference genome
+        type: data:genomeindex:star
+        description: |
+          Genome index prepared by STAR aligner indexing tool.
+      - name: annotation
+        label: Annotation
+        type: data:annotation
+      - name: rrna_reference
+        label: Indexed rRNA reference sequence
+        type: data:genomeindex:star
+        description: |
+          Reference sequence index prepared by STAR aligner indexing tool.
+      - name: globin_reference
+        label: Indexed Globin reference sequence
+        type: data:genomeindex:star
+        description: |
+          Reference sequence index prepared by STAR aligner indexing tool.
+      - name: show_advanced
+        label: Show advanced parameters
+        type: basic:boolean
+        default: false
+      - name: preprocessing
+        label: Preprocessing (BBDuk)
+        hidden: '!show_advanced'
+        group:
+          - name: adapters
+            label: Adapters
+            type: list:data:seq:nucleotide
+            required: false
+          - name: custom_adapter_sequences
+            label: Custom adapter sequences [literal]
+            type: list:basic:string
+            required: false
+            default: []
+            description: |
+              Custom adapter sequences can be specified by inputting them one by one and pressing Enter
+              after each sequence.
+          - name: kmer_length
+            label: K-mer length
+            type: basic:integer
+            default: 23
+            description: K-mer length must be smaller or equal to the length of adapters.
+          - name: min_k
+            label: Minimum k-mer length at right end of reads used for trimming
+            type: basic:integer
+            default: 11
+            disabled: "preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0"
+          - name: hamming_distance
+            label: Maximum Hamming distance for k-mers
+            type: basic:integer
+            default: 1
+          - name: maxns
+            label: Max Ns after trimming [maxns=-1]
+            type: basic:integer
+            default: -1
+            description: |
+              If non-negative, reads with more Ns than this (after trimming) will be discarded.
+          - name: trim_quality
+            label: Quality below which to trim reads from the right end
+            type: basic:integer
+            default: 10
+            description: Phred algorithm is used, which is more accurate than naive trimming.
+          - name: min_length
+            label: Minimum read length
+            type: basic:integer
+            default: 20
+            description: Reads shorter than minimum read length after trimming are discarded.
+      - name: quantification
+        label: Quantification (Salmon)
+        hidden: '!show_advanced'
+        group:
+          - name: seq_bias
+            label: Perform sequence-specific bias correction
+            type: basic:boolean
+            default: true
+          - name: gc_bias
+            label: Perform fragment GC bias correction.
+            type: basic:boolean
+            default: true
+          - name: validate_mappings
+            label: Validate mappings using alignment-based verification.
+            type: basic:boolean
+            default: true
+          - name: consensus_slack
+            label: Consensus slack
+            type: basic:decimal
+            required: false
+            hidden: '!quantification.validate_mappings'
+            description: |
+                The amount of slack allowed in the quasi-mapping
+                consensus mechanism.  Normally, a transcript must
+                cover all hits to be considered for mapping.
+                If this is set to a fraction, X, greater than 0
+                (and in [0,1)), then a transcript can fail
+                to cover up to (100 * X)% of the hits before it
+                is discounted as a mapping candidate. The default
+                value of this option is 0.2 if --validateMappings
+                is given and 0 otherwise".
+          - name: min_score_fraction
+            label: Minimum alignment score fraction
+            type: basic:decimal
+            hidden: '!quantification.validate_mappings'
+            default: 0.65
+            description: |
+                The fraction of the optimal possible alignment
+                score that a mapping must achieve in order to be
+                considered valid - should be in (0,1].
+          - name: range_factorization_bins
+            label: Range factorization bins
+            type: basic:integer
+            default: 4
+            description: |
+                Factorizes the likelihood used in
+                quantification by adopting a new notion
+                of equivalence classes based on the
+                conditional probabilities with which
+                fragments are generated from different
+                transcripts.  This is a more
+                fine-grained factorization than the
+                normal rich equivalence classes.  The
+                default value (0) corresponds to the
+                standard rich equivalence classes, and
+                larger values imply a more fine-grained
+                factorization.  If range factorization
+                is enabled, a common value to select
+                for this parameter is 4.
+          - name: min_assigned_frag
+            label: Minimum number of assigned fragments
+            type: basic:integer
+            default: 10
+            description: |
+              The minimum number of fragments that must be assigned to
+              the transcriptome for quantification to proceed.
+      - name: downsampling
+        label: Downsampling (Seqtk)
+        hidden: '!show_advanced'
+        group:
+          - name: n_reads
+            label: Number of reads
+            type: basic:integer
+            default: 10000000
+          - name: seed
+            label: Seed
+            type: basic:integer
+            default: 11
+          - name: fraction
+            label: Fraction
+            type: basic:decimal
+            required: false
+            range: [0, 1.0]
+            description: |
+              Use the fraction of reads [0 - 1.0] from the orignal input file instead
+              of the absolute number of reads. If set, this will override the
+              "Number of reads" input parameter.
+          - name: two_pass
+            label: 2-pass mode
+            type: basic:boolean
+            default: false
+            description: |
+              Enable two-pass mode when down-sampling. Two-pass mode is twice
+              as slow but with much reduced memory.
+  run:
+    language: workflow
+    program:
+      - id: preprocessing
+        run: bbduk-paired
+        input:
+          show_advanced: true
+          reads: '{{ input.reads }}'
+          min_length: '{{ input.preprocessing.min_length }}'
+          reference:
+            sequences: '{{ input.preprocessing.adapters or [] }}'
+            literal_sequences: '{{ input.preprocessing.custom_adapter_sequences }}'
+          processing:
+            kmer_length: '{{ input.preprocessing.kmer_length }}'
+            hamming_distance: '{{ input.preprocessing.hamming_distance }}'
+          operations:
+            k_trim: "{{ 'r' if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else 'f' }}"
+            min_k: '{{ input.preprocessing.min_k if input.preprocessing.adapters or input.preprocessing.custom_adapter_sequences else -1 }}'
+            quality_trim: r
+            trim_quality: '{{ input.preprocessing.trim_quality }}'
+            maxns: '{{ input.preprocessing.maxns }}'
+            trim_pairs_evenly: true
+            trim_by_overlap: true
+      - id: quantification
+        run: salmon-quant
+        input:
+          reads: '{{ steps.preprocessing }}'
+          salmon_index: '{{ input.salmon_index }}'
+          annotation: '{{ input.annotation }}'
+          options:
+            seq_bias: '{{ input.quantification.seq_bias }}'
+            gc_bias: '{{ input.quantification.gc_bias }}'
+            validate_mappings: '{{ input.quantification.validate_mappings }}'
+            consensus_slack: '{{ input.quantification.consensus_slack }}'
+            min_score_fraction: '{{ input.quantification.min_score_fraction }}'
+            range_factorization_bins: '{{ input.quantification.range_factorization_bins }}'
+            min_assigned_frag: '{{ input.quantification.min_assigned_frag }}'
+      - id: downsampling
+        run: seqtk-sample-paired
+        input:
+          reads: '{{ steps.preprocessing }}'
+          n_reads: '{{ input.downsampling.n_reads }}'
+          advanced:
+            seed: '{{ input.downsampling.seed }}'
+            fraction: '{{ input.downsampling.fraction }}'
+            two_pass: '{{ input.downsampling.two_pass }}'
+      - id: alignment_qc
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.genome }}'
+      - id: alignment_qc_rrna
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.rrna_reference }}'
+      - id: alignment_qc_globin
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.globin_reference }}'
+      - id: qorts
+        run: qorts-qc
+        input:
+          alignment: '{{ steps.alignment_qc }}'
+          annotation: '{{ input.annotation }}'
+          options:
+            stranded: 'auto'
+            cdna_index: '{{ input.salmon_index }}'
+            n_reads: 5000000
+      - id: idxstats
+        run: samtools-idxstats
+        input:
+          alignment: '{{ steps.alignment_qc }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.preprocessing,
+            steps.quantification,
+            steps.downsampling,
+            steps.alignment_qc,
+            steps.alignment_qc_rrna,
+            steps.alignment_qc_globin,
+            steps.qorts,
+            steps.idxstats
+            ] }}'

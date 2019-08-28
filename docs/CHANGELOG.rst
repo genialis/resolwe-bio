@@ -21,6 +21,11 @@ Changed
   upon annotation file upload
 - Support Salmon reports in MultiQC and expose ``dirs_depth`` parameter
 
+Added
+-----
+- Add ``workflow-bbduk-salmon-qc-single`` and
+  ``workflow-bbduk-salmon-qc-paired`` workflows
+
 
 ===================
 22.0.0 - 2019-08-20

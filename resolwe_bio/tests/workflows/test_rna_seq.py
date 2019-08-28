@@ -657,3 +657,102 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(exp, 'exp_type', 'TPM')
         self.assertFields(exp, 'source', 'ENSEMBL')
         self.assertFields(exp, 'species', 'Homo sapiens')
+
+    @with_resolwe_host
+    @tag_process('workflow-bbduk-salmon-qc-single', 'workflow-bbduk-salmon-qc-paired')
+    def test_salmon_workflow(self):
+        with self.preparation_stage():
+            reads = self.prepare_reads(['salmon_workflow/input/hs sim_reads_single.fastq.gz'])
+            paired_reads = self.prepare_paired_reads(
+                ['salmon_workflow/input/hs sim_reads1.fastq.gz'], ['salmon_workflow/input/hs sim_reads2.fastq.gz']
+            )
+            annotation = self.prepare_annotation(
+                fn='salmon_workflow/input/hs annotation.gtf.gz',
+                source='ENSEMBL',
+                species='Homo sapiens',
+                build='ens92',
+            )
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_workflow/input/hs genome.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens92',
+            })
+            star_index = self.run_process('alignment-star-index', {
+                'annotation': annotation.id,
+                'genome2': star_index_fasta.id,
+            })
+            cdna = self.run_process('upload-fasta-nucl', {'src': 'salmon_workflow/input/hs cdna.fasta.gz'})
+            salmon_index = self.run_process('salmon-index', {
+                'nucl': cdna.id,
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'ens92',
+            })
+            adapters = self.prepare_adapters()
+            rrna_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_workflow/input/Homo_sapiens_rRNA.fasta.gz',
+                'source': 'NCBI',
+                'species': 'Homo sapiens',
+                'build': 'rRNA',
+            })
+            rrna_star_index = self.run_process('alignment-star-index', {
+                'genome2': rrna_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+            globin_reference = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_workflow/input/Homo_sapiens_globin_reference.fasta.gz',
+                'source': 'ENSEMBL',
+                'species': 'Homo sapiens',
+                'build': 'globin',
+            })
+            globin_star_index = self.run_process('alignment-star-index', {
+                'genome2': globin_reference.id,
+                'advanced': {
+                    'genomeSAindexNbases': 2,
+                }
+            })
+
+        inputs = {
+            'reads': reads.id,
+            'genome': star_index.id,
+            'salmon_index': salmon_index.id,
+            'annotation': annotation.id,
+            'rrna_reference': rrna_star_index.id,
+            'globin_reference': globin_star_index.id,
+            'preprocessing': {
+                'adapters': [adapters.id],
+            },
+            'quantification': {
+                'min_assigned_frag': 1,
+            }
+        }
+
+        self.run_process('workflow-bbduk-salmon-qc-single', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        salmon_single_end = Data.objects.get(process__slug='salmon-quant')
+        self.assertFile(
+            salmon_single_end,
+            'exp_set',
+            'salmon_workflow/output/single_end_exp.txt.gz',
+            compression='gzip'
+        )
+        self.assertFields(salmon_single_end, 'exp_type', 'TPM')
+        self.assertFields(salmon_single_end, 'source', 'ENSEMBL')
+
+        inputs['reads'] = paired_reads.id
+        self.run_process('workflow-bbduk-salmon-qc-paired', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        salmon_paired_end = Data.objects.filter(process__slug='salmon-quant').last()
+        self.assertFile(
+            salmon_paired_end,
+            'exp_set',
+            'salmon_workflow/output/paired_end_exp.txt.gz',
+            compression='gzip'
+        )
+        self.assertFields(salmon_paired_end, 'exp_type', 'TPM')
+        self.assertFields(salmon_paired_end, 'source', 'ENSEMBL')
