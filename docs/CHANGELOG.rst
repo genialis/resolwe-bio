@@ -17,6 +17,8 @@ Changed
   Docker image.
 - Bump Jbrowse to version 1.16.6 in ``resolwebio/rnaseq:4.9.0`` Docker
   image
+- Use JBrowse ``generate-names.pl`` script to index GTF/GFF3 features
+  upon annotation file upload
 
 
 ===================

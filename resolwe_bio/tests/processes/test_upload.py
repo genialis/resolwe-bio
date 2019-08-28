@@ -495,8 +495,10 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(upload_gff3, 'annot_sorted', 'PGSC upload_sorted.gff3')
         self.assertFields(upload_gff3, 'annot_sorted_idx_igv', {'file': 'PGSC upload_sorted.gff3.idx',
                                                                 'total_size': 126})
-        self.assertFields(upload_gff3, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
-                                                                      'file': 'trackList.json'})
+        self.assertFields(upload_gff3, 'annot_sorted_track_jbrowse', {
+            'refs': ['tracks/annotation', 'seq', 'names'],
+            'file': 'trackList.json'
+        })
         self.assertFields(upload_gff3, 'species', 'Solanum tuberosum')
         self.assertFields(upload_gff3, 'build', 'ST')
 
@@ -513,8 +515,10 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(upload_gtf, 'annot_sorted', 'Hs GRCh38_86 upload_sorted.gtf')
         self.assertFields(upload_gtf, 'annot_sorted_idx_igv', {'file': 'Hs GRCh38_86 upload_sorted.gtf.idx',
                                                                'total_size': 116})
-        self.assertFields(upload_gtf, 'annot_sorted_track_jbrowse', {'refs': ['tracks/annotation'],
-                                                                     'file': 'trackList.json'})
+        self.assertFields(upload_gtf, 'annot_sorted_track_jbrowse', {
+            'refs': ['tracks/annotation', 'seq', 'names'],
+            'file': 'trackList.json'
+        })
         self.assertFields(upload_gtf, 'species', 'Homo Sapiens')
         self.assertFields(upload_gtf, 'build', 'hg19')
 

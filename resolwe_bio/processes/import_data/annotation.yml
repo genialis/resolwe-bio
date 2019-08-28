@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 1
-      memory: 4096
+      memory: 8192
       network: true
   data_name: '{{ src.file }}'
-  version: 3.2.1
+  version: 3.3.0
   type: data:annotation:gff3
   category: Import
   persistence: RAW
@@ -37,8 +37,6 @@
       type: basic:string
       allow_custom_choice: true
       choices:
-        - label: AFFY
-          value: AFFY
         - label: DICTYBASE
           value: DICTYBASE
         - label: ENSEMBL
@@ -62,10 +60,6 @@
           value: Rattus norvegicus
         - label: Dictyostelium discoideum
           value: Dictyostelium discoideum
-        - label: Odocoileus virginianus texanus
-          value: Odocoileus virginianus texanus
-        - label: Solanum tuberosum
-          value: Solanum tuberosum
     - name: build
       label: Build
       type: basic:string
@@ -101,20 +95,33 @@
       re-checkrc
       re-progress 0.2
 
-      igvtools sort "${NAME}".gff3 "${NAME}"_sorted.gff3
+      igvtools sort "${NAME}.gff3" "${NAME}"_sorted.gff3
       re-checkrc "Sorting of GFF3 file failed."
 
       igvtools index "${NAME}"_sorted.gff3
       re-checkrc "Indexing of GFF3 file failed."
 
-      flatfile-to-json.pl --gff "${NAME}"_sorted.gff3 --out . --trackLabel "annotation"
+      gt gff3 -tidy -retainids "${NAME}"_sorted.gff3 > "${NAME}_validated.gff3"
+      flatfile-to-json.pl \
+        --gff "${NAME}_validated.gff3" \
+        --out . \
+        --trackLabel "annotation" \
+        --nameAttributes "name,id,alias,gene_id,gene_name"
       re-checkrc "Annotation track processing for JBrowse failed."
+
+      # Prepare Seq folder
+      prepare-refseqs.pl --gff-sizes "${NAME}_validated.gff3" --out .
+      re-checkrc "Refseq track processing for JBrowse failed."
+
+      # Index features
+      generate-names.pl --out .
+      re-checkrc "Gene name indexing for JBrowse failed."
 
       re-progress 0.5
       re-save-file annot "${NAME}.gff3"
       re-save-file annot_sorted "${NAME}"_sorted.gff3
       re-save-file annot_sorted_idx_igv "${NAME}"_sorted.gff3.idx
-      re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation
+      re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation seq names
       re-save source {{ source }}
       re-save species {{ species }}
       re-save build {{ build }}
@@ -125,13 +132,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 1
-      memory: 4096
+      memory: 8192
       network: true
   data_name: '{{ src.file }}'
-  version: 3.2.1
+  version: 3.3.0
   type: data:annotation:gtf
   category: Import
   persistence: RAW
@@ -154,8 +161,6 @@
       type: basic:string
       allow_custom_choice: true
       choices:
-        - label: AFFY
-          value: AFFY
         - label: DICTYBASE
           value: DICTYBASE
         - label: ENSEMBL
@@ -179,10 +184,6 @@
           value: Rattus norvegicus
         - label: Dictyostelium discoideum
           value: Dictyostelium discoideum
-        - label: Odocoileus virginianus texanus
-          value: Odocoileus virginianus texanus
-        - label: Solanum tuberosum
-          value: Solanum tuberosum
     - name: build
       label: Build
       type: basic:string
@@ -227,9 +228,22 @@
       # if tmp.gff3 file is not empty create JBrowse track
       if [ -s tmp.gff3 ]
       then
-        flatfile-to-json.pl --gff tmp.gff3 --out . --trackLabel "annotation"
+        # Fix the converted .gff3 file to include the required region definition lines
+        gt gff3 -tidy -retainids tmp.gff3 > tmp_tidy.gff3
+        re-checkrc "Reformating of GFF3 file failed."
+        flatfile-to-json.pl \
+          --gff tmp_tidy.gff3 \
+          --out . \
+          --trackLabel "annotation" \
+          --nameAttributes "name,id,alias,gene_id,gene_name"
         re-checkrc "Annotation track processing for JBrowse failed."
-        re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation
+        # Prepare Seq folder
+        prepare-refseqs.pl --gff-sizes tmp_tidy.gff3 --out .
+        re-checkrc "Refseq track processing for JBrowse failed."
+        # Index features
+        generate-names.pl --out .
+        re-checkrc "Gene name indexing for JBrowse failed."
+        re-save-file annot_sorted_track_jbrowse trackList.json tracks/annotation seq names
       else
         re-warning "JBrowse track was not created. Please validate your GTF file."
       fi
