@@ -631,6 +631,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             os.path.join('salmon_quant', 'output', 'salmon_quant_tpm.tab.gz'),
             compression='gzip',
         )
+        self.assertFile(
+            salmon_quant,
+            'transcripts',
+            os.path.join('salmon_quant', 'output', 'salmon_transcripts_tpm.tab.gz'),
+            compression='gzip',
+        )
 
     @with_resolwe_host
     @tag_process('feature_counts')

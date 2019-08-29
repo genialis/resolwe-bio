@@ -4,6 +4,8 @@ import os
 
 from plumbum import TEE
 
+import pandas as pd
+
 from resolwe.process import (
     BooleanField,
     Cmd,
@@ -18,6 +20,22 @@ from resolwe.process import (
     SchedulingClass,
     StringField,
 )
+
+
+def parse_transcript_exp(infile, outfile):
+    """Parse trancript-level expressions from Salmon output."""
+    exp = pd.read_csv(
+        infile,
+        sep='\t',
+        usecols=['Name', 'TPM'],
+        index_col='Name',
+        dtype={
+            'Name': str,
+            'TPM': float,
+        },
+        squeeze=True,
+    )
+    return exp.to_csv(outfile, index_label='Transcript', header=['Expression'], sep='\t', compression='gzip')
 
 
 class SalmonQuant(Process):
@@ -43,7 +61,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads.fastq.0.file|default('?') }}"
-    version = '1.0.1'
+    version = '1.1.0'
     process_type = 'data:expression:salmon'
     category = 'Quantify'
     entity = {
@@ -208,6 +226,7 @@ class SalmonQuant(Process):
         exp_set = FileField(label="Expressions")
         exp_set_json = JsonField(label="Expressions (json)")
         quant = FileField(label="Salmon quant file")
+        transcripts = FileField(label="Transcript-level expressions")
         salmon_output = DirField(label='Salmon output')
         txdb = FileField(label="Transcript to gene mapping")
         strandedness = StringField(label='Strandedness code')
@@ -298,6 +317,9 @@ class SalmonQuant(Process):
             return_code, _, _ = Cmd['tximport_summarize.R'][tximport_args] & TEE(retcode=None)
             if return_code:
                 self.error("Error while running tximport.")
+            # Prepare transcript-level expression file
+            transcript_out_file = '{}_transcripts{}'.format(reads_name, output_suffix)
+            parse_transcript_exp('salmon_output/quant.sf', transcript_out_file)
         else:
             self.error('Salmon Quant results file quant.sf does not exists.')
 
@@ -326,6 +348,7 @@ class SalmonQuant(Process):
         # Save all the outputs
         outputs.salmon_output = 'salmon_output'
         outputs.quant = reads_name + '.sf'
+        outputs.transcripts = transcript_out_file
         outputs.txdb = tx2gene
         outputs.exp = reads_name + output_suffix
         outputs.exp_json = 'json.txt'

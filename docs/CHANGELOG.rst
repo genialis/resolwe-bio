@@ -20,6 +20,8 @@ Changed
 - Use JBrowse ``generate-names.pl`` script to index GTF/GFF3 features
   upon annotation file upload
 - Support Salmon reports in MultiQC and expose ``dirs_depth`` parameter
+- Expose transcript-level expression file in the ``salmon-quant``
+  process
 
 Added
 -----
