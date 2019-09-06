@@ -314,6 +314,10 @@ class SalmonQuant(Process):
         tx2gene = 'tx2gene_{}.txt'.format(annot_name)
         if os.path.exists('salmon_output/quant.sf'):
             tximport_args = ['salmon_output/quant.sf', inputs.annotation.annot.path, reads_name, tx2gene]
+            # Strip feature_id version for non-UCSC annotation source type
+            # UCSC annotation type (mm10) contains features with dot in gene names
+            if inputs.annotation.source != 'UCSC':
+                tximport_args.append('--ignoreTxVersion')
             return_code, _, _ = Cmd['tximport_summarize.R'][tximport_args] & TEE(retcode=None)
             if return_code:
                 self.error("Error while running tximport.")
