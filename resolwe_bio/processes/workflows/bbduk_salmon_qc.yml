@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:salmon
   category: Pipeline
   description: |
@@ -65,8 +65,8 @@
             required: false
             default: []
             description: |
-              Custom adapter sequences can be specified by inputting them one by one and pressing Enter
-              after each sequence.
+              Custom adapter sequences can be specified by inputting
+              them one by one and pressing Enter after each sequence.
           - name: kmer_length
             label: K-mer length
             type: basic:integer
@@ -142,27 +142,23 @@
             type: basic:integer
             default: 4
             description: |
-                Factorizes the likelihood used in
-                quantification by adopting a new notion
-                of equivalence classes based on the
-                conditional probabilities with which
-                fragments are generated from different
-                transcripts.  This is a more
-                fine-grained factorization than the
-                normal rich equivalence classes.  The
-                default value (0) corresponds to the
-                standard rich equivalence classes, and
-                larger values imply a more fine-grained
-                factorization.  If range factorization
-                is enabled, a common value to select
-                for this parameter is 4.
+                Factorizes the likelihood used in quantification by
+                adopting a new notion of equivalence classes based on
+                the conditional probabilities with which fragments are
+                generated from different transcripts. This is a more
+                fine-grained factorization than the normal rich
+                equivalence classes. The default value (0) corresponds
+                to the standard rich equivalence classes, and larger
+                values imply a more fine-grained factorization. If range
+                factorization is enabled, a common value to select for
+                this parameter is 4.
           - name: min_assigned_frag
             label: Minimum number of assigned fragments
             type: basic:integer
             default: 10
             description: |
               The minimum number of fragments that must be assigned to
-              the transcriptome for quantification to proceed.å
+              the transcriptome for quantification to proceed.
       - name: downsampling
         label: Downsampling (Seqtk)
         hidden: '!show_advanced'
@@ -181,16 +177,17 @@
             required: false
             range: [0, 1.0]
             description: |
-              Use the fraction of reads [0 - 1.0] from the orignal input file instead
-              of the absolute number of reads. If set, this will override the
-              "Number of reads" input parameter.
+              Use the fraction of reads [0 - 1.0] from the original
+              input file instead of the absolute number of reads. If
+              set, this will override the "Number of reads" input
+              parameter.
           - name: two_pass
             label: 2-pass mode
             type: basic:boolean
             default: false
             description: |
-              Enable two-pass mode when down-sampling. Two-pass mode is twice
-              as slow but with much reduced memory.
+              Enable two-pass mode when down-sampling. Two-pass mode is
+              twice as slow but with much reduced memory.
   run:
     language: workflow
     program:
@@ -283,7 +280,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:rnaseq:salmon
   category: Pipeline
   description: |
@@ -345,8 +342,8 @@
             required: false
             default: []
             description: |
-              Custom adapter sequences can be specified by inputting them one by one and pressing Enter
-              after each sequence.
+              Custom adapter sequences can be specified by inputting
+              them one by one and pressing Enter after each sequence.
           - name: kmer_length
             label: K-mer length
             type: basic:integer
@@ -422,20 +419,16 @@
             type: basic:integer
             default: 4
             description: |
-                Factorizes the likelihood used in
-                quantification by adopting a new notion
-                of equivalence classes based on the
-                conditional probabilities with which
-                fragments are generated from different
-                transcripts.  This is a more
-                fine-grained factorization than the
-                normal rich equivalence classes.  The
-                default value (0) corresponds to the
-                standard rich equivalence classes, and
-                larger values imply a more fine-grained
-                factorization.  If range factorization
-                is enabled, a common value to select
-                for this parameter is 4.
+                Factorizes the likelihood used in quantification by
+                adopting a new notion of equivalence classes based on
+                the conditional probabilities with which fragments are
+                generated from different transcripts. This is a more
+                fine-grained factorization than the normal rich
+                equivalence classes. The default value (0) corresponds
+                to the standard rich equivalence classes, and larger
+                values imply a more fine-grained factorization. If range
+                factorization is enabled, a common value to select for
+                this parameter is 4.
           - name: min_assigned_frag
             label: Minimum number of assigned fragments
             type: basic:integer
@@ -461,16 +454,17 @@
             required: false
             range: [0, 1.0]
             description: |
-              Use the fraction of reads [0 - 1.0] from the orignal input file instead
-              of the absolute number of reads. If set, this will override the
-              "Number of reads" input parameter.
+              Use the fraction of reads [0 - 1.0] from the original
+              input file instead of the absolute number of reads. If
+              set, this will override the "Number of reads" input
+              parameter.
           - name: two_pass
             label: 2-pass mode
             type: basic:boolean
             default: false
             description: |
-              Enable two-pass mode when down-sampling. Two-pass mode is twice
-              as slow but with much reduced memory.
+              Enable two-pass mode when down-sampling. Two-pass mode is
+              twice as slow but with much reduced memory.
   run:
     language: workflow
     program:
