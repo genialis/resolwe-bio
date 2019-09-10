@@ -10,7 +10,7 @@ class ImportBEDPEFile(Process):
     name = 'BEDPE file'
     process_type = 'data:bedpe:'
     data_name = '{{ src.file|default("?") }}'
-    version = '1.0.1'
+    version = '1.0.2'
     category = 'Import'
     requirements = {
         'expression-engine': 'jinja',
@@ -22,6 +22,7 @@ class ImportBEDPEFile(Process):
         'resources': {
             'cores': 1,
             'memory': 1024,
+            'network': True,
         },
     }
     scheduling_class = SchedulingClass.BATCH

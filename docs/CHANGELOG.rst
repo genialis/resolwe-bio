@@ -28,6 +28,9 @@ Added
 - Add ``workflow-bbduk-salmon-qc-single`` and
   ``workflow-bbduk-salmon-qc-paired`` workflows
 
+Fixed
+-----
+- Give process ``upload-bedpe`` access to network
 
 ===================
 22.0.0 - 2019-08-20
