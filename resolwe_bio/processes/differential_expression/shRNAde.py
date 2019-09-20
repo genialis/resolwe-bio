@@ -17,9 +17,9 @@ class ShortHairpinRNADifferentialExpression(Process):
         uses these contrasts and replicate number. In R annotation, this would be ` ~ 1 + group + replicate`. Table
         should have two columns named `group_1` and `group_2`.
         - `overall_contrasts`: This is a layer "above" `contrasts`, where results from two contrasts are compared for
-        lethal, beneficial and neutral species. Thresholds governing classificiation can be found in
+        lethal, beneficial and neutral species. Thresholds governing classification can be found in
         `classification_parameters` tab.
-        - `classificiation_parameters`: This tab holds three columns, `threshold`, `value` and `description`. Only
+        - `classification_parameters`: This tab holds three columns, `threshold`, `value` and `description`. Only
         the first two are used in the workflow, description is for your benefit.
 
     This process outputs DESeq2 results, classified results based on provided thresholds and counts of beneficial
