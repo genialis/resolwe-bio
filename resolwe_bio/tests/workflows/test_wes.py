@@ -7,36 +7,39 @@ from resolwe_bio.utils.test import BioProcessTestCase
 class WESTestCase(BioProcessTestCase):
     @tag_process('workflow-wes')
     def test_wes(self):
+        def filter_gatkcmd(line):
+            return line.startswith(b'##GATKCommandLine')
+
         species = 'Homo sapiens'
         build = 'custom_build'
 
         with self.preparation_stage():
             reads = self.prepare_paired_reads(
-                mate1=['./workflow_wes/input/STK11_1.fastq.gz'],
-                mate2=['./workflow_wes/input/STK11_2.fastq.gz']
+                mate1=['./workflow_wes/input/TP53_1.fastq.gz'],
+                mate2=['./workflow_wes/input/TP53_2.fastq.gz']
             )
 
             genome = self.run_process('upload-genome', {
-                'src': './bqsr/input/hs_b37_chr19_upto_stk11.fasta.gz',
+                'src': './bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz',
                 'species': species,
                 'build': build
             })
 
             bc_bedpe = self.run_process('upload-bedpe', {
-                'src': './bamclipper/input/STK11.bedpe',
+                'src': './bamclipper/input/TP53.bedpe',
                 'species': species,
                 'build': build
             })
 
             kbase = []
-            for i in ['./bqsr/input/dbsnp_STK11.vcf.gz']:
+            for i in ['./bqsr/input/dbsnp_TP53.vcf.gz']:
                 kbase.append(
                     self.run_process('upload-variants-vcf', {
                         'src': i, 'species': species, 'build': build
                     }))
 
             intervals = self.run_process('upload-bed', {
-                'src': './bqsr/input/STK11.bed',
+                'src': './bqsr/input/TP53.bed',
                 'species': species, 'build': build})
 
             adapters = self.prepare_adapters()
@@ -95,7 +98,8 @@ class WESTestCase(BioProcessTestCase):
 
         self.run_process('workflow-wes', input_workflow)
         wes = Data.objects.last()
-        self.assertFileExists(wes, 'vcf')
+        self.assertFile(wes, 'vcf', './workflow_wes/output/tp53_1fastqgz.gatkHC.vcf.gz', compression='gzip',
+                        file_filter=filter_gatkcmd)
 
         # Test skipping bamclipper
         input_workflow_skipbc = input_workflow

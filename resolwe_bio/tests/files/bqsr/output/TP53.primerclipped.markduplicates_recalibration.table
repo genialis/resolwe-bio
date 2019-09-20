@@ -1,0 +1,833 @@
+#:GATKReport.v1.1:5
+#:GATKTable:2:17:%s:%s:;
+#:GATKTable:Arguments:Recalibration argument collection values used in this run
+Argument                    Value                                                                   
+binary_tag_name             null                                                                    
+covariate                   ReadGroupCovariate,QualityScoreCovariate,ContextCovariate,CycleCovariate
+default_platform            null                                                                    
+deletions_default_quality   45                                                                      
+force_platform              null                                                                    
+indels_context_size         3                                                                       
+insertions_default_quality  45                                                                      
+low_quality_tail            2                                                                       
+maximum_cycle_value         500                                                                     
+mismatches_context_size     2                                                                       
+mismatches_default_quality  -1                                                                      
+no_standard_covs            false                                                                   
+quantizing_levels           16                                                                      
+recalibration_report        null                                                                    
+run_without_dbsnp           false                                                                   
+solid_nocall_strategy       THROW_EXCEPTION                                                         
+solid_recal_mode            SET_Q_ZERO                                                              
+
+#:GATKTable:3:94:%d:%d:%d:;
+#:GATKTable:Quantized:Quality quantization map
+QualityScore  Count  QuantizedScore
+           0      0               7
+           1      0               7
+           2      0               7
+           3      0               7
+           4      0               7
+           5      0               7
+           6      1               7
+           7      0               7
+           8      1               7
+           9      0               7
+          10      0               7
+          11      0               7
+          12      0               7
+          13      1               7
+          14      1               7
+          15      1              15
+          16      4              16
+          17     18              17
+          18     12              18
+          19     15              19
+          20      7              20
+          21      3              21
+          22     13              22
+          23     75              23
+          24    561              24
+          25    714              25
+          26    568              26
+          27    367              27
+          28    135              28
+          29      0              93
+          30      0              93
+          31      0              93
+          32      0              93
+          33      0              93
+          34      0              93
+          35      0              93
+          36      0              93
+          37      0              93
+          38      0              93
+          39      0              93
+          40      0              93
+          41      0              93
+          42      0              93
+          43      0              93
+          44      0              93
+          45      0              93
+          46      0              93
+          47      0              93
+          48      0              93
+          49      0              93
+          50      0              93
+          51      0              93
+          52      0              93
+          53      0              93
+          54      0              93
+          55      0              93
+          56      0              93
+          57      0              93
+          58      0              93
+          59      0              93
+          60      0              93
+          61      0              93
+          62      0              93
+          63      0              93
+          64      0              93
+          65      0              93
+          66      0              93
+          67      0              93
+          68      0              93
+          69      0              93
+          70      0              93
+          71      0              93
+          72      0              93
+          73      0              93
+          74      0              93
+          75      0              93
+          76      0              93
+          77      0              93
+          78      0              93
+          79      0              93
+          80      0              93
+          81      0              93
+          82      0              93
+          83      0              93
+          84      0              93
+          85      0              93
+          86      0              93
+          87      0              93
+          88      0              93
+          89      0              93
+          90      0              93
+          91      0              93
+          92      0              93
+          93      0              93
+
+#:GATKTable:6:1:%s:%s:%.4f:%.4f:%d:%.2f:;
+#:GATKTable:RecalTable0:
+ReadGroup  EventType  EmpiricalQuality  EstimatedQReported  Observations  Errors
+        1  M                   24.0000             24.5364          2497    8.00
+
+#:GATKTable:6:18:%s:%d:%s:%.4f:%d:%.2f:;
+#:GATKTable:RecalTable1:
+ReadGroup  QualityScore  EventType  EmpiricalQuality  Observations  Errors
+        1             6  M                    6.0000             1    0.00
+        1             8  M                    8.0000             1    0.00
+        1            13  M                   13.0000             1    0.00
+        1            14  M                   14.0000             1    0.00
+        1            15  M                   15.0000             1    0.00
+        1            16  M                   16.0000             4    0.00
+        1            17  M                   17.0000            18    0.00
+        1            18  M                   18.0000            12    0.00
+        1            19  M                   19.0000            15    0.00
+        1            20  M                   20.0000             7    0.00
+        1            21  M                   21.0000             3    0.00
+        1            22  M                   22.0000            13    0.00
+        1            23  M                   23.0000            75    0.00
+        1            24  M                   24.0000           561    3.00
+        1            25  M                   25.0000           714    1.00
+        1            26  M                   26.0000           568    1.00
+        1            27  M                   27.0000           367    2.00
+        1            28  M                   28.0000           135    1.00
+
+#:GATKTable:8:682:%s:%d:%s:%s:%s:%.4f:%d:%.2f:;
+#:GATKTable:RecalTable2:
+ReadGroup  QualityScore  CovariateValue  CovariateName  EventType  EmpiricalQuality  Observations  Errors
+        1             6  107             Cycle          M                    6.0000             1    0.00
+        1             6  CC              Context        M                    6.0000             1    0.00
+        1             8  -107            Cycle          M                    8.0000             1    0.00
+        1             8  GG              Context        M                    8.0000             1    0.00
+        1            13  -33             Cycle          M                   13.0000             1    0.00
+        1            13  GA              Context        M                   13.0000             1    0.00
+        1            14  -103            Cycle          M                   14.0000             1    0.00
+        1            14  GT              Context        M                   14.0000             1    0.00
+        1            15  -74             Cycle          M                   15.0000             1    0.00
+        1            15  GT              Context        M                   15.0000             1    0.00
+        1            16  -105            Cycle          M                   16.0000             1    0.00
+        1            16  -65             Cycle          M                   16.0000             1    0.00
+        1            16  2               Cycle          M                   16.0000             1    0.00
+        1            16  35              Cycle          M                   16.0000             1    0.00
+        1            16  AG              Context        M                   16.0000             1    0.00
+        1            16  CG              Context        M                   16.0000             3    0.00
+        1            17  -65             Cycle          M                   17.0000             1    0.00
+        1            17  2               Cycle          M                   17.0000             8    0.00
+        1            17  25              Cycle          M                   17.0000             2    0.00
+        1            17  35              Cycle          M                   17.0000             7    0.00
+        1            17  CG              Context        M                   17.0000            18    0.00
+        1            18  -32             Cycle          M                   18.0000             1    0.00
+        1            18  -42             Cycle          M                   18.0000             4    0.00
+        1            18  -65             Cycle          M                   18.0000             6    0.00
+        1            18  41              Cycle          M                   18.0000             1    0.00
+        1            18  AC              Context        M                   18.0000             1    0.00
+        1            18  CG              Context        M                   18.0000             7    0.00
+        1            18  GC              Context        M                   18.0000             4    0.00
+        1            19  -32             Cycle          M                   19.0000             8    0.00
+        1            19  -43             Cycle          M                   19.0000             2    0.00
+        1            19  -44             Cycle          M                   19.0000             4    0.00
+        1            19  -65             Cycle          M                   19.0000             1    0.00
+        1            19  CG              Context        M                   19.0000             9    0.00
+        1            19  CT              Context        M                   19.0000             4    0.00
+        1            19  TC              Context        M                   19.0000             2    0.00
+        1            20  -43             Cycle          M                   20.0000             1    0.00
+        1            20  -49             Cycle          M                   20.0000             1    0.00
+        1            20  39              Cycle          M                   20.0000             1    0.00
+        1            20  40              Cycle          M                   20.0000             4    0.00
+        1            20  AA              Context        M                   20.0000             4    0.00
+        1            20  AT              Context        M                   20.0000             1    0.00
+        1            20  CA              Context        M                   20.0000             2    0.00
+        1            21  -45             Cycle          M                   21.0000             1    0.00
+        1            21  -47             Cycle          M                   21.0000             1    0.00
+        1            21  35              Cycle          M                   21.0000             1    0.00
+        1            21  CG              Context        M                   21.0000             1    0.00
+        1            21  TG              Context        M                   21.0000             2    0.00
+        1            22  -103            Cycle          M                   22.0000             1    0.00
+        1            22  -104            Cycle          M                   22.0000             1    0.00
+        1            22  -110            Cycle          M                   22.0000             2    0.00
+        1            22  -111            Cycle          M                   22.0000             1    0.00
+        1            22  -23             Cycle          M                   22.0000             3    0.00
+        1            22  10              Cycle          M                   22.0000             1    0.00
+        1            22  104             Cycle          M                   22.0000             1    0.00
+        1            22  42              Cycle          M                   22.0000             1    0.00
+        1            22  64              Cycle          M                   22.0000             1    0.00
+        1            22  95              Cycle          M                   22.0000             1    0.00
+        1            22  CC              Context        M                   22.0000             1    0.00
+        1            22  GC              Context        M                   22.0000             7    0.00
+        1            22  GG              Context        M                   22.0000             2    0.00
+        1            22  GT              Context        M                   22.0000             2    0.00
+        1            22  TA              Context        M                   22.0000             1    0.00
+        1            23  -104            Cycle          M                   23.0000             1    0.00
+        1            23  -11             Cycle          M                   23.0000             3    0.00
+        1            23  -111            Cycle          M                   23.0000             1    0.00
+        1            23  -112            Cycle          M                   23.0000             2    0.00
+        1            23  -115            Cycle          M                   23.0000             3    0.00
+        1            23  -116            Cycle          M                   23.0000             1    0.00
+        1            23  -13             Cycle          M                   23.0000             1    0.00
+        1            23  -15             Cycle          M                   23.0000             1    0.00
+        1            23  -18             Cycle          M                   23.0000             1    0.00
+        1            23  -22             Cycle          M                   23.0000             1    0.00
+        1            23  -23             Cycle          M                   23.0000             6    0.00
+        1            23  -25             Cycle          M                   23.0000             4    0.00
+        1            23  -26             Cycle          M                   23.0000             3    0.00
+        1            23  -32             Cycle          M                   23.0000             1    0.00
+        1            23  -5              Cycle          M                   23.0000             1    0.00
+        1            23  -52             Cycle          M                   23.0000             1    0.00
+        1            23  -58             Cycle          M                   23.0000             2    0.00
+        1            23  -60             Cycle          M                   23.0000             4    0.00
+        1            23  -67             Cycle          M                   23.0000             1    0.00
+        1            23  -74             Cycle          M                   23.0000             1    0.00
+        1            23  -77             Cycle          M                   23.0000             1    0.00
+        1            23  -88             Cycle          M                   23.0000             1    0.00
+        1            23  -89             Cycle          M                   23.0000             1    0.00
+        1            23  -91             Cycle          M                   23.0000             1    0.00
+        1            23  -92             Cycle          M                   23.0000             2    0.00
+        1            23  -94             Cycle          M                   23.0000             1    0.00
+        1            23  -95             Cycle          M                   23.0000             1    0.00
+        1            23  -96             Cycle          M                   23.0000             1    0.00
+        1            23  10              Cycle          M                   23.0000             1    0.00
+        1            23  106             Cycle          M                   23.0000             1    0.00
+        1            23  107             Cycle          M                   23.0000             1    0.00
+        1            23  11              Cycle          M                   23.0000             1    0.00
+        1            23  112             Cycle          M                   23.0000             1    0.00
+        1            23  115             Cycle          M                   23.0000             1    0.00
+        1            23  12              Cycle          M                   23.0000             5    0.00
+        1            23  14              Cycle          M                   23.0000             1    0.00
+        1            23  26              Cycle          M                   23.0000             1    0.00
+        1            23  40              Cycle          M                   23.0000             2    0.00
+        1            23  42              Cycle          M                   23.0000             1    0.00
+        1            23  44              Cycle          M                   23.0000             1    0.00
+        1            23  52              Cycle          M                   23.0000             1    0.00
+        1            23  53              Cycle          M                   23.0000             1    0.00
+        1            23  70              Cycle          M                   23.0000             1    0.00
+        1            23  85              Cycle          M                   23.0000             1    0.00
+        1            23  88              Cycle          M                   23.0000             1    0.00
+        1            23  91              Cycle          M                   23.0000             2    0.00
+        1            23  97              Cycle          M                   23.0000             3    0.00
+        1            23  AC              Context        M                   23.0000            11    0.00
+        1            23  AG              Context        M                   23.0000             1    0.00
+        1            23  CC              Context        M                   23.0000            22    0.00
+        1            23  CT              Context        M                   23.0000             6    0.00
+        1            23  GC              Context        M                   23.0000             4    0.00
+        1            23  GG              Context        M                   23.0000            13    0.00
+        1            23  GT              Context        M                   23.0000             5    0.00
+        1            23  TA              Context        M                   23.0000             4    0.00
+        1            23  TC              Context        M                   23.0000             9    0.00
+        1            24  -100            Cycle          M                   24.0000             7    0.00
+        1            24  -102            Cycle          M                   24.0000             1    0.00
+        1            24  -103            Cycle          M                   24.0000             1    1.00
+        1            24  -104            Cycle          M                   24.0000             2    0.00
+        1            24  -105            Cycle          M                   24.0000             1    0.00
+        1            24  -106            Cycle          M                   24.0000             2    0.00
+        1            24  -107            Cycle          M                   24.0000             6    0.00
+        1            24  -108            Cycle          M                   24.0000             7    0.00
+        1            24  -109            Cycle          M                   24.0000             7    0.00
+        1            24  -11             Cycle          M                   24.0000             6    0.00
+        1            24  -110            Cycle          M                   24.0000             5    0.00
+        1            24  -111            Cycle          M                   24.0000             5    0.00
+        1            24  -112            Cycle          M                   24.0000             1    0.00
+        1            24  -115            Cycle          M                   24.0000             4    0.00
+        1            24  -12             Cycle          M                   24.0000             2    0.00
+        1            24  -14             Cycle          M                   24.0000             3    0.00
+        1            24  -15             Cycle          M                   24.0000             6    0.00
+        1            24  -16             Cycle          M                   24.0000             2    0.00
+        1            24  -17             Cycle          M                   24.0000             9    0.00
+        1            24  -18             Cycle          M                   24.0000             8    0.00
+        1            24  -2              Cycle          M                   24.0000             3    0.00
+        1            24  -22             Cycle          M                   24.0000             3    0.00
+        1            24  -23             Cycle          M                   24.0000             1    0.00
+        1            24  -24             Cycle          M                   24.0000             2    0.00
+        1            24  -25             Cycle          M                   24.0000             1    0.00
+        1            24  -26             Cycle          M                   24.0000             6    0.00
+        1            24  -27             Cycle          M                   24.0000             1    0.00
+        1            24  -28             Cycle          M                   24.0000             1    0.00
+        1            24  -31             Cycle          M                   24.0000             2    0.00
+        1            24  -32             Cycle          M                   24.0000             6    0.00
+        1            24  -33             Cycle          M                   24.0000             2    0.00
+        1            24  -34             Cycle          M                   24.0000             2    0.00
+        1            24  -35             Cycle          M                   24.0000             1    0.00
+        1            24  -36             Cycle          M                   24.0000             1    0.00
+        1            24  -38             Cycle          M                   24.0000             2    0.00
+        1            24  -42             Cycle          M                   24.0000             2    0.00
+        1            24  -43             Cycle          M                   24.0000             1    0.00
+        1            24  -45             Cycle          M                   24.0000             3    0.00
+        1            24  -47             Cycle          M                   24.0000             3    0.00
+        1            24  -48             Cycle          M                   24.0000             1    0.00
+        1            24  -5              Cycle          M                   24.0000             8    0.00
+        1            24  -50             Cycle          M                   24.0000             8    0.00
+        1            24  -52             Cycle          M                   24.0000             6    0.00
+        1            24  -57             Cycle          M                   24.0000             4    0.00
+        1            24  -58             Cycle          M                   24.0000             2    0.00
+        1            24  -59             Cycle          M                   24.0000             2    0.00
+        1            24  -6              Cycle          M                   24.0000            10    0.00
+        1            24  -60             Cycle          M                   24.0000             2    0.00
+        1            24  -62             Cycle          M                   24.0000             4    0.00
+        1            24  -63             Cycle          M                   24.0000             2    0.00
+        1            24  -64             Cycle          M                   24.0000             8    0.00
+        1            24  -65             Cycle          M                   24.0000             3    0.00
+        1            24  -66             Cycle          M                   24.0000             6    0.00
+        1            24  -67             Cycle          M                   24.0000             1    0.00
+        1            24  -69             Cycle          M                   24.0000             1    0.00
+        1            24  -72             Cycle          M                   24.0000             1    0.00
+        1            24  -73             Cycle          M                   24.0000             1    0.00
+        1            24  -74             Cycle          M                   24.0000             2    0.00
+        1            24  -76             Cycle          M                   24.0000             7    0.00
+        1            24  -8              Cycle          M                   24.0000             9    0.00
+        1            24  -80             Cycle          M                   24.0000             1    1.00
+        1            24  -81             Cycle          M                   24.0000             5    0.00
+        1            24  -83             Cycle          M                   24.0000             2    0.00
+        1            24  -84             Cycle          M                   24.0000             1    0.00
+        1            24  -86             Cycle          M                   24.0000             1    0.00
+        1            24  -87             Cycle          M                   24.0000             4    0.00
+        1            24  -88             Cycle          M                   24.0000             5    0.00
+        1            24  -89             Cycle          M                   24.0000             6    0.00
+        1            24  -90             Cycle          M                   24.0000             1    0.00
+        1            24  -92             Cycle          M                   24.0000             4    0.00
+        1            24  -94             Cycle          M                   24.0000             2    0.00
+        1            24  -95             Cycle          M                   24.0000             2    0.00
+        1            24  -96             Cycle          M                   24.0000             1    0.00
+        1            24  1               Cycle          M                   24.0000             8    0.00
+        1            24  10              Cycle          M                   24.0000             8    0.00
+        1            24  103             Cycle          M                   24.0000             2    0.00
+        1            24  104             Cycle          M                   24.0000             6    0.00
+        1            24  106             Cycle          M                   24.0000             6    0.00
+        1            24  107             Cycle          M                   24.0000             5    0.00
+        1            24  11              Cycle          M                   24.0000             9    0.00
+        1            24  112             Cycle          M                   24.0000             6    0.00
+        1            24  114             Cycle          M                   24.0000             6    0.00
+        1            24  116             Cycle          M                   24.0000             2    0.00
+        1            24  12              Cycle          M                   24.0000             3    0.00
+        1            24  13              Cycle          M                   24.0000             1    0.00
+        1            24  14              Cycle          M                   24.0000             6    0.00
+        1            24  15              Cycle          M                   24.0000             3    0.00
+        1            24  16              Cycle          M                   24.0000             1    0.00
+        1            24  18              Cycle          M                   24.0000             6    0.00
+        1            24  21              Cycle          M                   24.0000             1    0.00
+        1            24  23              Cycle          M                   24.0000             1    0.00
+        1            24  26              Cycle          M                   24.0000             1    0.00
+        1            24  27              Cycle          M                   24.0000             3    0.00
+        1            24  29              Cycle          M                   24.0000             9    0.00
+        1            24  30              Cycle          M                   24.0000             7    0.00
+        1            24  31              Cycle          M                   24.0000             7    0.00
+        1            24  32              Cycle          M                   24.0000             7    0.00
+        1            24  34              Cycle          M                   24.0000             3    0.00
+        1            24  37              Cycle          M                   24.0000            10    1.00
+        1            24  40              Cycle          M                   24.0000             1    0.00
+        1            24  41              Cycle          M                   24.0000             6    0.00
+        1            24  42              Cycle          M                   24.0000             8    0.00
+        1            24  44              Cycle          M                   24.0000             7    0.00
+        1            24  45              Cycle          M                   24.0000             7    0.00
+        1            24  46              Cycle          M                   24.0000             7    0.00
+        1            24  48              Cycle          M                   24.0000             1    0.00
+        1            24  49              Cycle          M                   24.0000             9    0.00
+        1            24  50              Cycle          M                   24.0000             1    0.00
+        1            24  51              Cycle          M                   24.0000             1    0.00
+        1            24  52              Cycle          M                   24.0000            14    0.00
+        1            24  53              Cycle          M                   24.0000            14    0.00
+        1            24  54              Cycle          M                   24.0000            16    0.00
+        1            24  57              Cycle          M                   24.0000             7    0.00
+        1            24  60              Cycle          M                   24.0000             4    0.00
+        1            24  61              Cycle          M                   24.0000            16    0.00
+        1            24  64              Cycle          M                   24.0000             8    0.00
+        1            24  65              Cycle          M                   24.0000             1    0.00
+        1            24  67              Cycle          M                   24.0000             1    0.00
+        1            24  69              Cycle          M                   24.0000             1    0.00
+        1            24  7               Cycle          M                   24.0000            12    0.00
+        1            24  70              Cycle          M                   24.0000             6    0.00
+        1            24  72              Cycle          M                   24.0000             1    0.00
+        1            24  76              Cycle          M                   24.0000             1    0.00
+        1            24  8               Cycle          M                   24.0000             6    0.00
+        1            24  80              Cycle          M                   24.0000             1    0.00
+        1            24  81              Cycle          M                   24.0000             1    0.00
+        1            24  83              Cycle          M                   24.0000             1    0.00
+        1            24  85              Cycle          M                   24.0000             2    0.00
+        1            24  86              Cycle          M                   24.0000             1    0.00
+        1            24  87              Cycle          M                   24.0000             1    0.00
+        1            24  88              Cycle          M                   24.0000             1    0.00
+        1            24  9               Cycle          M                   24.0000             1    0.00
+        1            24  91              Cycle          M                   24.0000             1    0.00
+        1            24  94              Cycle          M                   24.0000             6    0.00
+        1            24  95              Cycle          M                   24.0000             3    0.00
+        1            24  96              Cycle          M                   24.0000             4    0.00
+        1            24  97              Cycle          M                   24.0000             4    0.00
+        1            24  AA              Context        M                   24.0000             2    0.00
+        1            24  AC              Context        M                   24.0000            75    0.00
+        1            24  AG              Context        M                   24.0000            23    0.00
+        1            24  CA              Context        M                   24.0000             2    0.00
+        1            24  CC              Context        M                   24.0000           142    0.00
+        1            24  CT              Context        M                   24.0000             9    0.00
+        1            24  GA              Context        M                   24.0000             1    0.00
+        1            24  GC              Context        M                   24.0000            96    2.00
+        1            24  GG              Context        M                   24.0000           130    1.00
+        1            24  GT              Context        M                   24.0000            16    0.00
+        1            24  TA              Context        M                   24.0000            18    0.00
+        1            24  TC              Context        M                   24.0000            38    0.00
+        1            24  TG              Context        M                   24.0000             1    0.00
+        1            25  -101            Cycle          M                   25.0000             1    0.00
+        1            25  -102            Cycle          M                   25.0000             6    0.00
+        1            25  -103            Cycle          M                   25.0000             4    0.00
+        1            25  -104            Cycle          M                   25.0000             2    0.00
+        1            25  -105            Cycle          M                   25.0000             5    0.00
+        1            25  -106            Cycle          M                   25.0000             5    0.00
+        1            25  -11             Cycle          M                   25.0000             7    0.00
+        1            25  -112            Cycle          M                   25.0000             4    0.00
+        1            25  -113            Cycle          M                   25.0000             4    0.00
+        1            25  -116            Cycle          M                   25.0000             6    0.00
+        1            25  -12             Cycle          M                   25.0000            10    0.00
+        1            25  -13             Cycle          M                   25.0000             3    0.00
+        1            25  -14             Cycle          M                   25.0000             8    0.00
+        1            25  -15             Cycle          M                   25.0000             9    0.00
+        1            25  -16             Cycle          M                   25.0000             5    0.00
+        1            25  -17             Cycle          M                   25.0000             4    0.00
+        1            25  -19             Cycle          M                   25.0000             1    0.00
+        1            25  -2              Cycle          M                   25.0000             4    0.00
+        1            25  -21             Cycle          M                   25.0000             2    0.00
+        1            25  -22             Cycle          M                   25.0000             5    0.00
+        1            25  -23             Cycle          M                   25.0000             6    0.00
+        1            25  -24             Cycle          M                   25.0000             4    0.00
+        1            25  -25             Cycle          M                   25.0000             4    0.00
+        1            25  -26             Cycle          M                   25.0000             6    0.00
+        1            25  -27             Cycle          M                   25.0000             8    0.00
+        1            25  -28             Cycle          M                   25.0000             6    0.00
+        1            25  -3              Cycle          M                   25.0000             2    0.00
+        1            25  -31             Cycle          M                   25.0000             4    0.00
+        1            25  -33             Cycle          M                   25.0000             5    0.00
+        1            25  -34             Cycle          M                   25.0000             7    0.00
+        1            25  -35             Cycle          M                   25.0000             2    0.00
+        1            25  -37             Cycle          M                   25.0000             7    0.00
+        1            25  -38             Cycle          M                   25.0000            10    0.00
+        1            25  -4              Cycle          M                   25.0000             4    0.00
+        1            25  -40             Cycle          M                   25.0000             6    0.00
+        1            25  -41             Cycle          M                   25.0000             1    0.00
+        1            25  -42             Cycle          M                   25.0000             1    0.00
+        1            25  -43             Cycle          M                   25.0000             1    0.00
+        1            25  -44             Cycle          M                   25.0000             2    0.00
+        1            25  -45             Cycle          M                   25.0000             5    0.00
+        1            25  -46             Cycle          M                   25.0000             5    0.00
+        1            25  -47             Cycle          M                   25.0000             3    0.00
+        1            25  -48             Cycle          M                   25.0000             4    0.00
+        1            25  -50             Cycle          M                   25.0000             4    0.00
+        1            25  -51             Cycle          M                   25.0000             7    0.00
+        1            25  -53             Cycle          M                   25.0000             3    0.00
+        1            25  -54             Cycle          M                   25.0000             5    0.00
+        1            25  -55             Cycle          M                   25.0000             1    0.00
+        1            25  -56             Cycle          M                   25.0000             4    0.00
+        1            25  -57             Cycle          M                   25.0000             7    0.00
+        1            25  -58             Cycle          M                   25.0000             2    0.00
+        1            25  -59             Cycle          M                   25.0000             2    0.00
+        1            25  -6              Cycle          M                   25.0000             2    0.00
+        1            25  -60             Cycle          M                   25.0000            10    0.00
+        1            25  -61             Cycle          M                   25.0000             2    0.00
+        1            25  -62             Cycle          M                   25.0000             5    0.00
+        1            25  -63             Cycle          M                   25.0000             1    0.00
+        1            25  -64             Cycle          M                   25.0000             8    0.00
+        1            25  -65             Cycle          M                   25.0000             4    0.00
+        1            25  -66             Cycle          M                   25.0000             1    0.00
+        1            25  -67             Cycle          M                   25.0000             4    0.00
+        1            25  -68             Cycle          M                   25.0000             1    0.00
+        1            25  -7              Cycle          M                   25.0000             9    0.00
+        1            25  -70             Cycle          M                   25.0000             1    0.00
+        1            25  -71             Cycle          M                   25.0000             1    0.00
+        1            25  -72             Cycle          M                   25.0000             2    0.00
+        1            25  -73             Cycle          M                   25.0000             4    0.00
+        1            25  -74             Cycle          M                   25.0000             2    0.00
+        1            25  -77             Cycle          M                   25.0000             6    0.00
+        1            25  -78             Cycle          M                   25.0000             1    0.00
+        1            25  -80             Cycle          M                   25.0000             5    0.00
+        1            25  -81             Cycle          M                   25.0000             1    0.00
+        1            25  -82             Cycle          M                   25.0000             5    0.00
+        1            25  -83             Cycle          M                   25.0000             5    0.00
+        1            25  -84             Cycle          M                   25.0000             6    0.00
+        1            25  -86             Cycle          M                   25.0000             5    0.00
+        1            25  -87             Cycle          M                   25.0000             3    0.00
+        1            25  -88             Cycle          M                   25.0000             1    0.00
+        1            25  -9              Cycle          M                   25.0000             7    0.00
+        1            25  -90             Cycle          M                   25.0000             6    0.00
+        1            25  -91             Cycle          M                   25.0000             6    0.00
+        1            25  -92             Cycle          M                   25.0000             1    0.00
+        1            25  -94             Cycle          M                   25.0000             4    0.00
+        1            25  -95             Cycle          M                   25.0000             4    0.00
+        1            25  -96             Cycle          M                   25.0000             5    0.00
+        1            25  -97             Cycle          M                   25.0000             1    0.00
+        1            25  -99             Cycle          M                   25.0000             7    0.00
+        1            25  1               Cycle          M                   25.0000             1    0.00
+        1            25  10              Cycle          M                   25.0000             5    0.00
+        1            25  100             Cycle          M                   25.0000             7    0.00
+        1            25  101             Cycle          M                   25.0000             7    0.00
+        1            25  102             Cycle          M                   25.0000             7    0.00
+        1            25  103             Cycle          M                   25.0000             5    0.00
+        1            25  11              Cycle          M                   25.0000             4    0.00
+        1            25  113             Cycle          M                   25.0000             3    1.00
+        1            25  114             Cycle          M                   25.0000             1    0.00
+        1            25  115             Cycle          M                   25.0000             6    0.00
+        1            25  116             Cycle          M                   25.0000             5    0.00
+        1            25  13              Cycle          M                   25.0000             7    0.00
+        1            25  15              Cycle          M                   25.0000             5    0.00
+        1            25  16              Cycle          M                   25.0000            10    0.00
+        1            25  18              Cycle          M                   25.0000             1    0.00
+        1            25  19              Cycle          M                   25.0000             2    0.00
+        1            25  2               Cycle          M                   25.0000             8    0.00
+        1            25  20              Cycle          M                   25.0000             1    0.00
+        1            25  21              Cycle          M                   25.0000             8    0.00
+        1            25  22              Cycle          M                   25.0000             7    0.00
+        1            25  23              Cycle          M                   25.0000             6    0.00
+        1            25  26              Cycle          M                   25.0000             1    0.00
+        1            25  27              Cycle          M                   25.0000             6    0.00
+        1            25  28              Cycle          M                   25.0000             3    0.00
+        1            25  29              Cycle          M                   25.0000             7    0.00
+        1            25  3               Cycle          M                   25.0000             9    0.00
+        1            25  30              Cycle          M                   25.0000             4    0.00
+        1            25  34              Cycle          M                   25.0000             7    0.00
+        1            25  35              Cycle          M                   25.0000             2    0.00
+        1            25  37              Cycle          M                   25.0000             4    0.00
+        1            25  38              Cycle          M                   25.0000             2    0.00
+        1            25  39              Cycle          M                   25.0000             5    0.00
+        1            25  40              Cycle          M                   25.0000             7    0.00
+        1            25  41              Cycle          M                   25.0000             9    0.00
+        1            25  42              Cycle          M                   25.0000             6    0.00
+        1            25  44              Cycle          M                   25.0000             8    0.00
+        1            25  47              Cycle          M                   25.0000            13    0.00
+        1            25  49              Cycle          M                   25.0000             1    0.00
+        1            25  5               Cycle          M                   25.0000             9    0.00
+        1            25  50              Cycle          M                   25.0000             8    0.00
+        1            25  51              Cycle          M                   25.0000             6    0.00
+        1            25  52              Cycle          M                   25.0000             1    0.00
+        1            25  53              Cycle          M                   25.0000             1    0.00
+        1            25  55              Cycle          M                   25.0000             9    0.00
+        1            25  58              Cycle          M                   25.0000             3    0.00
+        1            25  59              Cycle          M                   25.0000             5    0.00
+        1            25  6               Cycle          M                   25.0000             7    0.00
+        1            25  60              Cycle          M                   25.0000            12    0.00
+        1            25  63              Cycle          M                   25.0000             5    0.00
+        1            25  65              Cycle          M                   25.0000             2    0.00
+        1            25  67              Cycle          M                   25.0000             6    0.00
+        1            25  69              Cycle          M                   25.0000             6    0.00
+        1            25  7               Cycle          M                   25.0000             5    0.00
+        1            25  72              Cycle          M                   25.0000             5    0.00
+        1            25  76              Cycle          M                   25.0000             6    0.00
+        1            25  8               Cycle          M                   25.0000             2    0.00
+        1            25  80              Cycle          M                   25.0000             6    0.00
+        1            25  81              Cycle          M                   25.0000             6    0.00
+        1            25  83              Cycle          M                   25.0000             2    0.00
+        1            25  85              Cycle          M                   25.0000             4    0.00
+        1            25  86              Cycle          M                   25.0000             6    0.00
+        1            25  87              Cycle          M                   25.0000             1    0.00
+        1            25  88              Cycle          M                   25.0000             1    0.00
+        1            25  9               Cycle          M                   25.0000            11    0.00
+        1            25  91              Cycle          M                   25.0000             4    0.00
+        1            25  94              Cycle          M                   25.0000             1    0.00
+        1            25  95              Cycle          M                   25.0000             3    0.00
+        1            25  96              Cycle          M                   25.0000             2    0.00
+        1            25  AA              Context        M                   25.0000             8    0.00
+        1            25  AC              Context        M                   25.0000            93    0.00
+        1            25  AG              Context        M                   25.0000           101    0.00
+        1            25  AT              Context        M                   25.0000             5    0.00
+        1            25  CA              Context        M                   25.0000            22    0.00
+        1            25  CC              Context        M                   25.0000            58    0.00
+        1            25  CT              Context        M                   25.0000            98    1.00
+        1            25  GA              Context        M                   25.0000             7    0.00
+        1            25  GC              Context        M                   25.0000            29    0.00
+        1            25  GG              Context        M                   25.0000            63    0.00
+        1            25  GT              Context        M                   25.0000           137    0.00
+        1            25  TA              Context        M                   25.0000            48    0.00
+        1            25  TC              Context        M                   25.0000            35    0.00
+        1            25  TG              Context        M                   25.0000             3    0.00
+        1            25  TT              Context        M                   25.0000             6    0.00
+        1            26  -1              Cycle          M                   26.0000             7    0.00
+        1            26  -10             Cycle          M                   26.0000             1    0.00
+        1            26  -101            Cycle          M                   26.0000             6    0.00
+        1            26  -104            Cycle          M                   26.0000             1    0.00
+        1            26  -113            Cycle          M                   26.0000             3    0.00
+        1            26  -114            Cycle          M                   26.0000             7    0.00
+        1            26  -12             Cycle          M                   26.0000             4    0.00
+        1            26  -13             Cycle          M                   26.0000             5    0.00
+        1            26  -14             Cycle          M                   26.0000             5    0.00
+        1            26  -16             Cycle          M                   26.0000             9    0.00
+        1            26  -17             Cycle          M                   26.0000             3    0.00
+        1            26  -19             Cycle          M                   26.0000             4    0.00
+        1            26  -2              Cycle          M                   26.0000             9    0.00
+        1            26  -20             Cycle          M                   26.0000             4    0.00
+        1            26  -21             Cycle          M                   26.0000             1    0.00
+        1            26  -22             Cycle          M                   26.0000             3    0.00
+        1            26  -24             Cycle          M                   26.0000             1    0.00
+        1            26  -26             Cycle          M                   26.0000             1    0.00
+        1            26  -28             Cycle          M                   26.0000             8    0.00
+        1            26  -29             Cycle          M                   26.0000             1    0.00
+        1            26  -3              Cycle          M                   26.0000             5    0.00
+        1            26  -30             Cycle          M                   26.0000             5    0.00
+        1            26  -31             Cycle          M                   26.0000            10    0.00
+        1            26  -33             Cycle          M                   26.0000             4    0.00
+        1            26  -34             Cycle          M                   26.0000             7    0.00
+        1            26  -35             Cycle          M                   26.0000            13    0.00
+        1            26  -36             Cycle          M                   26.0000             8    0.00
+        1            26  -37             Cycle          M                   26.0000             9    0.00
+        1            26  -38             Cycle          M                   26.0000             4    0.00
+        1            26  -39             Cycle          M                   26.0000             1    0.00
+        1            26  -4              Cycle          M                   26.0000             3    1.00
+        1            26  -40             Cycle          M                   26.0000             5    0.00
+        1            26  -41             Cycle          M                   26.0000             1    0.00
+        1            26  -43             Cycle          M                   26.0000             6    0.00
+        1            26  -44             Cycle          M                   26.0000             8    0.00
+        1            26  -46             Cycle          M                   26.0000             4    0.00
+        1            26  -47             Cycle          M                   26.0000             3    0.00
+        1            26  -48             Cycle          M                   26.0000             6    0.00
+        1            26  -49             Cycle          M                   26.0000             4    0.00
+        1            26  -5              Cycle          M                   26.0000             1    0.00
+        1            26  -50             Cycle          M                   26.0000             4    0.00
+        1            26  -52             Cycle          M                   26.0000             3    0.00
+        1            26  -53             Cycle          M                   26.0000            11    0.00
+        1            26  -54             Cycle          M                   26.0000             9    0.00
+        1            26  -55             Cycle          M                   26.0000            11    0.00
+        1            26  -56             Cycle          M                   26.0000             5    0.00
+        1            26  -57             Cycle          M                   26.0000             5    0.00
+        1            26  -58             Cycle          M                   26.0000            10    0.00
+        1            26  -59             Cycle          M                   26.0000             8    0.00
+        1            26  -6              Cycle          M                   26.0000             4    0.00
+        1            26  -61             Cycle          M                   26.0000             4    0.00
+        1            26  -63             Cycle          M                   26.0000             6    0.00
+        1            26  -67             Cycle          M                   26.0000             1    0.00
+        1            26  -68             Cycle          M                   26.0000             5    0.00
+        1            26  -69             Cycle          M                   26.0000             6    0.00
+        1            26  -70             Cycle          M                   26.0000             1    0.00
+        1            26  -71             Cycle          M                   26.0000             6    0.00
+        1            26  -72             Cycle          M                   26.0000             4    0.00
+        1            26  -73             Cycle          M                   26.0000             2    0.00
+        1            26  -74             Cycle          M                   26.0000             1    0.00
+        1            26  -78             Cycle          M                   26.0000             6    0.00
+        1            26  -80             Cycle          M                   26.0000             1    0.00
+        1            26  -81             Cycle          M                   26.0000             1    0.00
+        1            26  -82             Cycle          M                   26.0000             2    0.00
+        1            26  -86             Cycle          M                   26.0000             1    0.00
+        1            26  -9              Cycle          M                   26.0000             3    0.00
+        1            26  -98             Cycle          M                   26.0000             7    0.00
+        1            26  1               Cycle          M                   26.0000             8    0.00
+        1            26  10              Cycle          M                   26.0000             2    0.00
+        1            26  105             Cycle          M                   26.0000             7    0.00
+        1            26  108             Cycle          M                   26.0000             7    0.00
+        1            26  11              Cycle          M                   26.0000             3    0.00
+        1            26  111             Cycle          M                   26.0000             7    0.00
+        1            26  113             Cycle          M                   26.0000             4    0.00
+        1            26  12              Cycle          M                   26.0000             4    0.00
+        1            26  13              Cycle          M                   26.0000             1    0.00
+        1            26  16              Cycle          M                   26.0000             5    0.00
+        1            26  17              Cycle          M                   26.0000             4    0.00
+        1            26  19              Cycle          M                   26.0000             5    0.00
+        1            26  20              Cycle          M                   26.0000             6    0.00
+        1            26  23              Cycle          M                   26.0000             8    0.00
+        1            26  25              Cycle          M                   26.0000             1    0.00
+        1            26  26              Cycle          M                   26.0000             8    0.00
+        1            26  27              Cycle          M                   26.0000             2    0.00
+        1            26  28              Cycle          M                   26.0000             4    0.00
+        1            26  3               Cycle          M                   26.0000             6    0.00
+        1            26  30              Cycle          M                   26.0000             5    0.00
+        1            26  33              Cycle          M                   26.0000             6    0.00
+        1            26  34              Cycle          M                   26.0000             6    0.00
+        1            26  35              Cycle          M                   26.0000             5    0.00
+        1            26  36              Cycle          M                   26.0000             1    0.00
+        1            26  38              Cycle          M                   26.0000             7    0.00
+        1            26  39              Cycle          M                   26.0000             6    0.00
+        1            26  4               Cycle          M                   26.0000             7    0.00
+        1            26  43              Cycle          M                   26.0000             7    0.00
+        1            26  47              Cycle          M                   26.0000             3    0.00
+        1            26  49              Cycle          M                   26.0000             6    0.00
+        1            26  5               Cycle          M                   26.0000             8    0.00
+        1            26  50              Cycle          M                   26.0000             1    0.00
+        1            26  57              Cycle          M                   26.0000             9    0.00
+        1            26  58              Cycle          M                   26.0000             4    0.00
+        1            26  59              Cycle          M                   26.0000            11    0.00
+        1            26  6               Cycle          M                   26.0000             1    0.00
+        1            26  62              Cycle          M                   26.0000             2    0.00
+        1            26  63              Cycle          M                   26.0000             2    0.00
+        1            26  64              Cycle          M                   26.0000             2    0.00
+        1            26  65              Cycle          M                   26.0000             4    0.00
+        1            26  72              Cycle          M                   26.0000             1    0.00
+        1            26  73              Cycle          M                   26.0000             7    0.00
+        1            26  74              Cycle          M                   26.0000             1    0.00
+        1            26  77              Cycle          M                   26.0000             1    0.00
+        1            26  78              Cycle          M                   26.0000             4    0.00
+        1            26  79              Cycle          M                   26.0000             1    0.00
+        1            26  8               Cycle          M                   26.0000             5    0.00
+        1            26  82              Cycle          M                   26.0000             4    0.00
+        1            26  83              Cycle          M                   26.0000             4    0.00
+        1            26  84              Cycle          M                   26.0000             1    0.00
+        1            26  87              Cycle          M                   26.0000             5    0.00
+        1            26  88              Cycle          M                   26.0000             4    0.00
+        1            26  89              Cycle          M                   26.0000             5    0.00
+        1            26  9               Cycle          M                   26.0000             5    0.00
+        1            26  96              Cycle          M                   26.0000             1    0.00
+        1            26  98              Cycle          M                   26.0000             7    0.00
+        1            26  AA              Context        M                   26.0000            64    0.00
+        1            26  AG              Context        M                   26.0000            61    0.00
+        1            26  AT              Context        M                   26.0000            35    0.00
+        1            26  CA              Context        M                   26.0000           106    0.00
+        1            26  CT              Context        M                   26.0000            57    0.00
+        1            26  GA              Context        M                   26.0000            48    1.00
+        1            26  GG              Context        M                   26.0000            46    0.00
+        1            26  GT              Context        M                   26.0000            30    0.00
+        1            26  TA              Context        M                   26.0000            22    0.00
+        1            26  TC              Context        M                   26.0000            48    0.00
+        1            26  TG              Context        M                   26.0000             8    0.00
+        1            26  TT              Context        M                   26.0000            28    0.00
+        1            27  -10             Cycle          M                   27.0000             6    0.00
+        1            27  -13             Cycle          M                   27.0000             7    0.00
+        1            27  -19             Cycle          M                   27.0000            11    0.00
+        1            27  -20             Cycle          M                   27.0000             1    0.00
+        1            27  -21             Cycle          M                   27.0000             4    0.00
+        1            27  -22             Cycle          M                   27.0000             4    0.00
+        1            27  -24             Cycle          M                   27.0000             2    0.00
+        1            27  -28             Cycle          M                   27.0000             1    0.00
+        1            27  -29             Cycle          M                   27.0000            11    0.00
+        1            27  -30             Cycle          M                   27.0000             2    0.00
+        1            27  -33             Cycle          M                   27.0000             4    0.00
+        1            27  -36             Cycle          M                   27.0000             1    0.00
+        1            27  -39             Cycle          M                   27.0000             7    0.00
+        1            27  -41             Cycle          M                   27.0000             7    0.00
+        1            27  -43             Cycle          M                   27.0000             4    0.00
+        1            27  -44             Cycle          M                   27.0000             2    0.00
+        1            27  -45             Cycle          M                   27.0000             2    0.00
+        1            27  -47             Cycle          M                   27.0000             2    0.00
+        1            27  -48             Cycle          M                   27.0000             5    0.00
+        1            27  -49             Cycle          M                   27.0000             4    0.00
+        1            27  -5              Cycle          M                   27.0000             2    0.00
+        1            27  -52             Cycle          M                   27.0000             6    0.00
+        1            27  -53             Cycle          M                   27.0000             2    0.00
+        1            27  -54             Cycle          M                   27.0000             2    0.00
+        1            27  -55             Cycle          M                   27.0000             4    0.00
+        1            27  -56             Cycle          M                   27.0000             1    0.00
+        1            27  -59             Cycle          M                   27.0000             4    0.00
+        1            27  -61             Cycle          M                   27.0000             3    0.00
+        1            27  -63             Cycle          M                   27.0000             7    0.00
+        1            27  -68             Cycle          M                   27.0000             1    0.00
+        1            27  -70             Cycle          M                   27.0000             5    0.00
+        1            27  -75             Cycle          M                   27.0000             7    0.00
+        1            27  -85             Cycle          M                   27.0000             6    0.00
+        1            27  -9              Cycle          M                   27.0000             6    0.00
+        1            27  -97             Cycle          M                   27.0000             6    0.00
+        1            27  12              Cycle          M                   27.0000             5    0.00
+        1            27  14              Cycle          M                   27.0000             2    1.00
+        1            27  17              Cycle          M                   27.0000            11    0.00
+        1            27  18              Cycle          M                   27.0000             9    0.00
+        1            27  19              Cycle          M                   27.0000             1    0.00
+        1            27  20              Cycle          M                   27.0000             9    0.00
+        1            27  21              Cycle          M                   27.0000             7    0.00
+        1            27  22              Cycle          M                   27.0000             9    0.00
+        1            27  23              Cycle          M                   27.0000             1    1.00
+        1            27  24              Cycle          M                   27.0000             9    0.00
+        1            27  25              Cycle          M                   27.0000             9    0.00
+        1            27  26              Cycle          M                   27.0000             5    0.00
+        1            27  27              Cycle          M                   27.0000             5    0.00
+        1            27  28              Cycle          M                   27.0000             9    0.00
+        1            27  3               Cycle          M                   27.0000             2    0.00
+        1            27  31              Cycle          M                   27.0000             3    0.00
+        1            27  32              Cycle          M                   27.0000             1    0.00
+        1            27  33              Cycle          M                   27.0000             6    0.00
+        1            27  37              Cycle          M                   27.0000             2    0.00
+        1            27  39              Cycle          M                   27.0000             4    0.00
+        1            27  4               Cycle          M                   27.0000            10    0.00
+        1            27  40              Cycle          M                   27.0000             2    0.00
+        1            27  43              Cycle          M                   27.0000             8    0.00
+        1            27  48              Cycle          M                   27.0000             9    0.00
+        1            27  50              Cycle          M                   27.0000             6    0.00
+        1            27  51              Cycle          M                   27.0000             9    0.00
+        1            27  58              Cycle          M                   27.0000             9    0.00
+        1            27  6               Cycle          M                   27.0000             7    0.00
+        1            27  62              Cycle          M                   27.0000             5    0.00
+        1            27  64              Cycle          M                   27.0000             5    0.00
+        1            27  66              Cycle          M                   27.0000             7    0.00
+        1            27  75              Cycle          M                   27.0000             2    0.00
+        1            27  77              Cycle          M                   27.0000             6    0.00
+        1            27  78              Cycle          M                   27.0000             3    0.00
+        1            27  79              Cycle          M                   27.0000             6    0.00
+        1            27  8               Cycle          M                   27.0000             4    0.00
+        1            27  82              Cycle          M                   27.0000             3    0.00
+        1            27  84              Cycle          M                   27.0000             6    0.00
+        1            27  89              Cycle          M                   27.0000             2    0.00
+        1            27  AA              Context        M                   27.0000            45    1.00
+        1            27  AT              Context        M                   27.0000            29    0.00
+        1            27  CA              Context        M                   27.0000            88    0.00
+        1            27  GA              Context        M                   27.0000            67    0.00
+        1            27  TG              Context        M                   27.0000           124    1.00
+        1            27  TT              Context        M                   27.0000            14    0.00
+        1            28  -20             Cycle          M                   28.0000             2    0.00
+        1            28  -29             Cycle          M                   28.0000             4    0.00
+        1            28  -36             Cycle          M                   28.0000             6    0.00
+        1            28  -39             Cycle          M                   28.0000             8    0.00
+        1            28  -40             Cycle          M                   28.0000             5    0.00
+        1            28  -41             Cycle          M                   28.0000             7    0.00
+        1            28  -42             Cycle          M                   28.0000             9    0.00
+        1            28  -43             Cycle          M                   28.0000             1    1.00
+        1            28  -45             Cycle          M                   28.0000             5    0.00
+        1            28  -47             Cycle          M                   28.0000             4    0.00
+        1            28  -5              Cycle          M                   28.0000             4    0.00
+        1            28  -56             Cycle          M                   28.0000             6    0.00
+        1            28  -85             Cycle          M                   28.0000             1    0.00
+        1            28  13              Cycle          M                   28.0000             8    0.00
+        1            28  14              Cycle          M                   28.0000             8    0.00
+        1            28  17              Cycle          M                   28.0000             1    0.00
+        1            28  19              Cycle          M                   28.0000             8    0.00
+        1            28  25              Cycle          M                   28.0000             4    0.00
+        1            28  31              Cycle          M                   28.0000             6    0.00
+        1            28  32              Cycle          M                   28.0000             8    0.00
+        1            28  33              Cycle          M                   28.0000             4    0.00
+        1            28  36              Cycle          M                   28.0000             6    0.00
+        1            28  43              Cycle          M                   28.0000             1    0.00
+        1            28  48              Cycle          M                   28.0000             6    0.00
+        1            28  6               Cycle          M                   28.0000             2    0.00
+        1            28  74              Cycle          M                   28.0000             6    0.00
+        1            28  75              Cycle          M                   28.0000             5    0.00
+        1            28  TG              Context        M                   28.0000            62    0.00
+        1            28  TT              Context        M                   28.0000            73    1.00
+
