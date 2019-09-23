@@ -35,7 +35,7 @@ if (args$format == 'rsem') {
     dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
 } else if (args$format == 'salmon') {
     tx2gene = read.table(args$tx2gene)
-    txi <- tximport(files, type = "salmon", tx2gene = tx2gene)
+    txi <- tximport(files, type = "salmon", tx2gene = tx2gene, ignoreTxVersion=TRUE)
     dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
 } else if (args$format == 'stringtie') {
     # Read the first input sample to get the transcript_id -> gene_id mapping table

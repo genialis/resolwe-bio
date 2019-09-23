@@ -5,6 +5,7 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+
 ==========
 Unreleased
 ==========
@@ -14,6 +15,13 @@ Changed
 - Test files improved for ``workflow-wes``, ``bamclipper``,
   ``markduplicates`` and ``bqsr``
 - Fix typo in ``differentialexpression-shrna`` process docstring
+
+Fixed
+-----
+- Fix transcript-to-gene_id mapping for Salmon expressions in
+  ``differentialexpression-deseq2`` process. Transcript versions are
+  now ignored when matching IDs using the transcript-to-gene_id mapping
+  table.
 
 
 ===================
