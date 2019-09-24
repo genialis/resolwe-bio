@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import multiprocessing
 
 import numpy as np  # pylint: disable=import-error
 import pandas as pd  # pylint: disable=import-error
@@ -18,6 +19,7 @@ def get_args():
     parser.add_argument('--sample-ids', '-i', nargs='+', help='Sample IDs', required=True)
     parser.add_argument('--gene-labels', '-g', nargs='+', help='Filter genes by label')
     parser.add_argument('--components', '-c', help='Number of PCA components', type=int, default=2)
+    parser.add_argument('--n-threads', '-n', help='Number of threads', type=int, default=1)
     parser.add_argument('--output-fn', '-o', help='Output file name')
     return parser.parse_args()
 
@@ -108,16 +110,17 @@ def read_csv(fname):
     return csv
 
 
-def get_csv(fnames):
+def get_csv(fnames, n_threads=1):
     """Read CSV files and return Pandas DataFrame."""
-    expressions = [read_csv(fname) for fname in fnames]
+    with multiprocessing.Pool(n_threads) as pool:
+        expressions = pool.map(read_csv, fnames)
     return pd.concat(expressions, axis=1, join='inner')
 
 
 def main():
     """Read data, run PCA, and output results."""
     args = get_args()
-    expressions = get_csv(args.sample_files)
+    expressions = get_csv(args.sample_files, args.n_threads)
 
     if args.gene_labels:
         gene_labels = set(args.gene_labels).intersection(expressions.index)
