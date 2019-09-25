@@ -14,6 +14,7 @@ Added
 -----
 - Add ``Macaca mulatta`` species choice to the ``sample`` descriptor
   schema
+- Add ``workflow-cutadapt-star-fc-quant-wo-depletion-single`` process
 
 Changed
 -------
@@ -27,6 +28,7 @@ Fixed
   ``differentialexpression-deseq2`` process. Transcript versions are
   now ignored when matching IDs using the transcript-to-gene_id mapping
   table.
+- Fix ``workflow-cutadapt-star-fc-quant-single`` process description
 
 
 ===================

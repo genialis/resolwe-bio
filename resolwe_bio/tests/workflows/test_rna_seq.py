@@ -201,7 +201,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(fc_paired, 'species', 'Homo sapiens')
 
     @with_resolwe_host
-    @tag_process('workflow-cutadapt-star-fc-quant-single')
+    @tag_process('workflow-cutadapt-star-fc-quant-single', 'workflow-cutadapt-star-fc-quant-wo-depletion-single')
     def test_cutadapt_star_fc_quant_workflow(self):
         with self.preparation_stage():
             reads = self.run_processor('upload-fastq-single', {
@@ -259,6 +259,24 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'annotation': annotation.id,
                 'rrna_reference': rrna_star_index.id,
                 'globin_reference': globin_star_index.id,
+            }
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        feature_counts = Data.objects.filter(process__slug='feature_counts').last()
+        self.assertFile(feature_counts, 'rc', 'workflow_cutadapt_star_fc_quant_single_rc.tab.gz', compression='gzip')
+        self.assertFile(feature_counts, 'exp', 'workflow_cutadapt_star_fc_quant_single_cpm.tab.gz', compression='gzip')
+        self.assertFields(feature_counts, 'exp_type', 'CPM')
+        self.assertFields(feature_counts, 'source', 'ENSEMBL')
+        self.assertFields(feature_counts, 'species', 'Homo sapiens')
+
+        self.run_process(
+            'workflow-cutadapt-star-fc-quant-wo-depletion-single', {
+                'reads': reads.id,
+                'star_index': star_index.id,
+                'annotation': annotation.id,
             }
         )
 
