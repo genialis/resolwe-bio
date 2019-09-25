@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``Macaca mulatta`` species choice to the ``sample`` descriptor
+  schema
+
 Changed
 -------
 - Test files improved for ``workflow-wes``, ``bamclipper``,
