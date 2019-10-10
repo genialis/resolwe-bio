@@ -1,9 +1,9 @@
 - slug: workflow-trim-align-quant
-  name: Trim, align and quantify using a library as a reference.
+  name: shRNA quantification
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.2
+  version: 0.0.3
   type: data:workflow:trimalquant
   category: Pipeline
   input:
