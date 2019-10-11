@@ -6,20 +6,14 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
-
-Added
------
+===================
+23.1.1 - 2019-10-11
+===================
 
 Changed
 -------
-- Renamed ``workflow-trim-align-quant`` workflow to make it more
+- Renamed ``workflow-trim-align-quant`` workflow to make the name more
   informative
-
-Fixed
------
 
 
 ===================
