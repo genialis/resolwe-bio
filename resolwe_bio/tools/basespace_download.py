@@ -134,24 +134,24 @@ def make_get_request(session, url, headers, stream=False):
     return response
 
 
-def get_basespace_api_url():
+def get_api_url():
     """Get base BaseSpace API URL."""
     return 'https://api.basespace.illumina.com/v1pre3'
 
 
-def get_basespace_api_file_url(file_id):
+def get_api_file_url(file_id):
     """Get BaseSpace API file URL."""
-    return '{}/files/{}'.format(get_basespace_api_url(), file_id)
+    return '{}/files/{}'.format(get_api_url(), file_id)
 
 
-def get_basespace_api_file_content_url(file_id):
+def get_api_file_content_url(file_id):
     """Get BaseSpace API file contents URL."""
-    return '{}/content'.format(get_basespace_api_file_url(file_id))
+    return '{}/content'.format(get_api_file_url(file_id))
 
 
 def get_file_properties(session, file_id, request_headers):
     """Get file name and size (in bytes)."""
-    response = make_get_request(session, get_basespace_api_file_url(file_id), request_headers)
+    response = make_get_request(session, get_api_file_url(file_id), request_headers)
     info = response.json()['Response']
     return info['Name'], info['Size']
 
@@ -171,7 +171,12 @@ def download_file_repeatedly(tries, session, file_id, file_name, expected_file_s
 
 def download_file(session, file_id, file_name, expected_file_size, request_headers):
     """Download BaseSpace file."""
-    response = make_get_request(session, get_basespace_api_file_content_url(file_id), request_headers, stream=True)
+    response = make_get_request(
+        session,
+        get_api_file_content_url(file_id),
+        request_headers,
+        stream=True
+    )
 
     try:
         with open(file_name, 'wb') as f:
