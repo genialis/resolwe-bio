@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 """Tool to download files from BaseSpace."""
 
-import sys
-import traceback
-import atexit
 import argparse
+import atexit
+import gzip
+import os
+import sys
+import time
+import traceback
+
 import requests
 
 
@@ -20,6 +24,18 @@ def main():
     atexit.register(on_exit, session)
 
     parser = argparse.ArgumentParser(description='Download file from Illumina BaseSpace.')
+
+    def check_tries_within_range(arg):
+        try:
+            value = int(arg)
+        except ValueError:
+            raise argparse.ArgumentTypeError("Not an integer")
+
+        if not 1 <= value <= 10:
+            raise argparse.ArgumentTypeError("Not between 1 and 10")
+
+        return value
+
     parser.add_argument('--file-id',
                         dest='file_ids',
                         action='append',
@@ -37,6 +53,11 @@ def main():
                         help="Sets what is printed to standard output. "
                              "Argument 'full' outputs everything, "
                              "argument 'filename' outputs only file names of downloaded files.")
+    parser.add_argument('--tries',
+                        dest='tries',
+                        type=check_tries_within_range,
+                        default=3,
+                        help="Number of tries to download a file before giving up.")
     parser.add_argument('--verbose',
                         dest='verbose',
                         action='store_true',
@@ -51,14 +72,15 @@ def main():
         headers = {'x-access-token': access_token}
 
         for file_id in file_ids:
-            file_name = get_file_name(session, file_id, headers)
-            download_file(session, file_id, file_name, headers)
+            file_name, file_size = get_file_properties(session, file_id, headers)
+            download_file_repeatedly(args.tries, session, file_id, file_name, file_size, headers)
             output(args.output, 'filename={}'.format(file_name))
     except Exception:
         if args.verbose:
             traceback.print_exc()
         else:
-            print("An error occurred while processing the Basespace download request. Use --verbose to see details.")
+            print("An error occurred while processing the Basespace download request. "
+                  "Use --verbose to see details.")
 
         sys.exit(1)
 
@@ -100,12 +122,14 @@ def get_token_from_secret_file(secret_file_path):
 
 def make_get_request(session, url, headers, stream=False):
     """Make a get request."""
-    response = session.get(url, headers=headers, stream=stream)
+    response = session.get(url, headers=headers, stream=stream, timeout=60)
 
     if response.status_code == 401:
         raise BaseSpaceDownloadError('Authentication failed on URL {}'.format(url))
     elif response.status_code == 404:
         raise BaseSpaceDownloadError('BaseSpace file {} not found'.format(url))
+    elif response.status_code != 200:
+        raise BaseSpaceDownloadError('Failed to retrieve content from {}'.format(url))
 
     return response
 
@@ -125,24 +149,57 @@ def get_basespace_api_file_content_url(file_id):
     return '{}/content'.format(get_basespace_api_file_url(file_id))
 
 
-def get_file_name(session, file_id, request_headers):
-    """Get file name."""
+def get_file_properties(session, file_id, request_headers):
+    """Get file name and size (in bytes)."""
     response = make_get_request(session, get_basespace_api_file_url(file_id), request_headers)
-    return response.json()['Response']['Name']
+    info = response.json()['Response']
+    return info['Name'], info['Size']
 
 
-def download_file(session, file_id, file_name, request_headers):
+def download_file_repeatedly(tries, session, file_id, file_name, expected_file_size, request_headers):
+    """Attempt to download BaseSpace file numerous times in case of errors."""
+    for index in range(tries):
+        try:
+            download_file(session, file_id, file_name, expected_file_size, request_headers)
+            break
+        except BaseSpaceDownloadError as error:
+            if index + 1 >= tries:
+                raise error
+
+        time.sleep(3)
+
+
+def download_file(session, file_id, file_name, expected_file_size, request_headers):
     """Download BaseSpace file."""
-    response = make_get_request(session, get_basespace_api_file_content_url(file_id), request_headers, True)
+    response = make_get_request(session, get_basespace_api_file_content_url(file_id), request_headers, stream=True)
 
     try:
         with open(file_name, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=1024):
+            chunk_size = 1024 * 1024 * 10
+            for chunk in response.iter_content(chunk_size=chunk_size):
                 f.write(chunk)
     except FileNotFoundError:
         raise BaseSpaceDownloadError('Could not save file to {}, due to directory not being found'.format(file_name))
     except PermissionError:
         raise BaseSpaceDownloadError('Could not save file to {}, due to insufficient permissions'.format(file_name))
+
+    # Check file size.
+    actual_file_size = os.path.getsize(file_name)
+    if expected_file_size != actual_file_size:
+        raise BaseSpaceDownloadError(
+            'File\'s ({}) expected size ({}) does not match its actual size ({})'
+            .format(file_name, expected_file_size, actual_file_size)
+        )
+
+    # Check gzip integrity.
+    if file_name.split('.')[-1] == 'gz':
+        with gzip.open(file_name, 'rb') as f:
+            try:
+                chunk_size = 1024 * 1024 * 10
+                while bool(f.read(chunk_size)):
+                    pass
+            except OSError:
+                raise BaseSpaceDownloadError('File {} did not pass gzip integrity check'.format(file_name))
 
 
 if __name__ == "__main__":

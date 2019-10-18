@@ -14,6 +14,10 @@ Added
 -----
 - Add ``resolwebio/slamdunk`` Docker image
 
+Changed
+-------
+- Make BaseSpace file download more robust
+
 
 ===================
 23.1.1 - 2019-10-11
