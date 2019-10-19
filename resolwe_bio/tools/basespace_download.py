@@ -74,7 +74,7 @@ def main():
         for file_id in file_ids:
             file_name, file_size = get_file_properties(session, file_id, headers)
             download_file_repeatedly(args.tries, session, file_id, file_name, file_size, headers)
-            output(args.output, 'filename={}'.format(file_name))
+            output(args.output, f'filename={file_name}')
     except Exception:
         if args.verbose:
             traceback.print_exc()
@@ -104,7 +104,7 @@ def output(output_option, value):
         if value.startswith('filename='):
             print(value[len('filename='):])
     else:
-        print("Internal error: output argument {} handling not implemented".format(output_option))
+        print(f"Internal error: output argument {output_option} handling not implemented")
 
         sys.exit(1)
 
@@ -125,11 +125,11 @@ def make_get_request(session, url, headers, stream=False):
     response = session.get(url, headers=headers, stream=stream, timeout=60)
 
     if response.status_code == 401:
-        raise BaseSpaceDownloadError('Authentication failed on URL {}'.format(url))
+        raise BaseSpaceDownloadError(f'Authentication failed on URL {url}')
     elif response.status_code == 404:
-        raise BaseSpaceDownloadError('BaseSpace file {} not found'.format(url))
+        raise BaseSpaceDownloadError(f'BaseSpace file {url} not found')
     elif response.status_code != 200:
-        raise BaseSpaceDownloadError('Failed to retrieve content from {}'.format(url))
+        raise BaseSpaceDownloadError(f'Failed to retrieve content from {url}')
 
     return response
 
@@ -141,12 +141,13 @@ def get_api_url():
 
 def get_api_file_url(file_id):
     """Get BaseSpace API file URL."""
-    return '{}/files/{}'.format(get_api_url(), file_id)
+    api_url = get_api_url()
+    return f'{api_url}/files/{file_id}'
 
 
 def get_api_file_content_url(file_id):
     """Get BaseSpace API file contents URL."""
-    return '{}/content'.format(get_api_file_url(file_id))
+    return f'{get_api_file_url(file_id)}/content'
 
 
 def get_file_properties(session, file_id, request_headers):
@@ -184,16 +185,20 @@ def download_file(session, file_id, file_name, expected_file_size, request_heade
             for chunk in response.iter_content(chunk_size=chunk_size):
                 f.write(chunk)
     except FileNotFoundError:
-        raise BaseSpaceDownloadError('Could not save file to {}, due to directory not being found'.format(file_name))
+        raise BaseSpaceDownloadError(
+            f'Could not save file to {file_name}, due to directory not being found'
+        )
     except PermissionError:
-        raise BaseSpaceDownloadError('Could not save file to {}, due to insufficient permissions'.format(file_name))
+        raise BaseSpaceDownloadError(
+            f'Could not save file to {file_name}, due to insufficient permissions'
+        )
 
     # Check file size.
     actual_file_size = os.path.getsize(file_name)
     if expected_file_size != actual_file_size:
         raise BaseSpaceDownloadError(
-            'File\'s ({}) expected size ({}) does not match its actual size ({})'
-            .format(file_name, expected_file_size, actual_file_size)
+            f'File\'s ({file_name}) expected size ({expected_file_size}) '
+            f'does not match its actual size ({actual_file_size})'
         )
 
     # Check gzip integrity.
@@ -204,7 +209,9 @@ def download_file(session, file_id, file_name, expected_file_size, request_heade
                 while bool(f.read(chunk_size)):
                     pass
             except OSError:
-                raise BaseSpaceDownloadError('File {} did not pass gzip integrity check'.format(file_name))
+                raise BaseSpaceDownloadError(
+                    f'File {file_name} did not pass gzip integrity check'
+                )
 
 
 if __name__ == "__main__":
