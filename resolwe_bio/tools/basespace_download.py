@@ -157,11 +157,35 @@ def get_file_properties(session, file_id, request_headers):
     return info['Name'], info['Size']
 
 
+def raise_for_file_corruption(file_name, expected_file_size):
+    """Raise an error if file does not pass integrity check."""
+    # Check file size.
+    actual_file_size = os.path.getsize(file_name)
+    if expected_file_size != actual_file_size:
+        raise BaseSpaceDownloadError(
+            f'File\'s ({file_name}) expected size ({expected_file_size}) '
+            f'does not match its actual size ({actual_file_size})'
+        )
+
+    # Check gzip integrity.
+    if file_name.split('.')[-1] == 'gz':
+        try:
+            with gzip.open(file_name, 'rb') as f:
+                chunk_size = 1024 * 1024 * 10
+                while bool(f.read(chunk_size)):
+                    pass
+        except OSError:
+            raise BaseSpaceDownloadError(
+                f'File {file_name} did not pass gzip integrity check'
+            )
+
+
 def download_file_repeatedly(tries, session, file_id, file_name, expected_file_size, request_headers):
     """Attempt to download BaseSpace file numerous times in case of errors."""
     for index in range(tries):
         try:
-            download_file(session, file_id, file_name, expected_file_size, request_headers)
+            download_file(session, file_id, file_name, request_headers)
+            raise_for_file_corruption(file_name, expected_file_size)
             break
         except BaseSpaceDownloadError as error:
             if index + 1 >= tries:
@@ -170,7 +194,7 @@ def download_file_repeatedly(tries, session, file_id, file_name, expected_file_s
         time.sleep(3)
 
 
-def download_file(session, file_id, file_name, expected_file_size, request_headers):
+def download_file(session, file_id, file_name, request_headers):
     """Download BaseSpace file."""
     response = make_get_request(
         session,
@@ -192,26 +216,10 @@ def download_file(session, file_id, file_name, expected_file_size, request_heade
         raise BaseSpaceDownloadError(
             f'Could not save file to {file_name}, due to insufficient permissions'
         )
-
-    # Check file size.
-    actual_file_size = os.path.getsize(file_name)
-    if expected_file_size != actual_file_size:
+    except requests.RequestException as error:
         raise BaseSpaceDownloadError(
-            f'File\'s ({file_name}) expected size ({expected_file_size}) '
-            f'does not match its actual size ({actual_file_size})'
-        )
-
-    # Check gzip integrity.
-    if file_name.split('.')[-1] == 'gz':
-        with gzip.open(file_name, 'rb') as f:
-            try:
-                chunk_size = 1024 * 1024 * 10
-                while bool(f.read(chunk_size)):
-                    pass
-            except OSError:
-                raise BaseSpaceDownloadError(
-                    f'File {file_name} did not pass gzip integrity check'
-                )
+            f'Could not save file to {file_name}, due to a network error'
+        ) from error
 
 
 if __name__ == "__main__":
