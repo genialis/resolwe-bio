@@ -75,12 +75,12 @@ def main():
             file_name, file_size = get_file_properties(session, file_id, headers)
             download_file_repeatedly(args.tries, session, file_id, file_name, file_size, headers)
             output(args.output, f'filename={file_name}')
-    except Exception:
+    except Exception as error:
         if args.verbose:
             traceback.print_exc()
         else:
-            print("An error occurred while processing the Basespace download request. "
-                  "Use --verbose to see details.")
+            print(str(error))
+            print("Use --verbose to see traceback.")
 
         sys.exit(1)
 
