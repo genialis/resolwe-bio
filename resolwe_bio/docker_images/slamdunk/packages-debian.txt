@@ -1,0 +1,2 @@
+binutils
+python-setuptools

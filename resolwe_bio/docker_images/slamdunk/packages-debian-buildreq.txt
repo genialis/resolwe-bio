@@ -1,0 +1,10 @@
+build-essential
+zlib1g-dev
+cmake
+git
+libbz2-dev
+liblzma-dev
+libncurses5-dev
+python-dev
+python-pip
+python-wheel
