@@ -21,6 +21,7 @@ Changed
 - Bump rose2 to 1.1.0, bamliquidator to 1.3.8, and use
   ``resolwebio/base:ubuntu-18.04`` Docker image as a base image in 
   ``resolwebio/bamliquidator:1.1.0`` Docker image
+- Use ``resolwebio/bamliquidator:1.1.0`` in ``rose2`` process
 
 
 ===================
