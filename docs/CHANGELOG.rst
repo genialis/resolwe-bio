@@ -14,6 +14,7 @@ Added
 -----
 - Add ``resolwebio/slamdunk`` Docker image
 - Add Tabix (1.7-2) to ``resolwebio/bamliquidator:1.2.0`` docker image
+- Add ``seqtk-rev-complement-single``and ``seqtk-rev-complement-paired`` process
 
 Changed
 -------
