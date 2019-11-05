@@ -1,0 +1,4 @@
+#slamdunk v0.3.4	3	sample info:	sample_0	0	NA	-1
+#annotation:	hs_transcript.bed	41bdcc6e275732c43cac2e0a6e715834
+Chromosome	Start	End	Name	Length	Strand	ConversionRate	ReadsCPM	Tcontent	CoverageOnTs	ConversionsOnTs	ReadCount	TcReadCount	multimapCount	ConversionRateLower	ConversionRateUpper
+ENST00000488711.1	0	648	ENST00000488711.1	648	+	0.0796019900498	1000000.0	96	201	16	22	4	0	-1.0	-1.0
