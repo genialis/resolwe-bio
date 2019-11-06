@@ -2,6 +2,7 @@ python
 python-pip
 r-base
 samtools
+tabix
 
 # required for bokeh (required for bamliquidator)
 python-colorama

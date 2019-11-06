@@ -8,3 +8,4 @@ Included bioinformatics tools
 * BAMLIQUIDATOR (v1.3.8)
 * BAMPLOT (v0.9.0)
 * ROSE2 (v1.1.0)
+* Tabix (1.7-2)
