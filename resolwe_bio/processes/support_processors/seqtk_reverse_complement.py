@@ -82,7 +82,6 @@ class ReverseComplementPaired(Process):
     data_name = '{{ reads|sample_name|default("?") }}'
     version = '1.0.0'
 
-
     class Input:
         """Input fields to process ReverseComplementPaired."""
 

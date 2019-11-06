@@ -558,13 +558,12 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
         revcomp_single = self.run_process('seqtk-rev-complement-single', {'reads': single_reads.id})
 
-        self.assertFiles(revcomp_single, 'fastq', ['hs_slamseq_R1_complemented.fastq.gz'],
-                            compression='gzip')
+        self.assertFiles(revcomp_single, 'fastq', ['hs_slamseq_R1_complemented.fastq.gz'], compression='gzip')
 
         revcomp_paired = self.run_process('seqtk-rev-complement-paired', {
             'reads': paired_reads.id,
             'select_mate': 'Mate 1'
         })
 
-        self.assertFiles(revcomp_paired, 'fastq', ['hs_slamseq_R1_complemented.fastq.gz'],compression='gzip')
-        self.assertFiles(revcomp_paired, 'fastq2', ['hs_slamseq_R2.fastq.gz'],compression='gzip')
+        self.assertFiles(revcomp_paired, 'fastq', ['hs_slamseq_R1_complemented.fastq.gz'], compression='gzip')
+        self.assertFiles(revcomp_paired, 'fastq2', ['hs_slamseq_R2.fastq.gz'], compression='gzip')

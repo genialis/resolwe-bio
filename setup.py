@@ -65,6 +65,7 @@ setuptools.setup(
             'check-manifest',
             'setuptools_scm',
             'twine',
+            'six==1.12',
         ],
     },
     classifiers=[
