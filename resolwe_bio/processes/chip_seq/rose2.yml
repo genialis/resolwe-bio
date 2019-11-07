@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/bamliquidator:1.1.0
+        image: resolwebio/bamliquidator:1.2.0
   data_name: "{{ rankby|sample_name|default('?') }}"
-  version: 4.3.0
+  version: 4.3.1
   type: data:chipseq:rose2
   entity:
     type: sample
