@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Append sample and genome reference information to the summary output
+  file in the ``filtering-chemut`` process
+
+
 ===================
 24.0.0 - 2019-11-15
 ===================

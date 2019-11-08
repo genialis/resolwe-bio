@@ -9,14 +9,15 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:4.2.0
   data_name: "Filtered variants ({{ analysis_type }})"
-  version: 1.3.1
+  version: 1.4.0
   type: data:variants:vcf:filtering
   category: Other
   persistence: CACHED
   description: |
-    Filtering and annotation of Variant Calling data - Chemical mutagenesis in Dictyostelium discoideum
+    Filtering and annotation of Variant Calling data - Chemical
+    mutagenesis in _Dictyostelium discoideum_.
   input:
     - name: variants
       label: Variants file (VCF)
@@ -25,7 +26,11 @@
       label: Analysis type
       type: basic:string
       description: |
-        Choice of the analysis type. Use "SNV" or "INDEL" options for the analysis of haploid VCF files prepared by using GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively. Choose options SNV_CHR2 or INDEL_CHR2 to run the GATK analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
+        Choice of the analysis type. Use "SNV" or "INDEL" options for
+        the analysis of haploid VCF files prepared by using
+        GATK UnifiedGenotyper -glm option "SNP" or "INDEL", respectively.
+        Choose options SNV_CHR2 or INDEL_CHR2 to run the GATK analysis
+        only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
       choices:
         - label: SNV
           value: snv
@@ -73,7 +78,8 @@
       type: basic:file
       required: false
       description: |
-        A data frame of variants that contain more than two alternative alleles. These vairants are likely to be false positives.
+        A data frame of variants that contain more than two alternative
+        alleles. These variants are likely to be false positives.
     - name: gene_list_all
       label: Gene list (all)
       type: basic:file
@@ -124,6 +130,8 @@
         -e '{{analysis_type}}(input_file = "'${NAME}.vcf'", parental_strain = "'{{parental_strain}}'", mutant_strain = "'{{mutant_strain}}'", read_depth = "'{{read_depth}}'")'
       re-checkrc "VCF file filtering failed"
       re-progress 0.9
+
+      append_sample_info.py "${NAME}.vcf" "${NAME}.vcf_"{{read_depth}}"/summary.txt"
 
       re-save-file summary "${NAME}.vcf_"{{read_depth}}"/summary.txt"
 
