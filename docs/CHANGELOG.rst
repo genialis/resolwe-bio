@@ -27,6 +27,12 @@ Changed
 - Use ``resolwebio/bamliquidator:1.2.0`` in ``rose2`` process
 - Fix missing entity type in ``seqtk-rev-complement-single``,
     ``seqtk-rev-complement-single`` and ``seqtk-rev-complement-paired``
+- Bump CPU, memory and Docker image (``resolwebio/rnaseq:4.9.0``)
+  requirements in ``alignment-bwa-mem``, ``alignment-bwa-sw`` and
+  ``alignment-bwa-aln`` processes
+- Use multi-threading option in Samtools commands in
+  ``alignment-bwa-mem``, ``alignment-bwa-sw`` and ``alignment-bwa-aln``
+  processes
 
 
 ===================
