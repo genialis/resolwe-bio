@@ -25,6 +25,8 @@ Changed
   ``resolwebio/base:ubuntu-18.04`` Docker image as a base image in
   ``resolwebio/bamliquidator:1.1.0`` Docker image
 - Use ``resolwebio/bamliquidator:1.2.0`` in ``rose2`` process
+- Fix missing entity type in ``seqtk-rev-complement-single``,
+    ``seqtk-rev-complement-single`` and ``seqtk-rev-complement-paired``
 
 
 ===================

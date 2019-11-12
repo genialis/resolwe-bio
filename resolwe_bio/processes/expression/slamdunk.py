@@ -22,8 +22,11 @@ class SlamdunkAllPaired(Process):
             'memory': 16384,
         },
     }
+    entity = {
+        'type': 'sample',
+    }
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = '1.0.0'
+    version = '1.0.1'
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
