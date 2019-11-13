@@ -42,6 +42,9 @@ Changed
 - Use multi-threading option in Samtools commands in
   ``alignment-bwa-mem``, ``alignment-bwa-sw`` and ``alignment-bwa-aln``
   processes
+- Support merging of multi-lane sequencing data into a single (pair) of
+  FASTQ files in the ``upload-fastq-single``, ``upload-fastq-paired``,
+  ``files-to-fastq-single`` and ``files-to-fastq-paired`` processes.
 
 
 ===================

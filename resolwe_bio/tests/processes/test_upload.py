@@ -222,6 +222,14 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
                                                   'refs': ['fastqc/rRNA_rew_fastqc'],
                                                   'size': 323297}])
 
+        merged_lanes = self.run_process('upload-fastq-paired', {
+            'src1': ['old_encoding.fastq.gz', 'old_encoding1.fastq.gz'],
+            'src2': ['old_encoding_R2.fastq.gz', 'old_encoding1_R2.fastq.gz'],
+            'merge_lanes': True,
+        })
+        self.assertFiles(merged_lanes, 'fastq', ['paired_end_merged_lanes_mate1.fastq.gz'], compression='gzip')
+        self.assertFiles(merged_lanes, 'fastq2', ['paired_end_merged_lanes_mate2.fastq.gz'], compression='gzip')
+
     @tag_process('upload-fastq-single')
     def test_upload_single_end_reads(self):
         empty_input = self.run_process('upload-fastq-single', {'src': ['empty.fastq.gz']}, Data.STATUS_ERROR)
@@ -260,6 +268,12 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
                                                 {'file': 'fastqc/rRNA_rew_fastqc/fastqc_report.html',
                                                  'refs': ['fastqc/rRNA_rew_fastqc'],
                                                  'size': 323297}])
+
+        merged_lanes = self.run_process('upload-fastq-single', {
+            'src': ['rRNA forw.fastq.gz', 'rRNA_rew.fastq.gz'],
+            'merge_lanes': True,
+        })
+        self.assertFiles(merged_lanes, 'fastq', ['merged_single_end_reads.fastq.gz'], compression='gzip')
 
     @tag_process('upload-diffexp')
     def test_upload_de(self):

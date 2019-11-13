@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.1.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.2.1
+  version: 2.3.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -30,6 +30,13 @@
       description: |
         Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+    - name: merge_lanes
+      label: Merge lanes
+      type: basic:boolean
+      default: false
+      description: |
+        Merge sample data split into multiple sequencing lanes into a
+        single FASTQ file.
   output:
     - name: fastq
       label: Reads file
@@ -45,11 +52,16 @@
     language: bash
     program: |
       {% for reads in src %}
-        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5
+        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5 compress
       {% endfor %}
 
-      FASTQ=(*.fastq)
       FASTQGZ=(*.fastq.gz)
+      {% if merge_lanes %}
+        # Use the first lane's name for the name of the merged output
+        FIRST_LANE=`basename "${FASTQGZ[0]}" .fastq.gz`
+        cat "${FASTQGZ[@]}" > "${FIRST_LANE}_merged.fastq.gz"
+        FASTQGZ=("${FIRST_LANE}_merged.fastq.gz")
+      {% endif %}
 
       re-save-file-list fastq "${FASTQGZ[@]}"
 
@@ -58,7 +70,7 @@
       re-checkrc "Validation of FASTQ file(s) failed."
 
       echo "Postprocessing FastQC..."
-      mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
+      mkdir "fastqc" && fastqc "${FASTQGZ[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -75,8 +87,8 @@
         if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
 
           echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
+          mv "${READS_NAME}.fastq.gz" input_reads.fastq.gz
+          TrimmomaticSE -phred64 input_reads.fastq.gz reformated.fastq.gz TOPHRED33
           mv reformated.fastq.gz "${READS_NAME}.fastq.gz"
 
         elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
@@ -102,12 +114,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.1.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.2.1
+  version: 2.3.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -129,6 +141,13 @@
       description: |
         Sequencing reads in FASTQ format. Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*
       validate_regex: '(\.(fastq|fq)(|\.gz|\.bz2|\.tgz|\.tar\.gz|\.tar\.bz2|\.zip|\.rar|\.7z))|(\.bz2)$'
+    - name: merge_lanes
+      label: Merge lanes
+      type: basic:boolean
+      default: false
+      description: |
+        Merge paired-end sample data split into multiple sequencing
+        lanes into a single pair of FASTQ files.
   output:
     - name: fastq
       label: Reads file (mate 1)
@@ -153,43 +172,53 @@
     language: bash
     program: |
 
-      FW_FASTQ=()
-      FW_FASTQGZ=()
-      FW_FASTQC=()
-      FW_FASTQC_URL=()
+      MATE1_FASTQGZ=()
+      MATE1_FASTQC=()
+      MATE1_FASTQC_URL=()
 
-      RW_FASTQ=()
-      RW_FASTQGZ=()
-      RW_FASTQC=()
-      RW_FASTQC_URL=()
+      MATE2_FASTQGZ=()
+      MATE2_FASTQC=()
+      MATE2_FASTQC_URL=()
 
       {% for reads in src1 %}
-        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5
-        FW_FASTQ+=("${NAME}.fastq")
-        FW_FASTQGZ+=("${NAME}.fastq.gz")
-        FW_FASTQC+=("${NAME}_fastqc.zip")
-        FW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5 compress
+        MATE1_FASTQGZ+=("${NAME}.fastq.gz")
+        MATE1_FASTQC+=("${NAME}_fastqc.zip")
+        MATE1_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       {% endfor %}
 
       {% for reads in src2 %}
-        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5
-        RW_FASTQ+=("${NAME}.fastq")
-        RW_FASTQGZ+=("${NAME}.fastq.gz")
-        RW_FASTQC+=("${NAME}_fastqc.zip")
-        RW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+        re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "fastq|fq|bz2" "fastq" 0.5 compress
+        MATE2_FASTQGZ+=("${NAME}.fastq.gz")
+        MATE2_FASTQC+=("${NAME}_fastqc.zip")
+        MATE2_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       {% endfor %}
 
-      FASTQ=(*.fastq)
+      {% if merge_lanes %}
+        # Use the first lane of the mate1 for the name of the merged output
+        MATE1_FIRST_LANE=`basename "${MATE1_FASTQGZ[0]}" .fastq.gz`
+        cat "${MATE1_FASTQGZ[@]}" > "${MATE1_FIRST_LANE}_merged.fastq.gz"
+        MATE1_FASTQGZ=("${MATE1_FIRST_LANE}_merged.fastq.gz")
+        MATE1_FASTQC=("${MATE1_FIRST_LANE}_merged_fastqc.zip")
+        MATE1_FASTQC_URL=("{\"file\":\"fastqc/${MATE1_FIRST_LANE}_merged_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${MATE1_FIRST_LANE}_merged_fastqc\"]}")
+        # Use the first lane of the mate2 for the name of the merged output
+        MATE2_FIRST_LANE=`basename "${MATE2_FASTQGZ[0]}" .fastq.gz`
+        cat "${MATE2_FASTQGZ[@]}" > "${MATE2_FIRST_LANE}_merged.fastq.gz"
+        MATE2_FASTQGZ=("${MATE2_FIRST_LANE}_merged.fastq.gz")
+        MATE2_FASTQC=("${MATE2_FIRST_LANE}_merged_fastqc.zip")
+        MATE2_FASTQC_URL=("{\"file\":\"fastqc/${MATE2_FIRST_LANE}_merged_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${MATE2_FIRST_LANE}_merged_fastqc\"]}")
+      {% endif %}
 
-      re-save-file-list fastq "${FW_FASTQGZ[@]}"
-      re-save-file-list fastq2 "${RW_FASTQGZ[@]}"
+      re-save-file-list fastq "${MATE1_FASTQGZ[@]}"
+      re-save-file-list fastq2 "${MATE2_FASTQGZ[@]}"
 
       echo "Validating FASTQ file(s)..."
-      validate_fastq.py -fq "${FW_FASTQGZ[@]}" -fq2 "${RW_FASTQGZ[@]}"
+      validate_fastq.py -fq "${MATE1_FASTQGZ[@]}" -fq2 "${MATE2_FASTQGZ[@]}"
       re-checkrc "Validation of FASTQ file(s) failed."
 
       echo "Postprocessing FastQC..."
-      mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
+      FASTQ_MATES=( "${MATE1_FASTQGZ[@]}" "${MATE2_FASTQGZ[@]}" )
+      mkdir "fastqc" && fastqc "${FASTQ_MATES[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -198,42 +227,26 @@
 
       mv fastqc/*_fastqc.zip .
 
-      for name in "${FW_FASTQ[@]}"; do
-        READS_NAME_FW=`basename "$name" .fastq`
-        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_FW}_fastqc/fastqc_data.txt"`
+      for name in "${FASTQ_MATES[@]}"; do
+        READS_NAME=`basename "$name" .fastq.gz`
+        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME}_fastqc/fastqc_data.txt"`
 
         if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
 
           echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME_FW}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
-          mv reformated.fastq.gz "${READS_NAME_FW}.fastq.gz"
+          mv "${READS_NAME}.fastq.gz" input_reads.fastq.gz
+          TrimmomaticSE -phred64 input_reads.fastq.gz reformated.fastq.gz TOPHRED33
+          mv reformated.fastq.gz "${READS_NAME}.fastq.gz"
 
         elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
           re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
         fi
       done
 
-      for name in "${RW_FASTQ[@]}"; do
-        READS_NAME_RW=`basename "$name" .fastq`
-        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_RW}_fastqc/fastqc_data.txt"`
-
-        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
-
-          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME_RW}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
-          mv reformated.fastq.gz "${READS_NAME_RW}.fastq.gz"
-
-        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
-          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
-        fi
-      done
-
-      re-save-file-list fastqc_archive "${FW_FASTQC[@]}"
-      re-save-file-list fastqc_archive2 "${RW_FASTQC[@]}"
-      re-save-list fastqc_url "${FW_FASTQC_URL[@]}"
-      re-save-list fastqc_url2 "${RW_FASTQC_URL[@]}"
+      re-save-file-list fastqc_archive "${MATE1_FASTQC[@]}"
+      re-save-file-list fastqc_archive2 "${MATE2_FASTQC[@]}"
+      re-save-list fastqc_url "${MATE1_FASTQC_URL[@]}"
+      re-save-list fastqc_url2 "${MATE2_FASTQC_URL[@]}"
 
 - slug: files-to-fastq-single
   name: Convert files to reads (single-end)
@@ -241,9 +254,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.1.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.2.1
+  version: 1.3.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -256,6 +269,13 @@
       type: list:data:file
       description: |
         Sequencing reads in FASTQ format
+    - name: merge_lanes
+      label: Merge lanes
+      type: basic:boolean
+      default: false
+      description: |
+        Merge sample data split into multiple sequencing lanes into a
+        single FASTQ file.
   output:
     - name: fastq
       label: Reads file
@@ -275,6 +295,12 @@
       {% endfor %}
 
       FASTQGZ=(*.fastq.gz)
+      {% if merge_lanes %}
+        # Use the first lane's name for the name of the merged output
+        FIRST_LANE=`basename "${FASTQGZ[0]}" .fastq.gz`
+        cat "${FASTQGZ[@]}" > "${FIRST_LANE}_merged.fastq.gz"
+        FASTQGZ=("${FIRST_LANE}_merged.fastq.gz")
+      {% endif %}
 
       echo "Validating FASTQ file(s)..."
       validate_fastq.py -fq "${FASTQGZ[@]}"
@@ -298,8 +324,8 @@
         if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
 
           echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
+          mv "${READS_NAME}.fastq.gz" input_reads.fastq.gz
+          TrimmomaticSE -phred64 input_reads.fastq.gz reformated.fastq.gz TOPHRED33
           mv reformated.fastq.gz "${READS_NAME}.fastq.gz"
 
         elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
@@ -327,9 +353,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.1.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.2.1
+  version: 1.3.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -343,6 +369,13 @@
     - name: src2
       label: Mate2
       type: list:data:file
+    - name: merge_lanes
+      label: Merge lanes
+      type: basic:boolean
+      default: false
+      description: |
+        Merge paired-end sample data split into multiple sequencing
+        lanes into a single pair of FASTQ files.
   output:
     - name: fastq
       label: Reads file (mate 1)
@@ -366,28 +399,24 @@
     runtime: polyglot
     language: bash
     program: |
-      FW_FASTQ=()
-      FW_FASTQGZ=()
-      FW_FASTQC=()
-      FW_FASTQC_URL=()
+      MATE1_FASTQGZ=()
+      MATE1_FASTQC=()
+      MATE1_FASTQC_URL=()
 
-      RW_FASTQ=()
-      RW_FASTQGZ=()
-      RW_FASTQC=()
-      RW_FASTQC_URL=()
+      MATE2_FASTQGZ=()
+      MATE2_FASTQC=()
+      MATE2_FASTQC_URL=()
 
       {% for read in src1 %}
         GZ_FILE_PATH={{ read.file.file }}
         cp ${GZ_FILE_PATH} .
 
         GZ_FILE={{ read.file.file|basename }}
-        gzip -dk "${GZ_FILE}"
 
         NAME="${GZ_FILE%\.fastq\.gz}"
-        FW_FASTQ+=("${NAME}.fastq")
-        FW_FASTQGZ+=("${NAME}.fastq.gz")
-        FW_FASTQC+=("${NAME}_fastqc.zip")
-        FW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+        MATE1_FASTQGZ+=("${NAME}.fastq.gz")
+        MATE1_FASTQC+=("${NAME}_fastqc.zip")
+        MATE1_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       {% endfor %}
 
       {% for read in src2 %}
@@ -395,22 +424,35 @@
         cp ${GZ_FILE_PATH} .
 
         GZ_FILE={{ read.file.file|basename }}
-        gzip -dk "${GZ_FILE}"
 
         NAME="${GZ_FILE%\.fastq\.gz}"
-        RW_FASTQ+=("${NAME}.fastq")
-        RW_FASTQGZ+=("${NAME}.fastq.gz")
-        RW_FASTQC+=("${NAME}_fastqc.zip")
-        RW_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
+        MATE2_FASTQGZ+=("${NAME}.fastq.gz")
+        MATE2_FASTQC+=("${NAME}_fastqc.zip")
+        MATE2_FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       {% endfor %}
 
+      {% if merge_lanes %}
+        # Use the first lane of the mate1 for the name of the merged output
+        MATE1_FIRST_LANE=`basename "${MATE1_FASTQGZ[0]}" .fastq.gz`
+        cat "${MATE1_FASTQGZ[@]}" > "${MATE1_FIRST_LANE}_merged.fastq.gz"
+        MATE1_FASTQGZ=("${MATE1_FIRST_LANE}_merged.fastq.gz")
+        MATE1_FASTQC=("${MATE1_FIRST_LANE}_merged_fastqc.zip")
+        MATE1_FASTQC_URL=("{\"file\":\"fastqc/${MATE1_FIRST_LANE}_merged_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${MATE1_FIRST_LANE}_merged_fastqc\"]}")
+        # Use the first lane of the mate2 for the name of the merged output
+        MATE2_FIRST_LANE=`basename "${MATE2_FASTQGZ[0]}" .fastq.gz`
+        cat "${MATE2_FASTQGZ[@]}" > "${MATE2_FIRST_LANE}_merged.fastq.gz"
+        MATE2_FASTQGZ=("${MATE2_FIRST_LANE}_merged.fastq.gz")
+        MATE2_FASTQC=("${MATE2_FIRST_LANE}_merged_fastqc.zip")
+        MATE2_FASTQC_URL=("{\"file\":\"fastqc/${MATE2_FIRST_LANE}_merged_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${MATE2_FIRST_LANE}_merged_fastqc\"]}")
+      {% endif %}
+
       echo "Validating FASTQ file(s)..."
-      validate_fastq.py -fq "${FW_FASTQGZ[@]}" -fq2 "${RW_FASTQGZ[@]}"
+      validate_fastq.py -fq "${MATE1_FASTQGZ[@]}" -fq2 "${MATE2_FASTQGZ[@]}"
       re-checkrc "Validation of FASTQ file(s) failed."
 
-      FASTQ=(*.fastq)
       echo "Postprocessing FastQC..."
-      mkdir "fastqc" && fastqc "${FASTQ[@]}" --extract --outdir="fastqc" 2> stderr.txt
+      FASTQ_MATES=( "${MATE1_FASTQGZ[@]}" "${MATE2_FASTQGZ[@]}" )
+      mkdir "fastqc" && fastqc "${FASTQ_MATES[@]}" --extract --outdir="fastqc" 2> stderr.txt
       re-checkrc "Failed while processing with FastQC."
       if [[ $(grep --text "Failed to process file" stderr.txt) != "" ]]
       then
@@ -419,41 +461,25 @@
 
       mv fastqc/*_fastqc.zip .
 
-      for name in "${FW_FASTQ[@]}"; do
-        READS_NAME_FW=`basename "$name" .fastq`
-        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_FW}_fastqc/fastqc_data.txt"`
+      for name in "${FASTQ_MATES[@]}"; do
+        READS_NAME=`basename "$name" .fastq.gz`
+        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME}_fastqc/fastqc_data.txt"`
 
         if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
 
           echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME_FW}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
-          mv reformated.fastq.gz "${READS_NAME_FW}.fastq.gz"
+          mv "${READS_NAME}.fastq.gz" input_reads.fastq.gz
+          TrimmomaticSE -phred64 input_reads.fastq.gz reformated.fastq.gz TOPHRED33
+          mv reformated.fastq.gz "${READS_NAME}.fastq.gz"
 
         elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
           re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
         fi
       done
 
-      for name in "${RW_FASTQ[@]}"; do
-        READS_NAME_RW=`basename "$name" .fastq`
-        ENCODING=`parse_encoding_type.py "./fastqc/${READS_NAME_RW}_fastqc/fastqc_data.txt"`
-
-        if [ "${ENCODING}" == "Illumina 1.5" ] ||  [ "${ENCODING}" == "Illumina 1.3" ]; then
-
-          echo "Recoding input reads from Phred64 encoding to Phred33 encoding."
-          mv "${READS_NAME_RW}.fastq" input_reads.fastq
-          TrimmomaticSE input_reads.fastq reformated.fastq.gz TOPHRED33
-          mv reformated.fastq.gz "${READS_NAME_RW}.fastq.gz"
-
-        elif [ "${ENCODING}" != "Sanger / Illumina 1.9" ]; then
-          re-error "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is supported."
-        fi
-      done
-
-      re-save-file-list fastq "${FW_FASTQGZ[@]}"
-      re-save-file-list fastq2 "${RW_FASTQGZ[@]}"
-      re-save-file-list fastqc_archive "${FW_FASTQC[@]}"
-      re-save-file-list fastqc_archive2 "${RW_FASTQC[@]}"
-      re-save-list fastqc_url "${FW_FASTQC_URL[@]}"
-      re-save-list fastqc_url2 "${RW_FASTQC_URL[@]}"
+      re-save-file-list fastq "${MATE1_FASTQGZ[@]}"
+      re-save-file-list fastq2 "${MATE2_FASTQGZ[@]}"
+      re-save-file-list fastqc_archive "${MATE1_FASTQC[@]}"
+      re-save-file-list fastqc_archive2 "${MATE2_FASTQC[@]}"
+      re-save-list fastqc_url "${MATE1_FASTQC_URL[@]}"
+      re-save-list fastqc_url2 "${MATE2_FASTQC_URL[@]}"
