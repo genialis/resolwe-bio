@@ -83,7 +83,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 'up_primers_seq': ['AGCTAAA'],
             },
             'modify_reads': {
-                'nextseq_trim': 20,
+                'nextseq_trim': 5,
             },
             'filtering': {
                 'minlen': 10,
@@ -195,7 +195,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         inputs = {
             'reads': reads.id,
             'options': {
-                'nextseq_trim': 10,
+                'nextseq_trim': 5,
                 'min_len': 20,
                 'min_overlap': 20,
                 'times': 2,
