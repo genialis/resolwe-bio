@@ -6,27 +6,26 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+24.0.0 - 2019-11-15
+===================
 
 Added
 -----
 - Add ``resolwebio/slamdunk`` Docker image
-- Add Tabix (1.7-2) to ``resolwebio/bamliquidator:1.2.0`` docker image
-- Add ``seqtk-rev-complement-single`` and ``seqtk-rev-complement-paired`` process
+- Add Tabix (1.7-2) to ``resolwebio/bamliquidator:1.2.0`` Docker image
+- Add ``seqtk-rev-complement-single`` and
+  ``seqtk-rev-complement-paired`` process
 - Add ``slamdunk-all-paired`` process
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 20.x
 - Make BaseSpace file download more robust
-- Bump rose2 to 1.1.0, bamliquidator to 1.3.8, and use
+- Bump ``rose2`` to 1.1.0, ``bamliquidator`` to 1.3.8, and use
   ``resolwebio/base:ubuntu-18.04`` Docker image as a base image in
   ``resolwebio/bamliquidator:1.1.0`` Docker image
 - Use ``resolwebio/bamliquidator:1.2.0`` in ``rose2`` process
-- Fix missing entity type in ``seqtk-rev-complement-single``,
-    ``seqtk-rev-complement-single`` and ``seqtk-rev-complement-paired``
 - Bump CPU, memory and Docker image (``resolwebio/rnaseq:4.9.0``)
   requirements in ``alignment-bwa-mem``, ``alignment-bwa-sw`` and
   ``alignment-bwa-aln`` processes
