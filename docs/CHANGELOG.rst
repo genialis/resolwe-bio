@@ -32,6 +32,8 @@ Changed
 - Freeze docutils package version to 0.15.2 because Sphinx has
   problems parsing development version numbers
 - Support Slamdunk/Alleyoop processes in MultiQC
+- Enable sorting of files in ``alignment-star`` process using samtools
+
 
 ===================
 24.0.0 - 2019-11-15

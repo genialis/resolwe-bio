@@ -14,7 +14,7 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.8.12
+  version: 1.9.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -305,6 +305,12 @@
           description: |
             Size of the bins, in bases, for the output of the bigwig. Only possible if 'Tool to calculate BigWig'
             is deepTools. If BigWig is calculated by UCSC BedGraphToBigWig then bin size is 1.
+    - name: star_sort
+      label: Sorting with STAR
+      type: basic:boolean
+      default: false
+      description: |
+        Set to false for sorting with samtools or to true for sorting with STAR which may be time and memory intensive.
   output:
     - name: bam
       label: Alignment file
@@ -380,9 +386,9 @@
           --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
           --readFilesIn mate1.fastq \
-          --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
-          --limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} \
+          {% if star_sort %}--outSAMtype BAM SortedByCoordinate {% else %} --outSAMtype BAM Unsorted {% endif %} \
+          {% if star_sort %}--limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} {% endif %} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
           {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
           {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
@@ -421,9 +427,9 @@
           --runThreadN {{requirements.resources.cores}} \
           --genomeDir "${INDEX}" \
           --readFilesIn mate1.fastq mate2.fastq \
-          --outSAMtype BAM SortedByCoordinate \
           --outReadsUnmapped Fastx \
-          --limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} \
+          {% if star_sort %}--outSAMtype BAM SortedByCoordinate {% else %} --outSAMtype BAM Unsorted {% endif %} \
+          {% if star_sort %}--limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} {% endif %} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
           {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
           {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
@@ -467,20 +473,21 @@
       {% endif %}
       re-progress 0.8
 
-      # If alignment job produces an empty .bam file, the file needs to be re-sorted
-      # for it to be successfully indexed by samtools.
-      if [[ $(samtools view -c Aligned.sortedByCoord.out.bam) == 0 ]]
-      then
-        samtools sort Aligned.sortedByCoord.out.bam > Aligned.sortedByCoord_temp.out.bam
-        re-checkrc "Samtools sort command failed."
-        samtools index Aligned.sortedByCoord_temp.out.bam "${MATE1_NAME}.bam.bai"
-        re-checkrc "Samtools index command failed."
-        mv Aligned.sortedByCoord_temp.out.bam "${MATE1_NAME}.bam"
-      else
-        samtools index Aligned.sortedByCoord.out.bam "${MATE1_NAME}.bam.bai"
-        re-checkrc "Samtools index command failed."
-        mv Aligned.sortedByCoord.out.bam "${MATE1_NAME}.bam"
-      fi
+      OUT_NAME="${MATE1_NAME}.bam"
+      OUT_NAME_BAI="${OUT_NAME}.bai"
+      OUT_NAME_TEMP="${OUT_NAME}_temp"
+
+      {% if star_sort %}
+          IN_NAME="Aligned.sortedByCoord.out.bam"
+      {% else %}
+          IN_NAME="Aligned.out.bam"
+      {% endif %}
+
+      samtools sort "${IN_NAME}" -o "${OUT_NAME_TEMP}" -@ {{requirements.resources.cores}}
+      re-checkrc "Samtools sort command failed."
+      samtools index "${OUT_NAME_TEMP}" "${OUT_NAME_BAI}"
+      re-checkrc "Samtools index command failed."
+      mv "${OUT_NAME_TEMP}" "${OUT_NAME}"
       re-progress 0.9
 
       {% if detect_chimeric.chimeric %}
@@ -511,8 +518,8 @@
       mv Log.final.out "${MATE1_NAME}_stats.txt"
       mv SJ.out.tab "${MATE1_NAME}_SJ.out.tab"
 
-      re-save-file bam "${MATE1_NAME}.bam"
-      re-save-file bai "${MATE1_NAME}.bam.bai"
+      re-save-file bam "${OUT_NAME}"
+      re-save-file bai "${OUT_NAME_BAI}"
       re-save-file sj "${MATE1_NAME}_SJ.out.tab"
       re-save-file stats "${MATE1_NAME}_stats.txt"
       re-save species {{genome.species}}

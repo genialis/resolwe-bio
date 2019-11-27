@@ -163,18 +163,40 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(exp, 'build', 'GRCh38_ens90')
         self.assertFields(exp, 'feature_type', 'gene')
 
-        inputs = {
-            'genome': star_index_wo_annot.id,
-            'reads': reads.id,
-            'annotation': annotation.id,
-            't_coordinates': {
-                'quantmode': True,
-                'gene_counts': True,
-            },
-            'two_pass_mapping': {
-                'two_pass_mode': True,
-            },
-        }
+        inputs['star_sort'] = True
+        aligned_reads = self.run_process('alignment-star', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_single.tab.gz', compression='gzip')
+        self.assertFields(aligned_reads, 'species', 'Homo sapiens')
+        self.assertFields(aligned_reads, 'build', 'GRCh38_ens90')
+
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFields(exp, 'species', 'Homo sapiens')
+        self.assertFields(exp, 'build', 'GRCh38_ens90')
+        self.assertFields(exp, 'feature_type', 'gene')
+
+        inputs['genome'] = star_index_wo_annot.id
+        inputs['annotation'] = annotation.id
+        aligned_reads = self.run_process('alignment-star', inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_single.tab.gz', compression='gzip')
+        self.assertFields(aligned_reads, 'species', 'Homo sapiens')
+        self.assertFields(aligned_reads, 'build', 'GRCh38_ens90')
+
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression_single.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFields(exp, 'species', 'Homo sapiens')
+        self.assertFields(exp, 'build', 'GRCh38_ens90')
+        self.assertFields(exp, 'feature_type', 'gene')
+
+        inputs['star_sort'] = False
         aligned_reads = self.run_process('alignment-star', inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -200,7 +222,21 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'two_pass_mapping': {
                 'two_pass_mode': True,
             },
+            'star_sort': True,
         }
+        aligned_reads = self.run_process('alignment-star', inputs)
+        self.assertFile(aligned_reads, 'bigwig', 'bigwig_star_ens_paired.bw')
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFile(aligned_reads, 'gene_counts', 'gene_counts_star_paired.tab.gz', compression='gzip')
+        exp = Data.objects.last()
+        self.assertFile(exp, 'exp', 'star_expression_paired.tab.gz', compression='gzip')
+        self.assertFields(exp, 'source', 'ENSEMBL')
+        self.assertFile(exp, 'exp_set', 'star_out_exp_set.txt.gz', compression='gzip')
+        self.assertJSON(exp, exp.output['exp_set_json'], '', 'star_exp_set.json.gz')
+
+        inputs['star_sort'] = False
         aligned_reads = self.run_process('alignment-star', inputs)
         self.assertFile(aligned_reads, 'bigwig', 'bigwig_star_ens_paired.bw')
         for data in Data.objects.all():
