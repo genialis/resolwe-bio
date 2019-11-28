@@ -10,6 +10,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``alleyoop-rates`` process
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Refactor ``slamdunk-all-paired`` process
