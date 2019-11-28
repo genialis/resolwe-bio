@@ -762,7 +762,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             })
         inputs = {
             'reads': paired_reads.id,
-            'transcriptome': transcripts.id,
+            'ref_seq': transcripts.id,
             'regions': bedfile.id,
             'filter_multimappers': True,
             'max_alignments': 1,
