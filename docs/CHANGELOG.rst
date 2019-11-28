@@ -13,6 +13,7 @@ Unreleased
 Added
 -----
 - Add ``alleyoop-rates`` process
+- Add ``alleyoop-utr-rates`` process
 
 Changed
 -------
