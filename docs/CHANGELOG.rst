@@ -12,6 +12,9 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Refactor ``slamdunk-all-paired`` process
+  to support genome browser visualization and add additional output
+  fields
 - Append sample and genome reference information to the summary output
   file in the ``filtering-chemut`` process
 - Bigwig output field in ``bamclipper``, ``bqsr`` and ``markduplicates``
