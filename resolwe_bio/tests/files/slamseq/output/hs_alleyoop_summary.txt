@@ -1,0 +1,3 @@
+# slamdunk summary v0.3.4
+FileName	SampleName	SampleType	SampleTime	Sequenced	Mapped	Deduplicated	MQ-Filtered	Identity-Filtered	NM-Filtered	Multimap-Filtered	Retained	Counted	Annotation
+hs_slamseq_slamdunk_mapped_filtered.bam	sample_0	NA	-1	32	32	0	0	0	0	0	32	32	

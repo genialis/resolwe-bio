@@ -192,3 +192,84 @@ re-save build "Gencode 32"
             'report',
             os.path.join('slamseq', 'output', 'hs_alleyoop_mutationrates.txt')
         )
+
+    @tag_process('alleyoop-summary')
+    def test_alleyoop_summary(self):
+        with self.preparation_stage():
+            process = Process.objects.create(
+                name='Upload Slamdunk data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:alignment:bam:slamdunk:',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'index',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'tsv',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'bam',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'bai',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'tcount',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "bam" "bam" 0.1 extract
+re-save-file bam "${NAME}".bam
+
+re-import {{ index.file_temp|default(index.file) }} {{ index.file }} "bai" "bai" 0.1 extract
+re-save-file bai "${NAME}".bai
+
+re-import {{ tsv.file_temp|default(tsv.file) }} {{ tsv.file }} "tsv" "tsv" 0.1 extract
+re-save-file tcount "${NAME}".tsv
+
+re-save species "Homo sapiens"
+re-save build "Gencode 32"
+"""
+                }
+            )
+            slamdunk = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_slamseq_slamdunk_mapped_filtered.bam'),
+                'index': os.path.join('slamseq', 'output', 'hs_slamseq_slamdunk_mapped_filtered.bam.bai'),
+                'tsv': os.path.join('slamseq', 'output', 'hs_slamseq_tcount.tsv')
+            })
+        summary = self.run_process('alleyoop-summary', {
+            'slamdunk': [slamdunk.id]
+        })
+        self.assertFile(summary, 'report', os.path.join('slamseq', 'output', 'hs_alleyoop_summary.txt'))
