@@ -273,3 +273,100 @@ re-save build "Gencode 32"
             'slamdunk': [slamdunk.id]
         })
         self.assertFile(summary, 'report', os.path.join('slamseq', 'output', 'hs_alleyoop_summary.txt'))
+
+    @tag_process('alleyoop-snpeval')
+    def test_alleyoop_snpeval(self):
+        with self.preparation_stage():
+            reference = self.run_process('upload-fasta-nucl', {
+                'src': os.path.join('slamseq', 'input', 'hs_transcript.fasta'),
+                'species': 'Homo sapiens',
+                'build': 'Gencode 32'
+            })
+            bedfile = self.run_process('upload-bed', {
+                'src': os.path.join('slamseq', 'input', 'hs_transcript.bed'),
+                'species': 'Homo sapiens',
+                'build': 'Gencode 32'
+            })
+            process = Process.objects.create(
+                name='Upload Slamdunk data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:alignment:bam:slamdunk:',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'index',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'snp',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'bam',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'bai',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'variants',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "bam" "bam" 0.1 extract
+re-save-file bam "${NAME}".bam
+
+re-import {{ index.file_temp|default(index.file) }} {{ index.file }} "bai" "bai" 0.1 extract
+re-save-file bai "${NAME}".bai
+
+re-import {{ snp.file_temp|default(snp.file) }} {{ snp.file }} "vcf" "vcf" 0.1 extract
+re-save-file variants "${NAME}".vcf
+
+re-save species "Homo sapiens"
+re-save build "Gencode 32"
+"""
+                }
+            )
+            slamdunk = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_slamseq_slamdunk_mapped_filtered.bam'),
+                'index': os.path.join('slamseq', 'output', 'hs_slamseq_slamdunk_mapped_filtered.bam.bai'),
+                'snp': os.path.join('slamseq', 'output', 'hs_slamseq_snp.vcf')
+            })
+        summary = self.run_process('alleyoop-snpeval', {
+            'ref_seq': reference.id,
+            'regions': bedfile.id,
+            'slamdunk': slamdunk.id
+        })
+        self.assertFile(
+            summary,
+            'report',
+            os.path.join('slamseq', 'output', 'hs_alleyoop_SNPeval.txt')
+        )

@@ -15,6 +15,7 @@ Added
 - Add ``alleyoop-rates`` process
 - Add ``alleyoop-utr-rates`` process
 - Add ``alleyoop-summary`` process
+- Add ``alleyoop-snpeval`` process
 
 Changed
 -------
