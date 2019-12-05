@@ -55,6 +55,7 @@ setuptools.setup(
             # work with our custom page template.
             'Sphinx~=1.5.6',
             'sphinx_rtd_theme',
+            'docutils==0.15.2',
         ],
         'package': ['twine', 'wheel'],
         'test': [
