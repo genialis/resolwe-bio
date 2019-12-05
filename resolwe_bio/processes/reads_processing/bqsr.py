@@ -18,7 +18,7 @@ class BQSR(Process):
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -82,7 +82,7 @@ class BQSR(Process):
         bam = FileField(label='Base quality score recalibrated BAM file')
         bai = FileField(label='Index of base quality score recalibrated BAM file')
         stats = FileField(label='Alignment statistics')
-        bigwig = FileField(label='BigWig file')
+        bigwig = FileField(label='BigWig file', required=False)
         species = StringField(label='Species')
         build = StringField(label='Build')
         recal_table = FileField(label='Recalibration tabled')
@@ -173,17 +173,20 @@ class BQSR(Process):
 
         Cmd['bamtobigwig.sh'](btb_inputs)
 
-        if not os.path.exists(f'{file_name}.bw'):
+        bigwig = file_name + '.bw'
+        if not os.path.exists(bigwig):
             self.info(
                 'BigWig file not calculated.'
             )
+        else:
+            outputs.bigwig = bigwig
 
         self.progress(0.9)
 
         outputs.bam = bam
         outputs.bai = file_name + '.bai'
         outputs.stats = stats
-        outputs.bigwig = file_name + '.bw'
+
         outputs.species = species
         outputs.build = inputs.bam.build
         outputs.recal_table = recal_table

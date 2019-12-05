@@ -8,13 +8,14 @@ from shutil import copy2
 class Bamclipper(Process):
     """Remove primer sequence from BAM alignments by soft-clipping.
 
-    This process is a wrapper for bamclipper which can be found at https://github.com/tommyau/bamclipper.
+    This process is a wrapper for bamclipper which can be found at
+    https://github.com/tommyau/bamclipper.
     """
 
     slug = 'bamclipper'
     name = 'Bamclipper'
     process_type = 'data:alignment:bam:bamclipped:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Clipping'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -45,7 +46,7 @@ class Bamclipper(Process):
         bam = FileField(label='Clipped BAM file')
         bai = FileField(label='Index of clipped BAM file')
         stats = FileField(label='Alignment statistics')
-        bigwig = FileField(label='BigWig file')
+        bigwig = FileField(label='BigWig file', required=False)
         species = StringField(label='Species')
         build = StringField(label='Build')
 
@@ -134,12 +135,14 @@ class Bamclipper(Process):
             self.info(
                 'BigWig file not calculated.'
             )
+        else:
+            outputs.bigwig = bigwig
 
         self.progress(0.9)
 
         outputs.bam = bam
         outputs.bai = bai
         outputs.stats = stats
-        outputs.bigwig = bigwig
+
         outputs.species = bam_species
         outputs.build = bam_build

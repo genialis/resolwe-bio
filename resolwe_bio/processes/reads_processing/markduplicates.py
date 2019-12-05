@@ -15,7 +15,7 @@ class MarkDuplicates(Process):
     slug = 'markduplicates'
     name = 'MarkDuplicates'
     process_type = 'data:alignment:bam:markduplicate:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'BAM processing'
     shaduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -81,7 +81,7 @@ class MarkDuplicates(Process):
         bam = FileField(label='Marked duplicates BAM file')
         bai = FileField(label='Index of marked duplicates BAM file')
         stats = FileField(label='Alignment statistics')
-        bigwig = FileField(label='BigWig file')
+        bigwig = FileField(label='BigWig file', required=False)
         species = StringField(label='Species')
         build = StringField(label='Build')
         metrics_file = FileField(label='Metrics from MarkDuplicate process')
@@ -167,17 +167,20 @@ class MarkDuplicates(Process):
 
         Cmd['bamtobigwig.sh'](btb_inputs)
 
-        if not os.path.exists(f'{file_name}.bw'):
+        bigwig = bam[:-4] + '.bw'
+        if not os.path.exists(bigwig):
             self.info(
                 'BigWig file not calculated.'
             )
+        else:
+            outputs.bigwig = bigwig
 
         self.progress(0.9)
 
         outputs.bam = bam
         outputs.bai = bam + '.bai'
         outputs.stats = stats
-        outputs.bigwig = bam[:-4] + '.bw'
+
         outputs.species = species
         outputs.build = build
         outputs.metrics_file = metrics_file

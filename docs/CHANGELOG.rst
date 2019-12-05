@@ -14,6 +14,8 @@ Changed
 -------
 - Append sample and genome reference information to the summary output
   file in the ``filtering-chemut`` process
+- Bigwig output field in ``bamclipper``, ``bqsr`` and ``markduplicates``
+  processes is no longer required
 
 
 ===================
