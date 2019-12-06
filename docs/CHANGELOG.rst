@@ -18,6 +18,7 @@ Added
 - Add ``alleyoop-snpeval`` process
 - Add ``alleyoop-collapse`` process
 - Add ``slam-count`` process
+- Add ``workflow-slamdunk-paired`` workflow
 
 Changed
 -------

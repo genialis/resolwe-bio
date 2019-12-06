@@ -1,0 +1,114 @@
+- slug: workflow-slamdunk-paired
+  name: Slamdunk analysis (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:slamdunk
+  category: Pipeline
+  description: |
+    Slamdunk-based pipeline for the analysis of the SLAM-Seq data.
+
+    Thiol-linked alkylation for the metabolic sequencing of RNA enables the detection
+    of RNA transcription, processing and decay dynamics in the context of total RNA.
+  input:
+    - name: reads
+      label: Reads
+      type: data:reads:fastq:paired
+      description: |
+        Paired-end sequencing reads in FASTQ format.
+    - name: ref_seq
+      label: Reference sequence (FASTA)
+      type: data:seq:nucleotide
+    - name: regions
+      label: Regions of interest (BED)
+      type: data:bed
+    - name: show_advanced
+      label: Show advanced parameters
+      type: basic:boolean
+      default: false
+    - name: options
+      label: Options
+      hidden: '!show_advanced'
+      group:
+        - name: source
+          label: Gene ID database source
+          type: basic:string
+          default: ENSEMBL
+          choices:
+            - label: ENSEMBL
+              value: ENSEMBL
+            - label: UCSC
+              value: UCSC
+        - name: filter_multimappers
+          label: Filter multimappers
+          type: basic:boolean
+          default: true
+          description: |
+            If true, filter and reasign multimappers based on the
+            provided BED file with regions of interest.
+        - name: max_alignments
+          label: Maximum number of multimapper alignments
+          type: basic:integer
+          default: 1
+          description: |
+            The maximum number of alignments that will be reported for
+            a multi-mapping read (i.e. reads with multiple alignments of
+            equal best scores).
+        - name: read_length
+          label: Maximum read length
+          type: basic:integer
+          default: 150
+          description: |
+            Maximum length of reads in the input FASTQ file.
+  run:
+    language: workflow
+    program:
+      - id: slamdunk
+        run: slamdunk-all-paired
+        input:
+          reads: '{{ input.reads }}'
+          ref_seq: '{{ input.ref_seq }}'
+          regions: '{{ input.regions }}'
+          filter_multimappers: '{{ input.options.filter_multimappers }}'
+          max_alignments: '{{ input.options.max_alignments }}'
+          read_length: '{{ input.options.read_length }}'
+      - id: summary
+        run: alleyoop-summary
+        input:
+          slamdunk: '{{ [steps.slamdunk] }}'
+      - id: rates
+        run: alleyoop-rates
+        input:
+          slamdunk: '{{ steps.slamdunk }}'
+          ref_seq: '{{ input.ref_seq }}'
+      - id: utr_rates
+        run: alleyoop-utr-rates
+        input:
+          slamdunk: '{{ steps.slamdunk }}'
+          ref_seq: '{{ input.ref_seq }}'
+          regions: '{{ input.regions }}'
+      - id: snpeval
+        run: alleyoop-snpeval
+        input:
+          slamdunk: '{{ steps.slamdunk }}'
+          ref_seq: '{{ input.ref_seq }}'
+          regions: '{{ input.regions }}'
+      - id: collapse
+        run: alleyoop-collapse
+        input:
+          slamdunk: '{{ steps.slamdunk }}'
+      - id: slam_count
+        run: slam-count
+        input:
+          tcount: '{{ steps.collapse }}'
+          source: '{{ input.options.source }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.summary,
+            steps.rates,
+            steps.utr_rates
+            ] }}'

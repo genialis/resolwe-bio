@@ -1,0 +1,2 @@
+gene_name	length	readsCPM	conversionRate	Tcontent	coverageOnTs	conversionsOnTs	readCount	tcReadCount	multimapCount
+ENST00000488711.1	648	1000000.0	0.0549828178694	96	291	16	32	4	0
