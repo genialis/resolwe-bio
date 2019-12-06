@@ -370,3 +370,61 @@ re-save build "Gencode 32"
             'report',
             os.path.join('slamseq', 'output', 'hs_alleyoop_SNPeval.txt')
         )
+
+    @tag_process('alleyoop-collapse')
+    def test_alleyoop_collapse(self):
+        with self.preparation_stage():
+            process = Process.objects.create(
+                name='Upload Slamdunk data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:alignment:bam:slamdunk:',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'tcount',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "tsv" "tsv" 0.1 extract
+re-save-file tcount "${NAME}".tsv
+re-save species "Homo sapiens"
+re-save build "Gencode 32"
+"""
+                }
+            )
+
+            slamdunk = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_slamseq_tcount.tsv')
+            })
+
+        alleyoop_collapse = self.run_process('alleyoop-collapse', {
+            'slamdunk': slamdunk.id,
+        })
+        self.assertFile(alleyoop_collapse, 'tcount', os.path.join('slamseq', 'output', 'collapsed_tcount.txt'))
