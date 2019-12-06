@@ -17,6 +17,7 @@ Added
 - Add ``alleyoop-summary`` process
 - Add ``alleyoop-snpeval`` process
 - Add ``alleyoop-collapse`` process
+- Add ``slam-count`` process
 
 Changed
 -------

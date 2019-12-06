@@ -2,11 +2,11 @@
 import os
 
 from resolwe.flow.models import Process
-from resolwe.test import tag_process
-from resolwe_bio.utils.test import BioProcessTestCase
+from resolwe.test import tag_process, with_resolwe_host
+from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class SlamdunkProcessorTestCase(BioProcessTestCase):
+class SlamdunkProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('slamdunk-all-paired')
     def test_slamdunk_paired(self):
@@ -428,3 +428,78 @@ re-save build "Gencode 32"
             'slamdunk': slamdunk.id,
         })
         self.assertFile(alleyoop_collapse, 'tcount', os.path.join('slamseq', 'output', 'collapsed_tcount.txt'))
+
+    @with_resolwe_host
+    @tag_process('slam-count')
+    def test_slam_count(self):
+        with self.preparation_stage():
+            process = Process.objects.create(
+                name='Upload Slamdunk collapse data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:alleyoop:collapse:',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'tcount',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'species',
+                        'type': 'basic:string:',
+                    },
+                    {
+                        'name': 'build',
+                        'type': 'basic:string:',
+                    },
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file tcount "${NAME}".txt
+re-save species "Homo sapiens"
+re-save build "Gencode 32"
+"""
+                }
+            )
+
+            collapsed_input = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'collapsed_tcount.txt')
+            })
+
+        slam_count = self.run_process('slam-count', {
+            'tcount': collapsed_input.id,
+        })
+        self.assertFile(
+            slam_count,
+            'exp',
+            os.path.join('slamseq', 'output', 'tcount_exp_tpm.txt.gz'),
+            compression='gzip'
+        )
+        self.assertFile(
+            slam_count,
+            'exp_set',
+            os.path.join('slamseq', 'output', 'tcount_exp_set.txt.gz'),
+            compression='gzip'
+        )
+        self.assertFields(slam_count, 'exp_type', 'TPM')
+        self.assertFields(slam_count, 'source', 'ENSEMBL')
+        self.assertFields(slam_count, 'species', 'Homo sapiens')
+        self.assertFields(slam_count, 'build', 'Gencode 32')
+        self.assertFields(slam_count, 'feature_type', 'gene')
