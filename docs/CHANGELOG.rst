@@ -16,7 +16,8 @@ Changed
   file in the ``filtering-chemut`` process
 - Bigwig output field in ``bamclipper``, ``bqsr`` and ``markduplicates``
   processes is no longer required
-
+- Freeze docutils package version to 0.15.2 because Sphinx has
+  problems parsing development version numbers
 
 ===================
 24.0.0 - 2019-11-15
