@@ -1,7 +1,10 @@
 # pylint: disable=missing-docstring
+import os
+
 from resolwe.flow.models import Data, Process
 from resolwe.test import tag_process, with_resolwe_host
 
+from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -384,6 +387,82 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 star_alignment.id,
                 samtools_idxstats.id,
                 qorts_report.id,
+            ],
+            'advanced': {
+                'dirs': True,
+                'config': True,
+            }
+        })
+        self.assertFileExists(multiqc, 'report')
+
+    @tag_process('multiqc')
+    def test_multiqc_slamdunk(self):
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            process = Process.objects.create(
+                name='Upload Alleyoop data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                entity_type='sample',
+                entity_descriptor_schema='sample',
+                contributor=self.contributor,
+                type='data:alleyoop:',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'report',
+                        'type': 'basic:file:',
+                    }
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file report "${NAME}".txt
+"""
+                }
+            )
+
+            summary = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_alleyoop_summary.txt'),
+            })
+            set_sample_name(summary, 'Alleyoop summary')
+
+            rates = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_alleyoop_overallrates.txt'),
+            })
+            set_sample_name(rates, 'Alleyoop rates')
+
+            utrrates = self.run_process(process.slug, {
+                'src': os.path.join('slamseq', 'output', 'hs_alleyoop_mutationrates.txt'),
+            })
+            set_sample_name(utrrates, 'Alleyoop UTR rates')
+
+        multiqc = self.run_process('multiqc', {
+            'data': [
+                summary.id,
+                rates.id,
+                utrrates.id,
             ],
             'advanced': {
                 'dirs': True,
