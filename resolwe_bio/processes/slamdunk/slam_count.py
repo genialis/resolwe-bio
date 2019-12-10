@@ -42,7 +42,7 @@ class SlamCount(Process):
         },
         'resources': {
             'cores': 1,
-            'memory': 1024,
+            'memory': 4096,
             'network': True,
         },
     }
@@ -51,7 +51,7 @@ class SlamCount(Process):
         'type': 'sample',
     }
     data_name = '{{ tcount|sample_name|default("?") }}'
-    version = '1.0.0'
+    version = '1.0.1'
 
     class Input:
         """Input fields for SlamCount."""
