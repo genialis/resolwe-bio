@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:slamdunk
   category: Pipeline
   description: |
@@ -88,12 +88,14 @@
           slamdunk: '{{ steps.slamdunk }}'
           ref_seq: '{{ input.ref_seq }}'
           regions: '{{ input.regions }}'
+          read_length: '{{ input.options.read_length }}'
       - id: snpeval
         run: alleyoop-snpeval
         input:
           slamdunk: '{{ steps.slamdunk }}'
           ref_seq: '{{ input.ref_seq }}'
           regions: '{{ input.regions }}'
+          read_length: '{{ input.options.read_length }}'
       - id: collapse
         run: alleyoop-collapse
         input:

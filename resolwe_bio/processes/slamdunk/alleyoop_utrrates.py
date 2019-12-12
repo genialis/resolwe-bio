@@ -3,7 +3,7 @@ import os
 
 from plumbum import TEE
 
-from resolwe.process import Cmd, DataField, FileField, Process, StringField
+from resolwe.process import Cmd, DataField, FileField, IntegerField, Process, StringField
 
 
 class AlleyoopUtrRates(Process):
@@ -29,7 +29,7 @@ class AlleyoopUtrRates(Process):
     }
     category = 'Slamdunk'
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = '1.0.0'
+    version = '1.1.0'
 
     class Input:
         """Input fields for AlleyoopUtrRates."""
@@ -37,6 +37,11 @@ class AlleyoopUtrRates(Process):
         ref_seq = DataField('seq:nucleotide', label='FASTA file containig sequences for aligning')
         regions = DataField('bed', label='BED file with coordinates of regions of interest')
         slamdunk = DataField('alignment:bam:slamdunk', label='Slamdunk results')
+        read_length = IntegerField(
+            label='Maximum read length',
+            description='Maximum length of reads in the input FASTQ file',
+            default=150
+        )
 
     class Output:
         """Output fields to process AlleyoopUtrRates."""
@@ -55,6 +60,7 @@ class AlleyoopUtrRates(Process):
             '-o', 'utrrates',
             '-r', inputs.ref_seq.fasta.path,
             '-b', inputs.regions.bed.path,
+            '-l', inputs.read_length,
         ]
 
         return_code, _, _ = Cmd['alleyoop']['utrrates'][args][inputs.slamdunk.bam.path] & TEE(retcode=None)
