@@ -19,9 +19,9 @@ def prepare_expressions(infile, rc_file, tpm_file):
             'tcReadCount': int,
         },
     )
-    exp['rpk'] = exp.apply(lambda x: (exp['tcReadCount'] * 1e3 / exp['length']), axis=1)
+    exp['rpk'] = exp.apply(lambda x: (x.tcReadCount * 1e3 / x.length), axis=1)
     rpk_sum = exp['rpk'].sum()
-    exp['tpm'] = exp.apply(lambda x: (exp['rpk'] / rpk_sum * 1e6), axis=1)
+    exp['tpm'] = exp.apply(lambda x: (x.rpk / rpk_sum * 1e6), axis=1)
     rc = exp['tcReadCount'].to_csv(rc_file, index_label='Gene', header=['Expression'], sep='\t', compression='gzip')
     tpm = exp['tpm'].to_csv(tpm_file, index_label='Gene', header=['Expression'], sep='\t', compression='gzip')
     return (rc, tpm)
@@ -51,7 +51,7 @@ class SlamCount(Process):
         'type': 'sample',
     }
     data_name = '{{ tcount|sample_name|default("?") }}'
-    version = '1.0.1'
+    version = '1.0.2'
 
     class Input:
         """Input fields for SlamCount."""
