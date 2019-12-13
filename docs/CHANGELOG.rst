@@ -34,6 +34,10 @@ Changed
 - Support Slamdunk/Alleyoop processes in MultiQC
 - Enable sorting of files in ``alignment-star`` process using samtools
 
+Fixed
+-----
+- Fix pyasn1 dependency for docs build requirements
+
 
 ===================
 24.0.0 - 2019-11-15

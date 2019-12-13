@@ -58,6 +58,7 @@ setuptools.setup(
             # XXX: Temporarily freeze docutils to 0.15.2 since Sphinx has
             # problems parsing dev version (0.16b).
             'docutils==0.15.2',
+            'pyasn1>=0.4.8',
         ],
         'package': ['twine', 'wheel'],
         'test': [
