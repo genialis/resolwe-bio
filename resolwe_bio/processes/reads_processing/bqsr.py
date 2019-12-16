@@ -18,7 +18,7 @@ class BQSR(Process):
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.1.2'
+    version = '1.2.0'
     category = 'BAM processing'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -114,16 +114,23 @@ class BQSR(Process):
                 arrg.extend(split_tag)
                 present_tags.append(split_tag[0])
 
-            # Check that there are no double entries of tags.
+            # Make sure all arguments to read_group are valid.
+            all_tags = {'-LB', '-PL', '-PU', '-SM', '-CN', '-DS', '-DT', '-FO',
+                        '-ID', '-KS', '-PG', '-PI', '-PM', '-SO'}
             present_tag_set = set(present_tags)
+            check_all_tags = present_tag_set.issubset(all_tags)
+            if not check_all_tags:
+                self.error('One or more read_group argument(s) improperly formatted.')
+
+            # Check that there are no double entries of arguments to read_group.
             if len(present_tag_set) != len(present_tags):
                 self.error('You have duplicate tags in read_group argument.')
 
-            # This gracefully checks that all mandatory variables are present.
+            # Check that all mandatory arguments to read_group are present.
             mandatory_tags = {'-LB', '-PL', '-PU', '-SM'}
             check_tags = mandatory_tags.issubset(present_tag_set)
             if not check_tags:
-                self.error(f'Missing mandatory read_group argument (-PL, -LB, -PU and -SM are mandatory).')
+                self.error('Missing mandatory read_group argument(s) (-PL, -LB, -PU and -SM are mandatory).')
 
             Cmd['gatk']['AddOrReplaceReadGroups'](arrg)
         else:

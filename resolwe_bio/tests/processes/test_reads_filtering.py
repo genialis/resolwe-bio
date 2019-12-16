@@ -406,3 +406,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             bqsr_inputs['read_group'] = '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1;-SM=sample2'
             bqsr_dbltag = self.run_process('bqsr', bqsr_inputs, Data.STATUS_ERROR)
             self.assertEqual(bqsr_dbltag.process_error[0], 'You have duplicate tags in read_group argument.')
+
+            bqsr_inputs['read_group'] = 'LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1'  # missing dash in LB
+            bqsr_tagerror = self.run_process('bqsr', bqsr_inputs, Data.STATUS_ERROR)
+            self.assertEqual(
+                bqsr_tagerror.process_error[0],
+                'One or more read_group argument(s) improperly formatted.'
+            )
