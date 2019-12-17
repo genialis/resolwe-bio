@@ -55,8 +55,9 @@ setuptools.setup(
             # work with our custom page template.
             'Sphinx~=1.5.6',
             'sphinx_rtd_theme',
-            # XXX: Temporarily freeze docutils to 0.15.2 since Sphinx has
-            # problems parsing dev version (0.16b).
+            # XXX: Temporarily pin docutils to version 0.15.2 since Sphinx's
+            # requirements are too open and cannot correctly install the
+            # requested pre-release version of docutils.
             'docutils==0.15.2',
             'pyasn1>=0.4.8',
         ],

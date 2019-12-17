@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+25.0.0 - 2019-12-17
+===================
 
 Added
 -----
@@ -29,14 +29,11 @@ Changed
   file in the ``filtering-chemut`` process
 - Bigwig output field in ``bamclipper``, ``bqsr`` and ``markduplicates``
   processes is no longer required
-- Freeze docutils package version to 0.15.2 because Sphinx has
-  problems parsing development version numbers
 - Support Slamdunk/Alleyoop processes in MultiQC
-- Enable sorting of files in ``alignment-star`` process using samtools
-
-Fixed
------
-- Fix pyasn1 dependency for docs build requirements
+- Enable sorting of files in ``alignment-star`` process using Samtools
+- Support merging of multi-lane sequencing data into a single (pair) of
+  FASTQ files in the ``upload-fastq-single``, ``upload-fastq-paired``,
+  ``files-to-fastq-single`` and ``files-to-fastq-paired`` processes
 
 
 ===================
@@ -65,9 +62,6 @@ Changed
 - Use multi-threading option in Samtools commands in
   ``alignment-bwa-mem``, ``alignment-bwa-sw`` and ``alignment-bwa-aln``
   processes
-- Support merging of multi-lane sequencing data into a single (pair) of
-  FASTQ files in the ``upload-fastq-single``, ``upload-fastq-paired``,
-  ``files-to-fastq-single`` and ``files-to-fastq-paired`` processes.
 
 
 ===================
