@@ -52,6 +52,7 @@ Changed
   ``import-sra-single``, ``import-sra-paired``.
 - Compute TPM values and map gene_ids to gene symbols in
   ``alleyoop-collapse`` process output
+- Rewrite ``multiqc`` process to Python
 
 Fixed
 -----
