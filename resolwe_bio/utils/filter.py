@@ -11,3 +11,9 @@ def filter_vcf_variable(line):
         return True
     elif b"/data_all/" in line:
         return True
+
+
+def filter_comment_lines(line):
+    """Filter variable comment lines."""
+    if line.startswith(b'#'):
+        return True

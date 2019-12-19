@@ -6,6 +6,7 @@ from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.utils.filter import filter_comment_lines
 
 
 class SupportProcessorTestCase(KBBioProcessTestCase):
@@ -646,3 +647,28 @@ re-save-file report "${NAME}".txt
 
         self.assertFiles(revcomp_paired, 'fastq', ['hs_slamseq_R1_complemented.fastq.gz'], compression='gzip')
         self.assertFiles(revcomp_paired, 'fastq2', ['hs_slamseq_R2.fastq.gz'], compression='gzip')
+
+    @tag_process('alignment-summary')
+    def test_alignment_summary(self):
+        with self.preparation_stage():
+            bam = self.run_process('upload-bam', {
+                'src': 'bamclipper/output/TP53.primerclipped.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
+            genome = self.run_process('upload-genome', {
+                'src': 'bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            })
+
+        alignment_summary = self.run_process('alignment-summary', {
+            'bam': bam.id,
+            'genome': genome.id
+        })
+
+        self.assertFile(
+            alignment_summary,
+            'report',
+            'hs_gatk_alignment_summary_metrics.txt',
+            file_filter=filter_comment_lines)

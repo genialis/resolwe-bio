@@ -9,6 +9,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``alignment-summary`` process
+
 Changed
 -------
 - Use pigz for output file compression in ``bbduk-single`` and
