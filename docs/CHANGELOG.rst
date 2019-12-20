@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Add ``alignment-summary`` process
+- Add ``insert-size`` process
 
 Changed
 -------
