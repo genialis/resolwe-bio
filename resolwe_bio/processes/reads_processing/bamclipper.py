@@ -15,9 +15,9 @@ class Bamclipper(Process):
     slug = 'bamclipper'
     name = 'Bamclipper'
     process_type = 'data:alignment:bam:bamclipped:'
-    version = '1.1.1'
+    version = '1.1.2'
     category = 'Clipping'
-    shaduling_class = SchedulingClass.BATCH
+    scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
         'expression-engine': 'jinja',

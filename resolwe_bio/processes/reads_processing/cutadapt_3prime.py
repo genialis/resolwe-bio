@@ -23,9 +23,9 @@ class Cutadapt3Prime(Process):
     slug = 'cutadapt-3prime-single'
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = 'data:reads:fastq:single:cutadapt:'
-    version = '1.0.1'
+    version = '1.0.2'
     category = 'Other'
-    shaduling_class = SchedulingClass.BATCH
+    scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
         'expression-engine': 'jinja',

@@ -29,9 +29,9 @@ class ShortHairpinRNADifferentialExpression(Process):
     slug = 'differentialexpression-shrna'
     name = 'Differential expression of shRNA'
     process_type = 'data:shrna:differentialexpression:'
-    version = '1.0.0'
+    version = '1.0.1'
     category = 'Differential Expression'
-    shaduling_class = SchedulingClass.BATCH
+    scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
         'expression-engine': 'jinja',

@@ -19,9 +19,9 @@ class ImportScRNA10x(Process):
     slug = 'upload-sc-10x'
     name = 'Reads (scRNA 10x)'
     process_type = 'data:screads:10x:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Import'
-    sheduling_class = SchedulingClass.BATCH
+    scheduling_class = SchedulingClass.BATCH
     entity = {
         'type': 'sample',
         'descriptor_schema': 'sample',

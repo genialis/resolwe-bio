@@ -18,9 +18,9 @@ class BQSR(Process):
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.1.1'
+    version = '1.1.2'
     category = 'BAM processing'
-    shaduling_class = SchedulingClass.BATCH
+    scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
         'expression-engine': 'jinja',

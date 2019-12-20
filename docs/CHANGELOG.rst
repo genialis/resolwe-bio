@@ -5,6 +5,20 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+
+Fixed
+-----
+- Fix typo in ``scheduling_class`` variable in several Python processes
+
 
 ===================
 25.0.0 - 2019-12-17
