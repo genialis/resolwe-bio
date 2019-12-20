@@ -13,6 +13,7 @@ Added
 -----
 - Add ``alignment-summary`` process
 - Add ``insert-size`` process
+- Add ``wgs-metrics`` process
 
 Changed
 -------

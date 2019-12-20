@@ -699,3 +699,30 @@ re-save-file report "${NAME}".txt
             'hs_gatk_insert_size_metrics.txt',
             file_filter=filter_comment_lines
         )
+
+    @tag_process('wgs-metrics')
+    def test_wgs_metrics(self):
+        with self.preparation_stage():
+            bam = self.run_process('upload-bam', {
+                'src': 'bamclipper/output/TP53.primerclipped.bam',
+                'species': 'Homo sapiens',
+                'build': 'hg19',
+            })
+            genome = self.run_process('upload-genome', {
+                'src': 'bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'hg19'
+            })
+
+        wgs_metrics = self.run_process('wgs-metrics', {
+            'bam': bam.id,
+            'genome': genome.id,
+            'create_histogram': True
+        })
+
+        self.assertFile(
+            wgs_metrics,
+            'report',
+            'hs_gatk_wgs_metrics.txt',
+            file_filter=filter_comment_lines
+        )
