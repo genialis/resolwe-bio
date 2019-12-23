@@ -14,6 +14,7 @@ Added
 - Add ``alignment-summary`` process
 - Add ``insert-size`` process
 - Add ``wgs-metrics`` process
+- Add ``rrbs-metrics`` process
 
 Changed
 -------
