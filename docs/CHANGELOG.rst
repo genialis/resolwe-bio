@@ -14,6 +14,8 @@ Added
 
 Changed
 -------
+- Extend the MultiQC report so that the Sample summary table is created
+  for the compatible Data objects
 
 Fixed
 -----

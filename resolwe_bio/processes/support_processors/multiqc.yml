@@ -9,7 +9,7 @@
       docker:
         image: resolwebio/common:1.3.1
   data_name: 'MultiQC report'
-  version: 1.3.0
+  version: 1.4.0
   type: data:multiqc
   category: Other
   persistence: CACHED
@@ -74,9 +74,19 @@
       # Fix an issue with the Click library http://click.pocoo.org/python3/
       export LC_ALL=C.UTF-8
 
+      samples=()
+      species=()
+      build=()
+
       {% for d in data %}
         DIRECTORY={{ d | sample_name }}
         mkdir -p "${DIRECTORY}"
+
+        {% if d|sample_name != None and d['species'] and d['build'] %}
+          samples+=("${DIRECTORY}")
+          species+=({{ d['species'] }})
+          build+=({{ d['build'] }})
+        {% endif %}
 
         # Prepare FastQC data for single reads objects.
         {% if (d|type).startswith('data:reads:fastq:single') %}
@@ -148,6 +158,13 @@
         {% endif %}
 
       {% endfor %}
+
+      {% raw %}
+      if [ "${#species[@]}" -gt "0" ]; then
+        multiqc_sample_info.py --samples "${samples[@]}" --species "${species[@]}" --build "${build[@]}"
+        re-checkrc "Failed to build Sample summary table."
+      fi
+      {% endraw %}
 
       multiqc . \
         {% if advanced.dirs %} -d {% endif %} \
