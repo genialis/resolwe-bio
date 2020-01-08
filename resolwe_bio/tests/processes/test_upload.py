@@ -278,7 +278,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
     @tag_process('upload-diffexp')
     def test_upload_de(self):
         inputs = {
-            'src': 'deseq2_output.tab.gz',
+            'src': './diff_exp/input/deseq2_output.tab.gz',
             'source': 'DICTYBASE',
             'gene_id': 'gene_id',
             'logfc': 'log2FoldChange',
@@ -291,13 +291,13 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         }
         diff_exp = self.run_process('upload-diffexp', inputs)
 
-        self.assertFile(diff_exp, 'raw', 'deseq2_output.tab.gz')
-        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', 'deseq2_volcano_plot.json.gz')
+        self.assertFile(diff_exp, 'raw', './diff_exp/input/deseq2_output.tab.gz')
+        self.assertJSON(diff_exp, diff_exp.output['de_json'], '', './diff_exp/output/deseq2_volcano_plot.json.gz')
 
     @tag_process('upload-diffexp')
     def test_upload_de_check_field_type(self):
         inputs = {
-            'src': 'diff_exp_check_geneid_type.tab.gz',
+            'src': './diff_exp/input/diff_exp_check_geneid_type.tab.gz',
             'source': 'DICTYBASE',
             'gene_id': 'index',
             'logfc': 'log2FoldChange',
@@ -309,7 +309,10 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             'feature_type': 'gene'
         }
         diff_exp = self.run_process('upload-diffexp', inputs)
-        saved_json, test_json = self.get_json('diff_exp_check_types.json.gz', diff_exp.output['de_json'])
+        saved_json, test_json = self.get_json(
+            './diff_exp/output/diff_exp_check_types.json.gz',
+            diff_exp.output['de_json']
+        )
         self.assertEqual(test_json, saved_json)
         all(self.assertIsInstance(gene, str) for gene in test_json['gene_id'])
 
