@@ -24,6 +24,8 @@ Fixed
 - Fix typo in ``scheduling_class`` variable in several Python processes
 - Handle cases of improper tags passed to ``read_group`` argument of
   the ``bqsr`` process
+- When processing differential expression files, a validation is
+  performed for numeric columns
 
 
 ===================

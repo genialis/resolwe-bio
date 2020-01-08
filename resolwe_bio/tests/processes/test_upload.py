@@ -294,6 +294,16 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(diff_exp, 'raw', './diff_exp/input/deseq2_output.tab.gz')
         self.assertJSON(diff_exp, diff_exp.output['de_json'], '', './diff_exp/output/deseq2_volcano_plot.json.gz')
 
+        # Test for malformed DE file. deseq2_bad_output.tab.gz file has a
+        # mangled last value in last column where we replaced dot for a comma.
+        # When importing to pandas DataFrame, this is no longer a float and
+        # should throw an error.
+        inputs['src'] = './diff_exp/input/deseq2_bad_output.tab.gz'
+        diff_bad = self.run_process('upload-diffexp', inputs, Data.STATUS_ERROR)
+        error_msg = ['Column padj is not numeric. Please make sure that the input file has valid numeric values (i.e. '
+                     'periods for decimal places).']
+        self.assertEqual(diff_bad.process_error, error_msg)
+
     @tag_process('upload-diffexp')
     def test_upload_de_check_field_type(self):
         inputs = {
