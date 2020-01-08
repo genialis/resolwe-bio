@@ -16,6 +16,7 @@ Changed
 -------
 - Extend the MultiQC report so that the Sample summary table is created
   for the compatible Data objects
+- Bump CPU and memory requirements for the ``alignment-bowtie2`` process
 
 Fixed
 -----
