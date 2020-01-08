@@ -2,6 +2,7 @@
 include LICENSE
 # Include documentation and files needed by documentation.
 recursive-include docs *.py *.rst *.css *.html
+include .readthedocs.yml
 # Include tests and files needed by tests (except large files).
 include tox.ini
 include pyproject.toml
