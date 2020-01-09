@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.2.1
+  version: 2.3.0
   type: data:differentialexpression:cuffdiff
   category: Differential Expression
   persistence: CACHED

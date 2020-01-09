@@ -11,12 +11,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.2
+  version: 2.3.0
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
@@ -520,8 +520,8 @@
         -Xmx{{ (0.85 * requirements.resources.memory)|int }}m
       re-checkrc "Processing with BBDuk failed."
 
-      gzip {{ output_reads }}
-      gzip {{ output_statistics }}
+      pigz {{ output_reads }}
+      pigz {{ output_statistics }}
 
       mv {{ output_reads + '.gz' }} {{ final_reads }}
       mv {{ output_statistics + '.gz' }} {{ final_statistics }}
@@ -547,12 +547,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.2
+  version: 2.3.0
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
@@ -1102,9 +1102,9 @@
         -Xmx{{ (0.85 * requirements.resources.memory)|int }}m
       re-checkrc "Processing with BBDuk failed."
 
-      gzip {{ output_fw_reads }}
-      gzip {{ output_rv_reads }}
-      gzip {{ output_statistics }}
+      pigz {{ output_fw_reads }}
+      pigz {{ output_rv_reads }}
+      pigz {{ output_statistics }}
 
       mv {{ output_fw_reads + '.gz' }} {{ final_fw_reads }}
       mv {{ output_rv_reads + '.gz' }} {{ final_rv_reads }}

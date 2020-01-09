@@ -4,12 +4,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/common:1.1.0
+        image: resolwebio/common:1.3.1
     resources:
       cores: 1
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.3
+  version: 1.1.0
   type: data:reads:fastq:single:seqtk
   category: Other
   flow_collection: sample
@@ -94,12 +94,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/common:1.1.0
+        image: resolwebio/common:1.3.1
     resources:
       cores: 1
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 1.0.3
+  version: 1.1.0
   type: data:reads:fastq:paired:seqtk
   category: Other
   flow_collection: sample

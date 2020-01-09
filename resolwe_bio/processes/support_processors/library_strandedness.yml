@@ -7,9 +7,9 @@
       memory: 8192
     executor:
       docker:
-        image: resolwebio/rnaseq:4.5.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: 'Library strandedness ({{ reads|sample_name }})'
-  version: 0.1.2
+  version: 0.2.0
   type: data:strandedness
   persistence: CACHED
   description: |

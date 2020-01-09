@@ -156,7 +156,7 @@ def set_error(msg):
 def get_gene_names(feature_ids, source, species):
     """Map feature IDs to gene names."""
     res = resdk.Resolwe()
-    features = res.feature.filter(feature_id=feature_ids, source=source, species=species)
+    features = res.feature.filter(feature_id__in=feature_ids, source=source, species=species)
     return [feature.name for feature in features]
 
 

@@ -29,7 +29,7 @@ class ShortHairpinRNADifferentialExpression(Process):
     slug = 'differentialexpression-shrna'
     name = 'Differential expression of shRNA'
     process_type = 'data:shrna:differentialexpression:'
-    version = '1.0.1'
+    version = '1.1.0'
     category = 'Differential Expression'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -37,7 +37,7 @@ class ShortHairpinRNADifferentialExpression(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/rnaseq:4.4.0'
+                'image': 'resolwebio/rnaseq:4.9.0'
             }
         }
     }

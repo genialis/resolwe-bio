@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.8.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: 'Differential expression (case vs. control)'
-  version: 2.4.1
+  version: 2.5.0
   type: data:differentialexpression:deseq2
   category: Differential Expression
   persistence: CACHED

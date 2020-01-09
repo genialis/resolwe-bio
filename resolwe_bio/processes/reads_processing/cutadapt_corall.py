@@ -26,7 +26,7 @@ class CutadaptCorallSingle(Process):
     slug = 'cutadapt-corall-single'
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = 'data:reads:fastq:single:cutadapt:'
-    version = '1.0.2'
+    version = '1.1.0'
     category = 'Other'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -34,7 +34,7 @@ class CutadaptCorallSingle(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/rnaseq:4.8.0'
+                'image': 'resolwebio/rnaseq:4.9.0'
             },
         },
         'resources': {
@@ -171,7 +171,7 @@ class CutadaptCorallPaired(Process):
     slug = 'cutadapt-corall-paired'
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = 'data:reads:fastq:paired:cutadapt:'
-    version = '1.0.2'
+    version = '1.1.0'
     category = 'Other'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -179,7 +179,7 @@ class CutadaptCorallPaired(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/rnaseq:4.8.0'
+                'image': 'resolwebio/rnaseq:4.9.0'
             },
         },
         'resources': {

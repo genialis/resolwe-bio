@@ -4,12 +4,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.7.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.0.0
+  version: 2.1.0
   type: data:reads:fastq:single:cutadapt
   category: Trim
   flow_collection: sample
@@ -213,12 +213,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.7.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.0
+  version: 2.3.0
   type: data:reads:fastq:paired:cutadapt
   category: Trim
   flow_collection: sample

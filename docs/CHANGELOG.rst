@@ -5,6 +5,46 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Use pigz for output file compression in ``bbduk-single`` and
+  ``bbduk-paired`` processes
+- Use ``resolwebio/rnaseq:4.9.0`` Docker image in processes
+  ``bbduk-single``, ``bbduk-paired``, ``trimmomatic-single``,
+  ``trimmomatic-paired``, ``alignment-bowtie``, ``alignment-bowtie2``,
+  ``alignment-hisat2``, ``alignment-subread``, ``cuffmerge``, ``pca``,
+  ``cuffdiff``, ``differentialexpression-edger``, ``cufflinks``,
+  ``cuffnorm``, ``cuffquant``, ``expression-aggregator``,
+  ``htseq-count``, ``htseq-count-raw``, ``index-fasta-nucl``, ``rsem``,
+  ``upload-bam``, ``upload-bam-indexed``, ``upload-bam-secondary``,
+  ``upload-expression``, ``upload-expression-cuffnorm``,
+  ``upload-expression-star``, ``upload-genome``,
+  ``upload-gaf``, ``upload-obo``, ``upload-fasta-nucl``,
+  ``regtools-junctions-annotate``, ``cutadapt-custom-single``,
+  ``cutadapt-custom-paired``, ``bam-split``, ``gff-to-gtf``,
+  ``spikein-qc``, ``differentialexpression-shrna``, ``feature_counts``,
+  ``salmon-index``, ``salmon-quant``, ``library-strandedness``,
+  ``qorts-qc``, ``alignment-star``, ``alignment-star-index``,
+  ``cutadapt-3prime-single``, ``cutadapt-single``, ``cutadapt-paired``,
+  ``differentialexpression-deseq2``, ``stringtie``,
+  ``cutadapt-corall-single``, ``cutadapt-corall-paired``,
+  ``umi-tools-dedup``, ``shrna-quant``.
+- Use ``resolwebio/common:1.3.1`` Docker image in processes
+  ``amplicon-table``, ``mergeexpressions``, ``upload-bedpe``,
+  ``upload-bam-scseq-indexed``, ``upload-diffexp``, ``upload-etc``,
+  ``upload-sc-10x``, ``upload-multiplexed-single``,
+  ``upload-multiplexed-paired``, ``archive-samples``,
+  ``samtools-idxstats``, ``seqtk-sample-single``,
+  ``seqtk-sample-paired``, ``basespace-file-import``,
+  ``clustering-hierarchical-samples``,
+  ``clustering-hierarchical-genes``, ``import-sra``,
+  ``import-sra-single``, ``import-sra-paired``.
+
+
 ===================
 25.1.0 - 2020-01-14
 ===================

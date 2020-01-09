@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.4.1
+  version: 1.5.0
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -293,12 +293,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
     resources:
       memory: 16384
       cores: 20
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.5.1
+  version: 1.6.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample

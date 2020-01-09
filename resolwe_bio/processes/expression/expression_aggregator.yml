@@ -4,9 +4,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: "Expression aggregator"
-  version: 0.2.2
+  version: 0.3.0
   type: data:aggregator:expression
   category: Other
   persistence: CACHED

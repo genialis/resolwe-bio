@@ -12,9 +12,9 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.6.1
+  version: 1.7.0
   type: data:alignment:bam:hisat2
   category: Align
   flow_collection: sample

@@ -4,9 +4,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.0.0
+        image: resolwebio/rnaseq:4.9.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.3.2
+  version: 0.4.0
   type: data:index:expression
   category: Other
   persistence: CACHED

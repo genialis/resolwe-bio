@@ -18,7 +18,7 @@ class ImportScBam(Process):
     slug = 'upload-bam-scseq-indexed'
     name = 'Single cell BAM file and index'
     process_type = 'data:alignment:bam:scseq'
-    version = '1.0.1'
+    version = '1.1.0'
     category = 'Import'
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -28,7 +28,7 @@ class ImportScBam(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/common:1.0.0'
+                'image': 'resolwebio/common:1.3.1'
             }
         },
     }

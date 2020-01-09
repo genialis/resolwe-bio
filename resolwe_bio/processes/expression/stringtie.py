@@ -42,7 +42,7 @@ class StringTie(Process):
         'expression-engine': 'jinja',
         'executor': {
             'docker': {
-                'image': 'resolwebio/rnaseq:4.8.0',
+                'image': 'resolwebio/rnaseq:4.9.0',
             },
         },
         'resources': {
@@ -52,7 +52,7 @@ class StringTie(Process):
         },
     }
     data_name = "Stringtie ({{alignment|sample_name}})"
-    version = '1.0.0'
+    version = '1.1.0'
     process_type = 'data:expression:stringtie'
     category = 'Quantify'
     entity = {
