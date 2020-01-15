@@ -44,6 +44,10 @@ Changed
   ``clustering-hierarchical-genes``, ``import-sra``,
   ``import-sra-single``, ``import-sra-paired``.
 
+Fixed
+-----
+- Fix Mapping search for ``source_id`` / ``target_id``
+
 
 ===================
 25.1.0 - 2020-01-14

@@ -156,34 +156,17 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     document_class = MappingSearchDocument
     serializer_class = MappingSerializer
 
-    filtering_fields = ('source_db', 'source_species', 'target_db', 'target_species', 'relation_type')
+    filtering_fields = (
+        'relation_type',
+        'source_db',
+        'source_id',
+        'source_species',
+        'target_db',
+        'target_id',
+        'target_species',
+    )
     ordering_fields = ('source_id',)
     ordering = 'source_id'
-
-    def get_always_allowed_arguments(self):
-        """Return query arguments which are always allowed."""
-        return super().get_always_allowed_arguments() + [
-            'source_id',
-            'target_id',
-        ]
-
-    def custom_filter(self, search):
-        """Support correct searching by ``source_id`` and ``target_id``."""
-        for field in ('source_id', 'target_id'):
-            query = self.get_query_param(field, None)
-            if not query:
-                continue
-            if not isinstance(query, list):
-                query = [query]
-
-            search = search.filter(
-                'bool',
-                should=[
-                    Q('terms', **{field: query}),
-                ]
-            )
-
-        return search
 
     def filter_permissions(self, search):
         """Filter permissions since Mapping objects have no permissions."""

@@ -56,7 +56,7 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         response = self.client.post(MAPPING_URL, {
             'source_db': 'SRC',
             'target_db': 'TGT',
-            'source_id': ['FT0', 'FT1', 'FT5']
+            'source_id__in': 'FT0,FT1,FT5'
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
@@ -68,7 +68,7 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         response = self.client.post(MAPPING_URL, {
             'source_db': 'SRC',
             'target_db': 'TGT',
-            'source_id': [str(x) for x in range(2048)]
+            'source_id__in': ','.join([str(x) for x in range(512)])
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
