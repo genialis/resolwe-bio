@@ -43,6 +43,8 @@ Changed
   ``clustering-hierarchical-samples``,
   ``clustering-hierarchical-genes``, ``import-sra``,
   ``import-sra-single``, ``import-sra-paired``.
+- Compute TPM values and map gene_ids to gene symbols in
+  ``alleyoop-collapse`` process output
 
 Fixed
 -----

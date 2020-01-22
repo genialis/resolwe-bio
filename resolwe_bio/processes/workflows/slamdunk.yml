@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.2.0
   type: data:workflow:slamdunk
   category: Pipeline
   description: |
@@ -100,6 +100,7 @@
         run: alleyoop-collapse
         input:
           slamdunk: '{{ steps.slamdunk }}'
+          source: '{{ input.options.source }}'
       - id: slam_count
         run: slam-count
         input:

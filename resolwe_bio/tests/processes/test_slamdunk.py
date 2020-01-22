@@ -371,6 +371,7 @@ re-save build "Gencode 32"
             os.path.join('slamseq', 'output', 'hs_alleyoop_SNPeval.txt')
         )
 
+    @with_resolwe_host
     @tag_process('alleyoop-collapse')
     def test_alleyoop_collapse(self):
         with self.preparation_stage():
