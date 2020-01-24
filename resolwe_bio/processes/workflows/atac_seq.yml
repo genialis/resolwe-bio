@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.2
+  version: 2.0.3
   type: data:workflow:atacseq
   category: Pipeline
   description: |
@@ -32,7 +32,7 @@
       type: data:bed
       required: false
       description: |
-        BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
+        BED file containing promoter regions (TSS+-1000 bp for example). Needed to get the number
         of peaks and reads mapped to promoter regions.
     - name: alignment
       label: Alignment (Bowtie2)
@@ -173,11 +173,12 @@
           type: basic:integer
           default: 25000000
         - name: tn5
-          label: TN5 shifting
+          label: Tn5 shifting
           type: basic:boolean
           default: true
           description: |
-            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
+            Tn5 transposon shifting. Shift reads on "+" strand by 4 bp
+            and reads on "-" strand by 5 bp.
         - name: shift
           label: User-defined cross-correlation peak strandshift
           type: basic:integer
@@ -295,7 +296,7 @@
           description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
-            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            MACS considers 1000 bp for small local region (--slocal), and 10000 bp for large local
             region (--llocal) which captures the bias from a long range effect like an open
             chromatin domain. You can tweak these according to your project. Remember that if the
             region is set too small, a sharp spike in the input data may kill the significant
@@ -307,7 +308,7 @@
           description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
-            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            MACS considers 1000 bp for small local region (--slocal), and 10000 bp for large local
             region (--llocal) which captures the bias from a long range effect like an open
             chromatin domain. You can tweak these according to your project. Remember that if the
             region is set too small, a sharp spike in the input data may kill the significant
@@ -357,9 +358,9 @@
           type: basic:boolean
           default: false
           description: |
-            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            Turn on the auto paired-peak model process. If it's set, when MACS failed
             to build paired model, it will use the nomodel settings, the '--extsize' parameter
-            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
+            to extend each tag. If set, MACS will be terminated if paired-peak model has failed.
         - name: nomodel
           label: Bypass building the shifting model
           type: basic:boolean
@@ -379,11 +380,10 @@
           type: basic:boolean
           default: false
           description: |
-            When set, random sampling method will scale down the bigger sample. By default, MACS
+            When set to true, random sampling method will scale down the bigger sample. By default, MACS
             uses linear scaling. This option will make the results unstable and irreproducible
             since each time, random reads would be selected, especially the numbers (pileup,
-            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
-            instead.
+            pvalue, qvalue) would change.
         - name: bedgraph
           label: Save fragment pileup and control lambda
           type: basic:boolean
@@ -457,34 +457,34 @@
       - id: macs2
         run: macs2-callpeak
         input:
-          case: '{{steps.alignment}}'
-          promoter: '{{input.promoter}}'
-          tagalign: '{{input.settings.tagalign}}'
+          case: '{{ steps.alignment }}'
+          promoter: '{{ input.promoter }}'
+          tagalign: '{{ input.settings.tagalign }}'
           prepeakqc_settings:
-            q_threshold: '{{input.prepeakqc_settings.q_threshold}}'
-            n_sub: '{{input.prepeakqc_settings.n_sub}}'
-            tn5: '{{input.prepeakqc_settings.tn5}}'
-            shift: '{{input.prepeakqc_settings.shift}}'
+            q_threshold: '{{ input.prepeakqc_settings.q_threshold }}'
+            n_sub: '{{ input.prepeakqc_settings.n_sub }}'
+            tn5: '{{ input.prepeakqc_settings.tn5 }}'
+            shift: '{{ input.prepeakqc_settings.shift }}'
           settings:
-            duplicates: '{{input.settings.duplicates}}'
-            duplicates_prepeak: '{{input.settings.duplicates_prepeak}}'
-            qvalue: '{{input.settings.qvalue}}'
-            pvalue: '{{input.settings.pvalue}}'
-            pvalue_prepeak: '{{input.settings.pvalue_prepeak}}'
-            cap_num: '{{input.settings.cap_num}}'
-            mfold_lower: '{{input.settings.mfold_lower}}'
-            mfold_upper: '{{input.settings.mfold_upper}}'
-            slocal: '{{input.settings.slocal}}'
-            llocal: '{{input.settings.llocal}}'
-            extsize: '{{input.settings.extsize}}'
-            shift: '{{input.settings.shift}}'
-            nolambda: '{{input.settings.nolambda}}'
-            fix_bimodal: '{{input.settings.fix_bimodal}}'
-            nomodel: '{{input.settings.nomodel}}'
-            nomodel_prepeak: '{{input.settings.nomodel_prepeak}}'
-            down_sample: '{{input.settings.down_sample}}'
-            bedgraph: '{{input.settings.bedgraph}}'
-            spmr: '{{input.settings.spmr}}'
-            call_summits: '{{input.settings.call_summits}}'
-            broad: '{{input.settings.broad}}'
-            broad_cutoff: '{{input.settings.broad_cutoff}}'
+            duplicates: '{{ input.settings.duplicates }}'
+            duplicates_prepeak: '{{ input.settings.duplicates_prepeak }}'
+            qvalue: '{{ input.settings.qvalue }}'
+            pvalue: '{{ input.settings.pvalue }}'
+            pvalue_prepeak: '{{ input.settings.pvalue_prepeak }}'
+            cap_num: '{{ input.settings.cap_num }}'
+            mfold_lower: '{{ input.settings.mfold_lower }}'
+            mfold_upper: '{{ input.settings.mfold_upper }}'
+            slocal: '{{ input.settings.slocal }}'
+            llocal: '{{ input.settings.llocal }}'
+            extsize: '{{ input.settings.extsize }}'
+            shift: '{{ input.settings.shift }}'
+            nolambda: '{{ input.settings.nolambda }}'
+            fix_bimodal: '{{ input.settings.fix_bimodal }}'
+            nomodel: '{{ input.settings.nomodel }}'
+            nomodel_prepeak: '{{ input.settings.nomodel_prepeak }}'
+            down_sample: '{{ input.settings.down_sample }}'
+            bedgraph: '{{ input.settings.bedgraph }}'
+            spmr: '{{ input.settings.spmr }}'
+            call_summits: '{{ input.settings.call_summits }}'
+            broad: '{{ input.settings.broad }}'
+            broad_cutoff: '{{ input.settings.broad_cutoff }}'

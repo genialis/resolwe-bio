@@ -15,6 +15,7 @@ Added
 - Add ``insert-size`` process
 - Add ``wgs-metrics`` process
 - Add ``rrbs-metrics`` process
+- Add ``workflow-macs2`` workflow
 
 Changed
 -------
@@ -64,6 +65,7 @@ Changed
   ``salmon-quant`` process
 - Use ``resolwebio/common:1.3.1`` as a base Docker image for the
   ``resolwebio/wgbs:1.2.0`` Docker image
+- Support MultiQC reports in ChIP-seq workflows
 
 Fixed
 -----

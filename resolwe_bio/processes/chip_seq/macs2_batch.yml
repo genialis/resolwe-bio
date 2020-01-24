@@ -17,7 +17,7 @@
           - case
         required: True
   data_name: ChIP-Seq Call Peaks Batch
-  version: 1.0.3
+  version: 1.1.0
   type: data:chipseq:batch:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
@@ -48,20 +48,19 @@
       type: list:data:alignment:bam
       description: |
         Select multiple treatment/background samples.
+    - name: promoter
+      label: Promoter regions BED file
+      type: data:bed
+      required: false
+      description: |
+        BED file containing promoter regions (TSS+-1000 bp for example). Needed to get the number
+        of peaks and reads mapped to promoter regions.
     - name: advanced
       label: Show advanced options
       type: basic:boolean
       default: false
       description: |
         Inspect and modify parameters.
-    - name: promoter
-      label: Promoter regions BED file
-      type: data:bed
-      hidden: "!advanced"
-      required: false
-      description: |
-        BED file containing promoter regions (TSS+-1000bp for example). Needed to get the number
-        of peaks and reads mapped to promoter regions.
     - name: tagalign
       label: Use tagAlign files
       type: basic:boolean
@@ -84,11 +83,12 @@
           type: basic:integer
           default: 15000000
         - name: tn5
-          label: TN5 shifting
+          label: Tn5 shifting
           type: basic:boolean
           default: false
           description: |
-            Tn5 transposon shifting. Shift reads on "+" strand by 4bp and reads on "-" strand by 5bp.
+            Tn5 transposon shifting. Shift reads on "+" strand by 4 bp
+            and reads on "-" strand by 5 bp.
         - name: shift
           label: User-defined cross-correlation peak strandshift
           type: basic:integer
@@ -199,7 +199,7 @@
           description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
-            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            MACS considers 1000 bp for small local region (--slocal), and 10000 bp for large local
             region (--llocal) which captures the bias from a long range effect like an open
             chromatin domain. You can tweak these according to your project. Remember that if the
             region is set too small, a sharp spike in the input data may kill the significant
@@ -211,7 +211,7 @@
           description: |
             Slocal and llocal parameters control which two levels of regions will be checked
             around the peak regions to calculate the maximum lambda as local lambda. By default,
-            MACS considers 1000bp for small local region (--slocal), and 10000bps for large local
+            MACS considers 1000 bp for small local region (--slocal), and 10000 bp for large local
             region (--llocal) which captures the bias from a long range effect like an open
             chromatin domain. You can tweak these according to your project. Remember that if the
             region is set too small, a sharp spike in the input data may kill the significant
@@ -261,9 +261,9 @@
           type: basic:boolean
           default: false
           description: |
-            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            Turn on the auto paired-peak model process. If it's set, when MACS failed
             to build paired model, it will use the nomodel settings, the '--extsize' parameter
-            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
+            to extend each tag. If set, MACS will be terminated if paired-peak model has failed.
         - name: nomodel
           label: Bypass building the shifting model
           type: basic:boolean
@@ -283,11 +283,10 @@
           type: basic:boolean
           default: false
           description: |
-            When set, random sampling method will scale down the bigger sample. By default, MACS
+            When set to true, random sampling method will scale down the bigger sample. By default, MACS
             uses linear scaling. This option will make the results unstable and irreproducible
             since each time, random reads would be selected, especially the numbers (pileup,
-            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
-            instead.
+            pvalue, qvalue) would change.
         - name: bedgraph
           label: Save fragment pileup and control lambda
           type: basic:boolean
@@ -340,7 +339,7 @@
 
       {% for case, background in alignments|background_pairs %}
         echo 'run {' \
-          '"process": "macs2-callpeak",' \
+          '"process": "workflow-macs2",' \
           '"input": {' \
             '"case": {{ case }}' \
             {% if background != None %} \

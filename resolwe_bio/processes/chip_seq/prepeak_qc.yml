@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 0.2.2
+  version: 0.2.3
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -38,7 +38,7 @@
       type: basic:integer
       default: 15000000
     - name: tn5
-      label: TN5 shifting
+      label: Tn5 shifting
       type: basic:boolean
       default: false
       description: |

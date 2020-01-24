@@ -387,7 +387,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        macs2 = Data.objects.last()
+        macs2 = Data.objects.filter(process__slug='macs2-callpeak').last()
 
         self.assertFields(macs2, 'species', 'Homo sapiens')
         self.assertFields(macs2, 'build', 'hg19')
@@ -467,7 +467,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        rose2 = Data.objects.last()
+        rose2 = Data.objects.filter(process__slug='rose2').last()
 
         # remove changing lines from the rose2 output
         def filter_created(line):

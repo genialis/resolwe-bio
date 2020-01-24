@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.5
+  version: 4.0.6
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -71,7 +71,7 @@
           type: basic:integer
           default: 15000000
         - name: tn5
-          label: TN5 shifting
+          label: Tn5 shifting
           type: basic:boolean
           default: false
           description: |
@@ -247,9 +247,9 @@
           type: basic:boolean
           default: false
           description: |
-            Whether turn on the auto paired-peak model process. If it's set, when MACS failed
+            Turn on the auto paired-peak model process. If it's set, when MACS failed
             to build paired model, it will use the nomodel settings, the '--extsize' parameter
-            to extend each tags. If set, MACS will be terminated if paired-peak model is failed.
+            to extend each tag. If set, MACS will be terminated if paired-peak model has failed.
         - name: nomodel
           label: Bypass building the shifting model
           type: basic:boolean
@@ -269,11 +269,10 @@
           type: basic:boolean
           default: false
           description: |
-            When set, random sampling method will scale down the bigger sample. By default, MACS
+            When set to true, random sampling method will scale down the bigger sample. By default, MACS
             uses linear scaling. This option will make the results unstable and irreproducible
             since each time, random reads would be selected, especially the numbers (pileup,
-            pvalue, qvalue) would change. Consider to use 'randsample' script before MACS2 runs
-            instead.
+            pvalue, qvalue) would change.
         - name: bedgraph
           label: Save fragment pileup and control lambda
           type: basic:boolean
