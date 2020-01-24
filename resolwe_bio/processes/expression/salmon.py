@@ -60,7 +60,7 @@ class SalmonQuant(Process):
             'network': True,
         },
     }
-    data_name = "{{ reads.fastq.0.file|default('?') }}"
+    data_name = "{{ reads|sample_name|default('?') }}"
     version = '1.2.0'
     process_type = 'data:expression:salmon'
     category = 'Quantify'
@@ -230,6 +230,7 @@ class SalmonQuant(Process):
         salmon_output = DirField(label='Salmon output')
         txdb = FileField(label="Transcript to gene mapping")
         strandedness = StringField(label='Strandedness code')
+        strandedness_report = FileField(label="Strandedness report file")
         source = StringField(label="Gene ID source")
         species = StringField(label="Species")
         build = StringField(label="Build")
@@ -347,7 +348,8 @@ class SalmonQuant(Process):
 
         Cmd['ln']['-s', 'salmon_output/quant.sf', reads_name + '.sf']()
 
-        strandedness = json.load(open('salmon_output/lib_format_counts.json')).get('expected_format', '')
+        lib_type_report = 'salmon_output/lib_format_counts.json'
+        strandedness = json.load(open(lib_type_report)).get('expected_format', '')
 
         # Save all the outputs
         outputs.salmon_output = 'salmon_output'
@@ -359,6 +361,7 @@ class SalmonQuant(Process):
         outputs.exp_set = reads_name + '_expressions.txt.gz'
         outputs.exp_set_json = reads_name + '_expressions.json'
         outputs.strandedness = strandedness
+        outputs.strandedness_report = lib_type_report
         outputs.exp_type = abundance_unit
         outputs.feature_type = 'gene'
         outputs.source = inputs.salmon_index.source

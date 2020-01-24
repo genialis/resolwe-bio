@@ -53,6 +53,8 @@ Changed
 - Compute TPM values and map gene_ids to gene symbols in
   ``alleyoop-collapse`` process output
 - Rewrite ``multiqc`` process to Python
+- Save ``lib_format_counts.json`` in a separate output field in the
+  ``salmon-quant`` process
 
 Fixed
 -----
