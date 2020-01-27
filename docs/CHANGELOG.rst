@@ -24,6 +24,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` and
   ``upload-metabolic-pathway`` processes
 - Remove Stringtie tool from ``resolwebio/rnaseq`` Docker image
+- Remove ``resolwe/base:ubuntu-14.04`` and ``resolwe/base:ubuntu-17.10``
+  Docker images
 - Use pigz for output file compression in ``bbduk-single`` and
   ``bbduk-paired`` processes
 - Use ``resolwebio/rnaseq:4.9.0`` Docker image in processes
