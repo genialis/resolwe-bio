@@ -22,6 +22,7 @@ Changed
   the  ``workflow-corall-single`` and ``workflow-corall-paired``
   workflows
 - **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` process
+- Remove Stringtie tool from ``resolwebio/rnaseq`` Docker image
 - Use pigz for output file compression in ``bbduk-single`` and
   ``bbduk-paired`` processes
 - Use ``resolwebio/rnaseq:4.9.0`` Docker image in processes
