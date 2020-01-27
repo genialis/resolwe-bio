@@ -18,6 +18,9 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Use featureCounts instead of Stringtie in
+  the  ``workflow-corall-single`` and ``workflow-corall-paired``
+  workflows
 - Use pigz for output file compression in ``bbduk-single`` and
   ``bbduk-paired`` processes
 - Use ``resolwebio/rnaseq:4.9.0`` Docker image in processes

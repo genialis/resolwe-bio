@@ -651,7 +651,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        exp = Data.objects.filter(process__slug='stringtie').last()
+        exp = Data.objects.filter(process__slug='feature_counts').last()
         self.assertFile(exp, 'exp_set', './corall/output/corall_workfow_expression_single.txt.gz', compression='gzip')
         self.assertFields(exp, 'exp_type', 'TPM')
         self.assertFields(exp, 'source', 'ENSEMBL')
@@ -670,7 +670,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        exp = Data.objects.filter(process__slug='stringtie').last()
+        exp = Data.objects.filter(process__slug='feature_counts').last()
         self.assertFile(exp, 'exp_set', './corall/output/corall_workfow_expression_paired.txt.gz', compression='gzip')
         self.assertFields(exp, 'exp_type', 'TPM')
         self.assertFields(exp, 'source', 'ENSEMBL')

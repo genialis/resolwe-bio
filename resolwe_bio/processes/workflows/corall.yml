@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 2.0.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -13,7 +13,7 @@
     UMI-sequences are extracted from the raw reads before the reads are
     trimmed and quality filtered using Cutadapt. Preprocessed reads are
     aligned by the STAR aligner and de-duplicated using UMI-tools.
-    Gene abundance estimates are reported by the StringTie tool.
+    Gene abundance estimates are reported by the featureCounts tool.
 
     QC operates on downsampled reads and includes alignment of input
     reads to the rRNA/globin reference sequences. The reported alignment
@@ -92,6 +92,38 @@
           description: |
             Enable two-pass mode when down-sampling. Two-pass mode is twice
             as slow but with much reduced memory.
+    - name: quantification
+      label: Quantification (featureCounts)
+      hidden: '!show_advanced'
+      group:
+        - name: feature_class
+          label: Feature class
+          type: basic:string
+          default: exon
+          description: |
+            Feature class (3rd column in GTF/GFF3 file) to be used. All other
+            features will be ignored.
+        - name: id_attribute
+          label: ID attribute
+          type: basic:string
+          default: gene_id
+          allow_custom_choice: true
+          choices:
+            - label: gene_id
+              value: gene_id
+            - label: transcript_id
+              value: transcript_id
+            - label: ID
+              value: ID
+            - label: geneid
+              value: geneid
+          description: |
+            GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
+            with the same feature ID will be considered as parts of the same
+            feature. The feature ID is used to identify the counts in the
+            output table. In GTF files this is usually 'gene_id', in GFF3 files
+            this is often 'ID', and 'transcript_id' is frequently a valid
+            choice for both annotation formats.
   run:
     language: workflow
     program:
@@ -123,13 +155,16 @@
         run: umi-tools-dedup
         input:
           alignment: '{{ steps.star }}'
-      - id: stringtie
-        run: stringtie
+      - id: quantification
+        run: feature_counts
         input:
-          alignment: '{{ steps.deduplication }}'
-          annotation: '{{ input.annotation }}'
-          options:
-            stranded: 'forward'
+          alignment:
+            aligned_reads: '{{ steps.deduplication }}'
+            assay_type: 'forward'
+          annotation:
+            annotation: '{{ input.annotation }}'
+            feature_class: '{{ input.quantification.feature_class }}'
+            id_attribute: '{{ input.quantification.id_attribute }}'
       - id: downsampling
         run: seqtk-sample-single
         input:
@@ -163,7 +198,8 @@
             steps.downsampling,
             steps.alignment_qc_rrna,
             steps.alignment_qc_globin,
-            steps.idxstats
+            steps.idxstats,
+            steps.quantification
             ] }}'
 
 
@@ -172,7 +208,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 2.0.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -182,7 +218,7 @@
     UMI-sequences are extracted from the raw reads before the reads are
     trimmed and quality filtered using Cutadapt. Preprocessed reads are
     aligned by the STAR aligner and de-duplicated using UMI-tools.
-    Gene abundance estimates are reported by the StringTie tool.
+    Gene abundance estimates are reported by the featureCounts tool.
 
     QC operates on downsampled reads and includes alignment of input
     reads to the rRNA/globin reference sequences. The reported alignment
@@ -261,6 +297,38 @@
           description: |
             Enable two-pass mode when down-sampling. Two-pass mode is twice
             as slow but with much reduced memory.
+    - name: quantification
+      label: Quantification (featureCounts)
+      hidden: '!show_advanced'
+      group:
+        - name: feature_class
+          label: Feature class
+          type: basic:string
+          default: exon
+          description: |
+            Feature class (3rd column in GTF/GFF3 file) to be used. All other
+            features will be ignored.
+        - name: id_attribute
+          label: ID attribute
+          type: basic:string
+          default: gene_id
+          allow_custom_choice: true
+          choices:
+            - label: gene_id
+              value: gene_id
+            - label: transcript_id
+              value: transcript_id
+            - label: ID
+              value: ID
+            - label: geneid
+              value: geneid
+          description: |
+            GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
+            with the same feature ID will be considered as parts of the same
+            feature. The feature ID is used to identify the counts in the
+            output table. In GTF files this is usually 'gene_id', in GFF3 files
+            this is often 'ID', and 'transcript_id' is frequently a valid
+            choice for both annotation formats.
   run:
     language: workflow
     program:
@@ -292,13 +360,16 @@
         run: umi-tools-dedup
         input:
           alignment: '{{ steps.star }}'
-      - id: stringtie
-        run: stringtie
+      - id: quantification
+        run: feature_counts
         input:
-          alignment: '{{ steps.deduplication }}'
-          annotation: '{{ input.annotation }}'
-          options:
-            stranded: 'forward'
+          alignment:
+            aligned_reads: '{{ steps.deduplication }}'
+            assay_type: 'forward'
+          annotation:
+            annotation: '{{ input.annotation }}'
+            feature_class: '{{ input.quantification.feature_class }}'
+            id_attribute: '{{ input.quantification.id_attribute }}'
       - id: downsampling
         run: seqtk-sample-paired
         input:
@@ -332,5 +403,6 @@
             steps.downsampling,
             steps.alignment_qc_rrna,
             steps.alignment_qc_globin,
-            steps.idxstats
+            steps.idxstats,
+            steps.quantification
             ] }}'
