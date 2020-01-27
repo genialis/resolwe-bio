@@ -21,6 +21,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Use featureCounts instead of Stringtie in
   the  ``workflow-corall-single`` and ``workflow-corall-paired``
   workflows
+- **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` process
 - Use pigz for output file compression in ``bbduk-single`` and
   ``bbduk-paired`` processes
 - Use ``resolwebio/rnaseq:4.9.0`` Docker image in processes
@@ -40,9 +41,8 @@ Changed
   ``salmon-index``, ``salmon-quant``, ``library-strandedness``,
   ``qorts-qc``, ``alignment-star``, ``alignment-star-index``,
   ``cutadapt-3prime-single``, ``cutadapt-single``, ``cutadapt-paired``,
-  ``differentialexpression-deseq2``, ``stringtie``,
-  ``cutadapt-corall-single``, ``cutadapt-corall-paired``,
-  ``umi-tools-dedup``, ``shrna-quant``.
+  ``differentialexpression-deseq2``, ``cutadapt-corall-single``,
+  ``cutadapt-corall-paired``, ``umi-tools-dedup`` and ``shrna-quant``.
 - Use ``resolwebio/common:1.3.1`` Docker image in processes
   ``amplicon-table``, ``mergeexpressions``, ``upload-bedpe``,
   ``upload-bam-scseq-indexed``, ``upload-diffexp``, ``upload-etc``,

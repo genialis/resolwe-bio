@@ -709,37 +709,3 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(quant, 'build', build)
         self.assertFields(quant, 'feature_type', 'shRNA')
         self.assertFile(quant, 'mapped_species', pf_out + 'SM18_ss_mapped_species.txt.gz', compression='gzip')
-
-    @with_resolwe_host
-    @tag_process('stringtie')
-    def test_stringtie(self):
-        with self.preparation_stage():
-            alignment = self.run_process('upload-bam', {
-                'src': './corall/input/corall_paired.bam',
-                'species': 'Homo sapiens',
-                'build': 'ens_90',
-            })
-
-            annotation = self.run_process('upload-gtf', {
-                'src': './corall/input/hs_annotation_chr2_1_45000.gtf.gz',
-                'source': 'ENSEMBL',
-                'species': 'Homo sapiens',
-                'build': 'ens_90'
-            })
-
-        stringtie = self.run_process('stringtie', {
-            'alignment': alignment.id,
-            'annotation': annotation.id,
-            'options': {
-                'stranded': 'forward',
-            }
-        })
-
-        self.assertFile(stringtie, 'exp', './corall/output/stringtie_tpm.txt.gz', compression='gzip')
-        self.assertFile(stringtie, 'exp_set', './corall/output/stringtie_exp_set.txt.gz', compression='gzip')
-        self.assertFile(stringtie, 'ctab', './corall/output/stringtie_transcripts.ctab')
-        self.assertFields(stringtie, 'exp_type', 'TPM')
-        self.assertFields(stringtie, 'source', 'ENSEMBL')
-        self.assertFields(stringtie, 'species', 'Homo sapiens')
-        self.assertFields(stringtie, 'build', 'ens_90')
-        self.assertFields(stringtie, 'feature_type', 'gene')
