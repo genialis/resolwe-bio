@@ -21,7 +21,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Use featureCounts instead of Stringtie in
   the  ``workflow-corall-single`` and ``workflow-corall-paired``
   workflows
-- **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` process
+- **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` and
+  ``upload-metabolic-pathway`` processes
 - Remove Stringtie tool from ``resolwebio/rnaseq`` Docker image
 - Use pigz for output file compression in ``bbduk-single`` and
   ``bbduk-paired`` processes
