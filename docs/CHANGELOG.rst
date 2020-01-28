@@ -62,6 +62,8 @@ Changed
 - Rewrite ``multiqc`` process to Python
 - Save ``lib_format_counts.json`` in a separate output field in the
   ``salmon-quant`` process
+- Use ``resolwebio/common:1.3.1`` as a base Docker image for the
+  ``resolwebio/wgbs:1.2.0`` Docker image
 
 Fixed
 -----

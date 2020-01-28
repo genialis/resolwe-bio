@@ -1,3 +1,2 @@
 libgsl23
 libgomp1
-tabix
