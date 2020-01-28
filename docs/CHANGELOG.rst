@@ -66,6 +66,10 @@ Changed
 Fixed
 -----
 - Fix Mapping search for ``source_id`` / ``target_id``
+- Fix handling of input file names in processes: ``cellranger-count``,
+  ``cutadapt-3prime-single``, ``cutadapt-corall-single``,
+  ``cutadapt-corall-paired``, ``salmon-quant``, ``umi-tools-dedup``,
+  ``upload-sc-10x`` and ``upload-bam-scseq-indexed``
 
 
 ===================

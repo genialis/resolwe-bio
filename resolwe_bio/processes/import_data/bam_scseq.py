@@ -18,7 +18,7 @@ class ImportScBam(Process):
     slug = 'upload-bam-scseq-indexed'
     name = 'Single cell BAM file and index'
     process_type = 'data:alignment:bam:scseq'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Import'
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -70,8 +70,11 @@ class ImportScBam(Process):
         """Run the analysis."""
         bam_path = os.path.basename(inputs.src.path)
         bai_path = os.path.basename(inputs.src2.path)
-        bam_name = bam_path.strip('.bam')
-        if bam_name != bai_path.strip('.bam.bai'):
+        assert bam_path.endswith('.bam')
+        assert bai_path.endswith('.bam.bai')
+        bam_name = bam_path[:-4]
+        bai_name = bai_path[:-8]
+        if bam_name != bai_name:
             self.error('BAM and BAI files should have the same name.')
 
         move(inputs.src.file_temp, bam_path)

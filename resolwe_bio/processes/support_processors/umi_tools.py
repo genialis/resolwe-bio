@@ -32,7 +32,7 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "UMI-tools dedup ({{alignment|sample_name}})"
-    version = '1.1.0'
+    version = '1.1.1'
     process_type = 'data:alignment:bam:umitools:dedup'
     category = 'Other'
     entity = {
@@ -60,7 +60,9 @@ class UmiToolsDedup(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name = os.path.basename(inputs.alignment.bam.path).strip('.bam')
+        alignment_path = os.path.basename(inputs.alignment.bam.path)
+        assert alignment_path.endswith('.bam')
+        name = alignment_path[:-4]
 
         out_bam = '{}_dedup.bam'.format(name)
         out_log = '{}_dedup.log'.format(name)

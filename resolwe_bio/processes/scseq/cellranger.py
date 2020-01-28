@@ -113,7 +113,7 @@ class CellRangerCount(Process):
     slug = 'cellranger-count'
     name = 'Cell Ranger Count'
     process_type = 'data:scexpression:10x'
-    version = '1.0.4'
+    version = '1.0.5'
     category = 'scRNA-Seq'
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -203,7 +203,9 @@ class CellRangerCount(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        sample_name = inputs.reads.entity_name.strip('.fastq.gz')
+        sample_name = inputs.reads.entity_name
+        if sample_name.endswith('.fastq.gz'):
+            sample_name = sample_name[:-9]
 
         dir_fastqs = './fastqs'
         os.mkdir(dir_fastqs)

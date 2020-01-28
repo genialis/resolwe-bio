@@ -19,7 +19,7 @@ class ImportScRNA10x(Process):
     slug = 'upload-sc-10x'
     name = 'Reads (scRNA 10x)'
     process_type = 'data:screads:10x:'
-    version = '1.2.0'
+    version = '1.2.1'
     category = 'Import'
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -93,8 +93,10 @@ class ImportScRNA10x(Process):
         barcodes_fastqcs = []
         reads_fastqcs = []
         for barcodes, reads in zip(barcodes_files, reads_files):
-            barcodes_name = barcodes.strip('.fastq.gz')
-            reads_name = reads.strip('.fastq.gz')
+            assert barcodes.endswith('.fastq.gz')
+            assert reads.endswith('.fastq.gz')
+            barcodes_name = barcodes[:-9]
+            reads_name = reads[:-9]
             barcodes_fastqcs.append('{}_fastqc.html'.format(barcodes_name))
             reads_fastqcs.append('{}_fastqc.html'.format(reads_name))
 

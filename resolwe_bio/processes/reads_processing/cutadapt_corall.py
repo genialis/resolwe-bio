@@ -26,7 +26,7 @@ class CutadaptCorallSingle(Process):
     slug = 'cutadapt-corall-single'
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = 'data:reads:fastq:single:cutadapt:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Other'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -94,7 +94,9 @@ class CutadaptCorallSingle(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         # Get input reads file name (for the first of the possible multiple lanes)
-        name = os.path.basename(inputs.reads.fastq[0].path).strip('.fastq.gz')
+        reads_path = os.path.basename(inputs.reads.fastq[0].path)
+        assert reads_path.endswith('.fastq.gz')
+        name = reads_path[:-9]
         # Concatenate multi-lane read files
         (Cmd['cat'][[reads.path for reads in inputs.reads.fastq]] > 'input_reads.fastq.gz')()
 
@@ -171,7 +173,7 @@ class CutadaptCorallPaired(Process):
     slug = 'cutadapt-corall-paired'
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = 'data:reads:fastq:paired:cutadapt:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Other'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -242,8 +244,12 @@ class CutadaptCorallPaired(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         # Get input reads file name (for the first of the possible multiple lanes)
-        name_mate1 = os.path.basename(inputs.reads.fastq[0].path).strip('.fastq.gz')
-        name_mate2 = os.path.basename(inputs.reads.fastq2[0].path).strip('.fastq.gz')
+        mate1_path = os.path.basename(inputs.reads.fastq[0].path)
+        assert mate1_path.endswith('.fastq.gz')
+        name_mate1 = mate1_path[:-9]
+        mate2_path = os.path.basename(inputs.reads.fastq2[0].path)
+        assert mate2_path.endswith('.fastq.gz')
+        name_mate2 = mate2_path[:-9]
 
         # Concatenate multi-lane read files
         (Cmd['cat'][[reads.path for reads in inputs.reads.fastq]] > 'input_reads_mate1.fastq.gz')()

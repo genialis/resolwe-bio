@@ -61,7 +61,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = '1.2.0'
+    version = '1.2.1'
     process_type = 'data:expression:salmon'
     category = 'Quantify'
     entity = {
@@ -310,8 +310,12 @@ class SalmonQuant(Process):
             self.error("Error while running Salmon Quant.")
 
         # Use tximport to produce gene-level TPM values
-        reads_name = os.path.basename(inputs.reads.fastq[0].path).strip('.fastq.gz')
-        annot_name = os.path.basename(inputs.annotation.annot.path).strip('.gtf')
+        reads_basename = os.path.basename(inputs.reads.fastq[0].path)
+        assert reads_basename.endswith('.fastq.gz')
+        reads_name = reads_basename[:-9]
+        annot_basename = os.path.basename(inputs.annotation.annot.path)
+        assert annot_basename.endswith('.gtf')
+        annot_name = annot_basename[:-4]
         tx2gene = 'tx2gene_{}.txt'.format(annot_name)
         if os.path.exists('salmon_output/quant.sf'):
             tximport_args = ['salmon_output/quant.sf', inputs.annotation.annot.path, reads_name, tx2gene]
