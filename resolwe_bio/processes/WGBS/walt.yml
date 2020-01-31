@@ -12,10 +12,10 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/wgbs:1.0.0
+        image: resolwebio/wgbs:1.2.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.0.2
-  type: data:alignment:mr:walt
+  version: 2.0.0
+  type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
   persistence: CACHED
@@ -45,19 +45,28 @@
         Sets the number of reads to mapping in each loop. Larger number results in program taking
         more memory. This is especially evident in paired-end mapping.
   output:
-    - name: mr
-      label: Alignment file
+    - name: bam
+      label: Alignment file (BAM)
       type: basic:file
-      description: Position sorted alignment
+      description: |
+        Position sorted alignment in .bam format
+    - name: bai
+      label: Index BAI
+      type: basic:file
     - name: stats
       label: Statistics
       type: basic:file
-    - name: unmapped_f
-      label: Unmapped reads (mate 1)
+    - name: bigwig
+      label: BigWig file
       type: basic:file
       required: false
-    - name: unmapped_r
-      label: Unmapped reads (mate 2)
+    - name: mr
+      label: Alignment file (MR)
+      type: basic:file
+      description: |
+        Position sorted alignment in .mr format.
+    - name: unmapped
+      label: Unmapped reads
       type: basic:file
       required: false
     - name: species
@@ -101,7 +110,7 @@
           {% if mismatch is defined %}-mismatch {{ mismatch }}{% endif %} \
           {% if number %}-number {{ number }}{% endif %} \
           -thread {{requirements.resources.cores}} \
-          -output "${NAME}.mr" \
+          -output "${NAME}.sam" \
           -u
         re-checkrc "WALT alignment failed."
         re-progress 0.7
@@ -113,11 +122,34 @@
           {% if mismatch is defined %}-mismatch {{ mismatch }}{% endif %} \
           {% if number %}-number {{ number }}{% endif %} \
           -thread {{requirements.resources.cores}} \
-          -output "${NAME}.mr" \
+          -output "${NAME}.sam" \
           -u
         re-checkrc "WALT alignment failed."
         re-progress 0.7
       {% endif %}
+
+      samtools view -b "${NAME}.sam" -o "${NAME}.bam"
+
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+        samtools view "${NAME}.bam" -F 0x4 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}.bam" -f 0x4 -o "${NAME}_unmapped.bam"
+      {% else %}
+        samtools view "${NAME}.bam" -f 0x2 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}.bam" -F 0x2 -o "${NAME}_unmapped.bam"
+      {% endif %}
+
+      samtools sort \
+            -@ {{ requirements.resources.cores }} \
+            -m {{ (requirements.resources.memory * 1024 * 1024 / requirements.resources.cores * 0.8) | int }} \
+            -o "${NAME}_sorted.bam" \
+            "${NAME}_mapped.bam"
+      re-checkrc "Samtools sort command failed."
+      
+      samtools index "${NAME}_sorted.bam" "${NAME}_sorted.bam.bai"
+      re-checkrc "Samtools index command failed."
+
+      to-mr -o "${NAME}.mr" -m general "${NAME}_mapped.bam"
+      re-checkrc "Conversion of bam to mr failed."
 
       LC_ALL=C \
       sort \
@@ -134,28 +166,16 @@
         mv "${NAME}_sorted.mr" "${NAME}.mr"
       {% endif %}
 
-      gzip "${NAME}.mr"
+      pigz "${NAME}.mr"
       re-progress 0.9
 
-      mv "${NAME}.mr.mapstats" "${NAME}_report.txt"
+      mv "${NAME}.sam.mapstats" "${NAME}_report.txt"
 
-      {% if reads|type|subtype('data:reads:fastq:single:') %}
-        if [ -s "${NAME}.mr_unmapped" ]; then
-          gzip "${NAME}.mr_unmapped"
-          re-save-file unmapped_f "${NAME}.mr_unmapped.gz"
-        fi
-      {% else %}
-        if [ -s "${NAME}.mr_1_unmapped" ]; then
-          gzip "${NAME}.mr_1_unmapped"
-          re-save-file unmapped_f "${NAME}.mr_1_unmapped.gz"
-        fi
-        if [ -s "${NAME}.mr_2_unmapped" ]; then
-          gzip "${NAME}.mr_2_unmapped"
-          re-save-file unmapped_r "${NAME}.mr_2_unmapped.gz"
-        fi
-      {% endif %}
-
+      re-save-file bam "${NAME}_sorted.bam"
+      re-save-file bai "${NAME}_sorted.bam.bai"
+      re-save-file unmapped "${NAME}_unmapped.bam"
       re-save-file mr "${NAME}.mr.gz"
       re-save-file stats "${NAME}_report.txt"
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
+      bamtobigwig.sh "${NAME}_sorted.bam" {{ genome.species }} {{ requirements.resources.cores }} 

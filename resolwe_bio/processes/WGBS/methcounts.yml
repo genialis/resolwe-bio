@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/wgbs:1.0.0
+        image: resolwebio/wgbs:1.2.0
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 1.0.1
+  version: 2.0.0
   type: data:wgbs:methcounts
   category: WGBS
   flow_collection: sample
@@ -25,7 +25,7 @@
       type: data:genome:fasta
     - name: alignment
       label: Mapped reads
-      type: data:alignment:mr
+      type: data:alignment:bam:walt
       description: |
          WGBS alignment file in Mapped Read (.mr) format.
     - name: cpgs
@@ -106,7 +106,7 @@
       awk -v OFS="\t" '{print $1, $2, $2+1, $6}' "${NAME}.meth" | \
       wigToBigWig /dev/stdin chrom.sizes "${NAME}.bw"
 
-      gzip "${NAME}.meth"
+      pigz "${NAME}.meth"
 
       re-save-file meth "${NAME}.meth.gz"
       re-save-file stats "${NAME}_report.txt"

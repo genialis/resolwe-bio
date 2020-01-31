@@ -24,9 +24,10 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         }
         walt = self.run_process('walt', inputs)
         self.assertFile(walt, 'stats', 'walt_report.txt')
+        self.assertFileExists(walt, 'bam')
+        self.assertFileExists(walt, 'bai')
         self.assertFileExists(walt, 'mr')
-        self.assertFileExists(walt, 'unmapped_f')
-        self.assertFileExists(walt, 'unmapped_r')
+        self.assertFileExists(walt, 'unmapped')
         self.assertFields(walt, 'species', 'Homo sapiens')
         self.assertFields(walt, 'build', 'hg19')
 
@@ -55,7 +56,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
                     },
                 },
                 contributor=self.contributor,
-                type='data:alignment:mr:walt',
+                type='data:alignment:bam:walt:',
                 input_schema=[
                     {
                         'name': 'fc',

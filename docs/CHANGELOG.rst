@@ -24,6 +24,9 @@ Changed
   workflows
 - **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` and
   ``upload-metabolic-pathway`` processes
+- **BACKWARD INCOMPATIBLE:** Refactor ``walt`` process to support 
+  Picard quality metrics and update ``methcounts`` process and to match
+  the new outputs
 - Remove Stringtie tool from ``resolwebio/rnaseq`` Docker image
 - Remove ``resolwe/base:ubuntu-14.04`` and ``resolwe/base:ubuntu-17.10``
   Docker images
