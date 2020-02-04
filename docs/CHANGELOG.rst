@@ -27,6 +27,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Refactor ``walt`` process to support 
   Picard quality metrics and update ``methcounts`` process and to match
   the new outputs
+- **BACKWARD INCOMPATIBLE:** Support MultiQC report in ``wgbs`` workflow
 - Remove Stringtie tool from ``resolwebio/rnaseq`` Docker image
 - Remove ``resolwe/base:ubuntu-14.04`` and ``resolwe/base:ubuntu-17.10``
   Docker images
