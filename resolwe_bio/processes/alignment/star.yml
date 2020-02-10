@@ -14,7 +14,7 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.10.0
+  version: 1.10.1
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -395,6 +395,7 @@
           {% if annotation %}--sjdbGTFfeatureExon {{ annotation_options.exon_name }} {% endif %} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
+          {% if detect_chimeric.chimeric %}--chimOutType SeparateSAMold {% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
           {% if t_coordinates.quantmode %}--quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} \
           --outFilterType {{ filtering.outFilterType }} \
@@ -436,6 +437,7 @@
           {% if annotation %}--sjdbGTFfeatureExon {{ annotation_options.exon_name }} {% endif %} \
           {% if unstranded %}--outSAMstrandField intronMotif{% endif %} \
           {% if noncannonical %}--outFilterIntronMotifs RemoveNoncanonical{% endif %} \
+          {% if detect_chimeric.chimeric %}--chimOutType SeparateSAMold {% endif %} \
           {% if detect_chimeric.chimeric %}--chimSegmentMin {{detect_chimeric.chimSegmentMin}}{% endif %} \
           {% if t_coordinates.quantmode %}--quantMode TranscriptomeSAM {% if t_coordinates.gene_counts %} GeneCounts {% endif %} {% if t_coordinates.singleend %} --quantTranscriptomeBan Singleend {% endif %} {% endif %} \
           --outFilterType {{filtering.outFilterType}} \

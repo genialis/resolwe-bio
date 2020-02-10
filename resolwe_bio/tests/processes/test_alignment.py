@@ -147,6 +147,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             'two_pass_mapping': {
                 'two_pass_mode': True,
             },
+            'detect_chimeric': {
+                'chimeric': True,
+            },
         }
         aligned_reads = self.run_process('alignment-star', inputs)
         for data in Data.objects.all():

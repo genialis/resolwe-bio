@@ -24,7 +24,7 @@ Changed
   workflows
 - **BACKWARD INCOMPATIBLE:** Remove ``stringtie`` and
   ``upload-metabolic-pathway`` processes
-- **BACKWARD INCOMPATIBLE:** Refactor ``walt`` process to support 
+- **BACKWARD INCOMPATIBLE:** Refactor ``walt`` process to support
   Picard quality metrics and update ``methcounts`` process and to match
   the new outputs
 - **BACKWARD INCOMPATIBLE:** Support MultiQC report in ``wgbs`` workflow
@@ -78,6 +78,7 @@ Fixed
   ``cutadapt-3prime-single``, ``cutadapt-corall-single``,
   ``cutadapt-corall-paired``, ``salmon-quant``, ``umi-tools-dedup``,
   ``upload-sc-10x`` and ``upload-bam-scseq-indexed``
+- Fix handling of chimeric alignments in ``alignment-star``
 
 
 ===================
