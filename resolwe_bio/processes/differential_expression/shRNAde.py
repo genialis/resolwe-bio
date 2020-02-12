@@ -1,8 +1,16 @@
 """Differential expression of shRNA."""
 import gzip
+import os
 
 from shutil import copy
-from resolwe.process import *
+from resolwe.process import (
+    Cmd,
+    DataField,
+    FileField,
+    ListField,
+    Process,
+    SchedulingClass,
+)
 
 
 class ShortHairpinRNADifferentialExpression(Process):
@@ -29,7 +37,7 @@ class ShortHairpinRNADifferentialExpression(Process):
     slug = 'differentialexpression-shrna'
     name = 'Differential expression of shRNA'
     process_type = 'data:shrna:differentialexpression:'
-    version = '1.1.0'
+    version = '1.1.1'
     category = 'Differential Expression'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
