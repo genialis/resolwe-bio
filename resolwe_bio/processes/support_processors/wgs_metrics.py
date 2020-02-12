@@ -32,7 +32,7 @@ def replace_metrics_class(fname):
                 newlines.append(line)
             else:
                 newlines.append(line)
-    with open('fname', 'w') as report:
+    with open(fname, 'w') as report:
         for line in newlines:
             report.writelines(line)
 
@@ -48,7 +48,7 @@ class InsertSizeMetrics(Process):
     name = 'Picard WGS Metrics'
     category = 'Picard'
     process_type = 'data:picard:wgsmetrics'
-    version = '1.0.0'
+    version = '1.0.1'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
@@ -143,7 +143,7 @@ class InsertSizeMetrics(Process):
     class Output:
         """Output fields for CollectWgsMetrics."""
 
-        report = FileField(label='Insert size metrics')
+        report = FileField(label='WGS metrics report')
         species = StringField(label='Species')
         build = StringField(label='Build')
 
