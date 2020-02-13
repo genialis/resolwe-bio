@@ -70,6 +70,7 @@ Changed
 - Use ``resolwebio/common:1.3.1`` as a base Docker image for the
   ``resolwebio/wgbs:1.2.0`` Docker image
 - Support MultiQC reports in ChIP-seq workflows
+- Use human samples for ``alignment-star`` testing
 
 Fixed
 -----
