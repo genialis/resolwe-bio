@@ -15,7 +15,7 @@
       memory: 16384
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 3.4.0
+  version: 3.4.1
   type: data:genome:fasta
   category: Import
   persistence: RAW
@@ -161,7 +161,7 @@
       re-checkrc
 
       # Create JBrowse track
-      prepare-refseqs.pl --fasta "${FASTA_NAME}".fasta.gz --out .
+      prepare-refseqs.pl --fasta "${FASTA_NAME}".fasta --out .
       re-checkrc "Reference sequence processing for JBrowse failed."
 
       re-save-file fastagz "${FASTA_NAME}.fasta.gz"

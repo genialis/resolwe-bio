@@ -5,6 +5,17 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+- Fix Jbrowse track creation in ``upload-genome`` process. When
+  gzip input was used in ``prepare-refseqs.pl``, not all sequence chunks
+  were created for some inputs.
+
+
 ===================
 26.0.0 - 2020-02-14
 ===================
