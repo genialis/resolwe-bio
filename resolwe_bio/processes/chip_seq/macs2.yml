@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.6
+  version: 4.0.7
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -863,7 +863,7 @@
             awk 'BEGIN{OFS="\t"}{$4="N";$5="1000";print $0}' > "${TAGALIGN}"
             re-checkrc "Conversion to tagAlign failed"
           else
-            samtools sort -n {{ case.bam.file }} "${CASE_NAME}_sorted"
+            samtools sort -n {{ case.bam.file }} -o "${CASE_NAME}_sorted.bam"
             samtools fixmate -r "${CASE_NAME}_sorted.bam" "${CASE_NAME}.bam"
             samtools view -b -f 2 "${CASE_NAME}.bam" | \
             bedtools bamtobed -bedpe -mate1 -i - | \

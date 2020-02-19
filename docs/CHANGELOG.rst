@@ -28,6 +28,8 @@ Fixed
 - Fix Jbrowse track creation in ``upload-genome`` process. When
   gzip input was used in ``prepare-refseqs.pl``, not all sequence chunks
   were created for some inputs.
+- Fix ``macs2-callpeak`` process to work with paired-end reads when
+  not using tagAlign files
 
 Added
 -----
