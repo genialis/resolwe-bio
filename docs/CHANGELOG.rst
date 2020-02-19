@@ -14,6 +14,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x
 - Use human samples for ``alignment-star`` testing
 - Bump memory requirements in ``rrbs-metrics`` process
+- Enable multiple SRR numbers as inputs in processes ``import-sra``,
+  ``import-sra-single``, and ``import-sra-paired``
 
 Fixed
 -----
