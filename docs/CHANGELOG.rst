@@ -9,6 +9,12 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Add
+---
+- Add ``merge-fastq-single`` and ``merge-fastq-paired`` processes that
+  merge multiple ``data:reads:fastq``` data objects into a single
+  ``data:reads:fastq`` data object (and consequently a single sample)
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x

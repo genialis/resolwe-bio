@@ -750,3 +750,38 @@ re-save-file report "${NAME}".txt
             rrbs_metrics,
             'report',
         )
+
+    @tag_process('merge-fastq-single', 'merge-fastq-paired')
+    def test_merge_fastq(self):
+        with self.preparation_stage():
+            reads_single_1 = self.prepare_reads()
+            reads_single_2 = self.prepare_reads()
+            reads_paired_1 = self.prepare_paired_reads(
+                mate1=['fw reads.fastq.gz', 'fw reads_2.fastq.gz'],
+                mate2=['rw reads.fastq.gz', 'rw reads_2.fastq.gz'],
+            )
+            reads_paired_2 = self.prepare_paired_reads()
+
+        inputs = {'reads': [reads_single_1.id, reads_single_2.id]}
+        merged_1 = self.run_process('merge-fastq-single', inputs)
+        self.assertFiles(
+            merged_1,
+            'fastq',
+            [os.path.join('merge-fastq', 'output', 'reads_merged.fastq.gz')],
+            compression='gzip'
+        )
+
+        inputs = {'reads': [reads_paired_1.id, reads_paired_2.id]}
+        merged_2 = self.run_process('merge-fastq-paired', inputs)
+        self.assertFiles(
+            merged_2,
+            'fastq',
+            [os.path.join('merge-fastq', 'output', 'fw_reads_merged.fastq.gz')],
+            compression='gzip',
+        )
+        self.assertFiles(
+            merged_2,
+            'fastq2',
+            [os.path.join('merge-fastq', 'output', 'rw_reads_merged.fastq.gz')],
+            compression='gzip',
+        )
