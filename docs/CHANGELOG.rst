@@ -11,6 +11,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x
 - Use human samples for ``alignment-star`` testing
 
 Fixed
