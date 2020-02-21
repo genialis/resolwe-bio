@@ -28,4 +28,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.RunPython(load_sql),
+        # Update existing entries.
+        migrations.RunSQL("UPDATE flow_data SET id=id;"),
     ]
