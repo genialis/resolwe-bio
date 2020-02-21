@@ -1,4 +1,6 @@
 # pylint: disable=missing-docstring
+import os
+
 from resolwe.flow.models import Process
 from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
@@ -10,20 +12,21 @@ class WgbsProcessorTestCase(BioProcessTestCase):
     def test_walt(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'hg19_chr2 17k.fasta.gz',
+                'src': os.path.join('wgbs', 'input', 'hg19_chr2 17k.fasta.gz'),
                 'species': 'Homo sapiens',
                 'build': 'hg19',
             }
             genome = self.run_process('upload-genome', inputs)
-            reads_paired = self.prepare_paired_reads(mate1=['3A_WT_WGBS_chr2_17k R1.fastq.gz'],
-                                                     mate2=['3A_WT_WGBS_chr2_17k_R2.fastq.gz'])
+            reads_paired = self.prepare_paired_reads(
+                mate1=[os.path.join('wgbs', 'input', '3A_WT_WGBS_chr2_17k_R1.fastq.gz')],
+                mate2=[os.path.join('wgbs', 'input', '3A_WT_WGBS_chr2_17k_R2.fastq.gz')])
 
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
         }
         walt = self.run_process('walt', inputs)
-        self.assertFile(walt, 'stats', 'walt_report.txt')
+        self.assertFile(walt, 'stats', os.path.join('wgbs', 'output', 'walt_report.txt'))
         self.assertFileExists(walt, 'bam')
         self.assertFileExists(walt, 'bai')
         self.assertFileExists(walt, 'mr')
@@ -35,7 +38,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
     def test_methcounts(self):
         with self.preparation_stage():
             inputs = {
-                'src': 'hg19_chr2 17k.fasta.gz',
+                'src': os.path.join('wgbs', 'input', 'hg19_chr2 17k.fasta.gz'),
                 'species': 'Homo sapiens',
                 'build': 'hg19',
             }
@@ -88,7 +91,7 @@ re-save build 'hg19'
                 }
             )
 
-            inputs = {'fc': '3A_WT_WGBS_chr2 17k.mr.gz'}
+            inputs = {'fc': os.path.join('wgbs', 'output', '3A_WT_WGBS_chr2_17k.mr.gz')}
             walt = self.run_process(process.slug, inputs)
 
         inputs = {
@@ -96,7 +99,11 @@ re-save build 'hg19'
             'alignment': walt.id,
         }
         methcounts = self.run_process('methcounts', inputs)
-        self.assertFile(methcounts, 'stats', 'methconts_report.txt')
+        self.assertFile(
+            methcounts,
+            'stats',
+            os.path.join('wgbs', 'output', 'methconts_report.txt')
+        )
         self.assertFileExists(methcounts, 'meth')
         self.assertFileExists(methcounts, 'bigwig')
         self.assertFields(methcounts, 'species', 'Homo sapiens')
@@ -152,10 +159,15 @@ re-save build 'hg19'
                 }
             )
 
-            inputs = {'fc': '3A_WT_WGBS_chr2 17k.meth.gz'}
+            inputs = {'fc': os.path.join('wgbs', 'output', '3A_WT_WGBS_chr2_17k.meth.gz')}
             methcounts = self.run_process(process.slug, inputs)
 
         hmr = self.run_process('hmr', {'methcounts': methcounts.id})
-        self.assertFile(hmr, 'hmr', '3A_WT_WGBS_chr2_17k.hmr.gz', compression='gzip')
+        self.assertFile(
+            hmr,
+            'hmr',
+            os.path.join('wgbs', 'output', '3A_WT_WGBS_chr2_17k.hmr.gz'),
+            compression='gzip'
+        )
         self.assertFields(hmr, 'species', 'Homo sapiens')
         self.assertFields(hmr, 'build', 'hg19')
