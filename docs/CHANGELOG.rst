@@ -9,6 +9,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Use human samples for ``alignment-star`` testing
+
 Fixed
 -----
 - Fix Jbrowse track creation in ``upload-genome`` process. When
@@ -81,7 +85,6 @@ Changed
 - Use ``resolwebio/common:1.3.1`` as a base Docker image for the
   ``resolwebio/wgbs:1.2.0`` Docker image
 - Support MultiQC reports in ChIP-seq workflows
-- Use human samples for ``alignment-star`` testing
 
 Fixed
 -----
