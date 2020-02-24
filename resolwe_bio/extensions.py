@@ -1,6 +1,8 @@
 """Resolwe-bio extensions of Resolwe core."""
 from django_filters import rest_framework as filters
 
+from resolwe.composer import composer
+
 
 class ExtendedDataFilter:
     """Data filter extensions."""
@@ -18,3 +20,6 @@ class ExtendedDataFilter:
     feature_type = filters.CharFilter(method='filter_output')
     source = filters.CharFilter(method='filter_output')
     species = filters.CharFilter(method='filter_output_icontains')
+
+
+composer.add_extension("resolwe.flow.filters.DataFilter", ExtendedDataFilter)
