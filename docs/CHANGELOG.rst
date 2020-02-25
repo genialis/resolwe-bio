@@ -20,6 +20,9 @@ Fixed
   gzip input was used in ``prepare-refseqs.pl``, not all sequence chunks
   were created for some inputs.
 
+Added
+-----
+- Add support for Python 3.8
 
 ===================
 26.0.0 - 2020-02-14
