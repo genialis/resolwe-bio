@@ -16,6 +16,8 @@ Add
   ``data:reads:fastq`` data object (and consequently a single sample)
 - Add support for ``markduplicates`` reporting in ``multiqc`` and
   implement it in ``wgbs-single`` and ``wgbs-paired`` workflow
+- Add ``insert-size`` process as a part of QC steps in ``wgbs-paired``
+  workflow
 
 Changed
 -------

@@ -247,7 +247,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.2.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -409,6 +409,32 @@
           label: Maximum fraction of mismatches in a read to be considered (Between 0 and 1)
           type: basic:decimal
           default: 0.1
+    - name: insert
+      label: Picard InsertSizeMetrics
+      group:
+        - name: minimum_fraction
+          label: Minimum fraction of reads in a category to be considered
+          type: basic:decimal
+          default: 0.05
+          description: |
+            When generating the histogram, discard any data categories
+            (out of FR, TANDEM, RF) that have fewer than this fraction
+            of overall reads (Range: 0 and 0.5).
+        - name: include_duplicates
+          label: Include reads marked as duplicates in the insert size histogram
+          type: basic:boolean
+          default: false
+        - name: deviations
+          label: Deviations limit
+          type: basic:decimal
+          default: 10.0
+          description: |
+            Generate mean, standard deviation and plots by trimming
+            the data down to MEDIAN + DEVIATIONS*MEDIAN_ABSOLUTE_DEVIATION.
+            This is done because insert size data typically includes enough
+            anomalous values from chimeras and other artifacts to make the
+            mean and standard deviation grossly misleading regarding the real
+            distribution.
   run:
     language: workflow
     program:
@@ -475,6 +501,16 @@
           mismatch_rate: '{{ input.rrbs_metrics.mismatch_rate }}'
           validation_stringency: '{{ input.validation_stringency }}'
           assume_sorted: true
+      - id: insert
+        run: insert-size
+        input:
+          bam: '{{ steps.walt }}'
+          genome: '{{ input.genome }}'
+          minimum_fraction: '{{ input.insert.minimum_fraction }}'
+          include_duplicates: '{{ input.insert.include_duplicates }}'
+          deviations: '{{ input.insert.deviations }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sorted: true
       - id: multiqc
         run: multiqc
         input:
@@ -484,4 +520,5 @@
             steps.summary,
             steps.wgs_metrics,
             steps.rrbs_metrics,
+            steps.insert,
             ] }}'

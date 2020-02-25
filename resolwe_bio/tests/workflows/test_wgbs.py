@@ -105,3 +105,10 @@ class WgbsWorkflowTestCase(BioProcessTestCase):
             os.path.join('wgbs_workflow', 'output', 'paired_end', '3A_WT_WGBS_paired_rrbs_summary_metrics.txt'),
             file_filter=filter_comment_lines
         )
+        insert_size = Data.objects.filter(process__slug='insert-size').last()
+        self.assertFile(
+            insert_size,
+            'report',
+            os.path.join('wgbs_workflow', 'output', 'paired_end', '3A_WT_WGBS_paired_insert_size_metrics.txt'),
+            file_filter=filter_comment_lines
+        )
