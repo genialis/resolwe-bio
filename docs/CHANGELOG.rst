@@ -18,6 +18,8 @@ Add
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x
+- **BACKWARD INCOMPATIBLE:** Split ``wgbs`` workflow into 
+  ``wgbs-single`` and ``wgbs-paired``
 - Use human samples for ``alignment-star`` testing
 - Bump memory requirements in ``rrbs-metrics`` process
 - Enable multiple SRR numbers as inputs in processes ``import-sra``,

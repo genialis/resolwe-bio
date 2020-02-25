@@ -1,9 +1,9 @@
-- slug: workflow-wgbs
-  name: WGBS
+- slug: workflow-wgbs-single
+  name: WGBS (single-end)
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 1.0.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -26,10 +26,27 @@
   input:
     - name: reads
       label: Select sample(s)
-      type: data:reads:fastq
+      type: data:reads:fastq:single
     - name: genome
       label: Genome
       type: data:genome:fasta
+    - name: validation_stringency
+      label: Validation stringency
+      type: basic:string
+      choices:
+        - label: STRICT
+          value: STRICT
+        - label: LENIENT
+          value: LENIENT
+        - label: SILENT
+          value: SILENT
+      default: STRICT
+      description: |
+        Validation stringency for all SAM files read by this
+        program. Setting stringency to SILENT can improve
+        performance when processing a BAM file in which
+        variable-length data (read, qualities, tags) do not
+        otherwise need to be decoded. Default is STRICT.
     - name: alignment
       label: Alignment (WALT)
       group:
@@ -75,23 +92,6 @@
           label: Adapter sequences
           type: data:seq:nucleotide
           required: false
-        - name: validation_stringency
-          label: Validation stringency
-          type: basic:string
-          choices:
-            - label: STRICT
-              value: STRICT
-            - label: LENIENT
-              value: LENIENT
-            - label: SILENT
-              value: SILENT
-          default: STRICT
-          description: |
-            Validation stringency for all SAM files read by this
-            program. Setting stringency to SILENT can improve
-            performance when processing a BAM file in which
-            variable-length data (read, qualities, tags) do not
-            otherwise need to be decoded. Default is STRICT.
         - name: insert_size
           label: Maximum insert size
           type: basic:integer
@@ -146,23 +146,6 @@
           label: Sample Size used for Theoretical Het Sensitivity sampling
           type: basic:integer
           default: 10000
-        - name: validation_stringency
-          label: Validation stringency
-          type: basic:string
-          choices:
-            - label: STRICT
-              value: STRICT
-            - label: LENIENT
-              value: LENIENT
-            - label: SILENT
-              value: SILENT
-          default: STRICT
-          description: |
-            Validation stringency for all SAM files read by this
-            program. Setting stringency to SILENT can improve
-            performance when processing a BAM file in which
-            variable-length data (read, qualities, tags) do not
-            otherwise need to be decoded. Default is STRICT.
     - name: rrbs_metrics
       label: Picard CollectRrbsMetrics
       group:
@@ -182,23 +165,6 @@
           label: Maximum fraction of mismatches in a read to be considered (Between 0 and 1)
           type: basic:decimal
           default: 0.1
-        - name: validation_stringency
-          label: Validation stringency
-          type: basic:string
-          choices:
-            - label: STRICT
-              value: STRICT
-            - label: LENIENT
-              value: LENIENT
-            - label: SILENT
-              value: SILENT
-          default: STRICT
-          description: |
-            Validation stringency for all SAM files read by this
-            program. Setting stringency to SILENT can improve
-            performance when processing a BAM file in which
-            variable-length data (read, qualities, tags) do not
-            otherwise need to be decoded. Default is STRICT.
   run:
     language: workflow
     program:
@@ -227,7 +193,7 @@
           bam: '{{ steps.walt }}'
           genome: '{{ input.genome }}'
           adapters: '{{ input.summary.adapters }}'
-          validation_stringency: '{{ input.summary.validation_stringency }}'
+          validation_stringency: '{{ input.validation_stringency }}'
           insert_size: '{{ input.summary.insert_size }}'
           pair_orientation: '{{ input.summary.pair_orientation }}'
           bisulfite: true
@@ -245,7 +211,7 @@
             accumulation_cap: '{{ input.wgs_metrics.accumulation_cap }}'
             count_unpaired: false
             sample_size: '{{ input.wgs_metrics.sample_size }}'
-            validation_stringency: '{{ input.wgs_metrics.validation_stringency }}'
+            validation_stringency: '{{ input.validation_stringency }}'
       - id: rrbs_metrics
         run: rrbs-metrics
         input:
@@ -255,7 +221,242 @@
           next_base_quality: '{{ input.rrbs_metrics.next_base_quality }}'
           min_lenght: '{{ input.rrbs_metrics.min_lenght }}'
           mismatch_rate: '{{ input.rrbs_metrics.mismatch_rate }}'
-          validation_stringency: '{{ input.rrbs_metrics.validation_stringency }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sorted: true
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.summary,
+            steps.wgs_metrics,
+            steps.rrbs_metrics,
+            ] }}'
+
+- slug: workflow-wgbs-paired
+  name: WGBS (paired-end)
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:wgbs
+  category: Pipeline
+  description: |
+    This WGBS pipeline is comprised of alignment, computation of
+    methylation levels, identification of hypo-methylated regions (HMRs) and
+    additional QC steps.
+
+    First, reads are aligned by __WALT__ aligner. [WALT (Wildcard ALignment
+    Tool)](https://github.com/smithlabcode/walt) is fast and accurate read
+    mapping for bisulfite sequencing. Then, methylation level at each genomic
+    cytosine is calculated using __methcounts__. Finally, hypo-methylated
+    regions are identified using __hmr__. Both methcounts and hmr are part of
+    [MethPipe](http://smithlabresearch.org/software/methpipe/) package.
+
+    QC steps are based on [Picard](http://broadinstitute.github.io/picard/)
+    and include high level metrics about the alignment, WGS performance and
+    summary statistics from bisulfite sequencing. Final QC reports are
+    summarized by MultiQC.
+
+  input:
+    - name: reads
+      label: Select sample(s)
+      type: data:reads:fastq:paired
+    - name: genome
+      label: Genome
+      type: data:genome:fasta
+    - name: validation_stringency
+      label: Validation stringency
+      type: basic:string
+      choices:
+        - label: STRICT
+          value: STRICT
+        - label: LENIENT
+          value: LENIENT
+        - label: SILENT
+          value: SILENT
+      default: STRICT
+      description: |
+        Validation stringency for all SAM files read by this
+        program. Setting stringency to SILENT can improve
+        performance when processing a BAM file in which
+        variable-length data (read, qualities, tags) do not
+        otherwise need to be decoded. Default is STRICT.
+    - name: alignment
+      label: Alignment (WALT)
+      group:
+        - name: rm_dup
+          label: Remove duplicates
+          type: basic:boolean
+          default: true
+        - name: mismatch
+          label: Maximum allowed mismatches
+          type: basic:integer
+          default: 6
+        - name: number
+          label: Number of reads to map in one loop
+          type: basic:integer
+          required: false
+          description: |
+            Sets the number of reads to mapping in each loop. Larger number results in program
+            taking more memory. This is especially evident in paired-end mapping.
+    - name: methcounts
+      label: methcounts
+      group:
+        - name: cpgs
+          label: Only CpG context sites
+          type: basic:boolean
+          default: false
+          disabled: "methcounts.symmetric_cpgs"
+          description: |
+            Output file will contain methylation data for CpG context sites only. Choosing this
+            option will result in CpG content report only.
+        - name: symmetric_cpgs
+          label: Merge CpG pairs
+          type: basic:boolean
+          default: true
+          disabled: "methcounts.cpgs"
+          description: |
+            Merging CpG pairs results in symmetric methylation levels. Methylation is usually
+            symmetric (cytosines at CpG sites were methylated on both DNA strands). Choosing this
+            option will only keep the CpG sites data.
+    - name: summary
+      label: Picard AlignmentSummary
+      group:
+        - name: adapters
+          label: Adapter sequences
+          type: data:seq:nucleotide
+          required: false
+        - name: insert_size
+          label: Maximum insert size
+          type: basic:integer
+          default: 100000
+        - name: pair_orientation
+          label: Pair orientation
+          type: basic:string
+          choices:
+            - label: Unspecified
+              value: 'null'
+            - label: FR
+              value: FR
+            - label: RF
+              value: RF
+            - label: TANDEM
+              value: TANDEM
+          default: 'null'
+    - name: wgs_metrics
+      label: Picard WGS Metrics
+      group:
+        - name: read_length
+          label: Average read length
+          type: basic:integer
+          default: 150
+        - name: min_map_quality
+          label: Minimum mapping quality for a read to contribute coverage
+          type: basic:integer
+          default: 20
+        - name: min_quality
+          label: Minimum base quality for a base to contribute coverage
+          type: basic:integer
+          default: 20
+          description: |
+            N bases will be treated as having a base quality of
+            negative infinity and will therefore be excluded from coverage
+            regardless of the value of this parameter.
+        - name: coverage_cap
+          label: Maximum coverage cap
+          type: basic:integer
+          default: 250
+          description: |
+            Treat positions with coverage exceeding this value as
+            if they had coverage at this set value.
+        - name: accumulation_cap
+          label: Ignore positions with coverage above this value
+          type: basic:integer
+          default: 100000
+          description: |
+            At positions with coverage exceeding this value,
+            completely ignore reads that accumulate beyond this value
+        - name: sample_size
+          label: Sample Size used for Theoretical Het Sensitivity sampling
+          type: basic:integer
+          default: 10000
+    - name: rrbs_metrics
+      label: Picard CollectRrbsMetrics
+      group:
+        - name: min_quality
+          label: Threshold for base quality of a C base before it is considered
+          type: basic:integer
+          default: 20
+        - name: next_base_quality
+          label: Threshold for quality of a base next to a C before the C base is considered
+          type: basic:integer
+          default: 10
+        - name: min_lenght
+          label: Minimum read length
+          type: basic:integer
+          default: 5
+        - name: mismatch_rate
+          label: Maximum fraction of mismatches in a read to be considered (Between 0 and 1)
+          type: basic:decimal
+          default: 0.1
+  run:
+    language: workflow
+    program:
+      - id: walt
+        run: walt
+        input:
+          genome: '{{ input.genome }}'
+          reads: '{{ input.reads }}'
+          rm_dup: '{{ input.alignment.rm_dup }}'
+          mismatch: '{{ input.alignment.mismatch }}'
+          number: '{{ input.alignment.number }}'
+      - id: methcounts
+        run: methcounts
+        input:
+          genome: '{{ input.genome }}'
+          alignment: '{{ steps.walt }}'
+          cpgs: '{{ input.methcounts.cpgs }}'
+          symmetric_cpgs: '{{ input.methcounts.symmetric_cpgs }}'
+      - id: hmr
+        run: hmr
+        input:
+          methcounts: '{{ steps.methcounts }}'
+      - id: summary
+        run: alignment-summary
+        input:
+          bam: '{{ steps.walt }}'
+          genome: '{{ input.genome }}'
+          adapters: '{{ input.summary.adapters }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          insert_size: '{{ input.summary.insert_size }}'
+          pair_orientation: '{{ input.summary.pair_orientation }}'
+          bisulfite: true
+          assume_sorted: true
+      - id: wgs_metrics
+        run: wgs-metrics
+        input:
+          bam: '{{ steps.walt }}'
+          genome: '{{ input.genome }}'
+          read_length: '{{ input.wgs_metrics.read_length }}'
+          create_histogram: false
+          options:
+            min_map_quality: '{{ input.wgs_metrics.min_map_quality }}'
+            coverage_cap: '{{ input.wgs_metrics.coverage_cap }}'
+            accumulation_cap: '{{ input.wgs_metrics.accumulation_cap }}'
+            count_unpaired: false
+            sample_size: '{{ input.wgs_metrics.sample_size }}'
+            validation_stringency: '{{ input.validation_stringency }}'
+      - id: rrbs_metrics
+        run: rrbs-metrics
+        input:
+          bam: '{{ steps.walt }}'
+          genome: '{{ input.genome }}'
+          min_quality: '{{ input.rrbs_metrics.min_quality }}'
+          next_base_quality: '{{ input.rrbs_metrics.next_base_quality }}'
+          min_lenght: '{{ input.rrbs_metrics.min_lenght }}'
+          mismatch_rate: '{{ input.rrbs_metrics.mismatch_rate }}'
+          validation_stringency: '{{ input.validation_stringency }}'
           assume_sorted: true
       - id: multiqc
         run: multiqc
