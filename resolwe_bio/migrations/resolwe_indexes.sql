@@ -21,20 +21,16 @@ CREATE OR REPLACE FUNCTION generate_resolwe_bio_data_search(data_line flow_data)
         SELECT
             -- Build.
             setweight(to_tsvector('simple', (output->>'build')), 'A') ||
-            setweight(edge_ngrams((output->>'build')), 'B') ||
-            setweight(edge_ngrams(get_characters((output->>'build'))), 'B') ||
-            setweight(edge_ngrams(get_numbers((output->>'build'))), 'B') ||
+            setweight(to_tsvector('simple', get_characters((output->>'build'))), 'B') ||
+            setweight(to_tsvector('simple', get_numbers((output->>'build'))), 'B') ||
             -- Feature type.
             setweight(to_tsvector('simple', (output->>'feature_type')), 'A') ||
-            setweight(edge_ngrams((output->>'feature_type')), 'B') ||
             -- Source.
             setweight(to_tsvector('simple', (output->>'source')), 'A') ||
-            setweight(edge_ngrams((output->>'source')), 'B') ||
-            setweight(edge_ngrams(get_characters((output->>'source'))), 'B') ||
-            setweight(edge_ngrams(get_numbers((output->>'source'))), 'B') ||
+            setweight(to_tsvector('simple', get_characters((output->>'source'))), 'B') ||
+            setweight(to_tsvector('simple', get_numbers((output->>'source'))), 'B') ||
             -- Species.
-            setweight(to_tsvector('simple', (output->>'species')), 'A') ||
-            setweight(edge_ngrams((output->>'species')), 'B')
+            setweight(to_tsvector('simple', (output->>'species')), 'A')
         FROM flow_data
         WHERE id=data_line.id
         INTO search;
