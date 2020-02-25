@@ -163,7 +163,7 @@ class MultiQC(Process):
     }
     category = 'Other'
     data_name = 'MultiQC report'
-    version = '1.5.0'
+    version = '1.6.0'
 
     class Input:
         """Input fields to process MultiQC."""
@@ -256,6 +256,10 @@ class MultiQC(Process):
                 for fq_report in d.fastqc_archive + d.fastqc_archive2:
                     name = os.path.basename(fq_report.path)
                     create_symlink(fq_report.path, os.path.join(sample_dir, name))
+
+            elif d.type.startswith('data:alignment:bam:markduplicate'):
+                name = os.path.basename(d.metrics_file.path)
+                create_symlink(d.metrics_file.path, os.path.join(sample_dir, name))
 
             elif d.type == 'data:alignment:bam:star:':
                 stats_file = os.path.basename(d.stats.path)

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -187,6 +187,14 @@
         run: hmr
         input:
           methcounts: '{{ steps.methcounts }}'
+      - id: markduplicates
+        run: markduplicates
+        input:
+          bam: '{{ steps.walt }}'
+          skip: false
+          remove_duplicates: '{{ input.alignment.rm_dup }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sort_order: 'coordinate'
       - id: summary
         run: alignment-summary
         input:
@@ -228,6 +236,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.markduplicates,
             steps.summary,
             steps.wgs_metrics,
             steps.rrbs_metrics,
@@ -238,7 +247,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -422,6 +431,14 @@
         run: hmr
         input:
           methcounts: '{{ steps.methcounts }}'
+      - id: markduplicates
+        run: markduplicates
+        input:
+          bam: '{{ steps.walt }}'
+          skip: false
+          remove_duplicates: '{{ input.alignment.rm_dup }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sort_order: 'coordinate'
       - id: summary
         run: alignment-summary
         input:
@@ -463,6 +480,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.markduplicates,
             steps.summary,
             steps.wgs_metrics,
             steps.rrbs_metrics,
