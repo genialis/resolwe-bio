@@ -21,17 +21,17 @@ CREATE OR REPLACE FUNCTION generate_resolwe_bio_data_search(data flow_data)
     BEGIN
         SELECT
             -- Build.
-            setweight(to_tsvector('simple', data.output->>'build'), 'A') ||
+            setweight(to_tsvector('simple', COALESCE(data.output->>'build', '')), 'A') ||
             setweight(to_tsvector('simple', get_characters(data.output->>'build')), 'B') ||
             setweight(to_tsvector('simple', get_numbers(data.output->>'build')), 'B') ||
             -- Feature type.
-            setweight(to_tsvector('simple', data.output->>'feature_type'), 'A') ||
+            setweight(to_tsvector('simple', COALESCE(data.output->>'feature_type', '')), 'A') ||
             -- Source.
-            setweight(to_tsvector('simple', data.output->>'source'), 'A') ||
+            setweight(to_tsvector('simple', COALESCE(data.output->>'source', '')), 'A') ||
             setweight(to_tsvector('simple', get_characters(data.output->>'source')), 'B') ||
             setweight(to_tsvector('simple', get_numbers(data.output->>'source')), 'B') ||
             -- Species.
-            setweight(to_tsvector('simple', data.output->>'species'), 'A')
+            setweight(to_tsvector('simple', COALESCE(data.output->>'species', '')), 'A')
         INTO search;
 
         RETURN search;
@@ -45,6 +45,10 @@ CREATE OR REPLACE FUNCTION data_biut()
     BEGIN
         SELECT generate_resolwe_data_search(NEW) || generate_resolwe_bio_data_search(NEW)
         INTO NEW.search;
+
+        IF NEW.search IS NULL THEN
+            RAISE WARNING 'Search index for data (id: %) is NULL.', NEW.id;
+        END IF;
 
         RETURN NEW;
     END;
