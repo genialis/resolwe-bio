@@ -22,4 +22,15 @@ class ExtendedDataFilter:
     species = filters.CharFilter(method='filter_output_icontains')
 
 
+class ExtendedEntityFilter:
+    """Data filter extensions."""
+
+    def filter_species(self, queryset, name, value):
+        """Filter queryset by genome build."""
+        return queryset.filter(descriptor__general__species__icontains=value)
+
+    species = filters.CharFilter(method='filter_species')
+
+
 composer.add_extension("resolwe.flow.filters.DataFilter", ExtendedDataFilter)
+composer.add_extension("resolwe.flow.filters.EntityFilter", ExtendedEntityFilter)

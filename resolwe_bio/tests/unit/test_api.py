@@ -2,18 +2,37 @@
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from resolwe.flow.models import Data, DescriptorSchema, Process
-from resolwe.flow.views import DataViewSet
+from resolwe.flow.models import Data, DescriptorSchema, Entity, Process
+from resolwe.flow.views import DataViewSet, EntityViewSet
 from resolwe.test import TestCase
 
 factory = APIRequestFactory()  # pylint: disable=invalid-name
 
 
-class TestDataViewSetFilters(TestCase):
+class BaseViewSetFiltersTest(TestCase):
+
+    def _check_filter(self, query_args, expected, expected_status_code=status.HTTP_200_OK):
+        """Check that query_args filter to expected queryset."""
+        request = factory.get("/", query_args, format="json")
+        force_authenticate(request, self.admin)
+        response = self.viewset(request)  # pylint: disable=no-member
+
+        if status.is_success(response.status_code):
+            self.assertEqual(len(response.data), len(expected))
+            self.assertCountEqual(
+                [item.pk for item in expected], [item["id"] for item in response.data],
+            )
+        else:
+            self.assertEqual(response.status_code, expected_status_code)
+            response.render()
+            return response
+
+
+class TestDataViewSetFilters(BaseViewSetFiltersTest):
     def setUp(self):
         super().setUp()
 
-        self.data_viewset = DataViewSet.as_view(actions={
+        self.viewset = DataViewSet.as_view(actions={
             'get': 'list',
         })
 
@@ -56,17 +75,6 @@ class TestDataViewSetFilters(TestCase):
 
             self.data.append(data)
 
-    def _check_filter(self, query_args, expected):
-        request = factory.get('/', query_args, format='json')
-        force_authenticate(request, self.admin)
-        response = self.data_viewset(request)
-        expected = [item.pk for item in expected]
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), len(expected))
-        for item in response.data:
-            self.assertIn(item['id'], expected)
-
     def test_filter_source(self):
         self._check_filter({'source': 'NCBI1'}, [self.data[1]])
         self._check_filter({'source': 'NCBI5'}, [self.data[5]])
@@ -101,3 +109,69 @@ class TestDataViewSetFilters(TestCase):
         self.data[0].save()
 
         self._check_filter({"text": "rat rattus"}, [self.data[0]])
+
+
+class TestEntityViewSetFilters(BaseViewSetFiltersTest):
+
+    def setUp(self):
+        super().setUp()
+
+        self.viewset = EntityViewSet.as_view(actions={
+            'get': 'list',
+        })
+
+        self.descriptor_schema = DescriptorSchema.objects.create(
+            slug="sample",
+            contributor=self.contributor,
+            schema=[
+                {
+                    'label': 'General',
+                    'name': 'general',
+                    'group': [
+                        {
+                            'name': 'species',
+                            'type': 'basic:string:',
+                            'label': 'Species',
+                        },
+                    ],
+                }
+            ]
+        )
+
+        self.entities = [
+            Entity.objects.create(
+                name='Test entity 1',
+                contributor=self.contributor,
+                descriptor_schema=self.descriptor_schema,
+                descriptor={'general': {'species': 'Homo Sapiens'}},
+            ),
+            Entity.objects.create(
+                name='Test entity 2',
+                contributor=self.contributor,
+                descriptor_schema=self.descriptor_schema,
+                descriptor={'general': {'species': 'Mus musculus'}},
+            ),
+        ]
+
+    def test_filter_species(self):
+        self._check_filter({'species': 'Mus musculus'}, [self.entities[1]])
+        self._check_filter({'species': 'Mus'}, [self.entities[1]])
+        self._check_filter({'species': 'musculus'}, [self.entities[1]])
+        self._check_filter({'species': 'Homo sapiens'}, [self.entities[0]])
+        self._check_filter({'species': 'Homo'}, [self.entities[0]])
+        self._check_filter({'species': 'sapiens'}, [self.entities[0]])
+
+    def test_filter_text(self):
+        # By species.
+        self._check_filter({'text': 'Mus musculus'}, [self.entities[1]])
+        self._check_filter({'text': 'Mus'}, [self.entities[1]])
+        self._check_filter({'text': 'musculus'}, [self.entities[1]])
+        self._check_filter({'text': 'Homo sapiens'}, [self.entities[0]])
+        self._check_filter({'text': 'Homo'}, [self.entities[0]])
+        self._check_filter({'text': 'sapiens'}, [self.entities[0]])
+
+        # Check that changes are applied immediately.
+        self.entities[0].descriptor['general']['species'] = "Rat rattus"
+        self.entities[0].save()
+
+        self._check_filter({"text": "rat rattus"}, [self.entities[0]])
