@@ -95,3 +95,9 @@ class TestDataViewSetFilters(TestCase):
         self._check_filter({'text': 'sapiens'}, self.data[5:])
         self._check_filter({'text': 'contributor'}, self.data)
         self._check_filter({'text': 'blablabla'}, [])
+
+        # Check that changes are applied immediately.
+        self.data[0].output['species'] = "Rat rattus"
+        self.data[0].save()
+
+        self._check_filter({"text": "rat rattus"}, [self.data[0]])
