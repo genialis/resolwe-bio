@@ -18,6 +18,8 @@ Add
   implement it in ``wgbs-single`` and ``wgbs-paired`` workflow
 - Add ``insert-size`` process as a part of QC steps in ``wgbs-paired``
   workflow
+- Enable separation of unmethylated control reads from others in
+  ``walt`` process
 
 Changed
 -------

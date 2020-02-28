@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.2.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -44,6 +44,26 @@
       description: |
         Sets the number of reads to mapping in each loop. Larger number results in program taking
         more memory. This is especially evident in paired-end mapping.
+    - name: spikein_options
+      label: Spike-in options
+      group:
+      - name: spikein_name
+        label: Chromosome name of unmethylated control sequence
+        type: basic:string
+        required: false
+        description: |
+          Specifies the name of unmethylated control sequence which is output as a separate alignment file.
+          It is recomended to remove duplicates to reduce any bias introduced by incomplete conversion
+          on PCR duplicate reads.
+      - name: filter_spikein
+        label: Remove control/spike-in sequences.
+        type: basic:boolean
+        disabled: > 
+            !spikein_options.spikein_name
+        default: false
+        description: |
+          Remove unmethylated control reads in the final alignment based on the provided name. It is recomended to remove
+          any reads that are not naturally occuring in the sample (e.g. lambda virus spike-in).
   output:
     - name: bam
       label: Alignment file (BAM)
@@ -67,6 +87,10 @@
         Position sorted alignment in .mr format.
     - name: unmapped
       label: Unmapped reads
+      type: basic:file
+      required: false
+    - name: spikein_mr
+      label: Alignment file of unmethylated control reads
       type: basic:file
       required: false
     - name: species
@@ -128,14 +152,14 @@
         re-progress 0.7
       {% endif %}
 
-      samtools view -b "${NAME}.sam" -o "${NAME}.bam"
+      samtools view -b "${NAME}.sam" -o "${NAME}_unsorted.bam"
 
       {% if reads|type|subtype('data:reads:fastq:single:') %}
-        samtools view "${NAME}.bam" -F 0x4 -o "${NAME}_mapped.bam"
-        samtools view "${NAME}.bam" -f 0x4 -o "${NAME}_unmapped.bam"
+        samtools view "${NAME}_unsorted.bam" -F 0x4 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}_unsorted.bam" -f 0x4 -o "${NAME}_unmapped.bam"
       {% else %}
-        samtools view "${NAME}.bam" -f 0x2 -o "${NAME}_mapped.bam"
-        samtools view "${NAME}.bam" -F 0x2 -o "${NAME}_unmapped.bam"
+        samtools view "${NAME}_unsorted.bam" -f 0x2 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}_unsorted.bam" -F 0x2 -o "${NAME}_unmapped.bam"
       {% endif %}
 
       samtools sort \
@@ -144,11 +168,8 @@
             -o "${NAME}_sorted.bam" \
             "${NAME}_mapped.bam"
       re-checkrc "Samtools sort command failed."
-      
-      samtools index "${NAME}_sorted.bam" "${NAME}_sorted.bam.bai"
-      re-checkrc "Samtools index command failed."
 
-      to-mr -o "${NAME}.mr" -m general "${NAME}_mapped.bam"
+      to-mr -o "${NAME}_mapped.mr" -m general "${NAME}_mapped.bam"
       re-checkrc "Conversion of bam to mr failed."
 
       LC_ALL=C \
@@ -156,26 +177,53 @@
         -k 1,1 -k 2,2n -k 3,3n -k 6,6 \
         -S{{ requirements.resources.memory }}M \
         -o "${NAME}_sorted.mr" \
-        "${NAME}.mr"
+        "${NAME}_mapped.mr"
       re-progress 0.8
 
       {% if rm_dup %}
-        duplicate-remover -o "${NAME}.mr" "${NAME}_sorted.mr"
+        duplicate-remover -o "${NAME}_dremove.mr" "${NAME}_sorted.mr"
         re-checkrc "Removing duplicates failed."
       {% else %}
-        mv "${NAME}_sorted.mr" "${NAME}.mr"
+        mv "${NAME}_sorted.mr" "${NAME}_dremove.mr"
       {% endif %}
+
+      {% if spikein_options.spikein_name %}
+        grep ^{{ spikein_options.spikein_name }} "${NAME}_dremove.mr" > "${NAME}_spikein.mr"
+        if [ -s "${NAME}_spikein.mr" ]
+        then
+          pigz "${NAME}_spikein.mr"
+          re-save-file spikein_mr "${NAME}_spikein.mr.gz"
+        else
+          re-warning "Given spike-in sequence name was not found in the alignment file."
+        fi
+      {% endif %}
+
+      {% if spikein_options.spikein_name and spikein_options.filter_spikein %}
+        samtools index "${NAME}_sorted.bam" "${NAME}_sorted.bam.bai"
+        samtools idxstats "${NAME}_sorted.bam" | \
+            cut -f 1 | grep -v {{ spikein_options.spikein_name }} | \
+            xargs samtools view -o "${NAME}.bam" "${NAME}_sorted.bam"
+        re-checkrc "Removal of of spike-in reads from BAM file failed."
+        grep -v ^{{ spikein_options.spikein_name }} "${NAME}_dremove.mr" > "${NAME}.mr"
+        re-checkrc "Removal of spike-in reads from MR file failed.."
+      {% else %}
+        mv "${NAME}_sorted.bam" "${NAME}.bam"
+        mv "${NAME}_dremove.mr" "${NAME}.mr"
+      {% endif %}
+      
+      samtools index "${NAME}.bam" "${NAME}.bam.bai"
+      re-checkrc "Samtools index command failed."
 
       pigz "${NAME}.mr"
       re-progress 0.9
 
       mv "${NAME}.sam.mapstats" "${NAME}_report.txt"
 
-      re-save-file bam "${NAME}_sorted.bam"
-      re-save-file bai "${NAME}_sorted.bam.bai"
+      re-save-file bam "${NAME}.bam"
+      re-save-file bai "${NAME}.bam.bai"
       re-save-file unmapped "${NAME}_unmapped.bam"
       re-save-file mr "${NAME}.mr.gz"
       re-save-file stats "${NAME}_report.txt"
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
-      bamtobigwig.sh "${NAME}_sorted.bam" {{ genome.species }} {{ requirements.resources.cores }} 
+      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }} 

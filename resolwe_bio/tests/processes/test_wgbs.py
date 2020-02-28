@@ -24,6 +24,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         inputs = {
             'genome': genome.id,
             'reads': reads_paired.id,
+            'spikein_options': {'spikein_name': 'chr2'}
         }
         walt = self.run_process('walt', inputs)
         self.assertFile(walt, 'stats', os.path.join('wgbs', 'output', 'walt_report.txt'))
@@ -31,6 +32,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(walt, 'bai')
         self.assertFileExists(walt, 'mr')
         self.assertFileExists(walt, 'unmapped')
+        self.assertFileExists(walt, 'spikein_mr')
         self.assertFields(walt, 'species', 'Homo sapiens')
         self.assertFields(walt, 'build', 'hg19')
 
