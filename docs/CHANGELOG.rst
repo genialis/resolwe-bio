@@ -32,6 +32,7 @@ Changed
 - Enable multiple SRR numbers as inputs in processes ``import-sra``,
   ``import-sra-single``, and ``import-sra-paired``
 - Move wgbs test files to its own folders
+- Support ``bs-conversion-rate`` report in MultiQC
 
 Fixed
 -----

@@ -135,6 +135,38 @@ def process_strand_report_file(data, lib_type_samples, lib_type_reports):
         pass
 
 
+def parse_bsrate_report(report):
+    """Parse bsrate report file."""
+    bsrate_dict = {}
+    with open(report, 'r') as r:
+        first_line = r.readline()
+        if not first_line.startswith('Bisulfite conversion rate process skipped.'):
+            bsrate_dict['Overall conversion rate'] = first_line.split()[-1]
+            for strand in ['positive', 'negative']:
+                line = r.readline().split()
+                bsrate_dict[f'Conversion rate on {strand}'] = line[-2]
+                bsrate_dict[f'Number of nucleotides used on {strand} strand'] = line[-1]
+    return bsrate_dict
+
+
+def create_bsrate_table(samples, reports):
+    """Prepare bisulfite sequencing conversion rate MultiQC table."""
+    bsrate_json = {
+        'id': 'wgbs_bsrate',
+        'section_name': 'WGBS conversion rate ',
+        'plot_type': 'table',
+        'file_format': 'json',
+        'data': {}
+    }
+    for sample_name, report in zip(samples, reports):
+        report_data = parse_bsrate_report(report)
+        if report_data:
+            bsrate_json['data'][sample_name] = report_data
+    if bsrate_json['data']:
+        with open('wgbs_bsrate_mqc.json', 'w') as out_file:
+            json.dump(bsrate_json, out_file)
+
+
 class MultiQC(Process):
     """Aggregate results from bioinformatics analyses across many samples into a single report.
 
@@ -163,7 +195,7 @@ class MultiQC(Process):
     }
     category = 'Other'
     data_name = 'MultiQC report'
-    version = '1.6.0'
+    version = '1.7.0'
 
     class Input:
         """Input fields to process MultiQC."""
@@ -231,6 +263,8 @@ class MultiQC(Process):
         chip_seq_prepeak_reports = []
         chip_seq_postpeak_samples = []
         chip_seq_postpeak_reports = []
+        bsrate_samples = []
+        bsrate_reports = []
         unsupported_data = []
 
         for d in inputs.data:
@@ -329,6 +363,13 @@ class MultiQC(Process):
             elif d.type.startswith('data:picard'):
                 name = os.path.basename(d.report.path)
                 create_symlink(d.report.path, os.path.join(sample_dir, name))
+
+            elif d.type == 'data:wgbs:bsrate':
+                name = os.path.basename(d.report.path)
+                create_symlink(d.report.path, os.path.join(sample_dir, name))
+                bsrate_samples.append(d.entity_name)
+                bsrate_reports.append(d.report.path)
+                create_bsrate_table(bsrate_samples, bsrate_reports)
             else:
                 unsupported_data.append(d.name)
 

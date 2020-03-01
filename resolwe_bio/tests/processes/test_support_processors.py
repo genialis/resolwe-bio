@@ -472,6 +472,70 @@ re-save-file report "${NAME}".txt
         })
         self.assertFileExists(multiqc, 'report')
 
+    @tag_process('multiqc')
+    def test_multiqc_wgbs(self):
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            process = Process.objects.create(
+                name='Upload bsrate data mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                entity_type='sample',
+                entity_descriptor_schema='sample',
+                contributor=self.contributor,
+                type='data:wgbs:bsrate',
+                input_schema=[
+                    {
+                        'name': 'src',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'report',
+                        'type': 'basic:file:',
+                    }
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file report "${NAME}".txt
+"""
+                }
+            )
+
+            bsrate = self.run_process(process.slug, {
+                'src': os.path.join('wgbs', 'output', 'Escherichia_phage_bsrate.txt'),
+            })
+            set_sample_name(bsrate, 'Bsrate test')
+
+        multiqc = self.run_process('multiqc', {
+            'data': [
+                bsrate.id,
+            ],
+            'advanced': {
+                'dirs': True,
+                'config': True,
+            }
+        })
+        self.assertFileExists(multiqc, 'report')
+
     @tag_process('seqtk-sample-single', 'seqtk-sample-paired')
     def test_seqtk_sample(self):
         with self.preparation_stage():
