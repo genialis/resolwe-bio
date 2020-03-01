@@ -20,6 +20,7 @@ Add
   workflow
 - Enable separation of unmethylated control reads from others in
   ``walt`` process
+- Add ``bs-conversion-rate`` process
 
 Changed
 -------

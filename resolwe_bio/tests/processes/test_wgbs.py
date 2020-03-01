@@ -173,3 +173,67 @@ re-save build 'hg19'
         )
         self.assertFields(hmr, 'species', 'Homo sapiens')
         self.assertFields(hmr, 'build', 'hg19')
+
+    @tag_process('bs-conversion-rate')
+    def test_bsrate(self):
+        with self.preparation_stage():
+            sequence = self.run_process(
+                'upload-fasta-nucl',
+                {'src': os.path.join('wgbs', 'input', 'unmethylated_lambda_J02459.fasta.gz')}
+            )
+            # Mock upload WALT alignment process
+            process = Process.objects.create(
+                name='Upload WALT alignment file (.mr) mock process',
+                requirements={
+                    'expression-engine': 'jinja',
+                    'resources': {
+                        'network': True,
+                    },
+                    'executor': {
+                        'docker': {
+                            'image': 'resolwebio/base:ubuntu-18.04',
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type='data:alignment:bam:walt:',
+                input_schema=[
+                    {
+                        'name': 'fc',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'f',
+                        'type': 'basic:file:',
+                    },
+                ],
+                output_schema=[
+                    {
+                        'name': 'mr',
+                        'type': 'basic:file:',
+                    },
+                    {
+                        'name': 'spikein_mr',
+                        'type': 'basic:file:',
+                    },
+
+                ],
+                run={
+                    'language': 'bash',
+                    'program': r"""
+re-import {{ fc.file_temp|default(fc.file) }} {{ fc.file }} "mr" "mr" 0.1 compress
+re-save-file mr "${NAME}".mr.gz
+re-import {{ f.file_temp|default(f.file) }} {{ f.file }} "mr" "mr" 0.1 compress
+re-save-file spikein_mr "${NAME}".mr.gz
+"""
+                }
+            )
+
+            inputs = {
+                'fc': os.path.join('wgbs', 'input', 'spike_in_lambda.mr.gz'),
+                'f': os.path.join('wgbs', 'input', 'spike_in_lambda.mr.gz')
+            }
+            walt = self.run_process(process.slug, inputs)
+
+        bsrate = self.run_process('bs-conversion-rate', {'mr': walt.id, 'sequence': sequence.id})
+        self.assertFile(bsrate, 'report', os.path.join('wgbs', 'output', 'Escherichia_phage_bsrate.txt'))
