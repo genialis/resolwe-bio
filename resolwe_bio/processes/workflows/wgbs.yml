@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.2.0
+  version: 1.3.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -82,6 +82,48 @@
           description: |
             Remove unmethylated control reads in the final alignment based on the provided name. It is recomended to remove
             any reads that are not naturally occuring in the sample (e.g. lambda virus spike-in).
+    - name: bsrate
+      label: Bisulfite conversion rate
+      hidden: >
+        !alignment.spikein_name
+      group:
+        - name: skip
+          label: Skip Bisulfite conversion rate step
+          type: basic:boolean
+          disabled: >
+            !alignment.spikein_name
+          default: true
+          description: |
+            Bisulfite conversion rate step can be skipped. If separate alignment file for unmethylated control
+            sequence is not produced during the alignment this process will fail.
+        - name: sequence
+          label: Unmethylated control sequence
+          type: data:seq:nucleotide
+          disabled: >
+            bsrate.skip
+          required: false
+        - name: count_all
+          label: Count all cytosines including CpGs
+          type: basic:boolean
+          default: true
+          disabled: >
+            bsrate.skip
+        - name: read_length
+          label: Average read length
+          type: basic:integer
+          default: 150
+        - name: max_mismatch
+          label: Maximum fraction of mismatches
+          type: basic:decimal
+          required: false
+          disabled: >
+            bsrate.skip
+        - name: a_rich
+          label: Reads are A-rich
+          type: basic:boolean
+          default: false
+          disabled: >
+            bsrate.skip
     - name: methcounts
       label: methcounts
       group:
@@ -196,6 +238,16 @@
           spikein_options:
             spikein_name: '{{ input.alignment.spikein_name }}'
             filter_spikein: '{{ input.alignment.filter_spikein }}'
+      - id: bsrate
+        run: bs-conversion-rate
+        input:
+          mr: '{{ steps.walt }}'
+          skip: '{{ input.bsrate.skip }}'
+          sequence: '{{ input.bsrate.sequence }}'
+          count_all: '{{ input.bsrate.count_all }}'
+          read_length: '{{ input.bsrate.read_length }}'
+          max_mismatch: '{{ input.bsrate.max_mismatch }}'
+          a_rich: '{{ input.bsrate.a_rich }}'
       - id: methcounts
         run: methcounts
         input:
@@ -256,6 +308,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.bsrate,
             steps.markduplicates,
             steps.summary,
             steps.wgs_metrics,
@@ -267,7 +320,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.3.0
+  version: 1.4.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -346,6 +399,48 @@
           description: |
             Remove unmethylated control reads in the final alignment based on the provided name. It is recomended to remove
             any reads that are not naturally occuring in the sample (e.g. lambda virus spike-in).
+    - name: bsrate
+      label: Bisulfite conversion rate
+      hidden: >
+        !alignment.spikein_name
+      group:
+        - name: skip
+          label: Skip Bisulfite conversion rate step
+          type: basic:boolean
+          disabled: >
+            !alignment.spikein_name
+          default: true
+          description: |
+            Bisulfite conversion rate step can be skipped. If separate alignment file for unmethylated control
+            sequence is not produced during the alignment this process will fail.
+        - name: sequence
+          label: Unmethylated control sequence
+          type: data:seq:nucleotide
+          disabled: >
+            bsrate.skip
+          required: false
+        - name: count_all
+          label: Count all cytosines including CpGs
+          type: basic:boolean
+          default: true
+          disabled: >
+            bsrate.skip
+        - name: read_length
+          label: Average read length
+          type: basic:integer
+          default: 150
+        - name: max_mismatch
+          label: Maximum fraction of mismatches
+          type: basic:decimal
+          required: false
+          disabled: >
+            bsrate.skip
+        - name: a_rich
+          label: Reads are A-rich
+          type: basic:boolean
+          default: false
+          disabled: >
+            bsrate.skip
     - name: methcounts
       label: methcounts
       group:
@@ -486,6 +581,16 @@
           spikein_options:
             spikein_name: '{{ input.alignment.spikein_name }}'
             filter_spikein: '{{ input.alignment.filter_spikein }}'
+      - id: bsrate
+        run: bs-conversion-rate
+        input:
+          mr: '{{ steps.walt }}'
+          skip: '{{ input.bsrate.skip }}'
+          sequence: '{{ input.bsrate.sequence }}'
+          count_all: '{{ input.bsrate.count_all }}'
+          read_length: '{{ input.bsrate.read_length }}'
+          max_mismatch: '{{ input.bsrate.max_mismatch }}'
+          a_rich: '{{ input.bsrate.a_rich }}'
       - id: methcounts
         run: methcounts
         input:
@@ -556,6 +661,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.bsrate,
             steps.markduplicates,
             steps.summary,
             steps.wgs_metrics,

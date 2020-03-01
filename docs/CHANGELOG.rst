@@ -33,6 +33,7 @@ Changed
   ``import-sra-single``, and ``import-sra-paired``
 - Move wgbs test files to its own folders
 - Support ``bs-conversion-rate`` report in MultiQC
+- Support ``bs-conversion-rate`` process in ``wgbs`` workflow
 
 Fixed
 -----
