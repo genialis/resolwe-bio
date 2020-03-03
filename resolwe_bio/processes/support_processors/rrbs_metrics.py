@@ -31,7 +31,7 @@ class CollectRrbsMetrics(Process):
     name = 'Picard CollectRrbsMetrics'
     category = 'Picard'
     process_type = 'data:picard:rrbs'
-    version = '1.0.0'
+    version = '1.0.1'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
@@ -40,6 +40,9 @@ class CollectRrbsMetrics(Process):
             'docker': {
                 'image': 'resolwebio/dnaseq:4.2.0'
             }
+        },
+        'resources': {
+            'memory': 32768,
         },
     }
     data_name = '{{ bam|sample_name|default("?") }}'
