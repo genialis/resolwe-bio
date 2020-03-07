@@ -34,6 +34,8 @@ Changed
 - Move wgbs test files to its own folders
 - Support ``bs-conversion-rate`` report in MultiQC
 - Support ``bs-conversion-rate`` process in ``wgbs`` workflow
+- Replace duplicate-remover in ``walt`` to unifiy both output
+  alignment files
 
 Fixed
 -----

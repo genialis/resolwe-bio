@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.2.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.1.0
+  version: 2.2.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -154,22 +154,47 @@
 
       samtools view -b "${NAME}.sam" -o "${NAME}_unsorted.bam"
 
-      {% if reads|type|subtype('data:reads:fastq:single:') %}
-        samtools view "${NAME}_unsorted.bam" -F 0x4 -o "${NAME}_mapped.bam"
-        samtools view "${NAME}_unsorted.bam" -f 0x4 -o "${NAME}_unmapped.bam"
-      {% else %}
-        samtools view "${NAME}_unsorted.bam" -f 0x2 -o "${NAME}_mapped.bam"
-        samtools view "${NAME}_unsorted.bam" -F 0x2 -o "${NAME}_unmapped.bam"
-      {% endif %}
+      {% if rm_dup and reads|type|subtype('data:reads:fastq:paired:')%}
+        samtools collate \
+              -@ {{ requirements.resources.cores }} \
+              -o "${NAME}_name_sorted.bam" \
+              "${NAME}_unsorted.bam"
+        re-checkrc "Samtools collate command failed."
 
+        samtools fixmate -m -@ {{ requirements.resources.cores }} "${NAME}_name_sorted.bam" "${NAME}_fixmate.bam" 
+        re-checkrc "Samtools fixmate command failed."
+      {% else %}
+        mv "${NAME}_unsorted.bam" "${NAME}_fixmate.bam" 
+      {% endif %}  
+        
       samtools sort \
             -@ {{ requirements.resources.cores }} \
             -m {{ (requirements.resources.memory * 1024 * 1024 / requirements.resources.cores * 0.8) | int }} \
-            -o "${NAME}_sorted.bam" \
-            "${NAME}_mapped.bam"
+            -o "${NAME}_coordinate_sorted.bam" \
+            "${NAME}_fixmate.bam"
       re-checkrc "Samtools sort command failed."
-
-      to-mr -o "${NAME}_mapped.mr" -m general "${NAME}_mapped.bam"
+      
+      {% if reads|type|subtype('data:reads:fastq:single:') %}
+        samtools view "${NAME}_coordinate_sorted.bam" -F 0x4 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}_coordinate_sorted.bam" -f 0x4 -o "${NAME}_unmapped.bam"
+      {% else %}
+        samtools view "${NAME}_coordinate_sorted.bam" -f 0x2 -o "${NAME}_mapped.bam"
+        samtools view "${NAME}_coordinate_sorted.bam" -F 0x2 -o "${NAME}_unmapped.bam"
+      {% endif %}
+        
+      {% if rm_dup %}
+        {% if reads|type|subtype('data:reads:fastq:paired:') %}
+          samtools markdup -r "${NAME}_mapped.bam" "${NAME}_sorted.bam"
+          re-checkrc "Samtools markdup command failed."
+        {% else %}
+          samtools rmdup -s "${NAME}_mapped.bam" "${NAME}_sorted.bam"
+          re-checkrc "Samtools rmdup command failed."
+        {% endif %}  
+      {% else %}
+        mv "${NAME}_mapped.bam" "${NAME}_sorted.bam"
+      {% endif %}  
+      
+      to-mr -o "${NAME}_mapped.mr" -m general "${NAME}_sorted.bam"
       re-checkrc "Conversion of bam to mr failed."
 
       LC_ALL=C \
@@ -180,15 +205,8 @@
         "${NAME}_mapped.mr"
       re-progress 0.8
 
-      {% if rm_dup %}
-        duplicate-remover -o "${NAME}_dremove.mr" "${NAME}_sorted.mr"
-        re-checkrc "Removing duplicates failed."
-      {% else %}
-        mv "${NAME}_sorted.mr" "${NAME}_dremove.mr"
-      {% endif %}
-
       {% if spikein_options.spikein_name %}
-        grep ^{{ spikein_options.spikein_name }} "${NAME}_dremove.mr" > "${NAME}_spikein.mr"
+        grep ^{{ spikein_options.spikein_name }} "${NAME}_sorted.mr" > "${NAME}_spikein.mr"
         if [ -s "${NAME}_spikein.mr" ]
         then
           pigz "${NAME}_spikein.mr"
@@ -204,11 +222,11 @@
             cut -f 1 | grep -v {{ spikein_options.spikein_name }} | \
             xargs samtools view -o "${NAME}.bam" "${NAME}_sorted.bam"
         re-checkrc "Removal of of spike-in reads from BAM file failed."
-        grep -v ^{{ spikein_options.spikein_name }} "${NAME}_dremove.mr" > "${NAME}.mr"
-        re-checkrc "Removal of spike-in reads from MR file failed.."
+        grep -v ^{{ spikein_options.spikein_name }} "${NAME}_sorted.mr" > "${NAME}.mr"
+        re-checkrc "Removal of spike-in reads from MR file failed."
       {% else %}
         mv "${NAME}_sorted.bam" "${NAME}.bam"
-        mv "${NAME}_dremove.mr" "${NAME}.mr"
+        mv "${NAME}_sorted.mr" "${NAME}.mr"
       {% endif %}
       
       samtools index "${NAME}.bam" "${NAME}.bam.bai"
