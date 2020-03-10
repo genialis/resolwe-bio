@@ -9,8 +9,8 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
-Add
----
+Added
+-----
 - Add ``merge-fastq-single`` and ``merge-fastq-paired`` processes that
   merge multiple ``data:reads:fastq``` data objects into a single
   ``data:reads:fastq`` data object (and consequently a single sample)
@@ -21,6 +21,7 @@ Add
 - Enable separation of unmethylated control reads from others in
   ``walt`` process
 - Add ``bs-conversion-rate`` process
+- Add support for Python 3.8
 
 Changed
 -------
@@ -47,9 +48,6 @@ Fixed
 - Fix ``bed_file_corrections_genome_browsers.py`` script to handle cases
   where the input file is empty
 
-Added
------
-- Add support for Python 3.8
 
 ===================
 26.0.0 - 2020-02-14
