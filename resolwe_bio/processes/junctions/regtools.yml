@@ -9,7 +9,7 @@
     {{ alignment_star|sample_name|default('') }}
     {{ alignment|sample_name|default('') }}
     {{ input_bed_junctions.bed.file|default('') }}
-  version: 0.3.0
+  version: 0.3.1
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja

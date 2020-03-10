@@ -25,7 +25,7 @@ Add
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x
-- **BACKWARD INCOMPATIBLE:** Split ``wgbs`` workflow into 
+- **BACKWARD INCOMPATIBLE:** Split ``wgbs`` workflow into
   ``wgbs-single`` and ``wgbs-paired``
 - Use human samples for ``alignment-star`` testing
 - Bump memory requirements in ``rrbs-metrics`` process
@@ -44,6 +44,8 @@ Fixed
   were created for some inputs.
 - Fix ``macs2-callpeak`` process to work with paired-end reads when
   not using tagAlign files
+- Fix ``bed_file_corrections_genome_browsers.py`` script to handle cases
+  where the input file is empty
 
 Added
 -----
