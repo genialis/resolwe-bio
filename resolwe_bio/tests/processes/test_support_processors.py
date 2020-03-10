@@ -498,7 +498,7 @@ re-save-file report "${NAME}".txt
                 entity_type='sample',
                 entity_descriptor_schema='sample',
                 contributor=self.contributor,
-                type='data:wgbs:bsrate',
+                type='data:wgbs:bsrate:',
                 input_schema=[
                     {
                         'name': 'src',

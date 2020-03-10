@@ -195,7 +195,7 @@ class MultiQC(Process):
     }
     category = 'Other'
     data_name = 'MultiQC report'
-    version = '1.7.0'
+    version = '1.7.1'
 
     class Input:
         """Input fields to process MultiQC."""
@@ -364,7 +364,7 @@ class MultiQC(Process):
                 name = os.path.basename(d.report.path)
                 create_symlink(d.report.path, os.path.join(sample_dir, name))
 
-            elif d.type == 'data:wgbs:bsrate':
+            elif d.type == 'data:wgbs:bsrate:':
                 name = os.path.basename(d.report.path)
                 create_symlink(d.report.path, os.path.join(sample_dir, name))
                 bsrate_samples.append(d.entity_name)
