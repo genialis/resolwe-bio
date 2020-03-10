@@ -26,7 +26,7 @@ class BsConversionRate(Process):
     slug = 'bs-conversion-rate'
     name = 'Bisulfite conversion rate'
     process_type = 'data:wgbs:bsrate'
-    version = '1.0.0'
+    version = '1.0.1'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
@@ -41,7 +41,7 @@ class BsConversionRate(Process):
             'memory': 16384,
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = '{{ mr|sample_name|default("?") }}'
 
     class Input:
         """Input fields for BsConversionRate."""
@@ -82,12 +82,20 @@ class BsConversionRate(Process):
         name = basename[:-6]
         report_file = f'{name}_spikein_bsrate.txt'
 
-        if not inputs.skip:
-            if not os.path.exists(inputs.mr.spikein_mr.path):
-                self.error('Selected sample lacks the alignment file for unmethylated control reads.')
-            if not os.path.exists(inputs.sequence.fasta.path):
-                self.error('Unmethylated control sequence was not provided.')
+        skip_process = inputs.skip
 
+        try:
+            inputs.mr.spikein_mr.path
+        except AttributeError:
+            self.warning('Selected sample lacks the alignment file for unmethylated control reads.')
+            skip_process = True
+        try:
+            inputs.sequence.fasta.path
+        except AttributeError:
+            self.warning('Unmethylated control sequence was not provided.')
+            skip_process = True
+
+        if not skip_process:
             (Cmd['pigz']['-cd', inputs.mr.spikein_mr.path] > f'{name}.mr')()
 
             args = [
