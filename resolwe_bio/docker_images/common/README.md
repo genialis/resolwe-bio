@@ -7,7 +7,7 @@ Included tools:
 ---------------
 * bedGraphToBigWig (kent-v365)
 * bedToBigBed (kent-v365)
-* Bedtools (2.27.1)
+* Bedtools (2.29.2)
 * Bowtie (v1.2.2)
 * Bowtie2 (v2.3.4.1)
 * BWA (v0.7.17-r1188)

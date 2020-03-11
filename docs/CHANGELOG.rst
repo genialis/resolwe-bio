@@ -37,6 +37,7 @@ Changed
 - Support ``bs-conversion-rate`` process in ``wgbs`` workflow
 - Replace duplicate-remover in ``walt`` to unifiy both output
   alignment files
+- Bump Bedtools to v2.29.2 in ``resolwebio/common:1.3.2`` Docker image
 
 Fixed
 -----

@@ -5,8 +5,8 @@
 download_and_verify \
     quinlan-lab \
     bedtools2 \
-    2.27.1 \
-    c8c2acbaf3f9cb92dcf8e5cd59af6b31ae9c4598efb786ba6c84f66ca72fafd9 \
+    2.29.2 \
+    e3f1bf9e58740e60c3913390fe95b0c7f8fd99ceade8a406e28620448a997054 \
     https://github.com/arq5x/bedtools2/releases/download/v\${version}/bedtools-\${version}.tar.gz \
     bedtools2
 
