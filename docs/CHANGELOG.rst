@@ -5,38 +5,36 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-==========
-Unreleased
-==========
+===================
+27.0.0 - 2020-03-13
+===================
 
 Added
 -----
 - Add ``merge-fastq-single`` and ``merge-fastq-paired`` processes that
-  merge multiple ``data:reads:fastq``` data objects into a single
+  merge multiple ``data:reads:fastq`` data objects into a single
   ``data:reads:fastq`` data object (and consequently a single sample)
-- Add support for ``markduplicates`` reporting in ``multiqc`` and
-  implement it in ``wgbs-single`` and ``wgbs-paired`` workflow
-- Add ``insert-size`` process as a part of QC steps in ``wgbs-paired``
-  workflow
-- Enable separation of unmethylated control reads from others in
-  ``walt`` process
 - Add ``bs-conversion-rate`` process
 - Add support for Python 3.8
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 21.x
-- **BACKWARD INCOMPATIBLE:** Split ``wgbs`` workflow into
-  ``wgbs-single`` and ``wgbs-paired``
-- Use human samples for ``alignment-star`` testing
-- Bump memory requirements in ``rrbs-metrics`` process
+- **BACKWARD INCOMPATIBLE:** Split ``workflow-wgbs`` into
+  ``workflow-wgbs-single`` and ``workflow-wgbs-paired`` workflows
+- Extend the ``workflow-wgbs-single`` and ``workflow-wgbs-paired`` with
+  the ``markduplicates``, ``insert-size`` and ``bs-conversion-rate``
+  QC processes
+- Support detection and separation of control spike-in-derived reads
+  from endogenous sequencing reads in ``walt`` process
+- Replace duplicate-remover in ``walt`` to unify both (.mr and .bam)
+  output alignment files
+- Support ``markduplicates`` and ``bs-conversion-rate`` process outputs
+  in ``multiqc`` reports
 - Enable multiple SRR numbers as inputs in processes ``import-sra``,
   ``import-sra-single``, and ``import-sra-paired``
-- Move wgbs test files to its own folders
-- Support ``bs-conversion-rate`` report in MultiQC
-- Support ``bs-conversion-rate`` process in ``wgbs`` workflow
-- Replace duplicate-remover in ``walt`` to unifiy both output
-  alignment files
+- Bump memory requirements in ``rrbs-metrics`` process
+- Improve process test input data for the ``alignment-star`` process
 - Bump Bedtools to v2.29.2 in ``resolwebio/common:1.3.2`` Docker image
 
 Fixed
@@ -48,8 +46,6 @@ Fixed
   not using tagAlign files
 - Fix ``bed_file_corrections_genome_browsers.py`` script to handle cases
   where the input file is empty
-- Fix handling .fastq.gz extensions in ``merge-fastq-single`` and
-  ``merge-fastq-paired``
 
 
 ===================
