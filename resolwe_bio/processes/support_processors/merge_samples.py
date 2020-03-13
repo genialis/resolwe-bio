@@ -40,7 +40,7 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -78,7 +78,7 @@ class MergeFastqSingle(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name = f"{Path(inputs.reads[0].fastq[0].path).stem}_merged"
+        name = f"{Path(inputs.reads[0].fastq[0].path).name.replace('.fastq.gz', '')}_merged"
         merged_fastq = f"{name}.fastq.gz"
         with open(merged_fastq, "wb") as outfile:
             for reads in inputs.reads:
@@ -117,7 +117,7 @@ class MergeFastqPaired(Process):
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -161,8 +161,8 @@ class MergeFastqPaired(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name_1 = f"{Path(inputs.reads[0].fastq[0].path).stem}_merged"
-        name_2 = f"{Path(inputs.reads[0].fastq2[0].path).stem}_merged"
+        name_1 = f"{Path(inputs.reads[0].fastq[0].path).name.replace('.fastq.gz', '')}_merged"
+        name_2 = f"{Path(inputs.reads[0].fastq2[0].path).name.replace('.fastq.gz', '')}_merged"
         merged_fastq_1 = f"{name_1}.fastq.gz"
         merged_fastq_2 = f"{name_2}.fastq.gz"
         with open(merged_fastq_1, "wb") as outfile_1, open(merged_fastq_2, "wb") as outfile_2:

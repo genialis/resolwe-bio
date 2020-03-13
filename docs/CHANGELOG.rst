@@ -48,6 +48,8 @@ Fixed
   not using tagAlign files
 - Fix ``bed_file_corrections_genome_browsers.py`` script to handle cases
   where the input file is empty
+- Fix handling .fastq.gz extensions in ``merge-fastq-single`` and
+  ``merge-fastq-paired``
 
 
 ===================
