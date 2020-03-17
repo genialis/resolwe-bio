@@ -10,7 +10,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
     def test_trimmomatic_single(self):
         with self.preparation_stage():
             reads = self.prepare_reads()
-            adapters = self.run_process('upload-fasta-nucl', {'src': 'bbduk_adapters.fasta'})
+            adapters = self.run_process('upload-fasta-nucl', {
+                'src': 'bbduk_adapters.fasta',
+                'species': 'Other',
+                'build': 'Illumina adapters',
+            })
 
         inputs = {
             'reads': reads.pk,

@@ -356,7 +356,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process('index-fasta-nucl')
     def test_index_fasta_nucl(self):
         with self.preparation_stage():
-            inputs = {'src': 'HS chr21_ensembl.fa.gz'}
+            inputs = {
+                'src': 'HS chr21_ensembl.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            }
             genome = self.run_process('upload-fasta-nucl', inputs)
 
             inputs = {
@@ -564,7 +568,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process('salmon-index')
     def test_salmon_index(self):
         with self.preparation_stage():
-            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+            cds = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_cds.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
 
         inputs = {
             'nucl': cds.id,
@@ -596,7 +604,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             )
             transcripts = self.run_process('upload-fasta-nucl', {
                 'src': os.path.join('salmon_quant', 'input', 'hs cdna.fasta.gz'),
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens_92',
             })

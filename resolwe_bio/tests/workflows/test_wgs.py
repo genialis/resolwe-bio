@@ -31,7 +31,7 @@ class WgsWorkflowTestCase(BioProcessTestCase):
                     self.run_process('upload-variants-vcf', {
                         'src': i, 'species': 'Homo sapiens', 'build': 'custom_build'
                     }))
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
         self.run_process(
             'workflow-wgs-paired', {

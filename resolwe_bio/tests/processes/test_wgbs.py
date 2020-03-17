@@ -177,10 +177,11 @@ re-save build 'hg19'
     @tag_process('bs-conversion-rate')
     def test_bsrate(self):
         with self.preparation_stage():
-            sequence = self.run_process(
-                'upload-fasta-nucl',
-                {'src': os.path.join('wgbs', 'input', 'unmethylated_lambda_J02459.fasta.gz')}
-            )
+            sequence = self.run_process('upload-fasta-nucl', {
+                'src': os.path.join('wgbs', 'input', 'unmethylated_lambda_J02459.fasta.gz'),
+                'species': 'Homo sapiens',
+                'build': 'J02459',
+            })
             # Mock upload WALT alignment process
             process = Process.objects.create(
                 name='Upload WALT alignment file (.mr) mock process',

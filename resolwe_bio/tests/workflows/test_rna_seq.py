@@ -31,8 +31,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             inputs = {'src': ['hs_single bbduk_star_htseq_reads_single.fastq.gz']}
             reads = self.run_processor('upload-fastq-single', inputs)
 
-            inputs = {'src': 'hs genome.fasta.gz'}
-            star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'hs genome.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
             adapters = self.prepare_adapters()
 
             inputs = {
@@ -111,8 +114,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             paired_reads = self.prepare_paired_reads(['hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz'],
                                                      ['hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz'])
 
-            inputs = {'src': 'hs genome.fasta.gz'}
-            star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
+            star_index_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'hs genome.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
             adapters = self.prepare_adapters()
 
             inputs = {
@@ -128,7 +134,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_rRNA.fasta.gz',
-                'source': 'NCBI',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
@@ -141,7 +146,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             globin_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_globin_reference.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'globin',
             })
@@ -209,7 +213,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
 
             star_index_fasta = self.run_process('upload-fasta-nucl', {
-                'src': 'hs genome.fasta.gz'
+                'src': 'hs genome.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
             })
 
             annotation = self.run_process('upload-gtf', {
@@ -226,7 +232,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_rRNA.fasta.gz',
-                'source': 'NCBI',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
@@ -240,7 +245,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             globin_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_globin_reference.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'globin',
             })
@@ -304,7 +308,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
             star_index_fasta = self.run_process('upload-fasta-nucl', {
                 'src': 'hs genome.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens90',
             })
@@ -317,7 +320,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_rRNA.fasta.gz',
-                'source': 'NCBI',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
@@ -330,7 +332,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             globin_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_globin_reference.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'globin',
             })
@@ -442,8 +443,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             single_reads = self.prepare_reads(['reads rsem.fq.gz'])
             paired_reads = self.prepare_paired_reads(mate1=['reads rsem.fq.gz'], mate2=['reads rsem2.fq.gz'])
 
-            inputs = {'src': 'genome_rsem.fa.gz'}
-            genome = self.run_process('upload-fasta-nucl', inputs)
+            genome = self.run_process('upload-fasta-nucl', {
+                'src': 'genome_rsem.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
 
             inputs = {
                 'src': 'annotation_rsem.gtf.gz',
@@ -595,7 +599,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
 
             star_index_fasta = self.run_process('upload-fasta-nucl', {
-                'src': './corall/input/hs_genome_chr2_1_45000.fasta.gz'
+                'src': './corall/input/hs_genome_chr2_1_45000.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
             })
 
             annotation = self.run_process('upload-gtf', {
@@ -612,7 +618,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': './corall/input/Homo_sapiens_rRNA.fasta.gz',
-                'source': 'NCBI',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
@@ -626,7 +631,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             globin_reference = self.run_process('upload-fasta-nucl', {
                 'src': './corall/input/Homo_sapiens_globin_reference.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'globin',
             })
@@ -692,7 +696,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
             star_index_fasta = self.run_process('upload-fasta-nucl', {
                 'src': 'salmon_workflow/input/hs genome.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'ens92',
             })
@@ -700,7 +703,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'annotation': annotation.id,
                 'genome2': star_index_fasta.id,
             })
-            cdna = self.run_process('upload-fasta-nucl', {'src': 'salmon_workflow/input/hs cdna.fasta.gz'})
+            cdna = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_workflow/input/hs cdna.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens92',
+            })
             salmon_index = self.run_process('salmon-index', {
                 'nucl': cdna.id,
                 'source': 'ENSEMBL',
@@ -710,7 +717,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             adapters = self.prepare_adapters()
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'salmon_workflow/input/Homo_sapiens_rRNA.fasta.gz',
-                'source': 'NCBI',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
@@ -722,7 +728,6 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
             globin_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'salmon_workflow/input/Homo_sapiens_globin_reference.fasta.gz',
-                'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
                 'build': 'globin',
             })

@@ -14,7 +14,11 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 'src2': ['56GSID_10k_mate2.fastq.gz']}
             reads = self.run_process('upload-fastq-paired', inputs)
 
-            adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
+            adapters = self.run_process('upload-fasta-nucl', {
+                'src': 'adapters.fasta',
+                'species': 'Other',
+                'build': 'Illumina adapters',
+            })
 
             inputs = {
                 'src': 'hs_b37_chr2_small.fasta.gz',

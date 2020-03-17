@@ -120,9 +120,13 @@ class BioProcessTestCase(ProcessTestCase):
         }
         return self.run_process('upload-gff3', inputs)
 
-    def prepare_adapters(self, fn='adapters.fasta'):
+    def prepare_adapters(self, fn='adapters.fasta', species='Other', build='Illumina adapters'):
         """Prepare adapters FASTA."""
-        return self.run_process('upload-fasta-nucl', {'src': fn})
+        return self.run_process('upload-fasta-nucl', {
+            'src': fn,
+            'species': species,
+            'build': build,
+        })
 
     def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type='TPM',
                            name='Expression', source='DICTYBASE', descriptor=None, feature_type='gene',

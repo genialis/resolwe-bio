@@ -1,4 +1,5 @@
 # pylint: disable=missing-docstring
+import os
 from django.core.exceptions import ValidationError
 
 from resolwe.flow.models import Data
@@ -487,15 +488,46 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process('upload-fasta-nucl')
     def test_upload_nucl_seq(self):
-        inputs = {
-            'src': 'genome.fasta.gz',
+        seq = self.run_process('upload-fasta-nucl', {
+            'src': os.path.join('nucl_seq', 'input', 'genome.fasta.gz'),
             'species': 'Dictyostelium discoideum',
-        }
-        seq = self.run_process('upload-fasta-nucl', inputs)
-        self.assertFile(seq, 'fastagz', 'genome.fasta.gz', compression='gzip')
-        self.assertFile(seq, 'fasta', 'genome.fasta')
-        self.assertFile(seq, 'fai', 'genome.fasta.fai')
+            'build': 'dicty_2.7',
+        })
+        self.assertFile(seq, 'fastagz', os.path.join('nucl_seq', 'output', 'genome.fasta.gz'), compression='gzip')
+        self.assertFile(seq, 'fasta', os.path.join('nucl_seq', 'output', 'genome.fasta'))
+        self.assertFile(seq, 'fai', os.path.join('nucl_seq', 'output', 'genome.fasta.fai'))
+        self.assertFile(seq, 'fasta_dict', os.path.join('nucl_seq', 'output', 'genome.dict'))
         self.assertFields(seq, 'species', 'Dictyostelium discoideum')
+        self.assertFields(seq, 'build', 'dicty_2.7')
+        self.assertFields(seq, 'num_seqs', 1)
+
+        empty_input = {
+            'src': os.path.join('nucl_seq', 'input', 'empty.fasta'),
+            'species': 'Dictyostelium discoideum',
+            'build': 'dicty_2.7',
+        }
+        empty = self.run_process('upload-fasta-nucl', empty_input, Data.STATUS_ERROR)
+        error_msg = ['The uploaded .FASTA file empty.fasta contains no sequence data.']
+        self.assertEqual(empty.process_error, error_msg)
+
+        malformed_input = {
+            'src': os.path.join('nucl_seq', 'input', 'malformed.fasta'),
+            'species': 'Dictyostelium discoideum',
+            'build': 'dicty_2.7',
+        }
+        malformed = self.run_process('upload-fasta-nucl', malformed_input, Data.STATUS_ERROR)
+        error_msg = ["Format error in the uploaded file malformed.fasta. Error in FASTA file at "
+                     "line 1: Expected '>' at beginning of record, but got 'foo'."]
+        self.assertEqual(malformed.process_error, error_msg)
+
+        incomplete_input = {
+            'src': os.path.join('nucl_seq', 'input', 'incomplete.fasta'),
+            'species': 'Dictyostelium discoideum',
+            'build': 'dicty_2.7',
+        }
+        incomplete = self.run_process('upload-fasta-nucl', incomplete_input, Data.STATUS_ERROR)
+        error_msg = ['The uploaded .FASTA file incomplete.fasta contains no sequence data.']
+        self.assertEqual(incomplete.process_error, error_msg)
 
     @tag_process('upload-variants-vcf')
     def test_upload_vcf(self):

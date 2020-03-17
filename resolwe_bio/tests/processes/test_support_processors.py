@@ -299,7 +299,11 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
     @tag_process('library-strandedness')
     def test_library_strandedness(self):
         with self.preparation_stage():
-            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+            cds = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_cds.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
 
             inputs = {
                 'nucl': cds.id,
@@ -356,7 +360,11 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 'build': 'ens_90',
             })
 
-            genome_fasta = self.run_process('upload-fasta-nucl', {'src': 'hs genome.fasta.gz'})
+            genome_fasta = self.run_process('upload-fasta-nucl', {
+                'src': 'hs genome.fasta.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
             star_index = self.run_process('alignment-star-index', {
                 'annotation': annotation.id,
                 'genome2': genome_fasta.id,
@@ -633,7 +641,9 @@ re-save-file report "${NAME}".txt
             })
 
             cds = self.run_process('upload-fasta-nucl', {
-                'src': 'qorts/input/salmon_cds.fa.gz'
+                'src': 'qorts/input/salmon_cds.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
             })
             inputs = {
                 'nucl': cds.id,
@@ -725,7 +735,7 @@ re-save-file report "${NAME}".txt
                 'species': 'Homo sapiens',
                 'build': 'hg19'
             })
-            adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
+            adapters = self.prepare_ref_seq()
 
         alignment_summary = self.run_process('alignment-summary', {
             'bam': bam.id,
