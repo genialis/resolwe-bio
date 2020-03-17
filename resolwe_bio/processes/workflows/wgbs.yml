@@ -3,15 +3,16 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.4.0
+  version: 1.5.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
-    This WGBS pipeline is comprised of alignment, computation of
+    This WGBS pipeline is comprised of trimming, alignment, computation of
     methylation levels, identification of hypo-methylated regions (HMRs) and
     additional QC steps.
 
-    First, reads are aligned by __WALT__ aligner. [WALT (Wildcard ALignment
+    First, reads are trimmed to remove adapters or kit specific artifacts.
+    Reads are then aligned by __WALT__ aligner. [WALT (Wildcard ALignment
     Tool)](https://github.com/smithlabcode/walt) is fast and accurate read
     mapping for bisulfite sequencing. Then, methylation level at each genomic
     cytosine is calculated using __methcounts__. Finally, hypo-methylated
@@ -47,6 +48,75 @@
         performance when processing a BAM file in which
         variable-length data (read, qualities, tags) do not
         otherwise need to be decoded. Default is STRICT.
+    - name: adapter_trimming
+      label: Adapter trimming
+      group:
+        - name: adapters
+          label: Adapter sequences
+          type: data:seq:nucleotide
+          required: false
+          description: |
+            Adapter sequence in FASTA format that will be removed from
+            the read. This field as well as 'Seed mismatches' and
+            'Simple clip threshold' parameters are needed to perform
+            adapter trimming.
+        - name: seed_mismatches
+          label: Seed mismatches
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.adapters
+          required: false
+          description: |
+            Specifies the maximum mismatch count which will still allow
+            a full match to be performed. This field is required to
+            perform adapter trimming.
+        - name: simple_clip_threshold
+          label: Simple clip threshold
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.adapters
+          required: false
+          description: |
+            Specifies how accurate the match between any adapter etc.
+            sequence must be against a read. This field is required to
+            perform adapter trimming.
+    - name: trimming_filtering
+      label: Base trimming and filtering
+      group:
+        - name: leading
+          label: Leading quality
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from the beginning, if below a
+            threshold quality.
+        - name: trailing
+          label: Trailing quality
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from the end, if below a
+            threshold quality.
+        - name: crop
+          label: Crop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the read to a specified length by removing bases from
+            the end.
+        - name: headcrop
+          label: Headcrop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the specified number of bases from the start of the
+            read.
+        - name: minlen
+          label: Minimum length
+          type: basic:integer
+          required: false
+          description: |
+            Drop the read if it is below a specified length.
     - name: alignment
       label: Alignment (WALT)
       group:
@@ -227,11 +297,26 @@
   run:
     language: workflow
     program:
+      - id: trimmomatic
+        run: trimmomatic-single
+        input:
+          reads: '{{ input.reads }}'
+          illuminaclip:
+            adapters: '{{ input.adapter_trimming.adapters }}'
+            seed_mismatches: '{{ input.adapter_trimming.seed_mismatches }}'
+            simple_clip_threshold: '{{ input.adapter_trimming.simple_clip_threshold }}'
+          trim_bases:
+            trailing: '{{ input.trimming_filtering.trailing }}'
+            leading: '{{ input.trimming_filtering.leading }}'
+            crop: '{{ input.trimming_filtering.crop }}'
+            headcrop: '{{ input.trimming_filtering.headcrop }}'
+          reads_filtering:
+            minlen: '{{ input.trimming_filtering.minlen }}'
       - id: walt
         run: walt
         input:
           genome: '{{ input.genome }}'
-          reads: '{{ input.reads }}'
+          reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
           mismatch: '{{ input.alignment.mismatch }}'
           number: '{{ input.alignment.number }}'
@@ -320,15 +405,16 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.4.0
+  version: 1.5.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
-    This WGBS pipeline is comprised of alignment, computation of
+    This WGBS pipeline is comprised of trimming, alignment, computation of
     methylation levels, identification of hypo-methylated regions (HMRs) and
     additional QC steps.
 
-    First, reads are aligned by __WALT__ aligner. [WALT (Wildcard ALignment
+    First, reads are trimmed to remove adapters or kit specific artifacts.
+    Reads are then aligned by __WALT__ aligner. [WALT (Wildcard ALignment
     Tool)](https://github.com/smithlabcode/walt) is fast and accurate read
     mapping for bisulfite sequencing. Then, methylation level at each genomic
     cytosine is calculated using __methcounts__. Finally, hypo-methylated
@@ -364,6 +450,120 @@
         performance when processing a BAM file in which
         variable-length data (read, qualities, tags) do not
         otherwise need to be decoded. Default is STRICT.
+    - name: adapter_trimming
+      label: Adapter trimming
+      group:
+        - name: adapters
+          label: Adapter sequences
+          type: data:seq:nucleotide
+          required: false
+          description: |
+            Adapter sequence in FASTA format that will be removed from
+            the read. This field as well as 'Seed mismatches', 'Simple
+            clip threshold' and 'Palindrome clip threshold' parameters
+            are  needed to perform adapter trimming. 'Minimum adapter
+            length' and 'Keep both reads' are optional parameters.
+        - name: seed_mismatches
+          label: Seed mismatches
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.adapters
+          required: false
+          description: |
+            Specifies the maximum mismatch count which will still allow
+            a full match to be performed. This field is required to
+            perform adapter trimming.
+        - name: simple_clip_threshold
+          label: Simple clip threshold
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.adapters
+          required: false
+          description: |
+            Specifies how accurate the match between any adapter etc.
+            sequence must be against a read. This field is required to
+            perform adapter trimming.
+        - name: min_adapter_length
+          label: Minimum adapter length
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.seed_mismatches &&
+            !adapter_trimming.simple_clip_threshold &&
+            !adapter_trimming.palindrome_clip_threshold
+          default: 8
+          description: |
+            In addition to the alignment score, palindrome mode can
+            verify that a minimum length of adapter has been detected.
+            If unspecified, this defaults to 8 bases, for historical
+            reasons. However, since palindrome mode has a very low false
+            positive rate, this can be safely reduced, even down to 1,
+            to allow shorter adapter fragments to be removed.
+        - name: palindrome_clip_threshold
+          label: Palindrome clip threshold
+          type: basic:integer
+          disabled: >
+            !adapter_trimming.adapters
+          required: false
+          description: |
+            Specifies how accurate the match between the two 'adapter
+            ligated' reads must be for PE palindrome read alignment. 
+            This field is required to perform adapter trimming.
+        - name: keep_both_reads
+          label: Keep both reads
+          type: basic:boolean
+          disabled: >
+            !adapter_trimming.seed_mismatches &&
+            !adapter_trimming.simple_clip_threshold &&
+            !adapter_trimming.palindrome_clip_threshold &&
+            !adapter_trimming.min_adapter_length
+          required: false
+          description: |
+            After read-though has been detected by palindrome mode, and
+            the adapter sequence removed, the reverse read contains the
+            same sequence information as the forward read, albeit in
+            reverse complement. For this reason, the default behaviour
+            is to entirely drop the reverse read. By specifying this
+            parameter, the reverse read will also be retained, which may
+            be useful e.g. if the downstream tools cannot handle a
+            combination of paired and unpaired reads. This field is
+            optional for preforming adapter trimming.
+    - name: trimming_filtering
+      label: Base trimming and filtering
+      group:
+        - name: leading
+          label: Leading quality
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from the beginning, if below a
+            threshold quality.
+        - name: trailing
+          label: Trailing quality
+          type: basic:integer
+          required: false
+          description: |
+            Remove low quality bases from the end, if below a
+            threshold quality.
+        - name: crop
+          label: Crop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the read to a specified length by removing bases from
+            the end.
+        - name: headcrop
+          label: Headcrop
+          type: basic:integer
+          required: false
+          description: |
+            Cut the specified number of bases from the start of
+            the read.
+        - name: minlen
+          label: Minimum length
+          type: basic:integer
+          required: false
+          description: |
+            Drop the read if it is below a specified length.
     - name: alignment
       label: Alignment (WALT)
       group:
@@ -570,11 +770,29 @@
   run:
     language: workflow
     program:
+      - id: trimmomatic
+        run: trimmomatic-paired
+        input:
+          reads: '{{ input.reads }}'
+          illuminaclip:
+            adapters: '{{ input.adapter_trimming.adapters }}'
+            seed_mismatches: '{{ input.adapter_trimming.seed_mismatches }}'
+            simple_clip_threshold: '{{ input.adapter_trimming.simple_clip_threshold }}'
+            min_adapter_length: '{{ input.adapter_trimming.min_adapter_length }}'
+            palindrome_clip_threshold: '{{ input.adapter_trimming.palindrome_clip_threshold }}'
+            keep_both_reads: '{{ input.adapter_trimming.keep_both_reads }}'
+          trim_bases:
+            trailing: '{{ input.trimming_filtering.trailing }}'
+            leading: '{{ input.trimming_filtering.leading }}'
+            crop: '{{ input.trimming_filtering.crop }}'
+            headcrop: '{{ input.trimming_filtering.headcrop }}'
+          reads_filtering:
+            minlen: '{{ input.trimming_filtering.minlen }}'
       - id: walt
         run: walt
         input:
           genome: '{{ input.genome }}'
-          reads: '{{ input.reads }}'
+          reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
           mismatch: '{{ input.alignment.mismatch }}'
           number: '{{ input.alignment.number }}'
