@@ -36,7 +36,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'species': 'Homo sapiens',
                 'build': 'ens_90',
             })
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
             inputs = {
                 'src': 'hs annotation.gtf.gz',
@@ -46,7 +46,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             }
             annotation = self.run_process('upload-gtf', inputs)
 
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            inputs = {'annotation': annotation.id, 'ref_seq': star_index_fasta.id}
             star_index = self.run_process('alignment-star-index', inputs)
 
         self.run_process(
@@ -83,10 +83,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             }
             annotation = self.run_process('upload-gtf', inputs)
 
-            star_index_fasta = self.prepare_adapters('hs genome.fasta.gz')
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            star_index_fasta = self.prepare_ref_seq('hs genome.fasta.gz')
+            inputs = {'annotation': annotation.id, 'ref_seq': star_index_fasta.id}
             star_index = self.run_process('alignment-star-index', inputs)
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
         inputs = {
             'reads': paired_reads.id,
@@ -119,7 +119,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'species': 'Homo sapiens',
                 'build': 'ens_90',
             })
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
             inputs = {
                 'src': 'hs annotation.gtf.gz',
@@ -129,7 +129,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             }
             annotation = self.run_process('upload-gtf', inputs)
 
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            inputs = {'annotation': annotation.id, 'ref_seq': star_index_fasta.id}
             star_index = self.run_process('alignment-star-index', inputs)
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
@@ -138,7 +138,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'build': 'rRNA',
             })
             rrna_star_index = self.run_process('alignment-star-index', {
-                'genome2': rrna_reference.id,
+                'ref_seq': rrna_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -150,7 +151,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'build': 'globin',
             })
             globin_star_index = self.run_process('alignment-star-index', {
-                'genome2': globin_reference.id,
+                'ref_seq': globin_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -227,7 +229,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             star_index = self.run_process('alignment-star-index', {
                 'annotation': annotation.id,
-                'genome2': star_index_fasta.id
+                'ref_seq': star_index_fasta.id
             })
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
@@ -237,7 +239,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
 
             rrna_star_index = self.run_process('alignment-star-index', {
-                'genome2': rrna_reference.id,
+                'ref_seq': rrna_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -250,7 +253,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
 
             globin_star_index = self.run_process('alignment-star-index', {
-                'genome2': globin_reference.id,
+                'ref_seq': globin_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -313,10 +317,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
             inputs = {
                 'annotation': annotation.id,
-                'genome2': star_index_fasta.id,
+                'ref_seq': star_index_fasta.id,
             }
             star_index = self.run_process('alignment-star-index', inputs)
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens_rRNA.fasta.gz',
@@ -324,7 +328,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'build': 'rRNA',
             })
             rrna_star_index = self.run_process('alignment-star-index', {
-                'genome2': rrna_reference.id,
+                'ref_seq': rrna_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -336,7 +341,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'build': 'globin',
             })
             globin_star_index = self.run_process('alignment-star-index', {
-                'genome2': globin_reference.id,
+                'ref_seq': globin_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -403,8 +409,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 species='Homo sapiens',
                 build='hg19'
             )
-            star_index_fasta = self.prepare_adapters(fn='HS chr21_ensembl.fa.gz')
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
+            star_index_fasta = self.prepare_ref_seq(fn='HS chr21_ensembl.fa.gz')
+            inputs = {'annotation': annotation.id, 'ref_seq': star_index_fasta.id}
 
             star_index = self.run_process('alignment-star-index', inputs)
 
@@ -457,7 +463,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             }
             annotation = self.run_process('upload-gtf', inputs)
 
-            inputs = {'genome2': genome.pk, 'annotation': annotation.pk}
+            inputs = {'ref_seq': genome.pk, 'annotation': annotation.pk}
             star_index = self.run_process('alignment-star-index', inputs)
 
             inputs = {'nucl': genome.pk, 'annotation': annotation.pk}
@@ -504,7 +510,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             genome = self.prepare_genome()
             single_reads = self.prepare_reads()
             annotation = self.prepare_annotation('annotation dicty.gtf.gz')
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
         self.run_process('workflow-rnaseq-single', {
             'genome': genome.id,
@@ -548,7 +554,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             genome = self.prepare_genome()
             paired_reads = self.prepare_paired_reads()
             annotation = self.prepare_annotation('annotation dicty.gtf.gz')
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
         self.run_process('workflow-rnaseq-paired', {
             'genome': genome.id,
@@ -608,12 +614,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'src': './corall/input/hs_annotation_chr2_1_45000.gtf.gz',
                 'source': 'ENSEMBL',
                 'species': 'Homo sapiens',
-                'build': 'ens_90'
+                'build': 'ens_90',
             })
 
             star_index = self.run_process('alignment-star-index', {
                 'annotation': annotation.id,
-                'genome2': star_index_fasta.id
+                'ref_seq': star_index_fasta.id,
             })
 
             rrna_reference = self.run_process('upload-fasta-nucl', {
@@ -623,7 +629,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
 
             rrna_star_index = self.run_process('alignment-star-index', {
-                'genome2': rrna_reference.id,
+                'ref_seq': rrna_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -636,7 +643,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
 
             globin_star_index = self.run_process('alignment-star-index', {
-                'genome2': globin_reference.id,
+                'ref_seq': globin_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -701,7 +709,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             })
             star_index = self.run_process('alignment-star-index', {
                 'annotation': annotation.id,
-                'genome2': star_index_fasta.id,
+                'ref_seq': star_index_fasta.id,
             })
             cdna = self.run_process('upload-fasta-nucl', {
                 'src': 'salmon_workflow/input/hs cdna.fasta.gz',
@@ -714,14 +722,15 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'species': 'Homo sapiens',
                 'build': 'ens92',
             })
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
             rrna_reference = self.run_process('upload-fasta-nucl', {
                 'src': 'salmon_workflow/input/Homo_sapiens_rRNA.fasta.gz',
                 'species': 'Homo sapiens',
                 'build': 'rRNA',
             })
             rrna_star_index = self.run_process('alignment-star-index', {
-                'genome2': rrna_reference.id,
+                'ref_seq': rrna_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }
@@ -732,7 +741,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 'build': 'globin',
             })
             globin_star_index = self.run_process('alignment-star-index', {
-                'genome2': globin_reference.id,
+                'ref_seq': globin_reference.id,
+                'source': 'NCBI',
                 'advanced': {
                     'genomeSAindexNbases': 2,
                 }

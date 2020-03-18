@@ -76,8 +76,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         with self.preparation_stage():
             reads = self.prepare_reads(['cutadapt single.fastq.gz', 'cutadapt_single1.fastq.gz'])
 
-            primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
-            primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
+            primers_up = self.prepare_ref_seq('5_prime_adapter.fasta.gz')
+            primers_down = self.prepare_ref_seq('3_prime_adapter.fasta.gz')
 
         inputs = {
             'reads': reads.id,
@@ -122,8 +122,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             reads = self.prepare_paired_reads(mate1=['cutadapt mate1.fastq.gz'],
                                               mate2=['cutadapt mate2.fastq.gz'])
 
-            primers_up = self.prepare_adapters('5_prime_adapter.fasta.gz')
-            primers_down = self.prepare_adapters('3_prime_adapter.fasta.gz')
+            primers_up = self.prepare_ref_seq('5_prime_adapter.fasta.gz')
+            primers_down = self.prepare_ref_seq('3_prime_adapter.fasta.gz')
 
         inputs = {
             'reads': reads.id,

@@ -18,6 +18,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Refactor ``upload-fasta-nucl`` process:
   ``species`` and ``build`` input information on FASTA file upload are
   now mandatory, while ``source`` input has been removed.
+- **BACKWARD INCOMPATIBLE:** Change the ``alignment-star-index`` process
+  type to ``data:index:star``. The process now accepts only
+  ``upload-fasta-nucl`` objects on input.
 - Add trimming with Trimmomatic in ``workflow-wgbs-single`` and
   ``workflow-wgbs-paired`` workflows
 - Make intervals an optional input in ``bqsr`` process

@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.4.0
+  version: 2.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -93,7 +93,7 @@
       group:
         - name: genome
           label: Indexed reference genome
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Genome index prepared by STAR aligner indexing tool.
         - name: show_advanced
@@ -448,12 +448,12 @@
       group:
         - name: rrna_reference
           label: Indexed rRNA reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:
@@ -567,7 +567,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.4.0
+  version: 2.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -657,7 +657,7 @@
       group:
         - name: genome
           label: Indexed reference genome
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Genome index prepared by STAR aligner indexing tool.
         - name: show_advanced
@@ -1012,12 +1012,12 @@
       group:
         - name: rrna_reference
           label: Indexed rRNA reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 3.0.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -26,7 +26,7 @@
       type: data:reads:fastq:single
     - name: star_index
       label: Genome
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: annotation
@@ -36,12 +36,12 @@
         Genome annotation file (GTF).
     - name: rrna_reference
       label: Indexed rRNA reference sequence
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
     - name: globin_reference
       label: Indexed Globin reference sequence
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
     - name: show_advanced
@@ -208,7 +208,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 3.0.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -231,7 +231,7 @@
       type: data:reads:fastq:paired
     - name: star_index
       label: Genome
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: annotation
@@ -241,12 +241,12 @@
         Genome annotation file (GTF).
     - name: rrna_reference
       label: Indexed rRNA reference sequence
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
     - name: globin_reference
       label: Indexed Globin reference sequence
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
     - name: show_advanced

@@ -9,7 +9,7 @@
     {{ alignment_star|sample_name|default('') }}
     {{ alignment|sample_name|default('') }}
     {{ input_bed_junctions.bed.file|default('') }}
-  version: 0.3.1
+  version: 1.0.0
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja
@@ -32,7 +32,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
     - name: annotation
       label: Reference genome annotation (GTF)
       type: data:annotation:gtf

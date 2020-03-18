@@ -367,7 +367,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             })
             star_index = self.run_process('alignment-star-index', {
                 'annotation': annotation.id,
-                'genome2': genome_fasta.id,
+                'ref_seq': genome_fasta.id,
             })
 
             star_alignment = self.run_process('alignment-star', {

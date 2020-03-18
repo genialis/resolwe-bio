@@ -15,28 +15,28 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
                                                  source='ENSEMBL',
                                                  species='Homo sapiens',
                                                  build='GRCh38_ens92')
-            inputs = {
+
+            genome = self.run_process('upload-fasta-nucl', {
                 'src': 'Homo_sapiens.GRCh38.92.chr1_20k.fa.gz',
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens92',
-            }
-            genome = self.run_process('upload-genome', inputs)
+            })
 
-            inputs = {'annotation': annotation.id, 'genome': genome.id}
-            star_index = self.run_process('alignment-star-index', inputs)
+            star_index = self.run_process('alignment-star-index', {
+                'annotation': annotation.id,
+                'ref_seq': genome.id
+            })
 
-            inputs = {
+            star_sj = self.run_process('alignment-star', {
                 'genome': star_index.id,
                 'reads': reads.id,
-            }
-            star_sj = self.run_process('alignment-star', inputs)
+            })
 
-            inputs = {
+            bed_upload = self.run_process('upload-bed', {
                 'src': 'SRR2141558_chr1_20k_SJ.bed',
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens92',
-            }
-            bed_upload = self.run_process('upload-bed', inputs)
+            })
 
         inputs = {
             'alignment_star': star_sj.id,
@@ -76,28 +76,28 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
                                                               source='ENSEMBL',
                                                               species='Homo sapiens',
                                                               build='GRCh38_ens90')
-            inputs = {
+
+            genome_no_junctions = self.run_process('upload-fasta-nucl', {
                 'src': 'HS chr21_ensembl.fa.gz',
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens90',
-            }
-            genome_no_junctions = self.run_process('upload-genome', inputs)
+            })
 
-            inputs = {'annotation': annotation_no_junctions.id, 'genome': genome_no_junctions.id}
-            star_index_no_junctions = self.run_process('alignment-star-index', inputs)
+            star_index_no_junctions = self.run_process('alignment-star-index', {
+                'annotation': annotation_no_junctions.id,
+                'ref_seq': genome_no_junctions.id
+            })
 
-            inputs = {
+            star_no_junctions = self.run_process('alignment-star', {
                 'genome': star_index_no_junctions.id,
                 'reads': reads_no_junctions.id,
-            }
-            star_no_junctions = self.run_process('alignment-star', inputs)
+            })
 
-            inputs = {
+            empty_bam_upload = self.run_process('upload-bam', {
                 'src': 'empty.bam',
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens90',
-            }
-            empty_bam_upload = self.run_process('upload-bam', inputs)
+            })
 
         inputs = {
             'alignment_star': star_no_junctions.id,

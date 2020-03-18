@@ -94,28 +94,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         aligned_reads = self.run_process('alignment-bowtie2', inputs)
         self.assertFile(aligned_reads, 'stats', 'bowtie2_use_SE_report.txt')
 
-    @tag_process('alignment-star-index')
-    def test_star_index(self):
-        with self.preparation_stage():
-            annotation_gtf = self.prepare_annotation(fn='HS chr21_short.gtf.gz', source='UCSC',
-                                                     species='Homo sapiens', build='hg19')
-            star_index_fasta = self.prepare_adapters(fn='HS chr21_ensembl.fa.gz')
-            genome = self.prepare_genome()
-            annotation_gff3 = self.prepare_annotation_gff()
-
-        inputs_gtf = {'annotation': annotation_gtf.id, 'genome2': star_index_fasta.id}
-        self.run_process('alignment-star-index', inputs_gtf)
-
-        # Test genome indexing without the input annotation file
-        inputs_gtf = {'genome2': star_index_fasta.id}
-        self.run_process('alignment-star-index', inputs_gtf)
-
-        inputs_gff3 = {'annotation': annotation_gff3.id, 'genome': genome.id}
-        star_index = self.run_process('alignment-star-index', inputs_gff3)
-        self.assertAlmostEqual(star_index.output['index']['size'], 1566163859, delta=5)
-
     @with_resolwe_host
-    @tag_process('alignment-star')
+    @tag_process('alignment-star-index', 'alignment-star')
     def test_star(self):
         with self.preparation_stage():
             reads = self.prepare_reads(
@@ -136,17 +116,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 'src': os.path.join('test_star', 'input', 'hs genome.fasta.gz'),
                 'species': 'Homo sapiens',
                 'build': 'GRCh38_ens90',
-                'source': 'ENSEMBL',
             }
             star_index_fasta = self.run_process('upload-fasta-nucl', inputs)
-
-            inputs = {'annotation': annotation.id, 'genome2': star_index_fasta.id}
-            star_index = self.run_process('alignment-star-index', inputs)
-
-            star_index_wo_annot = self.run_process(
-                'alignment-star-index',
-                {'genome2': star_index_fasta.id},
-            )
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -154,6 +125,18 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         gene_counts_star_single = os.path.join('test_star', 'output', 'gene_counts_star_single.tab.gz')
         star_expression_single = os.path.join('test_star', 'output', 'star_expression_single.tab.gz')
 
+        # prepare genome indices
+        star_index = self.run_process('alignment-star-index', {
+            'annotation': annotation.id,
+            'ref_seq': star_index_fasta.id
+        })
+
+        star_index_wo_annot = self.run_process('alignment-star-index', {
+            'ref_seq': star_index_fasta.id,
+            'source': 'ENSEMBL',
+        })
+
+        # test STAR alignment
         inputs = {
             'genome': star_index.id,
             'reads': reads.id,

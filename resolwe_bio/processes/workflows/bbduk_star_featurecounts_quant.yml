@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 2.0.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -26,7 +26,7 @@
       type: data:reads:fastq:single
     - name: star_index
       label: Star index
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
@@ -81,12 +81,12 @@
       group:
         - name: rrna_reference
           label: Indexed rRNA reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:
@@ -186,7 +186,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 2.0.0
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
   description: |
@@ -209,7 +209,7 @@
       type: data:reads:fastq:paired
     - name: star_index
       label: Star index
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: adapters
@@ -264,12 +264,12 @@
       group:
         - name: rrna_reference
           label: Indexed rRNA reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
         - name: globin_reference
           label: Indexed Globin reference sequence
-          type: data:genomeindex:star
+          type: data:index:star
           description: |
             Reference sequence index prepared by STAR aligner indexing tool.
   run:

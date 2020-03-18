@@ -120,8 +120,8 @@ class BioProcessTestCase(ProcessTestCase):
         }
         return self.run_process('upload-gff3', inputs)
 
-    def prepare_adapters(self, fn='adapters.fasta', species='Other', build='Illumina adapters'):
-        """Prepare adapters FASTA."""
+    def prepare_ref_seq(self, fn='adapters.fasta', species='Other', build='Illumina adapters'):
+        """Prepare reference sequence FASTA."""
         return self.run_process('upload-fasta-nucl', {
             'src': fn,
             'species': species,

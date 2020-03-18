@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 2.0.0
   type: data:workflow:rnaseq:htseq
   category: Pipeline
   description: |
@@ -28,7 +28,7 @@
       type: data:reads:fastq:single
     - name: genome
       label: Indexed reference genome
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool
     - name: gff
@@ -254,7 +254,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 2.0.0
   type: data:workflow:rnaseq:htseq
   category: Pipeline
   description: |
@@ -279,7 +279,7 @@
       type: data:reads:fastq:paired
     - name: genome
       label: Indexed reference genome
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool
     - name: gff

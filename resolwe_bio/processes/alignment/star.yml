@@ -14,7 +14,7 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.10.1
+  version: 2.0.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -35,7 +35,7 @@
       type: data:reads:fastq
     - name: genome
       label: Indexed reference genome
-      type: data:genomeindex:star
+      type: data:index:star
       description: |
         Genome index prepared by STAR aligner indexing tool.
     - name: annotation
@@ -541,27 +541,35 @@
     resources:
       memory: 32768
       cores: 1
-  data_name: "{{ genome.fasta.file|basename ~ genome2.fasta.file|basename |default('?') }}"
-  version: 1.6.0
-  type: data:genomeindex:star
-  category: Other
+  data_name: "{{ ref_seq.fasta.file|basename|default('?') }}"
+  version: 2.0.0
+  type: data:index:star
+  category: Genome index
   persistence: CACHED
   description: |
     Generate genome indices files from the supplied reference genome sequence
     and GTF files.
   input:
-    - name: genome
-      label: Reference genome (indexed)
-      type: data:genome:fasta
-      required: false
-    - name: genome2
-      label: Reference genome (nucleotide sequence)
+    - name: ref_seq
+      label: Reference sequence (nucleotide FASTA)
       type: data:seq:nucleotide
-      required: false
     - name: annotation
       label: Annotation file (GTF/GFF3)
       type: data:annotation
       required: false
+    - name: source
+      label: Gene ID Database Source
+      type: basic:string
+      disabled: "annotation"
+      required: false
+      allow_custom_choice: true
+      choices:
+        - label: ENSEMBL
+          value: ENSEMBL
+        - label: NCBI
+          value: NCBI
+        - label: UCSC
+          value: UCSC
     - name: annotation_options
       label: Annotation file options
       hidden: "!annotation"
@@ -614,6 +622,15 @@
     - name: index
       label: Indexed genome
       type: basic:dir
+    - name: fastagz
+      label: FASTA file (compressed)
+      type: basic:file
+    - name: fasta
+      label: FASTA file
+      type: basic:file
+    - name: fai
+      label: FASTA file index
+      type: basic:file
     - name: source
       label: Gene ID source
       type: basic:string
@@ -627,24 +644,17 @@
     runtime: polyglot
     language: bash
     program: |
-      {% if genome %}
-        FILE=$(file {{ genome.fasta.file }})
-        if [[ $FILE =~ "gzip" ]]; then
-          gzip -dc {{ genome.fasta.file }} > genome.fasta
-        else
-          cp {{ genome.fasta.file }} genome.fasta
-        fi
-      {% elif genome2 %}
-        FILE=$(file {{ genome2.fasta.file }})
-        if [[ $FILE =~ "gzip" ]]; then
-          gzip -dc {{ genome2.fasta.file }} > genome.fasta
-        else
-          cp {{ genome2.fasta.file }} genome.fasta
-        fi
-      {% else %}
-        re-error "At least one of genome/genome2 inputs must be given!"
+      {% if not source and not annotation %}
+        re-error "Gene ID database Source information must be provided when annotation GTF is not selected."
       {% endif %}
 
+      NAME=`basename {{ ref_seq.fasta.file }} .fasta`
+      cp {{ ref_seq.fasta.file }} "${NAME}.fasta"
+      re-save-file fasta "${NAME}.fasta"
+      cp {{ ref_seq.fastagz.file }} "${NAME}.fasta.gz"
+      re-save-file fastagz "${NAME}.fasta.gz"
+      cp {{ ref_seq.fai.file }} "${NAME}.fasta.fai"
+      re-save-file fai "${NAME}.fasta.fai"
       re-progress 0.1
 
       mkdir star_index
@@ -655,7 +665,7 @@
         {% if advanced.genomeChrBinNbits %}--genomeChrBinNbits  {{ advanced.genomeChrBinNbits }}{% endif %} \
         {% if advanced.genomeSAsparseD %}--genomeSAsparseD {{ advanced.genomeSAsparseD }}{% endif %} \
         --genomeDir ./star_index/ \
-        --genomeFastaFiles genome.fasta \
+        --genomeFastaFiles "${NAME}.fasta" \
         {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
         {% if annotation|type|subtype('data:annotation:gff3') %}--sjdbGTFtagExonParentTranscript Parent{% endif %} \
         {% if annotation %}--sjdbOverhang {{ annotation_options.sjdbOverhang }} {% endif %} \
@@ -669,12 +679,8 @@
         re-save source {{ annotation.source }}
         re-save species {{ annotation.species }}
         re-save build {{ annotation.build }}
-      {% elif genome %}
-        re-save source {{ genome.source }}
-        re-save species {{ genome.species }}
-        re-save build {{ genome.build }}
       {% else %}
-        re-save source {{ genome2.source }}
-        re-save species {{ genome2.species }}
-        re-save build {{ genome2.build }}
+        re-save source {{ source }}
+        re-save species {{ ref_seq.species }}
+        re-save build {{ ref_seq.build }}
       {% endif %}

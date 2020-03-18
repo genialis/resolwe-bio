@@ -42,7 +42,7 @@ class WESTestCase(BioProcessTestCase):
                 'src': './bqsr/input/TP53.bed',
                 'species': species, 'build': build})
 
-            adapters = self.prepare_adapters()
+            adapters = self.prepare_ref_seq()
 
         input_workflow = {
             'reads': reads.pk,

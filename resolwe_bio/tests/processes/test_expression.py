@@ -649,7 +649,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process('feature_counts')
     def test_featurecounts_strandedness(self):
         with self.preparation_stage():
-            cds = self.run_process('upload-fasta-nucl', {'src': 'salmon_cds.fa.gz'})
+            cds = self.run_process('upload-fasta-nucl', {
+                'src': 'salmon_cds.fa.gz',
+                'species': 'Homo sapiens',
+                'build': 'ens_90',
+            })
 
             salmon_index = self.run_process('salmon-index', {
                 'nucl': cds.id,
