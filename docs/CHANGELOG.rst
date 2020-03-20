@@ -14,6 +14,10 @@ Changed
 - Add trimming with Trimmomatic in ``workflow-wgbs-single`` and
   ``workflow-wgbs-paired`` workflows
 
+Fixed
+-------
+- Fix data type of adapters input field in ``alignment-summary`` process
+
 
 ===================
 27.0.0 - 2020-03-13

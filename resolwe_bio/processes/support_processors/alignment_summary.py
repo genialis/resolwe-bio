@@ -27,7 +27,7 @@ class AlignmentSummary(Process):
     name = 'Picard AlignmentSummary'
     category = 'Picard'
     process_type = 'data:picard:summary'
-    version = '1.0.0'
+    version = '1.0.1'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
@@ -46,7 +46,7 @@ class AlignmentSummary(Process):
         bam = DataField('alignment:bam', label='Alignment BAM file')
         genome = DataField('genome:fasta', label='Genome')
 
-        adapters = DataField('data:seq:nucleotide', label='Adapter sequences', required=False)
+        adapters = DataField('seq:nucleotide', label='Adapter sequences', required=False)
 
         validation_stringency = StringField(
             label='Validation stringency',
