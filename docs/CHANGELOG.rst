@@ -17,6 +17,7 @@ Changed
 Fixed
 -------
 - Fix data type of adapters input field in ``alignment-summary`` process
+- Fix handling of multiple adapters in ``alignment-summary`` process
 
 
 ===================

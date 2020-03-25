@@ -27,7 +27,7 @@ class AlignmentSummary(Process):
     name = 'Picard AlignmentSummary'
     category = 'Picard'
     process_type = 'data:picard:summary'
-    version = '1.0.1'
+    version = '1.0.2'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
     requirements = {
@@ -122,8 +122,8 @@ class AlignmentSummary(Process):
         ]
 
         if inputs.adapters:
-            adapters_list = get_sequences(inputs.adapters.fasta.path)
-            args.extend(['--ADAPTER_SEQUENCE', adapters_list])
+            adapters_list = self.get_sequences(inputs.adapters.fasta.path)
+            args.extend(['--ADAPTER_SEQUENCE', [adapters_list]])
         else:
             # Clear the default adapter list implemented in Picard.
             args.extend(['--ADAPTER_SEQUENCE', 'null'])

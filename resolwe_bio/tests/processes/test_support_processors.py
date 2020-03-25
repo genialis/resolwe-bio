@@ -725,10 +725,12 @@ re-save-file report "${NAME}".txt
                 'species': 'Homo sapiens',
                 'build': 'hg19'
             })
+            adapters = self.run_process('upload-fasta-nucl', {'src': 'adapters.fasta'})
 
         alignment_summary = self.run_process('alignment-summary', {
             'bam': bam.id,
-            'genome': genome.id
+            'genome': genome.id,
+            'adapters': adapters.id,
         })
 
         self.assertFile(
