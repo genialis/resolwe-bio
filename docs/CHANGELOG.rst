@@ -12,6 +12,8 @@ Unreleased
 Added
 -----
 - Add ``workflow-wgs-paired`` workflow
+- Add processes: ``bowtie-index``, ``bowtie2-index``, ``bwa-index``,
+  ``hisat2-index``, ``subread-index`` and ``walt-index``.
 
 Changed
 -------

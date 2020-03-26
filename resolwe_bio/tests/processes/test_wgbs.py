@@ -8,6 +8,28 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 class WgbsProcessorTestCase(BioProcessTestCase):
 
+    @tag_process('walt-index')
+    def test_walt_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./wgbs/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        walt_index = self.run_process('walt-index', {'ref_seq': ref_seq.id})
+        self.assertDir(walt_index, 'index', os.path.join('wgbs', 'output', 'walt_index.tar.gz'))
+        self.assertFile(walt_index, 'fasta', os.path.join('wgbs', 'output', 'genome.fasta'))
+        self.assertFile(
+            walt_index,
+            'fastagz',
+            os.path.join('wgbs', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(walt_index, 'fai', os.path.join('wgbs', 'output', 'genome.fasta.fai'))
+        self.assertFields(walt_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(walt_index, 'build', 'dd-05-2009')
+
     @tag_process('walt')
     def test_walt(self):
         with self.preparation_stage():

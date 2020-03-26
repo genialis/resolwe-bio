@@ -10,6 +10,28 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
+    @tag_process('bowtie-index')
+    def test_bowtie_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./test_bowtie/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        bowtie_index = self.run_process('bowtie-index', {'ref_seq': ref_seq.id})
+        self.assertDir(bowtie_index, 'index', os.path.join('test_bowtie', 'output', 'bowtie_index.tar.gz'))
+        self.assertFile(bowtie_index, 'fasta', os.path.join('test_bowtie', 'output', 'genome.fasta'))
+        self.assertFile(
+            bowtie_index,
+            'fastagz',
+            os.path.join('test_bowtie', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(bowtie_index, 'fai', os.path.join('test_bowtie', 'output', 'genome.fasta.fai'))
+        self.assertFields(bowtie_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(bowtie_index, 'build', 'dd-05-2009')
+
     @tag_process('alignment-bowtie')
     def test_bowtie(self):
         with self.preparation_stage():
@@ -47,6 +69,28 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         }
         alignment = self.run_process('alignment-bowtie', inputs)
         self.assertFile(alignment, 'stats', 'bowtie_paired_reads_report.tab.gz', compression='gzip')
+
+    @tag_process('bowtie2-index')
+    def test_bowtie2_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./test_bowtie2/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        bowtie2_index = self.run_process('bowtie2-index', {'ref_seq': ref_seq.id})
+        self.assertDir(bowtie2_index, 'index', os.path.join('test_bowtie2', 'output', 'bowtie2_index.tar.gz'))
+        self.assertFile(bowtie2_index, 'fasta', os.path.join('test_bowtie2', 'output', 'genome.fasta'))
+        self.assertFile(
+            bowtie2_index,
+            'fastagz',
+            os.path.join('test_bowtie2', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(bowtie2_index, 'fai', os.path.join('test_bowtie2', 'output', 'genome.fasta.fai'))
+        self.assertFields(bowtie2_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(bowtie2_index, 'build', 'dd-05-2009')
 
     @tag_process('alignment-bowtie2')
     def test_bowtie2(self):
@@ -258,6 +302,28 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(exp, 'exp_set', star_out_exp_set, compression='gzip')
         self.assertJSON(exp, exp.output['exp_set_json'], '', star_exp_set)
 
+    @tag_process('bwa-index')
+    def test_bwa_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./test_bwa/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        bwa_index = self.run_process('bwa-index', {'ref_seq': ref_seq.id})
+        self.assertDir(bwa_index, 'index', os.path.join('test_bwa', 'output', 'bwa_index.tar.gz'))
+        self.assertFile(bwa_index, 'fasta', os.path.join('test_bwa', 'output', 'genome.fasta'))
+        self.assertFile(
+            bwa_index,
+            'fastagz',
+            os.path.join('test_bwa', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(bwa_index, 'fai', os.path.join('test_bwa', 'output', 'genome.fasta.fai'))
+        self.assertFields(bwa_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(bwa_index, 'build', 'dd-05-2009')
+
     @tag_process('alignment-bwa-aln')
     def test_bwa_bt(self):
         with self.preparation_stage():
@@ -315,6 +381,28 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
         self.assertFields(aligned_reads, 'build', 'dd-05-2009')
 
+    @tag_process('hisat2-index')
+    def test_hisat2_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./test_hisat2/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        hisat2_index = self.run_process('hisat2-index', {'ref_seq': ref_seq.id})
+        self.assertDir(hisat2_index, 'index', os.path.join('test_hisat2', 'output', 'hisat2_index.tar.gz'))
+        self.assertFile(hisat2_index, 'fasta', os.path.join('test_hisat2', 'output', 'genome.fasta'))
+        self.assertFile(
+            hisat2_index,
+            'fastagz',
+            os.path.join('test_hisat2', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(hisat2_index, 'fai', os.path.join('test_hisat2', 'output', 'genome.fasta.fai'))
+        self.assertFields(hisat2_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(hisat2_index, 'build', 'dd-05-2009')
+
     @tag_process('alignment-hisat2')
     def test_hisat2(self):
         with self.preparation_stage():
@@ -348,6 +436,28 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFileExists(aligned_reads, 'splice_junctions')
         self.assertFields(aligned_reads, 'species', 'Dictyostelium discoideum')
         self.assertFields(aligned_reads, 'build', 'dd-05-2009')
+
+    @tag_process('subread-index')
+    def test_subread_index(self):
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn='./test_subread/input/g.en ome.fasta.gz',
+                species='Dictyostelium discoideum',
+                build='dd-05-2009',
+            )
+
+        subread_index = self.run_process('subread-index', {'ref_seq': ref_seq.id})
+        self.assertDirExists(subread_index, 'index')
+        self.assertFile(subread_index, 'fasta', os.path.join('test_subread', 'output', 'genome.fasta'))
+        self.assertFile(
+            subread_index,
+            'fastagz',
+            os.path.join('test_subread', 'output', 'genome.fasta.gz'),
+            compression='gzip'
+        )
+        self.assertFile(subread_index, 'fai', os.path.join('test_subread', 'output', 'genome.fasta.fai'))
+        self.assertFields(subread_index, 'species', 'Dictyostelium discoideum')
+        self.assertFields(subread_index, 'build', 'dd-05-2009')
 
     @tag_process('alignment-subread')
     def test_subread(self):
