@@ -1,0 +1,474 @@
+- slug: workflow-wgs-paired
+  name: WGS (paired-end) analysis
+  data_name: "{{ reads|sample_name|default('?') }}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:wgs
+  category: Pipeline
+  description: |
+    Whole genome sequencing pipeline analyses paired-end whole genome
+    sequencing data. It consists of trimming, aligning, marking of
+    duplicates, Picard metrics, recalibration of base quality scores and
+    finally, calling of variants.
+
+    The tools used are Trimmomatic which performs trimming. Aligning is
+    performed using BWA (mem). Marking of duplicates (MarkDuplicates),
+    Picard metrics (AlignmentSummaryMetrics, CollectWgsMetrics and
+    InsertSizeMetrics), recalibration of base quality scores (ApplyBQSR)
+    and calling of variants (HaplotypeCaller) is done using GATK4 bundle
+    of bioinformatics tools. Result is a file of called variants (VCF).
+  input:
+    - name: reads
+      label: Raw untrimmed reads
+      type: data:reads:fastq:paired
+      description: |
+        Raw paired-end reads.
+    - name: genome
+      label: Reference genome
+      type: data:genome:fasta
+      description: |
+        Against which genome to align. Further processes depend on this
+        genome (e.g. BQSR step and QC metrics).
+    - name: known_sites
+      label: Known sites of variation used in BQSR
+      type: list:data:variants:vcf
+      description: |
+        Known sites of variation as a VCF file.
+    - name: hc_dbsnp
+      label: dbSNP for GATK4's HaplotypeCaller
+      type: data:variants:vcf
+      description: |
+        dbSNP database of variants for variant calling.
+    - name: validation_stringency
+      label: Validation stringency
+      type: basic:string
+      choices:
+        - label: STRICT
+          value: STRICT
+        - label: LENIENT
+          value: LENIENT
+        - label: SILENT
+          value: SILENT
+      default: STRICT
+      description: |
+        Validation stringency for all BAM files read by this
+        program. Setting stringency to SILENT can improve
+        performance when processing a BAM file in which
+        variable-length data (read, qualities, tags) do not
+        otherwise need to be decoded. Default is STRICT.
+    - name: advanced
+      label: Advanced parameters
+      group:
+        - name: trimming
+          label: Parameters for the trimming step
+          group:
+          - name: adapters
+            label: Adapter sequences
+            type: data:seq:nucleotide
+            required: false
+            description: |
+              Adapter sequence in FASTA format that will be removed from
+              the read. This field as well as 'Seed mismatches', 'Simple
+              clip threshold' and 'Palindrome clip threshold' parameters
+              are  needed to perform adapter trimming. 'Minimum adapter
+              length' and 'Keep both reads' are optional parameters.
+          - name: seed_mismatches
+            label: Seed mismatches
+            type: basic:integer
+            disabled: >
+              !advanced.trimming.adapters
+            required: false
+            description: |
+              Specifies the maximum mismatch count which will still
+              allow a full match to be performed. This field is required
+              to perform adapter trimming.
+          - name: simple_clip_threshold
+            label: Simple clip threshold
+            type: basic:integer
+            disabled: >
+              !advanced.trimming.adapters
+            required: false
+            description: |
+              Specifies how accurate the match between any adapter etc.
+              sequence must be against a read. This field is required to
+              perform adapter trimming.
+          - name: min_adapter_length
+            label: Minimum adapter length
+            type: basic:integer
+            disabled: >
+              !advanced.trimming.seed_mismatches &&
+              !advanced.trimming.simple_clip_threshold &&
+              !advanced.trimming.palindrome_clip_threshold
+            default: 8
+            description: |
+              In addition to the alignment score, palindrome mode can
+              verify that a minimum length of adapter has been detected.
+              If unspecified, this defaults to 8 bases, for historical
+              reasons. However, since palindrome mode has a very low
+              false positive rate, this can be safely reduced, even down
+              to 1, to allow shorter adapter fragments to be removed.
+          - name: palindrome_clip_threshold
+            label: Palindrome clip threshold
+            type: basic:integer
+            disabled: >
+              !advanced.trimming.adapters
+            required: false
+            description: |
+              Specifies how accurate the match between the two 'adapter
+              ligated' reads must be for PE palindrome read alignment. 
+              This field is required to perform adapter trimming.
+          - name: leading
+            label: Leading quality
+            type: basic:integer
+            required: false
+            description: |
+              Remove low quality bases from the beginning, if below a
+              threshold quality.
+          - name: trailing
+            label: Trailing quality
+            type: basic:integer
+            required: false
+            description: |
+              Remove low quality bases from the end, if below a
+              threshold quality.
+          - name: minlen
+            label: Minimum length
+            type: basic:integer
+            required: false
+            description: |
+              Drop the read if it is below a specified length.
+        - name: align
+          label: Aligning parameters
+          group:
+            - name: seed_l
+              label: Minimum seed length
+              type: basic:integer
+              default: 19
+              description: |
+                Minimum seed length. Matches shorter than minimum seed
+                length will be missed. The alignment speed is usually
+                insensitive to this value unless it significantly
+                deviates from 20.
+            - name: band_w
+              label: Band width
+              type: basic:integer
+              default: 100
+              description: |
+                Gaps longer than this will not be found.
+            - name: re_seeding
+              label: Re-seeding factor
+              type: basic:decimal
+              default: 1.5
+              description: |
+                Trigger re-seeding for a MEM longer than
+                minSeedLen*FACTOR. This is a key heuristic parameter for
+                tuning the performance. Larger value yields fewer seeds,
+                which leads to faster alignment speed but lower
+                accuracy.
+            - name: m
+              label: Mark shorter split hits as secondary
+              type: basic:boolean
+              default: false
+              description: |
+                Mark shorter split hits as secondary (for Picard
+                compatibility)
+            - name: scoring
+              label: Scoring
+              group:
+                - name: match
+                  label: Score of a match
+                  type: basic:integer
+                  default: 1
+                - name: mismatch
+                  label: Mismatch penalty
+                  type: basic:integer
+                  default: 4
+                - name: gap_o
+                  label: Gap open penalty
+                  type: basic:integer
+                  default: 6
+                - name: gap_e
+                  label: Gap extension penalty
+                  type: basic:integer
+                  default: 1
+                - name: clipping
+                  label: Clipping penalty
+                  type: basic:integer
+                  default: 5
+                  description: |
+                    Clipping is applied if final alignment score is
+                    smaller than (best score reaching the end of query)
+                     - (Clipping penalty)
+                - name: unpaired_p
+                  label: Penalty for an unpaired read pair
+                  type: basic:integer
+                  default: 9
+                  description: |
+                    Affinity to force pair. Score: scoreRead1+
+                    scoreRead2-Penalty
+            - name: report_tr
+              label: Report threshold score
+              type: basic:integer
+              default: 30
+              description: |
+                Don't output alignment with score lower than defined
+                number. This option only affects output.
+        - name: markduplicates
+          label: MarkDuplicates parameters
+          group:
+            - name: skip
+              label: Skip GATK's MarkDuplicates step
+              type: basic:boolean
+              default: false
+            - name: remove_duplicates
+              label: Remove found duplicates
+              type: basic:boolean
+              default: false
+            - name: assume_sort_order
+              label: Assume sort oder
+              type: basic:string
+              default: ''
+              choices:
+                - label: as in BAM header (default)
+                  value: ''
+                - label: unsorted
+                  value: unsorted
+                - label: queryname
+                  value: queryname
+                - label: coordinate
+                  value: coordinate
+                - label: duplicate
+                  value: duplicate
+                - label: unknown
+                  value: unknown
+        - name: bqsr
+          label: BaseQualityScoreResource
+          group:
+            - name: read_group
+              label: Read group (@RG)
+              type: basic:string
+              default: '-LB=NA;-PL=NA;-PU=NA;-SM=sample'
+              description: |
+                This argument enables the user to replace all read
+                groups in the INPUT file with a single new read group
+                and assign all reads to this read group in the OUTPUT
+                BAM file. Addition or replacement is performed using
+                Picard's AddOrReplaceReadGroups tool. Input should take
+                the form of -name=value delimited by a \t, e.g.
+                "-ID=1\t-PL=Illumina\t-SM=sample_1". See
+                AddOrReplaceReadGroups documentation for more 
+                information on tag names. Note that PL, LB, PU and SM
+                are required fields.
+        - name: summary
+          label: Picard AlignmentSummary
+          group:
+            - name: adapters
+              label: Adapter sequences
+              type: data:seq:nucleotide
+              required: false
+            - name: max_insert_size
+              label: Maximum insert size
+              type: basic:integer
+              default: 100000
+            - name: pair_orientation
+              label: Pair orientation
+              type: basic:string
+              choices:
+                - label: Unspecified
+                  value: 'null'
+                - label: FR
+                  value: FR
+                - label: RF
+                  value: RF
+                - label: TANDEM
+                  value: TANDEM
+              default: 'null'
+        - name: wgs_metrics
+          label: Picard WGS Metrics
+          group:
+            - name: read_length
+              label: Average read length
+              type: basic:integer
+              default: 150
+            - name: min_map_quality
+              label: Minimum mapping quality for a read to contribute coverage
+              type: basic:integer
+              default: 20
+            - name: min_quality
+              label: Minimum base quality for a base to contribute coverage
+              type: basic:integer
+              default: 20
+              description: |
+                N bases will be treated as having a base quality of
+                negative infinity and will therefore be excluded from
+                coverage regardless of the value of this parameter.
+            - name: coverage_cap
+              label: Maximum coverage cap
+              type: basic:integer
+              default: 250
+              description: |
+                Treat positions with coverage exceeding this value as
+                if they had coverage at this set value.
+            - name: accumulation_cap
+              label: Ignore positions with coverage above this value
+              type: basic:integer
+              default: 100000
+              description: |
+                At positions with coverage exceeding this value,
+                completely ignore reads that accumulate beyond this
+                value.
+            - name: sample_size
+              label: Sample Size used for Theoretical Het Sensitivity sampling
+              type: basic:integer
+              default: 10000
+        - name: insert_size
+          label: Picard InsertSizeMetrics
+          group:
+            - name: minimum_fraction
+              label: Minimum fraction of reads in a category to be considered
+              type: basic:decimal
+              default: 0.05
+              description: |
+                When generating the histogram, discard any data
+                categories (out of FR, TANDEM, RF) that have fewer than
+                this fraction of overall reads (Range: 0 and 0.5).
+            - name: include_duplicates
+              label: Include reads marked as duplicates in the insert size histogram
+              type: basic:boolean
+              default: false
+            - name: deviations
+              label: Deviations limit
+              type: basic:decimal
+              default: 10.0
+              description: |
+                Generate mean, standard deviation and plots by trimming
+                the data down to MEDIAN + DEVIATIONS * 
+                MEDIAN_ABSOLUTE_DEVIATION. This is done because insert
+                size data typically includes enough anomalous values
+                from chimeras and other artifacts to make the mean and
+                standard deviation grossly misleading regarding the real
+                distribution.
+        - name: hc
+          label: HaplotypeCaller parameters
+          group:
+            - name: stand_call_conf
+              label: Min call confidence threshold
+              type: basic:integer
+              default: 20
+              description: |
+                The minimum phred-scaled confidence threshold at which
+                variants should be called.
+            - name: mbq
+              label: Min Base Quality
+              type: basic:integer
+              default: 20
+              description: |
+                Minimum base quality required to consider a base for
+                calling.
+  run:
+    language: workflow
+    program:
+      - id: trimmomatic
+        run: trimmomatic-paired
+        input:
+          reads: '{{ input.reads }}'
+          illuminaclip:
+            adapters: '{{ input.advanced.trimming.adapters }}'
+            seed_mismatches: '{{ input.advanced.trimming.seed_mismatches }}'
+            simple_clip_threshold: '{{ input.advanced.trimming.simple_clip_threshold }}'
+            palindrome_clip_threshold: '{{ input.advanced.trimming.palindrome_clip_threshold }}'
+            min_adapter_length: '{{ input.advanced.trimming.min_adapter_length }}'
+          trim_bases:
+            trailing: '{{ input.advanced.trimming.trailing }}'
+            leading: '{{ input.advanced.trimming.leading }}'
+          reads_filtering:
+            minlen: '{{ input.advanced.trimming.minlen }}'
+      - id: bwa
+        run: alignment-bwa-mem
+        input:
+          genome: '{{ input.genome }}'
+          reads: '{{ steps.trimmomatic }}'
+          seed_l: '{{ input.advanced.align.seed_l }}'
+          band_w: '{{ input.advanced.align.band_w }}'
+          re_seeding: '{{ input.advanced.align.re_seeding }}'
+          m: '{{ input.advanced.align.m }}'
+          scoring:
+            match: '{{ input.advanced.align.scoring.match }}'
+            missmatch: '{{ input.advanced.align.scoring.mismatch }}'
+            gap_o: '{{ input.advanced.align.scoring.gap_o }}'
+            gap_e: '{{ input.advanced.align.scoring.gap_e }}'
+            clipping: '{{ input.advanced.align.scoring.clipping }}'
+            unpaired_p: '{{ input.advanced.align.scoring.unpaired_p }}'
+          reporting:
+            report_tr: '{{ input.advanced.align.report_tr }}'
+      - id: markduplicates
+        run: markduplicates
+        input:
+          bam: '{{ steps.bwa }}'
+          skip: '{{ input.advanced.markduplicates.skip }}'
+          remove_duplicates: '{{ input.advanced.markduplicates.remove_duplicates }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sort_order: '{{ input.advanced.markduplicates.assume_sort_order }}'
+      - id: bqsr
+        run: bqsr
+        input:
+          bam: '{{ steps.markduplicates }}'
+          reference: '{{ input.genome }}'
+          known_sites: '{{ input.known_sites }}'
+          read_group: '{{ input.advanced.bqsr.read_group }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+      - id: summary
+        run: alignment-summary
+        input:
+          bam: '{{ steps.bqsr }}'
+          genome: '{{ input.genome }}'
+          adapters: '{{ input.advanced.summary.adapters }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          insert_size: '{{ input.advanced.summary.max_insert_size }}'
+          pair_orientation: '{{ input.advanced.summary.pair_orientation }}'
+          bisulfite: false
+          assume_sorted: true
+      - id: wgs_metrics
+        run: wgs-metrics
+        input:
+          bam: '{{ steps.bqsr }}'
+          genome: '{{ input.genome }}'
+          read_length: '{{ input.advanced.wgs_metrics.read_length }}'
+          create_histogram: false
+          options:
+            min_map_quality: '{{ input.advanced.wgs_metrics.min_map_quality }}'
+            coverage_cap: '{{ input.advanced.wgs_metrics.coverage_cap }}'
+            accumulation_cap: '{{ input.advanced.wgs_metrics.accumulation_cap }}'
+            count_unpaired: false
+            sample_size: '{{ input.advanced.wgs_metrics.sample_size }}'
+            validation_stringency: '{{ input.validation_stringency }}'
+      - id: insert
+        run: insert-size
+        input:
+          bam: '{{ steps.bqsr }}'
+          genome: '{{ input.genome }}'
+          minimum_fraction: '{{ input.advanced.insert_size.minimum_fraction }}'
+          include_duplicates: '{{ input.advanced.insert_size.include_duplicates }}'
+          deviations: '{{ input.advanced.insert_size.deviations }}'
+          validation_stringency: '{{ input.validation_stringency }}'
+          assume_sorted: true
+      - id: hc
+        run: vc-gatk4-hc
+        input:
+          alignment: '{{ steps.bqsr }}'
+          genome: '{{ input.genome }}'
+          dbsnp: '{{ input.hc_dbsnp }}'
+          stand_call_conf: '{{ input.advanced.hc.stand_call_conf }}'
+          mbq: '{{ input.advanced.hc.mbq }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.reads,
+            steps.bwa,
+            steps.markduplicates,
+            steps.summary,
+            steps.wgs_metrics,
+            steps.insert,
+            ] }}'

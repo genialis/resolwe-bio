@@ -9,6 +9,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``workflow-wgs-paired`` workflow
+
 Changed
 -------
 - Add trimming with Trimmomatic in ``workflow-wgbs-single`` and
