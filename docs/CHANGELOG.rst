@@ -14,6 +14,7 @@ Changed
 - Add trimming with Trimmomatic in ``workflow-wgbs-single`` and
   ``workflow-wgbs-paired`` workflows
 - Make intervals an optional input in ``bqsr`` process
+- Make intervals an optional input in ``vc-gatk4-hc`` process
 
 Fixed
 -------
