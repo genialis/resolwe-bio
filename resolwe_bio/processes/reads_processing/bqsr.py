@@ -18,7 +18,7 @@ class BQSR(Process):
     slug = 'bqsr'
     name = 'BaseQualityScoreRecalibrator'
     process_type = 'data:alignment:bam:bqsr:'
-    version = '1.2.0'
+    version = '1.3.0'
     category = 'BAM processing'
     scheduling_class = SchedulingClass.BATCH
     entity = {'type': 'sample'}
@@ -47,6 +47,7 @@ class BQSR(Process):
         )
         intervals = DataField(
             data_type='bed',
+            required=False,
             label='One or more genomic intervals over which to operate.',
             description='This field is optional, but it can speed up the process by restricting calculations to '
                         'specific genome regions.'
@@ -144,9 +145,10 @@ class BQSR(Process):
             '--input', f'{bam_rg}',
             '--output', f'{recal_table}',
             '--reference', f'{inputs.reference.fasta.path}',
-            '--intervals', f'{inputs.intervals.bed.path}',
             '--read-validation-stringency', f'{inputs.validation_stringency}',
         ]
+        if inputs.intervals:
+            br_inputs.extend(['--intervals', f'{inputs.intervals.bed.path}'])
 
         # Add known sites to the input parameters of BaseRecalibrator.
         for site in inputs.known_sites:
