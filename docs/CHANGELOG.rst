@@ -27,6 +27,7 @@ Changed
   ``workflow-wgbs-paired`` workflows
 - Make intervals an optional input in ``bqsr`` process
 - Make intervals an optional input in ``vc-gatk4-hc`` process
+- Bump memory requirements in ``walt`` process to 32 GB
 
 Fixed
 -------

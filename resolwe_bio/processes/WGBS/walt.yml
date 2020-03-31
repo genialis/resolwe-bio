@@ -8,13 +8,13 @@
   requirements:
     expression-engine: jinja
     resources:
-      memory: 16384
+      memory: 32768
       cores: 10
     executor:
       docker:
         image: resolwebio/wgbs:1.2.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.2.0
+  version: 2.2.1
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -58,7 +58,7 @@
       - name: filter_spikein
         label: Remove control/spike-in sequences.
         type: basic:boolean
-        disabled: > 
+        disabled: >
             !spikein_options.spikein_name
         default: false
         description: |
@@ -161,19 +161,19 @@
               "${NAME}_unsorted.bam"
         re-checkrc "Samtools collate command failed."
 
-        samtools fixmate -m -@ {{ requirements.resources.cores }} "${NAME}_name_sorted.bam" "${NAME}_fixmate.bam" 
+        samtools fixmate -m -@ {{ requirements.resources.cores }} "${NAME}_name_sorted.bam" "${NAME}_fixmate.bam"
         re-checkrc "Samtools fixmate command failed."
       {% else %}
-        mv "${NAME}_unsorted.bam" "${NAME}_fixmate.bam" 
-      {% endif %}  
-        
+        mv "${NAME}_unsorted.bam" "${NAME}_fixmate.bam"
+      {% endif %}
+
       samtools sort \
             -@ {{ requirements.resources.cores }} \
             -m {{ (requirements.resources.memory * 1024 * 1024 / requirements.resources.cores * 0.8) | int }} \
             -o "${NAME}_coordinate_sorted.bam" \
             "${NAME}_fixmate.bam"
       re-checkrc "Samtools sort command failed."
-      
+
       {% if reads|type|subtype('data:reads:fastq:single:') %}
         samtools view "${NAME}_coordinate_sorted.bam" -F 0x4 -o "${NAME}_mapped.bam"
         samtools view "${NAME}_coordinate_sorted.bam" -f 0x4 -o "${NAME}_unmapped.bam"
@@ -181,7 +181,7 @@
         samtools view "${NAME}_coordinate_sorted.bam" -f 0x2 -o "${NAME}_mapped.bam"
         samtools view "${NAME}_coordinate_sorted.bam" -F 0x2 -o "${NAME}_unmapped.bam"
       {% endif %}
-        
+
       {% if rm_dup %}
         {% if reads|type|subtype('data:reads:fastq:paired:') %}
           samtools markdup -r "${NAME}_mapped.bam" "${NAME}_sorted.bam"
@@ -189,11 +189,11 @@
         {% else %}
           samtools rmdup -s "${NAME}_mapped.bam" "${NAME}_sorted.bam"
           re-checkrc "Samtools rmdup command failed."
-        {% endif %}  
+        {% endif %}
       {% else %}
         mv "${NAME}_mapped.bam" "${NAME}_sorted.bam"
-      {% endif %}  
-      
+      {% endif %}
+
       to-mr -o "${NAME}_mapped.mr" -m general "${NAME}_sorted.bam"
       re-checkrc "Conversion of bam to mr failed."
 
@@ -228,7 +228,7 @@
         mv "${NAME}_sorted.bam" "${NAME}.bam"
         mv "${NAME}_sorted.mr" "${NAME}.mr"
       {% endif %}
-      
+
       samtools index "${NAME}.bam" "${NAME}.bam.bai"
       re-checkrc "Samtools index command failed."
 
@@ -244,4 +244,4 @@
       re-save-file stats "${NAME}_report.txt"
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }} 
+      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}
