@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.2.2
+  version: 1.2.3
   schema:
     - name: general
       label: General
@@ -20,6 +20,8 @@
               value: Cricetulus griseus
             - label: Dictyostelium discoideum
               value: Dictyostelium discoideum
+            - label: Dictyostelium purpureum
+              value: Dictyostelium purpureum
             - label: Drosophila melanogaster
               value: Drosophila melanogaster
             - label: Homo sapiens
