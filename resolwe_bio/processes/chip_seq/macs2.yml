@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.0.8
+  version: 4.1.0
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -336,12 +336,26 @@
     - name: case_tagalign
       label: Filtered tagAlign (case)
       type: basic:file
+    - name: case_bam
+      label: Filtered BAM (case)
+      type: basic:file
+    - name: case_bai
+      label: Filtered BAM index (case)
+      type: basic:file
     - name: control_prepeak_qc
       label: Pre-peak QC report (control)
       type: basic:file
       required: false
     - name: control_tagalign
       label: Filtered tagAlign (control)
+      type: basic:file
+      required: false
+    - name: control_bam
+      label: Filtered BAM (control)
+      type: basic:file
+      required: false
+    - name: control_bai
+      label: Filtered BAM index (control)
       type: basic:file
       required: false
     - name: narrow_peaks_bigbed_igv_ucsc
@@ -674,6 +688,9 @@
           gzip -nc > "${NAME}_subsampled.tagAlign.gz"
           re-checkrc "Subsampling failed"
 
+          # Sort BAM file
+          samtools sort "${NAME}_filtered_tmp.bam" -o "${NAME}_filtered.bam"
+
         fi
 
         # Get cross-corelation metrics (NSC, RSC, fragment length...)
@@ -702,8 +719,13 @@
 
         gzip "${NAME}.tagAlign"
 
+        samtools index "${NAME}_filtered.bam" "${NAME}_filtered.bam.bai"
+        re-checkrc "Samtools index command failed."
+
         {% if alignment == control %}
             re-save-file control_prepeak_qc "${NAME}_prepeak_qc_report.txt"
+            re-save-file control_bam "${NAME}_filtered.bam"
+            re-save-file control_bai "${NAME}_filtered.bam.bai"
             TAGALIGN_OUT_FIELD="control_tagalign"
             {% if prepeakqc_settings.tn5 %}
               mv "${NAME}.tagAlign.gz" "${NAME}_tn5.tagAlign.gz"
@@ -715,6 +737,8 @@
             {% endif %}
         {% else %}
             re-save-file case_prepeak_qc "${NAME}_prepeak_qc_report.txt"
+            re-save-file case_bam "${NAME}_filtered.bam"
+            re-save-file case_bai "${NAME}_filtered.bam.bai"
             TAGALIGN_OUT_FIELD="case_tagalign"
             {% if prepeakqc_settings.tn5 %}
               mv "${NAME}.tagAlign.gz" "${NAME}_tn5.tagAlign.gz"

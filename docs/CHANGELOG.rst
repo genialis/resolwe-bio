@@ -9,6 +9,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add filtered BAM output to ``macs2-callpeak`` process
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 22.x

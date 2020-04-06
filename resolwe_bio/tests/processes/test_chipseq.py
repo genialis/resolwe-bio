@@ -152,6 +152,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs_sample1, "treat_pileup_bigwig")
         self.assertFileExists(macs_sample1, "control_lambda")
         self.assertFileExists(macs_sample1, "control_lambda_bigwig")
+        self.assertFileExists(macs_sample1, "case_bam")
+        self.assertFileExists(macs_sample1, "case_bai")
+        self.assertFileExists(macs_sample1, "control_bam")
+        self.assertFileExists(macs_sample1, "control_bai")
 
         # Use filtered tagAlign file for MACS2
         inputs = {
