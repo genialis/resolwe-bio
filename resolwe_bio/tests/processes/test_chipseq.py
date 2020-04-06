@@ -490,11 +490,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
 
         self.run_process(
             "macs2-rose2-batch",
-            {
-                "alignments": [case_1.id, background_1.id],
-                "promoter": promoters.id,
-                "tagalign": True,
-            },
+            {"alignments": [case_1.id, background_1.id], "promoter": promoters.id},
         )
 
         for data in Data.objects.all():

@@ -18,6 +18,8 @@ Changed
   processes and workflows that required ``data:genome:fasta`` type of
   object on the input to work with ``data:seq:nucleotide`` or dedicated
   aligner index files instead.
+- Change ``macs2-batch`` and ``macs2-rose2-batch`` to use tagAlign
+  files by default
 
 
 ===================

@@ -17,7 +17,7 @@
           - case
         required: True
   data_name: ChIP-Seq Call Peaks Batch
-  version: 1.1.0
+  version: 1.2.0
   type: data:chipseq:batch:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
@@ -64,7 +64,7 @@
     - name: tagalign
       label: Use tagAlign files
       type: basic:boolean
-      default: false
+      default: true
       hidden: "!advanced"
       description: |
          Use filtered tagAlign files as case (treatment) and control
