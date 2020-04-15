@@ -562,66 +562,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
         self.assertFields(aligned_reads, "build", "dd-05-2009")
 
-    @tag_process("subread-index")
-    def test_subread_index(self):
-        with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="./test_subread/input/g.en ome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-
-        subread_index = self.run_process("subread-index", {"ref_seq": ref_seq.id})
-        self.assertDirExists(subread_index, "index")
-        self.assertFile(
-            subread_index,
-            "fasta",
-            os.path.join("test_subread", "output", "genome.fasta"),
-        )
-        self.assertFile(
-            subread_index,
-            "fastagz",
-            os.path.join("test_subread", "output", "genome.fasta.gz"),
-            compression="gzip",
-        )
-        self.assertFile(
-            subread_index,
-            "fai",
-            os.path.join("test_subread", "output", "genome.fasta.fai"),
-        )
-        self.assertFields(subread_index, "species", "Dictyostelium discoideum")
-        self.assertFields(subread_index, "build", "dd-05-2009")
-
-    @tag_process("alignment-subread")
-    def test_subread(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-
-            inputs = {
-                "src": "my.strange.genome name$.fasta.gz",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            genome_2 = self.run_process("upload-genome", inputs)
-
-            reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(
-                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
-                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
-            )
-
-        inputs = {"genome": genome.id, "reads": reads.id}
-        aligned_reads = self.run_process("alignment-subread", inputs)
-        self.assertFile(aligned_reads, "stats", "subread_reads_report.txt")
-        self.assertFileExists(aligned_reads, "bam")
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
-
-        inputs = {"genome": genome_2.id, "reads": reads_paired.id}
-        aligned_reads = self.run_process("alignment-subread", inputs)
-        self.assertFile(aligned_reads, "stats", "subread_paired_reads_report.txt")
-        self.assertFileExists(aligned_reads, "bam")
-
     @tag_process("alignment-hisat2")
     def test_hisat2_bigwig(self):
         with self.preparation_stage():

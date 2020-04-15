@@ -12,6 +12,8 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 22.x
+- **BACKWARD INCOMPATIBLE:** Remove processes ``alignment-subread`` and
+  ``subread-index``
 
 
 ===================
