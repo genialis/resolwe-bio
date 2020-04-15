@@ -64,9 +64,10 @@ setuptools.setup(
         ],
         'package': ['twine', 'wheel'],
         'test': [
-            'pycodestyle~=2.5.0',
+            'black',
+            'flake8~=3.7.0',
+            'isort~=4.3.12',
             'pydocstyle~=3.0.0',
-            'pylint~=2.3.1',
             'tblib~=1.3.0',
             'check-manifest',
             'setuptools_scm',
