@@ -8,29 +8,20 @@ import sys
 import pyBigWig
 from resolwe_runtime_utils import warning
 
-
-MAPPINGS_DIR = '/opt/chrom_mappings/assets/'
+MAPPINGS_DIR = "/opt/chrom_mappings/assets/"
 MAPPINGS_FILES = {
-    'Homo sapiens': [
-        'GRCh38.p12_ensembl2UCSC.txt',
-        'GRCh38.p12_NCBI2UCSC.txt',
-    ],
-    'Mus musculus': [
-        'GRCm38.p6_ensembl2UCSC.txt',
-        'GRCm38.p6_NCBI2UCSC.txt',
-    ],
-    'Rattus norvegicus': [
-        'rn6_ensembl2UCSC.txt',
-    ],
+    "Homo sapiens": ["GRCh38.p12_ensembl2UCSC.txt", "GRCh38.p12_NCBI2UCSC.txt",],
+    "Mus musculus": ["GRCm38.p6_ensembl2UCSC.txt", "GRCm38.p6_NCBI2UCSC.txt",],
+    "Rattus norvegicus": ["rn6_ensembl2UCSC.txt",],
 }
 
 
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--infile', help="Input bigWig file")
-    parser.add_argument('--outfile', help="Output bigWig file name")
-    parser.add_argument('--species', help="Species")
+    parser.add_argument("--infile", help="Input bigWig file")
+    parser.add_argument("--outfile", help="Output bigWig file name")
+    parser.add_argument("--species", help="Species")
     return parser.parse_args()
 
 
@@ -73,7 +64,11 @@ def create_new_header(infile, mappings, outfile):
             os.rename(infile, outfile)
             sys.exit(0)
 
-        hdr = [(mappings[chrom], length) for chrom, length in bw.chroms().items() if chrom in mappings]
+        hdr = [
+            (mappings[chrom], length)
+            for chrom, length in bw.chroms().items()
+            if chrom in mappings
+        ]
 
         if not hdr:
             msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
@@ -82,28 +77,42 @@ def create_new_header(infile, mappings, outfile):
             sys.exit(0)
 
         seq_num = 0
-        with pyBigWig.open(outfile, 'w') as bw_output:
+        with pyBigWig.open(outfile, "w") as bw_output:
             bw_output.addHeader(hdr)
             for chrom, length in bw.chroms().items():
                 ints = bw.intervals(chrom, 0, length)
                 if ints and chrom in mappings:
-                    bw_output.addEntries([mappings[chrom]] * len(ints),
-                                         [x[0] for x in ints],
-                                         ends=[x[1] for x in ints],
-                                         values=[x[2] for x in ints])
+                    bw_output.addEntries(
+                        [mappings[chrom]] * len(ints),
+                        [x[0] for x in ints],
+                        ends=[x[1] for x in ints],
+                        values=[x[2] for x in ints],
+                    )
                 elif chrom not in mappings:
                     seq_num += 1
-                    print('UCSC chromosome/conting mapping for {} is missing'.format(chrom))
+                    print(
+                        "UCSC chromosome/conting mapping for {} is missing".format(
+                            chrom
+                        )
+                    )
 
         if seq_num > 0:
-            print(warning("UCSC chromosome/conting mapping for {} sequence(s) is missing. "
-                          "This sequence(s) will not be included in the bigWig file.".format(seq_num)))
+            print(
+                warning(
+                    "UCSC chromosome/conting mapping for {} sequence(s) is missing. "
+                    "This sequence(s) will not be included in the bigWig file.".format(
+                        seq_num
+                    )
+                )
+            )
 
 
 def main():
     """Invoke when run directly as a program."""
     args = parse_arguments()
-    mappings = parse_mappings(args.species.strip("'").capitalize(), args.infile, args.outfile)
+    mappings = parse_mappings(
+        args.species.strip("'").capitalize(), args.infile, args.outfile
+    )
     create_new_header(args.infile, mappings, args.outfile)
 
 

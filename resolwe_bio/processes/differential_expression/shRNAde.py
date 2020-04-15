@@ -1,8 +1,8 @@
 """Differential expression of shRNA."""
 import gzip
 import os
-
 from shutil import copy
+
 from resolwe.process import (
     Cmd,
     DataField,
@@ -34,20 +34,16 @@ class ShortHairpinRNADifferentialExpression(Process):
     and lethal species.
     """
 
-    slug = 'differentialexpression-shrna'
-    name = 'Differential expression of shRNA'
-    process_type = 'data:shrna:differentialexpression:'
-    version = '1.1.1'
-    category = 'Differential Expression'
+    slug = "differentialexpression-shrna"
+    name = "Differential expression of shRNA"
+    process_type = "data:shrna:differentialexpression:"
+    version = "1.1.1"
+    category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
-    entity = {'type': 'sample'}
+    entity = {"type": "sample"}
     requirements = {
-        'expression-engine': 'jinja',
-        'executor': {
-            'docker': {
-                'image': 'resolwebio/rnaseq:4.9.0'
-            }
-        }
+        "expression-engine": "jinja",
+        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
     }
     data_name = '{{ parameter_file.file|default("?") }}'
 
@@ -55,28 +51,34 @@ class ShortHairpinRNADifferentialExpression(Process):
         """Input fields to process ShortHairpinRNADifferentialExpression."""
 
         parameter_file = DataField(
-            data_type='file',
-            label='Excel parameter file (.xlsx)',
-            description='Select .xlsx file which holds parameters for analysis. '
-                        'See [here](https://github.com/genialis/shRNAde/blob/master/inst/extdata/template_doDE_inputs'
-                        '.xlsx) for a template.'
+            data_type="file",
+            label="Excel parameter file (.xlsx)",
+            description="Select .xlsx file which holds parameters for analysis. "
+            "See [here](https://github.com/genialis/shRNAde/blob/master/inst/extdata/template_doDE_inputs"
+            ".xlsx) for a template.",
         )
         expression_data = ListField(
             DataField(
-                data_type='expression:shrna2quant:',
-                description='Data objects of expressions from process shrna-quant. These inputs should match sample '
-                            'names specified in parameter file.'
+                data_type="expression:shrna2quant:",
+                description="Data objects of expressions from process shrna-quant. These inputs should match sample "
+                "names specified in parameter file.",
             ),
-            label='List of expression files from shrna2quant'
+            label="List of expression files from shrna2quant",
         )
 
     class Output:
         """Output fields to process ShortHairpinRNADifferentialExpression."""
 
-        deseq_results = FileField(label='DESeq2 results')
-        class_results = FileField(label='Results classified based on thresholds provided by the user')
-        beneficial_counts = FileField(label='shRNAs considered as beneficial based on user input')
-        lethal_counts = FileField(label='shRNAs considered as lethal based on user input')
+        deseq_results = FileField(label="DESeq2 results")
+        class_results = FileField(
+            label="Results classified based on thresholds provided by the user"
+        )
+        beneficial_counts = FileField(
+            label="shRNAs considered as beneficial based on user input"
+        )
+        lethal_counts = FileField(
+            label="shRNAs considered as lethal based on user input"
+        )
 
     def run(self, inputs, outputs):
         """Run differential expression of shRNA.
@@ -89,41 +91,43 @@ class ShortHairpinRNADifferentialExpression(Process):
               function.
           3.) Prepare outputs.
         """
-        dir_expressions = './expression_files'
+        dir_expressions = "./expression_files"
         os.mkdir(dir_expressions)
 
         # (1) Move expression files and extract files.
-        sample_list = [copy(src=x.exp.path, dst=dir_expressions) for x in inputs.expression_data]
+        sample_list = [
+            copy(src=x.exp.path, dst=dir_expressions) for x in inputs.expression_data
+        ]
 
         for fl in sample_list:
             base_filename = os.path.splitext(fl)[0]
             with gzip.open(fl) as in_file:
-                with open(base_filename, 'wt') as out_file:
+                with open(base_filename, "wt") as out_file:
                     for line in in_file:
                         out_file.write(line.decode())
 
         # (2)
-        r_input = f'shRNAde::doDE(input = \"{inputs.parameter_file.file.path}\", sample_list = \"{dir_expressions}\")'
+        r_input = f'shRNAde::doDE(input = "{inputs.parameter_file.file.path}", sample_list = "{dir_expressions}")'
 
-        run_cmd = Cmd['Rscript']['-e'][r_input]
+        run_cmd = Cmd["Rscript"]["-e"][r_input]
         run_cmd()
 
         # (3) Compress results before storing them.
-        result_deseq = 'deseq_results.txt'
-        result_class = 'class_results.txt'
-        result_beneficial = 'beneficial_counts.txt'
-        result_lethal = 'lethal_counts.txt'
+        result_deseq = "deseq_results.txt"
+        result_class = "class_results.txt"
+        result_beneficial = "beneficial_counts.txt"
+        result_lethal = "lethal_counts.txt"
 
         to_compress = [result_deseq, result_class, result_beneficial, result_lethal]
 
         for file in to_compress:
-            with open(file, 'rb') as txt, gzip.open(file + '.gz', 'wb') as gz:
+            with open(file, "rb") as txt, gzip.open(file + ".gz", "wb") as gz:
                 try:
                     gz.writelines(txt)
                 except FileNotFoundError:
-                    return 'Something went wrong during result compression.'
+                    return "Something went wrong during result compression."
 
-        outputs.deseq_results = result_deseq + '.gz'
-        outputs.class_results = result_class + '.gz'
-        outputs.beneficial_counts = result_beneficial + '.gz'
-        outputs.lethal_counts = result_lethal + '.gz'
+        outputs.deseq_results = result_deseq + ".gz"
+        outputs.class_results = result_class + ".gz"
+        outputs.beneficial_counts = result_beneficial + ".gz"
+        outputs.lethal_counts = result_lethal + ".gz"

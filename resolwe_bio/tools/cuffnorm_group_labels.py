@@ -6,7 +6,7 @@
 import argparse
 
 parser = argparse.ArgumentParser(description="Create group labels")
-parser.add_argument('replicates', help="Define replicates and groups")
+parser.add_argument("replicates", help="Define replicates and groups")
 args = parser.parse_args()
 
 replicates = sorted(list(set(args.replicates.split(","))))

@@ -7,38 +7,38 @@ Genome Institute of Singapore. The original script was published under the MIT l
 """
 
 import argparse
-import gzip
 import sys
-
 from collections import namedtuple
 
 
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Remove overlaping indels.")
-    parser.add_argument('in_vcf', help="Input VCF file.")
-    parser.add_argument('out_vcf', help="Output (filterd) VCF file.")
+    parser.add_argument("in_vcf", help="Input VCF file.")
+    parser.add_argument("out_vcf", help="Output (filterd) VCF file.")
     return parser.parse_args()
 
 
 def write_var(var, out_file):
     """Write variant to output file."""
     var = var._replace(pos=str(var.pos))
-    out_file.write('{}\n'.format('\t'.join(var)))
+    out_file.write("{}\n".format("\t".join(var)))
 
 
 def vcf_line_to_var(line):
     """Parse vcf lines to variants."""
-    VCFEntry = namedtuple('VCFEntry', ['chrom', 'pos', 'dbsnpid', 'ref', 'alt', 'qual', 'filter', 'info'])
-    fields = line.rstrip().split('\t')[:8]
+    VCFEntry = namedtuple(
+        "VCFEntry", ["chrom", "pos", "dbsnpid", "ref", "alt", "qual", "filter", "info"]
+    )
+    fields = line.rstrip().split("\t")[:8]
     e = VCFEntry._make(fields)
     return e._replace(pos=int(e.pos))
 
 
 def af_from_var(var):
     """Parse AF value."""
-    for f in var.info.split(';'):
-        if f.startswith('AF='):
+    for f in var.info.split(";"):
+        if f.startswith("AF="):
             return float(f[3:])
     return None
 
@@ -64,7 +64,7 @@ def main():
     args = parse_arguments()
 
     with open(args.in_vcf) as in_vcf:
-        with open(args.out_vcf, 'w') as out_vcf:
+        with open(args.out_vcf, "w") as out_vcf:
             pick_best_func = qual_from_var
 
             prev_vars = []
@@ -72,21 +72,27 @@ def main():
                 line = line.rstrip()
 
                 # Write header lines to the output VCF file
-                if line.startswith('#'):
-                    out_vcf.write('{}\n'.format(line))
+                if line.startswith("#"):
+                    out_vcf.write("{}\n".format(line))
                     continue
 
                 cur_var = vcf_line_to_var(line)
                 if len(prev_vars):
-                    if cur_var.chrom != prev_vars[-1].chrom or not overlap(prev_vars[-1], cur_var):
+                    if cur_var.chrom != prev_vars[-1].chrom or not overlap(
+                        prev_vars[-1], cur_var
+                    ):
                         # pick highest qual/af from stack and empty stack
-                        picked_var = sorted(prev_vars, key=lambda e: pick_best_func(e), reverse=True)[0]
+                        picked_var = sorted(
+                            prev_vars, key=lambda e: pick_best_func(e), reverse=True
+                        )[0]
                         write_var(picked_var, out_vcf)
                         prev_vars = []
                 prev_vars.append(cur_var)
 
             # don't forget remaining ones
-            picked_var = sorted(prev_vars, key=lambda e: pick_best_func(e), reverse=True)[0]
+            picked_var = sorted(
+                prev_vars, key=lambda e: pick_best_func(e), reverse=True
+            )[0]
             write_var(picked_var, out_vcf)
 
 

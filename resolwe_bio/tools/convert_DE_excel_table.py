@@ -3,7 +3,9 @@
 """Convert differential expression to Excel table."""
 
 import sys
-import xlrd  # pylint: disable=import-error
+
+import xlrd
+
 file_name = sys.argv[1]
 
 

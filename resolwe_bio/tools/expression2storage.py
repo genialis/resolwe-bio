@@ -3,15 +3,15 @@
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Save expressions to storage."""
 
+import argparse
 import json
 import os
-import argparse
 
 import utils
 
-parser = argparse.ArgumentParser(description='Parses expressions for storage.')
-parser.add_argument('input', help='Input expression file')
-parser.add_argument('--output', help='Output JSON file')
+parser = argparse.ArgumentParser(description="Parses expressions for storage.")
+parser.add_argument("input", help="Input expression file")
+parser.add_argument("--output", help="Output JSON file")
 args = parser.parse_args()
 
 if not args.input:
@@ -36,12 +36,16 @@ with utils.gzopen(args.input) as f:
     # Split lines by tabs
     # Ignore lines without a number in second column
     # Build a dictionary of gene-expression pairs
-    exp = {'genes': {gene_exp[0]: float(gene_exp[1]) for
-                     gene_exp in (l.split('\t') for l in f) if
-                     len(gene_exp) == 2 and isfloat(gene_exp[1])}}
+    exp = {
+        "genes": {
+            gene_exp[0]: float(gene_exp[1])
+            for gene_exp in (l.split("\t") for l in f)
+            if len(gene_exp) == 2 and isfloat(gene_exp[1])
+        }
+    }
 
 if args.output:
-    with open(args.output, 'w') as f:
+    with open(args.output, "w") as f:
         json.dump(exp, f)
 else:
-    print('{"exp_json":%s}' % json.dumps(exp, separators=(',', ':')))
+    print('{"exp_json":%s}' % json.dumps(exp, separators=(",", ":")))

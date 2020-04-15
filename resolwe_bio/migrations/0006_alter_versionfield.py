@@ -8,13 +8,13 @@ import versionfield
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0005_make_date_indexes'),
+        ("resolwe_bio", "0005_make_date_indexes"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sample',
-            name='version',
-            field=versionfield.VersionField(default='0.0.0'),
+            model_name="sample",
+            name="version",
+            field=versionfield.VersionField(default="0.0.0"),
         ),
     ]

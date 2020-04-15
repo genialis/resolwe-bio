@@ -1,104 +1,100 @@
 """Run Alleyoop summary tool on Slamdunk results."""
 import os
 
-from plumbum import TEE
-
 import pandas as pd
+from plumbum import TEE
 
 from resolwe.process import Cmd, DataField, FileField, ListField, Process, StringField
 
 
 def change_filename_column(infile, outfile):
     """Change FileName column in alleyoop summary output."""
-    with open(infile, 'r') as summary, open(outfile, 'a') as out:
+    with open(infile, "r") as summary, open(outfile, "a") as out:
         header = summary.readline()
-        report = pd.read_csv(summary, sep='\t', na_values=[], keep_default_na=False)
-        report['FileName'] = report['FileName'].apply(os.path.basename)
+        report = pd.read_csv(summary, sep="\t", na_values=[], keep_default_na=False)
+        report["FileName"] = report["FileName"].apply(os.path.basename)
         out.write(header)
-        report.to_csv(out, sep='\t', index=False)
+        report.to_csv(out, sep="\t", index=False)
 
 
 class AlleyoopSummary(Process):
     """Run Alleyoop summary."""
 
-    slug = 'alleyoop-summary'
-    process_type = 'data:alleyoop:summary'
-    name = 'Alleyoop summary'
+    slug = "alleyoop-summary"
+    process_type = "data:alleyoop:summary"
+    name = "Alleyoop summary"
     requirements = {
-        'expression-engine': 'jinja',
-        'executor': {
-            'docker': {
-                'image': 'resolwebio/slamdunk:1.0.0'
-            },
-        },
-        'resources': {
-            'cores': 1,
-            'memory': 16384,
-        },
+        "expression-engine": "jinja",
+        "executor": {"docker": {"image": "resolwebio/slamdunk:1.0.0"},},
+        "resources": {"cores": 1, "memory": 16384,},
     }
     entity = {
-        'type': 'sample',
+        "type": "sample",
     }
-    category = 'Slamdunk'
+    category = "Slamdunk"
     data_name = '{{ slamdunk.0|sample_name|default("?") }}'
-    version = '1.0.0'
+    version = "1.0.0"
 
     class Input:
         """Input fields for AlleyoopSummary."""
 
         slamdunk = ListField(
             DataField(
-                data_type='alignment:bam:slamdunk',
-                description='Select one or multiple data objects from slamdunk process.'
+                data_type="alignment:bam:slamdunk",
+                description="Select one or multiple data objects from slamdunk process.",
             ),
-            label='Slamdunk results'
+            label="Slamdunk results",
         )
 
     class Output:
         """Output fields to process AlleyoopSummary."""
 
-        report = FileField(label='Tab-separated file with mapping statistics')
+        report = FileField(label="Tab-separated file with mapping statistics")
         plot_data = FileField(
-            label='PCA values of the samples based on T>C read counts in regions of interest.',
-            required=False
+            label="PCA values of the samples based on T>C read counts in regions of interest.",
+            required=False,
         )
         plot = FileField(
-            label='PCA plot of the samples based on T>C read counts in regions of interest.',
-            required=False
+            label="PCA plot of the samples based on T>C read counts in regions of interest.",
+            required=False,
         )
-        species = StringField(label='Species')
-        build = StringField(label='Build')
+        species = StringField(label="Species")
+        build = StringField(label="Build")
 
     def run(self, inputs, outputs):
         """Run analysis."""
         for dunk in inputs.slamdunk:
             basename = os.path.basename(dunk.bam.path)
-            assert basename.endswith('.bam')
+            assert basename.endswith(".bam")
             name = basename[:-4]
-            (Cmd['ln']['-s', dunk.tcount.path, f'{name}_tcount.tsv'])()
+            (Cmd["ln"]["-s", dunk.tcount.path, f"{name}_tcount.tsv"])()
 
-        report_file = 'summary.txt'
+        report_file = "summary.txt"
         args = [
-            '-o', report_file,
-            '-t', '.',
+            "-o",
+            report_file,
+            "-t",
+            ".",
         ]
 
         bam_paths = [dunk.bam.path for dunk in inputs.slamdunk]
 
-        return_code, _, _ = Cmd['alleyoop']['summary'][args][bam_paths] & TEE(retcode=None)
+        return_code, _, _ = Cmd["alleyoop"]["summary"][args][bam_paths] & TEE(
+            retcode=None
+        )
         if return_code:
-            self.error('Alleyoop summary analysis failed.')
+            self.error("Alleyoop summary analysis failed.")
 
         if len(inputs.slamdunk) > 1:
-            pca_data = 'alleyoop_summary_PCA.txt'
-            pca_plot = 'alleyoop_summary_PCA.pdf'
+            pca_data = "alleyoop_summary_PCA.txt"
+            pca_plot = "alleyoop_summary_PCA.pdf"
             if os.path.isfile(pca_data) and os.path.isfile(pca_plot):
                 outputs.plot_data = pca_data
                 outputs.plot = pca_plot
             else:
-                self.error('Failed to create PCA plot.')
+                self.error("Failed to create PCA plot.")
 
-        out_file = 'alleyoop_summary.txt'
+        out_file = "alleyoop_summary.txt"
         change_filename_column(report_file, out_file)
 
         outputs.report = out_file

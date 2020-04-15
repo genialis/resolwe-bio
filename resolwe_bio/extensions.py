@@ -9,17 +9,17 @@ class ExtendedDataFilter:
 
     def filter_output(self, queryset, name, value):
         """Filter queryset by genome build."""
-        return queryset.filter(**{'output__{}'.format(name): value})
+        return queryset.filter(**{"output__{}".format(name): value})
 
     def filter_output_icontains(self, queryset, name, value):
         """Filter queryset by genome build."""
-        return queryset.filter(**{'output__{}__icontains'.format(name): value})
+        return queryset.filter(**{"output__{}__icontains".format(name): value})
 
     # These filters use custom indexes defined in migrations.
-    build = filters.CharFilter(method='filter_output')
-    feature_type = filters.CharFilter(method='filter_output')
-    source = filters.CharFilter(method='filter_output')
-    species = filters.CharFilter(method='filter_output_icontains')
+    build = filters.CharFilter(method="filter_output")
+    feature_type = filters.CharFilter(method="filter_output")
+    source = filters.CharFilter(method="filter_output")
+    species = filters.CharFilter(method="filter_output_icontains")
 
 
 class ExtendedEntityFilter:
@@ -29,7 +29,7 @@ class ExtendedEntityFilter:
         """Filter queryset by genome build."""
         return queryset.filter(descriptor__general__species__icontains=value)
 
-    species = filters.CharFilter(method='filter_species')
+    species = filters.CharFilter(method="filter_species")
 
 
 composer.add_extension("resolwe.flow.filters.DataFilter", ExtendedDataFilter)

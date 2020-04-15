@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio_kb', '0006_feature_fullname_300'),
+        ("resolwe_bio_kb", "0006_feature_fullname_300"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feature',
-            name='full_name',
+            model_name="feature",
+            name="full_name",
             field=models.CharField(blank=True, max_length=350),
         ),
     ]

@@ -10,22 +10,24 @@ from resolwe.test import ProcessTestCase
 
 from resolwe_bio.models import Sample
 
-TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tests', 'files'))
-TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, 'large')
+TEST_FILES_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "tests", "files")
+)
+TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, "large")
 
 
-def skipDockerFailure(reason):  # pylint: disable=invalid-name
+def skipDockerFailure(reason):
     """Skip decorated tests due to failures when run in Docker.
 
     Unless ``TESTS_SKIP_DOCKER_FAILURES`` Django setting is set to
     ``False``. ``reason`` should describe why the test is being skipped.
     """
-    if getattr(settings, 'TESTS_SKIP_DOCKER_FAILURES', True):
+    if getattr(settings, "TESTS_SKIP_DOCKER_FAILURES", True):
         return unittest.skip(reason)
     return lambda func: func
 
 
-def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
+def skipUnlessLargeFiles(*files):
     r"""Skip decorated tests unless large files are available.
 
     :param list \*files: variable lenght files list, where each element
@@ -39,9 +41,11 @@ def skipUnlessLargeFiles(*files):  # pylint: disable=invalid-name
             return unittest.skip("File '{}' is not available".format(file_path))
         try:
             with open(file_path) as f:
-                if f.readline().startswith('version https://git-lfs.github.com/spec/'):
-                    return unittest.skip("Only Git LFS pointer is available "
-                                         "for file '{}'".format(file_path))
+                if f.readline().startswith("version https://git-lfs.github.com/spec/"):
+                    return unittest.skip(
+                        "Only Git LFS pointer is available "
+                        "for file '{}'".format(file_path)
+                    )
         except UnicodeDecodeError:
             # file_ is a binary file (this is expected)
             pass
@@ -65,93 +69,105 @@ class BioProcessTestCase(ProcessTestCase):
     def prepare_genome(self):
         """Prepare genome FASTA."""
         inputs = {
-            'src': 'genome.fasta.gz',
-            'species': 'Dictyostelium discoideum',
-            'build': 'dd-05-2009',
-            'advanced': {
-                'bowtie_index': 'bt_index.tar.gz',
-                'bowtie2_index': 'bt2_index.tar.gz',
-                'bwa_index': 'bwa_index.tar.gz',
-                'hisat2_index': 'hisat2_index.tar.gz',
-                'subread_index': 'subread_index.tar.gz'
-            }
+            "src": "genome.fasta.gz",
+            "species": "Dictyostelium discoideum",
+            "build": "dd-05-2009",
+            "advanced": {
+                "bowtie_index": "bt_index.tar.gz",
+                "bowtie2_index": "bt2_index.tar.gz",
+                "bwa_index": "bwa_index.tar.gz",
+                "hisat2_index": "hisat2_index.tar.gz",
+                "subread_index": "subread_index.tar.gz",
+            },
         }
-        return self.run_process('upload-genome', inputs)
+        return self.run_process("upload-genome", inputs)
 
-    def prepare_reads(self, fn=['reads.fastq.gz']):
+    def prepare_reads(self, fn=["reads.fastq.gz"]):
         """Prepare NGS reads FASTQ."""
-        inputs = {'src': fn}
-        return self.run_process('upload-fastq-single', inputs)
+        inputs = {"src": fn}
+        return self.run_process("upload-fastq-single", inputs)
 
-    def prepare_paired_reads(self, mate1=['fw reads.fastq.gz'], mate2=['rw reads.fastq.gz']):
+    def prepare_paired_reads(
+        self, mate1=["fw reads.fastq.gz"], mate2=["rw reads.fastq.gz"]
+    ):
         """Prepare NGS reads FASTQ."""
-        inputs = {'src1': mate1, 'src2': mate2}
-        return self.run_process('upload-fastq-paired', inputs)
+        inputs = {"src1": mate1, "src2": mate2}
+        return self.run_process("upload-fastq-paired", inputs)
 
-    def prepare_bam(self, fn='sp_test.bam', species='Dictyostelium discoideum',
-                    build='dd-05-2009'):
+    def prepare_bam(
+        self, fn="sp_test.bam", species="Dictyostelium discoideum", build="dd-05-2009"
+    ):
         """Prepare alignment BAM."""
-        inputs = {
-            'src': fn,
-            'species': species,
-            'build': build
-        }
-        return self.run_process('upload-bam', inputs)
+        inputs = {"src": fn, "species": species, "build": build}
+        return self.run_process("upload-bam", inputs)
 
-    def prepare_annotation(self, fn='sp_test.gtf', source='DICTYBASE',
-                           species='Dictyostelium discoideum', build='dd-05-2009'):
+    def prepare_annotation(
+        self,
+        fn="sp_test.gtf",
+        source="DICTYBASE",
+        species="Dictyostelium discoideum",
+        build="dd-05-2009",
+    ):
         """Prepare annotation GTF."""
-        inputs = {
-            'src': fn,
-            'source': source,
-            'species': species,
-            'build': build
-        }
-        return self.run_process('upload-gtf', inputs)
+        inputs = {"src": fn, "source": source, "species": species, "build": build}
+        return self.run_process("upload-gtf", inputs)
 
-    def prepare_annotation_gff(self, fn='annotation dicty.gff.gz', source='DICTYBASE',
-                               species='Dictyostelium discoideum', build='dd-05-2009'):
+    def prepare_annotation_gff(
+        self,
+        fn="annotation dicty.gff.gz",
+        source="DICTYBASE",
+        species="Dictyostelium discoideum",
+        build="dd-05-2009",
+    ):
         """Prepare annotation GFF3."""
-        inputs = {
-            'src': fn,
-            'source': source,
-            'species': species,
-            'build': build
-        }
-        return self.run_process('upload-gff3', inputs)
+        inputs = {"src": fn, "source": source, "species": species, "build": build}
+        return self.run_process("upload-gff3", inputs)
 
-    def prepare_ref_seq(self, fn='adapters.fasta', species='Other', build='Illumina adapters'):
+    def prepare_ref_seq(
+        self, fn="adapters.fasta", species="Other", build="Illumina adapters"
+    ):
         """Prepare reference sequence FASTA."""
-        return self.run_process('upload-fasta-nucl', {
-            'src': fn,
-            'species': species,
-            'build': build,
-        })
+        return self.run_process(
+            "upload-fasta-nucl", {"src": fn, "species": species, "build": build,}
+        )
 
-    def prepare_expression(self, f_rc='exp_1_rc.tab.gz', f_exp='exp_1_tpm.tab.gz', f_type='TPM',
-                           name='Expression', source='DICTYBASE', descriptor=None, feature_type='gene',
-                           species='Dictyostelium discoideum', build='dd-05-2009'):
+    def prepare_expression(
+        self,
+        f_rc="exp_1_rc.tab.gz",
+        f_exp="exp_1_tpm.tab.gz",
+        f_type="TPM",
+        name="Expression",
+        source="DICTYBASE",
+        descriptor=None,
+        feature_type="gene",
+        species="Dictyostelium discoideum",
+        build="dd-05-2009",
+    ):
         """Prepare expression."""
         inputs = {
-            'rc': f_rc,
-            'exp': f_exp,
-            'exp_type': f_type,
-            'exp_name': name,
-            'source': source,
-            'species': species,
-            'build': build,
-            'feature_type': feature_type
+            "rc": f_rc,
+            "exp": f_exp,
+            "exp_type": f_type,
+            "exp_name": name,
+            "source": source,
+            "species": species,
+            "build": build,
+            "feature_type": feature_type,
         }
-        expression = self.run_process('upload-expression', inputs)
+        expression = self.run_process("upload-expression", inputs)
         if descriptor:
             sample = Sample.objects.get(data=expression)
             sample.descriptor = descriptor
             sample.save()
         return expression
 
-    def prepare_amplicon_master_file(self, mfile='56G_masterfile_test.txt', pname='56G panel, v2'):
+    def prepare_amplicon_master_file(
+        self, mfile="56G_masterfile_test.txt", pname="56G panel, v2"
+    ):
         """Prepare amplicon master file."""
-        return self.run_process('upload-master-file', {'src': mfile, 'panel_name': pname})
+        return self.run_process(
+            "upload-master-file", {"src": mfile, "panel_name": pname}
+        )
 
 
 class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
@@ -170,12 +186,16 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
         # If a process that uses the live Django server fails, we want to see
         # full debugging output rather than just laconic message like
         # "Server Error (500)".
-        'DEBUG': True,
+        "DEBUG": True,
     }
 
     def setUp(self):
         """Set-up test gene information knowledge base."""
         super().setUp()
 
-        call_command('insert_features', os.path.join(TEST_FILES_DIR, 'features_gsea.tab.zip'))
-        call_command('insert_mappings', os.path.join(TEST_FILES_DIR, 'mappings_gsea.tab.zip'))
+        call_command(
+            "insert_features", os.path.join(TEST_FILES_DIR, "features_gsea.tab.zip")
+        )
+        call_command(
+            "insert_mappings", os.path.join(TEST_FILES_DIR, "mappings_gsea.tab.zip")
+        )

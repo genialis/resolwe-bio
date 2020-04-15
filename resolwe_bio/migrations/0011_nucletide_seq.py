@@ -5,13 +5,17 @@ import shutil
 from django.conf import settings
 from django.db import migrations
 
-from resolwe.flow.migration_ops import DataDefaultOperation, ResolweProcessAddField, ResolweProcessRenameField
+from resolwe.flow.migration_ops import (
+    DataDefaultOperation,
+    ResolweProcessAddField,
+    ResolweProcessRenameField,
+)
 from resolwe.flow.utils import iterate_fields
 
 FASTA_SCHEMA = {
-    'name': 'fasta',
-    'label': 'FASTA file',
-    'type': 'basic:file:',
+    "name": "fasta",
+    "label": "FASTA file",
+    "type": "basic:file:",
 }
 
 
@@ -24,15 +28,15 @@ class DefaultUnzipFasta(DataDefaultOperation):
     def get_default_for(self, data, from_state):
         """Return default for given data object."""
         fastagz = os.path.join(
-            settings.FLOW_EXECUTOR['DATA_DIR'],
+            settings.FLOW_EXECUTOR["DATA_DIR"],
             data.location.subpath,
-            data.output['fastagz']['file']
+            data.output["fastagz"]["file"],
         )
-        assert fastagz.endswith('.gz')
+        assert fastagz.endswith(".gz")
         fasta = fastagz[:-3]
 
         # Decompress.
-        with gzip.open(fastagz, 'rb') as infile, open(fasta, 'wb') as outfile:
+        with gzip.open(fastagz, "rb") as infile, open(fasta, "wb") as outfile:
             shutil.copyfileobj(infile, outfile)
         # Change owner of this file to the same owner as fastagz:
         fastagz_stat = os.stat(fastagz)
@@ -42,24 +46,24 @@ class DefaultUnzipFasta(DataDefaultOperation):
         # bedtools requires that modification time of fai is larger than
         # the one of fasta.
         fai = os.path.join(
-            settings.FLOW_EXECUTOR['DATA_DIR'],
+            settings.FLOW_EXECUTOR["DATA_DIR"],
             data.location.subpath,
-            data.output['fai']['file']
+            data.output["fai"]["file"],
         )
         os.utime(fai)
 
         size = os.path.getsize(fasta)
         return {
-            'file': os.path.basename(fasta),
-            'size': size,
-            'total_size': size,
+            "file": os.path.basename(fasta),
+            "size": size,
+            "total_size": size,
         }
 
 
 def recompute_data_size(apps, schema_editor):
     """Recompute size of all data objects of process ``upload-fasta-nucl``."""
-    Data = apps.get_model("flow", "Data")  # pylint: disable=invalid-name
-    for data in Data.objects.filter(process__slug='upload-fasta-nucl'):
+    Data = apps.get_model("flow", "Data")
+    for data in Data.objects.filter(process__slug="upload-fasta-nucl"):
         hydrate_size(data)
         data.save()
 
@@ -73,19 +77,21 @@ def hydrate_size(data):
 
     def add_file_size(obj):
         """Add file size to the basic:file field."""
-        path = os.path.join(settings.FLOW_EXECUTOR['DATA_DIR'], data.location.subpath, obj['file'])
+        path = os.path.join(
+            settings.FLOW_EXECUTOR["DATA_DIR"], data.location.subpath, obj["file"]
+        )
 
-        obj['size'] = os.path.getsize(path)
-        obj['total_size'] = obj['size']
+        obj["size"] = os.path.getsize(path)
+        obj["total_size"] = obj["size"]
 
     data_size = 0
     for field_schema, fields in iterate_fields(data.output, data.process.output_schema):
-        name = field_schema['name']
+        name = field_schema["name"]
         value = fields[name]
-        if 'type' in field_schema:
-            if field_schema['type'].startswith('basic:file:'):
+        if "type" in field_schema:
+            if field_schema["type"].startswith("basic:file:"):
                 add_file_size(value)
-                data_size += value.get('total_size', 0)
+                data_size += value.get("total_size", 0)
 
     data.size = data_size
 
@@ -103,19 +109,17 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('resolwe_bio', '0010_add_relation_types'),
-        ('flow', '0028_add_data_location'),
+        ("resolwe_bio", "0010_add_relation_types"),
+        ("flow", "0028_add_data_location"),
     ]
 
     operations = [
         ResolweProcessRenameField(
-            process='upload-fasta-nucl',
-            field='output.fasta',
-            new_field='fastagz',
+            process="upload-fasta-nucl", field="output.fasta", new_field="fastagz",
         ),
         ResolweProcessAddField(
-            process='upload-fasta-nucl',
-            field='output.fasta',
+            process="upload-fasta-nucl",
+            field="output.fasta",
             schema=FASTA_SCHEMA,
             default=DefaultUnzipFasta(),
         ),

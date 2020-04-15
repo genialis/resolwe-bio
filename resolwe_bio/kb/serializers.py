@@ -19,7 +19,7 @@ class FeatureSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Feature
-        fields = '__all__'
+        fields = "__all__"
 
 
 class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
@@ -29,4 +29,4 @@ class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Mapping
-        fields = '__all__'
+        fields = "__all__"

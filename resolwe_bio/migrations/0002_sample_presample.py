@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0001_initial'),
+        ("resolwe_bio", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sample',
-            name='presample',
+            model_name="sample",
+            name="presample",
             field=models.BooleanField(default=True),
         ),
     ]

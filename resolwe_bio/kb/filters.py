@@ -20,10 +20,10 @@ class MappingFilter(filters.FilterSet):
 
         model = Mapping
         fields = {
-            'source_db': TEXT_LOOKUPS[:],
-            'source_id': TEXT_LOOKUPS[:],
-            'source_species': TEXT_LOOKUPS[:],
-            'target_db': TEXT_LOOKUPS[:],
-            'target_id': TEXT_LOOKUPS[:],
-            'target_species': TEXT_LOOKUPS[:],
+            "source_db": TEXT_LOOKUPS[:],
+            "source_id": TEXT_LOOKUPS[:],
+            "source_species": TEXT_LOOKUPS[:],
+            "target_db": TEXT_LOOKUPS[:],
+            "target_id": TEXT_LOOKUPS[:],
+            "target_species": TEXT_LOOKUPS[:],
         }

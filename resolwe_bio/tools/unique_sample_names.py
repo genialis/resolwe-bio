@@ -7,9 +7,8 @@ from __future__ import absolute_import, division, print_function
 import argparse
 import json
 
-
 parser = argparse.ArgumentParser(description="Check if sample names are unique")
-parser.add_argument('samples', help="All samples")
+parser.add_argument("samples", help="All samples")
 args = parser.parse_args()
 
 samples = args.samples.split(",")

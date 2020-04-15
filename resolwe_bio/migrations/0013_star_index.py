@@ -9,12 +9,11 @@ class Migration(migrations.Migration):
     """
 
     dependencies = [
-        ('resolwe_bio', '0012_full_text_search'),
+        ("resolwe_bio", "0012_full_text_search"),
     ]
 
     operations = [
         ResolweProcessChangeType(
-            process='alignment-star-index',
-            new_type='data:index:star:',
+            process="alignment-star-index", new_type="data:index:star:",
         ),
     ]

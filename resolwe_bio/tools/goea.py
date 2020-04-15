@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """Run gene ontology enrichment analysis."""
-from subprocess import Popen, PIPE, DEVNULL
 
 import argparse
 import tempfile
-import resdk
+from subprocess import DEVNULL, PIPE, Popen
 
-from resolwe_runtime_utils import error, warning  # pylint: disable=import-error
+import resdk
+from resolwe_runtime_utils import error, warning
 
 
 def parse_arguments():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Run gene ontology enrichment analysis.")
-    parser.add_argument('source_db', type=str, help="Source database.")
-    parser.add_argument('target_db', type=str, help="Target database.")
-    parser.add_argument('species', type=str, help="Species.")
-    parser.add_argument('feature_ids', help="Feature IDs file")
-    parser.add_argument('obo', help="Ontology object file")
-    parser.add_argument('gaf', help="GAF annotation file")
-    parser.add_argument('--pval', type=float, default=0.1, help="P-value threshold")
-    parser.add_argument('--min_genes', type=int, default=1, help="Minimum number of genes on a GO term.")
+    parser = argparse.ArgumentParser(
+        description="Run gene ontology enrichment analysis."
+    )
+    parser.add_argument("source_db", type=str, help="Source database.")
+    parser.add_argument("target_db", type=str, help="Target database.")
+    parser.add_argument("species", type=str, help="Species.")
+    parser.add_argument("feature_ids", help="Feature IDs file")
+    parser.add_argument("obo", help="Ontology object file")
+    parser.add_argument("gaf", help="GAF annotation file")
+    parser.add_argument("--pval", type=float, default=0.1, help="P-value threshold")
+    parser.add_argument(
+        "--min_genes", type=int, default=1, help="Minimum number of genes on a GO term."
+    )
     return parser.parse_args()
 
 
@@ -32,7 +36,9 @@ def main():
     with open(args.feature_ids) as gene_file:
         genes = [gene.strip() for gene in gene_file]
 
-    org_features = res.feature.filter(source=args.source_db, species=args.species, feature_id=genes)
+    org_features = res.feature.filter(
+        source=args.source_db, species=args.species, feature_id=genes
+    )
 
     if len(org_features) == 0:
         print(error("No genes were fetched from the knowledge base."))
@@ -67,15 +73,23 @@ def main():
         target_ids = mappings.values()
 
     with tempfile.NamedTemporaryFile() as input_genes:
-        input_genes.write(' '.join(target_ids).encode("UTF-8"))
+        input_genes.write(" ".join(target_ids).encode("UTF-8"))
         input_genes.flush()
-        process = Popen(['processor', str(args.pval), str(args.min_genes), args.obo, args.gaf, input_genes.name],
-                        stdout=PIPE,
-                        stderr=DEVNULL
-                        )
+        process = Popen(
+            [
+                "processor",
+                str(args.pval),
+                str(args.min_genes),
+                args.obo,
+                args.gaf,
+                input_genes.name,
+            ],
+            stdout=PIPE,
+            stderr=DEVNULL,
+        )
         out, err = process.communicate()
 
-        with open('terms.json', 'w') as f:
+        with open("terms.json", "w") as f:
             f.write(out.decode("UTF-8"))
 
 

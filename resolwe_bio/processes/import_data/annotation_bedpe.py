@@ -1,55 +1,47 @@
 """Upload BEDPE files."""
 
-from resolwe.process import Process, SchedulingClass, FileField, StringField
+from resolwe.process import FileField, Process, SchedulingClass, StringField
 
 
 class ImportBEDPEFile(Process):
     """Upload BEDPE files."""
 
-    slug = 'upload-bedpe'
-    name = 'BEDPE file'
-    process_type = 'data:bedpe:'
+    slug = "upload-bedpe"
+    name = "BEDPE file"
+    process_type = "data:bedpe:"
     data_name = '{{ src.file|default("?") }}'
-    version = '1.1.0'
-    category = 'Import'
+    version = "1.1.0"
+    category = "Import"
     requirements = {
-        'expression-engine': 'jinja',
-        'executor': {
-            'docker': {
-                'image': 'resolwebio/common:1.3.1',
-            },
-        },
-        'resources': {
-            'cores': 1,
-            'memory': 1024,
-            'network': True,
-        },
+        "expression-engine": "jinja",
+        "executor": {"docker": {"image": "resolwebio/common:1.3.1",},},
+        "resources": {"cores": 1, "memory": 1024, "network": True,},
     }
     scheduling_class = SchedulingClass.BATCH
 
     class Input:
         """Input parameters."""
 
-        src = FileField(label='Select BEDPE file to upload')
+        src = FileField(label="Select BEDPE file to upload")
         species = StringField(
-            label='Species',
+            label="Species",
             choices=[
-                ('Homo sapiens', 'Homo sapiens'),
-                ('Mus musculus', 'Mus musculus'),
-                ('Rattus norvegicus', 'Rattus norvegicus'),
-                ('Dictyostelium discoideum', 'Dictyostelium discoideum'),
-                ('Odocoileus virginianus texanus', 'Odocoileus virginianus texanus'),
-                ('Solanum tuberosum', 'Solanum tuberosum'),
-            ]
+                ("Homo sapiens", "Homo sapiens"),
+                ("Mus musculus", "Mus musculus"),
+                ("Rattus norvegicus", "Rattus norvegicus"),
+                ("Dictyostelium discoideum", "Dictyostelium discoideum"),
+                ("Odocoileus virginianus texanus", "Odocoileus virginianus texanus"),
+                ("Solanum tuberosum", "Solanum tuberosum"),
+            ],
         )
-        build = StringField(label='Build')
+        build = StringField(label="Build")
 
     class Output:
         """Output parameters."""
 
-        bedpe = FileField(label='BEDPE file')
-        species = StringField(label='Species')
-        build = StringField(label='Build')
+        bedpe = FileField(label="BEDPE file")
+        species = StringField(label="Species")
+        build = StringField(label="Build")
 
     def run(self, inputs, outputs):
         """Upload BEDPE file."""

@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0004_add_owner'),
+        ("resolwe_bio", "0004_add_owner"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sample',
-            name='created',
+            model_name="sample",
+            name="created",
             field=models.DateTimeField(auto_now_add=True, db_index=True),
         ),
         migrations.AlterField(
-            model_name='sample',
-            name='modified',
+            model_name="sample",
+            name="modified",
             field=models.DateTimeField(auto_now=True, db_index=True),
         ),
     ]

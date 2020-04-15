@@ -17,10 +17,10 @@ from resolwe.elastic.builder import index_builder
 from resolwe.utils import BraceMessage as __
 
 from resolwe_bio.kb.models import Mapping
+
 from .utils import decompress
 
-
-logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -30,7 +30,11 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         """Command arguments."""
-        parser.add_argument('file_name', type=str, help="Tab-separated file with mappings (supports tab, gz or zip)")
+        parser.add_argument(
+            "file_name",
+            type=str,
+            help="Tab-separated file with mappings (supports tab, gz or zip)",
+        )
 
     def handle(self, *args, **options):
         """Command handle."""
@@ -39,14 +43,14 @@ class Command(BaseCommand):
 
         relation_type_choices = list(zip(*Mapping.RELATION_TYPE_CHOICES))[0]
 
-        for tab_file_name, tab_file in decompress(options['file_name']):
-            logger.info(__("Importing mappings from \"{}\"...", tab_file_name))
+        for tab_file_name, tab_file in decompress(options["file_name"]):
+            logger.info(__('Importing mappings from "{}"...', tab_file_name))
 
             mappings = set()
-            for row in csv.DictReader(tab_file, delimiter=str('\t')):
-                if row['relation_type'] not in relation_type_choices:
+            for row in csv.DictReader(tab_file, delimiter=str("\t")):
+                if row["relation_type"] not in relation_type_choices:
                     raise ValidationError(
-                        "Unknown relation type: {}".format(row['relation_type'])
+                        "Unknown relation type: {}".format(row["relation_type"])
                     )
 
                 # NOTE: For performance reasons this is a tuple instead of a dict.
@@ -55,13 +59,13 @@ class Command(BaseCommand):
                 #       Make sure that any changes also reflect in the SQL query
                 #       below.
                 mapping = (
-                    row['relation_type'],
-                    row['source_db'],
-                    row['source_id'],
-                    row['source_species'],
-                    row['target_db'],
-                    row['target_id'],
-                    row['target_species'],
+                    row["relation_type"],
+                    row["source_db"],
+                    row["source_id"],
+                    row["source_species"],
+                    row["target_db"],
+                    row["target_id"],
+                    row["target_species"],
                 )
 
                 if mapping in mappings:
@@ -69,9 +73,14 @@ class Command(BaseCommand):
                         "Duplicated mapping (relation type: '{}', source db: '{}', source id: "
                         "'{}', source species: {}, target db: '{}', target id: '{}', "
                         "target species: {}) found in '{}'".format(
-                            row['relation_type'], row['source_db'], row['source_id'],
-                            row['source_species'], row['target_db'], row['target_id'],
-                            row['target_species'], tab_file_name
+                            row["relation_type"],
+                            row["source_db"],
+                            row["source_id"],
+                            row["source_species"],
+                            row["target_db"],
+                            row["target_id"],
+                            row["target_species"],
+                            tab_file_name,
                         )
                     )
 
@@ -97,9 +106,9 @@ class Command(BaseCommand):
                         COUNT(*) AS count_inserted
                     FROM tmp;
                     """.format(
-                        table_name=Mapping._meta.db_table,  # pylint: disable=no-member,protected-access
+                        table_name=Mapping._meta.db_table,
                     ),
-                    params=[json.dumps(list(mappings))]
+                    params=[json.dumps(list(mappings))],
                 )
                 result = cursor.fetchone()
 
@@ -110,7 +119,7 @@ class Command(BaseCommand):
 
         index_builder.build(queryset=Mapping.objects.filter(id__in=to_index))
 
-        logger.info(  # pylint: disable=logging-not-lazy
-            "Total mappings: %d. Inserted %d, unchanged %d." %
-            (count_total, count_inserted, count_total - count_inserted)
+        logger.info(
+            "Total mappings: %d. Inserted %d, unchanged %d."
+            % (count_total, count_inserted, count_total - count_inserted)
         )

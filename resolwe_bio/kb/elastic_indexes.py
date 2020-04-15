@@ -7,18 +7,24 @@ from .models import Feature, Mapping
 
 # pylint: disable=invalid-name
 # Analyzer for feature identifiers and names, used during boosting.
-identifier_analyzer = dsl.analyzer('identifier_analyzer', tokenizer='keyword', filter=['lowercase'])
+identifier_analyzer = dsl.analyzer(
+    "identifier_analyzer", tokenizer="keyword", filter=["lowercase"]
+)
 # During indexing, we lowercase terms and tokenize using edge_ngram.
 autocomplete_analyzer = dsl.analyzer(
-    'autocomplete_index',
-    tokenizer='keyword',
+    "autocomplete_index",
+    tokenizer="keyword",
     filter=[
-        'lowercase',
-        dsl.token_filter('autocomplete_filter', type='edgeNGram', min_gram=1, max_gram=15)
+        "lowercase",
+        dsl.token_filter(
+            "autocomplete_filter", type="edgeNGram", min_gram=1, max_gram=15
+        ),
     ],
 )
 # During search, we only lowercase terms.
-autocomplete_search_analyzer = dsl.analyzer('autocomplete_search', tokenizer='keyword', filter=['lowercase'])
+autocomplete_search_analyzer = dsl.analyzer(
+    "autocomplete_search", tokenizer="keyword", filter=["lowercase"]
+)
 # pylint: enable=invalid-name
 
 
@@ -29,11 +35,11 @@ class FeatureSearchDocument(BaseDocument):
     feature_id = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
         fields={
-            'lower': {'type': 'text', 'analyzer': identifier_analyzer},
-            'ngrams': {
-                'type': 'text',
-                'analyzer': autocomplete_analyzer,
-                'search_analyzer': autocomplete_search_analyzer,
+            "lower": {"type": "text", "analyzer": identifier_analyzer},
+            "ngrams": {
+                "type": "text",
+                "analyzer": autocomplete_analyzer,
+                "search_analyzer": autocomplete_search_analyzer,
             },
         },
     )
@@ -43,11 +49,11 @@ class FeatureSearchDocument(BaseDocument):
     name = dsl.Keyword(
         # Additional subfield used for boosting during autocomplete.
         fields={
-            'lower': {'type': 'text', 'analyzer': identifier_analyzer},
-            'ngrams': {
-                'type': 'text',
-                'analyzer': autocomplete_analyzer,
-                'search_analyzer': autocomplete_search_analyzer,
+            "lower": {"type": "text", "analyzer": identifier_analyzer},
+            "ngrams": {
+                "type": "text",
+                "analyzer": autocomplete_analyzer,
+                "search_analyzer": autocomplete_search_analyzer,
             },
         },
     )
@@ -57,19 +63,18 @@ class FeatureSearchDocument(BaseDocument):
         multi=True,
         # Additional subfield used for boosting during autocomplete.
         fields={
-            'ngrams': {
-                'type': 'text',
-                'analyzer': autocomplete_analyzer,
-                'search_analyzer': autocomplete_search_analyzer,
+            "ngrams": {
+                "type": "text",
+                "analyzer": autocomplete_analyzer,
+                "search_analyzer": autocomplete_search_analyzer,
             },
         },
-
     )
 
     class Index:
         """Meta class for feature search document."""
 
-        name = 'feature_search'
+        name = "feature_search"
 
 
 class FeatureSearchIndex(BaseIndex):
@@ -82,9 +87,9 @@ class FeatureSearchIndex(BaseIndex):
     def get_permissions(self, obj):
         """Skip since Feature objects have no permissions."""
         return {
-            'users': [],
-            'groups': [],
-            'public': False,
+            "users": [],
+            "groups": [],
+            "public": False,
         }
 
 
@@ -102,7 +107,7 @@ class MappingSearchDocument(BaseDocument):
     class Index:
         """Meta class for mapping search document."""
 
-        name = 'mapping_search'
+        name = "mapping_search"
 
 
 class MappingSearchIndex(BaseIndex):
@@ -115,7 +120,7 @@ class MappingSearchIndex(BaseIndex):
     def get_permissions(self, obj):
         """Skip since Mapping objects have no permissions."""
         return {
-            'users': [],
-            'groups': [],
-            'public': False,
+            "users": [],
+            "groups": [],
+            "public": False,
         }

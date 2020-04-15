@@ -7,12 +7,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio_kb', '0002_alter_field_max_length'),
+        ("resolwe_bio_kb", "0002_alter_field_max_length"),
     ]
 
     operations = [
         migrations.AlterIndexTogether(
-            name='mapping',
-            index_together=set([('source_db', 'source_id', 'target_db'), ('target_db', 'target_id')]),
+            name="mapping",
+            index_together=set(
+                [("source_db", "source_id", "target_db"), ("target_db", "target_id")]
+            ),
         ),
     ]

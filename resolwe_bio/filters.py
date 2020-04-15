@@ -8,6 +8,7 @@ Resolwe Bio Filters
 import django_filters as filters
 
 from resolwe.flow.filters import CollectionFilter, DataFilter
+
 from resolwe_bio.models import Sample
 
 
@@ -27,7 +28,9 @@ class BioCollectionFilter(CollectionFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(field_name='entity', queryset=Sample.objects.all())
+    sample = filters.ModelChoiceFilter(
+        field_name="entity", queryset=Sample.objects.all()
+    )
 
 
 class BioDataFilter(DataFilter):
@@ -46,4 +49,6 @@ class BioDataFilter(DataFilter):
 
     """
 
-    sample = filters.ModelChoiceFilter(field_name='entity', queryset=Sample.objects.all())
+    sample = filters.ModelChoiceFilter(
+        field_name="entity", queryset=Sample.objects.all()
+    )

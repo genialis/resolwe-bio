@@ -9,7 +9,7 @@ from resolwe_runtime_utils import error, save
 def parse_arguments():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Parse library type information.")
-    parser.add_argument('input_file', help="Salmon library type information file.")
+    parser.add_argument("input_file", help="Salmon library type information file.")
     return parser.parse_args()
 
 
@@ -19,9 +19,11 @@ def main():
 
     with open(args.input_file) as infile:
         data = json.load(infile)
-        if 'expected_format' in data and 'compatible_fragment_ratio' in data:
-            print(save('strandedness', data['expected_format']))
-            print(save('fragment_ratio', str(round(data['compatible_fragment_ratio'], 2))))
+        if "expected_format" in data and "compatible_fragment_ratio" in data:
+            print(save("strandedness", data["expected_format"]))
+            print(
+                save("fragment_ratio", str(round(data["compatible_fragment_ratio"], 2)))
+            )
         else:
             print(error("Cannot parse library type information file."))
 

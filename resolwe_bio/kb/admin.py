@@ -14,8 +14,8 @@ class FeatureAdmin(admin.ModelAdmin):
     """Admin configuration for Feature model."""
 
     model = Feature
-    search_fields = ['name']
-    list_display = ('__str__', 'name', 'source', 'feature_id')
+    search_fields = ["name"]
+    list_display = ("__str__", "name", "source", "feature_id")
 
 
 class MappingAdmin(admin.ModelAdmin):

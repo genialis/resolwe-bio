@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import move
 
 from plumbum import TEE
+
 from resolwe.process import (
     Cmd,
     DataField,
@@ -50,11 +51,7 @@ class MergeFastqSingle(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {
-            "docker": {
-                "image": "resolwebio/common:1.3.1"
-            }
-        },
+        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 
@@ -62,18 +59,14 @@ class MergeFastqSingle(Process):
         """Input fields to process MergeFastqSingle."""
 
         reads = ListField(
-            DataField(data_type="reads:fastq:single:"),
-            label="Reads data objects",
+            DataField(data_type="reads:fastq:single:"), label="Reads data objects",
         )
 
     class Output:
         """Output fields to process MergeFastqSingle."""
 
         fastq = ListField(FileField(), label="Reads file")
-        fastqc_url = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC",
-        )
+        fastqc_url = ListField(FileHtmlField(), label="Quality control with FastQC",)
         fastqc_archive = ListField(FileField(), label="Download FastQC archive")
 
     def run(self, inputs, outputs):
@@ -102,10 +95,12 @@ class MergeFastqSingle(Process):
         move(str(fastqc_path / fastqc), ".")
 
         report_dir = fastqc_path / f"{name}_fastqc"
-        fastqc_url = [{
-            "file": str(report_dir / "fastqc_report.html"),
-            "refs": [str(fastqc_path)],
-        }]
+        fastqc_url = [
+            {
+                "file": str(report_dir / "fastqc_report.html"),
+                "refs": [str(fastqc_path)],
+            }
+        ]
 
         outputs.fastqc_url = fastqc_url
         outputs.fastqc_archive = [fastqc]
@@ -127,11 +122,7 @@ class MergeFastqPaired(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {
-            "docker": {
-                "image": "resolwebio/common:1.3.1"
-            }
-        },
+        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 
@@ -139,8 +130,7 @@ class MergeFastqPaired(Process):
         """Input fields to process MergeFastqPaired."""
 
         reads = ListField(
-            DataField(data_type="reads:fastq:paired:"),
-            label="Reads data objects",
+            DataField(data_type="reads:fastq:paired:"), label="Reads data objects",
         )
 
     class Output:
@@ -149,15 +139,17 @@ class MergeFastqPaired(Process):
         fastq = ListField(FileField(), label="Reads file (mate 1)")
         fastq2 = ListField(FileField(), label="Reads file (mate 2)")
         fastqc_url = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC (mate 1)",
+            FileHtmlField(), label="Quality control with FastQC (mate 1)",
         )
         fastqc_url2 = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC (mate 2)",
+            FileHtmlField(), label="Quality control with FastQC (mate 2)",
         )
-        fastqc_archive = ListField(FileField(), label="Download FastQC archive (mate 1)")
-        fastqc_archive2 = ListField(FileField(), label="Download FastQC archive (mate 2)")
+        fastqc_archive = ListField(
+            FileField(), label="Download FastQC archive (mate 1)"
+        )
+        fastqc_archive2 = ListField(
+            FileField(), label="Download FastQC archive (mate 2)"
+        )
 
     def run(self, inputs, outputs):
         """Run the analysis."""
@@ -165,7 +157,9 @@ class MergeFastqPaired(Process):
         name_2 = f"{Path(inputs.reads[0].fastq2[0].path).name.replace('.fastq.gz', '')}_merged"
         merged_fastq_1 = f"{name_1}.fastq.gz"
         merged_fastq_2 = f"{name_2}.fastq.gz"
-        with open(merged_fastq_1, "wb") as outfile_1, open(merged_fastq_2, "wb") as outfile_2:
+        with open(merged_fastq_1, "wb") as outfile_1, open(
+            merged_fastq_2, "wb"
+        ) as outfile_2:
             for reads in inputs.reads:
                 for fastq_1, fastq_2 in zip(reads.fastq, reads.fastq2):
                     with open(fastq_1.path, "rb") as infile:
@@ -182,15 +176,19 @@ class MergeFastqPaired(Process):
         fastqc_2 = [f"{name_2}_fastqc.zip"]
         fastqc_path = Path("fastqc")
         report_dir_1 = fastqc_path / f"{name_1}_fastqc"
-        fastqc_url_1 = [{
-            "file": str(report_dir_1 / "fastqc_report.html"),
-            "refs": [str(report_dir_1)],
-        }]
+        fastqc_url_1 = [
+            {
+                "file": str(report_dir_1 / "fastqc_report.html"),
+                "refs": [str(report_dir_1)],
+            }
+        ]
         report_dir_2 = fastqc_path / f"{name_2}_fastqc"
-        fastqc_url_2 = [{
-            "file": str(report_dir_2 / "fastqc_report.html"),
-            "refs": [str(report_dir_2)],
-        }]
+        fastqc_url_2 = [
+            {
+                "file": str(report_dir_2 / "fastqc_report.html"),
+                "refs": [str(report_dir_2)],
+            }
+        ]
 
         print("Postprocessing FastQC...")
         stderr = run_fastqc([merged_fastq_1, merged_fastq_2], "./fastqc")

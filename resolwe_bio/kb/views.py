@@ -5,18 +5,16 @@ Views
 =====
 
 """
-from elasticsearch_dsl.query import Q
-
-from rest_framework import viewsets, mixins, permissions
 from django_filters.rest_framework.backends import DjangoFilterBackend
+from elasticsearch_dsl.query import Q
+from rest_framework import mixins, permissions, viewsets
 
 from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
 
+from .elastic_indexes import FeatureSearchDocument, MappingSearchDocument
+from .filters import MappingFilter
 from .models import Feature, Mapping
 from .serializers import FeatureSerializer, MappingSerializer
-from .filters import MappingFilter
-
-from .elastic_indexes import FeatureSearchDocument, MappingSearchDocument
 
 
 class FeatureSearchViewSet(ElasticSearchBaseViewSet):
@@ -34,14 +32,14 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('name', 'source', 'species', 'feature_id', 'type')
-    ordering_fields = ('name',)
-    ordering = 'name'
+    filtering_fields = ("name", "source", "species", "feature_id", "type")
+    ordering_fields = ("name",)
+    ordering = "name"
 
     def get_always_allowed_arguments(self):
         """Return query arguments which are always allowed."""
         return super().get_always_allowed_arguments() + [
-            'query',
+            "query",
         ]
 
     def custom_filter_feature_id(self, value, search):
@@ -49,22 +47,22 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
         if not isinstance(value, list):
             value = [value]
 
-        return search.filter('terms', feature_id=value)
+        return search.filter("terms", feature_id=value)
 
     def custom_filter(self, search):
         """Support general query using the 'query' attribute."""
-        query = self.get_query_param('query', None)
+        query = self.get_query_param("query", None)
         if query:
             if not isinstance(query, list):
                 query = [query]
 
             search = search.filter(
-                'bool',
+                "bool",
                 should=[
-                    Q('terms', feature_id=query),
-                    Q('terms', name=query),
-                    Q('terms', aliases=query),
-                ]
+                    Q("terms", feature_id=query),
+                    Q("terms", name=query),
+                    Q("terms", aliases=query),
+                ],
             )
 
         return search
@@ -80,29 +78,29 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
     document_class = FeatureSearchDocument
     serializer_class = FeatureSerializer
 
-    filtering_fields = ('source', 'species', 'type')
+    filtering_fields = ("source", "species", "type")
 
     def get_always_allowed_arguments(self):
         """Return query arguments which are always allowed."""
         return super().get_always_allowed_arguments() + [
-            'query',
+            "query",
         ]
 
     def custom_filter(self, search):
         """Support autocomplete query using the 'query' attribute."""
-        query = self.get_query_param('query', '')
+        query = self.get_query_param("query", "")
         return search.query(
-            'bool',
+            "bool",
             should=[
                 # Exact matches of name and feature_id.
-                Q('match', **{'feature_id.lower': {'query': query, 'boost': 10}}),
-                Q('match', **{'name.lower': {'query': query, 'boost': 10}}),
+                Q("match", **{"feature_id.lower": {"query": query, "boost": 10}}),
+                Q("match", **{"name.lower": {"query": query, "boost": 10}}),
                 # Partial matches of name and feature_id.
-                Q('match', **{'feature_id.ngrams': {'query': query, 'boost': 5}}),
-                Q('match', **{'name.ngrams': {'query': query, 'boost': 5}}),
+                Q("match", **{"feature_id.ngrams": {"query": query, "boost": 5}}),
+                Q("match", **{"name.ngrams": {"query": query, "boost": 5}}),
                 # Aliases.
-                Q('match', **{'aliases.ngrams': {'query': query}}),
-            ]
+                Q("match", **{"aliases.ngrams": {"query": query}}),
+            ],
         )
 
     def filter_permissions(self, search):
@@ -110,12 +108,14 @@ class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
         return search
 
 
-class FeatureViewSet(mixins.ListModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.CreateModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.DestroyModelMixin,
-                     viewsets.GenericViewSet):
+class FeatureViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     """API view for :class:`Feature` objects."""
 
     serializer_class = FeatureSerializer
@@ -127,13 +127,12 @@ class FeatureViewSet(mixins.ListModelMixin,
         """Instead of failing, update existing features with a custom create."""
         try:
             feature = Feature.objects.get(
-                source=request.data['source'],
-                feature_id=request.data['feature_id']
+                source=request.data["source"], feature_id=request.data["feature_id"]
             )
             self.kwargs[self.lookup_field] = feature.pk
-            return super(FeatureViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
+            return super(FeatureViewSet, self).update(request, *args, **kwargs)
         except (Feature.DoesNotExist, KeyError):
-            return super(FeatureViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member
+            return super(FeatureViewSet, self).create(request, *args, **kwargs)
 
 
 class MappingSearchViewSet(ElasticSearchBaseViewSet):
@@ -157,28 +156,30 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
     serializer_class = MappingSerializer
 
     filtering_fields = (
-        'relation_type',
-        'source_db',
-        'source_id',
-        'source_species',
-        'target_db',
-        'target_id',
-        'target_species',
+        "relation_type",
+        "source_db",
+        "source_id",
+        "source_species",
+        "target_db",
+        "target_id",
+        "target_species",
     )
-    ordering_fields = ('source_id',)
-    ordering = 'source_id'
+    ordering_fields = ("source_id",)
+    ordering = "source_id"
 
     def filter_permissions(self, search):
         """Filter permissions since Mapping objects have no permissions."""
         return search
 
 
-class MappingViewSet(mixins.ListModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.CreateModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.DestroyModelMixin,
-                     viewsets.GenericViewSet):
+class MappingViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     """API view for :class:`Mapping` objects."""
 
     serializer_class = MappingSerializer
@@ -191,14 +192,14 @@ class MappingViewSet(mixins.ListModelMixin,
         """Instead of failing, update existing mappings using a custom create."""
         try:
             mapping = Mapping.objects.get(
-                source_db=request.data['source_db'],
-                source_id=request.data['source_id'],
-                source_species=request.data['source_species'],
-                target_db=request.data['target_db'],
-                target_id=request.data['target_id'],
-                target_species=request.data['target_species'],
+                source_db=request.data["source_db"],
+                source_id=request.data["source_id"],
+                source_species=request.data["source_species"],
+                target_db=request.data["target_db"],
+                target_id=request.data["target_id"],
+                target_species=request.data["target_species"],
             )
             self.kwargs[self.lookup_field] = mapping.pk
-            return super(MappingViewSet, self).update(request, *args, **kwargs)  # pylint: disable=no-member
+            return super(MappingViewSet, self).update(request, *args, **kwargs)
         except (Mapping.DoesNotExist, KeyError):
-            return super(MappingViewSet, self).create(request, *args, **kwargs)  # pylint: disable=no-member
+            return super(MappingViewSet, self).create(request, *args, **kwargs)

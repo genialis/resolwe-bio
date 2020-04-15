@@ -15,5 +15,5 @@ def filter_vcf_variable(line):
 
 def filter_comment_lines(line):
     """Filter variable comment lines."""
-    if line.startswith(b'#'):
+    if line.startswith(b"#"):
         return True

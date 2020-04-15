@@ -5,8 +5,8 @@ Models
 ======
 
 """
-from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.db import models
 
 
 # NOTE: Feature are manually inserted in management command, so take
@@ -14,27 +14,27 @@ from django.contrib.postgres.fields import ArrayField
 class Feature(models.Model):
     """Describes a feature in the knowledge base."""
 
-    TYPE_GENE = 'gene'
-    TYPE_TRANSCRIPT = 'transcript'
-    TYPE_EXON = 'exon'
-    TYPE_PROBE = 'probe'
+    TYPE_GENE = "gene"
+    TYPE_TRANSCRIPT = "transcript"
+    TYPE_EXON = "exon"
+    TYPE_PROBE = "probe"
     TYPE_CHOICES = (
         (TYPE_GENE, "Gene"),
         (TYPE_TRANSCRIPT, "Transcript"),
         (TYPE_EXON, "Exon"),
-        (TYPE_PROBE, "Probe")
+        (TYPE_PROBE, "Probe"),
     )
 
-    SUBTYPE_PROTEIN_CODING = 'protein-coding'
-    SUBTYPE_PSEUDO = 'pseudo'
-    SUBTYPE_RRNA = 'rRNA'
-    SUBTYPE_NCRNA = 'ncRNA'
-    SUBTYPE_SNRNA = 'snRNA'
-    SUBTYPE_SNORNA = 'snoRNA'
-    SUBTYPE_TRNA = 'tRNA'
-    SUBTYPE_ASRNA = 'asRNA'
-    SUBTYPE_OTHER = 'other'
-    SUBTYPE_UNKNOWN = 'unknown'
+    SUBTYPE_PROTEIN_CODING = "protein-coding"
+    SUBTYPE_PSEUDO = "pseudo"
+    SUBTYPE_RRNA = "rRNA"
+    SUBTYPE_NCRNA = "ncRNA"
+    SUBTYPE_SNRNA = "snRNA"
+    SUBTYPE_SNORNA = "snoRNA"
+    SUBTYPE_TRNA = "tRNA"
+    SUBTYPE_ASRNA = "asRNA"
+    SUBTYPE_OTHER = "other"
+    SUBTYPE_UNKNOWN = "unknown"
     SUBTYPE_CHOICES = (
         (SUBTYPE_PROTEIN_CODING, "Protein-coding"),
         (SUBTYPE_PSEUDO, "Pseudo"),
@@ -45,7 +45,7 @@ class Feature(models.Model):
         (SUBTYPE_TRNA, "tRNA"),
         (SUBTYPE_ASRNA, "asRNA"),
         (SUBTYPE_OTHER, "Other"),
-        (SUBTYPE_UNKNOWN, "Unknown")
+        (SUBTYPE_UNKNOWN, "Unknown"),
     )
 
     # Because Django ORM cannot handle composite primary keys, each feature is
@@ -65,16 +65,12 @@ class Feature(models.Model):
     class Meta:
         """Feature Meta options."""
 
-        unique_together = (
-            ('source', 'feature_id', 'species'),
-        )
+        unique_together = (("source", "feature_id", "species"),)
 
     def __str__(self):
         """Represent a feature instance as a string."""
         return "{source}: {feature_id} ({species})".format(
-            source=self.source,
-            feature_id=self.feature_id,
-            species=self.species,
+            source=self.source, feature_id=self.feature_id, species=self.species,
         )
 
 
@@ -83,10 +79,10 @@ class Feature(models.Model):
 class Mapping(models.Model):
     """Describes a mapping between features from different sources."""
 
-    RELATION_TYPE_CROSSDB = 'crossdb'
-    RELATION_TYPE_ORTHOLOG = 'ortholog'
-    RELATION_TYPE_TRANSCRIPT = 'transcript'
-    RELATION_TYPE_EXON = 'exon'
+    RELATION_TYPE_CROSSDB = "crossdb"
+    RELATION_TYPE_ORTHOLOG = "ortholog"
+    RELATION_TYPE_TRANSCRIPT = "transcript"
+    RELATION_TYPE_EXON = "exon"
     RELATION_TYPE_CHOICES = (
         (RELATION_TYPE_CROSSDB, "Crossdb"),
         (RELATION_TYPE_ORTHOLOG, "Ortholog"),
@@ -106,11 +102,19 @@ class Mapping(models.Model):
         """Mapping Meta options."""
 
         unique_together = [
-            ['source_db', 'source_id', 'source_species', 'target_db', 'target_id', 'target_species', 'relation_type'],
+            [
+                "source_db",
+                "source_id",
+                "source_species",
+                "target_db",
+                "target_id",
+                "target_species",
+                "relation_type",
+            ],
         ]
         index_together = [
-            ['source_db', 'source_id', 'source_species', 'target_db'],
-            ['target_db', 'target_id', 'target_species']
+            ["source_db", "source_id", "source_species", "target_db"],
+            ["target_db", "target_id", "target_species"],
         ]
 
     def __str__(self):

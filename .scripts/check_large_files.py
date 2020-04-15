@@ -33,19 +33,22 @@ def main():
         description="Checks if files in the given directory exceed the given size limit"
     )
     parser.add_argument(
-        'directory', metavar="DIRECTORY",
-        help="Directory in which to check the files"
+        "directory", metavar="DIRECTORY", help="Directory in which to check the files"
     )
     parser.add_argument(
-        "-l", "--limit", type=float, default="1",
-        help="Size limit (in MBs) which the files should not exceed (default: %(default)s)"
+        "-l",
+        "--limit",
+        type=float,
+        default="1",
+        help="Size limit (in MBs) which the files should not exceed (default: %(default)s)",
     )
     args = parser.parse_args()
 
     large_files = find_large_files(args.directory, args.limit)
     if large_files:
-        print("The following files exceed the size limit of {:.2f} MB:".format(
-            args.limit))
+        print(
+            "The following files exceed the size limit of {:.2f} MB:".format(args.limit)
+        )
         print("\n".join(large_files))
         exit(1)
 

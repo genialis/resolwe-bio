@@ -7,12 +7,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0003_fix_jsonfields'),
+        ("resolwe_bio", "0003_fix_jsonfields"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='sample',
-            options={'default_permissions': (), 'permissions': (('view_sample', 'Can view sample'), ('edit_sample', 'Can edit sample'), ('share_sample', 'Can share sample'), ('download_sample', 'Can download files from sample'), ('add_sample', 'Can add data objects to sample'), ('owner_sample', 'Is owner of the sample'))},
+            name="sample",
+            options={
+                "default_permissions": (),
+                "permissions": (
+                    ("view_sample", "Can view sample"),
+                    ("edit_sample", "Can edit sample"),
+                    ("share_sample", "Can share sample"),
+                    ("download_sample", "Can download files from sample"),
+                    ("add_sample", "Can add data objects to sample"),
+                    ("owner_sample", "Is owner of the sample"),
+                ),
+            },
         ),
     ]

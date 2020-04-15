@@ -26,22 +26,22 @@ def decompress(file_name):
     _, ext = os.path.splitext(file_name)
 
     _open = None
-    if ext == '.tab':
+    if ext == ".tab":
         _open = open
-    elif ext == '.gz':
+    elif ext == ".gz":
         _open = gzip.open
 
     if _open:
-        with _open(file_name, 'rt') as tsv_file:
+        with _open(file_name, "rt") as tsv_file:
             yield (os.path.basename(file_name), tsv_file)
 
-    elif ext == '.zip':
+    elif ext == ".zip":
         with zipfile.ZipFile(file_name) as archive:
             for entry in archive.infolist():
-                if not entry.filename.endswith('.tab'):
+                if not entry.filename.endswith(".tab"):
                     continue
 
-                if entry.filename.startswith('__MACOSX'):
+                if entry.filename.startswith("__MACOSX"):
                     continue
 
                 with archive.open(entry) as tsv_file:

@@ -7,13 +7,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0006_alter_versionfield'),
+        ("resolwe_bio", "0006_alter_versionfield"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sample',
-            name='descriptor_dirty',
+            model_name="sample",
+            name="descriptor_dirty",
             field=models.BooleanField(default=False),
         ),
     ]

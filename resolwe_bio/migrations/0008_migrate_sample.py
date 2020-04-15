@@ -10,8 +10,8 @@ from guardian.shortcuts import assign_perm
 
 def migrate_sample(apps, schema_editor):
     """Migrate `Sample` objects and their permissions to `Entity`."""
-    Sample = apps.get_model("resolwe_bio", "Sample")  # pylint: disable=invalid-name
-    Entity = apps.get_model("flow", "Entity")  # pylint: disable=invalid-name
+    Sample = apps.get_model("resolwe_bio", "Sample")
+    Entity = apps.get_model("flow", "Entity")
 
     Entity.objects.all().delete()
 
@@ -43,10 +43,10 @@ def migrate_sample(apps, schema_editor):
 
         sample_ctype = ContentType.objects.get_for_model(sample)
         for perm in UserObjectPermission.objects.filter(content_type=sample_ctype):
-            new_codename = perm.permission.codename.replace('sample', 'entity')
+            new_codename = perm.permission.codename.replace("sample", "entity")
             assign_perm(new_codename, perm.user, entity)
         for perm in GroupObjectPermission.objects.filter(content_type=sample_ctype):
-            new_codename = perm.permission.codename.replace('sample', 'entity')
+            new_codename = perm.permission.codename.replace("sample", "entity")
             assign_perm(new_codename, perm.group, entity)
 
     if sample_ctype:
@@ -57,7 +57,7 @@ def migrate_sample(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0007_sample_descriptor_dirty'),
+        ("resolwe_bio", "0007_sample_descriptor_dirty"),
     ]
 
     operations = [

@@ -8,18 +8,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('resolwe_bio', '0002_sample_presample'),
+        ("resolwe_bio", "0002_sample_presample"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sample',
-            name='descriptor',
+            model_name="sample",
+            name="descriptor",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='sample',
-            name='settings',
+            model_name="sample",
+            name="settings",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
     ]
