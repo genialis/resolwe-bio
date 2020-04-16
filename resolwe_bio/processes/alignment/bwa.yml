@@ -14,7 +14,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.3.0
+  version: 3.0.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -29,7 +29,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bwa
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -142,7 +142,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+      INDEX={{genome.index.dir}}/"${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()
@@ -259,7 +259,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.4.0
+  version: 2.0.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -272,7 +272,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bwa
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -322,7 +322,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+      INDEX={{genome.index.dir}}"/${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()
@@ -422,7 +422,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.5.0
+  version: 2.0.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -433,7 +433,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bwa
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -511,7 +511,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+      INDEX={{genome.index.dir}}"/${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()

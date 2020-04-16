@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 1.5.0
+  version: 2.0.0
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -23,7 +23,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bowtie
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -136,7 +136,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bt.dir}}"/${GENOME_NAME}_index"
+      INDEX={{genome.index.dir}}"/${GENOME_NAME}_index"
 
       # TODO: This should be made available in common runtime.
       function join_by { local IFS="$1"; shift; echo "$*"; }
@@ -298,7 +298,7 @@
       memory: 16384
       cores: 20
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.6.0
+  version: 2.0.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample
@@ -313,7 +313,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bowtie2
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -531,7 +531,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bt2.dir}}"/${GENOME_NAME}_index"
+      INDEX={{genome.index.dir}}"/${GENOME_NAME}_index"
 
       # TODO: This should be made available in common runtime.
       function join_by { local IFS="$1"; shift; echo "$*"; }

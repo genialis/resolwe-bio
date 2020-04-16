@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
@@ -8,132 +9,122 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class AlignmentProcessorTestCase(KBBioProcessTestCase):
-    @tag_process("bowtie-index")
-    def test_bowtie_index(self):
+    @tag_process("bowtie-index", "alignment-bowtie")
+    def test_bowtie(self):
+        input_folder = Path("test_bowtie") / "input"
+        output_folder = Path("test_bowtie") / "output"
         with self.preparation_stage():
             ref_seq = self.prepare_ref_seq(
-                fn="./test_bowtie/input/g.en ome.fasta.gz",
+                fn=str(input_folder / "g.en ome.fasta.gz"),
                 species="Dictyostelium discoideum",
                 build="dd-05-2009",
             )
 
-        bowtie_index = self.run_process("bowtie-index", {"ref_seq": ref_seq.id})
-        self.assertDir(
-            bowtie_index,
-            "index",
-            os.path.join("test_bowtie", "output", "bowtie_index.tar.gz"),
-        )
-        self.assertFile(
-            bowtie_index, "fasta", os.path.join("test_bowtie", "output", "genome.fasta")
-        )
-        self.assertFile(
-            bowtie_index,
-            "fastagz",
-            os.path.join("test_bowtie", "output", "genome.fasta.gz"),
-            compression="gzip",
-        )
-        self.assertFile(
-            bowtie_index,
-            "fai",
-            os.path.join("test_bowtie", "output", "genome.fasta.fai"),
-        )
-        self.assertFields(bowtie_index, "species", "Dictyostelium discoideum")
-        self.assertFields(bowtie_index, "build", "dd-05-2009")
-
-    @tag_process("alignment-bowtie")
-    def test_bowtie(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
             reads_single = self.prepare_reads()
             reads_paired = self.prepare_paired_reads(
                 mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
                 mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
             )
 
-        inputs = {
-            "genome": genome.id,
-            "reads": reads_single.id,
-            "trimming": {"trim_iter": 2, "trim_nucl": 4},
-            "reporting": {"r": "-a -m 1 --best --strata"},
-        }
-        alignment = self.run_process("alignment-bowtie", inputs)
+        bowtie_index = self.run_process("bowtie-index", {"ref_seq": ref_seq.id})
+        self.assertDir(bowtie_index, "index", output_folder / "bowtie_index.tar.gz")
+        self.assertFile(bowtie_index, "fasta", output_folder / "genome.fasta")
         self.assertFile(
-            alignment, "stats", "bowtie_single_reads_report.tab.gz", compression="gzip"
-        )
-        self.assertFields(alignment, "species", "Dictyostelium discoideum")
-        self.assertFields(alignment, "build", "dd-05-2009")
-
-        inputs = {
-            "genome": genome.id,
-            "reads": reads_paired.id,
-            "trimming": {"trim_iter": 2, "trim_nucl": 4},
-            "reporting": {"r": "-a -m 1 --best --strata"},
-            "use_se": True,
-        }
-        alignment = self.run_process("alignment-bowtie", inputs)
-        self.assertFile(
-            alignment, "stats", "bowtie_use_SE_report.tab.gz", compression="gzip"
-        )
-
-        inputs = {
-            "genome": genome.id,
-            "reads": reads_paired.id,
-            "trimming": {"trim_iter": 2, "trim_nucl": 4},
-            "reporting": {"r": "-a -m 1 --best --strata"},
-        }
-        alignment = self.run_process("alignment-bowtie", inputs)
-        self.assertFile(
-            alignment, "stats", "bowtie_paired_reads_report.tab.gz", compression="gzip"
-        )
-
-    @tag_process("bowtie2-index")
-    def test_bowtie2_index(self):
-        with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="./test_bowtie2/input/g.en ome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-
-        bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
-        self.assertDir(
-            bowtie2_index,
-            "index",
-            os.path.join("test_bowtie2", "output", "bowtie2_index.tar.gz"),
-        )
-        self.assertFile(
-            bowtie2_index,
-            "fasta",
-            os.path.join("test_bowtie2", "output", "genome.fasta"),
-        )
-        self.assertFile(
-            bowtie2_index,
+            bowtie_index,
             "fastagz",
-            os.path.join("test_bowtie2", "output", "genome.fasta.gz"),
+            output_folder / "genome.fasta.gz",
             compression="gzip",
         )
         self.assertFile(
-            bowtie2_index,
-            "fai",
-            os.path.join("test_bowtie2", "output", "genome.fasta.fai"),
+            bowtie_index, "fai", output_folder / "genome.fasta.fai",
         )
-        self.assertFields(bowtie2_index, "species", "Dictyostelium discoideum")
-        self.assertFields(bowtie2_index, "build", "dd-05-2009")
+        self.assertFields(bowtie_index, "species", "Dictyostelium discoideum")
+        self.assertFields(bowtie_index, "build", "dd-05-2009")
 
-    @tag_process("alignment-bowtie2")
+        alignment_single = self.run_process(
+            "alignment-bowtie",
+            {
+                "genome": bowtie_index.id,
+                "reads": reads_single.id,
+                "trimming": {"trim_iter": 2, "trim_nucl": 4},
+                "reporting": {"r": "-a -m 1 --best --strata"},
+            },
+        )
+        self.assertFile(
+            alignment_single,
+            "stats",
+            output_folder / "bowtie_single_reads_report.tab.gz",
+            compression="gzip",
+        )
+        self.assertFields(alignment_single, "species", "Dictyostelium discoideum")
+        self.assertFields(alignment_single, "build", "dd-05-2009")
+
+        alignment_paired = self.run_process(
+            "alignment-bowtie",
+            {
+                "genome": bowtie_index.id,
+                "reads": reads_paired.id,
+                "trimming": {"trim_iter": 2, "trim_nucl": 4},
+                "reporting": {"r": "-a -m 1 --best --strata"},
+            },
+        )
+        self.assertFile(
+            alignment_paired,
+            "stats",
+            output_folder / "bowtie_paired_reads_report.tab.gz",
+            compression="gzip",
+        )
+
+        alignment_use_se = self.run_process(
+            "alignment-bowtie",
+            {
+                "genome": bowtie_index.id,
+                "reads": reads_paired.id,
+                "trimming": {"trim_iter": 2, "trim_nucl": 4},
+                "reporting": {"r": "-a -m 1 --best --strata"},
+                "use_se": True,
+            },
+        )
+        self.assertFile(
+            alignment_use_se,
+            "stats",
+            output_folder / "bowtie_use_SE_report.tab.gz",
+            compression="gzip",
+        )
+
+    @tag_process("bowtie2-index", "alignment-bowtie2")
     def test_bowtie2(self):
+        input_folder = Path("test_bowtie2") / "input"
+        output_folder = Path("test_bowtie2") / "output"
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn=str(input_folder / "g.en ome.fasta.gz"),
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
             reads = self.prepare_reads()
             reads_paired = self.prepare_paired_reads(
                 mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
                 mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
             )
 
+        bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
+        self.assertDir(bowtie2_index, "index", output_folder / "bowtie2_index.tar.gz")
+        self.assertFile(bowtie2_index, "fasta", output_folder / "genome.fasta")
+        self.assertFile(
+            bowtie2_index,
+            "fastagz",
+            output_folder / "genome.fasta.gz",
+            compression="gzip",
+        )
+        self.assertFile(bowtie2_index, "fai", output_folder / "genome.fasta.fai")
+        self.assertFields(bowtie2_index, "species", "Dictyostelium discoideum")
+        self.assertFields(bowtie2_index, "build", "dd-05-2009")
+
         # Values for alignment options are default according to the documentation. However, L may not be set
         # correctly as there is some incongruency. See https://github.com/BenLangmead/bowtie2/issues/215
         inputs = {
-            "genome": genome.pk,
+            "genome": bowtie2_index.pk,
             "reads": reads.pk,
             "trimming": {"trim_iter": 2, "trim_nucl": 4},
             "reporting": {"rep_mode": "def"},
@@ -147,47 +138,22 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "score_min": "L,-0.6,-0.6",
             },
         }
-        aligned_reads = self.run_process("alignment-bowtie2", inputs)
-        self.assertFile(aligned_reads, "stats", "bowtie2_reads_report.txt")
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
+        single_end = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(single_end, "stats", output_folder / "bowtie2_reads_report.txt")
+        self.assertFields(single_end, "species", "Dictyostelium discoideum")
+        self.assertFields(single_end, "build", "dd-05-2009")
 
-        inputs = {
-            "genome": genome.id,
-            "reads": reads_paired.id,
-            "trimming": {"trim_iter": 2, "trim_nucl": 4},
-            "reporting": {"rep_mode": "def"},
-            "alignment_options": {
-                "N": 0,
-                "gbar": 4,
-                "L": 22,
-                "mp": "6,2",
-                "rdg": "5,3",
-                "rfg": "5,3",
-                "score_min": "L,-0.6,-0.6",
-            },
-        }
-        aligned_reads = self.run_process("alignment-bowtie2", inputs)
-        self.assertFile(aligned_reads, "stats", "bowtie2_paired_end_report.txt")
+        inputs["reads"] = reads_paired.id
+        paired_end = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(
+            paired_end, "stats", output_folder / "bowtie2_paired_end_report.txt"
+        )
 
-        inputs = {
-            "genome": genome.id,
-            "reads": reads_paired.id,
-            "trimming": {"trim_iter": 2, "trim_nucl": 4},
-            "reporting": {"rep_mode": "def"},
-            "PE_options": {"use_se": True},
-            "alignment_options": {
-                "N": 0,
-                "gbar": 4,
-                "L": 22,
-                "mp": "6,2",
-                "rdg": "5,3",
-                "rfg": "5,3",
-                "score_min": "L,-0.6,-0.6",
-            },
-        }
-        aligned_reads = self.run_process("alignment-bowtie2", inputs)
-        self.assertFile(aligned_reads, "stats", "bowtie2_use_SE_report.txt")
+        inputs["PE_options"] = {"use_se": True}
+        paired_end_se_mode = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(
+            paired_end_se_mode, "stats", output_folder / "bowtie2_use_SE_report.txt"
+        )
 
     @with_resolwe_host
     @tag_process("alignment-star-index", "alignment-star")
@@ -383,139 +349,104 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(exp, "exp_set", star_out_exp_set, compression="gzip")
         self.assertJSON(exp, exp.output["exp_set_json"], "", star_exp_set)
 
-    @tag_process("bwa-index")
-    def test_bwa_index(self):
+    @tag_process(
+        "bwa-index", "alignment-bwa-aln", "alignment-bwa-sw", "alignment-bwa-mem"
+    )
+    def test_bwa(self):
+        input_folder = Path("test_bwa") / "input"
+        output_folder = Path("test_bwa") / "output"
         with self.preparation_stage():
             ref_seq = self.prepare_ref_seq(
-                fn="./test_bwa/input/g.en ome.fasta.gz",
+                fn=str(input_folder / "g.en ome.fasta.gz"),
                 species="Dictyostelium discoideum",
                 build="dd-05-2009",
+            )
+            reads = self.prepare_reads()
+            reads_paired = self.prepare_paired_reads(
+                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
+                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
             )
 
         bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
-        self.assertDir(
-            bwa_index, "index", os.path.join("test_bwa", "output", "bwa_index.tar.gz")
-        )
+        self.assertDir(bwa_index, "index", output_folder / "bwa_index.tar.gz")
+        self.assertFile(bwa_index, "fasta", output_folder / "genome.fasta")
         self.assertFile(
-            bwa_index, "fasta", os.path.join("test_bwa", "output", "genome.fasta")
+            bwa_index, "fastagz", output_folder / "genome.fasta.gz", compression="gzip"
         )
-        self.assertFile(
-            bwa_index,
-            "fastagz",
-            os.path.join("test_bwa", "output", "genome.fasta.gz"),
-            compression="gzip",
-        )
-        self.assertFile(
-            bwa_index, "fai", os.path.join("test_bwa", "output", "genome.fasta.fai")
-        )
+        self.assertFile(bwa_index, "fai", output_folder / "genome.fasta.fai")
         self.assertFields(bwa_index, "species", "Dictyostelium discoideum")
         self.assertFields(bwa_index, "build", "dd-05-2009")
 
-    @tag_process("alignment-bwa-aln")
-    def test_bwa_bt(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-            reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(
-                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
-                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
-            )
-
-        inputs = {"genome": genome.id, "reads": reads.id}
-        aligned_reads = self.run_process("alignment-bwa-aln", inputs)
-        self.assertFile(aligned_reads, "stats", "bwa_bt_reads_report.txt")
-
-        inputs = {"genome": genome.id, "reads": reads_paired.id}
-        aligned_reads = self.run_process("alignment-bwa-aln", inputs)
-        self.assertFile(aligned_reads, "stats", "bwa_bt_paired_reads_report.txt")
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
-
-    @tag_process("alignment-bwa-sw")
-    def test_bwa_sw(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-            reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(
-                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
-                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
-            )
-
-        inputs = {"genome": genome.id, "reads": reads.id}
-        aligned_reads = self.run_process("alignment-bwa-sw", inputs)
-        self.assertFile(aligned_reads, "bam", "bwa_sw_reads_mapped.bam")
-        self.assertFile(aligned_reads, "stats", "bwa_sw_reads_report.txt")
-
-        inputs = {"genome": genome.id, "reads": reads_paired.id}
-        aligned_reads = self.run_process("alignment-bwa-sw", inputs)
-        self.assertFile(aligned_reads, "bam", "bwa_sw_paired_reads_mapped.bam")
-        self.assertFile(aligned_reads, "stats", "bwa_sw_paired_reads_report.txt")
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
-
-    @tag_process("alignment-bwa-mem")
-    def test_bwa_mem(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-            reads = self.prepare_reads()
-            reads_paired = self.prepare_paired_reads(
-                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
-                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
-            )
-
-        inputs = {"genome": genome.id, "reads": reads.id}
-        aligned_reads = self.run_process("alignment-bwa-mem", inputs)
-        self.assertFile(aligned_reads, "stats", "bwa_mem_reads_report.txt")
-
-        inputs = {"genome": genome.id, "reads": reads_paired.id}
-        aligned_reads = self.run_process("alignment-bwa-mem", inputs)
-        self.assertFile(aligned_reads, "stats", "bwa_mem_paired_reads_report.txt")
+        single_end_aln = self.run_process(
+            "alignment-bwa-aln", {"genome": bwa_index.id, "reads": reads.id}
+        )
         self.assertFile(
-            aligned_reads,
+            single_end_aln, "stats", output_folder / "bwa_bt_reads_report.txt"
+        )
+
+        paired_end_aln = self.run_process(
+            "alignment-bwa-aln", {"genome": bwa_index.id, "reads": reads_paired.id}
+        )
+        self.assertFile(
+            paired_end_aln, "stats", output_folder / "bwa_bt_paired_reads_report.txt"
+        )
+        self.assertFields(paired_end_aln, "species", "Dictyostelium discoideum")
+        self.assertFields(paired_end_aln, "build", "dd-05-2009")
+
+        single_end_sw = self.run_process(
+            "alignment-bwa-sw", {"genome": bwa_index.id, "reads": reads.id}
+        )
+        self.assertFile(single_end_sw, "bam", output_folder / "bwa_sw_reads_mapped.bam")
+        self.assertFile(
+            single_end_sw, "stats", output_folder / "bwa_sw_reads_report.txt"
+        )
+
+        paired_end_sw = self.run_process(
+            "alignment-bwa-sw", {"genome": bwa_index.id, "reads": reads_paired.id}
+        )
+        self.assertFile(
+            paired_end_sw, "bam", output_folder / "bwa_sw_paired_reads_mapped.bam"
+        )
+        self.assertFile(
+            paired_end_sw, "stats", output_folder / "bwa_sw_paired_reads_report.txt"
+        )
+        self.assertFields(paired_end_sw, "species", "Dictyostelium discoideum")
+        self.assertFields(paired_end_sw, "build", "dd-05-2009")
+
+        single_end_mem = self.run_process(
+            "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads.id}
+        )
+        self.assertFile(
+            single_end_mem, "stats", output_folder / "bwa_mem_reads_report.txt"
+        )
+
+        paired_end_mem = self.run_process(
+            "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads_paired.id}
+        )
+        self.assertFile(
+            paired_end_mem, "stats", output_folder / "bwa_mem_paired_reads_report.txt"
+        )
+        self.assertFile(
+            paired_end_mem,
             "unmapped",
-            "bwa_mem_unmapped_reads.fastq.gz",
+            output_folder / "bwa_mem_unmapped_reads.fastq.gz",
             compression="gzip",
             sort=True,
         )
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
+        self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
+        self.assertFields(paired_end_mem, "build", "dd-05-2009")
 
-    @tag_process("hisat2-index")
-    def test_hisat2_index(self):
-        with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="./test_hisat2/input/g.en ome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-
-        hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
-        self.assertDir(
-            hisat2_index,
-            "index",
-            os.path.join("test_hisat2", "output", "hisat2_index.tar.gz"),
-        )
-        self.assertFile(
-            hisat2_index, "fasta", os.path.join("test_hisat2", "output", "genome.fasta")
-        )
-        self.assertFile(
-            hisat2_index,
-            "fastagz",
-            os.path.join("test_hisat2", "output", "genome.fasta.gz"),
-            compression="gzip",
-        )
-        self.assertFile(
-            hisat2_index,
-            "fai",
-            os.path.join("test_hisat2", "output", "genome.fasta.fai"),
-        )
-        self.assertFields(hisat2_index, "species", "Dictyostelium discoideum")
-        self.assertFields(hisat2_index, "build", "dd-05-2009")
-
-    @tag_process("alignment-hisat2")
+    @tag_process("hisat2-index", "alignment-hisat2")
     def test_hisat2(self):
+        input_folder = Path("test_hisat2") / "input"
+        output_folder = Path("test_hisat2") / "output"
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            # Use dicty genome and reads but declare it as human so no mapping to UCSC chr names can happen.
+            ref_seq = self.prepare_ref_seq(
+                fn=str(input_folder / "g.enome.fasta.gz"),
+                species="Homo sapiens",
+                build="GRCh38.p12",
+            )
             reads = self.prepare_reads()
             sample = Sample.objects.get(data=reads)
             sample.name = "Single reads"
@@ -527,43 +458,74 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             sample_paired = Sample.objects.get(data=reads_paired)
             sample_paired.name = "Paired-end reads"
             sample_paired.save()
+            no_mapping_reads = self.prepare_reads(
+                fn=[str(input_folder / "reads-map-to-nowhere.fastq.gz")]
+            )
 
-        inputs = {"genome": genome.id, "reads": reads.id}
-        aligned_reads = self.run_process("alignment-hisat2", inputs)
-        self.assertFile(aligned_reads, "stats", "hisat2_report.txt")
+        hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
+        self.assertDir(hisat2_index, "index", output_folder / "hisat2_index.tar.gz")
+        self.assertFile(hisat2_index, "fasta", output_folder / "genome.fasta")
         self.assertFile(
-            aligned_reads,
+            hisat2_index,
+            "fastagz",
+            output_folder / "genome.fasta.gz",
+            compression="gzip",
+        )
+        self.assertFile(hisat2_index, "fai", output_folder / "genome.fasta.fai")
+        self.assertFields(hisat2_index, "species", "Homo sapiens")
+        self.assertFields(hisat2_index, "build", "GRCh38.p12")
+
+        single_end = self.run_process(
+            "alignment-hisat2", {"genome": hisat2_index.id, "reads": reads.id}
+        )
+        self.assertFile(single_end, "stats", output_folder / "hisat2_report.txt")
+        self.assertFile(
+            single_end,
             "unmapped_f",
-            "hisat2_unmapped.fastq.gz",
+            output_folder / "hisat2_unmapped.fastq.gz",
             compression="gzip",
             sort=True,
         )
-        self.assertFileExists(aligned_reads, "splice_junctions")
+        self.assertFileExists(single_end, "splice_junctions")
+        msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
+        self.assertEqual(single_end.process_warning, [msg])
 
-        inputs = {"genome": genome.id, "reads": reads_paired.id}
-        aligned_reads = self.run_process("alignment-hisat2", inputs)
-        self.assertFile(aligned_reads, "stats", "hisat2_paired_report.txt")
-        self.assertFile(aligned_reads, "bigwig", "hisat2_paired_bigwig.bw")
+        paired_end = self.run_process(
+            "alignment-hisat2", {"genome": hisat2_index.id, "reads": reads_paired.id}
+        )
+        self.assertFile(paired_end, "stats", output_folder / "hisat2_paired_report.txt")
+        self.assertFile(paired_end, "bigwig", output_folder / "hisat2_paired_bigwig.bw")
         self.assertFile(
-            aligned_reads,
+            paired_end,
             "unmapped_f",
-            "hisat2_unmapped_1.fastq.gz",
+            output_folder / "hisat2_unmapped_1.fastq.gz",
             compression="gzip",
             sort=True,
         )
         self.assertFile(
-            aligned_reads,
+            paired_end,
             "unmapped_r",
-            "hisat2_unmapped_2.fastq.gz",
+            output_folder / "hisat2_unmapped_2.fastq.gz",
             compression="gzip",
             sort=True,
         )
-        self.assertFileExists(aligned_reads, "splice_junctions")
-        self.assertFields(aligned_reads, "species", "Dictyostelium discoideum")
-        self.assertFields(aligned_reads, "build", "dd-05-2009")
+        self.assertFileExists(paired_end, "splice_junctions")
+        self.assertFields(paired_end, "species", "Homo sapiens")
+        self.assertFields(paired_end, "build", "GRCh38.p12")
+
+        no_mapping = self.run_process(
+            "alignment-hisat2",
+            {"reads": no_mapping_reads.id, "genome": hisat2_index.id},
+        )
+        self.assertEqual(
+            no_mapping.process_warning,
+            ["Bam file has no entries. No bigWig file will be made."],
+        )
 
     @tag_process("alignment-hisat2")
     def test_hisat2_bigwig(self):
+        input_folder = Path("test_hisat2") / "input"
+        output_folder = Path("test_hisat2") / "output"
         with self.preparation_stage():
             paired_reads_ucsc = self.prepare_paired_reads(
                 mate1=["SRR2124780_1 1k.fastq.gz"], mate2=["SRR2124780_2 1k.fastq.gz"]
@@ -573,64 +535,36 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 mate2=["GRCh38.p12_NCBIchr21_R2.fq.gz"],
             )
 
-            inputs = {
-                "src": "hg38_chr21_9M.fa.gz",
-                "species": "Homo sapiens",
-                "build": "hg38",
-            }
-            genome_ucsc = self.run_process("upload-genome", inputs)
+            ref_seq_ucsc = self.prepare_ref_seq(
+                fn=str(input_folder / "hg38_chr21_9M.fa.gz"),
+                species="Homo sapiens",
+                build="hg38",
+            )
+            hisat2_index_ucsc = self.run_process(
+                "hisat2-index", {"ref_seq": ref_seq_ucsc.id}
+            )
 
-            inputs = {
-                "src": "GRCh38.p12_NCBIchr21_9M.fasta.gz",
-                "species": "Homo sapiens",
-                "build": "GRCh38.p12",
-            }
-            genome_ncbi = self.run_process("upload-genome", inputs)
-
-        inputs = {
-            "genome": genome_ucsc.id,
-            "reads": paired_reads_ucsc.id,
-        }
-        aligned_reads = self.run_process("alignment-hisat2", inputs)
-        self.assertFile(aligned_reads, "bigwig", "hisat2_paired_ucsc_bigwig.bw")
-
-        inputs = {
-            "genome": genome_ncbi.id,
-            "reads": paired_reads_ncbi.id,
-        }
-        aligned_reads = self.run_process("alignment-hisat2", inputs)
-        self.assertFile(aligned_reads, "bigwig", "hisat2_paired_ncbi_bigwig.bw")
-
-    @tag_process("alignment-hisat2")
-    def test_empty_bam(self):
-        with self.preparation_stage():
-            genome = self.prepare_genome()
-            reads = self.prepare_reads(["reads-map-to-nowhere.fastq"])
-
-        aligned_reads = self.run_process(
-            "alignment-hisat2", input_={"reads": reads.id, "genome": genome.id,}
-        )
-        self.assertEqual(
-            aligned_reads.process_warning,
-            ["Bam file has no entries. No bigWig file will be made."],
-        )
-
-    @tag_process("alignment-hisat2")
-    def test_no_bigwig_mappings(self):
-        """Use dicty genome and reads but declare it as human so no mapping to UCSC can happen."""
-        with self.preparation_stage():
-            reads = self.prepare_reads()
-            genome = self.run_process(
-                "upload-genome",
-                {
-                    "src": "genome.fasta.gz",
-                    "species": "Homo sapiens",
-                    "build": "GRCh38.p12",
-                },
+            ref_seq_ncbi = self.prepare_ref_seq(
+                fn=str(input_folder / "GRCh38.p12_NCBIchr21_9M.fasta.gz"),
+                species="Homo sapiens",
+                build="GRCh38.p12",
+            )
+            hisat2_index_ncbi = self.run_process(
+                "hisat2-index", {"ref_seq": ref_seq_ncbi.id}
             )
 
         aligned_reads = self.run_process(
-            "alignment-hisat2", {"reads": reads.id, "genome": genome.id,}
+            "alignment-hisat2",
+            {"genome": hisat2_index_ucsc.id, "reads": paired_reads_ucsc.id},
         )
-        msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
-        self.assertEqual(aligned_reads.process_warning, [msg])
+        self.assertFile(
+            aligned_reads, "bigwig", output_folder / "hisat2_paired_ucsc_bigwig.bw"
+        )
+
+        aligned_reads = self.run_process(
+            "alignment-hisat2",
+            {"genome": hisat2_index_ncbi.id, "reads": paired_reads_ncbi.id},
+        )
+        self.assertFile(
+            aligned_reads, "bigwig", output_folder / "hisat2_paired_ncbi_bigwig.bw"
+        )

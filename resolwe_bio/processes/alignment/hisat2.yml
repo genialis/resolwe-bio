@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/rnaseq:4.9.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.7.0
+  version: 2.0.0
   type: data:alignment:bam:hisat2
   category: Align
   flow_collection: sample
@@ -28,7 +28,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:hisat2
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -91,7 +91,7 @@
     language: bash
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX="{{genome.index_hisat2.dir}}/${GENOME_NAME}_index"
+      INDEX={{genome.index.dir}}/"${GENOME_NAME}_index"
 
       NAME={{ reads.fastq.0.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
 
@@ -120,7 +120,7 @@
       hisat2 \
         -p {{requirements.resources.cores}} \
         --no-unal \
-        -x ${INDEX} \
+        -x "${INDEX}" \
         {% if reads|type|subtype('data:reads:fastq:single:') %}-U fw_reads.fastq.gz{% endif %} \
         {% if reads|type|subtype('data:reads:fastq:paired:') %}-1 fw_reads.fastq.gz -2 rw_reads.fastq.gz{% endif %} \
         -S alignment_unsorted.sam \
