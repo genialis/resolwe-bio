@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 from jinja2 import Environment, FunctionLoader
 
 from resolwe.flow.models import Collection, Data, DescriptorSchema, Process, Relation

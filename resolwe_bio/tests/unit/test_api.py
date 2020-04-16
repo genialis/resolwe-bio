@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 

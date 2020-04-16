@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Merge columns of multiple experiments by gene id."""
 from __future__ import absolute_import

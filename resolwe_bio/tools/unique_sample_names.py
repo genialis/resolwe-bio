@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Check if sample names are unique."""
 from __future__ import absolute_import, division, print_function

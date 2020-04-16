@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
 """Import expression time course."""
 
 import csv

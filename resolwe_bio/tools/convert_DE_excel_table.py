@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-docstring,invalid-name
 """Convert differential expression to Excel table."""
 
 import sys

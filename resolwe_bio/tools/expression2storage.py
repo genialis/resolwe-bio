@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Save expressions to storage."""
 

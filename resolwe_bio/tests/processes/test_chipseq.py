@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 from os.path import join
 
 from resolwe.flow.models import Collection, Data, Relation

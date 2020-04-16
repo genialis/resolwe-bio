@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name,import-error
 """Rename column names in bamliquidator matrix table to show sample names istead of bam names."""
 from __future__ import absolute_import, division, print_function, unicode_literals
 

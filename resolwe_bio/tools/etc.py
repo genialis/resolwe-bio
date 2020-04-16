@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Build expression time course."""
 from __future__ import absolute_import, division, print_function

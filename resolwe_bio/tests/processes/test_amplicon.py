@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 from os.path import join
 
 from resolwe.test import tag_process

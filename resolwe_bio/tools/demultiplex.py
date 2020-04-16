@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=missing-docstring,invalid-name,redefined-outer-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """NGS reads demultiplexer."""
 

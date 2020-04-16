@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring,invalid-name
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 

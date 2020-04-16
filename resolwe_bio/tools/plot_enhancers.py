@@ -1,5 +1,4 @@
 #!/usr/bin/env python2
-# pylint: disable=missing-docstring,invalid-name
 # XXX: Refactor to a comand line tool and remove pylint disable
 """Parse coordinates for the hockey-stick plot."""
 from __future__ import absolute_import, division, print_function
