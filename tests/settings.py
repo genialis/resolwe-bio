@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'resolwe.permissions',
     'resolwe.flow',
     'resolwe.elastic',
+    'resolwe.storage',
     'resolwe.toolkit',
     'resolwe.test_helpers',
 

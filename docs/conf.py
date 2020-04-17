@@ -20,6 +20,7 @@ settings.configure(
         'django.contrib.contenttypes',
         'guardian',
         'resolwe.flow',
+        'resolwe.storage',
         'resolwe_bio',
     ),
 )
