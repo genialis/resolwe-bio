@@ -17,7 +17,7 @@
           - case
         required: True
   data_name: ChIP-Seq Workflow Batch
-  version: 1.1.0
+  version: 1.2.0
   type: data:chipseq:batch:macs2
   category: ChIP-Seq:Call Peaks
   persistence: CACHED
@@ -345,6 +345,12 @@
       label: ROSE2 settings
       hidden: "!advanced"
       group:
+        - name: use_filtered_bam
+          label: Use Filtered BAM File
+          type: basic:boolean
+          default: true
+          description: |
+            Use filtered BAM file from a MACS2 object to rank enhancers by.
         - name: tss
           label: TSS exclusion
           type: basic:integer
@@ -443,6 +449,7 @@
             '},' \
             '"rose_settings": {' \
               '"tss": {{ rose_settings.tss }}' \
+              ',"use_filtered_bam": {{ rose_settings.use_filtered_bam|lower }}' \
               {% if rose_settings.stitch or rose_settings.stitch == 0  %} \
                 ',"stitch": {{ rose_settings.stitch }}' \
               {% endif %} \

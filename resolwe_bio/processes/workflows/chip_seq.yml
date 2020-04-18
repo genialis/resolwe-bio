@@ -3,7 +3,7 @@
   data_name: "{{ case|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.2.0
   type: data:workflow:chipseq:macs2rose2
   category: Pipeline
   input:
@@ -292,6 +292,12 @@
     - name: rose_settings
       label: ROSE2 settings
       group:
+        - name: use_filtered_bam
+          label: Use Filtered BAM File
+          type: basic:boolean
+          default: false
+          description: |
+            Use filtered BAM file from a MACS2 object to rank enhancers by.
         - name: tss
           label: TSS exclusion
           type: basic:integer
@@ -351,7 +357,8 @@
       - id: rose2
         run: rose2
         input:
-          input: '{{ steps.macs2 }}'
+          input_macs: '{{ steps.macs2 }}'
+          use_filtered_bam: '{{ input.rose_settings.use_filtered_bam }}'
           rankby: '{{ input.case }}'
           control: '{{ input.control }}'
           tss: '{{ input.rose_settings.tss }}'
