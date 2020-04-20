@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: 'Cuffdiff results'
-  version: 2.3.0
+  version: 3.0.0
   type: data:differentialexpression:cuffdiff
   category: Differential Expression
   persistence: CACHED
@@ -45,7 +45,7 @@
         A transcript annotation file produced by cufflinks, cuffcompare, or other tool.
     - name: genome
       label: Run bias detection and correction algorithm
-      type: data:genome:fasta
+      type: data:seq:nucleotide
       required: false
       description: |
         Provide Cufflinks with a multifasta file (genome file) via this

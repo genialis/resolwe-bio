@@ -23,12 +23,10 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
                 },
             )
 
-            inputs = {
-                "src": "hs_b37_chr2_small.fasta.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.prepare_ref_seq(
+                fn="hs_b37_chr2_small.fasta.gz", species="Homo sapiens", build="b37",
+            )
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
             master_file = self.prepare_amplicon_master_file()
 
@@ -50,7 +48,8 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
             "workflow-accel",
             {
                 "reads": reads.id,
-                "genome": genome.id,
+                "genome": ref_seq.id,
+                "bwa_index": bwa_index.id,
                 "master_file": master_file.id,
                 "adapters": adapters.id,
                 "preprocess_bam": {

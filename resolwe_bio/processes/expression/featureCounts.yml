@@ -14,7 +14,7 @@
       cores: 10
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 2.6.0
+  version: 3.0.0
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -308,7 +308,7 @@
                 input (containing 'N' in CIGAR string).
             - name: genome
               label: Genome
-              type: data:genome
+              type: data:seq:nucleotide
               disabled: '!advanced.exon_exon_junctions.junc_counts'
               required: false
               description: |
@@ -554,7 +554,7 @@
           -s ${STRANDEDNESS} \
           {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
           {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
-             -G {{ advanced.exon_exon_junctions.genome.src.file }} \
+             -G {{ advanced.exon_exon_junctions.genome.fasta.file }} \
           {% endif %} \
           -T {{ requirements.resources.cores }} \
           {% if advanced.read_groups.by_read_group %} --byReadGroup {% endif %} \
@@ -591,7 +591,7 @@
           -s ${STRANDEDNESS} \
           {% if advanced.exon_exon_junctions.junc_counts %} -J {% endif %} \
           {% if advanced.exon_exon_junctions.junc_counts and advanced.exon_exon_junctions.genome %} \
-            -G {{ advanced.exon_exon_junctions.genome.src.file }} \
+            -G {{ advanced.exon_exon_junctions.genome.fasta.file }} \
           {% endif %} \
           {% if advanced.paired_end.is_paired_end %} -p {% endif %} \
           {% if advanced.paired_end.require_both_ends_mapped %} -B {% endif %} \

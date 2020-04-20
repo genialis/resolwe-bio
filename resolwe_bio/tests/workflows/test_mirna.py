@@ -14,15 +14,9 @@ class MicroRNATestCase(KBBioProcessTestCase):
                 "src": "genome_rsem.fa.gz",
                 "species": "Homo sapiens",
                 "build": "fake_genome_RSEM",
-                "advanced": {
-                    "bowtie_index": "genome_rsem_bt_index.tar.gz",
-                    "bowtie2_index": "genome_rsem_bt2_index.tar.gz",
-                    "bwa_index": "genome_rsem_bwa_index.tar.gz",
-                    "hisat2_index": "genome_rsem_hisat2_index.tar.gz",
-                    "subread_index": "genome_rsem_subread_index.tar.gz",
-                },
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
             single_reads = self.prepare_reads(["reads rsem.fq.gz"])
             annotation = self.prepare_annotation(
                 "annotation_rsem.gtf.gz",
@@ -31,7 +25,7 @@ class MicroRNATestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "genome": genome.pk,
+            "genome": bowtie2_index.pk,
             "reads": single_reads.pk,
             "annotation": annotation.pk,
             "feature_class": "exon",

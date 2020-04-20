@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.5.0
+  version: 2.0.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -28,9 +28,12 @@
     - name: reads
       label: Select sample(s)
       type: data:reads:fastq:single
-    - name: genome
-      label: Genome
-      type: data:genome:fasta
+    - name: walt_index
+      label: Walt index
+      type: data:index:walt
+    - name: ref_seq
+      label: Reference sequence
+      type: data:seq:nucleotide
     - name: validation_stringency
       label: Validation stringency
       type: basic:string
@@ -138,7 +141,7 @@
         - name: spikein_name
           label: Chromosome name of unmethylated control sequence
           type: basic:string
-          required: false 
+          required: false
           description: |
             Specifies the name of unmethylated control sequence which is output as a separate alignment file.
             It is recomended to remove duplicates to reduce any bias introduced by incomplete conversion
@@ -146,7 +149,7 @@
         - name: filter_spikein
           label: Remove control/spike-in sequences.
           type: basic:boolean
-          disabled: > 
+          disabled: >
             !alignment.spikein_name
           default: false
           description: |
@@ -315,7 +318,7 @@
       - id: walt
         run: walt
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.walt_index }}'
           reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
           mismatch: '{{ input.alignment.mismatch }}'
@@ -336,7 +339,7 @@
       - id: methcounts
         run: methcounts
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           alignment: '{{ steps.walt }}'
           cpgs: '{{ input.methcounts.cpgs }}'
           symmetric_cpgs: '{{ input.methcounts.symmetric_cpgs }}'
@@ -356,7 +359,7 @@
         run: alignment-summary
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           adapters: '{{ input.summary.adapters }}'
           validation_stringency: '{{ input.validation_stringency }}'
           insert_size: '{{ input.summary.insert_size }}'
@@ -367,7 +370,7 @@
         run: wgs-metrics
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           read_length: '{{ input.wgs_metrics.read_length }}'
           create_histogram: false
           options:
@@ -381,7 +384,7 @@
         run: rrbs-metrics
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           min_quality: '{{ input.rrbs_metrics.min_quality }}'
           next_base_quality: '{{ input.rrbs_metrics.next_base_quality }}'
           min_lenght: '{{ input.rrbs_metrics.min_lenght }}'
@@ -405,7 +408,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.5.0
+  version: 2.0.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -430,9 +433,12 @@
     - name: reads
       label: Select sample(s)
       type: data:reads:fastq:paired
-    - name: genome
-      label: Genome
-      type: data:genome:fasta
+    - name: walt_index
+      label: Walt index
+      type: data:index:walt
+    - name: ref_seq
+      label: Reference sequence
+      type: data:seq:nucleotide
     - name: validation_stringency
       label: Validation stringency
       type: basic:string
@@ -506,7 +512,7 @@
           required: false
           description: |
             Specifies how accurate the match between the two 'adapter
-            ligated' reads must be for PE palindrome read alignment. 
+            ligated' reads must be for PE palindrome read alignment.
             This field is required to perform adapter trimming.
         - name: keep_both_reads
           label: Keep both reads
@@ -593,7 +599,7 @@
         - name: filter_spikein
           label: Remove control/spike-in sequences.
           type: basic:boolean
-          disabled: > 
+          disabled: >
             !alignment.spikein_name
           default: false
           description: |
@@ -791,7 +797,7 @@
       - id: walt
         run: walt
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.walt_index }}'
           reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
           mismatch: '{{ input.alignment.mismatch }}'
@@ -812,7 +818,7 @@
       - id: methcounts
         run: methcounts
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           alignment: '{{ steps.walt }}'
           cpgs: '{{ input.methcounts.cpgs }}'
           symmetric_cpgs: '{{ input.methcounts.symmetric_cpgs }}'
@@ -832,7 +838,7 @@
         run: alignment-summary
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           adapters: '{{ input.summary.adapters }}'
           validation_stringency: '{{ input.validation_stringency }}'
           insert_size: '{{ input.summary.insert_size }}'
@@ -843,7 +849,7 @@
         run: wgs-metrics
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           read_length: '{{ input.wgs_metrics.read_length }}'
           create_histogram: false
           options:
@@ -857,7 +863,7 @@
         run: rrbs-metrics
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           min_quality: '{{ input.rrbs_metrics.min_quality }}'
           next_base_quality: '{{ input.rrbs_metrics.next_base_quality }}'
           min_lenght: '{{ input.rrbs_metrics.min_lenght }}'
@@ -868,7 +874,7 @@
         run: insert-size
         input:
           bam: '{{ steps.walt }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           minimum_fraction: '{{ input.insert.minimum_fraction }}'
           include_duplicates: '{{ input.insert.include_duplicates }}'
           deviations: '{{ input.insert.deviations }}'

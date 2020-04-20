@@ -25,7 +25,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "1.3.0"
+    version = "2.0.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -39,7 +39,7 @@ class BQSR(Process):
         """Input fields to perform Base quality score recalibration."""
 
         bam = DataField("alignment:bam", label="BAM file containing reads")
-        reference = DataField("genome:fasta", label="Reference genome file")
+        reference = DataField("seq:nucleotide", label="Reference genome file")
         known_sites = ListField(
             DataField(
                 data_type="variants:vcf",

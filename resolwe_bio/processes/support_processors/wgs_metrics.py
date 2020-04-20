@@ -48,7 +48,7 @@ class InsertSizeMetrics(Process):
     name = "Picard WGS Metrics"
     category = "Picard"
     process_type = "data:picard:wgsmetrics"
-    version = "1.0.1"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -61,7 +61,7 @@ class InsertSizeMetrics(Process):
         """Input fields for CollectWgsMetrics."""
 
         bam = DataField("alignment:bam", label="Alignment BAM file")
-        genome = DataField("genome:fasta", label="Genome")
+        genome = DataField("seq:nucleotide", label="Genome")
 
         read_length = IntegerField(label="Average read length", default=150)
 

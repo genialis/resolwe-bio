@@ -16,7 +16,8 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
             inputs = {"src1": ["AX4_mate1.fq.gz"], "src2": ["AX4_mate2.fq.gz"]}
 
@@ -26,14 +27,14 @@ class VariantCallingTestCase(BioProcessTestCase):
 
             mut_reads = self.run_process("upload-fastq-paired", inputs)
 
-            inputs = {"genome": genome.id, "reads": parental_reads.id}
+            inputs = {"genome": bwa_index.id, "reads": parental_reads.id}
             align_parental = self.run_process("alignment-bwa-mem", inputs)
 
-            inputs = {"genome": genome.id, "reads": mut_reads.id}
+            inputs = {"genome": bwa_index.id, "reads": mut_reads.id}
             align_mut = self.run_process("alignment-bwa-mem", inputs)
 
         inputs = {
-            "genome": genome.pk,
+            "genome": ref_seq.id,
             "parental_strains": [align_parental.id],
             "mutant_strains": [align_mut.id],
             "reads_info": {
@@ -92,7 +93,7 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "b37",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
             vcf_input = {
                 "src": "1000G_phase1.indels.b37_chr2_small.vcf.gz",
                 "species": "Homo sapiens",
@@ -134,7 +135,7 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "b37",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
         inputs = {
             "alignment": bam.id,
@@ -163,7 +164,7 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "b37",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
             master_file = self.prepare_amplicon_master_file()
             bed_file = self.run_process(
@@ -309,7 +310,7 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "b37",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
             master_file = self.prepare_amplicon_master_file()
 

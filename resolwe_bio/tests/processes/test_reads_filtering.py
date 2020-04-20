@@ -487,7 +487,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             )
 
             bam = self.run_process("upload-bam", input_bam)
-            reference = self.run_process("upload-genome", input_genome)
+            reference = self.run_process("upload-fasta-nucl", input_genome)
 
             bqsr_inputs = {
                 "bam": bam.id,

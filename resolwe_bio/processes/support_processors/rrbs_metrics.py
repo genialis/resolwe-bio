@@ -31,7 +31,7 @@ class CollectRrbsMetrics(Process):
     name = "Picard CollectRrbsMetrics"
     category = "Picard"
     process_type = "data:picard:rrbs"
-    version = "1.0.1"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -45,7 +45,7 @@ class CollectRrbsMetrics(Process):
         """Input fields for CollectRrbsMetrics."""
 
         bam = DataField("alignment:bam", label="Alignment BAM file")
-        genome = DataField("genome:fasta", label="Genome")
+        genome = DataField("seq:nucleotide", label="Genome")
 
         min_quality = IntegerField(
             label="Threshold for base quality of a C base before it is considered",

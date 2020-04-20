@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.2.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.2.1
+  version: 3.0.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -25,7 +25,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:walt
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -105,7 +105,7 @@
     program: |
       NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_walt.dir}}/"${GENOME_NAME}.dbindex"
+      INDEX={{genome.index.dir}}/"${GENOME_NAME}.dbindex"
 
       FW_READS=()
       RW_READS=()

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 2.0.0
   type: data:workflow:wgs
   category: Pipeline
   description: |
@@ -24,12 +24,14 @@
       type: data:reads:fastq:paired
       description: |
         Raw paired-end reads.
-    - name: genome
-      label: Reference genome
-      type: data:genome:fasta
+    - name: bwa_index
+      label: Genome index (BWA)
+      type: data:index:bwa
       description: |
-        Against which genome to align. Further processes depend on this
-        genome (e.g. BQSR step and QC metrics).
+        BWA genome index.
+    - name: ref_seq
+      label: Reference genome sequence
+      type: data:seq:nucleotide
     - name: known_sites
       label: Known sites of variation used in BQSR
       type: list:data:variants:vcf
@@ -116,7 +118,7 @@
             required: false
             description: |
               Specifies how accurate the match between the two 'adapter
-              ligated' reads must be for PE palindrome read alignment. 
+              ligated' reads must be for PE palindrome read alignment.
               This field is required to perform adapter trimming.
           - name: leading
             label: Leading quality
@@ -257,7 +259,7 @@
                 Picard's AddOrReplaceReadGroups tool. Input should take
                 the form of -name=value delimited by a \t, e.g.
                 "-ID=1\t-PL=Illumina\t-SM=sample_1". See
-                AddOrReplaceReadGroups documentation for more 
+                AddOrReplaceReadGroups documentation for more
                 information on tag names. Note that PL, LB, PU and SM
                 are required fields.
         - name: summary
@@ -343,7 +345,7 @@
               default: 10.0
               description: |
                 Generate mean, standard deviation and plots by trimming
-                the data down to MEDIAN + DEVIATIONS * 
+                the data down to MEDIAN + DEVIATIONS *
                 MEDIAN_ABSOLUTE_DEVIATION. This is done because insert
                 size data typically includes enough anomalous values
                 from chimeras and other artifacts to make the mean and
@@ -387,7 +389,7 @@
       - id: bwa
         run: alignment-bwa-mem
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.bwa_index }}'
           reads: '{{ steps.trimmomatic }}'
           seed_l: '{{ input.advanced.align.seed_l }}'
           band_w: '{{ input.advanced.align.band_w }}'
@@ -414,7 +416,7 @@
         run: bqsr
         input:
           bam: '{{ steps.markduplicates }}'
-          reference: '{{ input.genome }}'
+          reference: '{{ input.ref_seq }}'
           known_sites: '{{ input.known_sites }}'
           read_group: '{{ input.advanced.bqsr.read_group }}'
           validation_stringency: '{{ input.validation_stringency }}'
@@ -422,7 +424,7 @@
         run: alignment-summary
         input:
           bam: '{{ steps.bqsr }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           adapters: '{{ input.advanced.summary.adapters }}'
           validation_stringency: '{{ input.validation_stringency }}'
           insert_size: '{{ input.advanced.summary.max_insert_size }}'
@@ -433,7 +435,7 @@
         run: wgs-metrics
         input:
           bam: '{{ steps.bqsr }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           read_length: '{{ input.advanced.wgs_metrics.read_length }}'
           create_histogram: false
           options:
@@ -447,7 +449,7 @@
         run: insert-size
         input:
           bam: '{{ steps.bqsr }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           minimum_fraction: '{{ input.advanced.insert_size.minimum_fraction }}'
           include_duplicates: '{{ input.advanced.insert_size.include_duplicates }}'
           deviations: '{{ input.advanced.insert_size.deviations }}'
@@ -457,7 +459,7 @@
         run: vc-gatk4-hc
         input:
           alignment: '{{ steps.bqsr }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           dbsnp: '{{ input.hc_dbsnp }}'
           stand_call_conf: '{{ input.advanced.hc.stand_call_conf }}'
           mbq: '{{ input.advanced.hc.mbq }}'

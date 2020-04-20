@@ -28,7 +28,7 @@ class CellRangerMkref(Process):
     slug = "cellranger-mkref"
     name = "Cell Ranger Mkref"
     process_type = "data:genomeindex:10x"
-    version = "1.0.3"
+    version = "2.0.0"
     category = "scRNA-Seq"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -41,7 +41,7 @@ class CellRangerMkref(Process):
     class Input:
         """Input fields to process CellRangerMkref."""
 
-        genome = DataField(data_type="genome:fasta:", label="Reference genome",)
+        genome = DataField(data_type="seq:nucleotide:", label="Reference genome",)
         annotation = DataField(data_type="annotation:gtf:", label="Annotation",)
 
     class Output:

@@ -19,14 +19,16 @@ class WESTestCase(BioProcessTestCase):
                 mate2=["./workflow_wes/input/TP53_2.fastq.gz"],
             )
 
-            genome = self.run_process(
-                "upload-genome",
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
                 {
                     "src": "./bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz",
                     "species": species,
                     "build": build,
                 },
             )
+
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
             bc_bedpe = self.run_process(
                 "upload-bedpe",
@@ -55,7 +57,8 @@ class WESTestCase(BioProcessTestCase):
 
         input_workflow = {
             "reads": reads.pk,
-            "genome": genome.id,
+            "bwa_index": bwa_index.id,
+            "ref_seq": ref_seq.id,
             "known_sites": [i.id for i in kbase],
             "intervals": intervals.id,
             "hc_dbsnp": kbase[0].id,

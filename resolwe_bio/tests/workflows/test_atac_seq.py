@@ -13,7 +13,8 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
                 "species": "Mus musculus",
                 "build": "mm10",
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_paired_reads(
                 mate1=["atac_R1.fastq.gz"], mate2=["atac_R2.fastq.gz"]
             )
@@ -28,7 +29,7 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
             "workflow-atac-seq",
             {
                 "reads": reads.id,
-                "genome": genome.id,
+                "genome": bowtie2_index.id,
                 "promoter": promoters.id,
                 "settings": {"bedgraph": False},
             },

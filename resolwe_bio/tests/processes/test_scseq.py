@@ -19,7 +19,7 @@ class ScSeqProcessorTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "GRCh38.93",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
         inputs = {"annotation": annotation.id, "genome": genome.id}
         mkref = self.run_process("cellranger-mkref", inputs)
@@ -43,7 +43,7 @@ class ScSeqProcessorTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "GRCh38.93",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
             inputs = {"annotation": annotation.id, "genome": genome.id}
             genome_index = self.run_process("cellranger-mkref", inputs)

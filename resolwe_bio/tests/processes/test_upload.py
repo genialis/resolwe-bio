@@ -414,43 +414,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(test_json, saved_json)
         all(self.assertIsInstance(gene, str) for gene in test_json["gene_id"])
 
-    @tag_process("upload-genome")
-    def test_upload_genome(self):
-        inputs = {
-            "src": "genome.fasta.gz",
-            "species": "Dictyostelium discoideum",
-            "build": "dd-05-2009",
-        }
-        genome = self.run_process("upload-genome", inputs)
-
-        inputs = {
-            "src": "genome.fasta.gz",
-            "species": "Dictyostelium discoideum",
-            "build": "dd-05-2009",
-            "advanced": {
-                "bowtie_index": "bt_index.tar.gz",
-                "bowtie2_index": "bt2_index.tar.gz",
-                "bwa_index": "bwa_index.tar.gz",
-                "hisat2_index": "hisat2_index.tar.gz",
-                "subread_index": "subread_index.tar.gz",
-                "walt_index": "walt_index.tar.gz",
-            },
-        }
-        genome = self.run_process("upload-genome", inputs)
-        self.assertDir(genome, "index_bt", "index_bt.tar.gz")
-        self.assertDir(genome, "index_bt2", "index_bt2.tar.gz")
-        self.assertDir(genome, "index_bwa", "index_bwa.tar.gz")
-        self.assertDir(genome, "index_hisat2", "index_hisat2.tar.gz")
-        self.assertDir(genome, "index_subread", "index_subread.tar.gz")
-        self.assertDir(genome, "index_walt", "index_walt.tar.gz")
-
-        del genome.output["fasta_track_jbrowse"][
-            "total_size"
-        ]  # Non-deterministic output.
-        self.assertFields(
-            genome, "fasta_track_jbrowse", {"refs": ["seq"], "file": "seq/refSeqs.json"}
-        )
-
     @tag_process("upload-bed")
     def test_upload_bed(self):
         inputs = {"src": "bad.bed", "species": "Homo sapiens", "build": "hg19"}

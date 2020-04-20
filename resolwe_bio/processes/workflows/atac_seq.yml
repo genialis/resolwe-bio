@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.3
+  version: 3.0.0
   type: data:workflow:atacseq
   category: Pipeline
   description: |
@@ -26,7 +26,7 @@
       type: data:reads:fastq
     - name: genome
       label: Genome
-      type: data:genome:fasta
+      type: data:index:bowtie2
     - name: promoter
       label: Promoter regions BED file
       type: data:bed

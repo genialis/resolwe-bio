@@ -11,7 +11,7 @@
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.4.0
+  version: 1.0.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -24,7 +24,7 @@
       type: data:alignment:bam
     - name: genome
       label: Genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
     - name: intervals
       label: Intervals (from master file)
       type: data:masterfile:amplicon
@@ -129,7 +129,7 @@
       memory: 16384
       cores: 4
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 0.3.0
+  version: 1.0.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -142,7 +142,7 @@
       type: data:alignment:bam
     - name: genome
       label: Genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
     - name: intervals
       label: Intervals (from master file)
       type: data:masterfile:amplicon

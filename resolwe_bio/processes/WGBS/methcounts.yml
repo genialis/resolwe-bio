@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/wgbs:1.2.0
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 3.0.0
   type: data:wgbs:methcounts
   category: WGBS
   flow_collection: sample
@@ -22,7 +22,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
     - name: alignment
       label: Mapped reads
       type: data:alignment:bam:walt

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.1.0
+  version: 3.0.0
   type: data:workflow:wes
   category: Pipeline
   description: |
@@ -25,32 +25,31 @@
     - name: reads
       label: Raw untrimmed reads
       type: data:reads:fastq:paired
-      required: true
       description: |
         Raw paired-end reads.
-    - name: genome
-      label: Reference genome
-      type: data:genome:fasta
-      required: true
+    - name: bwa_index
+      label: BWA genome index
+      type: data:index:bwa
       description: |
-        Against which genome to align. Further processes depend on this genome (e.g. BQSR step).
-    # bqsr
+        Genome index used for the BWA alignment step.
+    - name: ref_seq
+      label: Genome FASTA
+      type: data:seq:nucleotide
+      description: |
+        The selection of Genome FASTA should match the BWA index species and genome build type.
     - name: known_sites
       label: Known sites of variation used in BQSR
       type: list:data:variants:vcf
-      required: true
       description: |
         Known sites of variation as a VCF file.
     - name: intervals
       label: Intervals
       type: data:bed
-      required: true
       description: |
         Use intervals to narrow the analysis to defined regions. This usually help cutting down on process time.
     - name: hc_dbsnp
       label: dbSNP for GATK4's HaplotypeCaller
       type: data:variants:vcf
-      required: true
       description: |
         dbSNP database of variants for variant calling.
     - name: validation_stringency
@@ -304,7 +303,7 @@
       - id: bwa
         run: alignment-bwa-mem
         input:
-          genome: '{{ input.genome }}'
+          genome: '{{ input.bwa_index }}'
           reads: '{{ steps.trimmomatic }}'
           seed_l: '{{ input.advanced.align.seed_l }}'
           band_w: '{{ input.advanced.align.band_w }}'
@@ -337,7 +336,7 @@
         run: bqsr
         input:
           bam: '{{ steps.markduplicates }}'
-          reference: '{{ input.genome }}'
+          reference: '{{ input.ref_seq }}'
           known_sites: '{{ input.known_sites }}'
           intervals: '{{ input.intervals }}'
           read_group: '{{ input.advanced.bqsr.read_group }}'
@@ -346,7 +345,7 @@
         run: vc-gatk4-hc
         input:
           alignment: '{{ steps.bqsr }}'
-          genome: '{{ input.genome }}'
+          genome: '{{ input.ref_seq }}'
           intervals_bed: '{{ input.intervals }}'
           dbsnp: '{{ input.hc_dbsnp }}'
           stand_call_conf: '{{ input.advanced.hc.stand_call_conf }}'

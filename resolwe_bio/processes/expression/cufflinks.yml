@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 2.2.0
+  version: 3.0.0
   type: data:cufflinks:cufflinks
   category: Quantify
   flow_collection: sample
@@ -36,7 +36,7 @@
       required: false
     - name: genome
       label: Run bias detection and correction algorithm
-      type: data:genome:fasta
+      type: data:seq:nucleotide
       required: false
       description: |
         Provide Cufflinks with a multifasta file (genome file) via this

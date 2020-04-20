@@ -14,7 +14,8 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
             inputs = {"src1": ["AX4_mate1.fq.gz"], "src2": ["AX4_mate2.fq.gz"]}
 
@@ -24,10 +25,10 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
 
             mut_reads = self.run_process("upload-fastq-paired", inputs)
 
-            inputs = {"genome": genome.id, "reads": parental_reads.id}
+            inputs = {"genome": bwa_index.id, "reads": parental_reads.id}
             align_parental = self.run_process("alignment-bwa-mem", inputs)
 
-            inputs = {"genome": genome.id, "reads": mut_reads.id}
+            inputs = {"genome": bwa_index.id, "reads": mut_reads.id}
             align_mut = self.run_process("alignment-bwa-mem", inputs)
 
         self.run_process(
@@ -36,7 +37,7 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
                 "analysis_type": "snv",
                 "parental_strains": [align_parental.id],
                 "mutant_strains": [align_mut.id],
-                "genome": genome.id,
+                "genome": ref_seq.id,
                 "Vc": {"stand_emit_conf": 15, "stand_call_conf": 35, "rf": True},
                 "Vf": {"read_depth": 7},
             },

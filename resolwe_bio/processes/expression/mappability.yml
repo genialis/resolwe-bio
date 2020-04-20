@@ -13,7 +13,7 @@
       docker:
         image: resolwebio/biox:1.0.0
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
-  version: 2.0.1
+  version: 3.0.0
   type: data:mappability:bcm
   category: Other
   persistence: CACHED
@@ -24,7 +24,7 @@
   input:
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bowtie
     - name: gff
       label: General feature format
       type: data:annotation:gff3
@@ -42,7 +42,7 @@
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       cp {{ genome.fasta.file }} .
-      cp -r {{ genome.index_bt.dir }} .
+      cp -r {{ genome.index.dir }} .
       mv ./bowtie_index/* .
 
       mappability.py "${GENOME_NAME}.fasta" {{ gff.annot.file }} {{length}}

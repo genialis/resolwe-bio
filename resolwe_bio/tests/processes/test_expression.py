@@ -15,7 +15,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("cufflinks", "cuffmerge")
     def test_cufflinks(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation_gtf = self.prepare_annotation("annotation dicty.gff.gz")
             annotation_gff3 = self.prepare_annotation_gff()
@@ -23,7 +28,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             aligned_reads = self.run_process(
                 "alignment-hisat2",
                 {
-                    "genome": genome.pk,
+                    "genome": hisat2_index.pk,
                     "reads": reads.pk,
                     "spliced_alignments": {"cufflinks": True},
                 },
@@ -32,7 +37,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "alignment": aligned_reads.pk,
             "annotation": annotation_gtf.pk,
-            "genome": genome.pk,
+            "genome": ref_seq.pk,
         }
         cuff_exp = self.run_process("cufflinks", inputs)
         self.assertFile(cuff_exp, "transcripts", "cufflinks_transcripts.gtf", sort=True)
@@ -43,14 +48,14 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "alignment": aligned_reads.pk,
             "annotation": annotation_gtf.pk,
-            "genome": genome.pk,
+            "genome": ref_seq.pk,
         }
         cuff_exp2 = self.run_process("cufflinks", inputs)
 
         inputs = {
             "expressions": [cuff_exp.pk, cuff_exp2.pk],
             "gff": annotation_gff3.pk,
-            "genome": genome.pk,
+            "genome": ref_seq.pk,
         }
         cuff_merge_gff3 = self.run_process("cuffmerge", inputs)
         self.assertFile(cuff_merge_gff3, "annot", "cuffmerge_transcripts.gtf")
@@ -222,12 +227,13 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("mappability-bcm")
     def test_mappability(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            genome = self.prepare_ref_seq("genome.fasta.gz")
+            bowtie_index = self.run_process("bowtie-index", {"ref_seq": genome.id})
             annotation = self.prepare_annotation_gff()
 
         mappability = self.run_process(
             "mappability-bcm",
-            {"genome": genome.id, "gff": annotation.id, "length": 50,},
+            {"genome": bowtie_index.id, "gff": annotation.id, "length": 50,},
         )
 
         self.assertFileExists(mappability, "mappability")
@@ -235,12 +241,17 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("expression-dicty", "etc-bcm")
     def test_expression_dicty(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation = self.prepare_annotation_gff()
 
             aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": genome.pk, "reads": reads.pk}
+                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk}
             )
 
             mappa = self.run_process(
@@ -269,7 +280,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("htseq-count")
     def test_expression_htseq(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             inputs = {
                 "src": "annotation dicty.gtf.gz",
@@ -296,7 +312,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             annotation_wrong_build = self.run_process("upload-gtf", inputs)
 
             aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": genome.pk, "reads": reads.pk,}
+                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk,}
             )
 
         inputs = {
@@ -462,12 +478,17 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("mergeetc")
     def test_etcmerge(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation = self.prepare_annotation_gff()
 
             aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": genome.pk, "reads": reads.pk,}
+                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk,}
             )
 
             mappa = self.run_process(
@@ -588,18 +609,24 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @tag_process("feature_counts")
     def test_feature_counts_rpkum(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
+            bowtie_index = self.run_process("bowtie-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation = self.prepare_annotation(fn="annotation dicty.gtf.gz")
             annotation_gff = self.prepare_annotation_gff()
 
             aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": genome.pk, "reads": reads.pk}
+                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk}
             )
 
             mappability = self.run_process(
                 "mappability-bcm",
-                {"genome": genome.id, "gff": annotation_gff.id, "length": 50,},
+                {"genome": bowtie_index.id, "gff": annotation_gff.id, "length": 50,},
             )
 
         feature_counts = self.run_process(

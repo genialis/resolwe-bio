@@ -14,18 +14,17 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
                 "src2": ["56GSID_10k_mate2.fastq.gz"],
             }
             reads = self.run_process("upload-fastq-paired", inputs)
-
-            genome = self.run_process(
-                "upload-genome",
-                {
-                    "src": "hs_b37_chr2_small.fasta.gz",
-                    "species": "Homo sapiens",
-                    "build": "b37",
-                },
+            ref_seq = self.prepare_ref_seq(
+                fn="hs_b37_chr2_small.fasta.gz", species="Homo sapiens", build="b37",
             )
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
             master_file = self.prepare_amplicon_master_file()
 
-        inputs = {"master_file": master_file.id, "genome": genome.id, "reads": reads.id}
+        inputs = {
+            "master_file": master_file.id,
+            "genome": bwa_index.id,
+            "reads": reads.id,
+        }
         bwa_trim = self.run_process("align-bwa-trim", inputs)
 
         self.assertFile(bwa_trim, "stats", "bwa_trim_stats.txt")

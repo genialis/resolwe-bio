@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 2.0.0
   type: data:workflow:rnaseq:cuffquant
   category: Pipeline
   input:
@@ -12,7 +12,7 @@
       type: data:reads:fastq
     - name: genome
       label: genome
-      type: data:genome:fasta
+      type: data:index:hisat2
     - name: annotation
       label: Annotation file
       type: data:annotation

@@ -14,6 +14,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 22.x
 - **BACKWARD INCOMPATIBLE:** Remove processes ``alignment-subread`` and
   ``subread-index``
+- **BACKWARD INCOMPATIBLE:** Remove process ``upload-genome``. Refactor
+  processes and workflows that required ``data:genome:fasta`` type of
+  object on the input to work with ``data:seq:nucleotide`` or dedicated
+  aligner index files instead.
 
 
 ===================

@@ -8,13 +8,22 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-rnaseq-cuffquant")
     def test_cuffquant_workflow(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation = self.prepare_annotation_gff()
 
         self.run_process(
             "workflow-rnaseq-cuffquant",
-            {"reads": reads.id, "genome": genome.id, "annotation": annotation.id,},
+            {
+                "reads": reads.id,
+                "genome": hisat2_index.id,
+                "annotation": annotation.id,
+            },
         )
 
         for data in Data.objects.all():
@@ -645,7 +654,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-rnaseq-single")
     def test_rnaseq_single_workflow(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             single_reads = self.prepare_reads()
             annotation = self.prepare_annotation("annotation dicty.gtf.gz")
             adapters = self.prepare_ref_seq()
@@ -653,7 +667,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.run_process(
             "workflow-rnaseq-single",
             {
-                "genome": genome.id,
+                "genome": hisat2_index.id,
                 "reads": single_reads.id,
                 "annotation": annotation.id,
                 "minlen": 10,
@@ -675,7 +689,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.run_process(
             "workflow-rnaseq-single",
             {
-                "genome": genome.id,
+                "genome": hisat2_index.id,
                 "reads": single_reads.id,
                 "annotation": annotation.id,
                 "adapters": adapters.id,
@@ -699,7 +713,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-rnaseq-paired")
     def test_rnaseq_paired_workflow(self):
         with self.preparation_stage():
-            genome = self.prepare_genome()
+            ref_seq = self.prepare_ref_seq(
+                fn="genome.fasta.gz",
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             paired_reads = self.prepare_paired_reads()
             annotation = self.prepare_annotation("annotation dicty.gtf.gz")
             adapters = self.prepare_ref_seq()
@@ -707,7 +726,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.run_process(
             "workflow-rnaseq-paired",
             {
-                "genome": genome.id,
+                "genome": hisat2_index.id,
                 "reads": paired_reads.id,
                 "annotation": annotation.id,
                 "minlen": 10,
@@ -730,7 +749,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.run_process(
             "workflow-rnaseq-paired",
             {
-                "genome": genome.id,
+                "genome": hisat2_index.id,
                 "reads": paired_reads.id,
                 "annotation": annotation.id,
                 "adapters": adapters.id,

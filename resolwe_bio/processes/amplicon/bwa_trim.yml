@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "Alignment ({{ reads|sample_name|default('?') }})"
-  version: 1.2.2
+  version: 2.0.0
   type: data:alignment:bam:bwatrim
   category: Other
   flow_collection: sample
@@ -29,7 +29,7 @@
         Amplicon experiment design file that holds the information about the primers to be removed.
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:index:bwa
     - name: reads
       label: Reads
       type: data:reads:fastq
@@ -130,7 +130,7 @@
     program: |
       NAME={{ reads|sample_slug }}
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
-      INDEX={{genome.index_bwa.dir}}"/${GENOME_NAME}.fasta"
+      INDEX={{genome.index.dir}}/"${GENOME_NAME}.fasta"
 
       FW_READS=()
       RW_READS=()

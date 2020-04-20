@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:4.9.0
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 1.4.0
+  version: 2.0.0
   type: data:annotation:cuffmerge
   category: Quantify
   persistence: CACHED
@@ -47,7 +47,7 @@
         output.
     - name: genome
       label: Reference genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
       required: false
       description: |
         This argument should point to the genomic DNA sequences for the

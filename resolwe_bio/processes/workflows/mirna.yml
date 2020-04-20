@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 0.0.5
+  version: 1.0.0
   type: data:workflow:mirna
   category: Pipeline
   input:
@@ -15,7 +15,7 @@
         Note that these reads should already be void of adapters.
     - name: genome
       label: Genome
-      type: data:genome:fasta
+      type: data:index:bowtie2
       # this set of parameters is for featureCounts
     - name: annotation
       label: Annotation (GTF/GFF3)

@@ -6,7 +6,7 @@
       docker:
         image: resolwebio/rnaseq:4.9.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
-  version: 0.4.0
+  version: 1.0.0
   type: data:index:expression
   category: Other
   persistence: CACHED
@@ -16,8 +16,6 @@
     - name: nucl
       label: Nucleotide sequence
       type: data:seq:nucleotide
-      hidden: "genome"
-      required: false
     - name: nucl_genome
       label: Type of nucleotide sequence
       type: basic:string
@@ -27,16 +25,10 @@
           value: gs
         - label: Transcript sequences
           value: ts
-      hidden: "!nucl"
-    - name: genome
-      label: Genome sequence
-      type: data:genome:fasta
-      hidden: "nucl"
-      required: false
     - name: annotation
       label: Annotation
       type: data:annotation:gtf
-      hidden: "nucl && nucl_genome == 'ts'"
+      hidden: "nucl_genome == 'ts'"
       required: false
     - name: source
       label: Gene ID database
@@ -53,33 +45,7 @@
           value: NCBI
         - label: UCSC
           value: UCSC
-      hidden: "!(nucl && nucl_genome == 'ts')"
-      required: false
-    - name: species
-      label: Species
-      type: basic:string
-      description: |
-        Species latin name.
-      allow_custom_choice: true
-      hidden: "!(nucl && nucl_genome == 'ts')"
-      required: false
-      choices:
-        - label: Homo sapiens
-          value: Homo sapiens
-        - label: Mus musculus
-          value: Mus musculus
-        - label: Rattus norvegicus
-          value: Rattus norvegicus
-        - label: Dictyostelium discoideum
-          value: Dictyostelium discoideum
-        - label: Odocoileus virginianus texanus
-          value: Odocoileus virginianus texanus
-        - label: Solanum tuberosum
-          value: Solanum tuberosum
-    - name: build
-      label: Genome build
-      type: basic:string
-      hidden: "!(nucl && nucl_genome == 'ts')"
+      hidden: "nucl_genome == 'gs'"
       required: false
   output:
     - name: rsem_index
@@ -100,13 +66,13 @@
     program: |
       mkdir rsem
 
-      {% if genome and annotation %}
-        {% if genome.species != annotation.species %}
+      {% if nucl and annotation %}
+        {% if nucl.species != annotation.species %}
           re-warning "Genome and annotation files must share the same species information."
-          re-error "Genome has {{ genome.species }}, while annotation has {{ annotation.species }} species information."
-        {% elif genome.build != annotation.build %}
+          re-error "Genome has {{ nucl.species }}, while annotation has {{ annotation.species }} species information."
+        {% elif nucl.build != annotation.build %}
           re-warning "Genome and annotation files must share the same build information."
-          re-error "Genome has {{ genome.build }}, while annotation has {{ annotation.build }} build information."
+          re-error "Genome has {{ nucl.build }}, while annotation has {{ annotation.build }} build information."
         {% endif %}
       {% endif %}
 
@@ -114,34 +80,24 @@
         ln -s {{ annotation.annot.file }} annotation
       {% endif %}
 
-      {% if nucl %}
-        ln -s {{ nucl.fasta.file }} nucl.fasta
-        {% if nucl_genome == 'ts' %}
-          rsem-prepare-reference \
-            nucl.fasta \
-            rsem/index
-        {% else %}
-          rsem-prepare-reference \
-            --gtf annotation \
-            nucl.fasta \
-            rsem/index
-        {% endif %}
+      ln -s {{ nucl.fasta.file }} nucl.fasta
+      {% if nucl_genome == 'ts' %}
+        rsem-prepare-reference \
+          nucl.fasta \
+          rsem/index
       {% else %}
-        ln -s {{ genome.fasta.file }} genome.fasta
         rsem-prepare-reference \
           --gtf annotation \
-          genome.fasta \
+          nucl.fasta \
           rsem/index
       {% endif %}
       re-checkrc 'RSEM index build failed.'
 
       re-save-dir rsem_index rsem
-      {% if nucl and nucl_genome == 'ts' %}
+      re-save species {{ nucl.species }}
+      re-save build {{ nucl.build }}
+      {% if nucl_genome == 'ts' %}
         re-save source {{ source }}
-        re-save species {{ species }}
-        re-save build {{ build }}
       {% else %}
         re-save source {{ annotation.source }}
-        re-save species {{ annotation.species }}
-        re-save build {{ annotation.build }}
       {% endif %}

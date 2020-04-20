@@ -16,7 +16,8 @@ class WgbsWorkflowTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            walt_index = self.run_process("walt-index", {"ref_seq": ref_seq.id})
 
             inputs = {
                 "src": [
@@ -35,7 +36,12 @@ class WgbsWorkflowTestCase(BioProcessTestCase):
 
         self.run_process(
             "workflow-wgbs-single",
-            {"genome": genome.id, "reads": reads.id, "alignment": {"rm_dup": False},},
+            {
+                "walt_index": walt_index.id,
+                "ref_seq": ref_seq.id,
+                "reads": reads.id,
+                "alignment": {"rm_dup": False},
+            },
         )
 
         for data in Data.objects.all():
@@ -90,7 +96,8 @@ class WgbsWorkflowTestCase(BioProcessTestCase):
         self.run_process(
             "workflow-wgbs-paired",
             {
-                "genome": genome.id,
+                "walt_index": walt_index.id,
+                "ref_seq": ref_seq.id,
                 "reads": reads_paired.id,
                 "alignment": {"rm_dup": False},
             },

@@ -66,22 +66,6 @@ class BioProcessTestCase(ProcessTestCase):
         super(BioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
 
-    def prepare_genome(self):
-        """Prepare genome FASTA."""
-        inputs = {
-            "src": "genome.fasta.gz",
-            "species": "Dictyostelium discoideum",
-            "build": "dd-05-2009",
-            "advanced": {
-                "bowtie_index": "bt_index.tar.gz",
-                "bowtie2_index": "bt2_index.tar.gz",
-                "bwa_index": "bwa_index.tar.gz",
-                "hisat2_index": "hisat2_index.tar.gz",
-                "subread_index": "subread_index.tar.gz",
-            },
-        }
-        return self.run_process("upload-genome", inputs)
-
     def prepare_reads(self, fn=["reads.fastq.gz"]):
         """Prepare NGS reads FASTQ."""
         inputs = {"src": fn}

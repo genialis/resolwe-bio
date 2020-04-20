@@ -800,7 +800,7 @@ re-save-file report "${NAME}".txt
                 },
             )
             genome = self.run_process(
-                "upload-genome",
+                "upload-fasta-nucl",
                 {
                     "src": "bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz",
                     "species": "Homo sapiens",
@@ -833,7 +833,7 @@ re-save-file report "${NAME}".txt
                 },
             )
             genome = self.run_process(
-                "upload-genome",
+                "upload-fasta-nucl",
                 {
                     "src": "bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz",
                     "species": "Homo sapiens",
@@ -864,7 +864,7 @@ re-save-file report "${NAME}".txt
                 },
             )
             genome = self.run_process(
-                "upload-genome",
+                "upload-fasta-nucl",
                 {
                     "src": "bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz",
                     "species": "Homo sapiens",
@@ -896,7 +896,7 @@ re-save-file report "${NAME}".txt
                 },
             )
             genome = self.run_process(
-                "upload-genome",
+                "upload-fasta-nucl",
                 {
                     "src": "bqsr/input/hs_b37_chr17_upto_TP53.fasta.gz",
                     "species": "Homo sapiens",

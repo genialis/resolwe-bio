@@ -15,14 +15,15 @@ class SHRNATestCase(KBBioProcessTestCase):
             build = "customshRNA"
             reads = self.prepare_reads([pf_in + "SM31_ss.fastq.gz"])
             # Larger data ran on this reduced genome yield similar alignment statistics (~2 % aligned reads).
-            genome = self.run_process(
-                "upload-genome",
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
                 {
                     "src": pf_in + "SM31_library.fasta.gz",
                     "species": species,
                     "build": build,
                 },
             )
+            bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
 
         input_workflow = {
             "reads": reads.id,
@@ -33,7 +34,7 @@ class SHRNATestCase(KBBioProcessTestCase):
                 "error_rate_3end": 0.2,
             },
             "alignment_options": {
-                "genome": genome.id,
+                "genome": bowtie2_index.id,
                 "mode": "--end-to-end",  # as default
                 "N": 1,
                 "L": 9,

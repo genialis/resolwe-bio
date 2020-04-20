@@ -43,7 +43,8 @@ class WgbsProcessorTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
-            genome = self.run_process("upload-genome", inputs)
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
+            walt_index = self.run_process("walt-index", {"ref_seq": ref_seq.id})
             reads_paired = self.prepare_paired_reads(
                 mate1=[
                     os.path.join("wgbs", "input", "3A_WT_WGBS_chr2_17k_R1.fastq.gz")
@@ -54,7 +55,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
             )
 
         inputs = {
-            "genome": genome.id,
+            "genome": walt_index.id,
             "reads": reads_paired.id,
             "spikein_options": {"spikein_name": "chr2"},
         }
@@ -78,7 +79,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
-            genome = self.run_process("upload-genome", inputs)
+            genome = self.run_process("upload-fasta-nucl", inputs)
 
             # Mock upload WALT alignment process
             process = Process.objects.create(

@@ -26,7 +26,7 @@ class InsertSizeMetrics(Process):
     name = "Picard InsertSizeMetrics"
     category = "Picard"
     process_type = "data:picard:insert"
-    version = "1.0.0"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -39,7 +39,7 @@ class InsertSizeMetrics(Process):
         """Input fields for InsertSizeMetrics."""
 
         bam = DataField("alignment:bam", label="Alignment BAM file")
-        genome = DataField("genome:fasta", label="Genome")
+        genome = DataField("seq:nucleotide", label="Genome")
 
         minimum_fraction = FloatField(
             label="Minimum fraction of reads in a category to be considered ",

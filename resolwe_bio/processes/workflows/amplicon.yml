@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 4.0.1
+  version: 5.0.0
   category: Pipeline
   description: |
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
@@ -24,8 +24,11 @@
       label: Input reads
       type: data:reads:fastq:paired
     - name: genome
-      label: Genome
-      type: data:genome:fasta
+      label: Genome sequence (FASTA)
+      type: data:seq:nucleotide
+    - name: bwa_index
+      label: Genome index (BWA)
+      type: data:index:bwa
     - name: master_file
       label: Experiment Master file
       type: data:masterfile:amplicon
@@ -107,7 +110,7 @@
         run: align-bwa-trim
         input:
           master_file: '{{input.master_file}}'
-          genome: '{{input.genome}}'
+          genome: '{{input.bwa_index}}'
           reads: '{{steps.trimmomatic_filtering}}'
           m: true
           scoring:

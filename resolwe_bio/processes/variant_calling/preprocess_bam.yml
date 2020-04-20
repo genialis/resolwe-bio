@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 1.0.2
+  version: 2.0.0
   type: data:alignment:bam:vc
   category: Other
   flow_collection: sample
@@ -27,7 +27,7 @@
       type: data:alignment:bam
     - name: genome
       label: Genome
-      type: data:genome:fasta
+      type: data:seq:nucleotide
     - name: known_vars
       label: Known sites (dbSNP)
       type: list:data:variants:vcf
