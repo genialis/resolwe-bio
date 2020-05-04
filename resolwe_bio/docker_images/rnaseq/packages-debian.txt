@@ -1,4 +1,6 @@
 file
+libjpeg-dev
+libpng-dev
 
 # Python modules
 python3-dev

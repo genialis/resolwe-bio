@@ -26,6 +26,8 @@ Changed
   aligner index files instead.
 - Change ``macs2-batch`` and ``macs2-rose2-batch`` to use tagAlign
   files by default
+- Bump Salmon to version 1.2.1 in ``resolwebio/rnaseq:4.10.0`` Docker
+  image. Fix build issues affecting ``jpeg` and ``png`` R packages.
 
 
 ===================
