@@ -1,10 +1,11 @@
 from os.path import join
 
-from resolwe.flow.models import Collection, Data, Relation
+from resolwe.flow.models import Collection, Data, Process, Relation
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import tag_process
 
 from resolwe_bio.expression_filters.relation import background_pairs
+from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
@@ -512,3 +513,115 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             "macs2/output/rose2_enhancer_table.txt",
             file_filter=filter_created,
         )
+
+    @tag_process("chipqc")
+    def test_chipqc(self):
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            alignment = self.run_process(
+                "upload-bam",
+                {
+                    "src": join("chipqc", "input", "SRR5675976_chr17.bam"),
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+            macs2_mock = Process.objects.create(
+                name="Upload macs2 data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                contributor=self.contributor,
+                type="data:chipseq:callpeak:macs2:",
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                input_schema=[{"name": "src", "type": "basic:file:",},],
+                output_schema=[
+                    {"name": "called_peaks", "type": "basic:file:",},
+                    {"name": "species", "type": "basic:string:",},
+                    {"name": "build", "type": "basic:string:",},
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "xls" "xls" 0.1 extract
+re-save-file called_peaks "${NAME}".xls
+
+re-save species "Homo sapiens"
+re-save build "hg19"
+""",
+                },
+            )
+            macs2 = self.run_process(
+                macs2_mock.slug,
+                {"src": join("chipqc", "input", "SRR5675973_chr17_peaks.xls")},
+            )
+            set_sample_name(macs2, "SRR5675976_chr17.bam")
+
+            macs14_mock = Process.objects.create(
+                name="Upload macs14 data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                contributor=self.contributor,
+                type="data:chipseq:callpeak:macs14:",
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                input_schema=[{"name": "src", "type": "basic:file:",},],
+                output_schema=[
+                    {"name": "peaks_bed", "type": "basic:file:",},
+                    {"name": "species", "type": "basic:string:",},
+                    {"name": "build", "type": "basic:string:",},
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "bed" "bed" 0.1 compress
+re-save-file peaks_bed "${NAME}".bed.gz
+
+re-save species "Homo sapiens"
+re-save build "hg19"
+""",
+                },
+            )
+            macs14 = self.run_process(
+                macs14_mock.slug,
+                {"src": join("chipqc", "input", "macs14_peaks.bed.gz")},
+            )
+            set_sample_name(macs14, "SRR5675976_chr17.bam")
+
+        chipqc = self.run_process(
+            "chipqc", {"alignment": alignment.id, "peaks": macs2.id,}
+        )
+        self.assertFileExists(chipqc, "ccplot")
+        self.assertFileExists(chipqc, "coverage_histogram")
+        self.assertFileExists(chipqc, "peak_profile")
+        self.assertFileExists(chipqc, "peaks_barplot")
+        self.assertFileExists(chipqc, "peaks_density_plot")
+
+        # Test annotation
+        chipqc_annotation = self.run_process(
+            "chipqc",
+            {
+                "alignment": alignment.id,
+                "peaks": macs2.id,
+                "calculate_enrichment": True,
+            },
+        )
+        self.assertFileExists(chipqc_annotation, "enrichment_heatmap")
+
+        chipqc_macs14 = self.run_process(
+            "chipqc", {"alignment": alignment.id, "peaks": macs14.id,}
+        )
+        self.assertFileExists(chipqc_macs14, "ccplot")
+        self.assertFileExists(chipqc_macs14, "peak_profile")

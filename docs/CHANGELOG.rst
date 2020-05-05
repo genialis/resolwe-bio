@@ -15,6 +15,7 @@ Added
 - Add an option to use filtered BAM files from ``macs2-callpeak`` to
   ``rose2``, ``workflow-macs-rose``, and ``macs2-rose2-batch``
 - Add ChIPQC in ``resolwebio/chipseq:4.1.0`` Docker image
+- Add ``chipqc`` process
 
 Changed
 -------
