@@ -30,6 +30,7 @@ Changed
   files by default
 - Bump Salmon to version 1.2.1 in ``resolwebio/rnaseq:4.10.0`` Docker
   image. Fix build issues affecting ``jpeg` and ``png`` R packages.
+- Support ``chipqc`` process outputs in MultiQC
 
 
 ===================

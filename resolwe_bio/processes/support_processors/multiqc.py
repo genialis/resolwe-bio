@@ -189,7 +189,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.7.1"
+    version = "1.8.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -366,6 +366,27 @@ class MultiQC(Process):
                 bsrate_samples.append(d.entity_name)
                 bsrate_reports.append(d.report.path)
                 create_bsrate_table(bsrate_samples, bsrate_reports)
+
+            elif d.type == "data:chipqc:":
+                plot_paths = [
+                    d.ccplot.path,
+                    d.coverage_histogram.path,
+                    d.peak_profile.path,
+                    d.peaks_barplot.path,
+                    d.peaks_density_plot.path,
+                ]
+                for path in plot_paths:
+                    name = os.path.basename(path)
+                    create_symlink(path, os.path.join(sample_dir, name))
+                # ChipQC may contain enrichment heatmap
+                try:
+                    if os.path.isfile(d.enrichment_heatmap.path):
+                        name = os.path.basename(d.enrichment_heatmap.path)
+                        create_symlink(
+                            d.coverage_histogram.path, os.path.join(sample_dir, name)
+                        )
+                except AttributeError:
+                    pass
             else:
                 unsupported_data.append(d.name)
 
