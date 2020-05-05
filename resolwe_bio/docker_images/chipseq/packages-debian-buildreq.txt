@@ -6,3 +6,11 @@ software-properties-common
 
 # Required for SPP
 libboost-all-dev
+
+# Required for ChipQC
+liblapack-dev
+libopenblas-dev
+gfortran
+libpng-dev
+libjpeg-dev
+libcurl4-openssl-dev

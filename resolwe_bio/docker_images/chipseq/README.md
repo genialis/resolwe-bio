@@ -15,3 +15,4 @@ Included bioinformatics tools:
 * run_spp.R (v1.2) (as spp)
 * SPP (v1.14)
 * wigToBigWig (kent-v364)
+* ChIPQC (1.22.1)
