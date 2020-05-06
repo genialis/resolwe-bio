@@ -26,14 +26,14 @@ class ImportFastaNucleotide(Process):
     slug = "upload-fasta-nucl"
     name = "FASTA file"
     process_type = "data:seq:nucleotide"
-    version = "3.0.0"
+    version = "3.0.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
-        "resources": {"cores": 2, "memory": 2048, "network": True,},
+        "resources": {"cores": 2, "memory": 8192, "network": True,},
     }
     data_name = '{{ src.file|default("?") }}'
 

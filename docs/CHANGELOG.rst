@@ -31,8 +31,9 @@ Changed
 - Bump Salmon to version 1.2.1 in ``resolwebio/rnaseq:4.10.0`` Docker
   image. Fix build issues affecting ``jpeg` and ``png`` R packages.
 - Support ``chipqc`` process outputs in MultiQC
-- Support ``chipqc`` in ``workflow-macs-rose``, ``workflow-macs2``, 
+- Support ``chipqc`` in ``workflow-macs-rose``, ``workflow-macs2``,
   ``macs2-batch`` and ``macs2-rose2-batch`` processes
+- Bump memory requirements for process ``upload-fasta-nucl`` to 8 GB
 
 
 ===================
