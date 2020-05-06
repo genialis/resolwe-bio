@@ -31,7 +31,7 @@ class SlamdunkAllPaired(Process):
     }
     category = "Slamdunk"
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "2.0.0"
+    version = "2.0.1"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
@@ -64,7 +64,7 @@ class SlamdunkAllPaired(Process):
     class Output:
         """Output fields to process SlamdunkAllPaired."""
 
-        tcount = FileField(label="Count report containing SLAMSeq statistics")
+        tcount = FileField(label="Count report containing SLAMSeq statistics")
         bam = FileField(label="Aligned reads (BAM)")
         bai = FileField(label="Aligned reads index (BAI)")
         bigwig = FileField(label="BigWig file", required=False)

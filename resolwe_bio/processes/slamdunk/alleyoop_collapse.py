@@ -33,7 +33,7 @@ class AlleyoopCollapse(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.1.0"
+    version = "1.1.1"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
@@ -48,7 +48,7 @@ class AlleyoopCollapse(Process):
     class Output:
         """Output fields to process SlamdunkAllPaired."""
 
-        tcount = FileField(label="Count report containing SLAMSeq statistics")
+        tcount = FileField(label="Count report containing SLAMSeq statistics")
         species = StringField(label="Species")
         build = StringField(label="Build")
 
