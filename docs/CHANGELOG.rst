@@ -35,6 +35,11 @@ Changed
   ``macs2-batch`` and ``macs2-rose2-batch`` processes
 - Bump memory requirements for process ``upload-fasta-nucl`` to 8 GB
 
+Fixed
+-------
+- Fix Data name in ``bowtie-index``, ``bowtie2-index``, ``bwa-index``,
+  ``hisat2-index`` and ``walt-index``
+
 
 ===================
 28.0.0 - 2020-04-10

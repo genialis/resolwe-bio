@@ -19,8 +19,8 @@ class WaltIndex(Process):
         "resources": {"cores": 1, "memory": 16384,},
     }
     category = "Genome index"
-    data_name = '{{ ref_seq.file|default("?") }}'
-    version = "1.0.0"
+    data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
+    version = "1.0.1"
 
     class Input:
         """Input fields for WaltIndex."""
