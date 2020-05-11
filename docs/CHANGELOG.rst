@@ -39,6 +39,7 @@ Fixed
 -------
 - Fix Data name in ``bowtie-index``, ``bowtie2-index``, ``bwa-index``,
   ``hisat2-index`` and ``walt-index``
+- Fix filtering of empty VCF files in ``lofreq`` process
 
 
 ===================

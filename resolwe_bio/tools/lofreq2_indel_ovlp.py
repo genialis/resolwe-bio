@@ -90,10 +90,11 @@ def main():
                 prev_vars.append(cur_var)
 
             # don't forget remaining ones
-            picked_var = sorted(
-                prev_vars, key=lambda e: pick_best_func(e), reverse=True
-            )[0]
-            write_var(picked_var, out_vcf)
+            if prev_vars:
+                picked_var = sorted(
+                    prev_vars, key=lambda e: pick_best_func(e), reverse=True
+                )[0]
+                write_var(picked_var, out_vcf)
 
 
 if __name__ == "__main__":
