@@ -189,7 +189,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.8.0"
+    version = "1.8.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -383,7 +383,7 @@ class MultiQC(Process):
                     if os.path.isfile(d.enrichment_heatmap.path):
                         name = os.path.basename(d.enrichment_heatmap.path)
                         create_symlink(
-                            d.coverage_histogram.path, os.path.join(sample_dir, name)
+                            d.enrichment_heatmap.path, os.path.join(sample_dir, name)
                         )
                 except AttributeError:
                     pass
