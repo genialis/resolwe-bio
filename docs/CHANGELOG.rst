@@ -5,16 +5,16 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
-==========
-Unreleased
-==========
+===================
+29.0.0 - 2020-05-18
+===================
 
 Added
 -----
 - Add filtered BAM output to ``macs2-callpeak`` process
 - Add an option to use filtered BAM files from ``macs2-callpeak`` to
   ``rose2``, ``workflow-macs-rose``, and ``macs2-rose2-batch``
-- Add ChIPQC in ``resolwebio/chipseq:4.1.0`` Docker image
+- Add ChIPQC to the ``resolwebio/chipseq:4.1.0`` Docker image
 - Add ``chipqc`` process
 
 Changed
@@ -29,7 +29,7 @@ Changed
 - Change ``macs2-batch`` and ``macs2-rose2-batch`` to use tagAlign
   files by default
 - Bump Salmon to version 1.2.1 in ``resolwebio/rnaseq:4.10.0`` Docker
-  image. Fix build issues affecting ``jpeg` and ``png`` R packages.
+  image. Fix build issues affecting ``jpeg`` and ``png`` R packages.
 - Support ``chipqc`` process outputs in MultiQC
 - Support ``chipqc`` in ``workflow-macs-rose``, ``workflow-macs2``,
   ``macs2-batch`` and ``macs2-rose2-batch`` processes
