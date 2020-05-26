@@ -5,6 +5,20 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Use Salmon 1.2.1 in ``salmon-quant`` and
+  ``salmon-index`` processes.
+- Salmon quant 1.2.1 is not backwards compatible with indices generated
+  with Salmon index prior to version 1.0.0, thus Salmon tool is updated
+  to version 1.2.1 in processes that utilize Salmon to detect library
+  strandedness type.
+
+
 ===================
 29.0.0 - 2020-05-18
 ===================

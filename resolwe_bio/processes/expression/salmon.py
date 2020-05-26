@@ -51,11 +51,11 @@ class SalmonQuant(Process):
     name = "Salmon Quant"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0",},},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:4.10.0",},},
         "resources": {"cores": 8, "memory": 16384, "network": True,},
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "1.2.1"
+    version = "2.0.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -130,21 +130,9 @@ class SalmonQuant(Process):
                 "length (e.g. QuantSeq).",
             )
 
-            validate_mappings = BooleanField(
-                label="--validateMappings",
-                default=True,
-                description="Validate mappings using alignment-based "
-                "verification. If this flag is passed, "
-                "quasi-mappings will be validated to "
-                "ensure that they could give rise to a "
-                "reasonable alignment before they are "
-                "further used for quantification.",
-            )
-
             consensus_slack = FloatField(
                 label="--consensusSlack",
                 required=False,
-                hidden="!options.validate_mappings",
                 description="The amount of slack allowed in the quasi-mapping "
                 "consensus mechanism.  Normally, a transcript must "
                 "cover all hits to be considered for mapping.  "
@@ -152,14 +140,13 @@ class SalmonQuant(Process):
                 "(and in [0,1)), then a transcript can fail "
                 "to cover up to (100 * X)% of the hits before it "
                 "is discounted as a mapping candidate. The default "
-                "value of this option is 0.2 if --validateMappings "
-                "is given and 0 otherwise",
+                "value of this option is 0.2 in selective alignment mode "
+                "and 0 otherwise.",
             )
 
             min_score_fraction = FloatField(
                 label="--minScoreFraction",
                 default=0.65,
-                hidden="!options.validate_mappings",
                 description="The fraction of the optimal possible alignment "
                 "score that a mapping must achieve in order to be "
                 "considered valid - should be in (0,1]",
@@ -183,7 +170,7 @@ class SalmonQuant(Process):
 
             range_factorization_bins = IntegerField(
                 label="--rangeFactorizationBins",
-                default=0,
+                default=4,
                 description="Factorizes the likelihood used in "
                 "quantification by adopting a new notion "
                 "of equivalence classes based on the "
@@ -191,13 +178,15 @@ class SalmonQuant(Process):
                 "fragments are generated from different "
                 "transcripts.  This is a more "
                 "fine-grained factorization than the "
-                "normal rich equivalence classes.  The "
-                "default value (0) corresponds to the "
-                "standard rich equivalence classes, and "
-                "larger values imply a more fine-grained "
-                "factorization.  If range factorization "
-                "is enabled, a common value to select "
-                "for this parameter is 4.",
+                "normal rich equivalence classes. The "
+                "default value (4) corresponds to the "
+                "default used in Zakeri et al. 2017 "
+                "and larger values imply a more "
+                "fine-grained factorization. If range "
+                "factorization is enabled, a common "
+                "value to select for this parameter is "
+                "4. A value of 0 signifies the use of "
+                "basic rich equivalence classes.",
             )
 
             min_assigned_frag = IntegerField(
@@ -312,10 +301,7 @@ class SalmonQuant(Process):
         if inputs.options.no_length_correction:
             args.append("--noLengthCorrection")
 
-        if inputs.options.validate_mappings:
-            args.append("--validateMappings")
-
-        if inputs.options.validate_mappings and inputs.options.min_score_fraction > 0:
+        if inputs.options.min_score_fraction > 0:
             args.extend(["--minScoreFraction", inputs.options.min_score_fraction])
 
         if inputs.options.consensus_slack is not None:

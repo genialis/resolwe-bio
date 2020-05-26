@@ -4,12 +4,12 @@
     expression-engine: jinja
     resources:
       cores: 8
-      memory: 16384
+      memory: 32768
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.10.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 1.1.0
+  version: 2.0.0
   type: data:index:salmon
   persistence: CACHED
   description: |
@@ -48,14 +48,6 @@
         duplicate transcripts.  If this flag is passed,
         then duplicate transcripts that appear in the
         input will be retained and quantified separately.
-    - name: perfect_hash
-      label: Perfect hash
-      type: basic:boolean
-      default: false
-      description: |
-        Build the index using a perfect hash rather than a dense hash.
-        This will require less memory (especially during
-        quantification), but will take longer to construct.
     - name: source
       label: Source of attribute ID
       type: basic:string
@@ -120,7 +112,6 @@
         {% if decoys %} -d {{ decoys.file.file }} {% endif %} \
         {% if gencode %} --gencode {% endif %} \
         {% if keep_duplicates %} --keepDuplicates {% endif %} \
-        {% if perfect_hash %} --perfectHash {% endif %} \
         -i salmon_index \
         -p {{ requirements.resources.cores }} \
         -k {{ kmerlen }}

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 3.0.0
   type: data:workflow:rnaseq:salmon
   category: Pipeline
   description: |
@@ -109,15 +109,10 @@
             label: Perform fragment GC bias correction.
             type: basic:boolean
             default: false
-          - name: validate_mappings
-            label: Validate mappings using alignment-based verification.
-            type: basic:boolean
-            default: true
           - name: consensus_slack
             label: Consensus slack
             type: basic:decimal
             required: false
-            hidden: '!quantification.validate_mappings'
             description: |
                 The amount of slack allowed in the quasi-mapping
                 consensus mechanism.  Normally, a transcript must
@@ -126,12 +121,11 @@
                 (and in [0,1)), then a transcript can fail
                 to cover up to (100 * X)% of the hits before it
                 is discounted as a mapping candidate. The default
-                value of this option is 0.2 if --validateMappings
-                is given and 0 otherwise".
+                value of this option is 0.2 in selective alignment mode
+                and 0 otherwise.
           - name: min_score_fraction
             label: Minimum alignment score fraction
             type: basic:decimal
-            hidden: '!quantification.validate_mappings'
             default: 0.65
             description: |
                 The fraction of the optimal possible alignment
@@ -147,11 +141,12 @@
                 the conditional probabilities with which fragments are
                 generated from different transcripts. This is a more
                 fine-grained factorization than the normal rich
-                equivalence classes. The default value (0) corresponds
-                to the standard rich equivalence classes, and larger
+                equivalence classes. The default value (4) corresponds
+                to the default used in Zakeri et al. 2017 and larger
                 values imply a more fine-grained factorization. If range
                 factorization is enabled, a common value to select for
-                this parameter is 4.
+                this parameter is 4. A value of 0 signifies the use of
+                basic rich equivalence classes.
           - name: min_assigned_frag
             label: Minimum number of assigned fragments
             type: basic:integer
@@ -218,7 +213,6 @@
           options:
             seq_bias: '{{ input.quantification.seq_bias }}'
             gc_bias: '{{ input.quantification.gc_bias }}'
-            validate_mappings: '{{ input.quantification.validate_mappings }}'
             consensus_slack: '{{ input.quantification.consensus_slack }}'
             min_score_fraction: '{{ input.quantification.min_score_fraction }}'
             range_factorization_bins: '{{ input.quantification.range_factorization_bins }}'
@@ -280,7 +274,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 3.0.0
   type: data:workflow:rnaseq:salmon
   category: Pipeline
   description: |
@@ -386,15 +380,10 @@
             label: Perform fragment GC bias correction.
             type: basic:boolean
             default: true
-          - name: validate_mappings
-            label: Validate mappings using alignment-based verification.
-            type: basic:boolean
-            default: true
           - name: consensus_slack
             label: Consensus slack
             type: basic:decimal
             required: false
-            hidden: '!quantification.validate_mappings'
             description: |
                 The amount of slack allowed in the quasi-mapping
                 consensus mechanism.  Normally, a transcript must
@@ -403,12 +392,11 @@
                 (and in [0,1)), then a transcript can fail
                 to cover up to (100 * X)% of the hits before it
                 is discounted as a mapping candidate. The default
-                value of this option is 0.2 if --validateMappings
-                is given and 0 otherwise".
+                value of this option is 0.2 in selective alignment mode
+                and 0 otherwise.
           - name: min_score_fraction
             label: Minimum alignment score fraction
             type: basic:decimal
-            hidden: '!quantification.validate_mappings'
             default: 0.65
             description: |
                 The fraction of the optimal possible alignment
@@ -424,11 +412,12 @@
                 the conditional probabilities with which fragments are
                 generated from different transcripts. This is a more
                 fine-grained factorization than the normal rich
-                equivalence classes. The default value (0) corresponds
-                to the standard rich equivalence classes, and larger
+                equivalence classes. The default value (4) corresponds
+                to the default used in Zakeri et al. 2017 and larger
                 values imply a more fine-grained factorization. If range
                 factorization is enabled, a common value to select for
-                this parameter is 4.
+                this parameter is 4. A value of 0 signifies the use of
+                basic rich equivalence classes.
           - name: min_assigned_frag
             label: Minimum number of assigned fragments
             type: basic:integer
@@ -497,7 +486,6 @@
           options:
             seq_bias: '{{ input.quantification.seq_bias }}'
             gc_bias: '{{ input.quantification.gc_bias }}'
-            validate_mappings: '{{ input.quantification.validate_mappings }}'
             consensus_slack: '{{ input.quantification.consensus_slack }}'
             min_score_fraction: '{{ input.quantification.min_score_fraction }}'
             range_factorization_bins: '{{ input.quantification.range_factorization_bins }}'

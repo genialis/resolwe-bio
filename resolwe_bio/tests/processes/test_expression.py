@@ -663,7 +663,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         inputs = {
             "nucl": cds.id,
-            "perfect_hash": True,
             "gencode": False,
             "keep_duplicates": True,
             "source": "ENSEMBL",
@@ -717,8 +716,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 "min_assigned_frag": 5,
                 "gc_bias": True,
                 "seq_bias": True,
-                "validate_mappings": True,
-                "range_factorization_bins": 4,
                 "incompat_prior": 0.05,
                 "min_score_fraction": 0.7,
                 "consensus_slack": 0.25,
