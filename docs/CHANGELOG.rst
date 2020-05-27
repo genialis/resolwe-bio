@@ -18,6 +18,7 @@ Changed
   to version 1.2.1 in processes that utilize Salmon to detect library
   strandedness type.
 - Expose additional limit options in ``alignment-star`` process
+- Bump SRA toolkit to 2.10.0 in ``resolwebio/common:1.5.0`` Docker image
 
 
 ===================

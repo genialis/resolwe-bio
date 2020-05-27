@@ -21,7 +21,7 @@ Included tools:
 * Rsamtools (2.0.0)
 * Samtools (1.9)
 * Seqtk (1.2-r94)
-* SRA Toolkit (v2.9.0)
+* SRA Toolkit (v2.10.0)
 * Subread (1.6.3)
 * Tabix (1.7-2)
 * WALT (1.01)

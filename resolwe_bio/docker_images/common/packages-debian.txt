@@ -22,3 +22,8 @@ libpython3.6-dev
 
 # Required for MultiQC
 python3-setuptools
+
+# Required by sra-toolkit
+uuid-runtime
+libxml-libxml-perl
+libany-uri-escape-perl
