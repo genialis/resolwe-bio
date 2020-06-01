@@ -52,13 +52,13 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
         "resources": {"cores": 1, "memory": 1024, "network": True,},
     }
     data_name = "{{ sra_accession|first }}"
@@ -135,7 +135,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -145,7 +145,7 @@ class ImportSraSingle(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
         "resources": {"cores": 1, "memory": 1024, "network": True,},
     }
     data_name = "{{ sra_accession|first }}"
@@ -200,6 +200,8 @@ class ImportSraSingle(Process):
                 self.error(f"Download of {srr} reads with fastq-dump failed.")
 
         fastq_gz = glob.glob("*.fastq.gz")
+        if not fastq_gz:
+            self.error(f"Download of {srr} reads with fastq-dump failed.")
         outputs.fastq = fastq_gz
 
         print("Postprocessing FastQC...")
@@ -266,7 +268,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -276,7 +278,7 @@ class ImportSraPaired(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
         "resources": {"cores": 1, "memory": 1024, "network": True,},
     }
     data_name = "{{ sra_accession|first }}"
@@ -348,8 +350,12 @@ class ImportSraPaired(Process):
             if return_code:
                 self.error(f"Download of {srr} reads with fastq-dump failed.")
 
-            fastq_gz_1.append(f"{srr}_1.fastq.gz")
-            fastq_gz_2.append(f"{srr}_2.fastq.gz")
+            mate1 = Path(f"{srr}_1.fastq.gz")
+            mate2 = Path(f"{srr}_2.fastq.gz")
+            if not mate1.exists() or not mate2.exists():
+                self.error(f"Download of {srr} reads with fastq-dump failed.")
+            fastq_gz_1.append(str(mate1))
+            fastq_gz_2.append(str(mate2))
             fastqc_1.append(f"{srr}_1_fastqc.zip")
             fastqc_2.append(f"{srr}_2_fastqc.zip")
             fastqc_path_1 = fastqc_dir / f"{srr}_1_fastqc"

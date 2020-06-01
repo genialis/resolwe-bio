@@ -19,6 +19,8 @@ Changed
   strandedness type.
 - Expose additional limit options in ``alignment-star`` process
 - Bump SRA toolkit to 2.10.0 in ``resolwebio/common:1.5.0`` Docker image
+- Use SRA tookit 2.10.0 in ``import-sra``, ``import-sra-single`` and
+  ``import-sra-paired`` processes
 
 
 ===================
