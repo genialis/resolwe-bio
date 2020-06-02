@@ -17,6 +17,7 @@ Changed
   with Salmon index prior to version 1.0.0, thus Salmon tool is updated
   to version 1.2.1 in processes that utilize Salmon to detect library
   strandedness type.
+- Expose additional limit options in ``alignment-star`` process
 
 
 ===================

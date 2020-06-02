@@ -14,7 +14,7 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -305,6 +305,42 @@
           description: |
             Size of the bins, in bases, for the output of the bigwig. Only possible if 'Tool to calculate BigWig'
             is deepTools. If BigWig is calculated by UCSC BedGraphToBigWig then bin size is 1.
+    - name: limits
+      label: Limits
+      group:
+        - name: limitIObufferSize
+          label: --limitIObufferSize
+          type: basic:integer
+          description: |
+            Maximum available buffers size (bytes) for input/output, per thread.
+          default: 150000000
+        - name: limitOutSAMoneReadBytes
+          label: --limitOutSAMoneReadBytes
+          type: basic:integer
+          description: |
+            Maximum size of the SAM record (bytes) for one read. Recommended value:
+            >(2*(LengthMate1+LengthMate2+100)*outFilterMultimapNmax
+          default: 100000
+        - name: limitOutSJoneRead
+          label: --limitOutSJoneRead
+          type: basic:integer
+          description: |
+            Maximum number of junctions for one read (including all multi-mappers).
+          default: 1000
+        - name: limitOutSJcollapsed
+          label: --limitOutSJcollapsed
+          type: basic:integer
+          description: |
+            Maximum number of collapsed junctions.
+          default: 1000000
+        - name: limitSjdbInsertNsj
+          label: --limitSjdbInsertNsj
+          type: basic:integer
+          description: |
+            Maximum number of junction to be inserted to the genome on the fly at the mapping
+            stage, including those from annotations and those detected in the 1st step of the
+            2-pass run.
+          default: 1000000
     - name: star_sort
       label: Sorting with STAR
       type: basic:boolean
@@ -387,6 +423,11 @@
           --genomeDir "${INDEX}" \
           --readFilesIn mate1.fastq \
           --outReadsUnmapped Fastx \
+          --limitIObufferSize {{ limits.limitIObufferSize }} \
+          --limitOutSAMoneReadBytes {{ limits.limitOutSAMoneReadBytes }} \
+          --limitOutSJoneRead {{ limits.limitOutSJoneRead }} \
+          --limitOutSJcollapsed {{ limits.limitOutSJcollapsed }} \
+          --limitSjdbInsertNsj {{ limits.limitSjdbInsertNsj }} \
           {% if star_sort %}--outSAMtype BAM SortedByCoordinate {% else %} --outSAMtype BAM Unsorted {% endif %} \
           {% if star_sort %}--limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} {% endif %} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
@@ -429,6 +470,11 @@
           --genomeDir "${INDEX}" \
           --readFilesIn mate1.fastq mate2.fastq \
           --outReadsUnmapped Fastx \
+          --limitIObufferSize {{ limits.limitIObufferSize }} \
+          --limitOutSAMoneReadBytes {{ limits.limitOutSAMoneReadBytes }} \
+          --limitOutSJoneRead {{ limits.limitOutSJoneRead }} \
+          --limitOutSJcollapsed {{ limits.limitOutSJcollapsed }} \
+          --limitSjdbInsertNsj {{ limits.limitSjdbInsertNsj }} \
           {% if star_sort %}--outSAMtype BAM SortedByCoordinate {% else %} --outSAMtype BAM Unsorted {% endif %} \
           {% if star_sort %}--limitBAMsortRAM {{(requirements.resources.memory * 1024 * 1024 * 0.9)|int}} {% endif %} \
           {% if annotation %}--sjdbGTFfile {{ annotation.annot.file }} {% endif %} \
