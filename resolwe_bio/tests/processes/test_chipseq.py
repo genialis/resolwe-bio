@@ -1,4 +1,5 @@
 from os.path import join
+from pathlib import Path
 
 from resolwe.flow.models import Collection, Data, Process, Relation
 from resolwe.flow.models.entity import RelationPartition, RelationType
@@ -625,3 +626,62 @@ re-save build "hg19"
         )
         self.assertFileExists(chipqc_macs14, "ccplot")
         self.assertFileExists(chipqc_macs14, "peak_profile")
+
+    @tag_process(
+        "workflow-subsample-bwa-aln-single", "workflow-subsample-bwa-aln-paired"
+    )
+    def test_subsample_bwa_align(self):
+        with self.preparation_stage():
+            base_input = Path("test_subsample_align")
+            input_folder = base_input / "input"
+            output_folder = base_input / "output"
+            with self.preparation_stage():
+                ref_seq = self.prepare_ref_seq(
+                    fn=str(input_folder / "g.en ome.fasta.gz"),
+                    species="Homo sapiens",
+                    build="hg38",
+                )
+                reads = self.prepare_reads()
+                reads_paired = self.prepare_paired_reads(
+                    mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
+                    mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
+                )
+
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
+
+            self.run_process(
+                "workflow-subsample-bwa-aln-single",
+                {
+                    "reads": reads.id,
+                    "genome": bwa_index.id,
+                    "downsampling": {"n_reads": 10},
+                },
+            )
+
+            alignment_single = Data.objects.filter(process__slug="alignment-bwa-aln")[0]
+            self.assertFile(
+                alignment_single,
+                "stats",
+                output_folder / "downsampled_aligned_stats.txt",
+            )
+
+            self.run_process(
+                "workflow-subsample-bwa-aln-paired",
+                {
+                    "reads": reads_paired.id,
+                    "genome": bwa_index.id,
+                    "downsampling": {"n_reads": 15},
+                },
+            )
+
+            for data in Data.objects.all():
+                self.assertStatus(data, Data.STATUS_DONE)
+
+            alignment_paired = Data.objects.filter(
+                process__slug="alignment-bwa-aln"
+            ).last()
+            self.assertFile(
+                alignment_paired,
+                "stats",
+                output_folder / "downsampled_aligned_paired_stats.txt",
+            )

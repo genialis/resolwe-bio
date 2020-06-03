@@ -9,6 +9,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``workflow-subsample-bwa-aln-single`` and
+  ``workflow-subsample-bwa-aln-paired`` workflows
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Use Salmon 1.2.1 in ``salmon-quant`` and
