@@ -4,15 +4,15 @@ from rest_framework import routers
 
 from resolwe.api_urls import api_router as resolwe_router
 from resolwe.flow.views import EntityViewSet
-from resolwe_bio.kb.views import (FeatureSearchViewSet, FeatureAutocompleteViewSet, FeatureViewSet,
-                                  MappingViewSet, MappingSearchViewSet)
+from resolwe_bio.kb.views import (
+    FeatureSearchViewSet, FeatureAutocompleteViewSet, MappingSearchViewSet
+)
+
 from .routers import SearchRouter
 
 
 api_router = routers.DefaultRouter(trailing_slash=False)  # pylint: disable=invalid-name
 api_router.register(r'sample', EntityViewSet)
-api_router.register(r'kb/feature/admin', FeatureViewSet)
-api_router.register(r'kb/mapping/admin', MappingViewSet)
 
 search_router = SearchRouter(trailing_slash=False)  # pylint: disable=invalid-name
 search_router.register(r'kb/feature/search', FeatureSearchViewSet, 'kb_feature_search')

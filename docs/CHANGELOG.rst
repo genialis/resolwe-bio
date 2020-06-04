@@ -15,6 +15,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Disable editing capabilities of Knowledge
+  Base API endpoints
 - Bump Samtools to version 1.10 in ``resolwebio/common:1.6.0`` Docker
   image
 - Migrate search for Knowledge Base enpoints from Elasticsearch to
