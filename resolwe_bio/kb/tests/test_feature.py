@@ -2,12 +2,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from resolwe.test import ElasticSearchTestCase
+from resolwe.test import TestCase
 
 from ..models import Feature
 
 
-class FeatureTestCase(APITestCase, ElasticSearchTestCase):
+class FeatureTestCase(TestCase, APITestCase):
     @staticmethod
     def create_feature(index, source):
         return Feature.objects.create(
@@ -21,16 +21,15 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
             aliases=["BAR{}".format(index), "BTMK{}".format(index), "SHARED"],
         )
 
-    def setUp(self):
-        super(FeatureTestCase, self).setUp()
-
-        self.features = []
+    @classmethod
+    def setUpTestData(cls):
+        cls.features = []
 
         for i in range(7):
-            self.features.append(FeatureTestCase.create_feature(i, "NCBI"))
+            cls.features.append(FeatureTestCase.create_feature(i, "NCBI"))
 
         for i in range(7, 10):
-            self.features.append(FeatureTestCase.create_feature(i, "XSRC"))
+            cls.features.append(FeatureTestCase.create_feature(i, "XSRC"))
 
     def assertFeatureEqual(self, data, feature):
         self.assertEqual(data["source"], feature.source)
@@ -52,11 +51,8 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         response = self.client.get(FEATURE_SEARCH_URL, {"query": ""}, format="json")
         self.assertEqual(len(response.data), 10)
 
-        response = self.client.get(FEATURE_SEARCH_URL, format="json")
-        self.assertEqual(len(response.data), 10)
-
         # Test with non-matching query.
-        response = self.client.get(FEATURE_SEARCH_URL, {"query": "FO"}, format="json")
+        response = self.client.get(FEATURE_SEARCH_URL, {"query": "F1"}, format="json")
         self.assertEqual(len(response.data), 0)
 
         for feature in self.features:
@@ -85,13 +81,13 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         self.assertEqual(len(response.data), len(self.features))
 
         # Test query by multiple gene IDs.
-        response = self.client.post(
-            FEATURE_SEARCH_URL, {"query": ["FOO1", "FOO2", "FT-7"]}, format="json"
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"query": "FOO1,FOO2,FT-7"}, format="json"
         )
         self.assertEqual(len(response.data), 3)
 
-        response = self.client.post(
-            FEATURE_SEARCH_URL, {"query": ["FOO1", "SHARED", "FT-7"]}, format="json"
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"query": "FOO1,SHARED,FT-7"}, format="json"
         )
         self.assertEqual(len(response.data), len(self.features))
 
@@ -106,30 +102,32 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         )
         self.assertEqual(len(response.data), 0)
 
-        response = self.client.post(
+        response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"query": ["FOO1", "FOO2", "FT-3"], "source": "NCBI"},
+            {"query": "FOO1,FOO2,FT-3", "source": "NCBI"},
             format="json",
         )
         self.assertEqual(len(response.data), 3)
 
-        response = self.client.post(
+        response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"query": ["FOO7", "FOO8", "FT-9"], "source": "XSRC"},
+            {"query": "FOO7,FOO8,FT-9", "source": "XSRC"},
             format="json",
         )
         self.assertEqual(len(response.data), 3)
 
-        response = self.client.post(
+        response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"query": ["FOO1", "FOO2", "FT-7"], "source": "FOO"},
+            {"query": "FOO1,FOO2,FT-7", "source": "FOO"},
             format="json",
         )
         self.assertEqual(len(response.data), 0)
 
         # Test query with a lot of features.
-        response = self.client.post(
-            FEATURE_SEARCH_URL, {"query": [str(x) for x in range(1024)]}, format="json"
+        response = self.client.get(
+            FEATURE_SEARCH_URL,
+            {"query": ",".join([str(x) for x in range(1024)])},
+            format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -149,9 +147,9 @@ class FeatureTestCase(APITestCase, ElasticSearchTestCase):
         )
         self.assertEqual(len(response.data), 1)
 
-        response = self.client.post(
+        response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"feature_id": ["FT-1", "FT-2"], "source": "NCBI"},
+            {"feature_id": "FT-1,FT-2", "source": "NCBI"},
             format="json",
         )
         self.assertEqual(len(response.data), 2)

@@ -168,7 +168,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_FILTER_BACKENDS': (
         'resolwe.permissions.filters.ResolwePermissionsFilter',
-        'django_filters.rest_framework.backends.DjangoFilterBackend',
+        'tests.backends.ResolweBioFilterBackend',
     ),
     # Python<3.7 cannot parse iso-8601 formatted datetimes with tz-info form
     # "+01:00" (DRF default). It can only parse "+0100" form, so we need to

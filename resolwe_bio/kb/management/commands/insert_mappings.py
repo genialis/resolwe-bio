@@ -13,7 +13,6 @@ from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
 from django.db import connection
 
-from resolwe.elastic.builder import index_builder
 from resolwe.utils import BraceMessage as __
 
 from resolwe_bio.kb.models import Mapping
@@ -116,8 +115,6 @@ class Command(BaseCommand):
 
             count_total += len(mappings)
             count_inserted += result[1]
-
-        index_builder.build(queryset=Mapping.objects.filter(id__in=to_index))
 
         logger.info(
             "Total mappings: %d. Inserted %d, unchanged %d."

@@ -2,12 +2,12 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from resolwe.test import ElasticSearchTestCase
+from resolwe.test import TestCase
 
 from ..models import Mapping
 
 
-class MappingTestCase(APITestCase, ElasticSearchTestCase):
+class MappingTestCase(APITestCase, TestCase):
     def setUp(self):
         super(MappingTestCase, self).setUp()
 
@@ -53,7 +53,7 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         self.assertMappingEqual(response.data[0], self.mappings[0])
 
         # Test lookup by source_db, target_db and a list of source feature identifiers.
-        response = self.client.post(
+        response = self.client.get(
             MAPPING_URL,
             {"source_db": "SRC", "target_db": "TGT", "source_id__in": "FT0,FT1,FT5"},
             format="json",
@@ -65,7 +65,7 @@ class MappingTestCase(APITestCase, ElasticSearchTestCase):
         self.assertMappingEqual(response.data[2], self.mappings[5])
 
         # Test query with a lot of source ids.
-        response = self.client.post(
+        response = self.client.get(
             MAPPING_URL,
             {
                 "source_db": "SRC",

@@ -6,6 +6,8 @@ Models
 
 """
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVectorField
 from django.db import models
 
 
@@ -49,12 +51,12 @@ class Feature(models.Model):
     )
 
     # Because Django ORM cannot handle composite primary keys, each feature is
-    # still assigned an internal numeric 'id' and the ('source', 'feature_id')
-    # pair is used to uniquely identify a feature.
+    # still assigned an internal numeric 'id' and the ('source', 'feature_id',
+    # 'species') combination is used to uniquely identify a feature.
     source = models.CharField(max_length=20)
     feature_id = models.CharField(max_length=50)
-
     species = models.CharField(max_length=50)
+
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     sub_type = models.CharField(max_length=20, choices=SUBTYPE_CHOICES)
     name = models.CharField(max_length=1024)
@@ -62,10 +64,19 @@ class Feature(models.Model):
     description = models.TextField(blank=True)
     aliases = ArrayField(models.CharField(max_length=256), default=list, blank=True)
 
+    #: field used for full-text search
+    search = SearchVectorField(null=True)
+
     class Meta:
         """Feature Meta options."""
 
         unique_together = (("source", "feature_id", "species"),)
+        indexes = [
+            models.Index(name="idx_feature_source", fields=["source"]),
+            models.Index(name="idx_feature_species", fields=["species"]),
+            models.Index(name="idx_feature_feature_id", fields=["feature_id"]),
+            GinIndex(name="idx_feature_search", fields=["search"]),
+        ]
 
     def __str__(self):
         """Represent a feature instance as a string."""

@@ -29,7 +29,8 @@ setuptools.setup(
         'resolwe_bio': [
             'descriptors/*.yml',
             'fixtures/*.yaml',
-            "migrations/*.sql",
+            'kb/migrations/*.sql',
+            'migrations/*.sql',
             'processes/**/*.yml',
             'processes/**/*.py',
             'tools/*.py',

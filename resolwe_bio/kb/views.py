@@ -5,21 +5,17 @@ Views
 =====
 
 """
-from django_filters.rest_framework.backends import DjangoFilterBackend
-from elasticsearch_dsl.query import Q
 from rest_framework import mixins, permissions, viewsets
+from tests.backends import ResolweBioFilterBackend
+from tests.pagination import LimitOffsetPostPagination
 
-from resolwe.elastic.viewsets import ElasticSearchBaseViewSet
-
-from .elastic_indexes import FeatureSearchDocument, MappingSearchDocument
-from .filters import MappingFilter
+from .filters import FeatureAutoCompleteFilter, FeatureFilter, MappingFilter
 from .models import Feature, Mapping
 from .serializers import FeatureSerializer, MappingSerializer
 
 
-class FeatureSearchViewSet(ElasticSearchBaseViewSet):
-    """
-    Endpoint used for feature search.
+class FeatureSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """Endpoint used for feature search.
 
     Request:
      - query
@@ -29,83 +25,32 @@ class FeatureSearchViewSet(ElasticSearchBaseViewSet):
      - a list of matching features
     """
 
-    document_class = FeatureSearchDocument
+    queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
+    filter_backends = [ResolweBioFilterBackend]
+    filter_class = FeatureFilter
+    pagination_class = LimitOffsetPostPagination
 
-    filtering_fields = ("name", "source", "species", "feature_id", "type")
     ordering_fields = ("name",)
     ordering = "name"
 
-    def get_always_allowed_arguments(self):
-        """Return query arguments which are always allowed."""
-        return super().get_always_allowed_arguments() + [
-            "query",
-        ]
-
-    def custom_filter_feature_id(self, value, search):
-        """Support exact feature_id queries."""
-        if not isinstance(value, list):
-            value = [value]
-
-        return search.filter("terms", feature_id=value)
-
-    def custom_filter(self, search):
-        """Support general query using the 'query' attribute."""
-        query = self.get_query_param("query", None)
-        if query:
-            if not isinstance(query, list):
-                query = [query]
-
-            search = search.filter(
-                "bool",
-                should=[
-                    Q("terms", feature_id=query),
-                    Q("terms", name=query),
-                    Q("terms", aliases=query),
-                ],
-            )
-
-        return search
-
-    def filter_permissions(self, search):
-        """Feature objects have no permissions."""
-        return search
+    def list_with_post(self, request):
+        """Endpoint handler."""
+        return self.list(request)
 
 
-class FeatureAutocompleteViewSet(ElasticSearchBaseViewSet):
+class FeatureAutocompleteViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Endpoint used for feature autocompletion."""
 
-    document_class = FeatureSearchDocument
+    queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
+    filter_backends = [ResolweBioFilterBackend]
+    filter_class = FeatureAutoCompleteFilter
+    pagination_class = LimitOffsetPostPagination
 
-    filtering_fields = ("source", "species", "type")
-
-    def get_always_allowed_arguments(self):
-        """Return query arguments which are always allowed."""
-        return super().get_always_allowed_arguments() + [
-            "query",
-        ]
-
-    def custom_filter(self, search):
-        """Support autocomplete query using the 'query' attribute."""
-        query = self.get_query_param("query", "")
-        return search.query(
-            "bool",
-            should=[
-                # Exact matches of name and feature_id.
-                Q("match", **{"feature_id.lower": {"query": query, "boost": 10}}),
-                Q("match", **{"name.lower": {"query": query, "boost": 10}}),
-                # Partial matches of name and feature_id.
-                Q("match", **{"feature_id.ngrams": {"query": query, "boost": 5}}),
-                Q("match", **{"name.ngrams": {"query": query, "boost": 5}}),
-                # Aliases.
-                Q("match", **{"aliases.ngrams": {"query": query}}),
-            ],
-        )
-
-    def filter_permissions(self, search):
-        """Feature objects have no permissions."""
-        return search
+    def list_with_post(self, request):
+        """Endpoint handler."""
+        return self.list(request)
 
 
 class FeatureViewSet(
@@ -118,10 +63,9 @@ class FeatureViewSet(
 ):
     """API view for :class:`Feature` objects."""
 
+    queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
     permission_classes = [permissions.IsAdminUser]
-    filter_backends = [DjangoFilterBackend]
-    queryset = Feature.objects.all()
 
     def create(self, request, *args, **kwargs):
         """Instead of failing, update existing features with a custom create."""
@@ -135,7 +79,7 @@ class FeatureViewSet(
             return super(FeatureViewSet, self).create(request, *args, **kwargs)
 
 
-class MappingSearchViewSet(ElasticSearchBaseViewSet):
+class MappingSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Endpoint used for mapping search.
 
@@ -152,24 +96,18 @@ class MappingSearchViewSet(ElasticSearchBaseViewSet):
      - a list of matching mappings
     """
 
-    document_class = MappingSearchDocument
+    queryset = Mapping.objects.all()
     serializer_class = MappingSerializer
+    filter_backends = [ResolweBioFilterBackend]
+    filter_class = MappingFilter
+    pagination_class = LimitOffsetPostPagination
 
-    filtering_fields = (
-        "relation_type",
-        "source_db",
-        "source_id",
-        "source_species",
-        "target_db",
-        "target_id",
-        "target_species",
-    )
     ordering_fields = ("source_id",)
     ordering = "source_id"
 
-    def filter_permissions(self, search):
-        """Filter permissions since Mapping objects have no permissions."""
-        return search
+    def list_with_post(self, request):
+        """Endpoint handler."""
+        return self.list(request)
 
 
 class MappingViewSet(
