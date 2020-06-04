@@ -77,6 +77,7 @@ ANONYMOUS_USER_ID = -1
 # Check if PostgreSQL settings are set via environment variables
 pgname = os.environ.get('RESOLWE_POSTGRESQL_NAME', 'resolwe-bio')
 pguser = os.environ.get('RESOLWE_POSTGRESQL_USER', 'resolwe')
+pgpass = os.environ.get('RESOLWE_POSTGRESQL_PASS', 'resolwe')
 pghost = os.environ.get('RESOLWE_POSTGRESQL_HOST', 'localhost')
 pgport = int(os.environ.get('RESOLWE_POSTGRESQL_PORT', 55433))
 
@@ -85,6 +86,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': pgname,
         'USER': pguser,
+        'PASSWORD': pgpass,
         'HOST': pghost,
         'PORT': pgport,
     }

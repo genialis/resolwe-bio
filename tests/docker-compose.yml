@@ -5,6 +5,7 @@ postgresql:
     image: postgres:10
     environment:
         POSTGRES_USER: resolwe
+        POSTGRES_PASSWORD: resolwe
         POSTGRES_DB: resolwe-bio
     ports:
         - "55433:5432"
