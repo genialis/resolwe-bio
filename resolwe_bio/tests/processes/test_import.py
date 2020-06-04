@@ -38,12 +38,12 @@ class ImportProcessorTestCase(BioProcessTestCase):
             "fastqc_url",
             [
                 {
-                    "file": "fastqc/SRR1661333_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/SRR1661333_fastqc"],
-                },
-                {
                     "file": "fastqc/SRR1661332_fastqc/fastqc_report.html",
                     "refs": ["fastqc/SRR1661332_fastqc"],
+                },
+                {
+                    "file": "fastqc/SRR1661333_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/SRR1661333_fastqc"],
                 },
             ],
         )

@@ -135,7 +135,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -181,6 +181,7 @@ class ImportSraSingle(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+        fastq_gz = []
         for srr in inputs.sra_accession:
             cmd = Cmd["fastq-dump"]["--gzip"]
             if inputs.advanced.min_spot_id:
@@ -199,9 +200,16 @@ class ImportSraSingle(Process):
             if return_code:
                 self.error(f"Download of {srr} reads with fastq-dump failed.")
 
-        fastq_gz = glob.glob("*.fastq.gz")
+            srr_file = Path(f"{srr}.fastq.gz")
+            if not srr_file.is_file():
+                self.error(f"Download of {srr} reads with fastq-dump failed.")
+
+            fastq_gz.append(str(srr_file))
+
         if not fastq_gz:
-            self.error(f"Download of {srr} reads with fastq-dump failed.")
+            self.error(
+                f"Download of FASTQ files failed for all of the listed accession numbers: {inputs.sra_accession}."
+            )
         outputs.fastq = fastq_gz
 
         print("Postprocessing FastQC...")
@@ -215,11 +223,18 @@ class ImportSraSingle(Process):
         for fastqc_zip in glob.glob("fastqc/*_fastqc.zip"):
             move(fastqc_zip, ".")
 
+        fastqc = []
         fastqc_url = []
-        fastqc_dir = Path("fastqc")
-        for report_dir in fastqc_dir.iterdir():
+        for fq in fastq_gz:
+            reads_name = Path(fq).name.replace(".fastq.gz", "")
+            report_dir = Path("fastqc") / Path(f"{reads_name}_fastqc")
             if not report_dir.is_dir():
                 continue
+
+            fastqc_zip = Path(f"{reads_name}_fastqc.zip")
+            if not fastqc_zip.is_file():
+                self.error(f"FastQC failed to produce {fastqc_zip} file.")
+            fastqc.append(str(fastqc_zip))
 
             fastqc_url.append(
                 {
@@ -227,8 +242,6 @@ class ImportSraSingle(Process):
                     "refs": [str(report_dir)],
                 }
             )
-
-            reads_name = report_dir.name.replace("_fastqc", "")
             encoding_file = report_dir / "fastqc_data.txt"
             encoding = Cmd["parse_encoding_type.py"](str(encoding_file))
 
@@ -249,8 +262,6 @@ class ImportSraSingle(Process):
                     "Only Sanger / Illumina 1.9 / llumina 1.5 / Illumina 1.3 encoding is "
                     "supported."
                 )
-
-        fastqc = glob.glob("*_fastqc.zip")
 
         outputs.fastqc_url = fastqc_url
         outputs.fastqc_archive = fastqc
