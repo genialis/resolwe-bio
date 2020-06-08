@@ -599,15 +599,52 @@ re-save-file peaks_density_plot "${NAME}".png
                 },
             )
 
+            peak_qc = Process.objects.create(
+                name="Upload Post-Peak QC mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                contributor=self.contributor,
+                type="data:chipseq:callpeak:macs2:",
+                input_schema=[{"name": "src", "type": "basic:file:",},],
+                output_schema=[
+                    {"name": "chip_qc", "type": "basic:file:",},
+                    {"name": "called_peaks", "type": "basic:file:",},
+                    {"name": "case_prepeak_qc", "type": "basic:file:",},
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file chip_qc "${NAME}".txt
+re-save-file called_peaks "${NAME}".txt
+re-save-file case_prepeak_qc "${NAME}".txt
+""",
+                },
+            )
+
             chipqc = self.run_process(
                 process.slug,
                 {"src": os.path.join("chipqc", "output", "PeakProfile_mqc.png"),},
             )
             set_sample_name(chipqc, "ChipQC test")
 
+            postpeak_qc_report = self.run_process(
+                peak_qc.slug,
+                {"src": os.path.join("chipqc", "input", "postpeak_qc_report.txt")},
+            )
+            set_sample_name(postpeak_qc_report, "ChipQC test")
+
         multiqc = self.run_process(
             "multiqc",
-            {"data": [chipqc.id,], "advanced": {"dirs": True, "config": True,}},
+            {
+                "data": [chipqc.id, postpeak_qc_report.id,],
+                "advanced": {"dirs": True, "config": True,},
+            },
         )
         self.assertFileExists(multiqc, "report")
 

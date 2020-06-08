@@ -55,6 +55,7 @@ def parse_chip_qc_report(report):
 def create_prepeak_table(sample_names, reports):
     """Prepare ChIP-seq pre-peak MultiQC table."""
     prepeak_qc_json = {
+        "pconfig": {"format": "{:,.2f}"},
         "id": "chip_seq_prepeak_qc",
         "section_name": "ChIP-seq pre-peak QC",
         "plot_type": "table",
@@ -73,6 +74,7 @@ def create_prepeak_table(sample_names, reports):
 def create_postpeak_table(sample_names, reports):
     """Prepare ChIP-seq pre-peak MultiQC table."""
     postpeak_qc_json = {
+        "pconfig": {"format": "{:,.2f}"},
         "id": "chip_seq_postpeak_qc",
         "section_name": "ChIP-seq post-peak QC",
         "plot_type": "table",
@@ -189,7 +191,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.8.1"
+    version = "1.8.2"
 
     class Input:
         """Input fields to process MultiQC."""

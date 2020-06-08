@@ -26,6 +26,8 @@ Changed
 - Bump SRA toolkit to 2.10.0 in ``resolwebio/common:1.5.0`` Docker image
 - Use SRA tookit 2.10.0 in ``import-sra``, ``import-sra-single`` and
   ``import-sra-paired`` processes
+- Format floats to 2 decimal places in custom ChIP-seq pre/post-peak
+  MultiQC reports
 
 
 ===================
