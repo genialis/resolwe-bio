@@ -9,11 +9,11 @@ from ..models import Feature
 
 class FeatureTestCase(TestCase, APITestCase):
     @staticmethod
-    def create_feature(index, source):
+    def create_feature(index, source, species):
         return Feature.objects.create(
             source=source,
             feature_id="FT-{}".format(index),
-            species="Lorem ipsum",
+            species=species,
             type=Feature.TYPE_GENE,
             sub_type=Feature.SUBTYPE_PROTEIN_CODING,
             name="FOO{}".format(index),
@@ -25,11 +25,18 @@ class FeatureTestCase(TestCase, APITestCase):
     def setUpTestData(cls):
         cls.features = []
 
-        for i in range(7):
-            cls.features.append(FeatureTestCase.create_feature(i, "NCBI"))
-
+        for i in range(4):
+            cls.features.append(
+                FeatureTestCase.create_feature(i, "NCBI", "Homo sapiens")
+            )
+        for i in range(4, 7):
+            cls.features.append(
+                FeatureTestCase.create_feature(i, "NCBI", "Mus musculus")
+            )
         for i in range(7, 10):
-            cls.features.append(FeatureTestCase.create_feature(i, "XSRC"))
+            cls.features.append(
+                FeatureTestCase.create_feature(i, "XSRC", "Homo sapiens")
+            )
 
     def assertFeatureEqual(self, data, feature):
         self.assertEqual(data["source"], feature.source)
@@ -55,24 +62,19 @@ class FeatureTestCase(TestCase, APITestCase):
         response = self.client.get(FEATURE_SEARCH_URL, {"query": "F1"}, format="json")
         self.assertEqual(len(response.data), 0)
 
-        for feature in self.features:
-            # Test query by feature name.
-            response = self.client.get(
-                FEATURE_SEARCH_URL, {"query": feature.name}, format="json"
-            )
-            self.assertEqual(len(response.data), 1)
-            self.assertFeatureEqual(response.data[0], feature)
+        # Test query by feature name.
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"query": self.features[0].name}, format="json"
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertFeatureEqual(response.data[0], self.features[0])
 
-            # Test query by alias.
-            for alias in feature.aliases:
-                if alias == "SHARED":
-                    continue
-
-                response = self.client.get(
-                    FEATURE_SEARCH_URL, {"query": alias}, format="json"
-                )
-                self.assertEqual(len(response.data), 1)
-                self.assertFeatureEqual(response.data[0], feature)
+        # Test query by alias.
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"query": self.features[0].aliases[0]}, format="json"
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertFeatureEqual(response.data[0], self.features[0])
 
         # Test query by shared alias.
         response = self.client.get(
@@ -93,25 +95,20 @@ class FeatureTestCase(TestCase, APITestCase):
 
         # Test query by source.
         response = self.client.get(
-            FEATURE_SEARCH_URL, {"query": "FOO1", "source": "NCBI"}, format="json"
+            FEATURE_SEARCH_URL, {"source": "NCBI"}, format="json"
         )
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 7)
 
+        # Test query by species.
         response = self.client.get(
-            FEATURE_SEARCH_URL, {"query": "FOO1", "source": "FOO"}, format="json"
+            FEATURE_SEARCH_URL, {"species": "Homo sapiens"}, format="json"
         )
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(len(response.data), 7)
 
-        response = self.client.get(
-            FEATURE_SEARCH_URL,
-            {"query": "FOO1,FOO2,FT-3", "source": "NCBI"},
-            format="json",
-        )
-        self.assertEqual(len(response.data), 3)
-
+        # Mixed queries.
         response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"query": "FOO7,FOO8,FT-9", "source": "XSRC"},
+            {"query": "FOO1,FOO2,FT-3", "source": "NCBI", "species": "Homo sapiens"},
             format="json",
         )
         self.assertEqual(len(response.data), 3)
@@ -133,23 +130,22 @@ class FeatureTestCase(TestCase, APITestCase):
 
         # Test search by feature_id.
         response = self.client.get(
-            FEATURE_SEARCH_URL, {"feature_id": "FOO", "source": "XSRC"}, format="json"
+            FEATURE_SEARCH_URL,
+            {"feature_id": "FOO", "source": "XSRC", "species": "Homo sapiens"},
+            format="json",
         )
         self.assertEqual(len(response.data), 0)
 
         response = self.client.get(
-            FEATURE_SEARCH_URL, {"feature_id": "FOO1", "source": "XSRC"}, format="json"
-        )
-        self.assertEqual(len(response.data), 0)
-
-        response = self.client.get(
-            FEATURE_SEARCH_URL, {"feature_id": "FT-9", "source": "XSRC"}, format="json"
+            FEATURE_SEARCH_URL,
+            {"feature_id": "FT-9", "source": "XSRC", "species": "Homo sapiens"},
+            format="json",
         )
         self.assertEqual(len(response.data), 1)
 
         response = self.client.get(
             FEATURE_SEARCH_URL,
-            {"feature_id": "FT-1,FT-2", "source": "NCBI"},
+            {"feature_id": "FT-1,FT-2", "source": "NCBI", "species": "Homo sapiens"},
             format="json",
         )
         self.assertEqual(len(response.data), 2)
@@ -164,7 +160,9 @@ class FeatureTestCase(TestCase, APITestCase):
         self.assertEqual(len(response.data), 0)
 
         response = self.client.get(
-            FEATURE_AUTOCOMPLETE_URL, {"query": "", "source": "NCBI"}, format="json"
+            FEATURE_AUTOCOMPLETE_URL,
+            {"query": "", "source": "NCBI", "species": "Homo sapiens"},
+            format="json",
         )
         self.assertEqual(len(response.data), 0)
 
@@ -183,11 +181,13 @@ class FeatureTestCase(TestCase, APITestCase):
         )
         self.assertEqual(len(response.data), len(self.features))
 
-        # Test partial name query with source.
+        # Test partial name query with source and species.
         response = self.client.get(
-            FEATURE_AUTOCOMPLETE_URL, {"query": "FO", "source": "NCBI"}, format="json"
+            FEATURE_AUTOCOMPLETE_URL,
+            {"query": "FO", "source": "NCBI", "species": "Homo sapiens"},
+            format="json",
         )
-        self.assertEqual(len(response.data), 7)
+        self.assertEqual(len(response.data), 4)
 
         # Test partial alias query.
         response = self.client.get(
@@ -195,30 +195,28 @@ class FeatureTestCase(TestCase, APITestCase):
         )
         self.assertEqual(len(response.data), len(self.features))
 
-        # Test partial alias query with source.
+        # Test partial alias query with source and species.
         response = self.client.get(
-            FEATURE_AUTOCOMPLETE_URL, {"query": "SHAR", "source": "XSRC"}, format="json"
+            FEATURE_AUTOCOMPLETE_URL,
+            {"query": "SHAR", "source": "XSRC", "species": "Homo sapiens"},
+            format="json",
         )
         self.assertEqual(len(response.data), 3)
 
-        for feature in self.features:
-            # Test query by full feature name.
-            response = self.client.get(
-                FEATURE_AUTOCOMPLETE_URL,
-                {"query": feature.name, "source": feature.source},
-                format="json",
-            )
-            self.assertEqual(len(response.data), 1)
-            self.assertFeatureEqual(response.data[0], feature)
+        # Test query by full feature name.
+        feature = self.features[0]
+        response = self.client.get(
+            FEATURE_AUTOCOMPLETE_URL,
+            {"query": feature.name, "source": feature.source},
+            format="json",
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertFeatureEqual(response.data[0], feature)
 
-            # Test query by alias.
-            for alias in feature.aliases:
-                if alias == "SHARED":
-                    continue
-
-                response = self.client.get(
-                    FEATURE_AUTOCOMPLETE_URL, {"query": alias}, format="json"
-                )
-                self.assertEqual(len(response.data), 1)
-                self.assertFeatureEqual(response.data[0], feature)
-
+        # Test query by alias.
+        feature = self.features[0]
+        response = self.client.get(
+            FEATURE_AUTOCOMPLETE_URL, {"query": feature.aliases[0]}, format="json"
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertFeatureEqual(response.data[0], feature)
