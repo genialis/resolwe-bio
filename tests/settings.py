@@ -39,7 +39,6 @@ INSTALLED_APPS = (
     'resolwe',
     'resolwe.permissions',
     'resolwe.flow',
-    'resolwe.elastic',
     'resolwe.storage',
     'resolwe.toolkit',
     'resolwe.test_helpers',
@@ -216,11 +215,6 @@ FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/processes/'),)
 if os.environ.get('RESOLWEBIO_TESTS_SKIP_DOCKER_FAILURES', '').lower() in ["no", "false"]:
     TESTS_SKIP_DOCKER_FAILURES = False
 
-# Elastic Search.
-
-ELASTICSEARCH_HOST = os.environ.get('RESOLWE_ES_HOST', 'localhost')
-ELASTICSEARCH_PORT = int(os.environ.get('RESOLWE_ES_PORT', '59201'))
-
 # Testing.
 
 TEST_RUNNER = 'resolwe.test_helpers.test_runner.ResolweRunner'
@@ -274,16 +268,6 @@ LOGGING = {
         '': {
             'handlers': ['file'],
             'level': 'DEBUG',
-        },
-        'elasticsearch': {
-            'handlers': ['file'],
-            'level': 'WARNING',
-            'propagate': False,
-        },
-        'urllib3': {
-            'handlers': ['file'],
-            'level': 'WARNING',
-            'propagate': False,
         },
     }
 }

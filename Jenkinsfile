@@ -65,8 +65,6 @@ throttle(["resolwe_bio"]) {
                         "RESOLWE_POSTGRESQL_USER=postgres",
                         // Set database name and Redis prefix to a unique value so multiple test
                         // instances can run at the same time.
-                        // NOTE: Resolwe's Elastic app automatically ensures that multiple test
-                        // instances use different indices.
                         "RESOLWE_POSTGRESQL_NAME=${env.BUILD_TAG}",
                         "RESOLWE_MANAGER_REDIS_PREFIX=resolwe-bio.manager.${env.BUILD_TAG}",
                         "RESOLWE_DOCKER_COMMAND=sudo docker",

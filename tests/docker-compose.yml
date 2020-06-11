@@ -13,12 +13,3 @@ redis:
     image: redis:3.2
     ports:
         - "56380:6379"
-elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.0
-    environment:
-        - discovery.type=single-node
-        # Limit JVM's heap memory.
-        - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-        - "59201:9200"
-
