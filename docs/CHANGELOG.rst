@@ -23,6 +23,8 @@ Changed
   PostgreSQL
 - Use ``resolwebio/common:1.6.0`` for the ``resolwebio/wgbs:1.3.0``
   Docker image
+- Support samtools markdup report in ``walt`` process when removing
+  duplicates
 
 Fixed
 -------
