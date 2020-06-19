@@ -19,7 +19,7 @@ Included tools:
 * MultiQC (1.8.0b)
 * QoRTs (1.3.0)
 * Rsamtools (2.0.0)
-* Samtools (1.9)
+* Samtools (1.10)
 * Seqtk (1.2-r94)
 * SRA Toolkit (v2.10.0)
 * Subread (1.6.3)
