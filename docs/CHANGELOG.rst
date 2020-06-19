@@ -21,6 +21,8 @@ Changed
   image
 - Migrate search for Knowledge Base enpoints from Elasticsearch to
   PostgreSQL
+- Use ``resolwebio/common:1.6.0`` for the ``resolwebio/wgbs:1.3.0``
+  Docker image
 
 
 ===================
