@@ -24,6 +24,10 @@ Changed
 - Use ``resolwebio/common:1.6.0`` for the ``resolwebio/wgbs:1.3.0``
   Docker image
 
+Fixed
+-------
+- Fix read length estimation in ``chipqc``
+
 
 ===================
 30.0.0 - 2020-06-15
