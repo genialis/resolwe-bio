@@ -558,6 +558,47 @@ re-save-file report "${NAME}".txt
         self.assertFileExists(multiqc, "report")
 
     @tag_process("multiqc")
+    def test_multiqc_markdup(self):
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            process = Process.objects.create(
+                name="Upload walt data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                contributor=self.contributor,
+                type="data:alignment:bam:walt:",
+                input_schema=[{"name": "src", "type": "basic:file:",},],
+                output_schema=[{"name": "duplicates_report", "type": "basic:file:",}],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file duplicates_report "${NAME}".txt
+""",
+                },
+            )
+
+            walt = self.run_process(process.slug, {"src": "markdup_stats.txt"},)
+            set_sample_name(walt, "Walt markdup test")
+
+        multiqc = self.run_process(
+            "multiqc",
+            {"data": [walt.id,], "advanced": {"dirs": True, "config": True,}},
+        )
+        self.assertFileExists(multiqc, "report")
+
+    @tag_process("multiqc")
     def test_multiqc_chipqc(self):
         with self.preparation_stage():
 

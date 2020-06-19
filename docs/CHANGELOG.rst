@@ -25,6 +25,7 @@ Changed
   Docker image
 - Support samtools markdup report in ``walt`` process when removing
   duplicates
+- Support samtools markdup report from ``walt`` in MultiQC
 
 Fixed
 -------

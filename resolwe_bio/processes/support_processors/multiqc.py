@@ -170,6 +170,56 @@ def create_bsrate_table(samples, reports):
             json.dump(bsrate_json, out_file)
 
 
+def process_markdup_file(report):
+    """Process samtools markdup file."""
+    df = pd.read_csv(
+        report, skiprows=0, sep=": ", header=0, engine="python"
+    ).transpose()
+    new_header = df.iloc[0]
+    df = df[1:]
+    df.columns = new_header
+    data_table = df.to_dict(orient="records")[0]
+
+    metrics = {}
+    metrics["UNIQUE PAIRS"] = data_table["PAIRED"] - data_table["DUPLICATE PAIR"]
+    metrics["UNIQUE SINGLE"] = data_table["SINGLE"] - data_table["DUPLICATE SINGLE"]
+    metrics["DUPLICATE PAIRS OPTICAL"] = data_table["DUPLICATE PAIR OPTICAL"]
+    metrics["DUPLICATE PAIRS_NONOPTICAL"] = (
+        data_table["DUPLICATE PAIR"] - data_table["DUPLICATE PAIR OPTICAL"]
+    )
+    metrics["DUPLICATE SINGLE OPTICAL"] = data_table["DUPLICATE SINGLE OPTICAL"]
+    metrics["DUPLICATE SINGLE NONOPTICAL"] = (
+        data_table["DUPLICATE SINGLE"] - data_table["DUPLICATE SINGLE OPTICAL"]
+    )
+    metrics["EXCLUDED"] = data_table["EXCLUDED"]
+    return metrics
+
+
+def create_markdup_plot(samples, reports):
+    """Prepare samtools markdup MultiQC table."""
+    markdup_json = {
+        "id": "samtools_markdup",
+        "section_name": "Samtools markdup statistics",
+        "description": "*Please note that excluded reads are those marked as secondary, supplementary, QC failed or "
+        "unmapped reads and are not used for calculating duplicates.",
+        "plot_type": "bargraph",
+        "pconfig": {
+            "id": "rmdup_bargraph",
+            "title": "Samtools deduplication stats",
+            "ylab": "Number of reads",
+        },
+        "file_format": "json",
+        "data": {},
+    }
+    for sample_name, report in zip(samples, reports):
+        report_data = process_markdup_file(report)
+        if report_data:
+            markdup_json["data"][sample_name] = report_data
+    if markdup_json["data"]:
+        with open("wgbs_markdup_mqc.json", "w") as out_file:
+            json.dump(markdup_json, out_file)
+
+
 class MultiQC(Process):
     """Aggregate results from bioinformatics analyses across many samples into a single report.
 
@@ -261,6 +311,8 @@ class MultiQC(Process):
         chip_seq_postpeak_reports = []
         bsrate_samples = []
         bsrate_reports = []
+        markdup_samples = []
+        markdup_reports = []
         unsupported_data = []
 
         for d in inputs.data:
@@ -307,6 +359,18 @@ class MultiQC(Process):
                 else:
                     report = f"{bam_name}.Log.final.out"
                     create_symlink(d.stats.path, os.path.join(sample_dir, report))
+
+            elif d.type == "data:alignment:bam:walt:":
+                try:
+                    if os.path.isfile(d.duplicates_report.path):
+                        dup_report_path = d.duplicates_report.path
+                        name = os.path.basename(dup_report_path)
+                        create_symlink(dup_report_path, os.path.join(sample_dir, name))
+                        markdup_samples.append(d.entity_name)
+                        markdup_reports.append(dup_report_path)
+                        create_markdup_plot(markdup_samples, markdup_reports)
+                except AttributeError:
+                    pass
 
             elif d.type.startswith("data:alignment:bam"):
                 name = os.path.basename(d.stats.path)
