@@ -1,7 +1,7 @@
 - slug: sample
   name: Sample annotation
   description: Sample meta data compliant with GEO and ENCODE databases.
-  version: 1.2.3
+  version: 1.3.0
   schema:
     - name: general
       label: General
@@ -241,6 +241,24 @@
           type: basic:string
           required: false
           description: Person who annotated the sample.
+        - name: qc
+          label: Quality check
+          group:
+            - name: status
+              label: Status
+              type: basic:string
+              required: false
+              choices:
+                - label: Pass
+                  value: PASS
+                - label: Warning
+                  value: WARNING
+                - label: Fail
+                  value: FAIL
+            - name: message
+              label: Message
+              type: basic:string
+              required: false
     - name: experiment
       label: Experiment details
       group:
