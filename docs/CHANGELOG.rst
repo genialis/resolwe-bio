@@ -26,6 +26,8 @@ Changed
 - Support samtools markdup report in ``walt`` process when removing
   duplicates
 - Support samtools markdup report from ``walt`` in MultiQC
+- Support samtools markdup report in ``workflow-wgbs-single`` and in
+  ``workflow-wgbs-paired`` workflows
 
 Fixed
 -------

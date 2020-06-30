@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 2.1.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -127,6 +127,17 @@
           label: Remove duplicates
           type: basic:boolean
           default: true
+        - name: optical_distance
+          label: Optical duplicate distance
+          type: basic:integer
+          disabled: >
+            !alignment.rm_dup
+          default: 0
+          description: |
+            The maximum offset between two duplicate clusters in order
+            to consider them optical duplicates. Suggested settings of
+            100 for HiSeq style platforms or about 2500 for NovaSeq
+            ones. Default is 0 to not look for optical duplicates.
         - name: mismatch
           label: Maximum allowed mismatches
           type: basic:integer
@@ -321,6 +332,7 @@
           genome: '{{ input.walt_index }}'
           reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
+          optical_distance: '{{ input.alignment.optical_distance }}'
           mismatch: '{{ input.alignment.mismatch }}'
           number: '{{ input.alignment.number }}'
           spikein_options:
@@ -396,6 +408,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.walt,
             steps.bsrate,
             steps.markduplicates,
             steps.summary,
@@ -408,7 +421,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.0
+  version: 2.1.0
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -577,6 +590,17 @@
           label: Remove duplicates
           type: basic:boolean
           default: true
+        - name: optical_distance
+          label: Optical duplicate distance
+          type: basic:integer
+          disabled: >
+            !alignment.rm_dup
+          default: 0
+          description: |
+            The maximum offset between two duplicate clusters in order
+            to consider them optical duplicates. Suggested settings of
+            100 for HiSeq style platforms or about 2500 for NovaSeq
+            ones. Default is 0 to not look for optical duplicates.
         - name: mismatch
           label: Maximum allowed mismatches
           type: basic:integer
@@ -800,6 +824,7 @@
           genome: '{{ input.walt_index }}'
           reads: '{{ steps.trimmomatic }}'
           rm_dup: '{{ input.alignment.rm_dup }}'
+          optical_distance: '{{ input.alignment.optical_distance }}'
           mismatch: '{{ input.alignment.mismatch }}'
           number: '{{ input.alignment.number }}'
           spikein_options:
@@ -885,6 +910,7 @@
         input:
           data: '{{ [
             input.reads,
+            steps.walt,
             steps.bsrate,
             steps.markduplicates,
             steps.summary,
