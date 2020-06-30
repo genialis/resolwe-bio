@@ -70,7 +70,12 @@ class Feature(models.Model):
     class Meta:
         """Feature Meta options."""
 
-        unique_together = (("source", "feature_id", "species"),)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source", "feature_id", "species"],
+                name="uniq_feature_source_feature_id_species",
+            ),
+        ]
         indexes = [
             models.Index(name="idx_feature_source", fields=["source"]),
             models.Index(name="idx_feature_species", fields=["species"]),
@@ -112,20 +117,35 @@ class Mapping(models.Model):
     class Meta:
         """Mapping Meta options."""
 
-        unique_together = [
-            [
-                "source_db",
-                "source_id",
-                "source_species",
-                "target_db",
-                "target_id",
-                "target_species",
-                "relation_type",
-            ],
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    "source_db",
+                    "source_id",
+                    "source_species",
+                    "target_db",
+                    "target_id",
+                    "target_species",
+                    "relation_type",
+                ],
+                name="uniq_mapping_source_target_type",
+            ),
         ]
-        index_together = [
-            ["source_db", "source_id", "source_species", "target_db"],
-            ["target_db", "target_id", "target_species"],
+        indexes = [
+            models.Index(
+                name="idx_feature_source_target",
+                fields=[
+                    "source_db",
+                    "source_id",
+                    "source_species",
+                    "target_db",
+                    "target_species",
+                ],
+            ),
+            models.Index(
+                name="idx_feature_target",
+                fields=["target_db", "target_id", "target_species"],
+            ),
         ]
 
     def __str__(self):
