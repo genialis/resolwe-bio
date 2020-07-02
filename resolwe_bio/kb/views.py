@@ -6,11 +6,11 @@ Views
 
 """
 from rest_framework import mixins, viewsets
-from tests.backends import ResolweBioFilterBackend
-from tests.pagination import LimitOffsetPostPagination
 
+from .backends import ResolweBioFilterBackend
 from .filters import FeatureAutoCompleteFilter, FeatureFilter, MappingFilter
 from .models import Feature, Mapping
+from .pagination import LimitOffsetPostPagination
 from .serializers import FeatureSerializer, MappingSerializer
 
 

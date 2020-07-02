@@ -1,3 +1,4 @@
+"""Django rest framework pagination classes."""
 from rest_framework.pagination import LimitOffsetPagination, _positive_int
 
 
@@ -11,6 +12,7 @@ def get_query_param(request, key):
 
 class LimitOffsetPostPagination(LimitOffsetPagination):
     """Limit/offset paginator.
+
     This is standard limit/offset paginator from Django REST framework,
     with difference that it supports passing ``limit`` and ``offset``
     attributes also in the body of the request (not just as query
