@@ -28,6 +28,9 @@ Changed
 - Support samtools markdup report from ``walt`` in MultiQC
 - Support samtools markdup report in ``workflow-wgbs-single`` and in
   ``workflow-wgbs-paired`` workflows
+- Bump memory requirements to 32GB in processes: ``feature_counts``,
+  ``coveragebed``, ``library-strandedness``, ``qorts-qc``,
+  ``salmon-quant`` and ``vc-realign-recalibrate``
 
 Fixed
 -------

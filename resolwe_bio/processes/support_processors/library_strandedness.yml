@@ -4,12 +4,12 @@
     expression-engine: jinja
     resources:
       cores: 8
-      memory: 8192
+      memory: 32768
     executor:
       docker:
         image: resolwebio/rnaseq:4.10.0
   data_name: 'Library strandedness ({{ reads|sample_name }})'
-  version: 0.3.0
+  version: 0.3.1
   type: data:strandedness
   persistence: CACHED
   description: |

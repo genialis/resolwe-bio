@@ -32,10 +32,10 @@ class QortsQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/rnaseq:4.10.0",},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "resources": {"cores": 1, "memory": 32768,},
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = "1.4.0"
+    version = "1.4.1"
     process_type = "data:qorts:qc"
     category = "Other"
     entity = {

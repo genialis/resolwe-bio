@@ -52,10 +52,10 @@ class SalmonQuant(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/rnaseq:4.10.0",},},
-        "resources": {"cores": 8, "memory": 16384, "network": True,},
+        "resources": {"cores": 8, "memory": 32768, "network": True,},
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.0.0"
+    version = "2.0.1"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

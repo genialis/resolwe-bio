@@ -12,9 +12,10 @@
         image: resolwebio/rnaseq:4.10.0
     resources:
       cores: 10
+      memory: 32768
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 3.1.0
+  version: 3.1.1
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample

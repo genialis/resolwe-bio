@@ -11,10 +11,10 @@
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
     resources:
-      memory: 16384
+      memory: 32768
       cores: 10
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 2.0.0
+  version: 2.0.1
   type: data:alignment:bam:vc
   category: Other
   flow_collection: sample
