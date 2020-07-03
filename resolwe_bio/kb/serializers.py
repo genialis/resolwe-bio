@@ -19,7 +19,17 @@ class FeatureSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Feature
-        fields = "__all__"
+        fields = [
+            "aliases",
+            "description",
+            "feature_id",
+            "full_name",
+            "name",
+            "source",
+            "species",
+            "sub_type",
+            "type",
+        ]
 
 
 class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
@@ -29,4 +39,12 @@ class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Mapping
-        fields = "__all__"
+        fields = [
+            "relation_type",
+            "source_db",
+            "source_id",
+            "source_species",
+            "target_db",
+            "target_id",
+            "target_species",
+        ]
