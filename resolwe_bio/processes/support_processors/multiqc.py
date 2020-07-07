@@ -184,7 +184,7 @@ def process_markdup_file(report):
     metrics["UNIQUE PAIRS"] = data_table["PAIRED"] - data_table["DUPLICATE PAIR"]
     metrics["UNIQUE SINGLE"] = data_table["SINGLE"] - data_table["DUPLICATE SINGLE"]
     metrics["DUPLICATE PAIRS OPTICAL"] = data_table["DUPLICATE PAIR OPTICAL"]
-    metrics["DUPLICATE PAIRS_NONOPTICAL"] = (
+    metrics["DUPLICATE PAIRS NONOPTICAL"] = (
         data_table["DUPLICATE PAIR"] - data_table["DUPLICATE PAIR OPTICAL"]
     )
     metrics["DUPLICATE SINGLE OPTICAL"] = data_table["DUPLICATE SINGLE OPTICAL"]
@@ -241,7 +241,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.8.2"
+    version = "1.9.1"
 
     class Input:
         """Input fields to process MultiQC."""
