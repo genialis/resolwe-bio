@@ -1,9 +1,9 @@
 - slug: workflow-slamdunk-paired
-  name: Slamdunk analysis (paired-end)
+  name: Whole length Slamdunk analysis (paired-end)
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.2.0
+  version: 1.2.1
   type: data:workflow:slamdunk
   category: Pipeline
   description: |

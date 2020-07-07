@@ -31,6 +31,7 @@ Changed
 - Bump memory requirements to 32GB in processes: ``feature_counts``,
   ``coveragebed``, ``library-strandedness``, ``qorts-qc``,
   ``salmon-quant`` and ``vc-realign-recalibrate``
+- Rename ``workflow-slamdunk-paired`` process
 
 Fixed
 -------
