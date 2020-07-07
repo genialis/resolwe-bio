@@ -37,7 +37,7 @@ def main():
         genes = [gene.strip() for gene in gene_file]
 
     org_features = res.feature.filter(
-        source=args.source_db, species=args.species, feature_id=genes
+        source=args.source_db, species=args.species, feature_id__in=genes
     )
 
     if len(org_features) == 0:
@@ -52,7 +52,7 @@ def main():
             source_species=args.species,
             target_db=args.target_db,
             target_species=args.species,
-            source_id=genes,
+            source_id__in=genes,
         )
 
         if len(mapping_res) == 0:
