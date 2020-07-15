@@ -5,6 +5,15 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
+
+
 ===================
 31.0.0 - 2020-07-10
 ===================
