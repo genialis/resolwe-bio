@@ -64,7 +64,7 @@ class AutoCompleteFilter(filters.Filter):
             # This assumes that field is already a TextSearch vector and thus
             # doesn't need to be transformed. To achieve that F function is
             # required.
-            .annotate(rank=SearchRank(F(self.field_name), query))
+            .annotate(rank=SearchRank(F(self.field_name), query)).order_by("-rank")
         )
 
 

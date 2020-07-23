@@ -13,6 +13,11 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
 
+Fixed
+-----
+- Order results on autocomplete API endpoint in knowledge-base by
+  relevance
+
 
 ===================
 31.0.0 - 2020-07-10
