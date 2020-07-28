@@ -9,12 +9,12 @@ from ..models import Feature
 
 class FeatureTestCase(TestCase, APITestCase):
     @staticmethod
-    def create_feature(index, source, species):
+    def create_feature(index, source, species, feature_type):
         return Feature.objects.create(
             source=source,
             feature_id="FT-{}".format(index),
             species=species,
-            type=Feature.TYPE_GENE,
+            type=feature_type,
             sub_type=Feature.SUBTYPE_PROTEIN_CODING,
             name="FOO{}".format(index),
             full_name="Foobarius machinus",
@@ -27,15 +27,21 @@ class FeatureTestCase(TestCase, APITestCase):
 
         for i in range(4):
             cls.features.append(
-                FeatureTestCase.create_feature(i, "NCBI", "Homo sapiens")
+                FeatureTestCase.create_feature(
+                    i, "NCBI", "Homo sapiens", Feature.TYPE_GENE
+                )
             )
         for i in range(4, 7):
             cls.features.append(
-                FeatureTestCase.create_feature(i, "NCBI", "Mus musculus")
+                FeatureTestCase.create_feature(
+                    i, "NCBI", "Mus musculus", Feature.TYPE_GENE
+                )
             )
         for i in range(7, 10):
             cls.features.append(
-                FeatureTestCase.create_feature(i, "XSRC", "Homo sapiens")
+                FeatureTestCase.create_feature(
+                    i, "XSRC", "Homo sapiens", Feature.TYPE_TRANSCRIPT
+                )
             )
 
     def assertFeatureEqual(self, data, feature):
@@ -102,6 +108,12 @@ class FeatureTestCase(TestCase, APITestCase):
         # Test query by species.
         response = self.client.get(
             FEATURE_SEARCH_URL, {"species": "Homo sapiens"}, format="json"
+        )
+        self.assertEqual(len(response.data), 7)
+
+        # Test query by type.
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"type": "gene"}, format="json"
         )
         self.assertEqual(len(response.data), 7)
 

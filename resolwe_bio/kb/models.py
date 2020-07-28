@@ -80,6 +80,7 @@ class Feature(models.Model):
             models.Index(name="idx_feature_source", fields=["source"]),
             models.Index(name="idx_feature_species", fields=["species"]),
             models.Index(name="idx_feature_feature_id", fields=["feature_id"]),
+            models.Index(name="idx_feature_type", fields=["type"]),
             GinIndex(name="idx_feature_search", fields=["search"]),
         ]
 

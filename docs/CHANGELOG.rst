@@ -17,6 +17,7 @@ Fixed
 -----
 - Order results on autocomplete API endpoint in knowledge-base by
   relevance
+- Support filtering by type on knowledge base Feature API
 
 
 ===================

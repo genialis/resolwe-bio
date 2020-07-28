@@ -89,6 +89,7 @@ class BaseFeatureFilter(filters.FilterSet):
         fields = {
             "source": ["exact"],
             "species": ["exact"],
+            "type": ["exact"],
         }
         filter_overrides = {
             models.CharField: {"filter_class": MultichoiceCharFilter,},
