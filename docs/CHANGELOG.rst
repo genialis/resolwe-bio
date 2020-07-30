@@ -12,6 +12,8 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
+- **BACKWARD INCOMPATIBLE:** Support Nanostring analysis results in
+  ``differentialexpression-deseq2`` process
 
 
 ===================

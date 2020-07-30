@@ -10,8 +10,11 @@
     executor:
       docker:
         image: resolwebio/rnaseq:4.9.0
-  data_name: 'Differential expression (case vs. control)'
-  version: 2.6.0
+    relations:
+      - type: group
+        required: True
+  data_name: 'Differential expression (DESeq2)'
+  version: 3.0.0
   type: data:differentialexpression:deseq2
   category: Differential Expression
   persistence: CACHED
@@ -24,12 +27,18 @@
     for more information.
   input:
     - name: case
-      label: Case
+      label: Case or first replicate group
       type: list:data:expression
+      relation:
+        type: group
+        npartitions: 1
       description: |
         Case samples (replicates)
     - name: control
-      label: Control
+      label: Control or second replicate group
+      relation:
+        type: group
+        npartitions: 1
       type: list:data:expression
       description: |
         Control samples (replicates)
@@ -114,8 +123,23 @@
       {% set expressions = case + control %}
       {% set rsem = expressions|type|subtype('data:expression:rsem:')|all %}
       {% set salmon = expressions|type|subtype('data:expression:salmon:')|all %}
+      {% set nanostring = expressions|type|subtype('data:expression:nanostring:')|all %}
 
-      {% if not rsem and not salmon and not expressions|map(attribute='rc.file')|all %}
+      {% set data_by_sample=dict() %}
+      {% for e in expressions %}
+        {% if e|sample_id in data_by_sample %}
+          re-warning "There are multiple nanostring expression objects for {{e|sample_name}}. Using only the last one."
+          {% if e|id > data_by_sample[e|sample_id]|id %}
+            {% set x=data_by_sample.__setitem__(e|sample_id, e) %}
+          {% endif %}
+        {% else %}
+          {% set x=data_by_sample.__setitem__(e|sample_id, e) %}
+        {% endif %}
+      {% endfor %}
+
+      {% set expressions = data_by_sample.values() | list %}
+
+      {% if not rsem and not salmon and not nanostring and not expressions|map(attribute='rc.file')|all %}
         re-error "Read counts are required when using DESeq2."
       {% endif %}
 
@@ -153,14 +177,15 @@
       re-progress 0.1
 
       deseq.R \
-        --cases {% for c in case %} {{ c.genes.file if rsem else c.quant.file if salmon else c.rc.file }} {% endfor %} \
-        --controls {% for c in control %} {{ c.genes.file if rsem else c.quant.file if salmon else c.rc.file }} {% endfor %} \
+        --cases {% for c in case %} {{ c.genes.file if rsem else c.quant.file if salmon else c.exp.file if nanostring else c.rc.file }} {% endfor %} \
+        --controls {% for c in control %} {{ c.genes.file if rsem else c.quant.file if salmon else c.exp.file if nanostring else c.rc.file }} {% endfor %} \
         {% if options.beta_prior %} --beta-prior {% endif %} \
         {% if filter.count %} --min-count-sum {{ filter.min_count_sum }} {% endif %} \
         {% if filter.cook and filter.cooks_cutoff is defined %} --cooks-cutoff {{ filter.cooks_cutoff }} {% endif %} \
         {% if filter.independent %} --alpha {{ filter.alpha }} {% endif %} \
         {% if rsem %} --format rsem {% endif %} \
-        {% if salmon %} --format salmon --tx2gene {{case.0.txdb.file}} {% endif %}
+        {% if salmon %} --format salmon --tx2gene {{case.0.txdb.file}} {% endif %} \
+        {% if nanostring %} --format nanostring {% endif %}
       re-checkrc "Error computing differential expression (DESeq2)."
 
       re-progress 0.95

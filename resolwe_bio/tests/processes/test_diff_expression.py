@@ -1,6 +1,12 @@
-from resolwe.flow.models import Data, Process
+from pathlib import Path
+
+from guardian.shortcuts import assign_perm
+
+from resolwe.flow.models import Data, Process, Relation
+from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
 
+from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -121,6 +127,122 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
             )
         ]
         self.assertEqual(deseq2.process_error, error_msg)
+
+    @with_resolwe_host
+    @tag_process("differentialexpression-deseq2")
+    def test_deseq2_nanostring(self):
+        base = Path("test_nanostring_deseq2")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            expression = Process.objects.create(
+                name="Upload nanostring expression data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                contributor=self.contributor,
+                type="data:expression:nanostring:",
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                data_name="{{ src.file }}",
+                input_schema=[{"name": "src", "type": "basic:file:",},],
+                output_schema=[
+                    {"name": "exp", "type": "basic:file:",},
+                    {"name": "species", "type": "basic:string:",},
+                    {"name": "build", "type": "basic:string:",},
+                    {"name": "source", "type": "basic:string:",},
+                    {"name": "feature_type", "type": "basic:string:",},
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 compress
+re-save-file exp "${NAME}".txt.gz
+re-save species "Dictyostelium discoideum"
+re-save build "dd-05-2009"
+re-save source "DICTYBASE"
+re-save feature_type "gene"
+""",
+                },
+            )
+
+            exp_1 = self.run_process(
+                expression.slug, {"src": str(inputs / "exp_1_norm.txt.gz")},
+            )
+            set_sample_name(exp_1, "test_sample_1")
+
+            exp_2 = self.run_process(
+                expression.slug, {"src": str(inputs / "exp_2_norm.txt.gz")},
+            )
+            set_sample_name(exp_2, "test_sample_2")
+
+            exp_3 = self.run_process(
+                expression.slug, {"src": str(inputs / "exp_3_norm.txt.gz")},
+            )
+            set_sample_name(exp_3, "test_sample_3")
+
+            exp_4 = self.run_process(
+                expression.slug, {"src": str(inputs / "exp_4_norm.txt.gz")},
+            )
+            set_sample_name(exp_4, "test_sample_4")
+
+            rel_type_group = RelationType.objects.get(name="group")
+
+            replicate_group = Relation.objects.create(
+                contributor=self.contributor,
+                collection=self.collection,
+                type=rel_type_group,
+                category="Replicate",
+            )
+            assign_perm("view_relation", self.contributor, replicate_group)
+
+            RelationPartition.objects.create(
+                relation=replicate_group, entity=exp_1.entity, label="test_sample_1"
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group, entity=exp_2.entity, label="test_sample_2"
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group, entity=exp_3.entity, label="test_sample_1"
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group, entity=exp_4.entity, label="test_sample_2"
+            )
+
+        inputs = {
+            "case": [exp_1.pk, exp_3.pk],
+            "control": [exp_2.pk, exp_4.pk],
+            "filter": {"min_count_sum": 0,},
+        }
+
+        diff_exp = self.run_process("differentialexpression-deseq2", inputs)
+
+        self.assertFileExists(diff_exp, "raw")
+        self.assertFile(
+            diff_exp,
+            "count_matrix",
+            str(outputs / "count_matrix.tab.gz"),
+            compression="gzip",
+        )
+        self.assertJSON(
+            diff_exp,
+            diff_exp.output["de_json"],
+            "",
+            str(outputs / "de_data_deseq.json.gz"),
+        )
+        self.assertFields(diff_exp, "source", "DICTYBASE")
+        self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
+        self.assertFields(diff_exp, "build", "dd-05-2009")
+        self.assertFields(diff_exp, "feature_type", "gene")
 
     @with_resolwe_host
     @tag_process("differentialexpression-edger")
