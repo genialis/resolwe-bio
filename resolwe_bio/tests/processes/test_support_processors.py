@@ -689,6 +689,64 @@ re-save-file case_prepeak_qc "${NAME}".txt
         )
         self.assertFileExists(multiqc, "report")
 
+    @tag_process("multiqc")
+    def test_multiqc_nanostring(self):
+        with self.preparation_stage():
+
+            def set_sample_name(data, sample_name):
+                """Set sample name."""
+                sample = Sample.objects.get(data=data)
+                sample.name = sample_name
+                sample.save()
+
+            process = Process.objects.create(
+                name="Upload rcc data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {"network": True,},
+                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                },
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                contributor=self.contributor,
+                type="data:nanostring:rcc:",
+                input_schema=[
+                    {"name": "src", "type": "basic:file:",},
+                    {"name": "attr", "type": "basic:file:",},
+                ],
+                output_schema=[
+                    {"name": "sample_qc", "type": "basic:file:",},
+                    {"name": "lane_attributes", "type": "basic:file:",},
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "txt" "txt" 0.1 extract
+re-save-file sample_qc "${NAME}".txt
+re-import {{ attr.file_temp|default(attr.file) }} {{ attr.file }} "txt" "txt" 0.1 extract
+re-save-file lane_attributes "${NAME}".txt
+""",
+                },
+            )
+
+            rcc_1 = self.run_process(
+                process.slug,
+                {"src": "nanostring_qc.txt", "attr": "nanostring_lane_attr.txt",},
+            )
+            set_sample_name(rcc_1, "sample_1")
+
+            rcc_2 = self.run_process(
+                process.slug,
+                {"src": "nanostring_qc_2.txt", "attr": "nanostring_lane_attr.txt",},
+            )
+            set_sample_name(rcc_2, "sample_with_NA")
+
+        multiqc = self.run_process(
+            "multiqc",
+            {"data": [rcc_1.id, rcc_2.id], "advanced": {"dirs": True, "config": True,}},
+        )
+        self.assertFileExists(multiqc, "report")
+
     @tag_process("seqtk-sample-single", "seqtk-sample-paired")
     def test_seqtk_sample(self):
         with self.preparation_stage():

@@ -12,6 +12,7 @@ Unreleased
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
+- Support Nanostring sample reports in MultiQC
 
 Fixed
 -----

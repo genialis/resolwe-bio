@@ -220,6 +220,77 @@ def create_markdup_plot(samples, reports):
             json.dump(markdup_json, out_file)
 
 
+def parse_nanostring_report(report):
+    """Parse Nanostring sample QC report file."""
+    df = pd.read_csv(
+        report,
+        sep="\t",
+        names=[
+            "Samples",
+            "Zero Counts",
+            "Signal",
+            "Neg. Controls Mean",
+            "Neg. Controls Std Dev",
+            "Noise Cutoff",
+        ],
+        usecols=[
+            "Zero Counts",
+            "Signal",
+            "Neg. Controls Mean",
+            "Neg. Controls Std Dev",
+            "Noise Cutoff",
+        ],
+        header=0,
+    )
+    df.fillna("NA", inplace=True)
+    return df.to_dict(orient="records")[0]
+
+
+def create_nanostring_table(sample_names, reports):
+    """Prepare Nanostring Sample QC MultiQC table."""
+    sample_qc_json = {
+        "pconfig": {"format": "{:,.2f}"},
+        "id": "nanostring_sample_qc",
+        "section_name": "Nanostring sample QC",
+        "plot_type": "table",
+        "file_format": "json",
+        "data": {},
+    }
+
+    for sample_name, report in zip(sample_names, reports):
+        report_data = parse_nanostring_report(report)
+        sample_qc_json["data"][sample_name] = report_data
+
+    with open("nanostring_sample_qc_mqc.json", "w") as out_file:
+        json.dump(sample_qc_json, out_file)
+
+
+def parse_lane_attributes(report):
+    """Parse Nanostring lane attributes report file."""
+    df = pd.read_csv(report, sep="\t", index_col=0, header=None).T
+    df.drop(df.columns[0], axis=1, inplace=True)
+    return df.to_dict(orient="records")[0]
+
+
+def create_lane_table(sample_names, reports):
+    """Prepare Nanostring lane attributes MultiQC table."""
+    lane_json = {
+        "pconfig": {"format": "{}", "scale": False},
+        "id": "nanostring_lane_attributes",
+        "section_name": "Nanostring lane attributes",
+        "plot_type": "table",
+        "file_format": "json",
+        "data": {},
+    }
+
+    for sample_name, report in zip(sample_names, reports):
+        report_data = parse_lane_attributes(report)
+        lane_json["data"][sample_name] = report_data
+
+    with open("nanostring_lane_attributes_mqc.json", "w") as out_file:
+        json.dump(lane_json, out_file)
+
+
 class MultiQC(Process):
     """Aggregate results from bioinformatics analyses across many samples into a single report.
 
@@ -241,7 +312,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.9.1"
+    version = "1.10.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -313,6 +384,9 @@ class MultiQC(Process):
         bsrate_reports = []
         markdup_samples = []
         markdup_reports = []
+        rcc_samples = []
+        rcc_reports = []
+        rcc_lane_reports = []
         unsupported_data = []
 
         for d in inputs.data:
@@ -451,6 +525,25 @@ class MultiQC(Process):
                         create_symlink(
                             d.enrichment_heatmap.path, os.path.join(sample_dir, name)
                         )
+                except AttributeError:
+                    pass
+
+            elif d.type == "data:nanostring:rcc:":
+                # Sample_qc is an optional field
+                try:
+                    name = os.path.basename(d.sample_qc.path)
+                    create_symlink(d.sample_qc.path, os.path.join(sample_dir, name))
+                    rcc_samples.append(d.entity_name)
+                    rcc_reports.append(d.sample_qc.path)
+                    create_nanostring_table(rcc_samples, rcc_reports)
+
+                    lane_name = os.path.basename(d.lane_attributes.path)
+                    create_symlink(
+                        d.lane_attributes.path, os.path.join(sample_dir, lane_name)
+                    )
+                    rcc_lane_reports.append(d.lane_attributes.path)
+                    create_lane_table(rcc_samples, rcc_lane_reports)
+
                 except AttributeError:
                     pass
             else:

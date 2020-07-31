@@ -1,0 +1,2 @@
+Samples	Zero_Counts	Signal	Neg Controls Mean	Neg Controls Std Dev	Noise_Cutoff
+raw_file_name_Na with_condition	40	80	12	12.123	NA

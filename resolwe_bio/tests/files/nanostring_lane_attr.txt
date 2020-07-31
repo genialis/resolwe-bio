@@ -1,0 +1,9 @@
+	test_1
+ID	11
+FovCount	200
+FovCounted	200
+ScannerID	123RT123
+StagePosition	1
+BindingDensity	1.23
+CartridgeID	1234-12
+CartridgeBarcode	1234
