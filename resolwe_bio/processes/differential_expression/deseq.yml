@@ -11,7 +11,7 @@
       docker:
         image: resolwebio/rnaseq:4.9.0
   data_name: 'Differential expression (case vs. control)'
-  version: 2.6.0
+  version: 2.7.0
   type: data:differentialexpression:deseq2
   category: Differential Expression
   persistence: CACHED
@@ -114,8 +114,9 @@
       {% set expressions = case + control %}
       {% set rsem = expressions|type|subtype('data:expression:rsem:')|all %}
       {% set salmon = expressions|type|subtype('data:expression:salmon:')|all %}
+      {% set nanostring = expressions|type|subtype('data:expression:nanostring:')|all %}
 
-      {% if not rsem and not salmon and not expressions|map(attribute='rc.file')|all %}
+      {% if not rsem and not salmon and not nanostring and not expressions|map(attribute='rc.file')|all %}
         re-error "Read counts are required when using DESeq2."
       {% endif %}
 
@@ -153,14 +154,15 @@
       re-progress 0.1
 
       deseq.R \
-        --cases {% for c in case %} {{ c.genes.file if rsem else c.quant.file if salmon else c.rc.file }} {% endfor %} \
-        --controls {% for c in control %} {{ c.genes.file if rsem else c.quant.file if salmon else c.rc.file }} {% endfor %} \
+        --cases {% for c in case %} {{ c.genes.file if rsem else c.quant.file if salmon else c.exp.file if nanostring else c.rc.file }} {% endfor %} \
+        --controls {% for c in control %} {{ c.genes.file if rsem else c.quant.file if salmon else c.exp.file if nanostring else c.rc.file }} {% endfor %} \
         {% if options.beta_prior %} --beta-prior {% endif %} \
         {% if filter.count %} --min-count-sum {{ filter.min_count_sum }} {% endif %} \
         {% if filter.cook and filter.cooks_cutoff is defined %} --cooks-cutoff {{ filter.cooks_cutoff }} {% endif %} \
         {% if filter.independent %} --alpha {{ filter.alpha }} {% endif %} \
         {% if rsem %} --format rsem {% endif %} \
-        {% if salmon %} --format salmon --tx2gene {{case.0.txdb.file}} {% endif %}
+        {% if salmon %} --format salmon --tx2gene {{case.0.txdb.file}} {% endif %} \
+        {% if nanostring %} --format nanostring {% endif %}
       re-checkrc "Error computing differential expression (DESeq2)."
 
       re-progress 0.95

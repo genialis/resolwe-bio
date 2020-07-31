@@ -18,7 +18,7 @@ parser$add_argument('--beta-prior', action='store_true')
 parser$add_argument('--min-count-sum', type='integer', help='Minimum count sum', default=0)
 parser$add_argument('--cooks-cutoff', type='double', help="Cook's cut-off", default=FALSE)
 parser$add_argument('--alpha', type='double', help="Alpha", default=0.1)
-parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon'), default='rc')
+parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon', 'nanostring'), default='rc')
 parser$add_argument('--tx2gene', help='Transcript to gene mapping')
 args = parser$parse_args()
 
@@ -37,6 +37,17 @@ if (args$format == 'rsem') {
     tx2gene = read.table(args$tx2gene)
     txi <- tximport(files, type = "salmon", tx2gene = tx2gene, ignoreTxVersion=TRUE)
     dds <- tryCatch(DESeqDataSetFromTximport(txi, sampleTable, ~condition), error=error)
+} else if (args$format == 'nanostring'){
+    data <- lapply(files, read.csv, sep='\t')
+    for(i in 1:length(files)) {
+        colnames(data[[i]])[2] <- names(files)[i]
+    }
+    counts <- Reduce(function(...) merge(..., by=1), data)
+    # Round counts as the input file contains normalized counts which are doubles
+    cts <- round(counts[,-1], digits = 0)
+    rownames(cts) <- counts[,1]
+    rownames(sampleTable) <- names(files)
+    dds <- tryCatch(DESeqDataSetFromMatrix(cts, sampleTable, ~condition), error=error)
 } else {
     data <- lapply(files, read.csv, sep='\t')
     for(i in 1:length(files)) {

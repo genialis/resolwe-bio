@@ -13,6 +13,8 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
 - Support Nanostring sample reports in MultiQC
+- Support Nanostring analysis results in
+  ``differentialexpression-deseq2`` process
 
 Fixed
 -----
