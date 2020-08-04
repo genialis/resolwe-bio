@@ -3,7 +3,7 @@
   data_name: 'CheMut'
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.0.1
   type: data:workflow:chemut
   category: Pipeline
   input:
@@ -61,7 +61,6 @@
         - name: known_indels
           label: Known indels
           type: list:data:variants:vcf
-          default: []
           required: false
           hidden: "Vc.advanced === false || Vc.br_and_ind_ra === false"
         - name: stand_emit_conf
