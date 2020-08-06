@@ -9,6 +9,13 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-------
+- Prepare ``resolwebio/rnaseq:4.11.0`` Docker image:
+  Add rnanorm (1.3.0) RNA-seq normalization package. Use
+  ``resolwebio/common:1.6.0`` Docker image as a base image. Pin ``XML``
+  R package to fix the image build issues.
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.

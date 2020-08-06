@@ -20,6 +20,7 @@ Included bioinformatics tools:
 * jbrowse (v1.16.6)
 * loadSubread (0.0.1)
 * regtools (0.5.0)
+* rnanorm (1.3.0)
 * RSEM (v1.4.0)
 * rtracklayer (v1.44.2)
 * Salmon (1.2.1)
