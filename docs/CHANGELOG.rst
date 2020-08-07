@@ -14,7 +14,8 @@ Added
 - Prepare ``resolwebio/rnaseq:4.11.0`` Docker image:
   Add rnanorm (1.3.0) RNA-seq normalization package. Use
   ``resolwebio/common:1.6.0`` Docker image as a base image. Pin ``XML``
-  R package to fix the image build issues.
+  R package to fix the image build issues. Install BBMap package from
+  Google Drive.
 
 Changed
 -------
