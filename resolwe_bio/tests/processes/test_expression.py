@@ -1,5 +1,7 @@
 import os
 
+from pathlib import Path
+
 from resolwe.flow.models import Collection, Data, Relation
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
@@ -517,97 +519,147 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_feature_counts(self):
+        base = Path("test_featurecounts")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
         with self.preparation_stage():
-            inputs = {
-                "src": "feature_counts hs.gtf.gz",
-                "source": "ENSEMBL",
-                "species": "Homo sapiens",
-                "build": "GRCh38_ens90",
-            }
-            annotation_gtf = self.run_process("upload-gtf", inputs)
+            annotation_gtf = self.run_process(
+                "upload-gtf",
+                {
+                    "src": str(inputs / "feature_counts hs.gtf.gz"),
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
             annotation_gff3 = self.prepare_annotation_gff()
 
-            bam_single_inputs = {
-                "src": "reads.bam",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            bam_single = self.run_process("upload-bam", bam_single_inputs)
+            bam_single = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "reads.bam"),
+                    "species": "Dictyostelium discoideum",
+                    "build": "dd-05-2009",
+                },
+            )
 
-            inputs = {
-                "src": "feature_counts hs_paired.bam",
-                "species": "Homo sapiens",
-                "build": "GRCh38_ens90",
-            }
-            bam_paired = self.run_process("upload-bam", inputs)
+            bam_paired = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "feature_counts hs_paired.bam"),
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
 
-            inputs = {
-                "src": "cuffquant_mapping.bam",
-                "species": "Homo sapiens",
-                "build": "hg19",
-            }
-            bam_ucsc = self.run_process("upload-bam", inputs)
+            bam_ucsc = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "cuffquant_mapping.bam"),
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
 
             annotation_ucsc = self.prepare_annotation(
-                fn="hg19_chr20_small_modified.gtf.gz",
+                fn=str(inputs / "hg19_chr20_small_modified.gtf.gz"),
                 source="UCSC",
                 species="Homo sapiens",
                 build="hg19",
             )
-
-        inputs = {
-            "alignment": {"aligned_reads": bam_paired.id,},
-            "annotation": {"annotation": annotation_gtf.id,},
-        }
-
-        expression = self.run_process("feature_counts", inputs)
-        self.assertFile(
-            expression, "rc", "feature_counts_out_rc.tab.gz", compression="gzip"
+        # test using BAM file containing paired-end reads and a GTF input file
+        expression = self.run_process(
+            "feature_counts",
+            {
+                "alignment": {"aligned_reads": bam_paired.id,},
+                "annotation": {"annotation": annotation_gtf.id,},
+            },
         )
         self.assertFile(
-            expression, "fpkm", "feature_counts_out_fpkm.tab.gz", compression="gzip"
+            expression,
+            "rc",
+            outputs / "feature_counts_out_rc.tab.gz",
+            compression="gzip",
         )
         self.assertFile(
-            expression, "cpm", "feature_counts_out_cpm.tab.gz", compression="gzip"
+            expression,
+            "cpm",
+            outputs / "feature_counts_out_cpm.tab.gz",
+            compression="gzip",
         )
         self.assertFile(
-            expression, "exp", "feature_counts_out_tpm.tab.gz", compression="gzip"
+            expression,
+            "exp",
+            outputs / "feature_counts_out_tpm.tab.gz",
+            compression="gzip",
         )
         self.assertFile(
             expression,
             "exp_set",
-            "feature_counts_out_exp_set.txt.gz",
+            outputs / "feature_counts_out_exp_set.txt.gz",
             compression="gzip",
         )
         self.assertJSON(
             expression,
             expression.output["exp_set_json"],
             "",
-            "feature_counts_exp_set.json.gz",
+            outputs / "feature_counts_exp_set.json.gz",
         )
         self.assertFields(expression, "species", "Homo sapiens")
         self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFields(expression, "feature_type", "gene")
 
-        inputs = {
-            "alignment": {"aligned_reads": bam_single.id,},
-            "annotation": {"annotation": annotation_gff3.id, "id_attribute": "Parent",},
-        }
-        expression = self.run_process("feature_counts", inputs)
-        self.assertFile(expression, "rc", "reads_rc.tab.gz", compression="gzip")
-        self.assertFile(expression, "fpkm", "reads_fpkm.tab.gz", compression="gzip")
-        self.assertFile(expression, "exp", "reads_tpm.tab.gz", compression="gzip")
+        # test using BAM file containing single-end reads and a GFF input file
+        expression = self.run_process(
+            "feature_counts",
+            {
+                "alignment": {"aligned_reads": bam_single.id,},
+                "annotation": {
+                    "annotation": annotation_gff3.id,
+                    "id_attribute": "Parent",
+                },
+            },
+        )
+        self.assertFile(
+            expression,
+            "rc",
+            outputs / "feature_counts_out_gff3_rc.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "feature_counts_out_gff3_tpm.tab.gz",
+            compression="gzip",
+        )
         self.assertFields(expression, "feature_type", "gene")
 
-        inputs = {
-            "alignment": {"aligned_reads": bam_ucsc.id,},
-            "annotation": {"annotation": annotation_ucsc.id,},
-        }
-        self.run_process("feature_counts", inputs)
+        # test using UCSC-derived annotation
+        expression = self.run_process(
+            "feature_counts",
+            {
+                "alignment": {"aligned_reads": bam_ucsc.id,},
+                "annotation": {"annotation": annotation_ucsc.id,},
+            },
+        )
+        self.assertFile(
+            expression,
+            "rc",
+            outputs / "feature_counts_out_ucsc_rc.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "feature_counts_out_ucsc_tpm.tab.gz",
+            compression="gzip",
+        )
 
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_feature_counts_rpkum(self):
+        base = Path("test_featurecounts")
+        outputs = base / "outputs"
         with self.preparation_stage():
             ref_seq = self.prepare_ref_seq(
                 fn="genome.fasta.gz",
@@ -642,7 +694,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            feature_counts, "exp", "expression_fc_rpkum.tab.gz", compression="gzip"
+            feature_counts,
+            "exp",
+            outputs / "expression_fc_rpkum.tab.gz",
+            compression="gzip",
         )
         self.assertFields(feature_counts, "source", "DICTYBASE")
         self.assertFields(feature_counts, "species", "Dictyostelium discoideum")
@@ -740,11 +795,14 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_featurecounts_strandedness(self):
+        base = Path("test_featurecounts")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
         with self.preparation_stage():
             cds = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "salmon_cds.fa.gz",
+                    "src": str(inputs / "salmon_cds.fa.gz"),
                     "species": "Homo sapiens",
                     "build": "ens_90",
                 },
@@ -763,7 +821,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             annotation = self.run_process(
                 "upload-gtf",
                 {
-                    "src": "annotation_rsem.gtf.gz",
+                    "src": str(inputs / "annotation_rsem.gtf.gz"),
                     "source": "ENSEMBL",
                     "species": "Homo sapiens",
                     "build": "ens_90",
@@ -779,18 +837,22 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
-        inputs = {
-            "alignment": {
-                "aligned_reads": aligned_reads.id,
-                "assay_type": "auto",
-                "cdna_index": salmon_index.id,
+        expression = self.run_process(
+            "feature_counts",
+            {
+                "alignment": {
+                    "aligned_reads": aligned_reads.id,
+                    "assay_type": "auto",
+                    "cdna_index": salmon_index.id,
+                },
+                "annotation": {"annotation": annotation.id,},
             },
-            "annotation": {"annotation": annotation.id,},
-        }
-
-        expression = self.run_process("feature_counts", inputs)
+        )
         self.assertFile(
-            expression, "exp", "auto_detect_strand_tpm.tab.gz", compression="gzip"
+            expression,
+            "exp",
+            outputs / "auto_detect_strand_tpm.tab.gz",
+            compression="gzip",
         )
 
     @tag_process("shrna-quant")

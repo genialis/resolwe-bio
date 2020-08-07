@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.10.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       cores: 10
       memory: 32768
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 3.1.1
+  version: 4.0.0
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -28,6 +28,10 @@
     [official website](http://bioinf.wehi.edu.au/featureCounts/) and the
     [introductory paper](https://academic.oup.com/bioinformatics/article/30/7/923/232889)
     for more information.
+
+    featureCounts output includes raw counts and normalized (TPM/CPM) expression values.
+    Normalized expression values are computed using rnanorm Python package under
+    union-exon gene length model.
   input:
     - name: alignment
       label: Alignment
@@ -135,8 +139,6 @@
           value: TPM
         - label: CPM
           value: CPM
-        - label: FPKM
-          value: FPKM
         - label: RPKUM
           value: RPKUM
     - name: mappability
@@ -402,9 +404,6 @@
     - name: rc
       label: Read counts
       type: basic:file
-    - name: fpkm
-      label: FPKM
-      type: basic:file
     - name: tpm
       label: TPM
       type: basic:file
@@ -611,27 +610,27 @@
       fi
       re-checkrc "featureCounts failed"
 
+      # extract raw counts and gene lengths from the featureCounts output and add the required column headers
       tail -n +3 featureCounts_rc.txt | cut -f1,7 > rc_wo_header.txt
+      echo -e "FEATURE_ID\tEXPRESSION" | cat - rc_wo_header.txt > rc.txt
 
-      expression_fpkm_tpm.R  \
-        {{ annotation_file }} \
-        {{ annotation_fmt }} \
-        {{ annotation.feature_class }} \
-        {{ annotation.id_attribute }} \
-        'rc_wo_header.txt'
+      tail -n +3 featureCounts_rc.txt | cut -f1,6 > gene_lengths_wo_header.txt
+      echo -e "FEATURE_ID\tGENE_LENGTHS" | cat - gene_lengths_wo_header.txt > gene_lengths.txt
+
+      # normalize raw counts to TPM and CPM
+      rnanorm rc.txt --gene-lengths gene_lengths.txt --tpm-output tpm.txt --cpm-output cpm.txt
       re-checkrc
       re-progress 0.9
 
-      add_header.py rc_wo_header.txt rc.txt
-      add_header.py fpkm_wo_header.tab fpkm.tab
-      add_header.py tpm_wo_header.tab tpm.tab
-      add_header.py cpm_wo_header.tab cpm.tab
+      # re-header the raw and normalized output files
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' rc.txt
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' tpm.txt
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' cpm.txt
 
       gzip -c featureCounts_rc.txt > {{ name ~ '_featureCounts_rc.txt.gz' }}
       gzip -c rc.txt > {{ name ~ '_rc.tab.gz' }}
-      gzip -c fpkm.tab > {{ name ~ '_fpkm.tab.gz' }}
-      gzip -c tpm.tab > {{ name ~ '_tpm.tab.gz' }}
-      gzip -c cpm.tab > {{ name ~ '_cpm.tab.gz' }}
+      gzip -c tpm.txt > {{ name ~ '_tpm.tab.gz' }}
+      gzip -c cpm.txt > {{ name ~ '_cpm.tab.gz' }}
 
       {% if normalization_type == 'TPM' %}
         expression2storage.py --output json.txt {{ name ~ '_tpm.tab.gz' }}
@@ -639,9 +638,6 @@
       {% elif normalization_type == 'CPM' %}
         expression2storage.py --output json.txt {{ name ~ '_cpm.tab.gz' }}
         {% set default_exp_output = name ~ '_cpm.tab.gz' %}
-      {% elif normalization_type == 'FPKM' %}
-        expression2storage.py --output json.txt {{ name ~ '_fpkm.tab.gz' }}
-        {% set default_exp_output = name ~ '_fpkm.tab.gz' %}
       {% elif normalization_type == 'RPKUM' %}
         expression_rpkum.py \
          -c {{ name ~ '_rc.tab.gz' }} \
@@ -662,8 +658,8 @@
         --source_db {{ annotation.annotation.source }} \
         --species {{ alignment.aligned_reads.species }} \
         --output_name {{ name ~ '_expressions' }} \
-        --norm_expressions {{ name ~ '_fpkm.tab.gz' }} {{ name ~ '_tpm.tab.gz' }} {{ name ~ '_cpm.tab.gz' }} \
-        --norm_expressions_type FPKM TPM CPM
+        --norm_expressions {{ name ~ '_tpm.tab.gz' }} {{ name ~ '_cpm.tab.gz' }} \
+        --norm_expressions_type TPM CPM
       re-checkrc
 
       re-save-file feature_counts_output {{ name ~ '_featureCounts_rc.txt.gz' }}
@@ -672,7 +668,6 @@
         re-save-file read_assignments {{ name ~ '.bam.featureCounts' }}
       {% endif %}
       re-save-file rc {{ name ~ '_rc.tab.gz' }}
-      re-save-file fpkm {{ name ~ '_fpkm.tab.gz' }}
       re-save-file tpm {{ name ~ '_tpm.tab.gz' }}
       re-save-file cpm {{ name ~ '_cpm.tab.gz' }}
       re-save-file exp {{ default_exp_output }}

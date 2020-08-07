@@ -40,8 +40,5 @@ class MicroRNATestCase(KBBioProcessTestCase):
             workflow, "rc", "mirna_featurecounts_rc.tab.gz", compression="gzip"
         )
         self.assertFile(
-            workflow, "fpkm", "mirna_featurecounts_fpkm.tab.gz", compression="gzip"
-        )
-        self.assertFile(
             workflow, "exp", "mirna_featurecounts_tpm.tab.gz", compression="gzip"
         )
