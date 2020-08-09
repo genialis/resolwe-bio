@@ -1,5 +1,4 @@
 import os
-
 from pathlib import Path
 
 from resolwe.flow.models import Collection, Data, Relation
@@ -281,135 +280,152 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("htseq-count")
     def test_expression_htseq(self):
+        base = Path("test_htseq_count")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
         with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="genome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
-            reads = self.prepare_reads()
-            inputs = {
-                "src": "annotation dicty.gtf.gz",
-                "source": "DICTYBASE",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            annotation_correct = self.run_process("upload-gtf", inputs)
-
-            inputs = {
-                "src": "annotation dicty.gtf.gz",
-                "source": "DICTYBASE",
-                "species": "Homo sapiens",
-                "build": "dd-05-2009",
-            }
-            annotation_wrong_species = self.run_process("upload-gtf", inputs)
-
-            inputs = {
-                "src": "annotation dicty.gtf.gz",
-                "source": "DICTYBASE",
-                "species": "Dictyostelium discoideum",
-                "build": "wrong build",
-            }
-            annotation_wrong_build = self.run_process("upload-gtf", inputs)
-
-            aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk,}
+            annotation = self.run_process(
+                "upload-gtf",
+                {
+                    "src": str(inputs / "annotation hs.gtf.gz"),
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
             )
 
-        inputs = {
-            "alignments": aligned_reads.pk,
-            "gff": annotation_correct.pk,
-            "stranded": "no",
-            "id_attribute": "transcript_id",
-        }
-        expression = self.run_process("htseq-count", inputs)
-        self.assertFile(expression, "rc", "reads_rc.tab.gz", compression="gzip")
-        self.assertFile(expression, "fpkm", "reads_fpkm.tab.gz", compression="gzip")
-        self.assertFile(expression, "exp", "reads_tpm.tab.gz", compression="gzip")
-        self.assertJSON(
-            expression, expression.output["exp_json"], "", "expression_htseq.json.gz"
+            bam_paired = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "hs_paired.bam"),
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
+        expression = self.run_process(
+            "htseq-count",
+            {
+                "alignments": bam_paired.id,
+                "gff": annotation.id,
+                "stranded": "no",
+                "id_attribute": "gene_id",
+            },
         )
         self.assertFile(
-            expression, "exp_set", "htseq_count_out_exp_set.txt.gz", compression="gzip"
+            expression, "rc", outputs / "reads_rc.tab.gz", compression="gzip"
+        )
+        self.assertFile(
+            expression, "exp", outputs / "reads_tpm.tab.gz", compression="gzip"
+        )
+        self.assertJSON(
+            expression,
+            expression.output["exp_json"],
+            "",
+            outputs / "expression_htseq.json.gz",
+        )
+        self.assertFile(
+            expression,
+            "exp_set",
+            outputs / "htseq_count_out_exp_set.txt.gz",
+            compression="gzip",
         )
         self.assertJSON(
             expression,
             expression.output["exp_set_json"],
             "",
-            "htseq_count_exp_set.json.gz",
+            outputs / "htseq_count_exp_set.json.gz",
         )
-        self.assertFields(expression, "species", "Dictyostelium discoideum")
-        self.assertFields(expression, "build", "dd-05-2009")
+        self.assertFields(expression, "species", "Homo sapiens")
+        self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFields(expression, "feature_type", "gene")
-
-        inputs["gff"] = annotation_wrong_species.pk
-        expression = self.run_process("htseq-count", inputs, Data.STATUS_ERROR)
-
-        inputs["gff"] = annotation_wrong_build.pk
-        expression = self.run_process("htseq-count", inputs, Data.STATUS_ERROR)
 
     @with_resolwe_host
     @tag_process("htseq-count-raw")
     def test_expression_htseq_cpm(self):
+        base = Path("test_htseq_count")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
         with self.preparation_stage():
-            inputs = {
-                "src": "annotation dicty.gtf.gz",
-                "source": "DICTYBASE",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            annotation = self.run_process("upload-gtf", inputs)
+            annotation = self.run_process(
+                "upload-gtf",
+                {
+                    "src": str(inputs / "annotation dicty.gtf.gz"),
+                    "source": "DICTYBASE",
+                    "species": "Dictyostelium discoideum",
+                    "build": "dd-05-2009",
+                },
+            )
 
-            inputs = {
-                "src": "feature_counts hs.gtf.gz",
-                "source": "ENSEMBL",
-                "species": "Homo sapiens",
-                "build": "GRCh38_ens90",
-            }
-            annotation_hs = self.run_process("upload-gtf", inputs)
+            annotation_hs = self.run_process(
+                "upload-gtf",
+                {
+                    "src": str(inputs / "annotation hs.gtf.gz"),
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
 
-            bam = {
-                "src": "reads.bam",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            bam = self.run_process("upload-bam", bam)
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "reads.bam"),
+                    "species": "Dictyostelium discoideum",
+                    "build": "dd-05-2009",
+                },
+            )
 
-            inputs = {
-                "src": "feature_counts hs_paired.bam",
-                "species": "Homo sapiens",
-                "build": "GRCh38_ens90",
-            }
-            bam_paired = self.run_process("upload-bam", inputs)
+            bam_paired = self.run_process(
+                "upload-bam",
+                {
+                    "src": str(inputs / "hs_paired.bam"),
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
 
-            inputs = {
-                "alignments": bam.pk,
-                "gtf": annotation.pk,
+        expression = self.run_process(
+            "htseq-count-raw",
+            {
+                "alignments": bam.id,
+                "gtf": annotation.id,
                 "stranded": "no",
                 "id_attribute": "transcript_id",
-            }
-        expression = self.run_process("htseq-count-raw", inputs)
-        self.assertFile(expression, "rc", "reads_rc.tab.gz", compression="gzip")
-        self.assertFile(expression, "exp", "reads_cpm.tab.gz", compression="gzip")
+            },
+        )
+        self.assertFile(
+            expression, "rc", outputs / "htseq_raw_rc.tab.gz", compression="gzip"
+        )
+        self.assertFile(
+            expression, "exp", outputs / "htseq_raw_cpm.tab.gz", compression="gzip"
+        )
         self.assertFields(expression, "species", "Dictyostelium discoideum")
         self.assertFields(expression, "build", "dd-05-2009")
 
-        inputs = {
-            "alignments": bam_paired.pk,
-            "gtf": annotation_hs.pk,
-        }
-        expression = self.run_process("htseq-count-raw", inputs)
-        self.assertFile(expression, "rc", "htseq_raw_rc.tab.gz", compression="gzip")
-        self.assertFile(expression, "exp", "htseq_raw_cpm.tab.gz", compression="gzip")
+        expression = self.run_process(
+            "htseq-count-raw", {"alignments": bam_paired.id, "gtf": annotation_hs.id,}
+        )
         self.assertFile(
-            expression, "exp_set", "htseq_cpm_exp_set.txt.gz", compression="gzip"
+            expression, "rc", outputs / "htseq_raw_paired_rc.tab.gz", compression="gzip"
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "htseq_raw_paired_cpm.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp_set",
+            outputs / "htseq_raw_cpm_exp_set.txt.gz",
+            compression="gzip",
         )
         self.assertJSON(
             expression,
             expression.output["exp_set_json"],
             "",
-            "htseq_cpm_exp_set.json.gz",
+            inputs / "htseq_raw_cpm_exp_set.json.gz",
         )
         self.assertFields(expression, "species", "Homo sapiens")
         self.assertFields(expression, "build", "GRCh38_ens90")

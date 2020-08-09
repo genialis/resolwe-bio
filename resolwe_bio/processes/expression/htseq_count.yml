@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.5.0
+  version: 2.0.0
   type: data:expression:htseq:normalized
   category: Quantify
   flow_collection: sample
@@ -23,11 +23,9 @@
     expression calling. It counts the number of reads that map to a genomic
     feature (e.g. gene).
 
-    The expressions with raw counts, produced by HTSeq are then normalized
-    by computing FPKM and TPM.
-
-    For computationally efficient quantification consider
-    using featureCounts instead of HTSeq-count.
+    HTSeq output includes raw counts and normalized (TPM) expression values.
+    TPM normalized values are computed using rnanorm Python package under
+    union-exon gene length model.
   input:
     - name: alignments
       label: Aligned reads
@@ -98,9 +96,6 @@
       type: basic:file
     - name: rc
       label: Read counts
-      type: basic:file
-    - name: fpkm
-      label: FPKM
       type: basic:file
     - name: exp
       label: TPM (Transcripts Per Million)
@@ -188,19 +183,22 @@
       re-checkrc
       re-progress 0.8
 
+      # prepare raw counts file
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R {{ gff.annot.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
+      echo -e "FEATURE_ID\tEXPRESSION" | cat - rc_wo_header.txt > rc.txt
+
+      # normalize raw counts to TPM
+      rnanorm rc.txt --annotation {{ gff.annot.file }} --gene-id-attr {{ id_attribute }} --tpm-output tpm.txt
       re-checkrc
       re-progress 0.9
 
-      add_header.py rc_wo_header.txt rc.txt
-      add_header.py fpkm_wo_header.tab fpkm.tab
-      add_header.py tpm_wo_header.tab tpm.tab
+      # re-header the raw and normalized output files
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' rc.txt
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' tpm.txt
 
       gzip -c HTseq_rc.txt > "${NAME}_HTseq_rc.txt.gz"
       gzip -c rc.txt > "${NAME}_rc.tab.gz"
-      gzip -c fpkm.tab > "${NAME}_fpkm.tab.gz"
-      gzip -c tpm.tab > "${NAME}_tpm.tab.gz"
+      gzip -c tpm.txt > "${NAME}_tpm.tab.gz"
 
       expression2storage.py --output json.txt "${NAME}_tpm.tab.gz"
       re-checkrc
@@ -212,12 +210,11 @@
         --source_db {{ gff.source }} \
         --species {{ alignments.species }} \
         --output_name "${NAME}_expressions" \
-        --norm_expressions "${NAME}_fpkm.tab.gz" "${NAME}_tpm.tab.gz" \
-        --norm_expressions_type FPKM TPM
+        --norm_expressions "${NAME}_tpm.tab.gz" \
+        --norm_expressions_type TPM
       re-checkrc
 
       re-save-file rc "${NAME}_rc.tab.gz"
-      re-save-file fpkm "${NAME}_fpkm.tab.gz"
       re-save-file exp "${NAME}_tpm.tab.gz"
       re-save-file htseq_output "${NAME}_HTseq_rc.txt.gz"
       re-save-file exp_set "${NAME}_expressions.txt.gz"
@@ -235,11 +232,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       network: true
   data_name: "{{ alignments.bam.file|basename|default('?') }} ({{ (alignments|sample_name) }})"
-  version: 1.6.0
+  version: 1.7.0
   type: data:expression:htseq:cpm
   category: Quantify
   flow_collection: sample
@@ -247,17 +244,11 @@
   description: |
     HTSeq-count is useful for preprocessing RNA-Seq alignments for differential
     expression calling. It counts the number of reads that map to a genomic
-    feature (e.g. gene). For computationally efficient quantification consider
-    using featureCounts instead of HTSeq-count.
+    feature (e.g. gene).
 
-    The expressions with raw counts, produced by HTSeq are then normalized
-    by computing CPM. See
-    [the official website](https://htseq.readthedocs.io/en/release_0.9.1)
-    and [the introductory paper](https://academic.oup.com/bioinformatics/article/31/2/166/2366196)
-    for more information.
-
-    For computationally efficient quantification consider using featureCounts
-    instead of HTSeq-count.
+    HTSeq output includes raw counts and normalized (CPM) expression values.
+    CPM normalized values are computed using rnanorm Python package under
+    union-exon gene length model.
   input:
     - name: alignments
       label: Aligned reads
@@ -416,17 +407,22 @@
       re-checkrc
       re-progress 0.8
 
+      # prepare raw counts file
       head -n -5 HTseq_rc.txt > rc_wo_header.txt
-      expression_fpkm_tpm.R {{ gtf.annot.file }} 'gtf' {{ feature_class }} {{ id_attribute }} 'rc_wo_header.txt'
+      echo -e "FEATURE_ID\tEXPRESSION" | cat - rc_wo_header.txt > rc.txt
+
+      # normalize raw counts to CPM
+      rnanorm rc.txt --cpm-output cpm.txt
       re-checkrc
       re-progress 0.9
 
-      add_header.py rc_wo_header.txt rc.txt
-      add_header.py cpm_wo_header.tab cpm.tab
+      # re-header the raw and normalized output files
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' rc.txt
+      sed -i '' -e '1s/FEATURE_ID/Gene/' -e '1s/EXPRESSION/Expression/' cpm.txt
 
       gzip -c HTseq_rc.txt > "${NAME}_HTseq_rc.txt.gz"
       gzip -c rc.txt > "${NAME}_rc.tab.gz"
-      gzip -c cpm.tab > "${NAME}_cpm.tab.gz"
+      gzip -c cpm.txt > "${NAME}_cpm.tab.gz"
 
       expression2storage.py --output json.txt "${NAME}_cpm.tab.gz"
       re-checkrc

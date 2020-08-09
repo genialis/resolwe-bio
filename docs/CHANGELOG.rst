@@ -21,7 +21,7 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 23.x.
 - **BACKWARD INCOMPATIBLE:** Use rnanorm Python package for TPM/CPM
-  normalization of RNA-seq data in featureCounts tool
+  normalization of RNA-seq data in featureCounts and HTSeq-count tools
 - Support Nanostring sample reports in MultiQC
 - Support Nanostring analysis results in
   ``differentialexpression-deseq2`` process
