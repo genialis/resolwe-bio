@@ -33,17 +33,17 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.0.0"
+    version = "5.0.1"
     category = "ChIP-Seq:Post Process"
     entity = {
         "type": "sample",
-        "input": "{{ input_macs if input_macs else input_upload }}",
+        "input": "input_macs",
     }
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/bamliquidator:1.2.0"}},
     }
-    data_name = "{{ input_macs|sample_name|default('?') if input_macs else input_upload|sample_name|default('?') }}"
+    data_name = "{{ input_macs|sample_name|default('?') if input_macs else rankby|sample_name|default('?') }}"
 
     class Input:
         """Input fields to process ROSE2."""
@@ -159,7 +159,7 @@ class Rose2(Process):
             ):
                 self.error(
                     "BAM file to rank by must be used unless a filtered BAM "
-                    "from a MACS2 data oject is used to rank by."
+                    "from a MACS2 data object is used to rank by."
                 )
 
             species = inputs.input_macs.species
@@ -184,7 +184,7 @@ class Rose2(Process):
             if not inputs.rankby:
                 self.error(
                     "BAM file to rank by must be used unless a filtered BAM "
-                    "from a MACS2 data oject is used to rank by."
+                    "from a MACS2 data object is used to rank by."
                 )
 
             species = inputs.input_upload.species

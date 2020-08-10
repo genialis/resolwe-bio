@@ -31,6 +31,7 @@ Fixed
 - Order results on autocomplete API endpoint in knowledge-base by
   relevance
 - Support filtering by type on knowledge base Feature API
+- Attach ``rose2`` Data object to the input sample
 
 
 ===================
