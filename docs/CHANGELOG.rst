@@ -5,6 +5,19 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Support automatic species annotation in alignment processes:
+  ``alignment-bowtie``, ``alignment-bowtie2``, ``alignment-bwa-mem``,
+  ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,
+  ``alignment-star``, ``walt``
+
+
 ===================
 32.0.0 - 2020-08-17
 ===================

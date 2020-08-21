@@ -12,9 +12,9 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:hisat2
   category: Align
   flow_collection: sample
@@ -94,6 +94,21 @@
       INDEX={{genome.index.dir}}/"${GENOME_NAME}_index"
 
       NAME={{ reads.fastq.0.file | basename | replace(".fastq.gz", "") | replace(" ", "") }}
+
+      {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
+                        "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
+                        "Mus musculus", "Odocoileus virginianus texanus", "Rattus norvegicus", "Solanum tuberosum"] %}
+
+      {% if reads|sample|descriptor("general.species") %}
+        {% if reads|sample|descriptor("general.species") != genome.species %}
+          re-error \
+            {{ ('Species of reads (%s) and genome (%s) do not match.')
+            | format(reads|sample|descriptor("general.species"), genome.species) }}
+        {% endif %}
+      {% elif genome.species in species %}
+        re-annotate-entity "general.species" {{ genome.species }}
+        re-info "Sample species was automatically annotated to match the genome."
+      {% endif %}
 
       re-progress 0.1
 

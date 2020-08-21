@@ -74,6 +74,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             output_folder / "bowtie_paired_reads_report.tab.gz",
             compression="gzip",
         )
+        sample = Sample.objects.get(data=alignment_paired)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
+        )
 
         alignment_use_se = self.run_process(
             "alignment-bowtie",
@@ -147,6 +151,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         paired_end = self.run_process("alignment-bowtie2", inputs)
         self.assertFile(
             paired_end, "stats", output_folder / "bowtie2_paired_end_report.txt"
+        )
+        sample = Sample.objects.get(data=paired_end)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
         )
 
         inputs["PE_options"] = {"use_se": True}
@@ -236,6 +244,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+        sample = Sample.objects.get(data=aligned_reads)
+        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
 
         exp = Data.objects.last()
         self.assertFile(exp, "exp", star_expression_single, compression="gzip")
@@ -392,6 +402,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_aln, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_aln, "build", "dd-05-2009")
+        sample = Sample.objects.get(data=paired_end_aln)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
+        )
 
         single_end_sw = self.run_process(
             "alignment-bwa-sw", {"genome": bwa_index.id, "reads": reads.id}
@@ -412,6 +426,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_sw, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_sw, "build", "dd-05-2009")
+        sample = Sample.objects.get(data=paired_end_sw)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
+        )
 
         single_end_mem = self.run_process(
             "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads.id}
@@ -435,6 +453,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_mem, "build", "dd-05-2009")
+        sample = Sample.objects.get(data=paired_end_mem)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
+        )
 
     @tag_process("hisat2-index", "alignment-hisat2")
     def test_hisat2(self):
@@ -568,3 +590,5 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(
             aligned_reads, "bigwig", output_folder / "hisat2_paired_ncbi_bigwig.bw"
         )
+        sample = Sample.objects.get(data=aligned_reads)
+        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")

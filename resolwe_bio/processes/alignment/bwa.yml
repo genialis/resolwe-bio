@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.0.0
+  version: 3.1.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -144,6 +144,21 @@
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX={{genome.index.dir}}/"${GENOME_NAME}.fasta"
 
+      {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
+                        "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
+                        "Mus musculus", "Odocoileus virginianus texanus", "Rattus norvegicus", "Solanum tuberosum"] %}
+
+      {% if reads|sample|descriptor("general.species") %}
+        {% if reads|sample|descriptor("general.species") != genome.species %}
+          re-error \
+            {{ ('Species of reads (%s) and genome (%s) do not match.')
+            | format(reads|sample|descriptor("general.species"), genome.species) }}
+        {% endif %}
+      {% elif genome.species in species %}
+        re-annotate-entity "general.species" {{ genome.species }}
+        re-info "Sample species was automatically annotated to match the genome."
+      {% endif %}
+
       FW_READS=()
       RW_READS=()
 
@@ -254,12 +269,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       cores: 20
       memory: 16384
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -323,6 +338,21 @@
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX={{genome.index.dir}}"/${GENOME_NAME}.fasta"
+
+      {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
+                        "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
+                        "Mus musculus", "Odocoileus virginianus texanus", "Rattus norvegicus", "Solanum tuberosum"] %}
+
+      {% if reads|sample|descriptor("general.species") %}
+        {% if reads|sample|descriptor("general.species") != genome.species %}
+          re-error \
+            {{ ('Species of reads (%s) and genome (%s) do not match.')
+            | format(reads|sample|descriptor("general.species"), genome.species) }}
+        {% endif %}
+      {% elif genome.species in species %}
+        re-annotate-entity "general.species" {{ genome.species }}
+        re-info "Sample species was automatically annotated to match the genome."
+      {% endif %}
 
       FW_READS=()
       RW_READS=()
@@ -417,12 +447,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:4.11.0
     resources:
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.0.0
+  version: 2.1.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -512,6 +542,21 @@
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX={{genome.index.dir}}"/${GENOME_NAME}.fasta"
+
+      {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
+                        "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
+                        "Mus musculus", "Odocoileus virginianus texanus", "Rattus norvegicus", "Solanum tuberosum"] %}
+
+      {% if reads|sample|descriptor("general.species") %}
+        {% if reads|sample|descriptor("general.species") != genome.species %}
+          re-error \
+            {{ ('Species of reads (%s) and genome (%s) do not match.')
+            | format(reads|sample|descriptor("general.species"), genome.species) }}
+        {% endif %}
+      {% elif genome.species in species %}
+        re-annotate-entity "general.species" {{ genome.species }}
+        re-info "Sample species was automatically annotated to match the genome."
+      {% endif %}
 
       FW_READS=()
       RW_READS=()

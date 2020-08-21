@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.3.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.1.0
+  version: 3.2.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -121,6 +121,21 @@
       NAME=`basename {{ reads.fastq.0.file }} .fastq.gz`
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX={{genome.index.dir}}/"${GENOME_NAME}.dbindex"
+
+      {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
+                        "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
+                        "Mus musculus", "Odocoileus virginianus texanus", "Rattus norvegicus", "Solanum tuberosum"] %}
+
+      {% if reads|sample|descriptor("general.species") %}
+        {% if reads|sample|descriptor("general.species") != genome.species %}
+          re-error \
+            {{ ('Species of reads (%s) and genome (%s) do not match.')
+            | format(reads|sample|descriptor("general.species"), genome.species) }}
+        {% endif %}
+      {% elif genome.species in species %}
+        re-annotate-entity "general.species" {{ genome.species }}
+        re-info "Sample species was automatically annotated to match the genome."
+      {% endif %}
 
       FW_READS=()
       RW_READS=()
