@@ -19,6 +19,11 @@ Changed
 - Pin ``XML`` R package to ensure compatibility with R 3.6.3 in
   ``resolwebio/chipseq:4.1.3`` Docker image
 
+Fixed
+-----
+- Bump Docker image version in ``chipqc`` process to fix enrichment
+  heatmap plot
+
 
 ===================
 32.0.0 - 2020-08-17
