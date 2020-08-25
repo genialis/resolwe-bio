@@ -16,6 +16,8 @@ Changed
   ``alignment-bowtie``, ``alignment-bowtie2``, ``alignment-bwa-mem``,
   ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,
   ``alignment-star``, ``walt``
+- Pin ``XML`` R package to ensure compatibility with R 3.6.3 in
+  ``resolwebio/chipseq:4.1.3`` Docker image
 
 
 ===================

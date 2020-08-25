@@ -6,3 +6,4 @@ gawk
 
 # Required for ChipQC
 libxml2-dev
+libssl-dev
