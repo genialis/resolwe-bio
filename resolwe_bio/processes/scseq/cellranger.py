@@ -34,15 +34,24 @@ class CellRangerMkref(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/scseq:1.1.0"}},
-        "resources": {"memory": 32768, "cores": 10,},
+        "resources": {
+            "memory": 32768,
+            "cores": 10,
+        },
     }
     data_name = '{{ genome.fasta.file|default("?") }}'
 
     class Input:
         """Input fields to process CellRangerMkref."""
 
-        genome = DataField(data_type="seq:nucleotide:", label="Reference genome",)
-        annotation = DataField(data_type="annotation:gtf:", label="Annotation",)
+        genome = DataField(
+            data_type="seq:nucleotide:",
+            label="Reference genome",
+        )
+        annotation = DataField(
+            data_type="annotation:gtf:",
+            label="Annotation",
+        )
 
     class Output:
         """Output fields to process CellRangerMkref."""
@@ -112,16 +121,23 @@ class CellRangerCount(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/scseq:1.1.0"}},
-        "resources": {"memory": 32768, "cores": 10,},
+        "resources": {
+            "memory": 32768,
+            "cores": 10,
+        },
     }
     data_name = '{{ reads|sample_name|default("?") }}'
 
     class Input:
         """Input fields to process ImportScRNA10x."""
 
-        reads = DataField(data_type="screads:10x:", label="10x reads data object",)
+        reads = DataField(
+            data_type="screads:10x:",
+            label="10x reads data object",
+        )
         genome_index = DataField(
-            data_type="genomeindex:10x:", label="10x genome index data object",
+            data_type="genomeindex:10x:",
+            label="10x genome index data object",
         )
         chemistry = StringField(
             label="Chemistry",
@@ -159,7 +175,8 @@ class CellRangerCount(Process):
             description="Hard-trim the input R2 sequence to this length.",
         )
         expected_cells = IntegerField(
-            label="Expected number of recovered cells", default=3000,
+            label="Expected number of recovered cells",
+            default=3000,
         )
         force_cells = IntegerField(
             label="Force cell number",
@@ -202,7 +219,8 @@ class CellRangerCount(Process):
                 os.path.join(
                     dir_fastqs,
                     "{}_S1_L{}_R1_001.fastq.gz".format(
-                        sample_name, str(i + 1).zfill(3),
+                        sample_name,
+                        str(i + 1).zfill(3),
                     ),
                 ),
             )
@@ -211,7 +229,8 @@ class CellRangerCount(Process):
                 os.path.join(
                     dir_fastqs,
                     "{}_S1_L{}_R2_001.fastq.gz".format(
-                        sample_name, str(i + 1).zfill(3),
+                        sample_name,
+                        str(i + 1).zfill(3),
                     ),
                 ),
             )

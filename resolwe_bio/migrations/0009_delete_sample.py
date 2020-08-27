@@ -11,11 +11,31 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(name="sample", unique_together=set([]),),
-        migrations.RemoveField(model_name="sample", name="collections",),
-        migrations.RemoveField(model_name="sample", name="contributor",),
-        migrations.RemoveField(model_name="sample", name="data",),
-        migrations.RemoveField(model_name="sample", name="descriptor_schema",),
-        migrations.RemoveField(model_name="sample", name="public_processes",),
-        migrations.DeleteModel(name="Sample",),
+        migrations.AlterUniqueTogether(
+            name="sample",
+            unique_together=set([]),
+        ),
+        migrations.RemoveField(
+            model_name="sample",
+            name="collections",
+        ),
+        migrations.RemoveField(
+            model_name="sample",
+            name="contributor",
+        ),
+        migrations.RemoveField(
+            model_name="sample",
+            name="data",
+        ),
+        migrations.RemoveField(
+            model_name="sample",
+            name="descriptor_schema",
+        ),
+        migrations.RemoveField(
+            model_name="sample",
+            name="public_processes",
+        ),
+        migrations.DeleteModel(
+            name="Sample",
+        ),
     ]

@@ -10,7 +10,11 @@ from resolwe.process import Cmd, DataField, FileField, Process, StringField
 
 def compute_tpm(tcount):
     """Normalize readCount column to TPM values."""
-    exp = pd.read_csv(tcount, sep="\t", index_col="gene_name",)
+    exp = pd.read_csv(
+        tcount,
+        sep="\t",
+        index_col="gene_name",
+    )
     exp["rpk"] = exp.apply(lambda x: (x.readCount * 1e3 / x.length), axis=1)
     rpk_sum = exp["rpk"].sum()
     exp["readsTPM"] = exp.apply(lambda x: (x.rpk / rpk_sum * 1e6), axis=1)
@@ -25,8 +29,14 @@ class AlleyoopCollapse(Process):
     name = "Alleyoop collapse"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/slamdunk:1.0.0"},},
-        "resources": {"cores": 1, "memory": 8192, "network": True,},
+        "executor": {
+            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 8192,
+            "network": True,
+        },
     }
     entity = {
         "type": "sample",
@@ -42,7 +52,10 @@ class AlleyoopCollapse(Process):
         source = StringField(
             label="Gene ID source",
             default="ENSEMBL",
-            choices=[("ENSEMBL", "ENSEMBL"), ("UCSC", "UCSC"),],
+            choices=[
+                ("ENSEMBL", "ENSEMBL"),
+                ("UCSC", "UCSC"),
+            ],
         )
 
     class Output:

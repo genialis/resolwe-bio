@@ -38,7 +38,11 @@ def get_build_info(input_file):
 
 def make_xml_tree(input_file):
     """Make xml tree for IGV session."""
-    global_ = etree.Element("Global", genome=get_build_info(input_file), version="3",)
+    global_ = etree.Element(
+        "Global",
+        genome=get_build_info(input_file),
+        version="3",
+    )
 
     resources = etree.SubElement(global_, "Resources")
 
@@ -57,7 +61,10 @@ def make_xml_tree(input_file):
             )
 
     doc = etree.tostring(
-        global_, pretty_print=True, xml_declaration=True, encoding="UTF-8",
+        global_,
+        pretty_print=True,
+        xml_declaration=True,
+        encoding="UTF-8",
     )
     return doc
 

@@ -9,8 +9,15 @@ class SamtoolsIdxstats(Process):
     name = "Samtools idxstats"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1",},},
-        "resources": {"cores": 1, "memory": 4096,},
+        "executor": {
+            "docker": {
+                "image": "resolwebio/common:1.3.1",
+            },
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 4096,
+        },
     }
     data_name = "Samtools idxstats ({{alignment|sample_name}})"
     version = "1.1.0"

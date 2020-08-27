@@ -92,7 +92,10 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(len(pca.process_warning), 0)
 
         inputs = {
-            "exps": [expression_noname_1.pk, expression_noname_2.pk,],
+            "exps": [
+                expression_noname_1.pk,
+                expression_noname_2.pk,
+            ],
             "source": "DICTYBASE",
             "species": "Dictyostelium discoideum",
         }
@@ -125,7 +128,11 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk, expression_3.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+                expression_3.pk,
+            ],
             "genes": [
                 "1",
                 "503538",

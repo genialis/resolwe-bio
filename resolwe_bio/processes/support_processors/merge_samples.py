@@ -59,14 +59,18 @@ class MergeFastqSingle(Process):
         """Input fields to process MergeFastqSingle."""
 
         reads = ListField(
-            DataField(data_type="reads:fastq:single:"), label="Reads data objects",
+            DataField(data_type="reads:fastq:single:"),
+            label="Reads data objects",
         )
 
     class Output:
         """Output fields to process MergeFastqSingle."""
 
         fastq = ListField(FileField(), label="Reads file")
-        fastqc_url = ListField(FileHtmlField(), label="Quality control with FastQC",)
+        fastqc_url = ListField(
+            FileHtmlField(),
+            label="Quality control with FastQC",
+        )
         fastqc_archive = ListField(FileField(), label="Download FastQC archive")
 
     def run(self, inputs, outputs):
@@ -130,7 +134,8 @@ class MergeFastqPaired(Process):
         """Input fields to process MergeFastqPaired."""
 
         reads = ListField(
-            DataField(data_type="reads:fastq:paired:"), label="Reads data objects",
+            DataField(data_type="reads:fastq:paired:"),
+            label="Reads data objects",
         )
 
     class Output:
@@ -139,10 +144,12 @@ class MergeFastqPaired(Process):
         fastq = ListField(FileField(), label="Reads file (mate 1)")
         fastq2 = ListField(FileField(), label="Reads file (mate 2)")
         fastqc_url = ListField(
-            FileHtmlField(), label="Quality control with FastQC (mate 1)",
+            FileHtmlField(),
+            label="Quality control with FastQC (mate 1)",
         )
         fastqc_url2 = ListField(
-            FileHtmlField(), label="Quality control with FastQC (mate 2)",
+            FileHtmlField(),
+            label="Quality control with FastQC (mate 2)",
         )
         fastqc_archive = ListField(
             FileField(), label="Download FastQC archive (mate 1)"

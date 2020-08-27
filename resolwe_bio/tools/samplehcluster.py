@@ -58,7 +58,10 @@ def get_expression(fname, sep="\t", gene_set=[]):
         header=0,
         index_col=0,
         compression="gzip",
-        dtype={0: str, 1: float,},
+        dtype={
+            0: str,
+            1: float,
+        },
         keep_default_na=False,
     )
     df.index = df.index.map(str)

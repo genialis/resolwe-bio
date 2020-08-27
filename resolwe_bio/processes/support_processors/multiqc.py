@@ -304,8 +304,13 @@ class MultiQC(Process):
     name = "MultiQC"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"},},
-        "resources": {"cores": 1, "memory": 8192,},
+        "executor": {
+            "docker": {"image": "resolwebio/common:1.3.1"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 8192,
+        },
     }
     entity = {
         "type": "sample",

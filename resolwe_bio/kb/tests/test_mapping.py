@@ -45,7 +45,11 @@ class MappingTestCase(APITestCase, TestCase):
         # Test lookup by source_db, target_db and a single source feature identifier.
         response = self.client.get(
             MAPPING_URL,
-            {"source_db": "SRC", "target_db": "TGT", "source_id": "FT0",},
+            {
+                "source_db": "SRC",
+                "target_db": "TGT",
+                "source_id": "FT0",
+            },
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)

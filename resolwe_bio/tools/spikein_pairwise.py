@@ -55,9 +55,15 @@ SIRV_CONC = {
 }
 
 ERCC_MIXES = {
-    "ercc_mix1": {"name": "concentration in Mix 1 (attomoles/ul)",},
-    "ercc_mix2": {"name": "concentration in Mix 2 (attomoles/ul)",},
-    "sirv_set3": {"name": "concentration in SIRV Set 3 (attomoles/ul)",},
+    "ercc_mix1": {
+        "name": "concentration in Mix 1 (attomoles/ul)",
+    },
+    "ercc_mix2": {
+        "name": "concentration in Mix 2 (attomoles/ul)",
+    },
+    "sirv_set3": {
+        "name": "concentration in SIRV Set 3 (attomoles/ul)",
+    },
 }
 
 # Histogram and scatter plot x-limit
@@ -203,7 +209,10 @@ def plot_histogram_scatter(
     expected, zero, nonzero, spikein_type, sample_name, exp_type
 ):
     """Plot figure where measured vs. expected expressions are compared."""
-    fig = plt.figure(figsize=(8, 6), dpi=200,)
+    fig = plt.figure(
+        figsize=(8, 6),
+        dpi=200,
+    )
     gspec = matplotlib.gridspec.GridSpec(2, 1, height_ratios=[1, 4])
 
     plot_histogram(
@@ -214,7 +223,10 @@ def plot_histogram_scatter(
     )
 
     plot_scatter(
-        scatter=plt.subplot(gspec[1]), zero=zero, nonzero=nonzero, exp_type=exp_type,
+        scatter=plt.subplot(gspec[1]),
+        zero=zero,
+        nonzero=nonzero,
+        exp_type=exp_type,
     )
     title = "{} ({} spike-in's)".format(sample_name, spikein_type)
     fig.suptitle(title)

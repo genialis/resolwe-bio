@@ -96,8 +96,13 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "exps": [expression_8.pk, expression_9.pk,],
-            "preprocessing": {"log2": False,},
+            "exps": [
+                expression_8.pk,
+                expression_9.pk,
+            ],
+            "preprocessing": {
+                "log2": False,
+            },
         }
         clustering = self.run_process("clustering-hierarchical-samples", inputs)
         saved_json, test_json = self.get_json(
@@ -121,7 +126,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(len(clustering.process_warning), 0)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_source.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_source.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -139,7 +147,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_species.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_species.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -155,7 +166,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_expression_type.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_expression_type.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -171,7 +185,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_feature_type.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_feature_type.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -187,7 +204,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
             "preprocessing": {
                 "genes": ["gene"],
                 "source": "UCSC",
@@ -210,7 +229,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
             "preprocessing": {
                 "genes": ["gene"],
                 "source": "ENSEMBL",
@@ -230,7 +251,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -241,9 +264,14 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
             "preprocessing": {
-                "genes": ["gene_1",],
+                "genes": [
+                    "gene_1",
+                ],
                 "source": "ENSEMBL",
                 "species": "Homo sapiens",
             },
@@ -260,9 +288,15 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
             "preprocessing": {
-                "genes": ["gene_1", "gene_2",],
+                "genes": [
+                    "gene_1",
+                    "gene_2",
+                ],
                 "source": "ENSEMBL",
                 "species": "Homo sapiens",
             },
@@ -274,7 +308,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_3.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_3.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -283,7 +320,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -299,9 +339,15 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
             "preprocessing": {
-                "genes": ["ENSG00000178591", "gene_2",],
+                "genes": [
+                    "ENSG00000178591",
+                    "gene_2",
+                ],
                 "source": "ENSEMBL",
                 "species": "Homo sapiens",
             },
@@ -320,8 +366,13 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_6.pk, expression_6.pk,],
-            "preprocessing": {"z_score": False,},
+            "exps": [
+                expression_6.pk,
+                expression_6.pk,
+            ],
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -335,13 +386,21 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_7.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_7.pk,
+            ],
         }
         clustering = self.run_process("clustering-hierarchical-samples", inputs)
 
         inputs = {
-            "exps": [expression_3.pk, expression_6.pk,],
-            "preprocessing": {"z_score": False,},
+            "exps": [
+                expression_3.pk,
+                expression_6.pk,
+            ],
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process(
             "clustering-hierarchical-samples", inputs, Data.STATUS_ERROR
@@ -360,7 +419,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 expression_6.pk,
                 expression_6.pk,
             ],
-            "preprocessing": {"z_score": False,},
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process("clustering-hierarchical-samples", inputs)
         warning_msg = [
@@ -472,8 +533,13 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "exps": [expression_8.pk, expression_9.pk,],
-            "preprocessing": {"log2": False,},
+            "exps": [
+                expression_8.pk,
+                expression_9.pk,
+            ],
+            "preprocessing": {
+                "log2": False,
+            },
         }
         clustering = self.run_process("clustering-hierarchical-genes", inputs)
         saved_json, test_json = self.get_json(
@@ -488,7 +554,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(len(clustering.process_warning), 0)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_source.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_source.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -506,7 +575,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_species.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_species.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -522,7 +594,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_expression_type.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_expression_type.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -538,7 +613,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, wrong_feature_type.pk,],
+            "exps": [
+                expression_1.pk,
+                wrong_feature_type.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -554,7 +632,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
             "preprocessing": {
                 "genes": ["gene"],
                 "source": "UCSC",
@@ -577,7 +657,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
             "preprocessing": {
                 "genes": ["gene"],
                 "source": "ENSEMBL",
@@ -597,9 +679,14 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
             "preprocessing": {
-                "genes": ["gene label",],
+                "genes": [
+                    "gene label",
+                ],
                 "species": "Homo sapiens",
                 "source": "ENSEMBL",
             },
@@ -613,7 +700,9 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk,],
+            "exps": [
+                expression_1.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -627,7 +716,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_3.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_3.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -636,9 +728,15 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_3.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_3.pk,
+            ],
             "preprocessing": {
-                "genes": ["gene_1", "gene_2",],
+                "genes": [
+                    "gene_1",
+                    "gene_2",
+                ],
                 "source": "ENSEMBL",
                 "species": "Homo sapiens",
             },
@@ -650,7 +748,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -666,9 +767,15 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_2.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
             "preprocessing": {
-                "genes": ["ENSG00000178591", "gene_2",],
+                "genes": [
+                    "ENSG00000178591",
+                    "gene_2",
+                ],
                 "source": "ENSEMBL",
                 "species": "Homo sapiens",
             },
@@ -687,7 +794,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_7.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_7.pk,
+            ],
             "preprocessing": {
                 "genes": [
                     "ENSG00000185982",
@@ -713,8 +823,13 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 
         inputs = {
-            "exps": [expression_1.pk, expression_1.pk,],
-            "preprocessing": {"z_score": False,},
+            "exps": [
+                expression_1.pk,
+                expression_1.pk,
+            ],
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -728,8 +843,13 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_3.pk, expression_4.pk,],
-            "preprocessing": {"z_score": False,},
+            "exps": [
+                expression_3.pk,
+                expression_4.pk,
+            ],
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process(
             "clustering-hierarchical-genes", inputs, Data.STATUS_ERROR
@@ -742,13 +862,21 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         self.assertEqual(clustering.process_error, error_msg)
 
         inputs = {
-            "exps": [expression_1.pk, expression_7.pk,],
+            "exps": [
+                expression_1.pk,
+                expression_7.pk,
+            ],
         }
         clustering = self.run_process("clustering-hierarchical-genes", inputs)
 
         inputs = {
-            "exps": [expression_3.pk, expression_5.pk,],
-            "preprocessing": {"z_score": False,},
+            "exps": [
+                expression_3.pk,
+                expression_5.pk,
+            ],
+            "preprocessing": {
+                "z_score": False,
+            },
         }
         clustering = self.run_process("clustering-hierarchical-genes", inputs)
         warning_msg = [

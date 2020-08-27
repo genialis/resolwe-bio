@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
-            model_name="feature", name="name", field=models.CharField(max_length=1024),
+            model_name="feature",
+            name="name",
+            field=models.CharField(max_length=1024),
         ),
         migrations.AlterField(
             model_name="feature",

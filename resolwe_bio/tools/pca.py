@@ -112,7 +112,10 @@ def read_csv(fname):
         sep="\t",
         header=0,
         index_col=0,
-        dtype={0: str, 1: float,},
+        dtype={
+            0: str,
+            1: float,
+        },
         keep_default_na=False,
     )
     csv.index = csv.index.map(str)

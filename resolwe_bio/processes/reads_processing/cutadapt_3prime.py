@@ -28,8 +28,13 @@ class Cutadapt3Prime(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"},},
-        "resources": {"cores": 10, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+        },
+        "resources": {
+            "cores": 10,
+            "memory": 16384,
+        },
     }
     data_name = '{{ reads|sample_name|default("?") }}'
 

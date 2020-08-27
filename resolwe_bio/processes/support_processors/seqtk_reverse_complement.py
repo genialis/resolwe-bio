@@ -22,8 +22,13 @@ class ReverseComplementSingle(Process):
     name = "Reverse complement FASTQ (single-end)"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/common:1.3.1"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 16384,
+        },
     }
     entity = {
         "type": "sample",
@@ -79,8 +84,13 @@ class ReverseComplementPaired(Process):
     name = "Reverse complement FASTQ (paired-end)"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/common:1.3.1"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 16384,
+        },
     }
     entity = {
         "type": "sample",

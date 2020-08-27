@@ -201,7 +201,10 @@ class FilesToReadsTestCase(BioProcessTestCase):
 
         reads = self.run_process(
             "files-to-fastq-single",
-            {"src": [lane_1.id, lane_2.id], "merge_lanes": True,},
+            {
+                "src": [lane_1.id, lane_2.id],
+                "merge_lanes": True,
+            },
         )
         self.assertFiles(
             reads, "fastq", ["Test_S1_L001_R1_001_merged.fastq.gz"], compression="gzip"

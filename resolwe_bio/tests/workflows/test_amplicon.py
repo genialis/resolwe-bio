@@ -24,7 +24,9 @@ class AmpliconWorkflowTestCase(BioProcessTestCase):
             )
 
             ref_seq = self.prepare_ref_seq(
-                fn="hs_b37_chr2_small.fasta.gz", species="Homo sapiens", build="b37",
+                fn="hs_b37_chr2_small.fasta.gz",
+                species="Homo sapiens",
+                build="b37",
             )
             bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 

@@ -15,8 +15,13 @@ class BWAIndex(Process):
     name = "BWA genome index"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 16384,
+        },
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'

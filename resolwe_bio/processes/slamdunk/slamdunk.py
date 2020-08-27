@@ -23,8 +23,13 @@ class SlamdunkAllPaired(Process):
     name = "Slamdunk (paired-end)"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/slamdunk:1.0.0"},},
-        "resources": {"cores": 8, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+        },
+        "resources": {
+            "cores": 8,
+            "memory": 16384,
+        },
     }
     entity = {
         "type": "sample",

@@ -21,8 +21,15 @@ class UmiToolsDedup(Process):
     name = "UMI-tools dedup"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0",},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "executor": {
+            "docker": {
+                "image": "resolwebio/rnaseq:4.9.0",
+            },
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 16384,
+        },
     }
     data_name = "UMI-tools dedup ({{alignment|sample_name}})"
     version = "1.1.1"

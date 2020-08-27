@@ -25,10 +25,24 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "seed_mismatches": 2,
                 "simple_clip_threshold": 10,
             },
-            "maxinfo": {"target_length": 10, "strictness": 0.6,},
-            "slidingwindow": {"window_size": 4, "required_quality": 15,},
-            "trim_bases": {"leading": 20, "trailing": 20, "crop": 40, "headcrop": 3,},
-            "reads_filtering": {"minlen": 22, "average_quality": 10,},
+            "maxinfo": {
+                "target_length": 10,
+                "strictness": 0.6,
+            },
+            "slidingwindow": {
+                "window_size": 4,
+                "required_quality": 15,
+            },
+            "trim_bases": {
+                "leading": 20,
+                "trailing": 20,
+                "crop": 40,
+                "headcrop": 3,
+            },
+            "reads_filtering": {
+                "minlen": 22,
+                "average_quality": 10,
+            },
         }
         filtered_reads = self.run_processor("trimmomatic-single", inputs)
 
@@ -117,8 +131,12 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "down_primers_seq": ["AGCACCT"],
                 "up_primers_seq": ["AGCTAAA"],
             },
-            "modify_reads": {"nextseq_trim": 5,},
-            "filtering": {"minlen": 10,},
+            "modify_reads": {
+                "nextseq_trim": 5,
+            },
+            "filtering": {
+                "minlen": 10,
+            },
         }
 
         cutadapt_single = self.run_process("cutadapt-single", inputs)
@@ -137,7 +155,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "down_primers_file": primers_down.id,
                 "up_primers_file": primers_up.id,
             },
-            "filtering": {"minlen": 10,},
+            "filtering": {
+                "minlen": 10,
+            },
         }
 
         cutadapt_single = self.run_process("cutadapt-single", inputs)
@@ -167,7 +187,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "mate1_5prime_seq": ["AGCTAAA"],
                 "mate2_5prime_seq": ["AGCTAAA"],
             },
-            "filtering": {"minlen": 10,},
+            "filtering": {
+                "minlen": 10,
+            },
         }
 
         cutadapt_paired = self.run_process("cutadapt-paired", inputs)
@@ -194,7 +216,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "mate1_5prime_file": primers_up.id,
                 "mate2_5prime_file": primers_up.id,
             },
-            "filtering": {"minlen": 10,},
+            "filtering": {
+                "minlen": 10,
+            },
         }
 
         cutadapt_paired = self.run_process("cutadapt-paired", inputs)
@@ -336,7 +360,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         ]  # Non-deterministic output.
         report = {
             "file": "fastqc/bbduk test reads_preprocessed_fastqc/fastqc_report.html",
-            "refs": ["fastqc/bbduk test reads_preprocessed_fastqc",],
+            "refs": [
+                "fastqc/bbduk test reads_preprocessed_fastqc",
+            ],
         }
         self.assertFields(filtered_reads, "fastqc_url", [report])
 
@@ -363,7 +389,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         ]  # Non-deterministic output.
         report = {
             "file": "fastqc/rRNA forw_preprocessed_fastqc/fastqc_report.html",
-            "refs": ["fastqc/rRNA forw_preprocessed_fastqc",],
+            "refs": [
+                "fastqc/rRNA forw_preprocessed_fastqc",
+            ],
         }
         self.assertFields(filtered_reads, "fastqc_url", [report])
         del filtered_reads.output["fastqc_url2"][0][
@@ -371,7 +399,9 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         ]  # Non-deterministic output.
         report2 = {
             "file": "fastqc/rRNA_rew_preprocessed_fastqc/fastqc_report.html",
-            "refs": ["fastqc/rRNA_rew_preprocessed_fastqc",],
+            "refs": [
+                "fastqc/rRNA_rew_preprocessed_fastqc",
+            ],
         }
         self.assertFields(filtered_reads, "fastqc_url2", [report2])
 

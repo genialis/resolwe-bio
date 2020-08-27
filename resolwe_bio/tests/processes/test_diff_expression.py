@@ -66,7 +66,9 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "case": [expression_1.pk, expression_3.pk],
             "control": [expression_2.pk, expression_4.pk],
-            "filter": {"min_count_sum": 0,},
+            "filter": {
+                "min_count_sum": 0,
+            },
         }
 
         diff_exp = self.run_process("differentialexpression-deseq2", inputs)
@@ -110,8 +112,12 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "case": [case.pk,],
-            "control": [control.pk,],
+            "case": [
+                case.pk,
+            ],
+            "control": [
+                control.pk,
+            ],
         }
         deseq2 = self.run_process(
             "differentialexpression-deseq2", inputs, Data.STATUS_ERROR
@@ -136,21 +142,47 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
                 name="Upload nanostring expression data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:expression:nanostring:",
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 data_name="{{ src.file }}",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "exp", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
-                    {"name": "source", "type": "basic:string:",},
-                    {"name": "feature_type", "type": "basic:string:",},
+                    {
+                        "name": "exp",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "source",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "feature_type",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -166,22 +198,28 @@ re-save feature_type "gene"
             )
 
             exp_1 = self.run_process(
-                expression.slug, {"src": str(inputs / "exp_1_norm.txt.gz")},
+                expression.slug,
+                {"src": str(inputs / "exp_1_norm.txt.gz")},
             )
             exp_2 = self.run_process(
-                expression.slug, {"src": str(inputs / "exp_2_norm.txt.gz")},
+                expression.slug,
+                {"src": str(inputs / "exp_2_norm.txt.gz")},
             )
             exp_3 = self.run_process(
-                expression.slug, {"src": str(inputs / "exp_3_norm.txt.gz")},
+                expression.slug,
+                {"src": str(inputs / "exp_3_norm.txt.gz")},
             )
             exp_4 = self.run_process(
-                expression.slug, {"src": str(inputs / "exp_4_norm.txt.gz")},
+                expression.slug,
+                {"src": str(inputs / "exp_4_norm.txt.gz")},
             )
 
         inputs = {
             "case": [exp_1.id, exp_3.id],
             "control": [exp_2.id, exp_4.id],
-            "filter": {"min_count_sum": 0,},
+            "filter": {
+                "min_count_sum": 0,
+            },
         }
 
         diff_exp = self.run_process("differentialexpression-deseq2", inputs)
@@ -274,16 +312,30 @@ re-save feature_type "gene"
                 name="Upload shRNA expression files produced by shrna-quant.",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 data_name="shRNA expression ({{ reads|sample_name|default('?') }})",
                 # data_name="shRNA expression ({{ input_data | name | default('?') }})",
                 contributor=self.contributor,
                 type="data:expression:shrna2quant:",
-                input_schema=[{"name": "exp", "type": "basic:file:",}],
+                input_schema=[
+                    {
+                        "name": "exp",
+                        "type": "basic:file:",
+                    }
+                ],
                 output_schema=[
-                    {"name": "exp", "type": "basic:file:",},
+                    {
+                        "name": "exp",
+                        "type": "basic:file:",
+                    },
                     {"name": "rc", "type": "basic:file:"},
                     {"name": "exp_type", "type": "basic:string:"},
                     {"name": "source", "type": "basic:string:"},

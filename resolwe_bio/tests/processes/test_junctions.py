@@ -31,7 +31,11 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
             )
 
             star_sj = self.run_process(
-                "alignment-star", {"genome": star_index.id, "reads": reads.id,}
+                "alignment-star",
+                {
+                    "genome": star_index.id,
+                    "reads": reads.id,
+                },
             )
 
             bed_upload = self.run_process(
@@ -120,7 +124,10 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
 
             star_no_junctions = self.run_process(
                 "alignment-star",
-                {"genome": star_index_no_junctions.id, "reads": reads_no_junctions.id,},
+                {
+                    "genome": star_index_no_junctions.id,
+                    "reads": reads_no_junctions.id,
+                },
             )
 
             empty_bam_upload = self.run_process(

@@ -20,7 +20,8 @@ class BaseViewSetFiltersTest(TestCase):
         if status.is_success(response.status_code):
             self.assertEqual(len(response.data), len(expected))
             self.assertCountEqual(
-                [item.pk for item in expected], [item["id"] for item in response.data],
+                [item.pk for item in expected],
+                [item["id"] for item in response.data],
             )
         else:
             self.assertEqual(response.status_code, expected_status_code)
@@ -32,7 +33,11 @@ class TestDataViewSetFilters(BaseViewSetFiltersTest):
     def setUp(self):
         super().setUp()
 
-        self.viewset = DataViewSet.as_view(actions={"get": "list",})
+        self.viewset = DataViewSet.as_view(
+            actions={
+                "get": "list",
+            }
+        )
 
         self.proc = Process.objects.create(
             type="data:test:process",
@@ -53,7 +58,9 @@ class TestDataViewSetFilters(BaseViewSetFiltersTest):
         )
 
         self.descriptor_schema = DescriptorSchema.objects.create(
-            slug="test-schema", version="1.0.0", contributor=self.contributor,
+            slug="test-schema",
+            version="1.0.0",
+            contributor=self.contributor,
         )
 
         self.data = []
@@ -113,7 +120,11 @@ class TestEntityViewSetFilters(BaseViewSetFiltersTest):
     def setUp(self):
         super().setUp()
 
-        self.viewset = EntityViewSet.as_view(actions={"get": "list",})
+        self.viewset = EntityViewSet.as_view(
+            actions={
+                "get": "list",
+            }
+        )
 
         self.descriptor_schema = DescriptorSchema.objects.create(
             slug="sample",

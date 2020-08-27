@@ -112,7 +112,12 @@ class BioProcessTestCase(ProcessTestCase):
     ):
         """Prepare reference sequence FASTA."""
         return self.run_process(
-            "upload-fasta-nucl", {"src": fn, "species": species, "build": build,}
+            "upload-fasta-nucl",
+            {
+                "src": fn,
+                "species": species,
+                "build": build,
+            },
         )
 
     def prepare_expression(

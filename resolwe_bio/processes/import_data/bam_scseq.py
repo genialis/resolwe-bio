@@ -32,15 +32,24 @@ class ImportScBam(Process):
         """Input fields to process Import ScBam."""
 
         src = FileField(
-            description="A mapping file in BAM format.", label="Mapping (BAM)",
+            description="A mapping file in BAM format.",
+            label="Mapping (BAM)",
         )
         src2 = FileField(
             description="An index file of a BAM mapping file (ending with bam.bai).",
             label="BAM index (*.bam.bai file)",
         )
-        reads = DataField(data_type="screads:", label="Single cell fastq reads",)
-        species = StringField(label="Species", description="Species latin name.",)
-        build = StringField(label="Build",)
+        reads = DataField(
+            data_type="screads:",
+            label="Single cell fastq reads",
+        )
+        species = StringField(
+            label="Species",
+            description="Species latin name.",
+        )
+        build = StringField(
+            label="Build",
+        )
 
     class Output:
         """Output fields to process Import ScBam."""

@@ -115,7 +115,9 @@ class Migration(migrations.Migration):
 
     operations = [
         ResolweProcessRenameField(
-            process="upload-fasta-nucl", field="output.fasta", new_field="fastagz",
+            process="upload-fasta-nucl",
+            field="output.fasta",
+            new_field="fastagz",
         ),
         ResolweProcessAddField(
             process="upload-fasta-nucl",

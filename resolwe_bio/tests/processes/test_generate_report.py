@@ -27,7 +27,11 @@ class ReportProcessorTestCase(BioProcessTestCase):
         bam = self.run_process("upload-bam", bam_input)
         master_file = self.prepare_amplicon_master_file(mfile=mfile, pname=pname)
         coverage = self.run_process(
-            "coveragebed", {"alignment": bam.id, "master_file": master_file.id,}
+            "coveragebed",
+            {
+                "alignment": bam.id,
+                "master_file": master_file.id,
+            },
         )
 
         inputs = {"target_pcr_metrics": target_pcr, "target_coverage": target_cov}

@@ -87,7 +87,9 @@ class Feature(models.Model):
     def __str__(self):
         """Represent a feature instance as a string."""
         return "{source}: {feature_id} ({species})".format(
-            source=self.source, feature_id=self.feature_id, species=self.species,
+            source=self.source,
+            feature_id=self.feature_id,
+            species=self.species,
         )
 
 

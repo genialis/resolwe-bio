@@ -15,7 +15,9 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
             }
             reads = self.run_process("upload-fastq-paired", inputs)
             ref_seq = self.prepare_ref_seq(
-                fn="hs_b37_chr2_small.fasta.gz", species="Homo sapiens", build="b37",
+                fn="hs_b37_chr2_small.fasta.gz",
+                species="Homo sapiens",
+                build="b37",
             )
             bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
             master_file = self.prepare_amplicon_master_file()
@@ -47,7 +49,11 @@ class AmpliconProcessorTestCase(BioProcessTestCase):
             master_file = self.prepare_amplicon_master_file()
 
             coverage = self.run_process(
-                "coveragebed", {"alignment": bam.id, "master_file": master_file.id,}
+                "coveragebed",
+                {
+                    "alignment": bam.id,
+                    "master_file": master_file.id,
+                },
             )
 
             inputs = {

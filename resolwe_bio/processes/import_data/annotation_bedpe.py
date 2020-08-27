@@ -14,8 +14,16 @@ class ImportBEDPEFile(Process):
     category = "Import"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1",},},
-        "resources": {"cores": 1, "memory": 1024, "network": True,},
+        "executor": {
+            "docker": {
+                "image": "resolwebio/common:1.3.1",
+            },
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 1024,
+            "network": True,
+        },
     }
     scheduling_class = SchedulingClass.BATCH
 

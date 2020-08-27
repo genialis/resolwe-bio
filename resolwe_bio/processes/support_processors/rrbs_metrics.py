@@ -37,7 +37,9 @@ class CollectRrbsMetrics(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
-        "resources": {"memory": 32768,},
+        "resources": {
+            "memory": 32768,
+        },
     }
     data_name = '{{ bam|sample_name|default("?") }}'
 

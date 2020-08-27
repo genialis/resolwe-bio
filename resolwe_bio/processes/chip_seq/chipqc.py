@@ -42,14 +42,23 @@ class ChipQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/chipseq:4.1.2"}},
-        "resources": {"cores": 8, "memory": 16384,},
+        "resources": {
+            "cores": 8,
+            "memory": 16384,
+        },
     }
 
     class Input:
         """Input fields to process ChipQC."""
 
-        alignment = DataField(data_type="alignment:bam", label="Aligned reads",)
-        peaks = DataField(data_type="chipseq:callpeak", label="Called peaks",)
+        alignment = DataField(
+            data_type="alignment:bam",
+            label="Aligned reads",
+        )
+        peaks = DataField(
+            data_type="chipseq:callpeak",
+            label="Called peaks",
+        )
         blacklist = DataField(
             data_type="bed",
             label="Blacklist regions",
@@ -93,7 +102,10 @@ class ChipQC(Process):
                 default="1:300",
             )
 
-        advanced = GroupField(Advanced, label="Advanced parameters",)
+        advanced = GroupField(
+            Advanced,
+            label="Advanced parameters",
+        )
 
     class Output:
         """Output fields to process ChipQC."""

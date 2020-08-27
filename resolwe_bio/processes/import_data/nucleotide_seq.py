@@ -33,7 +33,11 @@ class ImportFastaNucleotide(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
-        "resources": {"cores": 2, "memory": 8192, "network": True,},
+        "resources": {
+            "cores": 2,
+            "memory": 8192,
+            "network": True,
+        },
     }
     data_name = '{{ src.file|default("?") }}'
 

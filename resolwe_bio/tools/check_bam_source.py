@@ -8,8 +8,14 @@ import sys
 GLOBIN_RRNA_DIR = "/opt/chrom_mappings/globin_rrna/"
 # These are files that contain names of globin RNA and rRNA sequences."
 GLOBIN_RRNA_FILES = {
-    "Homo sapiens": ["Homo_sapiens_rRNA.txt", "Homo_sapiens_globin_RNA.txt",],
-    "Mus musculus": ["Mus_musculus_rRNA.txt", "Mus_musculus_globin_RNA.txt",],
+    "Homo sapiens": [
+        "Homo_sapiens_rRNA.txt",
+        "Homo_sapiens_globin_RNA.txt",
+    ],
+    "Mus musculus": [
+        "Mus_musculus_rRNA.txt",
+        "Mus_musculus_globin_RNA.txt",
+    ],
     "Rattus norvegicus": [
         "Rattus_norvegicus_rRNA.txt",
         "Rattus_norvegicus_globin_RNA.txt",

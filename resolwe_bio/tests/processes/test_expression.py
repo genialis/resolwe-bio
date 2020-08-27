@@ -234,7 +234,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         mappability = self.run_process(
             "mappability-bcm",
-            {"genome": bowtie_index.id, "gff": annotation.id, "length": 50,},
+            {
+                "genome": bowtie_index.id,
+                "gff": annotation.id,
+                "length": 50,
+            },
         )
 
         self.assertFileExists(mappability, "mappability")
@@ -404,7 +408,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "build", "dd-05-2009")
 
         expression = self.run_process(
-            "htseq-count-raw", {"alignments": bam_paired.id, "gtf": annotation_hs.id,}
+            "htseq-count-raw",
+            {
+                "alignments": bam_paired.id,
+                "gtf": annotation_hs.id,
+            },
         )
         self.assertFile(
             expression, "rc", outputs / "htseq_raw_paired_rc.tab.gz", compression="gzip"
@@ -506,7 +514,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             annotation = self.prepare_annotation_gff()
 
             aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk,}
+                "alignment-hisat2",
+                {
+                    "genome": hisat2_index.pk,
+                    "reads": reads.pk,
+                },
             )
 
             mappa = self.run_process(
@@ -587,8 +599,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {"aligned_reads": bam_paired.id,},
-                "annotation": {"annotation": annotation_gtf.id,},
+                "alignment": {
+                    "aligned_reads": bam_paired.id,
+                },
+                "annotation": {
+                    "annotation": annotation_gtf.id,
+                },
             },
         )
         self.assertFile(
@@ -629,7 +645,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {"aligned_reads": bam_single.id,},
+                "alignment": {
+                    "aligned_reads": bam_single.id,
+                },
                 "annotation": {
                     "annotation": annotation_gff3.id,
                     "id_attribute": "Parent",
@@ -654,8 +672,12 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {"aligned_reads": bam_ucsc.id,},
-                "annotation": {"annotation": annotation_ucsc.id,},
+                "alignment": {
+                    "aligned_reads": bam_ucsc.id,
+                },
+                "annotation": {
+                    "annotation": annotation_ucsc.id,
+                },
             },
         )
         self.assertFile(
@@ -694,13 +716,19 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
             mappability = self.run_process(
                 "mappability-bcm",
-                {"genome": bowtie_index.id, "gff": annotation_gff.id, "length": 50,},
+                {
+                    "genome": bowtie_index.id,
+                    "gff": annotation_gff.id,
+                    "length": 50,
+                },
             )
 
         feature_counts = self.run_process(
             "feature_counts",
             {
-                "alignment": {"aligned_reads": aligned_reads.id,},
+                "alignment": {
+                    "aligned_reads": aligned_reads.id,
+                },
                 "annotation": {
                     "annotation": annotation.id,
                     "id_attribute": "transcript_id",
@@ -861,7 +889,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                     "assay_type": "auto",
                     "cdna_index": salmon_index.id,
                 },
-                "annotation": {"annotation": annotation.id,},
+                "annotation": {
+                    "annotation": annotation.id,
+                },
             },
         )
         self.assertFile(

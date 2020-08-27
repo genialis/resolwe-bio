@@ -19,7 +19,11 @@ class CoverageProcessorTestCase(BioProcessTestCase):
             master_file = self.prepare_amplicon_master_file()
 
         coverage = self.run_process(
-            "coveragebed", {"alignment": bam.id, "master_file": master_file.id,}
+            "coveragebed",
+            {
+                "alignment": bam.id,
+                "master_file": master_file.id,
+            },
         )
         self.assertFile(coverage, "cov_metrics", "56GSID_10k_covMetrics.txt")
         self.assertFile(coverage, "mean_cov", "56GSID_10k_ampmeancov.covd")

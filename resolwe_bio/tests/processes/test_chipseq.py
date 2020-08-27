@@ -131,7 +131,11 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             "case": case_1.id,
             "control": control_1.id,
             "promoter": promoters.id,
-            "settings": {"extsize": 298, "nomodel": True, "bedgraph": True,},
+            "settings": {
+                "extsize": 298,
+                "nomodel": True,
+                "bedgraph": True,
+            },
         }
         macs_sample1 = self.run_process("macs2-callpeak", inputs)
 
@@ -164,7 +168,9 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             "case": case_2.id,
             "control": control_2.id,
             "tagalign": True,
-            "settings": {"bedgraph": True,},
+            "settings": {
+                "bedgraph": True,
+            },
         }
         macs_sample2 = self.run_process("macs2-callpeak", inputs)
 
@@ -537,18 +543,38 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 name="Upload macs2 data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs2:",
                 entity_type="sample",
                 entity_descriptor_schema="sample",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "called_peaks", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "called_peaks",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -571,18 +597,38 @@ re-save build "hg19"
                 name="Upload macs14 data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs14:",
                 entity_type="sample",
                 entity_descriptor_schema="sample",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "peaks_bed", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "peaks_bed",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -602,7 +648,11 @@ re-save build "hg19"
             set_sample_name(macs14, "SRR5675976_chr17.bam")
 
         chipqc = self.run_process(
-            "chipqc", {"alignment": alignment.id, "peaks": macs2.id,}
+            "chipqc",
+            {
+                "alignment": alignment.id,
+                "peaks": macs2.id,
+            },
         )
         self.assertFileExists(chipqc, "ccplot")
         self.assertFileExists(chipqc, "coverage_histogram")
@@ -622,7 +672,11 @@ re-save build "hg19"
         self.assertFileExists(chipqc_annotation, "enrichment_heatmap")
 
         chipqc_macs14 = self.run_process(
-            "chipqc", {"alignment": alignment.id, "peaks": macs14.id,}
+            "chipqc",
+            {
+                "alignment": alignment.id,
+                "peaks": macs14.id,
+            },
         )
         self.assertFileExists(chipqc_macs14, "ccplot")
         self.assertFileExists(chipqc_macs14, "peak_profile")

@@ -69,7 +69,8 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterUniqueTogether(
-            name="feature", unique_together=set([("source", "feature_id", "species")]),
+            name="feature",
+            unique_together=set([("source", "feature_id", "species")]),
         ),
         migrations.AlterUniqueTogether(
             name="mapping",

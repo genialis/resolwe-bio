@@ -57,7 +57,10 @@ class WgsWorkflowTestCase(BioProcessTestCase):
                         "trailing": 3,
                         "minlen": 40,
                     },
-                    "align": {"m": True, "scoring": {"unpaired_p": 17},},
+                    "align": {
+                        "m": True,
+                        "scoring": {"unpaired_p": 17},
+                    },
                     "bqsr": {
                         "read_group": "-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1"
                     },

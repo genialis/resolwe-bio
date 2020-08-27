@@ -10,9 +10,17 @@ from resolwe_runtime_utils import warning
 
 MAPPINGS_DIR = "/opt/chrom_mappings/assets/"
 MAPPINGS_FILES = {
-    "Homo sapiens": ["GRCh38.p12_ensembl2UCSC.txt", "GRCh38.p12_NCBI2UCSC.txt",],
-    "Mus musculus": ["GRCm38.p6_ensembl2UCSC.txt", "GRCm38.p6_NCBI2UCSC.txt",],
-    "Rattus norvegicus": ["rn6_ensembl2UCSC.txt",],
+    "Homo sapiens": [
+        "GRCh38.p12_ensembl2UCSC.txt",
+        "GRCh38.p12_NCBI2UCSC.txt",
+    ],
+    "Mus musculus": [
+        "GRCm38.p6_ensembl2UCSC.txt",
+        "GRCm38.p6_NCBI2UCSC.txt",
+    ],
+    "Rattus norvegicus": [
+        "rn6_ensembl2UCSC.txt",
+    ],
 }
 
 

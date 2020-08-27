@@ -119,7 +119,9 @@ class TestReplicateGroupFilter(TestCase):
 
     def test_repl_groups_no_sample(self):
         p = Process.objects.create(
-            type="data:test:process", slug="test-process", contributor=self.contributor,
+            type="data:test:process",
+            slug="test-process",
+            contributor=self.contributor,
         )
 
         d = Data.objects.create(

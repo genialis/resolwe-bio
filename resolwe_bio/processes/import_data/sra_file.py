@@ -59,7 +59,11 @@ class ImportSra(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
-        "resources": {"cores": 1, "memory": 1024, "network": True,},
+        "resources": {
+            "cores": 1,
+            "memory": 1024,
+            "network": True,
+        },
     }
     data_name = "{{ sra_accession|first }}"
 
@@ -146,7 +150,11 @@ class ImportSraSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
-        "resources": {"cores": 1, "memory": 1024, "network": True,},
+        "resources": {
+            "cores": 1,
+            "memory": 1024,
+            "network": True,
+        },
     }
     data_name = "{{ sra_accession|first }}"
 
@@ -176,7 +184,10 @@ class ImportSraSingle(Process):
         """Output fields to process ImportSraSingle."""
 
         fastq = ListField(FileField(), label="Reads file")
-        fastqc_url = ListField(FileHtmlField(), label="Quality control with FastQC",)
+        fastqc_url = ListField(
+            FileHtmlField(),
+            label="Quality control with FastQC",
+        )
         fastqc_archive = ListField(FileField(), label="Download FastQC archive")
 
     def run(self, inputs, outputs):
@@ -290,7 +301,11 @@ class ImportSraPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {"docker": {"image": "resolwebio/common:1.5.0"}},
-        "resources": {"cores": 1, "memory": 1024, "network": True,},
+        "resources": {
+            "cores": 1,
+            "memory": 1024,
+            "network": True,
+        },
     }
     data_name = "{{ sra_accession|first }}"
 
@@ -322,10 +337,12 @@ class ImportSraPaired(Process):
         fastq = ListField(FileField(), label="Reads file (mate 1)")
         fastq2 = ListField(FileField(), label="Reads file (mate 2)")
         fastqc_url = ListField(
-            FileHtmlField(), label="Quality control with FastQC (mate 1)",
+            FileHtmlField(),
+            label="Quality control with FastQC (mate 1)",
         )
         fastqc_url2 = ListField(
-            FileHtmlField(), label="Quality control with FastQC (mate 2)",
+            FileHtmlField(),
+            label="Quality control with FastQC (mate 2)",
         )
         fastqc_archive = ListField(
             FileField(), label="Download FastQC archive (mate 1)"

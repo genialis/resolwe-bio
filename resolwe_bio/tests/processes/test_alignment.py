@@ -36,7 +36,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
         self.assertFile(
-            bowtie_index, "fai", output_folder / "genome.fasta.fai",
+            bowtie_index,
+            "fai",
+            output_folder / "genome.fasta.fai",
         )
         self.assertFields(bowtie_index, "species", "Dictyostelium discoideum")
         self.assertFields(bowtie_index, "build", "dd-05-2009")
@@ -224,16 +226,26 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
         star_index_wo_annot = self.run_process(
             "alignment-star-index",
-            {"ref_seq": star_index_fasta.id, "source": "ENSEMBL",},
+            {
+                "ref_seq": star_index_fasta.id,
+                "source": "ENSEMBL",
+            },
         )
 
         # test STAR alignment
         inputs = {
             "genome": star_index.id,
             "reads": reads.id,
-            "t_coordinates": {"quantmode": True, "gene_counts": True,},
-            "two_pass_mapping": {"two_pass_mode": True,},
-            "detect_chimeric": {"chimeric": True,},
+            "t_coordinates": {
+                "quantmode": True,
+                "gene_counts": True,
+            },
+            "two_pass_mapping": {
+                "two_pass_mode": True,
+            },
+            "detect_chimeric": {
+                "chimeric": True,
+            },
         }
         aligned_reads = self.run_process("alignment-star", inputs)
         for data in Data.objects.all():
@@ -326,8 +338,13 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "genome": star_index.id,
             "reads": paired_reads.id,
-            "t_coordinates": {"quantmode": True, "gene_counts": True,},
-            "two_pass_mapping": {"two_pass_mode": True,},
+            "t_coordinates": {
+                "quantmode": True,
+                "gene_counts": True,
+            },
+            "two_pass_mapping": {
+                "two_pass_mode": True,
+            },
             "star_sort": True,
         }
         aligned_reads = self.run_process("alignment-star", inputs)

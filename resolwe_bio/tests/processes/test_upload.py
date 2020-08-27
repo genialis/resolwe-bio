@@ -346,7 +346,10 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
         merged_lanes = self.run_process(
             "upload-fastq-single",
-            {"src": ["rRNA forw.fastq.gz", "rRNA_rew.fastq.gz"], "merge_lanes": True,},
+            {
+                "src": ["rRNA forw.fastq.gz", "rRNA_rew.fastq.gz"],
+                "merge_lanes": True,
+            },
         )
         self.assertFiles(
             merged_lanes,
@@ -614,7 +617,11 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
     def test_upload_vcf(self):
         vcf = self.run_process(
             "upload-variants-vcf",
-            {"src": "igv_human.lf.vcf", "species": "Homo sapiens", "build": "b37",},
+            {
+                "src": "igv_human.lf.vcf",
+                "species": "Homo sapiens",
+                "build": "b37",
+            },
         )
         self.assertFile(vcf, "vcf", "igv_human.lf.vcf.gz", compression="gzip")
         self.assertFileExists(vcf, "tbi")

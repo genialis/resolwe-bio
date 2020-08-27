@@ -105,8 +105,14 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             multiqc = self.run_process(
                 "multiqc",
                 {
-                    "data": [bam.id, reads.id,],
-                    "advanced": {"dirs": True, "config": True,},
+                    "data": [
+                        bam.id,
+                        reads.id,
+                    ],
+                    "advanced": {
+                        "dirs": True,
+                        "config": True,
+                    },
                 },
             )
 
@@ -149,8 +155,13 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "data": [expression_1.pk, expression_2.pk,],
-            "fields": ["exp_set",],
+            "data": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
+            "fields": [
+                "exp_set",
+            ],
         }
         self.run_process("archive-samples", inputs)
         # Structured zip files are not supported by assertFile. When implemented, add here
@@ -169,12 +180,29 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 data_name="Upload expression into exp output field",
                 entity_type="sample",
                 entity_descriptor_schema="sample",
-                input_schema=[{"name": "exp", "type": "basic:file:",}],
+                input_schema=[
+                    {
+                        "name": "exp",
+                        "type": "basic:file:",
+                    }
+                ],
                 output_schema=[
-                    {"name": "exp", "type": "basic:file:",},
-                    {"name": "exp_type", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
-                    {"name": "species", "type": "basic:string:",},
+                    {
+                        "name": "exp",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "exp_type",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -196,8 +224,13 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "data": [expression_1.pk, expression_2.pk,],
-            "fields": ["exp_set",],
+            "data": [
+                expression_1.pk,
+                expression_2.pk,
+            ],
+            "fields": [
+                "exp_set",
+            ],
         }
         self.run_process("archive-samples", inputs)
         # Structured zip files are not supported by assertFile. When implemented, add here
@@ -250,7 +283,11 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             inputs = {
                 "case": macs2_case_bam.id,
                 "control": macs2_control_bam.id,
-                "settings": {"extsize": 298, "nomodel": True, "bedgraph": True,},
+                "settings": {
+                    "extsize": 298,
+                    "nomodel": True,
+                    "bedgraph": True,
+                },
             }
             macs2_1 = self.run_process("macs2-callpeak", inputs)
             macs2_1.entity = reads_1.entity
@@ -405,15 +442,25 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             )
             star_index = self.run_process(
                 "alignment-star-index",
-                {"annotation": annotation.id, "ref_seq": genome_fasta.id,},
+                {
+                    "annotation": annotation.id,
+                    "ref_seq": genome_fasta.id,
+                },
             )
 
             star_alignment = self.run_process(
-                "alignment-star", {"genome": star_index.id, "reads": paired_reads.id,}
+                "alignment-star",
+                {
+                    "genome": star_index.id,
+                    "reads": paired_reads.id,
+                },
             )
 
             samtools_idxstats = self.run_process(
-                "samtools-idxstats", {"alignment": star_alignment.id,}
+                "samtools-idxstats",
+                {
+                    "alignment": star_alignment.id,
+                },
             )
 
             qorts_report = self.run_process(
@@ -421,7 +468,9 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 {
                     "alignment": star_alignment.id,
                     "annotation": annotation.id,
-                    "options": {"maxPhredScore": 42,},
+                    "options": {
+                        "maxPhredScore": 42,
+                    },
                 },
             )
 
@@ -437,7 +486,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     samtools_idxstats.id,
                     qorts_report.id,
                 ],
-                "advanced": {"dirs": True, "config": True,},
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
             },
         )
         self.assertFileExists(multiqc, "report")
@@ -456,15 +508,31 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 name="Upload Alleyoop data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:alleyoop:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
-                output_schema=[{"name": "report", "type": "basic:file:",}],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
+                output_schema=[
+                    {
+                        "name": "report",
+                        "type": "basic:file:",
+                    }
+                ],
                 run={
                     "language": "bash",
                     "program": r"""
@@ -476,7 +544,9 @@ re-save-file report "${NAME}".txt
 
             summary = self.run_process(
                 process.slug,
-                {"src": os.path.join("slamseq", "output", "hs_alleyoop_summary.txt"),},
+                {
+                    "src": os.path.join("slamseq", "output", "hs_alleyoop_summary.txt"),
+                },
             )
             set_sample_name(summary, "Alleyoop summary")
 
@@ -503,8 +573,15 @@ re-save-file report "${NAME}".txt
         multiqc = self.run_process(
             "multiqc",
             {
-                "data": [summary.id, rates.id, utrrates.id,],
-                "advanced": {"dirs": True, "config": True,},
+                "data": [
+                    summary.id,
+                    rates.id,
+                    utrrates.id,
+                ],
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
             },
         )
         self.assertFileExists(multiqc, "report")
@@ -523,15 +600,31 @@ re-save-file report "${NAME}".txt
                 name="Upload bsrate data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:wgbs:bsrate:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
-                output_schema=[{"name": "report", "type": "basic:file:",}],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
+                output_schema=[
+                    {
+                        "name": "report",
+                        "type": "basic:file:",
+                    }
+                ],
                 run={
                     "language": "bash",
                     "program": r"""
@@ -553,7 +646,15 @@ re-save-file report "${NAME}".txt
 
         multiqc = self.run_process(
             "multiqc",
-            {"data": [bsrate.id,], "advanced": {"dirs": True, "config": True,}},
+            {
+                "data": [
+                    bsrate.id,
+                ],
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
+            },
         )
         self.assertFileExists(multiqc, "report")
 
@@ -571,15 +672,31 @@ re-save-file report "${NAME}".txt
                 name="Upload walt data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:alignment:bam:walt:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
-                output_schema=[{"name": "duplicates_report", "type": "basic:file:",}],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
+                output_schema=[
+                    {
+                        "name": "duplicates_report",
+                        "type": "basic:file:",
+                    }
+                ],
                 run={
                     "language": "bash",
                     "program": r"""
@@ -589,12 +706,23 @@ re-save-file duplicates_report "${NAME}".txt
                 },
             )
 
-            walt = self.run_process(process.slug, {"src": "markdup_stats.txt"},)
+            walt = self.run_process(
+                process.slug,
+                {"src": "markdup_stats.txt"},
+            )
             set_sample_name(walt, "Walt markdup test")
 
         multiqc = self.run_process(
             "multiqc",
-            {"data": [walt.id,], "advanced": {"dirs": True, "config": True,}},
+            {
+                "data": [
+                    walt.id,
+                ],
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
+            },
         )
         self.assertFileExists(multiqc, "report")
 
@@ -612,20 +740,46 @@ re-save-file duplicates_report "${NAME}".txt
                 name="Upload chipqc data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:chipqc:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "ccplot", "type": "basic:file:",},
-                    {"name": "coverage_histogram", "type": "basic:file:",},
-                    {"name": "peak_profile", "type": "basic:file:",},
-                    {"name": "peaks_barplot", "type": "basic:file:",},
-                    {"name": "peaks_density_plot", "type": "basic:file:",},
+                    {
+                        "name": "ccplot",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "coverage_histogram",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "peak_profile",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "peaks_barplot",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "peaks_density_plot",
+                        "type": "basic:file:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -644,18 +798,38 @@ re-save-file peaks_density_plot "${NAME}".png
                 name="Upload Post-Peak QC mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs2:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "chip_qc", "type": "basic:file:",},
-                    {"name": "called_peaks", "type": "basic:file:",},
-                    {"name": "case_prepeak_qc", "type": "basic:file:",},
+                    {
+                        "name": "chip_qc",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "called_peaks",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "case_prepeak_qc",
+                        "type": "basic:file:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -670,7 +844,9 @@ re-save-file case_prepeak_qc "${NAME}".txt
 
             chipqc = self.run_process(
                 process.slug,
-                {"src": os.path.join("chipqc", "output", "PeakProfile_mqc.png"),},
+                {
+                    "src": os.path.join("chipqc", "output", "PeakProfile_mqc.png"),
+                },
             )
             set_sample_name(chipqc, "ChipQC test")
 
@@ -683,8 +859,14 @@ re-save-file case_prepeak_qc "${NAME}".txt
         multiqc = self.run_process(
             "multiqc",
             {
-                "data": [chipqc.id, postpeak_qc_report.id,],
-                "advanced": {"dirs": True, "config": True,},
+                "data": [
+                    chipqc.id,
+                    postpeak_qc_report.id,
+                ],
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
             },
         )
         self.assertFileExists(multiqc, "report")
@@ -703,20 +885,38 @@ re-save-file case_prepeak_qc "${NAME}".txt
                 name="Upload rcc data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 entity_type="sample",
                 entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:nanostring:rcc:",
                 input_schema=[
-                    {"name": "src", "type": "basic:file:",},
-                    {"name": "attr", "type": "basic:file:",},
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "attr",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "sample_qc", "type": "basic:file:",},
-                    {"name": "lane_attributes", "type": "basic:file:",},
+                    {
+                        "name": "sample_qc",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "lane_attributes",
+                        "type": "basic:file:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -731,19 +931,31 @@ re-save-file lane_attributes "${NAME}".txt
 
             rcc_1 = self.run_process(
                 process.slug,
-                {"src": "nanostring_qc.txt", "attr": "nanostring_lane_attr.txt",},
+                {
+                    "src": "nanostring_qc.txt",
+                    "attr": "nanostring_lane_attr.txt",
+                },
             )
             set_sample_name(rcc_1, "sample_1")
 
             rcc_2 = self.run_process(
                 process.slug,
-                {"src": "nanostring_qc_2.txt", "attr": "nanostring_lane_attr.txt",},
+                {
+                    "src": "nanostring_qc_2.txt",
+                    "attr": "nanostring_lane_attr.txt",
+                },
             )
             set_sample_name(rcc_2, "sample_with_NA")
 
         multiqc = self.run_process(
             "multiqc",
-            {"data": [rcc_1.id, rcc_2.id], "advanced": {"dirs": True, "config": True,}},
+            {
+                "data": [rcc_1.id, rcc_2.id],
+                "advanced": {
+                    "dirs": True,
+                    "config": True,
+                },
+            },
         )
         self.assertFileExists(multiqc, "report")
 
@@ -760,7 +972,13 @@ re-save-file lane_attributes "${NAME}".txt
                 ["hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"],
             )
 
-        inputs_single = {"reads": reads.id, "n_reads": 42, "advanced": {"seed": 42,}}
+        inputs_single = {
+            "reads": reads.id,
+            "n_reads": 42,
+            "advanced": {
+                "seed": 42,
+            },
+        }
 
         seqtk_single = self.run_process("seqtk-sample-single", inputs_single)
         self.assertFiles(
@@ -772,7 +990,10 @@ re-save-file lane_attributes "${NAME}".txt
 
         inputs_paired = {
             "reads": paired_reads.id,
-            "advanced": {"seed": 42, "fraction": 0.25,},
+            "advanced": {
+                "seed": 42,
+                "fraction": 0.25,
+            },
         }
 
         seqtk_paired = self.run_process("seqtk-sample-paired", inputs_paired)
@@ -838,7 +1059,9 @@ re-save-file lane_attributes "${NAME}".txt
 
         self.assertEqual(
             sirv_set3.process_warning,
-            ["All ERCC spike-ins have zero expression in sample Sample without ERCC",],
+            [
+                "All ERCC spike-ins have zero expression in sample Sample without ERCC",
+            ],
         )
 
         self.assertFilesExist(sirv_set3, "plots")
@@ -1001,7 +1224,11 @@ re-save-file lane_attributes "${NAME}".txt
 
         alignment_summary = self.run_process(
             "alignment-summary",
-            {"bam": bam.id, "genome": genome.id, "adapters": adapters.id,},
+            {
+                "bam": bam.id,
+                "genome": genome.id,
+                "adapters": adapters.id,
+            },
         )
 
         self.assertFile(
@@ -1095,11 +1322,16 @@ re-save-file lane_attributes "${NAME}".txt
             )
 
         rrbs_metrics = self.run_process(
-            "rrbs-metrics", {"bam": bam.id, "genome": genome.id,}
+            "rrbs-metrics",
+            {
+                "bam": bam.id,
+                "genome": genome.id,
+            },
         )
 
         self.assertFileExists(
-            rrbs_metrics, "report",
+            rrbs_metrics,
+            "report",
         )
 
     @tag_process("merge-fastq-single", "merge-fastq-paired")

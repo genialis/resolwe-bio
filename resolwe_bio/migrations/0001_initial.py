@@ -78,6 +78,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AlterUniqueTogether(
-            name="sample", unique_together=set([("slug", "version")]),
+            name="sample",
+            unique_together=set([("slug", "version")]),
         ),
     ]

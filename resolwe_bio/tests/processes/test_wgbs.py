@@ -86,16 +86,36 @@ class WgbsProcessorTestCase(BioProcessTestCase):
                 name="Upload WALT alignment file (.mr) mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:walt:",
-                input_schema=[{"name": "fc", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "fc",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "mr", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "mr",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -132,16 +152,36 @@ re-save build 'hg19'
                 name="Upload methcounts file (.meth) mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:wgbs:methcounts:",
-                input_schema=[{"name": "fc", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "fc",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "meth", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "meth",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -187,18 +227,36 @@ re-save build 'hg19'
                 name="Upload WALT alignment file (.mr) mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:walt:",
                 input_schema=[
-                    {"name": "fc", "type": "basic:file:",},
-                    {"name": "f", "type": "basic:file:",},
+                    {
+                        "name": "fc",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "f",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "mr", "type": "basic:file:",},
-                    {"name": "spikein_mr", "type": "basic:file:",},
+                    {
+                        "name": "mr",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "spikein_mr",
+                        "type": "basic:file:",
+                    },
                 ],
                 run={
                     "language": "bash",

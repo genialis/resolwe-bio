@@ -48,6 +48,9 @@ etcjson = '{"etc":%s}' % json.dumps(
 )
 print(etcjson)
 zipfile = gzip.GzipFile(
-    filename="", mode="wb", fileobj=open("etc.json.gz", "wb"), mtime=0,
+    filename="",
+    mode="wb",
+    fileobj=open("etc.json.gz", "wb"),
+    mtime=0,
 )
 zipfile.write(etcjson.encode("utf-8"))

@@ -14,6 +14,7 @@ class Migration(migrations.Migration):
 
     operations = [
         ResolweProcessChangeType(
-            process="alignment-star-index", new_type="data:index:star:",
+            process="alignment-star-index",
+            new_type="data:index:star:",
         ),
     ]

@@ -29,11 +29,15 @@ if __name__ == "__main__":
         )
         if image:
             ercc_imgs.append(
-                {"path": os.path.relpath(os.path.abspath(image), start=os.getcwd()),}
+                {
+                    "path": os.path.relpath(os.path.abspath(image), start=os.getcwd()),
+                }
             )
         else:
             ercc_imgs.append(
-                {"sample_name": sample_name,}
+                {
+                    "sample_name": sample_name,
+                }
             )
 
     content = {

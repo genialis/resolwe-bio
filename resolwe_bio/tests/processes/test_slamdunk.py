@@ -59,20 +59,44 @@ class SlamdunkProcessorTestCase(KBBioProcessTestCase):
                 name="Upload Slamdunk data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:slamdunk:",
                 input_schema=[
-                    {"name": "src", "type": "basic:file:",},
-                    {"name": "index", "type": "basic:file:",},
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "index",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "bam", "type": "basic:file:",},
-                    {"name": "bai", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "bam",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "bai",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -133,20 +157,44 @@ re-save build "Gencode 32"
                 name="Upload Slamdunk data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:slamdunk:",
                 input_schema=[
-                    {"name": "src", "type": "basic:file:",},
-                    {"name": "index", "type": "basic:file:",},
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "index",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "bam", "type": "basic:file:",},
-                    {"name": "bai", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "bam",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "bai",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -191,22 +239,52 @@ re-save build "Gencode 32"
                 name="Upload Slamdunk data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:slamdunk:",
                 input_schema=[
-                    {"name": "src", "type": "basic:file:",},
-                    {"name": "index", "type": "basic:file:",},
-                    {"name": "tsv", "type": "basic:file:",},
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "index",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "tsv",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "bam", "type": "basic:file:",},
-                    {"name": "bai", "type": "basic:file:",},
-                    {"name": "tcount", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "bam",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "bai",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "tcount",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -269,22 +347,52 @@ re-save build "Gencode 32"
                 name="Upload Slamdunk data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:slamdunk:",
                 input_schema=[
-                    {"name": "src", "type": "basic:file:",},
-                    {"name": "index", "type": "basic:file:",},
-                    {"name": "snp", "type": "basic:file:",},
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "index",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "snp",
+                        "type": "basic:file:",
+                    },
                 ],
                 output_schema=[
-                    {"name": "bam", "type": "basic:file:",},
-                    {"name": "bai", "type": "basic:file:",},
-                    {"name": "variants", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "bam",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "bai",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "variants",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -335,16 +443,36 @@ re-save build "Gencode 32"
                 name="Upload Slamdunk data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alignment:bam:slamdunk:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "tcount", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "tcount",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -363,7 +491,10 @@ re-save build "Gencode 32"
             )
 
         alleyoop_collapse = self.run_process(
-            "alleyoop-collapse", {"slamdunk": slamdunk.id,}
+            "alleyoop-collapse",
+            {
+                "slamdunk": slamdunk.id,
+            },
         )
         self.assertFile(
             alleyoop_collapse,
@@ -379,16 +510,36 @@ re-save build "Gencode 32"
                 name="Upload Slamdunk collapse data mock process",
                 requirements={
                     "expression-engine": "jinja",
-                    "resources": {"network": True,},
-                    "executor": {"docker": {"image": "resolwebio/base:ubuntu-18.04",},},
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "resolwebio/base:ubuntu-18.04",
+                        },
+                    },
                 },
                 contributor=self.contributor,
                 type="data:alleyoop:collapse:",
-                input_schema=[{"name": "src", "type": "basic:file:",},],
+                input_schema=[
+                    {
+                        "name": "src",
+                        "type": "basic:file:",
+                    },
+                ],
                 output_schema=[
-                    {"name": "tcount", "type": "basic:file:",},
-                    {"name": "species", "type": "basic:string:",},
-                    {"name": "build", "type": "basic:string:",},
+                    {
+                        "name": "tcount",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
                 ],
                 run={
                     "language": "bash",
@@ -406,7 +557,12 @@ re-save build "Gencode 32"
                 {"src": os.path.join("slamseq", "output", "collapsed_tcount.txt")},
             )
 
-        slam_count = self.run_process("slam-count", {"tcount": collapsed_input.id,})
+        slam_count = self.run_process(
+            "slam-count",
+            {
+                "tcount": collapsed_input.id,
+            },
+        )
         self.assertFile(
             slam_count,
             "exp",

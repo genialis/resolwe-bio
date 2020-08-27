@@ -26,7 +26,10 @@ def parse_expression_file(exp_file):
             compression="gzip",
             usecols=["Gene", "Expression"],
             index_col="Gene",
-            dtype={"Gene": str, "Expression": float,},
+            dtype={
+                "Gene": str,
+                "Expression": float,
+            },
             squeeze=True,
         )
         return expression.dropna()
@@ -49,7 +52,10 @@ def parse_mapability_file(mapability_file):
             sep="\t",
             usecols=["gene_id", "coverage"],
             index_col="gene_id",
-            dtype={"gene_id": str, "coverage": float,},
+            dtype={
+                "gene_id": str,
+                "coverage": float,
+            },
             squeeze=True,
         )
         return mappability.dropna()

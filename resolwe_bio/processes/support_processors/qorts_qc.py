@@ -31,8 +31,15 @@ class QortsQC(Process):
     name = "QoRTs QC"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.10.0",},},
-        "resources": {"cores": 1, "memory": 32768,},
+        "executor": {
+            "docker": {
+                "image": "resolwebio/rnaseq:4.10.0",
+            },
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 32768,
+        },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
     version = "1.4.1"
@@ -78,9 +85,15 @@ class QortsQC(Process):
                 hidden="options.stranded != 'auto'",
             )
 
-            maxPhredScore = IntegerField(label="Max Phred Score", required=False,)
+            maxPhredScore = IntegerField(
+                label="Max Phred Score",
+                required=False,
+            )
 
-            adjustPhredScore = IntegerField(label="Adjust Phred Score", required=False,)
+            adjustPhredScore = IntegerField(
+                label="Adjust Phred Score",
+                required=False,
+            )
 
         options = GroupField(Options, label="Options")
 

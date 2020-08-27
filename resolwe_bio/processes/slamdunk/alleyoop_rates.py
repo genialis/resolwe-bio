@@ -14,8 +14,13 @@ class AlleyoopRates(Process):
     name = "Alleyoop rates"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/slamdunk:1.0.0"},},
-        "resources": {"cores": 1, "memory": 16384,},
+        "executor": {
+            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 16384,
+        },
     }
     entity = {
         "type": "sample",

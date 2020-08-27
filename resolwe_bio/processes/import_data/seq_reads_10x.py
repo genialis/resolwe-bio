@@ -55,10 +55,12 @@ class ImportScRNA10x(Process):
         barcodes = ListField(FileField(), label="Barcodes")
         reads = ListField(FileField(), label="Reads")
         fastqc_url_barcodes = ListField(
-            FileHtmlField(), label="Quality control with FastQC (Barcodes)",
+            FileHtmlField(),
+            label="Quality control with FastQC (Barcodes)",
         )
         fastqc_url_reads = ListField(
-            FileHtmlField(), label="Quality control with FastQC (Reads)",
+            FileHtmlField(),
+            label="Quality control with FastQC (Reads)",
         )
 
     def run(self, inputs, outputs):

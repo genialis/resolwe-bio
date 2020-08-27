@@ -37,7 +37,9 @@ class SlamdunkWorkflowTestCase(KBBioProcessTestCase):
                 "reads": paired_reads.id,
                 "ref_seq": transcripts.id,
                 "regions": bedfile.id,
-                "options": {"read_length": 75,},
+                "options": {
+                    "read_length": 75,
+                },
             },
         )
 

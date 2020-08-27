@@ -12,7 +12,9 @@ class ImportProcessorTestCase(BioProcessTestCase):
         # single-end reads from Polyak RNA-seq demo dataset
         inputs = {
             "sra_accession": ["SRR1661332", "SRR1661333"],
-            "advanced": {"max_spot_id": 1,},
+            "advanced": {
+                "max_spot_id": 1,
+            },
         }
         self.run_process("import-sra", inputs)
         for data in Data.objects.all():
@@ -51,7 +53,9 @@ class ImportProcessorTestCase(BioProcessTestCase):
         # paired-end reads from Zoghbi RNA-seq demo dataset
         inputs = {
             "sra_accession": ["SRR2124780", "SRR2124781"],
-            "advanced": {"max_spot_id": 1,},
+            "advanced": {
+                "max_spot_id": 1,
+            },
         }
         self.run_process("import-sra", inputs)
         for data in Data.objects.all():

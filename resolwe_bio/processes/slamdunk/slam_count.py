@@ -14,7 +14,11 @@ def prepare_expressions(infile, rc_file, tpm_file):
         sep="\t",
         usecols=["gene_name", "length", "tcReadCount"],
         index_col="gene_name",
-        dtype={"gene_name": str, "length": int, "tcReadCount": int,},
+        dtype={
+            "gene_name": str,
+            "length": int,
+            "tcReadCount": int,
+        },
     )
     exp["rpk"] = exp.apply(lambda x: (x.tcReadCount * 1e3 / x.length), axis=1)
     rpk_sum = exp["rpk"].sum()
@@ -40,8 +44,14 @@ class SlamCount(Process):
     name = "Slam count"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/slamdunk:1.0.0"},},
-        "resources": {"cores": 1, "memory": 4096, "network": True,},
+        "executor": {
+            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 4096,
+            "network": True,
+        },
     }
     category = "Slamdunk"
     entity = {
@@ -57,7 +67,10 @@ class SlamCount(Process):
         source = StringField(
             label="Gene ID source",
             default="ENSEMBL",
-            choices=[("ENSEMBL", "ENSEMBL"), ("UCSC", "UCSC"),],
+            choices=[
+                ("ENSEMBL", "ENSEMBL"),
+                ("UCSC", "UCSC"),
+            ],
         )
 
     class Output:

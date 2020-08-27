@@ -183,7 +183,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -200,7 +202,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -324,7 +328,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -342,7 +348,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -451,7 +459,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -468,7 +478,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -478,8 +490,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 "adapters": [adapters.id],
                 "custom_adapter_sequences": ["ACTGACTGACTG", "AAACCCTTT"],
             },
-            "alignment": {"genome": star_index.id,},
-            "quantification": {"annotation": annotation.id,},
+            "alignment": {
+                "genome": star_index.id,
+            },
+            "quantification": {
+                "annotation": annotation.id,
+            },
             "qc": {
                 "rrna_reference": rrna_star_index.id,
                 "globin_reference": globin_star_index.id,
@@ -802,7 +818,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
             star_index = self.run_process(
                 "alignment-star-index",
-                {"annotation": annotation.id, "ref_seq": star_index_fasta.id,},
+                {
+                    "annotation": annotation.id,
+                    "ref_seq": star_index_fasta.id,
+                },
             )
 
             rrna_reference = self.run_process(
@@ -819,7 +838,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -837,7 +858,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -918,7 +941,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
             star_index = self.run_process(
                 "alignment-star-index",
-                {"annotation": annotation.id, "ref_seq": star_index_fasta.id,},
+                {
+                    "annotation": annotation.id,
+                    "ref_seq": star_index_fasta.id,
+                },
             )
             cdna = self.run_process(
                 "upload-fasta-nucl",
@@ -951,7 +977,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
             globin_reference = self.run_process(
@@ -967,7 +995,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
-                    "advanced": {"genomeSAindexNbases": 2,},
+                    "advanced": {
+                        "genomeSAindexNbases": 2,
+                    },
                 },
             )
 
@@ -978,8 +1008,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             "annotation": annotation.id,
             "rrna_reference": rrna_star_index.id,
             "globin_reference": globin_star_index.id,
-            "preprocessing": {"adapters": [adapters.id],},
-            "quantification": {"min_assigned_frag": 1,},
+            "preprocessing": {
+                "adapters": [adapters.id],
+            },
+            "quantification": {
+                "min_assigned_frag": 1,
+            },
         }
 
         self.run_process("workflow-bbduk-salmon-qc-single", inputs)
