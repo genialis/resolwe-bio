@@ -12,6 +12,7 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 24.x
 - **BACKWARD INCOMPATIBLE:** Include feature full names in full-text
   search
 - Support automatic species annotation in alignment processes:
