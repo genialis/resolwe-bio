@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-------
+- Add ``resolwebio/sra-tools`` Docker image
+
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 24.x

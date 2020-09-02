@@ -1,0 +1,8 @@
+# Required by sra-toolkit
+uuid-runtime
+libxml-libxml-perl
+libany-uri-escape-perl
+
+# Required by FastQC
+default-jre
+libfindbin-libs-perl
