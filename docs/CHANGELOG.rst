@@ -12,6 +12,8 @@ Unreleased
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Include feature full names in full-text
+  search
 - Support automatic species annotation in alignment processes:
   ``alignment-bowtie``, ``alignment-bowtie2``, ``alignment-bwa-mem``,
   ``alignment-bwa-sw``, ``alignment-bwa-aln``, ``alignment-hisat2``,

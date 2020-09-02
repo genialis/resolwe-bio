@@ -10,6 +10,9 @@ CREATE OR REPLACE FUNCTION generate_resolwe_bio_kb_feature_search(feature resolw
             -- Feature name.
             setweight(to_tsvector('simple', feature.name), 'A') ||
             setweight(edge_ngrams(feature.name), 'B') ||
+            -- Feature full name.
+            setweight(to_tsvector('simple', feature.full_name), 'A') ||
+            setweight(edge_ngrams(feature.full_name), 'B') ||
             -- Feature id.
             setweight(to_tsvector('simple', feature.feature_id), 'A') ||
             setweight(edge_ngrams(feature.feature_id), 'B') ||
@@ -36,6 +39,8 @@ CREATE OR REPLACE FUNCTION resolwe_bio_kb_feature_biut()
         RETURN NEW;
     END;
     $$;
+
+DROP TRIGGER IF EXISTS resolwe_bio_kb_feature_biut ON resolwe_bio_kb_feature;
 
 CREATE TRIGGER resolwe_bio_kb_feature_biut
     BEFORE INSERT OR UPDATE
