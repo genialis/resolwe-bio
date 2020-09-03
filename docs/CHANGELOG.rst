@@ -13,7 +13,7 @@ Unreleased
 Added
 -------
 - Add ``resolwebio/sra-tools`` Docker image
-
+- Add ``resolwebio/orange`` Docker image
 
 Changed
 -------

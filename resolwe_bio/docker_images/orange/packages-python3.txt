@@ -1,0 +1,94 @@
+# Top-level packages.
+orange3==3.26.0 --hash=sha256:86b193d6a82a2f736adb1a47795482e93b4fa8130e7bf7198468014f2d93f27f
+
+# Required by Orange3.
+bottleneck==1.3.2 --hash=sha256:20179f0b66359792ea283b69aa16366419132f3b6cf3adadc0c48e2e8118e573
+baycomp==1.0.2 --hash=sha256:68eae1611a98be002b60246961ec20e3b798e02c757e0e0121755f1b62f444fb
+httpx==0.14.3 --hash=sha256:3f2aa21d927ac56bfabdb82d079cf5ddd5b3147130dedc5fe8fed3a24e7a8d34
+joblib==0.16.0 --hash=sha256:d348c5d4ae31496b2aa060d6d9b787864dd204f9480baaa52d18850cb43e9f49
+keyring== 21.4.0 --hash=sha256:4e34ea2fdec90c1c43d6610b5a5fafa1b9097db1802948e90caf5763974b8f8d
+keyrings.alt==3.4.0 --hash=sha256:1cfd6525594169fa427aa2cfc72b1853a1af93c18cb1da663c3792e53916e1a9
+networkx==2.5 --hash=sha256:8c5812e9f798d37c50570d15c4a69d5710a18d77bafc903ee9c5fba7454c616c
+openpyxl==3.0.5 --hash=sha256:f7d666b569f729257082cf7ddc56262431878f602dcc2bc3980775c59439cdab
+orange-canvas-core==0.1.15 --hash=sha256:3c3942bece03de4125a724c5179e99e4acf29f13543bac61f039e85dfb8c14f4
+orange-widget-base==4.7.0 --hash=sha256:bb1e090a5c9dd30d384d3a708e93a12a3980f4578af0553a1d0a5d8ddeee3dc0
+pandas==1.1.1 --hash=sha256:16ae070c47474008769fc443ac765ffd88c3506b4a82966e7a605592978896f9
+python-louvain==0.14 --hash=sha256:e0a50c7a1e87b45410cd2a1d6298268862e55edaa46f90ae6b834bbb62df0951
+pyyaml==5.3.1 --hash=sha256:b8eac752c5e14d3eca0e6dd9199cd627518cb5ec06add0de9d32baeee6fe645d
+serverfiles==0.3.0 --hash=sha256:ce38e1dc3518a16b2490f7b84b4ce829f2d6685596c1a3f0fdedbe06d13685ec
+xlrd==1.2.0 --hash=sha256:e551fb498759fa3a5384a94ccd4c3c02eb7c00ea424426e212ac0c57be9dfbde
+xlsxwriter==1.3.3 --hash=sha256:88ab71d464e8f6c3923335cc92d6035260aa9e7c8b27fcbb3a5bc07e2c671d22
+scikit-learn==0.23.2 --hash=sha256:daf276c465c38ef736a79bd79fc80a249f746bcbcae50c40945428f7ece074f8
+scipy==1.5.2 --hash=sha256:07e52b316b40a4f001667d1ad4eb5f2318738de34597bd91537851365b6c61f1
+openTSNE==0.4.4 --hash=sha256:22a44eb904605ddf4a8fff6e500e7c05a39513650b1dd271a39fc12ca9ddfe7f
+AnyQt==0.0.10 --hash=sha256:090e4c54cc68ddffef7b456c755833603d9b13cebc9ecd8ca51796c32e89a9ea
+docutils==0.16 --hash=sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af
+requests==2.24.0 --hash=sha256:fe75cc94a9443b9246fc7049224f75604b113c36acb93f87b80ed42c44cbb898
+chardet==3.0.4 --hash=sha256:84ab92ed1c4d4f16916e05906b6b75a6c0fb5db821cc65e70cbd64a3e2a5eaae
+matplotlib==3.3.1 --hash=sha256:1f9cf2b8500b833714a193cb24281153f5072d55b2e486009f1e81f0b7da3410
+numpy==1.19.1 --hash=sha256:cf1347450c0b7644ea142712619533553f02ef23f92f781312f6a3553d031fc7
+pyqtgraph==0.11.0 --hash=sha256:234d78f266d7c44d80e3bb735043e102d446842ef12e60f62f157f1fa5146411
+
+# Required by orange-canvas-core.
+cachecontrol[filecache]==0.12.6 --hash=sha256:10d056fa27f8563a271b345207402a6dcce8efab7e5b377e270329c62471b10d
+commonmark==0.9.1 --hash=sha256:da2f38c92590f83de410ba1a3cbceafbc74fee9def35f9251ba9a971d6d66fd9
+dictdiffer==0.8.1 --hash=sha256:d79d9a39e459fe33497c858470ca0d2e93cb96621751de06d631856adfd9c390
+
+# Requred by matplotlib.
+certifi==2020.6.20 --hash=sha256:8fc0819f1f30ba15bdb34cceffb9ef04d99f420f68eb75d901e9560b8749fc41
+cycler==0.10.0 --hash=sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d
+kiwisolver==1.2.0 --hash=sha256:fccefc0d36a38c57b7bd233a9b485e2f1eb71903ca7ad7adacad6c28a56d62d2
+pillow==7.2.0 --hash=sha256:0a80dd307a5d8440b0a08bd7b81617e04d870e40a3e46a32d9c246e54705e86f
+pyparsing==2.4.7 --hash=sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b
+python-dateutil==2.8.1 --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a
+
+# Required by pandas.
+pytz==2020.1 --hash=sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed
+
+# Required by scikit-learn.
+threadpoolctl==2.1.0 --hash=sha256:38b74ca20ff3bb42caca8b00055111d74159ee95c4370882bbff2b93d24da725
+
+# Required by networkx.
+decorator==4.4.2 --hash=sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760
+
+# Required by httpx.
+httpcore==0.10.2 --hash=sha256:afc1402fcaa6fca057bb3a9c6ccf6989a17bd0393b0cffbd778bac5fdd27446b
+rfc3986[idna2008]==1.4.0 --hash=sha256:af9147e9aceda37c91a05f4deb128d4b4b49d6b199775fd2d2927768abdc8f50
+sniffio==1.1.0 --hash=sha256:20ed6d5b46f8ae136d00b9dcb807615d83ed82ceea6b2058cecb696765246da5
+
+# Required by openpyxl.
+et-xmlfile==1.0.1 --hash=sha256:614d9722d572f6246302c4491846d2c393c199cfa4edc9af593437691683335b
+jdcal==1.4.1 --hash=sha256:1abf1305fce18b4e8aa248cf8fe0c56ce2032392bc64bbd61b5dff2a19ec8bba
+
+# Required by keyring.
+jeepney==0.4.3 --hash=sha256:d6c6b49683446d2407d2fe3acb7a368a77ff063f9182fe427da15d622adc24cf
+secretstorage==3.1.2 --hash=sha256:b5ec909dde94d4ae2fa26af7c089036997030f0cf0a5cb372b4cccabd81c143b
+importlib-metadata==1.7.0 --hash=sha256:dc15b2969b4ce36305c51eebe62d418ac7791e9a157911d58bfb1f9ccd8e2070
+
+# Required by cachecontrol.
+msgpack==1.0.0 --hash=sha256:25b3bc3190f3d9d965b818123b7752c5dfb953f0d774b454fd206c18fe384fb8
+lockfile==0.12.2 --hash=sha256:6c3cb24f344923d30b2785d5ad75182c8ea7ac1b6171b08657258ec7429d50fa
+
+# Required by python-dateutil.
+six==1.15.0 --hash=sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced
+
+# Required by sniffio.
+contextvars==2.4 --hash=sha256:f38c908aaa59c14335eeea12abea5f443646216c4e29380d7bf34d2018e2c39e
+
+# Required by httpcore.
+h11==0.9.0 --hash=sha256:4bc6d6a1238b7615b266ada57e0618568066f57dd6fa967d1290ec9309b2f2f1
+
+# Required by secretstorage.
+cryptography==3.1 --hash=sha256:725875681afe50b41aee7fdd629cedbc4720bab350142b12c55c0a4d17c7416c
+
+# Required by secretstorage.
+zipp==3.1.0 --hash=sha256:aa36550ff0c0b7ef7fa639055d797116ee891440eac1a56f378e2d3179e0320b
+
+# Required by contextvars.
+immutables==0.14 --hash=sha256:33ce2f977da7b5e0dddd93744862404bdb316ffe5853ec853e53141508fa2e6a
+
+# Required by cryptography.
+cffi==1.14.2 --hash=sha256:65867d63f0fd1b500fa343d7798fa64e9e681b594e0a07dc934c13e76ee28fb1
+
+# Required by cffi.
+pycparser==2.20 --hash=sha256:7582ad22678f0fcd81102833f60ef8d0e57288b6b5fb00323d101be910e35705
