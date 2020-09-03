@@ -14,6 +14,7 @@ Added
 -------
 - Add ``resolwebio/sra-tools`` Docker image
 - Add ``resolwebio/orange`` Docker image
+- Add ``upload-orange-metadata`` process
 
 Changed
 -------

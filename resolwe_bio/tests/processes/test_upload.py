@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
@@ -722,3 +723,78 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(bedpe, "bedpe", in_file)
         self.assertFields(bedpe, "species", species)
         self.assertFields(bedpe, "build", build)
+
+    @tag_process("upload-orange-metadata")
+    def test_upload_metadata(self):
+        base = Path("metadata_upload")
+        inputs = base / "inputs"
+
+        meta = self.run_process(
+            "upload-orange-metadata",
+            {
+                "src": str(inputs / "sample_metatable.tsv"),
+            },
+        )
+        self.assertFile(meta, "table", str(inputs / "sample_metatable.tsv"))
+        self.assertFields(meta, "n_samples", 8)
+        self.assertFields(meta, "features", "2 (12.5% missing values)")
+        self.assertFields(
+            meta, "target", "Regression; numerical class (12.5% missing values)"
+        )
+        self.assertFields(meta, "n_metas", 2)
+
+        meta_tab = self.run_process(
+            "upload-orange-metadata",
+            {
+                "src": str(inputs / "iris_legacy.TAB"),
+            },
+        )
+        self.assertFile(meta_tab, "table", str(inputs / "iris_legacy.TAB"))
+        self.assertFields(meta_tab, "n_samples", 6)
+        self.assertFields(meta_tab, "features", "4 (no missing values)")
+        self.assertFields(
+            meta_tab,
+            "target",
+            "Classification; categorical class with 3 values (no missing values)",
+        )
+        self.assertFields(meta_tab, "n_metas", 0)
+        info = ["File extension of the table was replaced with a lower case version."]
+        self.assertEqual(meta_tab.process_info, info)
+
+        meta_xlsx = self.run_process(
+            "upload-orange-metadata",
+            {
+                "src": str(inputs / "sample_metatable.xlsx"),
+            },
+        )
+        self.assertFile(meta_xlsx, "table", str(inputs / "sample_metatable.xlsx"))
+        self.assertFields(meta_xlsx, "n_samples", 8)
+        self.assertFields(meta_xlsx, "features", "2 (12.5% missing values)")
+        self.assertFields(
+            meta_xlsx, "target", "Regression; numerical class (12.5% missing values)"
+        )
+        self.assertFields(meta_xlsx, "n_metas", 2)
+
+        empty = self.run_process(
+            "upload-orange-metadata",
+            {
+                "src": str(inputs / "empty.tsv"),
+            },
+            Data.STATUS_ERROR,
+        )
+        error_msg = ["The uploaded table contains no samples."]
+        self.assertEqual(empty.process_error, error_msg)
+
+        malformed = self.run_process(
+            "upload-orange-metadata",
+            {
+                "src": str(inputs / "malformed.tsv"),
+            },
+            Data.STATUS_ERROR,
+        )
+        error_msg = [
+            "Orange is unable to read the provided data table. "
+            "Cannot parse dataset malformed.tsv: Non-continuous value "
+            "in (1-based) line 4, column 3"
+        ]
+        self.assertEqual(malformed.process_error, error_msg)
