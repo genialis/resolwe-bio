@@ -26,6 +26,8 @@ Changed
   ``alignment-star``, ``walt``
 - Pin ``XML`` R package to ensure compatibility with R 3.6.3 in
   ``resolwebio/chipseq:4.1.3`` Docker image
+- Use ``resolwebio/sra-tools:1.0.0`` Docker image in processes
+  ``import-sra``, ``import-sra-single`` and ``import-sra-paired``
 
 Fixed
 -----

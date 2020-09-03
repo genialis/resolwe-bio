@@ -1,8 +1,5 @@
-#!/usr/bin/env python
-# XXX: Refactor to a comand line tool and remove pylint disable
+#!/usr/bin/env python3
 """Parse encoding type."""
-from __future__ import absolute_import, division, print_function
-
 import argparse
 
 parser = argparse.ArgumentParser(description="Parse encoding type.")
