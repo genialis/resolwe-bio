@@ -1,4 +1,8 @@
-from resolwe.flow.models import Data, Entity
+from pathlib import Path
+
+from guardian.shortcuts import assign_perm
+
+from resolwe.flow.models import Data, Entity, Relation, RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.utils.test import KBBioProcessTestCase
@@ -891,3 +895,413 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "gene_cluster_data.json.gz", clustering.output["cluster"]
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
+
+    fixtures = ["relationtypes.yaml"]
+
+    @with_resolwe_host
+    @tag_process("clustering-hierarchical-etc")
+    def test_etc_clustering(self):
+        base = Path("test_etc_clustering")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
+        with self.preparation_stage():
+            exp_1 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                name="expression",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_2 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h_2.txt.gz"),
+                name="expression 2",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_3 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_8h.txt.gz"),
+                name="expression 3",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_4 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_8h_2.txt.gz"),
+                name="expression 4",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_5 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_12h.txt.gz"),
+                name="expression 5",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_6 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_12h_2.txt.gz"),
+                name="expression 6",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            wrong_source = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                name="wrong source",
+                source="UCSC",
+                species="Homo sapiens",
+            )
+            wrong_species = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                name="wrong species",
+                source="dictybase",
+                species="Dictyostelium purpureum",
+            )
+            wrong_expression_type = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                f_type="FPKM",
+                name="wrong expression type",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            wrong_feature_type = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                feature_type="transcript",
+                name="wrong feature type",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_constant = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_constant_8h.txt.gz"),
+                name="expression constant",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            different_genes = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_different_genes.txt.gz"),
+                name="different genes",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_1_copy = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                name="same expression",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_2_part = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h_2_partial_match.txt.gz"),
+                name="Partially matching gene names",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+
+            rel_type_series = RelationType.objects.get(name="series")
+            relation = Relation.objects.create(
+                contributor=self.contributor,
+                collection=self.collection,
+                type=rel_type_series,
+                category="time-series",
+                unit=Relation.UNIT_HOUR,
+            )
+            assign_perm("view_relation", self.contributor, relation)
+
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_1.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_2.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_3.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_4.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_5.entity, label="12h", position=12
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_6.entity, label="12h", position=12
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=wrong_source.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=wrong_species.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation,
+                entity=wrong_expression_type.entity,
+                label="4h",
+                position=4,
+            )
+            RelationPartition.objects.create(
+                relation=relation,
+                entity=wrong_feature_type.entity,
+                label="4h",
+                position=4,
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_constant.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=different_genes.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_1_copy.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_2_part.entity, label="4h", position=4
+            )
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+        }
+        clustering = self.run_process("clustering-hierarchical-etc", inputs)
+        self.assertJSON(
+            clustering, clustering.output["cluster"], "", outputs / "clustering.json.gz"
+        )
+        self.assertEqual(len(clustering.process_warning), 0)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+            "genes": [
+                "DDB_G0271520",
+                "DDB_G0271524",
+                "DDB_G0279413",
+                "DDB_G0283907",
+                "DDB_G0290157",
+                "DDB_G0293524",
+            ],
+            "gene_species": "Dictyostelium discoideum",
+            "gene_source": "dictybase",
+            "distance": "pearson",
+            "linkage": "complete",
+        }
+        clustering = self.run_process("clustering-hierarchical-etc", inputs)
+        self.assertJSON(
+            clustering,
+            clustering.output["cluster"],
+            "",
+            outputs / "clustering_genes.json.gz",
+        )
+        self.assertEqual(len(clustering.process_warning), 0)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                wrong_source.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Input samples are of different Gene ID databases: UCSC and dictybase."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                wrong_species.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Input samples are of different Species: "
+            "Dictyostelium purpureum and Dictyostelium discoideum."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                wrong_expression_type.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = ["Input samples are of different Expression types: FPKM and TPM."]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                wrong_feature_type.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Input samples are of different Feature type: transcript and gene."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_3.pk,
+            ],
+            "genes": [
+                "DDB_G0271520",
+            ],
+            "gene_species": "Dictyostelium discoideum",
+            "gene_source": "dictybase",
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = ["At least two genes have to be selected."]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_3.pk,
+            ],
+            "genes": [
+                "DDB_G0271520",
+                "DDB_G0271524",
+            ],
+            "gene_species": "Wrong",
+            "gene_source": "dictybase",
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Selected genes must belong to the same species as "
+            "expression files. Instead genes belong to Wrong while "
+            "expressions belong to Dictyostelium discoideum."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_3.pk,
+            ],
+            "genes": [
+                "DDB_G0271520",
+                "DDB_G0271524",
+            ],
+            "gene_species": "Dictyostelium discoideum",
+            "gene_source": "wrong-source",
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Selected genes must be annotated by the same genome "
+            "database as expressions. Instead Gene IDs of genes are "
+            "from wrong-source and expressions have IDs from dictybase."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_constant.pk,
+            ],
+        }
+        clustering = self.run_process("clustering-hierarchical-etc", inputs)
+        warn_msg = [
+            "Genes not present in all of the selected samples are "
+            "excluded from the analysis. Excluded 1 "
+            "of them (DDB_G0293524).",
+            "3 genes (DDB_G0271520, DDB_G0271524, DDB_G0279413) have "
+            "constant expression across time points. Those genes are "
+            "excluded from the computation of hierarchical clustering "
+            "of genes.",
+        ]
+        self.assertEqual(clustering.process_warning, warn_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_1_copy.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "All genes have constant expression across time points. "
+            "Hierarchical clustering of genes cannot be computed."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [exp_1.pk, exp_2.pk],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "Only one time point was provided. At least two time "
+            "points are required to run hierarhical clustering."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_3.pk,
+            ],
+            "genes": [
+                "DDB_G0000000",
+                "DDB_G1111111",
+            ],
+            "gene_species": "Dictyostelium discoideum",
+            "gene_source": "dictybase",
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "At least two of the selected genes have to be present in "
+            "all samples to run hierarhical clustering. 0 found in all "
+            "samples."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                different_genes.pk,
+            ],
+        }
+        clustering = self.run_process(
+            "clustering-hierarchical-etc", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "At least two genes shared across all samples are required "
+            "to run hierarhical clustering. 0 found in all samples."
+        ]
+        self.assertEqual(clustering.process_error, error_msg)
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2_part.pk,
+                exp_3.pk,
+                exp_4.pk,
+            ],
+        }
+        clustering = self.run_process("clustering-hierarchical-etc", inputs)

@@ -22,6 +22,7 @@ Added
 - Add ``bedtools-bamtobed`` and ``scale-bigwig`` processes
 - Added BigWig timeout input parameter to ``alignment-bowtie2`` process
 - Add workflow ``workflow-cutnrun``
+- Add ``clustering-hierarchical-etc`` process
 
 Changed
 -------
