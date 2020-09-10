@@ -52,7 +52,7 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
@@ -76,6 +76,12 @@ class ImportSra(Process):
         class Advanced:
             """Advanced options."""
 
+            prefetch = BooleanField(label="Prefetch SRA file", default=True)
+            max_size_prefetch = StringField(
+                label="Maximum file size to download in KB",
+                default="20G",
+                description="A unit prefix can be used instead of a value in KB (e.g. 1024M or 1G).",
+            )
             min_spot_id = IntegerField(label="Minimum spot ID", required=False)
             max_spot_id = IntegerField(label="Maximum spot ID", required=False)
             min_read_len = IntegerField(label="Minimum read length", required=False)
@@ -110,6 +116,8 @@ class ImportSra(Process):
         process_inputs = {
             "sra_accession": inputs.sra_accession,
             "advanced": {
+                "prefetch": inputs.advanced.prefetch,
+                "max_size_prefetch": inputs.advanced.max_size_prefetch,
                 "clip": inputs.advanced.clip,
                 "aligned": inputs.advanced.aligned,
                 "unaligned": inputs.advanced.unaligned,
@@ -139,7 +147,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -167,6 +175,12 @@ class ImportSraSingle(Process):
         class Advanced:
             """Advanced options."""
 
+            prefetch = BooleanField(label="Prefetch SRA file", default=True)
+            max_size_prefetch = StringField(
+                label="Maximum file size to download in KB",
+                default="20G",
+                description="A unit prefix can be used instead of a value in KB (e.g. 1024M or 1G).",
+            )
             min_spot_id = IntegerField(label="Minimum spot ID", required=False)
             max_spot_id = IntegerField(label="Maximum spot ID", required=False)
             min_read_len = IntegerField(label="Minimum read length", required=False)
@@ -194,6 +208,15 @@ class ImportSraSingle(Process):
         """Run the analysis."""
         fastq_gz = []
         for srr in inputs.sra_accession:
+            if inputs.advanced.prefetch:
+                # prefetch the SRR bundle
+                return_code, _, _ = Cmd["prefetch"][
+                    "-p", "--max-size", inputs.advanced.max_size_prefetch, srr
+                ] & TEE(retcode=None)
+                if return_code:
+                    self.error(f"Prefetch of {srr} reads failed.")
+
+            # Convert the SRR bundle to FASTQ format
             cmd = Cmd["fastq-dump"]["--gzip"]
             if inputs.advanced.min_spot_id:
                 cmd = cmd["--minSpotId"][inputs.advanced.min_spot_id]
@@ -290,7 +313,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -318,6 +341,12 @@ class ImportSraPaired(Process):
         class Advanced:
             """Advanced options."""
 
+            prefetch = BooleanField(label="Prefetch SRA file", default=True)
+            max_size_prefetch = StringField(
+                label="Maximum file size to download in KB",
+                default="20G",
+                description="A unit prefix can be used instead of a value in KB (e.g. 1024M or 1G).",
+            )
             min_spot_id = IntegerField(label="Minimum spot ID", required=False)
             max_spot_id = IntegerField(label="Maximum spot ID", required=False)
             min_read_len = IntegerField(label="Minimum read length", required=False)
@@ -361,6 +390,15 @@ class ImportSraPaired(Process):
         fastqc_url_2 = []
         fastqc_dir = Path("fastqc")
         for srr in inputs.sra_accession:
+            if inputs.advanced.prefetch:
+                # prefetch the SRR bundle
+                return_code, _, _ = Cmd["prefetch"][
+                    "-p", "--max-size", inputs.advanced.max_size_prefetch, srr
+                ] & TEE(retcode=None)
+                if return_code:
+                    self.error(f"Prefetch of {srr} reads failed.")
+
+            # Convert the SRR bundle to FASTQ format
             cmd = Cmd["fastq-dump"]["--gzip"]["--split-files"]
             if inputs.advanced.min_spot_id:
                 cmd = cmd["--minSpotId"][inputs.advanced.min_spot_id]

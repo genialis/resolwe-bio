@@ -10,11 +10,10 @@ class ImportProcessorTestCase(BioProcessTestCase):
     @tag_process("import-sra", "import-sra-single", "import-sra-paired")
     def external_test_sra(self):
         # single-end reads from Polyak RNA-seq demo dataset
+        # prefetch needs to be disabled in tests to avoid downloading the whole SRA file bundle
         inputs = {
             "sra_accession": ["SRR1661332", "SRR1661333"],
-            "advanced": {
-                "max_spot_id": 1,
-            },
+            "advanced": {"max_spot_id": 1, "prefetch": False},
         }
         self.run_process("import-sra", inputs)
         for data in Data.objects.all():
@@ -53,9 +52,7 @@ class ImportProcessorTestCase(BioProcessTestCase):
         # paired-end reads from Zoghbi RNA-seq demo dataset
         inputs = {
             "sra_accession": ["SRR2124780", "SRR2124781"],
-            "advanced": {
-                "max_spot_id": 1,
-            },
+            "advanced": {"max_spot_id": 1, "prefetch": False},
         }
         self.run_process("import-sra", inputs)
         for data in Data.objects.all():
@@ -114,7 +111,7 @@ class ImportProcessorTestCase(BioProcessTestCase):
         # test error messages
         sra = self.run_process(
             "import-sra-single",
-            {"sra_accession": ["non-existing SRR"]},
+            {"sra_accession": ["non-existing SRR"], "advanced": {"prefetch": False}},
             Data.STATUS_ERROR,
         )
         self.assertEqual(
@@ -123,7 +120,7 @@ class ImportProcessorTestCase(BioProcessTestCase):
         )
         sra = self.run_process(
             "import-sra-paired",
-            {"sra_accession": ["non-existing SRR"]},
+            {"sra_accession": ["non-existing SRR"], "advanced": {"prefetch": False}},
             Data.STATUS_ERROR,
         )
         self.assertEqual(
@@ -134,7 +131,10 @@ class ImportProcessorTestCase(BioProcessTestCase):
         # run on SRA samples of different types (single-end and paired-end)
         sra = self.run_process(
             "import-sra",
-            {"sra_accession": ["SRR1661332", "SRR2124781"]},
+            {
+                "sra_accession": ["SRR1661332", "SRR2124781"],
+                "advanced": {"prefetch": False},
+            },
             Data.STATUS_ERROR,
         )
         self.assertEqual(
