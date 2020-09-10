@@ -23,6 +23,7 @@ Added
 - Added BigWig timeout input parameter to ``alignment-bowtie2`` process
 - Add workflow ``workflow-cutnrun``
 - Add ``clustering-hierarchical-etc`` process
+- Add ``find-similar`` process
 
 Changed
 -------

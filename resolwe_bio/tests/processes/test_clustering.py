@@ -1305,3 +1305,133 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             ],
         }
         clustering = self.run_process("clustering-hierarchical-etc", inputs)
+
+    @with_resolwe_host
+    @tag_process("find-similar")
+    def test_find_similar(self):
+        inputs = Path("test_etc_clustering") / "inputs"
+        outputs = Path("find_similar") / "outputs"
+        with self.preparation_stage():
+            exp_1 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h.txt.gz"),
+                name="expression",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_2 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_4h_2.txt.gz"),
+                name="expression 2",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_3 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_8h.txt.gz"),
+                name="expression 3",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_4 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_8h_2.txt.gz"),
+                name="expression 4",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_5 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_12h.txt.gz"),
+                name="expression 5",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+            exp_6 = self.prepare_expression(
+                f_exp=str(inputs / "discoideum_12h_2.txt.gz"),
+                name="expression 6",
+                source="dictybase",
+                species="Dictyostelium discoideum",
+            )
+
+            rel_type_series = RelationType.objects.get(name="series")
+            relation = Relation.objects.create(
+                contributor=self.contributor,
+                collection=self.collection,
+                type=rel_type_series,
+                category="time-series",
+                unit=Relation.UNIT_HOUR,
+            )
+            assign_perm("view_relation", self.contributor, relation)
+
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_1.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_2.entity, label="4h", position=4
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_3.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_4.entity, label="8h", position=8
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_5.entity, label="12h", position=12
+            )
+            RelationPartition.objects.create(
+                relation=relation, entity=exp_6.entity, label="12h", position=12
+            )
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+            "gene": "DDB_G0283907",
+        }
+        similar = self.run_process("find-similar", inputs)
+        self.assertJSON(
+            similar,
+            similar.output["similar_genes"],
+            "",
+            outputs / "similar_genes.json.gz",
+        )
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+            "gene": "DDB_G0283907",
+            "distance": "pearson",
+        }
+        similar = self.run_process("find-similar", inputs)
+        self.assertJSON(
+            similar,
+            similar.output["similar_genes"],
+            "",
+            outputs / "similar_genes_pearson.json.gz",
+        )
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+            "gene": "WRONG",
+            "distance": "pearson",
+        }
+        similar = self.run_process("find-similar", inputs, Data.STATUS_ERROR)
+        error_msg = [
+            "Selected query gene was not found. Please make sure the "
+            "selected gene name can be found in all expression time "
+            "courses."
+        ]
+        self.assertEqual(similar.process_error, error_msg)
