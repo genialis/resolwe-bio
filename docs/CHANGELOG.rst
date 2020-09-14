@@ -5,6 +5,14 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Added
+-------
+- Added parameters ``--normalizeUsing`` and ``--smoothLength`` to
+  script ``bamtobigwig.sh`` to be used in ``bamCoverage`` program
 
 ==========
 Unreleased

@@ -8,6 +8,26 @@ number_of_cores="${3:-1}"
 tool="${4:-"deeptools"}"
 bin_size="${5:-50}"
 time_limit="${6:-480}"
+normalize="${7:-None}"  # bamCoverage argument, path to .bed file
+smooth="${8:-None}"  # bamCoverage argument, integer
+
+NAME=`basename "${bam_file}" .bam`
+
+params=(
+--binSize "${bin_size}"
+--bam "${bam_file}"
+--outFileName "tmp_${NAME}.bw"
+--outFileFormat "bigwig"
+--numberOfProcessors "${number_of_cores}"
+)
+
+if [[ ${normalize} != "None" && ${tool} == "deeptools" ]]
+then params+=(--normalizeUsing "${normalize}")
+fi
+
+if [[ ${smooth} != "None" && ${tool} == "deeptools" ]]
+then params+=(--smoothLength "${smooth}")
+fi
 
 BAM_SEQUENCES=`samtools view -c "${bam_file}"`
 if [ "${BAM_SEQUENCES}" == 0 ]; then
@@ -25,19 +45,12 @@ then
   exit 0
 fi
 
-NAME=`basename "${bam_file}" .bam`
-
 time=`python -c "import os; print(max(os.path.getsize('${bam_file}') / 1024**3, 1) * ${time_limit})"`
 
 if [ "${tool}" == "deeptools" ]
 then
   timeout "$((${time}/${number_of_cores}))" \
-    bamCoverage \
-      --binSize "${bin_size}" \
-      --bam "${bam_file}" \
-      --outFileName "tmp_${NAME}.bw" \
-      --outFileFormat "bigwig" \
-      --numberOfProcessors "${number_of_cores}"
+     bamCoverage "${params[@]}"
 
   exit_status="$?"
 
