@@ -6,6 +6,15 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-------
+- Added parameters ``--no-unal`` and ``--no-overlap`` to process
+  ``alignment-bowtie``
+
 ===================
 33.0.0 - 2020-09-14
 ===================

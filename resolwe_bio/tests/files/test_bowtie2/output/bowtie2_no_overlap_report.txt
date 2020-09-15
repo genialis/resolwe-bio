@@ -1,0 +1,5 @@
+Alignment	Pairs processed	Pairs aligned 0 times	Pairs aligned exactly 1 time	Pairs aligned >1 times	Pairs aligned discordantly	Overall alignment rate (%)
+Initial alignment	200	7	102	3	88	97.25
+Trimming iteration 1; 4 bases trimmed	95	4	12	0	79	96.84
+Trimming iteration 2; 8 bases trimmed	83	3	14	0	66	97.59
+Total	200	3	128	3	233	182.0

@@ -165,6 +165,28 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             paired_end_se_mode, "stats", output_folder / "bowtie2_use_SE_report.txt"
         )
 
+        inputs["PE_options"] = {"no_overlap": True}  # this overwrites use_se from above
+        paired_end_no_overlap = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(
+            paired_end_no_overlap,
+            "stats",
+            output_folder / "bowtie2_no_overlap_report.txt",
+        )
+
+        inputs["PE_options"]["no_overlap"] = False
+        inputs["output_opts"] = {"no_unal": True}
+        paired_end_no_unal = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(
+            paired_end_no_unal, "stats", output_folder / "bowtie2_no_unal_report.txt"
+        )
+
+        del inputs["output_opts"]
+        inputs["PE_options"]["dovetail"] = True
+        paired_end_dove = self.run_process("alignment-bowtie2", inputs)
+        self.assertFile(
+            paired_end_dove, "stats", output_folder / "bowtie2_paired_end_report.txt"
+        )
+
     @with_resolwe_host
     @tag_process("alignment-star-index", "alignment-star")
     def test_star(self):

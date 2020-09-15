@@ -313,7 +313,7 @@
       memory: 16384
       cores: 20
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.1.0
+  version: 2.2.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample
@@ -360,7 +360,6 @@
          --fast-local           -D 10 -R 2 -N 0 -L 22 -i S,1,1.75
          --sensitive-local      -D 15 -R 2 -N 0 -L 20 -i S,1,0.75 (default)
          --very-sensitive-local -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
-
       type: basic:string
       required: false
       choices:
@@ -372,6 +371,7 @@
           value: --sensitive
         - label: Very sensitive
           value: --very-sensitive
+
     - name: PE_options
       label: Paired end alignment options
       group:
@@ -405,6 +405,21 @@
           description: |
             The maximum fragment length for valid paired-end alignments.
           default: 500
+        - name: no_overlap
+          label: Not concordant when mates overlap
+          type: basic:boolean
+          default: false
+          description: |
+            When true, it is considered not concordant when mates overlap at all. Defaul is false.
+        - name: dovetail
+          label: Dovetail
+          type: basic:boolean
+          default: false
+          description: |
+            If the mates “dovetail”, that is if one mate alignment extends past the beginning of the other such that the
+            wrong mate begins upstream, consider that to be concordant. Default: mates cannot dovetail in a concordant
+            alignment.
+
     - name: alignment_options
       label: Alignment options
       group:
@@ -462,6 +477,7 @@
             good enough to report). This is a function of read length. For instance, specifying L,0,-0.6 sets the
             minimum-score function to f(x) = 0 + -0.6 * x, where x is the read length. The default in
             --end-to-end mode is L,-0.6,-0.6 and the default in --local mode is G,20,8.
+
     - name: start_trimming
       label: Initial trimming
       group:
@@ -492,6 +508,7 @@
           description: |
             Number of bases to trim from 3' end in each iteration.
           default: 2
+
     - name: reporting
       label: Reporting
       group:
@@ -516,6 +533,16 @@
           description: |
             Searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.          default: 5
           default: 5
+
+    - name: output_opts
+      label: Output options
+      group:
+        - name: no_unal
+          label: Suppress SAM records for unaligned reads
+          type: basic:boolean
+          default: false
+          description: |
+            When true, suppress SAM records for unaligned reads. Default is false.
   output:
     - name: bam
       label: Alignment file
@@ -625,6 +652,7 @@
           {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
           {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
           {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+          {% if output_opts.no_unal %} --no-unal {% endif %} \
           -x "${INDEX}" \
           -U "${fw_reads}" \
           -S "${FW_NAME}_align_unsorted.sam" \
@@ -653,6 +681,7 @@
               {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
               {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
               {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+              {% if output_opts.no_unal %} --no-unal {% endif %} \
               -U "${FW_NAME}_unmapped"{{ c }}".fq" \
               -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
               --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" 2>> "report.txt"
@@ -678,6 +707,7 @@
           --trim3 {{ start_trimming.trim_3 }} \
           {% if not PE_options.discordantly %} --no-discordant {% endif %} \
           {% if not PE_options.rep_se %} --no-mixed {% endif %} \
+          {% if PE_options.dovetail %} --dovetail {% endif %} \
           {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
           {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
           {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
@@ -686,8 +716,10 @@
           {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
           {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
           {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+          {% if output_opts.no_unal %} --no-unal {% endif %} \
           --minins {{ PE_options.minins }} \
           --maxins {{ PE_options.maxins }} \
+          {% if PE_options.no_overlap %} --no-overlap {% endif %} \
           -1 "${fw_reads}" \
           -2 "${rw_reads}" \
           -S "${FW_NAME}_align_unsorted.sam" \
@@ -709,6 +741,7 @@
               --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3 }} \
               {% if not PE_options.discordantly %} --no-discordant {% endif %} \
               {% if not PE_options.rep_se %} --no-mixed {% endif %} \
+              {% if PE_options.dovetail %} --dovetail {% endif %} \
               {% if alignment_options.N or alignment_options.N == 0 %} -N {{ alignment_options.N }} {% endif %} \
               {% if alignment_options.L or alignment_options.L == 0 %} -L {{ alignment_options.L }} {% endif %} \
               {% if alignment_options.gbar or alignment_options.gbar == 0 %} --gbar {{ alignment_options.gbar }} \
@@ -717,8 +750,10 @@
               {% if alignment_options.rdg %} --rdg {{ alignment_options.rdg }} {% endif %} \
               {% if alignment_options.rfg %} --rfg {{ alignment_options.rfg }} {% endif %} \
               {% if alignment_options.score_min %} --score-min {{ alignment_options.score_min }} {% endif %} \
+              {% if output_opts.no_unal %} --no-unal {% endif %} \
               --minins {{ PE_options.minins }} \
               --maxins {{ PE_options.maxins }} \
+              {% if PE_options.no_overlap %} --no-overlap {% endif %} \
               -1 "${FW_NAME}_unmapped"{{ c }}"_1.fq" \
               -2 "${FW_NAME}_unmapped"{{ c }}"_2.fq" \
               -S "${FW_NAME}_new_mapped"{{ c+1 }}".sam" \
