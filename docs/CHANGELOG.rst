@@ -23,6 +23,15 @@ Added
 - Added parameters ``--no-unal`` and ``--no-overlap`` to process
   ``alignment-bowtie``
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- Add format parameter to ``macs2-callpeak``
+
+
 ===================
 33.0.0 - 2020-09-14
 ===================

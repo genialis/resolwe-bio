@@ -118,6 +118,13 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             }
             control_2 = self.run_process("upload-bam", inputs)
 
+            inputs = {
+                "src": "macs2/input/paired_end_discodeum.bam",
+                "species": "Dictyostelium discoideum",
+                "build": "dd-05-2009",
+            }
+            paired_end = self.run_process("upload-bam", inputs)
+
             promoters = self.run_process(
                 "upload-bed",
                 {
@@ -194,6 +201,44 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         # Run "archive-samples" without QC reports
         inputs["fields"] = ["called_peaks"]
         self.run_process("archive-samples", inputs)
+
+        # Test BAMPE reads
+        inputs = {
+            "case": paired_end.id,
+            "settings": {
+                "format": "BAMPE",
+                "pvalue": 0.05,
+                "duplicates": "all",
+                "bedgraph": True,
+            },
+        }
+        macs_paired = self.run_process("macs2-callpeak", inputs)
+        self.assertFields(macs_paired, "species", "Dictyostelium discoideum")
+        self.assertFields(macs_paired, "build", "dd-05-2009")
+        self.assertFileExists(macs_paired, "chip_qc")
+        self.assertFileExists(macs_paired, "called_peaks")
+        self.assertFileExists(macs_paired, "narrow_peaks")
+        self.assertFileExists(macs_paired, "narrow_peaks_bigbed_igv_ucsc")
+        self.assertFileExists(macs_paired, "summits")
+        self.assertFileExists(macs_paired, "summits_tbi_jbrowse")
+        self.assertFileExists(macs_paired, "summits_bigbed_igv_ucsc")
+
+        inputs["settings"]["shift"] = 10
+        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
+        err_msg = [
+            "Shift values other than 0 are not supported when the format is BAMPE."
+        ]
+        self.assertEqual(macs_paired_err.process_error, err_msg)
+
+        inputs = {
+            "case": case_1.id,
+            "settings": {
+                "format": "BAMPE",
+            },
+        }
+        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
+        err_msg = ["No paired-end reads were detected but BAMPE format was selected."]
+        self.assertEqual(macs_paired_err.process_error, err_msg)
 
     @skipUnlessLargeFiles("rose2_case.bam", "rose2_control.bam")
     @tag_process("rose2")
