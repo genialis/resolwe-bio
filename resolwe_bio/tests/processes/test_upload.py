@@ -521,10 +521,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         inputs["src"] = "56G masterfile_dup_amplicon_names.txt.gz"
         master_file = self.run_process("upload-master-file", inputs, Data.STATUS_ERROR)
 
-        # Wrong file suffix
-        inputs["src"] = "amplicon_master_file_merged.bed"
-        master_file = self.run_process("upload-master-file", inputs, Data.STATUS_ERROR)
-
         # Check if primer sequences are allowed also in lowercase
         inputs["src"] = "56G masterfile_lowercase_bases.txt.gz"
         self.run_process("upload-master-file", inputs)
