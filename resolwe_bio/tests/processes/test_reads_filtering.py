@@ -569,3 +569,49 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 bqsr_tagerror.process_error[0],
                 "One or more read_group argument(s) improperly formatted.",
             )
+
+    @tag_process("alignmentsieve")
+    def test_alignmentsieve(self):
+        species = "Homo sapiens"
+        build = "custom_build"
+
+        with self.preparation_stage():
+            input_bam = {
+                "src": "./markduplicate/output/TP53.primerclipped.markduplicates.bam",
+                "species": species,
+                "build": build,
+            }
+            bam = self.run_process("upload-bam", input_bam)
+
+        params = {
+            "alignment": bam.id,
+            "max_fragment_length": 149,
+        }
+
+        max_filteredbam = self.run_process("alignmentsieve", params)
+        self.assertFile(
+            obj=max_filteredbam,
+            field_path="bam",
+            fn="./test_alignmentsieve/output/filtered_max_149.bam",
+        )
+        self.assertFile(
+            obj=max_filteredbam,
+            field_path="bigwig",
+            fn="./test_alignmentsieve/output/filtered_max_149.bw",
+        )
+
+        params = {
+            "alignment": bam.id,
+            "min_fragment_length": 150,
+        }
+        min_filteredbam = self.run_process("alignmentsieve", params)
+        self.assertFile(
+            min_filteredbam,
+            field_path="bam",
+            fn="./test_alignmentsieve/output/filtered_min_150.bam",
+        )
+        self.assertFile(
+            obj=min_filteredbam,
+            field_path="bigwig",
+            fn="./test_alignmentsieve/output/filtered_min_150.bw",
+        )

@@ -15,6 +15,8 @@ Added
   script ``bamtobigwig.sh`` to be used in ``bamCoverage`` program
 - Added parameters ``--no-unal`` and ``--no-overlap`` to process
   ``alignment-bowtie``
+- Add ``alignmentsieve`` process
+
 
 Changed
 -------
