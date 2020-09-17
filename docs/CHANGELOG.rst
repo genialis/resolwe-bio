@@ -13,19 +13,8 @@ Added
 -------
 - Added parameters ``--normalizeUsing`` and ``--smoothLength`` to
   script ``bamtobigwig.sh`` to be used in ``bamCoverage`` program
-
-==========
-Unreleased
-==========
-
-Added
--------
 - Added parameters ``--no-unal`` and ``--no-overlap`` to process
   ``alignment-bowtie``
-
-==========
-Unreleased
-==========
 
 Changed
 -------
