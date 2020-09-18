@@ -29,3 +29,4 @@ Included bioinformatics tools:
 * tximport (v1.12.3)
 * shRNAde (v1.0)
 * UMI-tools (v1.0.0)
+* Trim Galore (v0.6.6)

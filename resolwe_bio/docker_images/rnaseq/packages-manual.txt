@@ -11,3 +11,4 @@ rsem
 salmon
 star
 trimmomatic
+trimgalore

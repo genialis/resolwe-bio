@@ -16,7 +16,7 @@ Added
 - Added parameters ``--no-unal`` and ``--no-overlap`` to process
   ``alignment-bowtie``
 - Add ``alignmentsieve`` process
-
+- Add Trim Galore tool to ``resolwebio/rnaseq:4.12.0``
 
 Changed
 -------
