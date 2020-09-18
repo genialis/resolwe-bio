@@ -21,6 +21,7 @@ Added
 - Add ``trimgalore-paired`` process
 - Add ``bedtools-bamtobed`` and ``scale-bigwig`` processes
 - Added BigWig timeout input parameter to ``alignment-bowtie2`` process
+- Add workflow ``workflow-cutnrun``
 
 Changed
 -------

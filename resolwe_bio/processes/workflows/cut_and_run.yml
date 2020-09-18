@@ -1,0 +1,626 @@
+- slug: workflow-cutnrun
+  name: Cut & Run
+  data_name: "{{reads|sample_name|default('?')}}"
+  requirements:
+    expression-engine: jinja
+  version: 1.0.0
+  type: data:workflow:cutnrun
+  category: Pipeline
+  description: |
+    Analysis of samples processed for high resolution mapping of DNA binding sites using
+    targeted nuclease strategy. The process is named CUT&RUN which stands for
+    Cleavage Under Target and Release Using Nuclease. Workflow includes steps of
+    trimming the reads with trimgalore, aligning them using bowtie2 to target species
+    genome as well as a spike-in genome. Aligned reads are processed to produce
+    bigwig files to be viewed in a genome browser. Peaks are called using MACS2.
+    Fragmenting of reads is performed using alignmentSieve from
+    deeptools package.
+  input:
+    - name: reads
+      label: Input reads
+      type: data:reads:fastq:paired
+    - name: options_trimming
+      label: Trimming options (trimgalore)
+      group:
+        - name: quality_trim
+          label: Quality trimming
+          group:
+            - name: quality
+              label: Quality cutoff
+              type: basic:integer
+              required: false
+              description: |
+                Trim low-quality ends from reads based on Phred score.
+            - name: nextseq
+              label: NextSeq/NovaSeq trim cutoff
+              type: basic:integer
+              required: false
+              description: |
+                NextSeq/NovaSeq-specific quality trimming. Trims also dark cycles
+                appearing as high-quality G bases. This will set a specific quality
+                cutoff, but qualities of G bases are ignored. This can not be used
+                with Quality cutoff and will override it.
+            - name: phred
+              label: Phred score encoding
+              type: basic:string
+              description: |
+                Use either ASCII+33 quality scores as Phred scores (Sanger/Illumina 1
+                .9+ encoding) or ASCII+64 quality scores (Illumina 1.5 encoding) for
+                quality trimming.
+              default: --phred33
+              choices:
+                - label: ASCII+33
+                  value: --phred33
+                - label: ASCII+64
+                  value: --phred64
+            - name: min_length
+              label: Minimum length after trimming
+              type: basic:integer
+              default: 20
+              description: |
+                Discard reads that became shorter than selected length because of
+                either quality or adapter trimming. Both reads of a read-pair need to
+                be longer than specified length to be printed out to validated
+                paired-end files. If only one read became too short there is the
+                possibility of keeping such unpaired single-end reads with Retain
+                unpaired. A value of 0 disables filtering based on length.
+            - name: max_n
+              label: Maximum number of Ns
+              type: basic:integer
+              required: false
+              description: |
+                Read exceeding this limit will result in the entire pair being
+                removed from the trimmed output files.
+            - name: retain_unpaired
+              label: Retain unpaired reads after trimming
+              type: basic:boolean
+              default: false
+              description: |
+                If only one of the two paired-end reads "became too short, the longer
+                read will be written.
+            - name: unpaired_len_1
+              label: Unpaired read length cutoff of mate 1
+              type: basic:integer
+              default: 35
+              hidden: "!quality_trim.retain_unpaired"
+            - name: unpaired_len_2
+              label: Unpaired read length cutoff for mate 2
+              type: basic:integer
+              default: 35
+              hidden: "!quality_trim.retain_unpaired"
+            - name: clip_r1
+              label: Trim bases from 5' end of read 1
+              type: basic:integer
+              required: false
+              description:
+                This may be useful if the qualities were very poor, or if there is
+                some sort of unwanted bias at the 5' end.
+            - name: clip_r2
+              label: Trim bases from 5' end of read 2
+              type: basic:integer
+              required: false
+              description: |
+                This may be useful if the qualities were very poor, or if there is
+                some sort of unwanted bias at the 5' end. For paired-end bisulfite
+                sequencing, it is recommended to remove the first few bp because the
+                end-repair reaction may introduce a bias towards low methylation.
+            - name: three_prime_r1
+              label: Trim bases from 3' end of read 1
+              type: basic:integer
+              required: false
+              description: |
+                Remove bases from the 3' end of read 1 after adapter/quality trimming
+                has been performed. This may remove some unwanted bias from the 3'
+                end that is not directly related to adapter sequence or basecall
+                quality.
+            - name: three_prime_r2
+              label: Trim bases from 3' end of read 2
+              type: basic:integer
+              required: false
+              description: |
+                Remove bases from the 3' end of read 2 after adapter/quality trimming
+                has been performed. This may remove some unwanted bias from the 3'
+                end that is not directly related to adapter sequence or basecall
+                quality.
+        - name: adapter_trim
+          label: Adapter trimming
+          group:
+            - name: adapter
+              label: Read 1 adapter sequence
+              type: list:basic:string
+              required: false
+              description: |
+                Adapter sequences to be trimmed. Also see universal adapters field
+                for predefined adapters. This is mutually exclusive with read 1
+                adapters file and universal adapters.
+            - name: adapter_2
+              label: Read 2 adapter sequence
+              type: list:basic:string
+              required: false
+              description: |
+                Optional adapter sequence to be trimmed off read 2 of paired-end
+                files. This is mutually exclusive with read 2 adapters file and
+                universal adapters.
+            - name: adapter_file_1
+              label: Read 1 adapters file
+              type: data:seq:nucleotide
+              required: false
+              description: |
+                This is mutually exclusive with read 1 adapters and universal adapters.
+            - name: adapter_file_2
+              label: Read 2 adapters file
+              type: data:seq:nucleotide
+              required: false
+              description:
+                This is mutually exclusive with read 2 adapters and universal adapters.
+            - name: universal_adapter
+              label: Universal adapters
+              type: basic:string
+              required: false
+              description: |
+                Instead of default detection use specific adapters. Use 13bp of the
+                Illumina universal adapter, 12bp of the Nextera adapter or 12bp of
+                the Illumina Small RNA 3' Adapter. Selecting to trim smallRNA
+                adapters will also lower the length value to 18bp. If the smallRNA
+                libraries are paired-end then read 2 adapter will be set to the
+                Illumina small RNA 5' adapter automatically (GATCGTCGGACT) unless
+                defined explicitly. This is mutually exclusive with manually defined
+                adapters and adapter files.
+              choices:
+                - label: Illumina
+                  value: --illumina
+                - label: Nextera
+                  value: --nextera
+                - label: Illumina small RNA
+                  value: --small_rna
+            - name: stringency
+              label: Overlap with adapter sequence required to trim
+              type: basic:integer
+              default: 1
+              description: |
+                Defaults to a very stringent setting of 1, i.e. even a single base
+                pair of overlapping sequence will be trimmed of the 3' end of any read.
+            - name: error_rate
+              label: Maximum allowed error rate
+              type: basic:decimal
+              default: 0.1
+              description: |
+                Number of errors divided by the length of the matching region.
+                Default value of 0.1.
+        - name: hard_trim
+          label: Hard trimming
+          group:
+            - name: trim_5
+              label: Hard trim sequence from 3' end
+              type: basic:integer
+              required: false
+              description: |
+                Instead of performing adapter-/quality trimming, this option will
+                simply hard-trim sequences to bp from the 3' end. This is
+                incompatible with other hard trimming options.
+            - name: trim_3
+              label: Hard trim sequences from 5' end
+              type: basic:integer
+              required: false
+              description: |
+                Instead of performing adapter-/quality trimming, this option will
+                simply hard-trim sequences to bp from the 5' end. This is
+                incompatible with other hard trimming options.
+
+    - name: options_aln_species
+      label: Species alignment options
+      group:
+        - name: genome
+          label: Species genome
+          type: data:index:bowtie2
+        - name: mode
+          label: Alignment mode
+          type: basic:string
+          default: "--local"
+          choices:
+            - label: end to end mode
+              value: "--end-to-end"
+            - label: local
+              value: "--local"
+          description: |
+            End to end: Bowtie 2 requires that the entire read align from one end to the
+            other, without any trimming (or "soft clipping") of characters from either
+            end.
+
+            Local: Bowtie 2 does not require that the entire read align from one end to
+            the other. Rather, some characters may be omitted ("soft clipped") from the
+            ends in order to achieve the greatest possible alignment score.
+        - name: speed
+          label: Speed vs. Sensitivity
+          type: basic:string
+          default: "--very-sensitive"
+          choices:
+            - label: Very fast
+              value: "--very-fast"
+            - label: Fast
+              value: "--fast"
+            - label: Sensitive
+              value: "--sensitive"
+            - label: Very sensitive
+              value: "--very-sensitive"
+          description: |
+            A quick setting for aligning fast or accurately. This option is a shortcut
+            for parameters as follows:
+
+            For --end-to-end:
+            --very-fast            -D 5 -R 1 -N 0 -L 22 -i S,0,2.50
+            --fast                 -D 10 -R 2 -N 0 -L 22 -i S,0,2.50
+            --sensitive            -D 15 -R 2 -N 0 -L 22 -i S,1,1.15 (default)
+            --very-sensitive       -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+
+            For --local:
+            --very-fast-local      -D 5 -R 1 -N 0 -L 25 -i S,1,2.00
+            --fast-local           -D 10 -R 2 -N 0 -L 22 -i S,1,1.75
+            --sensitive-local      -D 15 -R 2 -N 0 -L 20 -i S,1,0.75 (default)
+            --very-sensitive-local -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+        - name: discordantly
+          label: Report discordantly matched read
+          type: basic:boolean
+          default: true
+          description: |
+            If both mates have unique alignments, but the alignments do not match
+            paired-end expectations (orientation  and relative distance) then
+            alignment will be reported. Useful for detecting structural variations.
+        - name: rep_se
+          label: Report single ended
+          type: basic:boolean
+          default: true
+          description: |
+            If paired alignment can not be found Bowtie2 tries to find alignments for the
+            individual mates. Default is true (--no-mixed).
+        - name: minins
+          label: Minimal distance
+          type: basic:integer
+          description: |
+            The minimum fragment length (--minins) for valid paired-end alignments. Value
+            0 imposes no minimum.
+          default: 10
+        - name: maxins
+          label: Maximal distance
+          type: basic:integer
+          description: |
+            The maximum fragment length (--maxins) for valid paired-end alignments.
+          default: 700
+        - name: no_overlap
+          label: Not concordant when mates overlap
+          type: basic:boolean
+          default: false
+          description: |
+            When true, it is considered not concordant when mates overlap at all. Defaul
+            is true (--no-overlap).
+        - name: dovetail
+          label: Dovetail
+          type: basic:boolean
+          default: false
+          description: |
+            If the mates “dovetail”, that is if one mate alignment extends past the
+            beginning of the other such that the  wrong mate begins upstream, consider
+            that to be concordant. Default: mates cannot dovetail in a concordant
+            alignment. If true, parameter --dovetail is turned on.
+        - name: no_unal
+          label: Suppress SAM records for unaligned reads
+          type: basic:boolean
+          default: true
+          description: |
+            When true, suppress SAM records for unaligned reads. Default is true
+            (--no-unal).
+
+    - name: options_aln_spikein
+      label: Spike-in alignment options
+      group:
+        - name: genome
+          label: Spike-in genome
+          type: data:index:bowtie2
+        - name: mode
+          label: Alignment mode
+          type: basic:string
+          default: "--local"
+          choices:
+            - label: end to end mode
+              value: "--end-to-end"
+            - label: local
+              value: "--local"
+          description: |
+            End to end: Bowtie 2 requires that the entire read align from one end to
+            the other, without any trimming (or "soft clipping") of characters from
+            either end.
+
+            Local: Bowtie 2 does not require that the entire read align from one end to
+            the other. Rather, some characters may be omitted ("soft clipped") from the
+            ends in order to achieve the greatest possible alignment score.
+        - name: speed
+          label: Speed vs. Sensitivity
+          type: basic:string
+          default: --very-sensitive
+          choices:
+            - label: Very fast
+              value: "--very-fast"
+            - label: Fast
+              value: "--fast"
+            - label: Sensitive
+              value: "--sensitive"
+            - label: Very sensitive
+              value: "--very-sensitive"
+          description: |
+            A quick setting for aligning fast or accurately. This option is a shortcut
+            for parameters as follows:
+
+            For --end-to-end:
+            --very-fast            -D 5 -R 1 -N 0 -L 22 -i S,0,2.50
+            --fast                 -D 10 -R 2 -N 0 -L 22 -i S,0,2.50
+            --sensitive            -D 15 -R 2 -N 0 -L 22 -i S,1,1.15 (default)
+            --very-sensitive       -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+
+            For --local:
+            --very-fast-local      -D 5 -R 1 -N 0 -L 25 -i S,1,2.00
+            --fast-local           -D 10 -R 2 -N 0 -L 22 -i S,1,1.75
+            --sensitive-local      -D 15 -R 2 -N 0 -L 20 -i S,1,0.75 (default)
+            --very-sensitive-local -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+        - name: discordantly
+          label: Report discordantly matched read
+          type: basic:boolean
+          default: true
+          description: |
+            If both mates have unique alignments, but the alignments do not match
+            paired-end expectations (orientation and relative distance) then
+            alignment will be reported. Useful for detecting structural variations.
+        - name: rep_se
+          label: Report single ended
+          type: basic:boolean
+          default: true
+          description: |
+            If paired alignment can not be found Bowtie2 tries to find alignments for
+            the individual mates. Default is true (--no-mixed).
+        - name: minins
+          label: Minimal distance
+          type: basic:integer
+          description: |
+            The minimum fragment length (--minins) for valid paired-end alignments.
+            Value 0 imposes no minimum.
+          default: 10
+        - name: maxins
+          label: Maximal distance
+          type: basic:integer
+          description: |
+            The maximum fragment length (--maxins) for valid paired-end alignments.
+          default: 700
+        - name: no_overlap
+          label: Not concordant when mates overlap
+          type: basic:boolean
+          default: true
+          description: |
+            When true, it is considered not concordant when mates overlap at all.
+            Defaul is true (--no-overlap).
+        - name: dovetail
+          label: Dovetail
+          type: basic:boolean
+          default: false
+          description: |
+            If the mates “dovetail”, that is if one mate alignment extends past the
+            beginning of the other such that the wrong mate begins upstream, consider
+            that to be concordant. Default: mates cannot dovetail in a concordant
+            alignment. If true, parameter --dovetail is turned on.
+        - name: no_unal
+          label: Suppress SAM records for unaligned reads
+          type: basic:boolean
+          default: true
+          description: |
+            When true, suppress SAM records for unaligned reads. Default is true
+            (--no-unal).
+
+    - name: options_pc
+      label: Peak calling options
+      group:
+        - name: format
+          label: Format of tag file
+          type: basic:string
+          required: false
+          choices:
+            - label: BAM
+              value: "BAM"
+            - label: BAMPE
+              value: "BAMPE"
+          default: "BAMPE"
+          description: |
+            This specifies the format of input files. For paired-end data the format
+            dicates how MACS2 will treat mates. If the selected format is BAM, MACS2
+            will only keep the left mate  (5' end) tag. However, when format BAMPE is
+            selected, MACS2 will use actual insert sizes of pairs of reads to build
+            fragment pileup, instead of building bimodal distribution plus and minus
+            strand reads to predict fragment size.
+        - name: pvalue
+          label: P-value cutoff
+          type: basic:decimal
+          required: false
+          description: |
+            The p-value cutoff.
+          default: 0.001
+        - name: duplicates
+          label: Number of duplicates
+          type: basic:string
+          default: "all"
+          choices:
+            - label: "1"
+              value: "1"
+            - label: "auto"
+              value: "auto"
+            - label: "all"
+              value: "all"
+          description: |
+            It controls the MACS behavior towards duplicate tags at the exact same
+            location -- the same coordination and the same strand. The 'auto' option
+            makes MACS calculate the maximum tags at the exact same location based on
+            binomal distribution using 1e-5 as pvalue cutoff and the 'all' option
+            keeps all the tags. If an integer is given, at most this number of tags
+            will be kept at the same location. The default is to keep one tag at the
+            same location.
+        - name: bedgraph
+          label: Save fragment pileup and control lambda
+          type: basic:boolean
+          default: true
+          description: |
+            If this flag is on, MACS will store the fragment pileup, control lambda,
+            -log10(pvalue) and -log10(qvalue) scores in bedGraph files. The bedGraph
+            files will be stored in current directory named NAME+'_treat_pileup.bdg'
+            for treatment data, NAME+'_control_lambda.bdg' for local lambda values
+            from control, NAME+'_treat_pvalue.bdg' for Poisson pvalue scores (in
+            -log10(pvalue) form), and NAME+'_treat_qvalue.bdg' for q-value scores
+            from Benjamini-Hochberg-Yekutieli procedure.
+
+    - name: options_sieve
+      label: Alignment sieve options
+      group:
+        - name: min_frag_length
+          label: Minimum fragment length
+          type: basic:integer
+          default: 0
+          description: |
+            The minimum fragment length needed for read/pair inclusion. This option
+            is primarily useful in ATACseq experiments, for filtering mono- or
+            di-nucleosome fragments. Default is 0.
+        - name: max_frag_length
+          label: Maximum fragment length
+          type: basic:integer
+          default: 0
+          description: |
+            The maximum fragment length needed for read/pair inclusion. A value of
+            0 indicates no limit. Default is 0.
+
+    - name: options_scale
+      label: BigWig scaling options
+      group:
+        - name: scale
+          label: Scale factor
+          type: basic:decimal
+          default: 10000
+          description: |
+            Magnitude of the scale factor. The scaling factor is calculated by
+            dividing the scale with the number of features in BEDPE (scale/(number of
+            features)).
+  run:
+    language: workflow
+    program:
+      - id: trim_trimgalore
+        run: trimgalore-paired
+        input:
+          reads: "{{input.reads}}"
+          quality_trim:
+            quality: "{{input.options_trimming.quality_trim.quality}}"
+            nextseq: "{{input.options_trimming.quality_trim.nextseq}}"
+            phred: "{{input.options_trimming.quality_trim.phred}}"
+            min_length: "{{input.options_trimming.quality_trim.min_length}}"
+            max_n: "{{input.options_trimming.quality_trim.max_n}}"
+            retain_unpaired: "{{input.options_trimming.quality_trim.retain_unpaired}}"
+            unpaired_len_1: "{{input.options_trimming.quality_trim.unpaired_len_1}}"
+            unpaired_len_2: "{{input.options_trimming.quality_trim.unpaired_len_2}}"
+            clip_r1: "{{input.options_trimming.quality_trim.clip_r1}}"
+            clip_r2: "{{input.options_trimming.quality_trim.clip_r2}}"
+            three_prime_r1: "{{input.options_trimming.quality_trim.three_prime_r1}}"
+            three_prime_r2: "{{input.options_trimming.quality_trim.three_prime_r2}}"
+          adapter_trim:
+            adapter: "{{input.options_trimming.adapter_trim.adapter}}"
+            adapter_2: "{{input.options_trimming.adapter_trim.adapter_2}}"
+            adapter_file_1: "{{input.options_trimming.adapter_trim.adapter_file_1}}"
+            adapter_file_2: "{{input.options_trimming.adapter_trim.adapter_file_2}}"
+            universal_adapter: "{{input.options_trimming.adapter_trim.universal_adapter}}"
+            stringency: "{{input.options_trimming.adapter_trim.stringency}}"
+            error_rate: "{{input.options_trimming.adapter_trim.error_rate}}"
+          hard_trim:
+            trim_5: "{{input.options_trimming.hard_trim.trim_5}}"
+            trim_3: "{{input.options_trimming.hard_trim.trim_3}}"
+      - id: species_align
+        run: alignment-bowtie2
+        input:
+          genome: "{{input.options_aln_species.genome}}"
+          reads: "{{steps.trim_trimgalore}}"
+          mode: "{{input.options_aln_species.mode}}"
+          speed: "{{input.options_aln_species.speed}}"
+          PE_options:
+            discordantly: "{{input.options_aln_species.discordantly}}"
+            rep_se: "{{input.options_aln_species.rep_se}}"
+            minins: "{{input.options_aln_species.minins}}"
+            maxins: "{{input.options_aln_species.maxins}}"
+            no_overlap: "{{input.options_aln_species.no_overlap}}"
+            dovetail: "{{input.options_aln_species.dovetail}}"
+          output_opts:
+            no_unal: "{{input.options_aln_species.no_unal}}"
+      - id: species_pc
+        run: macs2-callpeak
+        input:
+          case: "{{steps.species_align}}"
+          settings:
+            format: "{{input.options_pc.format}}"
+            pvalue: "{{input.options_pc.pvalue}}"
+            duplicates: "{{input.options_pc.duplicates}}"
+            bedgraph: "{{input.options_pc.bedgraph}}"
+      - id: species_align_frag
+        run: alignmentsieve
+        input:
+          alignment: "{{steps.species_align}}"
+          min_fragment_length: "{{input.options_sieve.min_frag_length}}"
+          max_fragment_length: "{{input.options_sieve.max_frag_length}}"
+      - id: species_align_frag_pc
+        run: macs2-callpeak
+        input:
+          case: "{{steps.species_align_frag}}"
+          settings:
+            format: "{{input.options_pc.format}}"
+            pvalue: "{{input.options_pc.pvalue}}"
+            duplicates: "{{input.options_pc.duplicates}}"
+            bedgraph: "{{input.options_pc.bedgraph}}"
+      - id: species_rmdup
+        run: markduplicates
+        input:
+          bam: "{{steps.species_align}}"
+          remove_duplicates: true
+      - id: species_rmdup_frag
+        run: alignmentsieve
+        input:
+          alignment: "{{steps.species_rmdup}}"
+          min_fragment_length: "{{input.options_sieve.min_frag_length}}"
+          max_fragment_length: "{{input.options_sieve.max_frag_length}}"
+      - id: species_rmdup_frag_pc
+        run: macs2-callpeak
+        input:
+          case: "{{steps.species_rmdup_frag}}"
+          settings:
+            format: "{{input.options_pc.format}}"
+            pvalue: "{{input.options_pc.pvalue}}"
+            duplicates: "{{input.options_pc.duplicates}}"
+            bedgraph: "{{input.options_pc.bedgraph}}"
+      - id: spikein_align
+        run: alignment-bowtie2
+        input:
+          genome: "{{input.options_aln_spikein.genome}}"
+          reads: "{{steps.trim_trimgalore}}"
+          mode: "{{input.options_aln_spikein.mode}}"
+          speed: "{{input.options_aln_spikein.speed}}"
+          PE_options:
+            discordantly: "{{input.options_aln_spikein.discordantly}}"
+            rep_se: "{{input.options_aln_spikein.rep_se}}"
+            minins: "{{input.options_aln_spikein.minins}}"
+            maxins: "{{input.options_aln_spikein.maxins}}"
+            no_overlap: "{{input.options_aln_spikein.no_overlap}}"
+            dovetail: "{{input.options_aln_spikein.dovetail}}"
+          output_opts:
+            no_unal: "{{input.options_aln_spikein.no_unal}}"
+      - id: spikein_rmdup
+        run: markduplicates
+        input:
+          bam: '{{steps.spikein_align}}'
+          remove_duplicates: true
+      - id: spikein_normfactor
+        run: bedtools-bamtobed
+        input:
+          alignment: "{{steps.spikein_rmdup}}"
+      - id: spikein_normalizebw
+        run: scale-bigwig
+        input:
+          alignment: "{{steps.spikein_rmdup}}"
+          bedpe: "{{steps.spikein_normfactor}}"
+          scale: "{{input.options_scale.scale}}"
