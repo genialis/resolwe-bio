@@ -615,3 +615,77 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             field_path="bigwig",
             fn="./test_alignmentsieve/output/filtered_min_150.bw",
         )
+
+    @tag_process("trimgalore-paired")
+    def test_trimgalore_paired(self):
+        with self.preparation_stage():
+            reads = self.prepare_paired_reads(
+                mate1=["cutadapt mate1.fastq.gz"], mate2=["cutadapt mate2.fastq.gz"]
+            )
+            adapters = self.prepare_ref_seq(
+                "trimgalore/inputs/illumina_universal_adapters.fasta.gz"
+            )
+
+        inputs = {
+            "reads": reads.id,
+            "adapter_trim": {
+                "universal_adapter": "--illumina",
+            },
+        }
+        trimgalore = self.run_process("trimgalore-paired", inputs)
+
+        self.assertFiles(
+            trimgalore,
+            "fastq",
+            ["trimgalore/outputs/mate1_trimmed.fastq.gz"],
+            compression="gzip",
+        )
+        self.assertFiles(
+            trimgalore,
+            "fastq2",
+            ["trimgalore/outputs/mate2_trimmed.fastq.gz"],
+            compression="gzip",
+        )
+        self.assertFileExists(trimgalore, "report")
+
+        inputs = {
+            "reads": reads.id,
+            "adapter_trim": {
+                "adapter": ["AGATCGGAAGAGC"],
+                "adapter_2": ["AGATCGGAAGAGC"],
+            },
+        }
+        trimgalore_adapters = self.run_process("trimgalore-paired", inputs)
+        self.assertFiles(
+            trimgalore_adapters,
+            "fastq",
+            ["trimgalore/outputs/mate1_trimmed.fastq.gz"],
+            compression="gzip",
+        )
+        self.assertFiles(
+            trimgalore_adapters,
+            "fastq2",
+            ["trimgalore/outputs/mate2_trimmed.fastq.gz"],
+            compression="gzip",
+        )
+
+        inputs = {
+            "reads": reads.id,
+            "adapter_trim": {
+                "adapter_file_1": adapters.id,
+                "adapter_file_2": adapters.id,
+            },
+        }
+        trimgalore_adapters = self.run_process("trimgalore-paired", inputs)
+        self.assertFiles(
+            trimgalore_adapters,
+            "fastq",
+            ["trimgalore/outputs/mate1_trimmed.fastq.gz"],
+            compression="gzip",
+        )
+        self.assertFiles(
+            trimgalore_adapters,
+            "fastq2",
+            ["trimgalore/outputs/mate2_trimmed.fastq.gz"],
+            compression="gzip",
+        )

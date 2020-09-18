@@ -5,6 +5,7 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+
 ==========
 Unreleased
 ==========
@@ -17,6 +18,7 @@ Added
   ``alignment-bowtie``
 - Add ``alignmentsieve`` process
 - Add Trim Galore tool to ``resolwebio/rnaseq:4.12.0``
+- Add ``trimgalore-paired`` process
 
 Changed
 -------
