@@ -1,10 +1,14 @@
 """Run EdgeR analysis."""
+from pathlib import Path
+
 from plumbum import TEE
 
 from resolwe.process import (
+    BooleanField,
     Cmd,
     DataField,
     FileField,
+    FloatField,
     IntegerField,
     JsonField,
     ListField,
@@ -33,7 +37,7 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -64,6 +68,25 @@ class EdgeR(Process):
             description="Filter genes in the expression matrix input. "
             "Remove genes where the number of counts in all samples is "
             "below the threshold.",
+        )
+        create_sets = BooleanField(
+            label="Create gene sets",
+            description="After calculating differential gene "
+            "expressions create gene sets for up-regulated genes, "
+            "down-regulated genes and all genes.",
+            default=False,
+        )
+        logfc = FloatField(
+            label="Log2 fold change threshold for gene sets",
+            description="Genes above Log2FC are considered as "
+            "up-regulated and genes below -Log2FC as down-regulated.",
+            default=1.0,
+            hidden="!create_sets",
+        )
+        fdr = FloatField(
+            label="FDR threshold for gene sets",
+            default=0.05,
+            hidden="!create_sets",
         )
 
     class Output:
@@ -199,3 +222,35 @@ class EdgeR(Process):
         outputs.species = expressions[0].species
         outputs.build = expressions[0].build
         outputs.feature_type = expressions[0].feature_type
+
+        if inputs.create_sets:
+            out_dir = "gene_sets"
+            gene_set_args = [
+                "--dge_file",
+                "de_file.tab.gz",
+                "--out_dir",
+                out_dir,
+                "--analysis_name",
+                self.name,
+                "--tool",
+                "EdgeR",
+                "--logfc",
+                inputs.logfc,
+                "--fdr",
+                inputs.fdr,
+            ]
+
+            return_code, _, _ = Cmd["create_gene_sets.py"][gene_set_args] & TEE(
+                retcode=None
+            )
+            if return_code:
+                self.error(f"Error while creating gene sets.")
+
+            for gene_file in sorted(Path(out_dir).glob("*.tab.gz")):
+                gene_file.rename(Path() / gene_file.name)
+                process_inputs = {
+                    "src": str(gene_file.name),
+                    "source": expressions[0].source,
+                    "species": expressions[0].species,
+                }
+                self.run_process("upload-geneset", process_inputs)

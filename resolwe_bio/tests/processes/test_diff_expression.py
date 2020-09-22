@@ -33,6 +33,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "case": [cuffquant.id],
             "control": [cuffquant2.id],
+            "create_sets": True,
             "annotation": annotation.id,
         }
         cuffdiff = self.run_process("cuffdiff", inputs)
@@ -45,6 +46,16 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(cuffdiff, "species", "Homo sapiens")
         self.assertFields(cuffdiff, "build", "hg19")
         self.assertFields(cuffdiff, "feature_type", "gene")
+
+        gene_set = Data.objects.filter(process__slug="upload-geneset").first()
+        self.assertFile(
+            gene_set,
+            "geneset",
+            "geneset_cuffdiff_all.tab.gz",
+            compression="gzip",
+        )
+        self.assertFields(gene_set, "species", "Homo sapiens")
+        self.assertFields(gene_set, "source", "UCSC")
 
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
@@ -66,6 +77,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "case": [expression_1.pk, expression_3.pk],
             "control": [expression_2.pk, expression_4.pk],
+            "create_sets": True,
             "filter_options": {
                 "min_count_sum": 0,
             },
@@ -82,6 +94,16 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
         self.assertFields(diff_exp, "build", "dd-05-2009")
         self.assertFields(diff_exp, "feature_type", "gene")
+
+        gene_set = Data.objects.filter(process__slug="upload-geneset").last()
+        self.assertFile(
+            gene_set,
+            "geneset",
+            "geneset_deseq2_up.tab.gz",
+            compression="gzip",
+        )
+        self.assertFields(gene_set, "species", "Dictyostelium discoideum")
+        self.assertFields(gene_set, "source", "DICTYBASE")
 
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
@@ -285,6 +307,7 @@ re-save feature_type "gene"
         inputs = {
             "case": [expression_1.id, expression_3.id],
             "control": [expression_2.id, expression_4.id],
+            "create_sets": True,
         }
 
         diff_exp = self.run_process("differentialexpression-edger", inputs)
@@ -294,6 +317,16 @@ re-save feature_type "gene"
         self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
         self.assertFields(diff_exp, "build", "dd-05-2009")
         self.assertFields(diff_exp, "feature_type", "gene")
+
+        gene_set = Data.objects.filter(process__slug="upload-geneset").last()
+        self.assertFile(
+            gene_set,
+            "geneset",
+            "geneset_edgeR_up.tab.gz",
+            compression="gzip",
+        )
+        self.assertFields(gene_set, "species", "Dictyostelium discoideum")
+        self.assertFields(gene_set, "source", "DICTYBASE")
 
     @with_resolwe_host
     @tag_process("differentialexpression-shrna")

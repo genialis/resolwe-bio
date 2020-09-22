@@ -1,5 +1,6 @@
 """Run Cuffdiff 2.2."""
 import os
+from pathlib import Path
 
 from plumbum import TEE
 
@@ -33,7 +34,7 @@ class Cuffdiff(Process):
     slug = "cuffdiff"
     name = "Cuffdiff 2.2"
     process_type = "data:differentialexpression:cuffdiff"
-    version = "3.1.0"
+    version = "3.2.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -81,6 +82,25 @@ class Cuffdiff(Process):
             label="Do initial estimation procedure to more accurately "
             "weight reads with multiple genome mappings",
             default=False,
+        )
+        create_sets = BooleanField(
+            label="Create gene sets",
+            description="After calculating differential gene "
+            "expressions create gene sets for up-regulated genes, "
+            "down-regulated genes and all genes.",
+            default=False,
+        )
+        gene_logfc = FloatField(
+            label="Log2 fold change threshold for gene sets",
+            description="Genes above Log2FC are considered as "
+            "up-regulated and genes below -Log2FC as down-regulated.",
+            default=1.0,
+            hidden="!create_sets",
+        )
+        gene_fdr = FloatField(
+            label="FDR threshold for gene sets",
+            default=0.05,
+            hidden="!create_sets",
         )
         fdr = FloatField(
             label="Allowed FDR",
@@ -295,3 +315,35 @@ class Cuffdiff(Process):
         outputs.cds_diff_exp = "cds_exp.diff"
         outputs.tss_group_diff_exp = "tss_group_exp.diff"
         outputs.cuffdiff_output = "cuffdiff_output.zip"
+
+        if inputs.create_sets:
+            out_dir = "gene_sets"
+            gene_set_args = [
+                "--dge_file",
+                "de_file.tab.gz",
+                "--out_dir",
+                out_dir,
+                "--analysis_name",
+                self.name,
+                "--tool",
+                "Cuffdiff",
+                "--logfc",
+                inputs.gene_logfc,
+                "--fdr",
+                inputs.gene_fdr,
+            ]
+
+            return_code, _, _ = Cmd["create_gene_sets.py"][gene_set_args] & TEE(
+                retcode=None
+            )
+            if return_code:
+                self.error(f"Error while creating gene sets.")
+
+            for gene_file in sorted(Path(out_dir).glob("*.tab.gz")):
+                gene_file.rename(Path() / gene_file.name)
+                process_inputs = {
+                    "src": str(gene_file.name),
+                    "source": cuffquants[0].source,
+                    "species": cuffquants[0].species,
+                }
+                self.run_process("upload-geneset", process_inputs)

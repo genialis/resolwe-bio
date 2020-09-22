@@ -34,6 +34,8 @@ Changed
   ``alignment-star``, ``alignment-bwa-mem``, ``alignment-bwa-sw``,
   ``alignment-bwa-aln``, ``alignment-hisat2`` and ``walt`` now issue a
   warning instead of an error when sample and genome species mismatch
+- Support automated upload of gene sets in proceses ``cuffdiff``,
+  ``differentialexpression-deseq2`` and ``differentialexpression-edger``
 
 
 ===================
