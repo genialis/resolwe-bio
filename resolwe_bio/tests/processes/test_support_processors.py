@@ -1368,3 +1368,66 @@ re-save-file lane_attributes "${NAME}".txt
             [os.path.join("merge-fastq", "output", "rw_reads_merged.fastq.gz")],
             compression="gzip",
         )
+
+    @tag_process("bedtools-bamtobed")
+    def test_bedtools_bamtobed(self):
+        with self.preparation_stage():
+            species = "Dictyostelium discoideum"
+            build = "dd-05-2009"
+
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": "reads.bam",
+                    "species": species,
+                    "build": build,
+                },
+            )
+
+        bed = self.run_process(
+            "bedtools-bamtobed",
+            {
+                "alignment": bam.id,
+            },
+        )
+
+        self.assertFile(bed, "bedpe", "test_bam_processing/reads.bedpe")
+        self.assertFields(bed, "species", species)
+        self.assertFields(bed, "build", build)
+
+    @tag_process("scale-bigwig")
+    def test_scale_bigwig(self):
+        with self.preparation_stage():
+            species = "Dictyostelium discoideum"
+            build = "dd-05-2009"
+
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": "reads.bam",
+                    "species": species,
+                    "build": build,
+                },
+            )
+
+            bedpe = self.run_process(
+                "upload-bedpe",
+                {
+                    "src": "test_bam_processing/reads.bedpe",
+                    "species": species,
+                    "build": build,
+                },
+            )
+
+        bigwig = self.run_process(
+            "scale-bigwig",
+            {
+                "alignment": bam.id,
+                "bedpe": bedpe.id,
+                "scale": 10000,
+            },
+        )
+
+        self.assertFile(bigwig, "bigwig", "test_bam_processing/reads.SInorm.bigwig")
+        self.assertFields(bigwig, "species", species)
+        self.assertFields(bigwig, "build", build)

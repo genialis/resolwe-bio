@@ -19,6 +19,7 @@ Added
 - Add ``alignmentsieve`` process
 - Add Trim Galore tool to ``resolwebio/rnaseq:4.12.0``
 - Add ``trimgalore-paired`` process
+- Add ``bedtools-bamtobed`` and ``scale-bigwig`` processes
 
 Changed
 -------
