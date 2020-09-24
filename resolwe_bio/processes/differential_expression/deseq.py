@@ -1,0 +1,256 @@
+"""Run DESeq analysis."""
+from plumbum import TEE
+
+from resolwe.process import (
+    BooleanField,
+    Cmd,
+    DataField,
+    FileField,
+    FloatField,
+    GroupField,
+    IntegerField,
+    JsonField,
+    ListField,
+    Persistence,
+    Process,
+    SchedulingClass,
+    StringField,
+)
+
+
+class Deseq(Process):
+    """Run DESeq2 analysis.
+
+    The DESeq2 package estimates variance-mean dependence in count data
+    from high-throughput sequencing assays and tests for differential
+    expression based on a model using the negative binomial
+    distribution. See
+    [here](https://www.bioconductor.org/packages/release/bioc/manuals/DESeq2/man/DESeq2.pdf)
+    and [here](http://bioconductor.org/packages/devel/bioc/vignettes/DESeq2/inst/doc/DESeq2.html)
+    for more information.
+    """
+
+    slug = "differentialexpression-deseq2"
+    name = "DESeq2"
+    process_type = "data:differentialexpression:deseq2"
+    version = "3.0.0"
+    category = "Differential Expression"
+    scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
+    requirements = {
+        "expression-engine": "jinja",
+        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "resources": {"cores": 1, "memory": 8192},
+    }
+    data_name = "Differential expression (case vs. control)"
+
+    class Input:
+        """Input fields to process Deseq."""
+
+        case = ListField(
+            DataField("expression"),
+            label="Case",
+            description="Case samples (replicates)",
+        )
+        control = ListField(
+            DataField("expression"),
+            label="Control",
+            description="Control samples (replicates)",
+        )
+
+        class Options:
+            """Options."""
+
+            beta_prior = BooleanField(
+                label="Beta prior",
+                default=False,
+                description="Whether or not to put a zero-mean normal prior "
+                "on the non-intercept coefficients.",
+            )
+
+        class FilterOptions:
+            """Filtering options."""
+
+            count = BooleanField(
+                label="Filter genes based on expression count",
+                default=True,
+            )
+            min_count_sum = IntegerField(
+                label="Minimum gene expression count summed over all samples",
+                default=10,
+                description="Filter genes in the expression matrix input. "
+                "Remove genes where the expression count sum over all samples "
+                "is below the threshold.",
+                hidden="!filter_options.count",
+            )
+            cook = BooleanField(
+                label="Filter genes based on Cook's distance",
+                default=False,
+            )
+            cooks_cutoff = FloatField(
+                label="Threshold on Cook's distance",
+                required=False,
+                description="If one or more samples have Cook's distance "
+                "larger than the threshold set here, the p-value for the row "
+                "is set to NA. If left empty, the default threshold of 0.99 "
+                "quantile of the F(p, m-p) distribution is used, where p is "
+                "the number of coefficients being fitted and m is the number "
+                "of samples. This test excludes Cook's distance of samples "
+                "belonging to experimental groups with only two samples.",
+                hidden="!filter_options.cook",
+            )
+            independent = BooleanField(
+                label="Apply independent gene filtering",
+                default=False,
+            )
+            alpha = FloatField(
+                label="Significance cut-off used for optimizing independent "
+                "gene filtering",
+                default=0.1,
+                description="The value should be set to adjusted p-value "
+                "cut-off (FDR).",
+                hidden="!filter_options.independent",
+            )
+
+        options = GroupField(Options, label="Gene filtering options")
+        filter_options = GroupField(
+            FilterOptions, label="Differential expression analysis options"
+        )
+
+    class Output:
+        """Output fields of the process Deseq."""
+
+        raw = FileField("Differential expression")
+        de_json = JsonField(label="Results table (JSON)")
+        de_file = FileField(label="Results table (file)")
+        count_matrix = FileField(label="Count matrix")
+        source = StringField(label="Gene ID database")
+        species = StringField(label="Species")
+        build = StringField(label="Build")
+        feature_type = StringField(label="Feature type")
+
+    def run(self, inputs, outputs):
+        """Run the analysis."""
+
+        expressions = inputs.case + inputs.control
+
+        for exp in expressions:
+            if exp.source != expressions[0].source:
+                self.error(
+                    "Input samples are of different Gene ID databases: "
+                    f"{exp.source} and {expressions[0].source}."
+                )
+            if exp.species != expressions[0].species:
+                self.error(
+                    "Input samples are of different Species: "
+                    f"{exp.species} and {expressions[0].species}."
+                )
+            if exp.build != expressions[0].build:
+                self.error(
+                    "Input samples are of different Panel types: "
+                    f"{exp.build} and {expressions[0].build}."
+                )
+            if exp.feature_type != expressions[0].feature_type:
+                self.error(
+                    "Input samples are of different Feature type: "
+                    f"{exp.feature_type} and {expressions[0].feature_type}."
+                )
+
+        for case in inputs.case:
+            if case in inputs.control:
+                self.error(
+                    "Case and Control groups must contain unique "
+                    f"samples. Sample {case.sample_name} is in both Case "
+                    "and Control group."
+                )
+        self.progress(0.1)
+
+        if all(e.type == "data:expression:nanostring:" for e in expressions):
+            params = [
+                "--cases",
+                [e.exp.path for e in inputs.case],
+                "--controls",
+                [e.exp.path for e in inputs.control],
+                "--format",
+                "nanostring",
+            ]
+
+        elif all(e.type == "data:expression:rsem:" for e in expressions):
+            params = [
+                "--cases",
+                [e.genes.path for e in inputs.case],
+                "--controls",
+                [e.genes.path for e in inputs.control],
+                "--format",
+                "rsem",
+            ]
+
+        elif all(e.type == "data:expression:salmon:" for e in expressions):
+            params = [
+                "--cases",
+                [e.quant.path for e in inputs.case],
+                "--controls",
+                [e.quant.path for e in inputs.control],
+                "--format",
+                "salmon",
+                "--tx2gene",
+                inputs.case[0].txdb.path,
+            ]
+
+        else:
+            if not all(hasattr(e.rc, "path") for e in expressions):
+                self.error("Read counts are required when using DESeq2.")
+            params = [
+                "--cases",
+                [e.rc.path for e in inputs.case],
+                "--controls",
+                [e.rc.path for e in inputs.control],
+            ]
+
+        if inputs.options.beta_prior:
+            params.append("--beta-prior")
+        if inputs.filter_options.count:
+            params.extend(["--min-count-sum", inputs.filter_options.min_count_sum])
+        if inputs.filter_options.cook:
+            params.extend(["--cooks-cutoff", inputs.filter_options.cooks_cutoff])
+        if inputs.filter_options.independent:
+            params.extend(["--alpha", inputs.filter_options.alpha])
+
+        return_code, _, _ = Cmd["deseq.R"][params] & TEE(retcode=None)
+        if return_code:
+            self.error("Error computing differential expression (DESeq2).")
+
+        self.progress(0.95)
+
+        deseq_output = "diffexp_deseq2.tab"
+        args = [
+            deseq_output,
+            "de_data.json",
+            "de_file.tab.gz",
+            "--gene_id",
+            "gene_id",
+            "--fdr",
+            "padj",
+            "--pvalue",
+            "pvalue",
+            "--logfc",
+            "log2FoldChange",
+            "--stat",
+            "stat",
+        ]
+
+        return_code, _, _ = Cmd["parse_diffexp.py"][args] & TEE(retcode=None)
+        if return_code:
+            self.error(f"Error while parsing DGE results.")
+
+        (Cmd["gzip"][deseq_output])()
+        (Cmd["gzip"]["count_matrix.tab"])()
+
+        outputs.raw = f"{deseq_output}.gz"
+        outputs.de_json = "de_data.json"
+        outputs.de_file = "de_file.tab.gz"
+        outputs.count_matrix = "count_matrix.tab.gz"
+        outputs.source = expressions[0].source
+        outputs.species = expressions[0].species
+        outputs.build = expressions[0].build
+        outputs.feature_type = expressions[0].feature_type

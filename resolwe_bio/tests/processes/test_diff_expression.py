@@ -66,7 +66,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         inputs = {
             "case": [expression_1.pk, expression_3.pk],
             "control": [expression_2.pk, expression_4.pk],
-            "filter": {
+            "filter_options": {
                 "min_count_sum": 0,
             },
         }
@@ -217,7 +217,7 @@ re-save feature_type "gene"
         inputs = {
             "case": [exp_1.id, exp_3.id],
             "control": [exp_2.id, exp_4.id],
-            "filter": {
+            "filter_options": {
                 "min_count_sum": 0,
             },
         }
