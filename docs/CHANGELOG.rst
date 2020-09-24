@@ -26,6 +26,7 @@ Changed
   to Python
 - Add format parameter to ``macs2-callpeak``
 - Rewrite ``differentialexpression-edger`` to Python
+- Rewrite ``cuffdiff`` to Python
 
 
 ===================
