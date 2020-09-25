@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.2.0
+  version: 4.2.1
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
@@ -508,6 +508,7 @@
         'Dictyostelium discoideum': '3.4e7',
         'Drosophila melanogaster': '1.2e8',
         'Caenorhabditis elegans': '9e7',
+        'Saccharomyces cerevisiae': '12.1e6',
         'Rattus norvegicus': '2e9',
         }
       %}

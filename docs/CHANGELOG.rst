@@ -36,6 +36,8 @@ Changed
   warning instead of an error when sample and genome species mismatch
 - Support automated upload of gene sets in proceses ``cuffdiff``,
   ``differentialexpression-deseq2`` and ``differentialexpression-edger``
+- Support the analysis of S. cerevisiea samples in ``macs2-callpeak``
+  process
 
 
 ===================
