@@ -20,6 +20,7 @@ Added
 - Add Trim Galore tool to ``resolwebio/rnaseq:4.12.0``
 - Add ``trimgalore-paired`` process
 - Add ``bedtools-bamtobed`` and ``scale-bigwig`` processes
+- Added BigWig timeout input parameter to ``alignment-bowtie2`` process
 
 Changed
 -------
