@@ -14,7 +14,7 @@
       docker:
         image: resolwebio/wgbs:1.3.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.2.0
+  version: 3.3.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -128,7 +128,7 @@
 
       {% if reads|sample|descriptor("general.species") %}
         {% if reads|sample|descriptor("general.species") != genome.species %}
-          re-error \
+          re-warning \
             {{ ('Species of reads (%s) and genome (%s) do not match.')
             | format(reads|sample|descriptor("general.species"), genome.species) }}
         {% endif %}

@@ -14,7 +14,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.1.0
+  version: 3.2.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -150,7 +150,7 @@
 
       {% if reads|sample|descriptor("general.species") %}
         {% if reads|sample|descriptor("general.species") != genome.species %}
-          re-error \
+          re-warning \
             {{ ('Species of reads (%s) and genome (%s) do not match.')
             | format(reads|sample|descriptor("general.species"), genome.species) }}
         {% endif %}
@@ -274,7 +274,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.1.0
+  version: 2.2.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -345,7 +345,7 @@
 
       {% if reads|sample|descriptor("general.species") %}
         {% if reads|sample|descriptor("general.species") != genome.species %}
-          re-error \
+          re-warning \
             {{ ('Species of reads (%s) and genome (%s) do not match.')
             | format(reads|sample|descriptor("general.species"), genome.species) }}
         {% endif %}
@@ -452,7 +452,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.1.0
+  version: 2.2.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -549,7 +549,7 @@
 
       {% if reads|sample|descriptor("general.species") %}
         {% if reads|sample|descriptor("general.species") != genome.species %}
-          re-error \
+          re-warning \
             {{ ('Species of reads (%s) and genome (%s) do not match.')
             | format(reads|sample|descriptor("general.species"), genome.species) }}
         {% endif %}

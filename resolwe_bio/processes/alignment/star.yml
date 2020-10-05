@@ -14,7 +14,7 @@
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.2.0
+  version: 2.3.0
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -404,7 +404,7 @@
 
       {% if reads|sample|descriptor("general.species") %}
         {% if reads|sample|descriptor("general.species") != genome.species %}
-          re-error \
+          re-warning \
             {{ ('Species of reads (%s) and genome (%s) do not match.')
             | format(reads|sample|descriptor("general.species"), genome.species) }}
         {% endif %}

@@ -28,6 +28,10 @@ Changed
 - Add format parameter to ``macs2-callpeak``
 - Rewrite ``differentialexpression-edger`` to Python
 - Rewrite ``cuffdiff`` to Python
+- Alignment processes ``alignment-bowtie``, ``alignment-bowtie2``,
+  ``alignment-star``, ``alignment-bwa-mem``, ``alignment-bwa-sw``,
+  ``alignment-bwa-aln``, ``alignment-hisat2`` and ``walt`` now issue a
+  warning instead of an error when sample and genome species mismatch
 
 
 ===================
