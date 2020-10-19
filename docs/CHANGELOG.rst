@@ -27,6 +27,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 25.x
 - **BACKWARD INCOMPATIBLE:** Rewrite ``differentialexpression-deseq2``
   to Python
 - Add format parameter to ``macs2-callpeak``
