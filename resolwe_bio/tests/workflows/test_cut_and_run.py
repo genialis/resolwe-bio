@@ -40,6 +40,10 @@ class CutAndRunTestCase(BioProcessTestCase):
             "options_sieve": {
                 "max_frag_length": 120,
             },
+            "options_misc": {
+                "bw_binsize": 50,
+                "bw_timeout": 30,
+            },
         }
 
         self.run_process("workflow-cutnrun", input_workflow)

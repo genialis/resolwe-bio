@@ -3,7 +3,7 @@
   data_name: "{{reads|sample_name|default('?')}}"
   requirements:
     expression-engine: jinja
-  version: 1.0.0
+  version: 1.1.0
   type: data:workflow:cutnrun
   category: Pipeline
   description: |
@@ -502,6 +502,24 @@
             Magnitude of the scale factor. The scaling factor is calculated by
             dividing the scale with the number of features in BEDPE (scale/(number of
             features)).
+    - name: options_misc
+      label: Miscellaneous options
+      group:
+        - name: bw_binsize
+          label: BigWig bin size
+          type: basic:integer
+          default: 50
+          description: |
+            Size of the bins, in bases, for the output of the bigwig/bedgraph file.
+            Default is 50.
+        - name: bw_timeout
+          label: BigWig timeout
+          type: basic:integer
+          default: 3600
+          description: |
+            Number of seconds before calculation of BigWig file is aborted. Default
+            is 3600 seconds (1 hour).
+
   run:
     language: workflow
     program:
@@ -549,6 +567,9 @@
             dovetail: "{{input.options_aln_species.dovetail}}"
           output_opts:
             no_unal: "{{input.options_aln_species.no_unal}}"
+          misc_opts:
+            bw_binsize: "{{input.options_misc.bw_binsize}}"
+            bw_timeout: "{{input.options_misc.bw_timeout}}"
       - id: species_pc
         run: macs2-callpeak
         input:
@@ -564,6 +585,9 @@
           alignment: "{{steps.species_align}}"
           min_fragment_length: "{{input.options_sieve.min_frag_length}}"
           max_fragment_length: "{{input.options_sieve.max_frag_length}}"
+          bigwig_opts:
+            bigwig_binsize: "{{input.options_misc.bw_binsize}}"
+            bigwig_timeout: "{{input.options_misc.bw_timeout}}"
       - id: species_align_frag_pc
         run: macs2-callpeak
         input:
@@ -578,12 +602,18 @@
         input:
           bam: "{{steps.species_align}}"
           remove_duplicates: true
+          bigwig_opts:
+            bigwig_binsize: "{{input.options_misc.bw_binsize}}"
+            bigwig_timeout: "{{input.options_misc.bigwig_timeout}}"
       - id: species_rmdup_frag
         run: alignmentsieve
         input:
           alignment: "{{steps.species_rmdup}}"
           min_fragment_length: "{{input.options_sieve.min_frag_length}}"
           max_fragment_length: "{{input.options_sieve.max_frag_length}}"
+          bigwig_opts:
+            bigwig_binsize: "{{input.options_misc.bw_binsize}}"
+            bigwig_timeout: "{{input.options_misc.bw_timeout}}"
       - id: species_rmdup_frag_pc
         run: macs2-callpeak
         input:
@@ -609,11 +639,17 @@
             dovetail: "{{input.options_aln_spikein.dovetail}}"
           output_opts:
             no_unal: "{{input.options_aln_spikein.no_unal}}"
+          misc_opts:
+            bw_binsize: "{{input.options_misc.bw_binsize}}"
+            bw_timeout: "{{input.options_misc.bw_timeout}}"
       - id: spikein_rmdup
         run: markduplicates
         input:
           bam: '{{steps.spikein_align}}'
           remove_duplicates: true
+          bigwig_opts:
+            bigwig_binsize: "{{input.options_misc.bw_binsize}}"
+            bigwig_timeout: "{{input.options_misc.bw_timeout}}"
       - id: spikein_normfactor
         run: bedtools-bamtobed
         input:

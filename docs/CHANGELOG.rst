@@ -7,6 +7,17 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
 ===================
+34.0.1 - 2020-10-20
+===================
+
+Fixed
+-------
+- Add BigWig timeout and bin size parameters to ``markduplicates``,
+  ``alignmentsieve`` and ``workflow-cutnrun``. Add bin size parameter
+  to ``alignment-bowtie2``.
+
+
+===================
 34.0.0 - 2020-10-19
 ===================
 

@@ -143,6 +143,10 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "rfg": "5,3",
                 "score_min": "L,-0.6,-0.6",
             },
+            "misc_opts": {
+                "bw_binsize": 50,
+                "bw_timeout": 30,
+            },
         }
         single_end = self.run_process("alignment-bowtie2", inputs)
         self.assertFile(single_end, "stats", output_folder / "bowtie2_reads_report.txt")

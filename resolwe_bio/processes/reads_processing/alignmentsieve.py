@@ -8,6 +8,7 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    GroupField,
     IntegerField,
     Persistence,
     Process,
@@ -27,7 +28,7 @@ class AlignmentSieve(Process):
     slug = "alignmentsieve"
     name = "alignmentSieve"
     process_type = "data:alignment:bam:sieve"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Alignment Filtering"
     data_name = 'Sieved BAM ({{ alignment|sample_name|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -47,7 +48,7 @@ class AlignmentSieve(Process):
     class Input:
         """Input fields to process AlignmentSieve."""
 
-        alignment = DataField("alignment:bam", label="Alignment BAM file")
+        alignment = DataField(data_type="alignment:bam", label="Alignment BAM file")
         min_fragment_length = IntegerField(
             label="--minFragmentLength",
             description="The minimum fragment length needed for "
@@ -63,6 +64,24 @@ class AlignmentSieve(Process):
             "no limit. (Default: 0)",
             default=0,
         )
+
+        class BigWigOptions:
+            """Options for calculating BigWig."""
+
+            bigwig_binsize = IntegerField(
+                label="BigWig bin size",
+                description="Size of the bins, in bases, for the output of the "
+                "bigwig/bedgraph file. Default is 50.",
+                default=50,
+            )
+            bigwig_timeout = IntegerField(
+                label="BigWig timeout",
+                description="Number of seconds before creation of BigWig timeouts. "
+                "Default is after 480 seconds (8 minutes).",
+                default=480,
+            )
+
+        bigwig_opts = GroupField(BigWigOptions, label="BigWig options")
 
     class Output:
         """Output fields to process AlignmentSieve."""
@@ -129,9 +148,12 @@ class AlignmentSieve(Process):
         self.progress(0.75)
 
         btb_inputs = [
-            f"{output_bam_file}",
-            f"{bam_species}",
-            f"{self.requirements.resources.cores}",
+            output_bam_file,
+            bam_species,
+            self.requirements.resources.cores,
+            "deeptools",
+            inputs.bigwig_opts.bigwig_binsize,
+            inputs.bigwig_opts.bigwig_timeout,
         ]
 
         check_bigwig, _, _ = Cmd["bamtobigwig.sh"][btb_inputs] & TEE(retcode=None)

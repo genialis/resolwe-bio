@@ -454,7 +454,14 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFile(skipped_md, "bam", primerclipped)
 
         # Test that removal of duplicates works.
-        md_inputs = {"bam": bam.id, "remove_duplicates": True}
+        md_inputs = {
+            "bam": bam.id,
+            "remove_duplicates": True,
+            "bigwig_opts": {
+                "bigwig_binsize": 50,
+                "bigwig_timeout": 30,
+            },
+        }
         removed_md = self.run_process("markduplicates", md_inputs)
 
         def filter_startedon(line):
@@ -586,6 +593,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         params = {
             "alignment": bam.id,
             "max_fragment_length": 149,
+            "bigwig_opts": {
+                "bigwig_binsize": 50,
+                "bigwig_timeout": 30,
+            },
         }
 
         max_filteredbam = self.run_process("alignmentsieve", params)

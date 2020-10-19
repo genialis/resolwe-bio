@@ -7,6 +7,8 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    GroupField,
+    IntegerField,
     Process,
     SchedulingClass,
     StringField,
@@ -22,7 +24,7 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.1.2"
+    version = "1.2.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -77,6 +79,24 @@ class MarkDuplicates(Process):
             ],
             default="",
         )
+
+        class BigWigOptions:
+            """Options for calculating BigWig."""
+
+            bigwig_binsize = IntegerField(
+                label="BigWig bin size",
+                description="Size of the bins, in bases, for the output of the "
+                "bigwig/bedgraph file. Default is 50.",
+                default=50,
+            )
+            bigwig_timeout = IntegerField(
+                label="BigWig timeout",
+                description="Number of seconds before creation of BigWig timeouts. "
+                "Default is after 480 seconds (8 minutes).",
+                default=480,
+            )
+
+        bigwig_opts = GroupField(BigWigOptions, label="BigWig options")
 
     class Output:
         """Output fields to process MarkDuplicates."""
@@ -165,7 +185,14 @@ class MarkDuplicates(Process):
 
         self.progress(0.8)
 
-        btb_inputs = [f"{bam}", f"{species}", f"{self.requirements.resources.cores}"]
+        btb_inputs = [
+            bam,
+            species,
+            self.requirements.resources.cores,
+            "deeptools",
+            inputs.bigwig_opts.bigwig_binsize,
+            inputs.bigwig_opts.bigwig_timeout,
+        ]
 
         Cmd["bamtobigwig.sh"](btb_inputs)
 
