@@ -7,8 +7,13 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
 ===================
-34.0.1 - 2020-10-20
+34.1.0 - 2020-10-20
 ===================
+
+Added
+-------
+- Add peakcalling to removed duplicates step in species' line of the
+  ``workflow-cutnrun`` workflow
 
 Fixed
 -------

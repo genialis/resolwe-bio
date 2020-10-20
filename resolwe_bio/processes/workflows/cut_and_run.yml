@@ -3,7 +3,7 @@
   data_name: "{{reads|sample_name|default('?')}}"
   requirements:
     expression-engine: jinja
-  version: 1.1.0
+  version: 1.2.0
   type: data:workflow:cutnrun
   category: Pipeline
   description: |
@@ -605,6 +605,15 @@
           bigwig_opts:
             bigwig_binsize: "{{input.options_misc.bw_binsize}}"
             bigwig_timeout: "{{input.options_misc.bigwig_timeout}}"
+      - id: species_rmdup_pc
+        run: macs2-callpeak
+        input:
+          case: "{{steps.species_rmdup}}"
+          settings:
+            format: "{{input.options_pc.format}}"
+            pvalue: "{{input.options_pc.pvalue}}"
+            duplicates: "{{input.options_pc.duplicates}}"
+            bedgraph: "{{input.options_pc.bedgraph}}"
       - id: species_rmdup_frag
         run: alignmentsieve
         input:
