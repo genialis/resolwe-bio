@@ -80,7 +80,7 @@ class ScaleBigWig(Process):
         "resources": {"cores": 1, "memory": 16384},
     }
     data_name = "Scale BigWig ({{alignment|sample_name|default('?')}})"
-    version = "1.0.0"
+    version = "1.0.1"
     process_type = "data:coverage:bigwig"
     category = "Other"
     entity = {"type": "sample"}
@@ -109,7 +109,7 @@ class ScaleBigWig(Process):
     class Output:
         """Output fields."""
 
-        bigwig = FileField(label="BEDPE file")
+        bigwig = FileField(label="bigwig file")
         species = StringField(label="Species")
         build = StringField(label="Build")
 

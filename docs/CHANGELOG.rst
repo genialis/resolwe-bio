@@ -15,6 +15,10 @@ Added
 - Add ``upload-proteomics-sample`` and ``upload-proteomics-sample-set``
   processes for uploading custom tables holding proteomics data
 
+Fixed
+-------
+- Changed ``scale-bigwig`` output file field label to ``bigwig file``
+
 
 ===================
 34.1.0 - 2020-10-20
