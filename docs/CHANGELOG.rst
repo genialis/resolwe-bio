@@ -12,6 +12,7 @@ Unreleased
 Added
 -------
 - Add initial general clinical descriptor schema ``general_clinical``
+- Add ``id`` field to ``Feature`` and ``Mapping`` serializers
 
 
 ===================

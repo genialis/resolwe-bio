@@ -24,6 +24,7 @@ class FeatureSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
             "description",
             "feature_id",
             "full_name",
+            "id",
             "name",
             "source",
             "species",
@@ -40,6 +41,7 @@ class MappingSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
 
         model = Mapping
         fields = [
+            "id",
             "relation_type",
             "source_db",
             "source_id",

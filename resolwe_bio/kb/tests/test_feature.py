@@ -192,6 +192,26 @@ class FeatureTestCase(TestCase, APITestCase):
         )
         self.assertEqual(len(response.data), 1)
 
+    def test_serialization(self):
+        FEATURE_SEARCH_URL = reverse("resolwebio-api:kb_feature_search")
+        kwargs = {"feature_id": "FT-0"}
+
+        feature = Feature.objects.get(**kwargs)
+        response = self.client.get(FEATURE_SEARCH_URL, kwargs, format="json")
+        self.assertEqual(len(response.data), 1)
+
+        serialized_feature = response.data[0]
+        self.assertEqual(serialized_feature["aliases"], feature.aliases)
+        self.assertEqual(serialized_feature["description"], feature.description)
+        self.assertEqual(serialized_feature["feature_id"], feature.feature_id)
+        self.assertEqual(serialized_feature["full_name"], feature.full_name)
+        self.assertEqual(serialized_feature["id"], feature.id)
+        self.assertEqual(serialized_feature["name"], feature.name)
+        self.assertEqual(serialized_feature["source"], feature.source)
+        self.assertEqual(serialized_feature["species"], feature.species)
+        self.assertEqual(serialized_feature["sub_type"], feature.sub_type)
+        self.assertEqual(serialized_feature["type"], feature.type)
+
     def test_feature_autocomplete(self):
         FEATURE_AUTOCOMPLETE_URL = reverse("resolwebio-api:kb_feature_autocomplete")
 

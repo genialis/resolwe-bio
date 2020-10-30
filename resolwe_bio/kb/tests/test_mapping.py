@@ -79,3 +79,21 @@ class MappingTestCase(APITestCase, TestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_serialization(self):
+        MAPPING_URL = reverse("resolwebio-api:kb_mapping_search")
+        kwargs = {"source_id": "FT1"}
+
+        mapping = Mapping.objects.get(**kwargs)
+        response = self.client.get(MAPPING_URL, kwargs, format="json")
+        self.assertEqual(len(response.data), 1)
+
+        serialized_mapping = response.data[0]
+        self.assertEqual(serialized_mapping["id"], mapping.id)
+        self.assertEqual(serialized_mapping["relation_type"], mapping.relation_type)
+        self.assertEqual(serialized_mapping["source_db"], mapping.source_db)
+        self.assertEqual(serialized_mapping["source_id"], mapping.source_id)
+        self.assertEqual(serialized_mapping["source_species"], mapping.source_species)
+        self.assertEqual(serialized_mapping["target_db"], mapping.target_db)
+        self.assertEqual(serialized_mapping["target_id"], mapping.target_id)
+        self.assertEqual(serialized_mapping["target_species"], mapping.target_species)
