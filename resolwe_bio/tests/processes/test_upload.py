@@ -794,3 +794,44 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "in (1-based) line 4, column 3"
         ]
         self.assertEqual(malformed.process_error, error_msg)
+
+    @tag_process("upload-proteomics-sample")
+    def test_upload_proteomics_sample(self):
+        base = Path("proteomics")
+        inputs = base / "input"
+        outputs = base / "output"
+
+        prot_data = self.run_process(
+            "upload-proteomics-sample",
+            {
+                "src": str(inputs / "single_sample.txt"),
+                "species": "Homo sapiens",
+            },
+        )
+        self.assertFile(prot_data, "table", str(outputs / "single_sample.txt"))
+        self.assertFields(prot_data, "species", "Homo sapiens")
+        self.assertFields(prot_data, "source", "UniProtKB")
+
+    @tag_process("upload-proteomics-sample-set")
+    def test_upload_proteomics_sample_set(self):
+        base = Path("proteomics")
+        inputs = base / "input"
+        outputs = base / "output"
+
+        prot_data = self.run_process(
+            "upload-proteomics-sample-set",
+            {
+                "src": str(inputs / "sample_set.txt"),
+                "species": "Homo sapiens",
+            },
+        )
+        self.assertFile(prot_data, "table", str(outputs / "sample_set.txt"))
+        self.assertFields(prot_data, "species", "Homo sapiens")
+        self.assertFields(prot_data, "source", "UniProtKB")
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertEqual(
+            Data.objects.filter(process__slug="upload-proteomics-sample").count(), 2
+        )

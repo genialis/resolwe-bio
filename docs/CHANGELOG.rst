@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-------
+- Add ``upload-proteomics-sample`` and ``upload-proteomics-sample-set``
+  processes for uploading custom tables holding proteomics data
+
+
 ===================
 34.1.0 - 2020-10-20
 ===================

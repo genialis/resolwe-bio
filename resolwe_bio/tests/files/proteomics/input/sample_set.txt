@@ -1,0 +1,13 @@
+Uniprot ID	Gene symbol	Protein name	Number of peptides	MS/MS count CstC+/+	MS/MS count CstC-/-
+P01034	CST3	Cystatin C	9	46	0
+P07858	CTSB	Cathepsin B	17	42	44
+P07711	CTSL	Cathepsin L	15	34	36
+Q9UBR2	CTSZ	Cathepsin Z	12	16	18
+Q99538	LGMN	Legumain	12	9	9
+P31946	YWHAB	14-3-3 protein beta/alpha	15	17	9
+P62258	YWHAE	14-3-3 protein epsilon	24	123	74
+Q04917	YWHAH	14-3-3 protein eta	18	19	10
+P61981	YWHAG	14-3-3 protein gamma	20	38	24
+P31947	SFN	14-3-3 protein sigma	21	46	20
+P27348	YWHAQ	14-3-3 protein theta	19	27	14
+P63104	YWHAZ	14-3-3 protein zeta/delta	21	64	42
