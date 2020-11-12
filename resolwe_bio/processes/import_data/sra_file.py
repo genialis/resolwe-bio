@@ -52,7 +52,7 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
@@ -61,7 +61,7 @@ class ImportSra(Process):
         "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
         "resources": {
             "cores": 1,
-            "memory": 1024,
+            "memory": 8192,
             "network": True,
         },
     }
@@ -147,7 +147,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -160,7 +160,7 @@ class ImportSraSingle(Process):
         "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
         "resources": {
             "cores": 1,
-            "memory": 1024,
+            "memory": 8192,
             "network": True,
         },
     }
@@ -313,7 +313,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -326,7 +326,7 @@ class ImportSraPaired(Process):
         "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
         "resources": {
             "cores": 1,
-            "memory": 1024,
+            "memory": 8192,
             "network": True,
         },
     }

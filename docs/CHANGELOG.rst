@@ -18,6 +18,8 @@ Added
 Fixed
 -------
 - Changed ``scale-bigwig`` output file field label to ``bigwig file``
+- Bump memory requirements in processes ``import-sra``,
+  ``import-sra-single`` and ``import-sra-paired`` to 8GB
 
 
 ===================
