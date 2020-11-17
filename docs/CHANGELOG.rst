@@ -7,6 +7,15 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
 ===================
+34.2.1 - 2020-11-17
+===================
+
+Fixed
+-------
+- Fix ``macs2-callpeak`` process version
+
+
+===================
 34.2.0 - 2020-11-13
 ===================
 

@@ -14,7 +14,7 @@
       memory: 16384
       cores: 10
   data_name: "{{ case|sample_name|default('?') }}"
-  version: 4.2.1
+  version: 4.2.2
   type: data:chipseq:callpeak:macs2
   entity:
     type: sample
