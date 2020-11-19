@@ -5,6 +5,14 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+===================
+Unreleased
+===================
+
+Added
+-------
+- Add initial general clinical descriptor schema ``general_clinical``
+
 
 ===================
 34.2.1 - 2020-11-17
