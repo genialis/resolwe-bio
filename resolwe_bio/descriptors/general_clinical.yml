@@ -1,7 +1,7 @@
 - slug: general-clinical
   name: General clinical annotation
   description: General clinical metadata schema.
-  version: 1.0.0
+  version: 1.0.1
   schema:
     - name: general
       label: General
@@ -645,7 +645,7 @@
           required: false
         - name: pfs
           label: PFS
-          type: basic:integer
+          type: basic:decimal
           description: | 
             Progress Free Survival in months. It is defined as the time from
             randomization until objective tumor progression or death.
@@ -669,7 +669,7 @@
           required: false
         - name: os
           label: OS
-          type: basic:integer
+          type: basic:decimal
           description: | 
             Overall Survival in months.
           required: false
@@ -692,7 +692,7 @@
           required: false
         - name: dfs
           label: DFS
-          type: basic:integer
+          type: basic:decimal
           description: | 
             Disease Free Survival in months.
           required: false
@@ -726,7 +726,7 @@
           required: false
         - name: ttp
           label: TTP
-          type: basic:integer
+          type: basic:decimal
           description: | 
             Subject Time to Progression in months. It is defined as the time from
             randomization until objective tumor progression and does not include deaths.
