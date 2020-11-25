@@ -1,7 +1,7 @@
 - slug: general-clinical
   name: General clinical annotation
   description: General clinical metadata schema.
-  version: 1.0.1
+  version: 1.0.2
   schema:
     - name: general
       label: General
@@ -93,13 +93,13 @@
           required: false
         - name: height
           label: Height
-          type: basic:string
+          type: basic:decimal
           description: | 
             Height in meters.
           required: false
         - name: weight
           label: Weight
-          type: basic:string
+          type: basic:decimal
           description: | 
             Weight in kilograms.
           required: false
