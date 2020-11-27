@@ -33,7 +33,7 @@ class QortsQC(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.10.0",
+                "image": "resolwebio/rnaseq:5.10.0",
             },
         },
         "resources": {

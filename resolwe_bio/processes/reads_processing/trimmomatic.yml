@@ -12,7 +12,7 @@
       memory: 32768
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: '{{ reads|sample_name|default("?") }}'
   version: 2.2.0
   type: data:reads:fastq:single:trimmomatic
@@ -266,7 +266,7 @@
       memory: 32768
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: '{{ reads|sample_name|default("?") }}'
   version: 2.2.0
   type: data:reads:fastq:paired:trimmomatic

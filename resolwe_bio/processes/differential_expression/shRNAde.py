@@ -43,7 +43,7 @@ class ShortHairpinRNADifferentialExpression(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
     }
     data_name = '{{ parameter_file.file|default("?") }}'
 

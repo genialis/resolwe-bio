@@ -41,7 +41,7 @@ class Rose2(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/bamliquidator:1.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/bamliquidator:2.2.0"}},
     }
     data_name = "{{ input_macs|sample_name|default('?') if input_macs else rankby|sample_name|default('?') }}"
 

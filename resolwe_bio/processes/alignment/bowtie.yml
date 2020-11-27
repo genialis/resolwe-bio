@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.11.0
+        image: resolwebio/rnaseq:5.11.0
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
@@ -308,7 +308,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.11.0
+        image: resolwebio/rnaseq:5.11.0
     resources:
       memory: 16384
       cores: 20

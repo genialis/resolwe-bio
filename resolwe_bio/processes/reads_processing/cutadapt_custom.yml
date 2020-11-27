@@ -11,7 +11,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
   version: 1.2.0
   type: data:reads:fastq:single:cutadapt
@@ -77,7 +77,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: "Cutadapt ({{ reads|sample_name|default('?') }})"
   version: 1.2.0
   type: data:reads:fastq:paired:cutadapt

@@ -29,7 +29,7 @@ class ImportScRNA10x(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
     }
     data_name = '{{ reads.0.file|default("?") }}'
 

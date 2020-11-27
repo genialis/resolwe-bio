@@ -11,7 +11,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/biox:1.0.0
+        image: resolwebio/biox:2.0.0
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
   version: 3.0.0
   type: data:mappability:bcm

@@ -33,7 +33,7 @@ class CellRangerMkref(Process):
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/scseq:1.1.0"}},
+        "executor": {"docker": {"image": "resolwebio/scseq:2.1.0"}},
         "resources": {
             "memory": 32768,
             "cores": 10,
@@ -120,7 +120,7 @@ class CellRangerCount(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/scseq:1.1.0"}},
+        "executor": {"docker": {"image": "resolwebio/scseq:2.1.0"}},
         "resources": {
             "memory": 32768,
             "cores": 10,

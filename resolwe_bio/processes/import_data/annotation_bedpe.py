@@ -16,7 +16,7 @@ class ImportBEDPEFile(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/common:1.3.1",
+                "image": "resolwebio/common:2.3.1",
             },
         },
         "resources": {

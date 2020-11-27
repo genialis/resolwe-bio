@@ -29,7 +29,7 @@ class Cutadapt3Prime(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 10,

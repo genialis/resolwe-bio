@@ -24,7 +24,7 @@ class ImportScBam(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
     }
     data_name = '{{ reads|sample_name|default("?") }}'
 

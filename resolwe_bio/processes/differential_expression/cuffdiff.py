@@ -40,7 +40,7 @@ class Cuffdiff(Process):
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
         "resources": {"cores": 10, "memory": 8192},
     }
     data_name = "Cuffdiff results"

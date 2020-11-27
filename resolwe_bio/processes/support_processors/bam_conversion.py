@@ -22,7 +22,7 @@ class BamToBedpe(Process):
     name = "Bedtools bamtobed"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.12.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.12.0"}},
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Bedtools bamtobed ({{alignment|sample_name|default('?')}})"
@@ -76,7 +76,7 @@ class ScaleBigWig(Process):
     name = "Deeptools bamCoverage"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.12.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.12.0"}},
         "resources": {"cores": 1, "memory": 16384},
     }
     data_name = "Scale BigWig ({{alignment|sample_name|default('?')}})"

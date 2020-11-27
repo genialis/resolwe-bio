@@ -38,7 +38,7 @@ class AlignmentSieve(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.6.0"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
         "resources": {
             "cores": 10,
             "memory": 16384,

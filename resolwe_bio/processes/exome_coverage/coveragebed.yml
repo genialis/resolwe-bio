@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:5.1.0
     resources:
       memory: 32768
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"

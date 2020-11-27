@@ -29,7 +29,7 @@ class Bamclipper(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
     }
     data_name = '{{ alignment|sample_name|default("?") }}'
 

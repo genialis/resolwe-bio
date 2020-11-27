@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
     resources:
       network: true
   data_name: 'GO annotation file ({{ src.file|default("?") }}) upload'

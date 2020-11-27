@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.11.0
+        image: resolwebio/rnaseq:5.11.0
     resources:
       cores: 10
       memory: 32768

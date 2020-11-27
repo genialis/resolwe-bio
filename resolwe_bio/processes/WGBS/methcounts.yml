@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/wgbs:1.2.0
+        image: resolwebio/wgbs:2.2.0
   data_name: "{{ alignment|sample_name|default('?') }}"
   version: 3.0.0
   type: data:wgbs:methcounts

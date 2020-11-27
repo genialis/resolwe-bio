@@ -124,7 +124,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:5.1.0
     resources:
       memory: 16384
       cores: 4

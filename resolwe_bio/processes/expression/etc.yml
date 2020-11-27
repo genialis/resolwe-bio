@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/biox:1.0.0
+        image: resolwebio/biox:2.0.0
   data_name: "Expression time course"
   version: 1.1.1
   type: data:etc

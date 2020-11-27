@@ -31,7 +31,7 @@ class BsConversionRate(Process):
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/wgbs:1.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/wgbs:2.2.0"}},
         "resources": {
             "cores": 1,
             "memory": 16384,

@@ -4,7 +4,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: 'Gene expression indices ({{ genome.fasta.file|basename|default("?") }})'
   version: 1.0.0
   type: data:index:expression

@@ -52,7 +52,7 @@ class TrimGalorePaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.12.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.12.0"},
         },
         "resources": {
             "cores": 10,

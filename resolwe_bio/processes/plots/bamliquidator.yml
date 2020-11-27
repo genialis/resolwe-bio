@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/bamliquidator:1.0.0
+        image: resolwebio/bamliquidator:2.0.0
   data_name: "Bamliquidator"
   version: 0.2.1
   type: data:bam:plot:bamliquidator

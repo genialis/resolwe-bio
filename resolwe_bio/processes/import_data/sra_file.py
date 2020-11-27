@@ -313,7 +313,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.3.1"
+    version = "1.3.3"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -326,7 +326,7 @@ class ImportSraPaired(Process):
         "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
         "resources": {
             "cores": 1,
-            "memory": 8192,
+            "memory": 4096,
             "network": True,
         },
     }

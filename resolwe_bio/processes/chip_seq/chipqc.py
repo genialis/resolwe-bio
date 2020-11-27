@@ -41,7 +41,7 @@ class ChipQC(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/chipseq:4.1.3"}},
+        "executor": {"docker": {"image": "resolwebio/chipseq:5.1.3"}},
         "resources": {
             "cores": 8,
             "memory": 16384,

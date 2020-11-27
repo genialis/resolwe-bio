@@ -22,7 +22,7 @@ class AlleyoopUtrRates(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,

@@ -92,7 +92,7 @@ class UploadOrangeMetadata(Process):
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/orange:1.0.0"}},
+        "executor": {"docker": {"image": "resolwebio/orange:2.0.0"}},
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = '{{ src.file|default("?") }}'

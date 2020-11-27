@@ -15,7 +15,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   category: Splice Junctions
   flow_collection: sample
   persistence: CACHED

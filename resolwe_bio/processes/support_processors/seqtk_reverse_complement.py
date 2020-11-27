@@ -23,7 +23,7 @@ class ReverseComplementSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:1.3.1"},
+            "docker": {"image": "resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -85,7 +85,7 @@ class ReverseComplementPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:1.3.1"},
+            "docker": {"image": "resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,

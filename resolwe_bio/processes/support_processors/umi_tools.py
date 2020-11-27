@@ -23,7 +23,7 @@ class UmiToolsDedup(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.9.0",
+                "image": "resolwebio/rnaseq:5.9.0",
             },
         },
         "resources": {

@@ -56,7 +56,7 @@ class SalmonQuant(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.10.0",
+                "image": "resolwebio/rnaseq:5.10.0",
             },
         },
         "resources": {
@@ -324,7 +324,8 @@ class SalmonQuant(Process):
             self.error("Error while running Salmon Quant.")
 
         # Use tximport to produce gene-level TPM values
-        reads_basename = os.path.basename(inputs.reads.fastq[0].path)
+        inputs.read.input
+        reads_basename = os.path.basename(inputs.reads.output.fastq[0].path)
         assert reads_basename.endswith(".fastq.gz")
         reads_name = reads_basename[:-9]
         annot_basename = os.path.basename(inputs.annotation.annot.path)

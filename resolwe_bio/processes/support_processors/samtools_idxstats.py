@@ -11,7 +11,7 @@ class SamtoolsIdxstats(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/common:1.3.1",
+                "image": "resolwebio/common:2.3.1",
             },
         },
         "resources": {
@@ -20,7 +20,7 @@ class SamtoolsIdxstats(Process):
         },
     }
     data_name = "Samtools idxstats ({{alignment|sample_name}})"
-    version = "1.1.0"
+    version = "1.1.1"
     process_type = "data:samtools:idxstats"
     category = "Other"
     entity = {
@@ -42,7 +42,7 @@ class SamtoolsIdxstats(Process):
     def run(self, inputs, outputs):
         """Run the analysis."""
         (
-            Cmd["samtools"]["idxstats", inputs.alignment.bam.path]
+            Cmd["samtools"]["idxstats", inputs.alignment.output.bam.path]
             > "idxstat_report.txt"
         )()
 
