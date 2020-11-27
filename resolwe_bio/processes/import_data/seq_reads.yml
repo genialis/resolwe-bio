@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.3.0
+  version: 2.4.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -105,6 +105,7 @@
         FASTQC_URL+=("{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}")
       done
 
+      re-save-file-list fastq "${FASTQGZ[@]}"
       re-save-file-list fastqc_archive "${FASTQC[@]}"
       re-save-list fastqc_url "${FASTQC_URL[@]}"
 
@@ -114,12 +115,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.3.0
+  version: 2.4.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -243,6 +244,8 @@
         fi
       done
 
+      re-save-file-list fastq "${MATE1_FASTQGZ[@]}"
+      re-save-file-list fastq2 "${MATE2_FASTQGZ[@]}"
       re-save-file-list fastqc_archive "${MATE1_FASTQC[@]}"
       re-save-file-list fastqc_archive2 "${MATE2_FASTQC[@]}"
       re-save-list fastqc_url "${MATE1_FASTQC_URL[@]}"
@@ -254,9 +257,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.3.0
+  version: 1.4.0
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -353,9 +356,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.3.0
+  version: 1.4.0
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample

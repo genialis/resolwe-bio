@@ -1,12 +1,10 @@
-#!/usr/bin/env python2
-# XXX: Refactor to a comand line tool and remove pylint disable
+#!/usr/bin/env python3
 """Parse coordinates for the hockey-stick plot."""
-from __future__ import absolute_import, division, print_function
-
 import argparse
 import json
 
 import pandas as pd
+from resolwe_runtime_utils import error, send_message
 
 parser = argparse.ArgumentParser(
     description="Parse coordinates for the hockey-stick plot."
@@ -40,22 +38,10 @@ n_sup_enh, rows = data[data.isSuper == 1].shape
 chr_pos = data.CHROM.map(str) + ":" + data.START.map(str) + "-" + data.STOP.map(str)
 
 if len(x_axis) != len(y_axis):
-    print(
-        json.dumps(
-            {"proc.error": "Scatter plot error. len(x_axis) != len(y_axis)"},
-            separators=(",", ":"),
-        )
-    )
-    exit(1)
+    send_message(error("Scatter plot error. len(x_axis) != len(y_axis)"))
 
 if len(labels) > 0 and len(labels) != len(x_axis):
-    print(
-        json.dumps(
-            {"proc.error": "Scatter plot error. len(labels) != len(x_axis)"},
-            separators=(",", ":"),
-        )
-    )
-    exit(1)
+    send_message(error("Scatter plot error. len(labels) != len(x_axis)"))
 
 data = {
     "points": {"x_axis": list(x_axis), "y_axis": list(y_axis), "items": labels},

@@ -7,7 +7,7 @@ from os.path import basename, isfile
 
 import dnaio
 from dnaio.exceptions import FastqFormatError, FileFormatError
-from resolwe_runtime_utils import error
+from resolwe_runtime_utils import error, send_message
 
 SUPPORTED_EXTENSIONS = (
     ".fastq",
@@ -37,7 +37,7 @@ def parse_arguments():
 
 def set_error(msg):
     """Print error message and raise ValueError."""
-    print(error(msg))
+    send_message(error(msg))
     raise ValueError(msg)
 
 

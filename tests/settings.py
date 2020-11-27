@@ -98,7 +98,15 @@ REDIS_CONNECTION = {
     'port': int(os.environ.get('RESOLWE_REDIS_PORT', 56380)),
     'db': int(os.environ.get('RESOLWE_REDIS_DATABASE', 0)),
 }
-
+LISTENER_CONNECTION = {
+    "hosts": {
+        "docker": "172.17.0.1",
+    },
+    "port": int(os.environ.get("RESOLWE_LISTENER_SERVICE_PORT", 53893)),
+    "min_port": 50000,
+    "max_port": 60000,
+    "protocol": "tcp",
+}
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
     # XXX: Change to a stable resolwe image when it will include all the required tools
@@ -108,6 +116,7 @@ FLOW_EXECUTOR = {
     'DATA_DIR': os.path.join(PROJECT_ROOT, 'test_data'),
     'UPLOAD_DIR': os.path.join(PROJECT_ROOT, 'test_upload'),
     'RUNTIME_DIR': os.path.join(PROJECT_ROOT, 'test_runtime'),
+    "LISTENER_CONNECTION": LISTENER_CONNECTION,
 }
 # Set custom executor command if set via environment variable
 if 'RESOLWE_DOCKER_COMMAND' in os.environ:

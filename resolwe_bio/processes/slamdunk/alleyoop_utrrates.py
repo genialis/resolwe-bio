@@ -22,7 +22,7 @@ class AlleyoopUtrRates(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class AlleyoopUtrRates(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.1.0"
+    version = "1.2.0"
 
     class Input:
         """Input fields for AlleyoopUtrRates."""
@@ -64,22 +64,22 @@ class AlleyoopUtrRates(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.slamdunk.bam.path)
+        basename = os.path.basename(inputs.slamdunk.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
         args = [
             "-o",
             "utrrates",
             "-r",
-            inputs.ref_seq.fasta.path,
+            inputs.ref_seq.output.fasta.path,
             "-b",
-            inputs.regions.bed.path,
+            inputs.regions.output.bed.path,
             "-l",
             inputs.read_length,
         ]
 
         return_code, _, _ = Cmd["alleyoop"]["utrrates"][args][
-            inputs.slamdunk.bam.path
+            inputs.slamdunk.output.bam.path
         ] & TEE(retcode=None)
         if return_code:
             self.error("Alleyoop utrrates analysis failed.")
@@ -90,5 +90,5 @@ class AlleyoopUtrRates(Process):
 
         outputs.report = rates_file_renamed
         outputs.plot = os.path.join("utrrates", f"{name}_mutationrates_utr.pdf")
-        outputs.species = inputs.slamdunk.species
-        outputs.build = inputs.slamdunk.build
+        outputs.species = inputs.slamdunk.output.species
+        outputs.build = inputs.slamdunk.output.build

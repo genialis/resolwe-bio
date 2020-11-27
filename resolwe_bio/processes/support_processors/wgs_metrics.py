@@ -48,12 +48,12 @@ class InsertSizeMetrics(Process):
     name = "Picard WGS Metrics"
     category = "Picard"
     process_type = "data:picard:wgsmetrics"
-    version = "2.0.0"
+    version = "2.1.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
     }
     data_name = '{{ bam|sample_name|default("?") }}'
 
@@ -142,18 +142,18 @@ class InsertSizeMetrics(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.bam.bam.path)
+        basename = os.path.basename(inputs.bam.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
         metrics_file = f"{name}_wgs_metrics.txt"
 
         args = [
             "--INPUT",
-            inputs.bam.bam.path,
+            inputs.bam.output.bam.path,
             "--OUTPUT",
             metrics_file,
             "--REFERENCE_SEQUENCE",
-            inputs.genome.fasta.path,
+            inputs.genome.output.fasta.path,
             "--READ_LENGTH",
             inputs.read_length,
             "--INCLUDE_BQ_HISTOGRAM",
@@ -181,5 +181,5 @@ class InsertSizeMetrics(Process):
         replace_metrics_class(metrics_file)
 
         outputs.report = metrics_file
-        outputs.species = inputs.bam.species
-        outputs.build = inputs.bam.build
+        outputs.species = inputs.bam.output.species
+        outputs.build = inputs.bam.output.build

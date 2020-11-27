@@ -131,9 +131,9 @@ def create_lib_strand_table(samples, reports):
 def process_strand_report_file(data, lib_type_samples, lib_type_reports):
     """Process Strandedness report file if it exists as Data output file."""
     try:
-        if os.path.isfile(data.strandedness_report.path):
-            lib_type_samples.append(data.entity_name)
-            lib_type_reports.append(data.strandedness_report.path)
+        if os.path.isfile(data.output.strandedness_report.path):
+            lib_type_samples.append(data.entity.name)
+            lib_type_reports.append(data.output.strandedness_report.path)
     except AttributeError:
         pass
 
@@ -305,7 +305,7 @@ class MultiQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:1.3.1"},
+            "docker": {"image": "resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.10.0"
+    version = "1.11.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -395,158 +395,174 @@ class MultiQC(Process):
         unsupported_data = []
 
         for d in inputs.data:
-            sample_dir = d.entity_name
+            sample_dir = d.entity.name
 
             if sample_dir:
                 os.makedirs(sample_dir, exist_ok=True)
 
             try:
-                if d.entity_name and d.species and d.build:
-                    samples.append(d.entity_name)
-                    species.append(d.species)
-                    build.append(d.build)
+                if d.entity.name and d.output.species and d.output.build:
+                    samples.append(d.entity.name)
+                    species.append(d.output.species)
+                    build.append(d.output.build)
             except AttributeError:
                 pass
 
-            if d.type.startswith("data:reads:fastq:single"):
-                for fq_report in d.fastqc_archive:
+            if d.process.type.startswith("data:reads:fastq:single"):
+                for fq_report in d.output.fastqc_archive:
                     name = os.path.basename(fq_report.path)
                     create_symlink(fq_report.path, os.path.join(sample_dir, name))
 
-            elif d.type.startswith("data:reads:fastq:paired"):
-                for fq_report in d.fastqc_archive + d.fastqc_archive2:
+            elif d.process.type.startswith("data:reads:fastq:paired"):
+                for fq_report in d.output.fastqc_archive + d.output.fastqc_archive2:
                     name = os.path.basename(fq_report.path)
                     create_symlink(fq_report.path, os.path.join(sample_dir, name))
 
-            elif d.type.startswith("data:alignment:bam:markduplicate"):
-                name = os.path.basename(d.metrics_file.path)
-                create_symlink(d.metrics_file.path, os.path.join(sample_dir, name))
+            elif d.process.type.startswith("data:alignment:bam:markduplicate"):
+                name = os.path.basename(d.output.metrics_file.path)
+                create_symlink(
+                    d.output.metrics_file.path, os.path.join(sample_dir, name)
+                )
 
-            elif d.type == "data:alignment:bam:star:":
-                stats_file = os.path.basename(d.stats.path)
+            elif d.process.type == "data:alignment:bam:star:":
+                stats_file = os.path.basename(d.output.stats.path)
                 assert stats_file.endswith("_stats.txt")
                 bam_name = stats_file[:-10]
 
-                if d.build == "rRNA":
+                if d.output.build == "rRNA":
                     rrna_report = f"{bam_name}.rRNA.Log.final.out"
-                    create_symlink(d.stats.path, os.path.join(sample_dir, rrna_report))
-                elif d.build == "globin":
+                    create_symlink(
+                        d.output.stats.path, os.path.join(sample_dir, rrna_report)
+                    )
+                elif d.output.build == "globin":
                     globin_report = f"{bam_name}.globin.Log.final.out"
                     create_symlink(
-                        d.stats.path, os.path.join(sample_dir, globin_report)
+                        d.output.stats.path, os.path.join(sample_dir, globin_report)
                     )
                 else:
                     report = f"{bam_name}.Log.final.out"
-                    create_symlink(d.stats.path, os.path.join(sample_dir, report))
+                    create_symlink(
+                        d.output.stats.path, os.path.join(sample_dir, report)
+                    )
 
-            elif d.type == "data:alignment:bam:walt:":
+            elif d.process.type == "data:alignment:bam:walt:":
                 try:
-                    if os.path.isfile(d.duplicates_report.path):
-                        dup_report_path = d.duplicates_report.path
+                    if os.path.isfile(d.output.duplicates_report.path):
+                        dup_report_path = d.output.duplicates_report.path
                         name = os.path.basename(dup_report_path)
                         create_symlink(dup_report_path, os.path.join(sample_dir, name))
-                        markdup_samples.append(d.entity_name)
+                        markdup_samples.append(d.entity.name)
                         markdup_reports.append(dup_report_path)
                         create_markdup_plot(markdup_samples, markdup_reports)
                 except AttributeError:
                     pass
 
-            elif d.type.startswith("data:alignment:bam"):
-                name = os.path.basename(d.stats.path)
-                create_symlink(d.stats.path, os.path.join(sample_dir, name))
+            elif d.process.type.startswith("data:alignment:bam"):
+                name = os.path.basename(d.output.stats.path)
+                create_symlink(d.output.stats.path, os.path.join(sample_dir, name))
 
-            elif d.type == "data:expression:featurecounts:":
-                name = os.path.basename(d.counts_summary.path)
-                create_symlink(d.counts_summary.path, os.path.join(sample_dir, name))
+            elif d.process.type == "data:expression:featurecounts:":
+                name = os.path.basename(d.output.counts_summary.path)
+                create_symlink(
+                    d.output.counts_summary.path, os.path.join(sample_dir, name)
+                )
                 # Strandedness report exists only if auto detection was enabled
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
 
-            elif d.type == "data:chipseq:callpeak:macs2:":
-                name = os.path.basename(d.called_peaks.path)
-                create_symlink(d.called_peaks.path, os.path.join(sample_dir, name))
-                chip_seq_samples.append(d.entity_name)
-                chip_seq_prepeak_reports.append(d.case_prepeak_qc.path)
-                chip_seq_postpeak_samples.append(d.entity_name)
-                chip_seq_postpeak_reports.append(d.chip_qc.path)
+            elif d.process.type == "data:chipseq:callpeak:macs2:":
+                name = os.path.basename(d.output.called_peaks.path)
+                create_symlink(
+                    d.output.called_peaks.path, os.path.join(sample_dir, name)
+                )
+                chip_seq_samples.append(d.entity.name)
+                chip_seq_prepeak_reports.append(d.output.case_prepeak_qc.path)
+                chip_seq_postpeak_samples.append(d.entity.name)
+                chip_seq_postpeak_reports.append(d.output.chip_qc.path)
                 # MACS2 analysis can be run without the background sample,
                 # thus the associated report might not exits
                 try:
-                    if os.path.isfile(d.control_prepeak_qc.path):
-                        chip_seq_samples.append(f"Background of {d.entity_name}")
-                        chip_seq_prepeak_reports.append(d.control_prepeak_qc.path)
+                    if os.path.isfile(d.output.control_prepeak_qc.path):
+                        chip_seq_samples.append(f"Background of {d.entity.name}")
+                        chip_seq_prepeak_reports.append(
+                            d.output.control_prepeak_qc.path
+                        )
                 except AttributeError:
                     pass
 
-            elif d.type == "data:samtools:idxstats:":
-                name = os.path.basename(d.report.path)
-                create_symlink(d.report.path, os.path.join(sample_dir, name))
+            elif d.process.type == "data:samtools:idxstats:":
+                name = os.path.basename(d.output.report.path)
+                create_symlink(d.output.report.path, os.path.join(sample_dir, name))
 
-            elif d.type == "data:qorts:qc:":
+            elif d.process.type == "data:qorts:qc:":
                 qorts_path = os.path.join(sample_dir, "QoRTs")
                 os.mkdir(qorts_path)
-                name = os.path.basename(d.summary.path)
-                create_symlink(d.summary.path, os.path.join(qorts_path, name))
+                name = os.path.basename(d.output.summary.path)
+                create_symlink(d.output.summary.path, os.path.join(qorts_path, name))
 
-            elif d.type == "data:expression:salmon:":
-                create_symlink(d.salmon_output.path, sample_dir)
+            elif d.process.type == "data:expression:salmon:":
+                create_symlink(d.output.salmon_output.path, sample_dir)
                 # Strandedness report might not exist in legacy Salmon objects
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
 
-            elif d.type.startswith("data:alleyoop"):
-                create_symlink(d.report.path, sample_dir)
+            elif d.process.type.startswith("data:alleyoop"):
+                create_symlink(d.output.report.path, sample_dir)
                 # Alleyoop summary may contain PCA plot data
                 try:
-                    if os.path.isfile(d.plot_data.path):
-                        create_symlink(d.plot_data.path, sample_dir)
+                    if os.path.isfile(d.output.plot_data.path):
+                        create_symlink(d.output.plot_data.path, sample_dir)
                 except AttributeError:
                     pass
 
-            elif d.type.startswith("data:picard"):
-                name = os.path.basename(d.report.path)
-                create_symlink(d.report.path, os.path.join(sample_dir, name))
+            elif d.process.type.startswith("data:picard"):
+                name = os.path.basename(d.output.report.path)
+                create_symlink(d.output.report.path, os.path.join(sample_dir, name))
 
-            elif d.type == "data:wgbs:bsrate:":
-                name = os.path.basename(d.report.path)
-                create_symlink(d.report.path, os.path.join(sample_dir, name))
-                bsrate_samples.append(d.entity_name)
-                bsrate_reports.append(d.report.path)
+            elif d.process.type == "data:wgbs:bsrate:":
+                name = os.path.basename(d.output.report.path)
+                create_symlink(d.output.report.path, os.path.join(sample_dir, name))
+                bsrate_samples.append(d.entity.name)
+                bsrate_reports.append(d.output.report.path)
                 create_bsrate_table(bsrate_samples, bsrate_reports)
 
-            elif d.type == "data:chipqc:":
+            elif d.process.type == "data:chipqc:":
                 plot_paths = [
-                    d.ccplot.path,
-                    d.coverage_histogram.path,
-                    d.peak_profile.path,
-                    d.peaks_barplot.path,
-                    d.peaks_density_plot.path,
+                    d.output.ccplot.path,
+                    d.output.coverage_histogram.path,
+                    d.output.peak_profile.path,
+                    d.output.peaks_barplot.path,
+                    d.output.peaks_density_plot.path,
                 ]
                 for path in plot_paths:
                     name = os.path.basename(path)
                     create_symlink(path, os.path.join(sample_dir, name))
                 # ChipQC may contain enrichment heatmap
                 try:
-                    if os.path.isfile(d.enrichment_heatmap.path):
-                        name = os.path.basename(d.enrichment_heatmap.path)
+                    if os.path.isfile(d.output.enrichment_heatmap.path):
+                        name = os.path.basename(d.output.enrichment_heatmap.path)
                         create_symlink(
-                            d.enrichment_heatmap.path, os.path.join(sample_dir, name)
+                            d.output.enrichment_heatmap.path,
+                            os.path.join(sample_dir, name),
                         )
                 except AttributeError:
                     pass
 
-            elif d.type == "data:nanostring:rcc:":
+            elif d.process.type == "data:nanostring:rcc:":
                 # Sample_qc is an optional field
                 try:
-                    name = os.path.basename(d.sample_qc.path)
-                    create_symlink(d.sample_qc.path, os.path.join(sample_dir, name))
-                    rcc_samples.append(d.entity_name)
-                    rcc_reports.append(d.sample_qc.path)
+                    name = os.path.basename(d.output.sample_qc.path)
+                    create_symlink(
+                        d.output.sample_qc.path, os.path.join(sample_dir, name)
+                    )
+                    rcc_samples.append(d.entity.name)
+                    rcc_reports.append(d.output.sample_qc.path)
                     create_nanostring_table(rcc_samples, rcc_reports)
 
-                    lane_name = os.path.basename(d.lane_attributes.path)
+                    lane_name = os.path.basename(d.output.lane_attributes.path)
                     create_symlink(
-                        d.lane_attributes.path, os.path.join(sample_dir, lane_name)
+                        d.output.lane_attributes.path,
+                        os.path.join(sample_dir, lane_name),
                     )
-                    rcc_lane_reports.append(d.lane_attributes.path)
+                    rcc_lane_reports.append(d.output.lane_attributes.path)
                     create_lane_table(rcc_samples, rcc_lane_reports)
 
                 except AttributeError:
@@ -587,7 +603,7 @@ class MultiQC(Process):
             args.extend(["-c", "/opt/resolwebio/assets/multiqc_config.yml"])
 
         if inputs.advanced.cl_config:
-            args.extend(["--cl-config ", inputs.advanced.cl_config])
+            args.extend(["--cl-config ", inputs.advanced.output.cl_config])
 
         with Cmd.env(LC_ALL="C.UTF-8"):
             return_code, _, _ = Cmd["multiqc"]["."][args] & TEE(retcode=None)

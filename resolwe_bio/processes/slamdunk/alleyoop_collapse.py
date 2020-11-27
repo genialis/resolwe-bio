@@ -30,7 +30,7 @@ class AlleyoopCollapse(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -43,7 +43,7 @@ class AlleyoopCollapse(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.1.1"
+    version = "1.2.0"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
@@ -67,7 +67,7 @@ class AlleyoopCollapse(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.slamdunk.tcount.path)
+        basename = os.path.basename(inputs.slamdunk.output.tcount.path)
         assert basename.endswith(".tsv")
         name = basename[:-4]
 
@@ -79,7 +79,7 @@ class AlleyoopCollapse(Process):
         ]
 
         return_code, _, _ = Cmd["alleyoop"]["collapse"][args][
-            inputs.slamdunk.tcount.path
+            inputs.slamdunk.output.tcount.path
         ] & TEE(retcode=None)
         if return_code:
             self.error("Alleyoop collapse analysis failed.")
@@ -117,7 +117,7 @@ class AlleyoopCollapse(Process):
         for fsublist in features_sublists:
             features = res.feature.filter(
                 source=inputs.source,
-                species=inputs.slamdunk.species,
+                species=inputs.slamdunk.output.species,
                 feature_id__in=fsublist,
             )
             feature_dict.update({f.feature_id: f.name for f in features})
@@ -126,5 +126,5 @@ class AlleyoopCollapse(Process):
         tcount_tpm.to_csv(collapsed_output, columns=out_columns, sep="\t")
 
         outputs.tcount = collapsed_output
-        outputs.species = inputs.slamdunk.species
-        outputs.build = inputs.slamdunk.build
+        outputs.species = inputs.slamdunk.output.species
+        outputs.build = inputs.slamdunk.output.build

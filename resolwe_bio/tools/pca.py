@@ -6,7 +6,7 @@ import json
 
 import numpy as np
 import pandas as pd
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 from sklearn.decomposition import PCA
 
 
@@ -73,7 +73,7 @@ def get_pca(expressions=pd.DataFrame(), n_components=2, gene_labels=[]):
     }
 
     if expressions.empty:
-        print(
+        send_message(
             warning(
                 "Gene selection and filtering resulted in no genes. Please select different samples or genes."
             )

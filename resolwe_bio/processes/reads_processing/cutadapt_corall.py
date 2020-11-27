@@ -25,14 +25,14 @@ class CutadaptCorallSingle(Process):
     slug = "cutadapt-corall-single"
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 10,
@@ -91,12 +91,12 @@ class CutadaptCorallSingle(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         # Get input reads file name (for the first of the possible multiple lanes)
-        reads_path = os.path.basename(inputs.reads.fastq[0].path)
+        reads_path = os.path.basename(inputs.reads.output.fastq[0].path)
         assert reads_path.endswith(".fastq.gz")
         name = reads_path[:-9]
         # Concatenate multi-lane read files
         (
-            Cmd["cat"][[reads.path for reads in inputs.reads.fastq]]
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
             > "input_reads.fastq.gz"
         )()
 
@@ -205,7 +205,7 @@ class CutadaptCorallPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 10,
@@ -271,20 +271,20 @@ class CutadaptCorallPaired(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         # Get input reads file name (for the first of the possible multiple lanes)
-        mate1_path = os.path.basename(inputs.reads.fastq[0].path)
+        mate1_path = os.path.basename(inputs.reads.output.fastq[0].path)
         assert mate1_path.endswith(".fastq.gz")
         name_mate1 = mate1_path[:-9]
-        mate2_path = os.path.basename(inputs.reads.fastq2[0].path)
+        mate2_path = os.path.basename(inputs.reads.output.fastq2[0].path)
         assert mate2_path.endswith(".fastq.gz")
         name_mate2 = mate2_path[:-9]
 
         # Concatenate multi-lane read files
         (
-            Cmd["cat"][[reads.path for reads in inputs.reads.fastq]]
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
             > "input_reads_mate1.fastq.gz"
         )()
         (
-            Cmd["cat"][[reads.path for reads in inputs.reads.fastq2]]
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]]
             > "input_reads_mate2.fastq.gz"
         )()
 

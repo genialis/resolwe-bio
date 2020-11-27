@@ -25,13 +25,13 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.0.0"
+    version = "2.1.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
     }
     data_name = '{{ bam|sample_name|default("?") }}'
 
@@ -94,11 +94,11 @@ class BQSR(Process):
     def run(self, inputs, outputs):
         """Run the analysis."""
         # Prepare output file names.
-        bam = os.path.basename(inputs.bam.bam.path)
-        file_name = os.path.splitext(os.path.basename(inputs.bam.bam.path))[0]
+        bam = os.path.basename(inputs.bam.output.bam.path)
+        file_name = os.path.splitext(os.path.basename(inputs.bam.output.bam.path))[0]
         bam_rg = f"{file_name}_RG.bam"
 
-        species = inputs.bam.species
+        species = inputs.bam.output.species
 
         # Parse read_group argument from a string, delimited by a ; and =
         # into a form that will be accepted by AddOrReplaceReadGroups tool.
@@ -108,7 +108,7 @@ class BQSR(Process):
         if inputs.read_group:
             arrg = [
                 "--INPUT",
-                f"{inputs.bam.bam.path}",
+                f"{inputs.bam.output.bam.path}",
                 "--VALIDATION_STRINGENCY",
                 f"{inputs.validation_stringency}",
                 "--OUTPUT",
@@ -157,7 +157,7 @@ class BQSR(Process):
 
             Cmd["gatk"]["AddOrReplaceReadGroups"](arrg)
         else:
-            shutil.copy2(inputs.bam.bam.path, bam_rg)
+            shutil.copy2(inputs.bam.output.bam.path, bam_rg)
 
         # Make sure the file is indexed.
         Cmd["samtools"]["index"](bam_rg)
@@ -169,16 +169,16 @@ class BQSR(Process):
             "--output",
             f"{recal_table}",
             "--reference",
-            f"{inputs.reference.fasta.path}",
+            f"{inputs.reference.output.fasta.path}",
             "--read-validation-stringency",
             f"{inputs.validation_stringency}",
         ]
         if inputs.intervals:
-            br_inputs.extend(["--intervals", f"{inputs.intervals.bed.path}"])
+            br_inputs.extend(["--intervals", f"{inputs.intervals.output.bed.path}"])
 
         # Add known sites to the input parameters of BaseRecalibrator.
         for site in inputs.known_sites:
-            br_inputs.extend(["--known-sites", f"{site.vcf.path}"])
+            br_inputs.extend(["--known-sites", f"{site.output.vcf.path}"])
 
         # Prepare bqsr recalibration file.
         Cmd["gatk"]["BaseRecalibrator"](br_inputs)
@@ -192,7 +192,7 @@ class BQSR(Process):
             "--output",
             f"{bam}",
             "--reference",
-            f"{inputs.reference.fasta.path}",
+            f"{inputs.reference.output.fasta.path}",
             "--bqsr-recal-file",
             f"{recal_table}",
             "--read-validation-stringency",
@@ -222,5 +222,5 @@ class BQSR(Process):
         outputs.stats = stats
 
         outputs.species = species
-        outputs.build = inputs.bam.build
+        outputs.build = inputs.bam.output.build
         outputs.recal_table = recal_table

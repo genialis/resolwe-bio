@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/biox:1.0.0
+        image: resolwebio/biox:2.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.3.1
+  version: 1.4.0
   type: data:expression:polya
   category: Other
   flow_collection: sample
@@ -105,8 +105,9 @@
       re-save-file rpkum ${NAME}_expression_rpkum.tab.gz
 
       mv expression_rpkum_polya.tab.gz ${NAME}_expression_rpkum_polya.tab.gz
-      expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz
+      expression2storage.py ${NAME}_expression_rpkum_polya.tab.gz --output json.txt
       re-checkrc
+      re-save exp_json json.txt
       re-save-file exp ${NAME}_expression_rpkum_polya.tab.gz
 
       re-save source {{gff.source}}

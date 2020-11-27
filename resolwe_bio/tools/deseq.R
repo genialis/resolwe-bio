@@ -7,8 +7,8 @@ require('tximport')
 #' @param msg Error message
 error <- function(msg) {
     msg <- gsub('\\n', '', msg)  # remove newline characters
-    message(paste('{"proc.error": "', msg, '"}', sep=''))
-    quit(status=1)
+    system(sprintf("re-error \"%s\"", msg))
+    quit(save = "no", status = 1)
 }
 
 parser = ArgumentParser(description='Run DESeq2 differential expression')

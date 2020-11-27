@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:5.1.0
     resources:
       network: true
   data_name: '{{ panel_name }}'
-  version: 1.1.1
+  version: 1.2.0
   type: data:masterfile:amplicon
   category: Import
   persistence: CACHED

@@ -52,13 +52,13 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.3.1"
+    version = "1.4.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
+        "executor": {"docker": {"image": "resolwebio/sra-tools:2.0.0"}},
         "resources": {
             "cores": 1,
             "memory": 8192,
@@ -147,7 +147,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.3.1"
+    version = "1.4.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -157,7 +157,7 @@ class ImportSraSingle(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
+        "executor": {"docker": {"image": "resolwebio/sra-tools:2.0.0"}},
         "resources": {
             "cores": 1,
             "memory": 8192,
@@ -313,7 +313,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.3.1"
+    version = "1.4.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -323,7 +323,7 @@ class ImportSraPaired(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/sra-tools:1.0.0"}},
+        "executor": {"docker": {"image": "resolwebio/sra-tools:2.0.0"}},
         "resources": {
             "cores": 1,
             "memory": 8192,

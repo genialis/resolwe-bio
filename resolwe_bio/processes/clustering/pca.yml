@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
   data_name: 'PCA'
-  version: 2.2.0
+  version: 2.3.0
   type: data:pca
   category: Other
   persistence: TEMP

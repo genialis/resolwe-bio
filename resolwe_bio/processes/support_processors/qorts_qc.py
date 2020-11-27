@@ -33,7 +33,7 @@ class QortsQC(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.10.0",
+                "image": "resolwebio/rnaseq:5.10.0",
             },
         },
         "resources": {
@@ -42,7 +42,7 @@ class QortsQC(Process):
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = "1.4.1"
+    version = "1.5.0"
     process_type = "data:qorts:qc"
     category = "Other"
     entity = {
@@ -109,9 +109,9 @@ class QortsQC(Process):
         lib_strand = ""
         if inputs.options.stranded == "auto":
             detect_strandedness_inputs = [
-                inputs.alignment.bam.path,
+                inputs.alignment.output.bam.path,
                 inputs.options.n_reads,
-                inputs.options.cdna_index.index.path,
+                inputs.options.cdna_index.output.index.path,
                 self.requirements.resources.cores,
             ]
             Cmd["detect_strandedness.sh"](detect_strandedness_inputs)
@@ -133,8 +133,8 @@ class QortsQC(Process):
             "--randomSeed",
             42,
             "--generatePlots",
-            inputs.alignment.bam.path,
-            inputs.annotation.annot.path,
+            inputs.alignment.output.bam.path,
+            inputs.annotation.output.annot.path,
             "qorts_output",
         ]
 
@@ -143,7 +143,9 @@ class QortsQC(Process):
         # Detect if aligned reads in BAM file are of single or paired-end type
         # The samtools view command counts the number of reads with the SAM flag "read paired (0x1)"
         if (
-            Cmd["samtools"]("view", "-c", "-f", "1", inputs.alignment.bam.path).strip()
+            Cmd["samtools"](
+                "view", "-c", "-f", "1", inputs.alignment.output.bam.path
+            ).strip()
             == "0"
         ):
             optional_args.append("--singleEnded")

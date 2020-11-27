@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/chipseq:4.0.0
+        image: resolwebio/chipseq:5.0.0
     resources:
       memory: 16384
       cores: 10
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 0.2.3
+  version: 0.3.0
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample

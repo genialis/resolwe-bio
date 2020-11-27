@@ -34,13 +34,13 @@ class Cuffdiff(Process):
     slug = "cuffdiff"
     name = "Cuffdiff 2.2"
     process_type = "data:differentialexpression:cuffdiff"
-    version = "3.2.0"
+    version = "3.3.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
         "resources": {"cores": 10, "memory": 8192},
     }
     data_name = "Cuffdiff results"
@@ -200,20 +200,20 @@ class Cuffdiff(Process):
         cuffquants = inputs.case + inputs.control
 
         for c in cuffquants:
-            if c.source != cuffquants[0].source:
+            if c.output.source != cuffquants[0].output.source:
                 self.error(
                     "Input samples are of different Gene ID databases: "
-                    f"{c.source} and {cuffquants[0].source}."
+                    f"{c.output.source} and {cuffquants[0].output.source}."
                 )
-            if c.species != cuffquants[0].species:
+            if c.output.species != cuffquants[0].output.species:
                 self.error(
                     "Input samples are of different Species: "
-                    f"{c.species} and {cuffquants[0].species}."
+                    f"{c.output.species} and {cuffquants[0].output.species}."
                 )
-            if c.build != cuffquants[0].build:
+            if c.output.build != cuffquants[0].output.build:
                 self.error(
                     "Input samples are of different Panel types: "
-                    f"{c.build} and {cuffquants[0].build}."
+                    f"{c.output.build} and {cuffquants[0].output.build}."
                 )
 
         for case in inputs.case:
@@ -224,13 +224,15 @@ class Cuffdiff(Process):
                     "and Control group."
                 )
 
-        case_paths = ",".join([case.cxb.path for case in inputs.case])
-        control_paths = ",".join([control.cxb.path for control in inputs.control])
+        case_paths = ",".join([case.output.cxb.path for case in inputs.case])
+        control_paths = ",".join(
+            [control.output.cxb.path for control in inputs.control]
+        )
         labels = ",".join(inputs.labels)
 
-        outputs.source = cuffquants[0].source
-        outputs.species = cuffquants[0].species
-        outputs.build = cuffquants[0].build
+        outputs.source = cuffquants[0].output.source
+        outputs.species = cuffquants[0].output.species
+        outputs.build = cuffquants[0].output.build
         outputs.feature_type = "gene"
 
         self.progress(0.1)
@@ -253,12 +255,12 @@ class Cuffdiff(Process):
             "-quiet",
         ]
         if inputs.genome:
-            params.extend(["-frag-bias-correct", inputs.genome.fasta.path])
+            params.extend(["-frag-bias-correct", inputs.genome.output.fasta.path])
         if inputs.multi_read_correct:
             params.append("-multi-read-correct")
 
         return_code, _, _ = Cmd["cuffdiff"][params][
-            inputs.annotation.annot.path, control_paths, case_paths
+            inputs.annotation.output.annot.path, control_paths, case_paths
         ] & TEE(retcode=None)
         if return_code:
             self.error("Error while computing differential expression with Cuffdiff.")
@@ -343,7 +345,7 @@ class Cuffdiff(Process):
                 gene_file.rename(Path() / gene_file.name)
                 process_inputs = {
                     "src": str(gene_file.name),
-                    "source": cuffquants[0].source,
-                    "species": cuffquants[0].species,
+                    "source": cuffquants[0].output.source,
+                    "species": cuffquants[0].output.species,
                 }
                 self.run_process("upload-geneset", process_inputs)

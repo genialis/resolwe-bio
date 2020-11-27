@@ -10,7 +10,7 @@ import argparse
 
 import pandas as pd
 from pandas.errors import EmptyDataError
-from resolwe_runtime_utils import error
+from resolwe_runtime_utils import error, send_message
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("-f", "--bed_file", help="Bed file.")
@@ -19,7 +19,7 @@ args = parser.parse_args()
 try:
     df = pd.read_csv(args.bed_file, delimiter="\t", header=None, dtype=str)
 except EmptyDataError:
-    print(
+    send_message(
         error(
             f"The input BED file {args.bed_file} is empty. Your analysis might "
             f"have failed to identify regions of interest (peaks, junctions, etc.)."

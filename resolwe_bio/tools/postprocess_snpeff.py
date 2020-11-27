@@ -5,7 +5,7 @@ import copy
 import csv
 import os
 
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 
 VALID_VAR_SOURCES = ["gatk_hc", "lofreq"]
 
@@ -32,7 +32,7 @@ def iterate_snpeff_file(file_handle, filename):
         # First entry is AD of REF allele, and the rest of them are for ALT alleles.
         ad_s = row.get("GEN[0].AD", default_ad_s).strip().split(",")[1:]
         if not (len(alts) == len(afqs) == len(ad_s)):
-            print(
+            send_message(
                 warning(
                     "Inconsistency for entry {} in file {}. Skipping this entry.".format(
                         row, os.path.basename(filename)

@@ -23,7 +23,7 @@ class ReverseComplementSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:1.3.1"},
+            "docker": {"image": "resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class ReverseComplementSingle(Process):
         "type": "sample",
     }
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "1.0.1"
+    version = "1.1.0"
 
     class Input:
         """Input fields to process ReverseComplementSingle."""
@@ -50,13 +50,13 @@ class ReverseComplementSingle(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        basename = os.path.basename(inputs.reads.fastq[0].path)
+        basename = os.path.basename(inputs.reads.output.fastq[0].path)
         assert basename.endswith(".fastq.gz")
         name = basename[:-9]
         complemented_name = f"{name}_complemented.fastq"
         # Concatenate multilane reads
         (
-            Cmd["cat"][[reads.path for reads in inputs.reads.fastq]]
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
             > "input_reads.fastq.gz"
         )()
 
@@ -85,7 +85,7 @@ class ReverseComplementPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:1.3.1"},
+            "docker": {"image": "resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -129,8 +129,8 @@ class ReverseComplementPaired(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        basename_mate1 = os.path.basename(inputs.reads.fastq[0].path)
-        basename_mate2 = os.path.basename(inputs.reads.fastq2[0].path)
+        basename_mate1 = os.path.basename(inputs.reads.output.fastq[0].path)
+        basename_mate2 = os.path.basename(inputs.reads.output.fastq2[0].path)
         assert basename_mate1.endswith(".fastq.gz")
         assert basename_mate2.endswith(".fastq.gz")
         name_mate1 = basename_mate1[:-9]
@@ -138,8 +138,14 @@ class ReverseComplementPaired(Process):
         original_mate1 = f"{name_mate1}_original.fastq.gz"
         original_mate2 = f"{name_mate2}_original.fastq.gz"
 
-        (Cmd["cat"][[reads.path for reads in inputs.reads.fastq]] > original_mate1)()
-        (Cmd["cat"][[reads.path for reads in inputs.reads.fastq2]] > original_mate2)()
+        (
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
+            > original_mate1
+        )()
+        (
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]]
+            > original_mate2
+        )()
 
         if inputs.select_mate == "Mate 1":
             complemented_mate1 = f"{name_mate1}_complemented.fastq"

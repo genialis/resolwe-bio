@@ -7,7 +7,7 @@ import json
 import numpy as np
 import pandas as pd
 import resdk
-from resolwe_runtime_utils import error, warning
+from resolwe_runtime_utils import error, send_message, warning
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.stats import spearmanr, zscore
 
@@ -168,7 +168,7 @@ def output_json(result=dict(), fname=None):
 
 def set_error(msg):
     """Print error message and raise ValueError."""
-    print(error(msg))
+    send_message(error(msg))
     raise ValueError(msg)
 
 
@@ -271,7 +271,7 @@ def main():
                 "samples with correlation distance "
                 "metric.".format(len(removed), ", ".join(removed[:3]) + suffix)
             )
-            print(warning(msg))
+            send_message(warning(msg))
     else:
         matches = [True] * len(args.sample_files)
 
@@ -293,7 +293,7 @@ def main():
                     len(excluded), ", ".join(excluded_names)
                 )
             )
-        print(warning(msg))
+        send_message(warning(msg))
     if len(excluded) > 1:
         if not args.gene_labels:
             msg = (
@@ -309,7 +309,7 @@ def main():
                     len(excluded), ", ".join(excluded_names)
                 )
             )
-        print(warning(msg))
+        send_message(warning(msg))
 
     linkage, dendrogram = get_clustering(
         expressions,

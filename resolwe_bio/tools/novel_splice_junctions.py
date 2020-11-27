@@ -6,7 +6,7 @@ import os
 import sys
 
 import pandas as pd
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 
 parser = argparse.ArgumentParser(description=__doc__)
 
@@ -23,7 +23,7 @@ if __name__ == "__main__":
     bed_file = args.bed_file
 
     if os.path.getsize(bed_file) == 0:
-        print(warning("Bed file has no entries."))
+        send_message(warning("Bed file has no entries."))
         os.rename(bed_file, "novel_sj.bed")
         sys.exit(0)
 

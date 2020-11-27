@@ -23,13 +23,13 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.1.2"
+    version = "1.2.0"
     category = "Clipping"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
     }
     data_name = '{{ alignment|sample_name|default("?") }}'
 
@@ -56,10 +56,10 @@ class Bamclipper(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        bam_build = inputs.alignment.build
-        bam_species = inputs.alignment.species
+        bam_build = inputs.alignment.output.build
+        bam_species = inputs.alignment.output.species
 
-        name = os.path.splitext(os.path.basename(inputs.alignment.bam.path))[0]
+        name = os.path.splitext(os.path.basename(inputs.alignment.output.bam.path))[0]
 
         # If so specified, skip bamclipper step. Prepare outputs to match those of as if bamclipping proceeded.
         if inputs.skip:
@@ -67,12 +67,12 @@ class Bamclipper(Process):
             bai = f"{bam}.bai"
             bigwig = f"{bam[:-4]}.bw"
 
-            copy2(inputs.alignment.bam.path, bam)
+            copy2(inputs.alignment.output.bam.path, bam)
 
             self.info("Skipping bamclipper step.")
         else:
-            bedpe_build = inputs.bedpe.build
-            bedpe_species = inputs.bedpe.species
+            bedpe_build = inputs.bedpe.output.build
+            bedpe_species = inputs.bedpe.output.species
 
             if bam_build != bedpe_build:
                 self.error(
@@ -91,9 +91,9 @@ class Bamclipper(Process):
             # extension, e.g. "file.bam" now becomes "file.primerclipped.bam".
             bc_inputs = [
                 "-b",
-                f"{inputs.alignment.bam.path}",
+                f"{inputs.alignment.output.bam.path}",
                 "-p",
-                f"{inputs.bedpe.bedpe.path}",
+                f"{inputs.bedpe.output.bedpe.path}",
             ]
             Cmd["bamclipper.sh"](bc_inputs)
 

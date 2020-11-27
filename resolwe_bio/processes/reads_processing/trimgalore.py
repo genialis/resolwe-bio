@@ -45,14 +45,14 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Trim"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.12.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.12.0"},
         },
         "resources": {
             "cores": 10,
@@ -292,10 +292,10 @@ class TrimGalorePaired(Process):
         if inputs.hard_trim.trim_5 and inputs.hard_trim.trim_3:
             self.error("Only one type of hard trimming can be performed at once.")
 
-        mate1_path = os.path.basename(inputs.reads.fastq[0].path)
+        mate1_path = os.path.basename(inputs.reads.output.fastq[0].path)
         assert mate1_path.endswith(".fastq.gz")
         name_mate1 = mate1_path[:-9]
-        mate2_path = os.path.basename(inputs.reads.fastq2[0].path)
+        mate2_path = os.path.basename(inputs.reads.output.fastq2[0].path)
         assert mate2_path.endswith(".fastq.gz")
         name_mate2 = mate2_path[:-9]
 
@@ -303,8 +303,8 @@ class TrimGalorePaired(Process):
         merged_r1_name = merged_r1[:-9]
         merged_r2 = "input_reads_mate2.fastq.gz"
         merged_r2_name = merged_r2[:-9]
-        (Cmd["cat"][[reads.path for reads in inputs.reads.fastq]] > merged_r1)()
-        (Cmd["cat"][[reads.path for reads in inputs.reads.fastq2]] > merged_r2)()
+        (Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]] > merged_r1)()
+        (Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]] > merged_r2)()
 
         params = [
             "--paired",
@@ -353,11 +353,17 @@ class TrimGalorePaired(Process):
                 params.extend(["--adapter2", adapter])
         if inputs.adapter_trim.adapter_file_1:
             params.extend(
-                ["--adapter", f"file:{inputs.adapter_trim.adapter_file_1.fasta.path}"]
+                [
+                    "--adapter",
+                    f"file:{inputs.adapter_trim.adapter_file_1.output.fasta.path}",
+                ]
             )
         if inputs.adapter_trim.adapter_file_2:
             params.extend(
-                ["--adapter2", f"file:{inputs.adapter_trim.adapter_file_2.fasta.path}"]
+                [
+                    "--adapter2",
+                    f"file:{inputs.adapter_trim.adapter_file_2.output.fasta.path}",
+                ]
             )
         if inputs.adapter_trim.universal_adapter:
             params.append(inputs.adapter_trim.universal_adapter)

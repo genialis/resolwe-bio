@@ -22,14 +22,14 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 10,
@@ -93,12 +93,12 @@ class Cutadapt3Prime(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         # Get input reads file name (for the first of the possible multiple lanes)
-        reads_path = os.path.basename(inputs.reads.fastq[0].path)
+        reads_path = os.path.basename(inputs.reads.output.fastq[0].path)
         assert reads_path.endswith(".fastq.gz")
         name = reads_path[:-9]
         # Concatenate multi-lane read files
         (
-            Cmd["cat"][[reads.path for reads in inputs.reads.fastq]]
+            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
             > "input_reads.fastq.gz"
         )()
 

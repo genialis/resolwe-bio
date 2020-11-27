@@ -26,7 +26,7 @@ class AlleyoopSummary(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -38,7 +38,7 @@ class AlleyoopSummary(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk.0|sample_name|default("?") }}'
-    version = "1.0.0"
+    version = "1.1.0"
 
     class Input:
         """Input fields for AlleyoopSummary."""
@@ -69,10 +69,10 @@ class AlleyoopSummary(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
         for dunk in inputs.slamdunk:
-            basename = os.path.basename(dunk.bam.path)
+            basename = os.path.basename(dunk.output.bam.path)
             assert basename.endswith(".bam")
             name = basename[:-4]
-            (Cmd["ln"]["-s", dunk.tcount.path, f"{name}_tcount.tsv"])()
+            (Cmd["ln"]["-s", dunk.output.tcount.path, f"{name}_tcount.tsv"])()
 
         report_file = "summary.txt"
         args = [
@@ -82,7 +82,7 @@ class AlleyoopSummary(Process):
             ".",
         ]
 
-        bam_paths = [dunk.bam.path for dunk in inputs.slamdunk]
+        bam_paths = [dunk.output.bam.path for dunk in inputs.slamdunk]
 
         return_code, _, _ = Cmd["alleyoop"]["summary"][args][bam_paths] & TEE(
             retcode=None
@@ -103,5 +103,5 @@ class AlleyoopSummary(Process):
         change_filename_column(report_file, out_file)
 
         outputs.report = out_file
-        outputs.species = inputs.slamdunk[0].species
-        outputs.build = inputs.slamdunk[0].build
+        outputs.species = inputs.slamdunk[0].output.species
+        outputs.build = inputs.slamdunk[0].output.build

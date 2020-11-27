@@ -5,6 +5,8 @@ import argparse
 import gzip
 import json
 
+from resolwe_runtime_utils import send_message, warning
+
 
 def parse_arguments():
     """Parse command line arguments."""
@@ -25,7 +27,7 @@ def main():
         geneset = sorted(set(genes))
 
         if len(genes) != len(geneset):
-            print('{"proc.warning":"Removed duplicated genes."}')
+            send_message(warning("Removed duplicated genes."))
 
         with open(args.output_json, "w") as json_out:
             json.dump(

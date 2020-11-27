@@ -56,7 +56,7 @@ class SalmonQuant(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.10.0",
+                "image": "resolwebio/rnaseq:5.10.0",
             },
         },
         "resources": {
@@ -66,7 +66,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.0.1"
+    version = "2.1.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -232,27 +232,27 @@ class SalmonQuant(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        if inputs.salmon_index.species != inputs.annotation.species:
+        if inputs.salmon_index.output.species != inputs.annotation.output.species:
             self.error(
                 "Salmon index file species ({}) must match GTF annotation "
                 "file species ({})".format(
-                    inputs.salmon_index.species, inputs.annotation.species
+                    inputs.salmon_index.output.species, inputs.annotation.output.species
                 )
             )
 
-        if inputs.salmon_index.build != inputs.annotation.build:
+        if inputs.salmon_index.output.build != inputs.annotation.output.build:
             self.error(
                 "Salmon index file build ({}) must match GTF annotation "
                 "file build ({})".format(
-                    inputs.salmon_index.build, inputs.annotation.build
+                    inputs.salmon_index.output.build, inputs.annotation.output.build
                 )
             )
 
-        if inputs.salmon_index.source != inputs.annotation.source:
+        if inputs.salmon_index.output.source != inputs.annotation.output.source:
             self.error(
                 "Salmon index file source ({}) must match GTF annotation "
                 "file source ({})".format(
-                    inputs.salmon_index.source, inputs.annotation.source
+                    inputs.salmon_index.output.source, inputs.annotation.output.source
                 )
             )
 
@@ -265,7 +265,7 @@ class SalmonQuant(Process):
 
         args = [
             "-i",
-            inputs.salmon_index.index.path,
+            inputs.salmon_index.output.index.path,
             "-l",
             inputs.options.stranded,
             "--incompatPrior",
@@ -282,10 +282,10 @@ class SalmonQuant(Process):
 
         # Prepare .FASTQ file inputs based on the reads input type
         if inputs.reads.type.startswith("data:reads:fastq:single:"):
-            args.extend(["-r"] + [lane.path for lane in inputs.reads.fastq])
+            args.extend(["-r"] + [lane.path for lane in inputs.reads.output.fastq])
         else:
-            args.extend(["-1"] + [lane.path for lane in inputs.reads.fastq])
-            args.extend(["-2"] + [lane.path for lane in inputs.reads.fastq2])
+            args.extend(["-1"] + [lane.path for lane in inputs.reads.output.fastq])
+            args.extend(["-2"] + [lane.path for lane in inputs.reads.output.fastq2])
 
         # Prepare optional inputs
         if inputs.options.seq_bias and not inputs.options.no_length_correction:
@@ -324,23 +324,23 @@ class SalmonQuant(Process):
             self.error("Error while running Salmon Quant.")
 
         # Use tximport to produce gene-level TPM values
-        reads_basename = os.path.basename(inputs.reads.fastq[0].path)
+        reads_basename = os.path.basename(inputs.reads.output.fastq[0].path)
         assert reads_basename.endswith(".fastq.gz")
         reads_name = reads_basename[:-9]
-        annot_basename = os.path.basename(inputs.annotation.annot.path)
+        annot_basename = os.path.basename(inputs.annotation.output.annot.path)
         assert annot_basename.endswith(".gtf")
         annot_name = annot_basename[:-4]
         tx2gene = "tx2gene_{}.txt".format(annot_name)
         if os.path.exists("salmon_output/quant.sf"):
             tximport_args = [
                 "salmon_output/quant.sf",
-                inputs.annotation.annot.path,
+                inputs.annotation.output.annot.path,
                 reads_name,
                 tx2gene,
             ]
             # Strip feature_id version for non-UCSC annotation source type
             # UCSC annotation type (mm10) contains features with dot in gene names
-            if inputs.annotation.source != "UCSC":
+            if inputs.annotation.output.source != "UCSC":
                 tximport_args.append("--ignoreTxVersion")
             return_code, _, _ = Cmd["tximport_summarize.R"][tximport_args] & TEE(
                 retcode=None
@@ -364,9 +364,9 @@ class SalmonQuant(Process):
             "--expressions",
             reads_name + output_suffix,
             "--source_db",
-            inputs.salmon_index.source,
+            inputs.salmon_index.output.source,
             "--species",
-            inputs.salmon_index.species,
+            inputs.salmon_index.output.species,
             "--output_name",
             reads_name + "_expressions",
             "--expressions_type",
@@ -396,6 +396,6 @@ class SalmonQuant(Process):
         outputs.strandedness_report = lib_type_report
         outputs.exp_type = abundance_unit
         outputs.feature_type = "gene"
-        outputs.source = inputs.salmon_index.source
-        outputs.species = inputs.salmon_index.species
-        outputs.build = inputs.salmon_index.build
+        outputs.source = inputs.salmon_index.output.source
+        outputs.species = inputs.salmon_index.output.species
+        outputs.build = inputs.salmon_index.output.build

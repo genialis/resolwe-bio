@@ -23,7 +23,7 @@ class UmiToolsDedup(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "resolwebio/rnaseq:4.9.0",
+                "image": "resolwebio/rnaseq:5.9.0",
             },
         },
         "resources": {
@@ -32,7 +32,7 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "UMI-tools dedup ({{alignment|sample_name}})"
-    version = "1.1.1"
+    version = "1.2.0"
     process_type = "data:alignment:bam:umitools:dedup"
     category = "Other"
     entity = {
@@ -60,7 +60,7 @@ class UmiToolsDedup(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        alignment_path = os.path.basename(inputs.alignment.bam.path)
+        alignment_path = os.path.basename(inputs.alignment.output.bam.path)
         assert alignment_path.endswith(".bam")
         name = alignment_path[:-4]
 
@@ -72,7 +72,7 @@ class UmiToolsDedup(Process):
         args = [
             "dedup",
             "-I",
-            inputs.alignment.bam.path,
+            inputs.alignment.output.bam.path,
             "-S",
             out_bam,
             "-L",
@@ -84,7 +84,9 @@ class UmiToolsDedup(Process):
         # Detect if aligned reads in BAM file are of single or paired-end type
         # The samtools view command counts the number of reads with the SAM flag "read paired (0x1)"
         if (
-            Cmd["samtools"]("view", "-c", "-f", "1", inputs.alignment.bam.path).strip()
+            Cmd["samtools"](
+                "view", "-c", "-f", "1", inputs.alignment.output.bam.path
+            ).strip()
             != "0"
         ):
             args.append("--paired")
@@ -108,7 +110,7 @@ class UmiToolsDedup(Process):
         # Calculate BigWig file
         bigwig_args = [
             out_bam,
-            inputs.alignment.species,
+            inputs.alignment.output.species,
             self.requirements.resources.cores,
         ]
         return_code, _, _ = Cmd["bamtobigwig.sh"][bigwig_args] & TEE(retcode=None)
@@ -121,5 +123,5 @@ class UmiToolsDedup(Process):
         outputs.stats = stats
         outputs.dedup_log = out_log
         outputs.dedup_stats = dedup_stats
-        outputs.species = inputs.alignment.species
-        outputs.build = inputs.alignment.build
+        outputs.species = inputs.alignment.output.species
+        outputs.build = inputs.alignment.output.build

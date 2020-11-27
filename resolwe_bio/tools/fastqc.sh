@@ -20,6 +20,5 @@ if [ "$3" != "" ]; then
 fi
 
 if [ "$4" != "" ]; then
-  FASTQC_URL="{\"file\":\"${DIRECTORY}/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
-  re-save-list "$4" "$FASTQC_URL"
+  re-save-file-list "$4" "${DIRECTORY}/${NAME}_fastqc/fastqc_report.html:fastqc/${NAME}_fastqc"
 fi

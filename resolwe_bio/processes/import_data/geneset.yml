@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.2
+  version: 1.2.0
   type: data:geneset
   category: Import
   persistence: RAW
@@ -94,12 +94,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
     resources:
       cores: 1
       memory: 1024
   data_name: Gene set
-  version: 1.1.2
+  version: 1.2.0
   type: data:geneset
   category: Import
   persistence: RAW
@@ -176,13 +176,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
     resources:
       cores: 1
       memory: 1024
       network: true
   data_name: Gene set (Venn)
-  version: 1.1.2
+  version: 1.2.0
   type: data:geneset:venn
   category: Import
   persistence: RAW

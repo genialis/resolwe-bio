@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/wgbs:1.1.0
+        image: resolwebio/wgbs:2.1.0
   data_name: "{{ methcounts|sample_name|default('?') }}"
-  version: 1.1.0
+  version: 1.2.0
   type: data:wgbs:hmr
   category: WGBS
   flow_collection: sample

@@ -24,7 +24,7 @@ class SlamdunkAllPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 8,
@@ -36,7 +36,7 @@ class SlamdunkAllPaired(Process):
     }
     category = "Slamdunk"
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "2.0.1"
+    version = "2.1.0"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
@@ -84,14 +84,14 @@ class SlamdunkAllPaired(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.reads.fastq[0].path)
+        basename = os.path.basename(inputs.reads.output.fastq[0].path)
         assert basename.endswith("fastq.gz")
         name = basename[:-9]
 
-        reads_paths = [reads.path for reads in inputs.reads.fastq] + [
-            reads.path for reads in inputs.reads.fastq2
+        reads_paths = [reads.path for reads in inputs.reads.output.fastq] + [
+            reads.path for reads in inputs.reads.output.fastq2
         ]
-        (Cmd["ln"]["-s", inputs.ref_seq.fasta.path, "ref_seq.fasta"])()
+        (Cmd["ln"]["-s", inputs.ref_seq.output.fasta.path, "ref_seq.fasta"])()
         concatenated_name = f"{name}_concatenated.fastq.gz"
         (Cmd["cat"][reads_paths] > concatenated_name)()
 
@@ -99,7 +99,7 @@ class SlamdunkAllPaired(Process):
             "-r",
             "ref_seq.fasta",
             "-b",
-            inputs.regions.bed.path,
+            inputs.regions.output.bed.path,
             "-o",
             "slamdunk_all",
             "-n",
@@ -111,7 +111,7 @@ class SlamdunkAllPaired(Process):
         ]
 
         if inputs.filter_multimappers:
-            args.extend(["-m", "-fb", inputs.regions.bed.path])
+            args.extend(["-m", "-fb", inputs.regions.output.bed.path])
 
         args.append(concatenated_name)
 
@@ -126,7 +126,11 @@ class SlamdunkAllPaired(Process):
             bam_stats = bam_name + "_stats.txt"
             (Cmd["samtools"]["flagstat", bam_file] > bam_stats)()
             Cmd["bamtobigwig.sh"](
-                [bam_file, inputs.regions.species, self.requirements.resources.cores]
+                [
+                    bam_file,
+                    inputs.regions.output.species,
+                    self.requirements.resources.cores,
+                ]
             )
             outputs.bam = bam_file
             outputs.bai = bam_file + ".bai"
@@ -163,5 +167,5 @@ class SlamdunkAllPaired(Process):
         outputs.filter_output = f"{name}_filter.zip"
         outputs.snp_output = f"{name}_snp.zip"
         outputs.count_output = f"{name}_count.zip"
-        outputs.species = inputs.regions.species
-        outputs.build = inputs.regions.build
+        outputs.species = inputs.regions.output.species
+        outputs.build = inputs.regions.output.build

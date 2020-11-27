@@ -45,7 +45,7 @@ class SlamCount(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -58,7 +58,7 @@ class SlamCount(Process):
         "type": "sample",
     }
     data_name = '{{ tcount|sample_name|default("?") }}'
-    version = "1.0.2"
+    version = "1.1.0"
 
     class Input:
         """Input fields for SlamCount."""
@@ -89,14 +89,14 @@ class SlamCount(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.tcount.tcount.path)
+        basename = os.path.basename(inputs.tcount.output.tcount.path)
         assert basename.endswith(".txt")
         name = basename[:-4]
 
         rc_file = name + "_rc.txt.gz"
         tpm_file = name + "_tmp.txt.gz"
 
-        prepare_expressions(inputs.tcount.tcount.path, rc_file, tpm_file)
+        prepare_expressions(inputs.tcount.output.tcount.path, rc_file, tpm_file)
 
         for exp_file in [rc_file, tpm_file]:
             if not os.path.isfile(exp_file):
@@ -116,7 +116,7 @@ class SlamCount(Process):
             "--source_db",
             inputs.source,
             "--species",
-            inputs.tcount.species,
+            inputs.tcount.output.species,
             "--output_name",
             name + "_expressions",
             "--norm_expressions",
@@ -136,7 +136,7 @@ class SlamCount(Process):
         outputs.rc = rc_file
         outputs.exp_set = name + "_expressions.txt.gz"
         outputs.exp_set_json = name + "_expressions.json"
-        outputs.species = inputs.tcount.species
-        outputs.build = inputs.tcount.build
+        outputs.species = inputs.tcount.output.species
+        outputs.build = inputs.tcount.output.build
         outputs.source = inputs.source
         outputs.feature_type = "gene"

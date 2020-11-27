@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:5.1.0
   data_name: "CollectTargetedPcrMetrics ({{ alignment|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.1.0
   type: data:picard:coverage
   category: Other
   flow_collection: sample

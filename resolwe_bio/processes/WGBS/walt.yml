@@ -12,9 +12,9 @@
       cores: 10
     executor:
       docker:
-        image: resolwebio/wgbs:1.3.0
+        image: resolwebio/wgbs:2.3.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.3.0
+  version: 3.4.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample

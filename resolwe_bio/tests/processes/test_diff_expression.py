@@ -145,10 +145,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
             "differentialexpression-deseq2", inputs, Data.STATUS_ERROR
         )
         error_msg = [
-            (
-                "Error in estimateSizeFactorsForMatrix(counts(object), locfunc = locfunc, : "
-                "every gene contains at least one zero, cannot compute log geometric means"
-            )
+            "Error in estimateSizeFactorsForMatrix(counts(object), locfunc = locfunc, : "
+            "every gene contains at least one zero, cannot compute log geometric means"
         ]
         self.assertEqual(deseq2.process_error, error_msg)
 
@@ -169,7 +167,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },
@@ -350,7 +348,7 @@ re-save feature_type "gene"
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },

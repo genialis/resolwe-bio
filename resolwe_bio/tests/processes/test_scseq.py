@@ -24,7 +24,7 @@ class ScSeqProcessorTestCase(BioProcessTestCase):
         inputs = {"annotation": annotation.id, "genome": genome.id}
         mkref = self.run_process("cellranger-mkref", inputs)
 
-        self.assertAlmostEqual(mkref.output["genome_index"]["size"], 1429926, delta=1)
+        self.assertAlmostEqual(mkref.output["genome_index"]["size"], 1429968, delta=50)
         self.assertFields(mkref, "build", "GRCh38.93")
         self.assertFields(mkref, "species", "Homo sapiens")
         self.assertFields(mkref, "source", "ENSEMBL")

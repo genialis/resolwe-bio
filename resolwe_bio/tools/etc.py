@@ -105,5 +105,7 @@ if args.mean:
 
 # Print result in json
 etcjson = '{"etc":%s}' % json.dumps(series, separators=(",", ":"))
-print(etcjson)
 gzip.open("etc.json.gz", "wb").write(etcjson)
+
+with open("etc.json", "w") as out_json:
+    out_json.write(json.dumps(series, separators=(",", ":")))

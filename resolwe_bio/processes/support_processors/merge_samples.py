@@ -41,7 +41,7 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.0.1"
+    version = "1.1.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -51,7 +51,7 @@ class MergeFastqSingle(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 
@@ -75,11 +75,11 @@ class MergeFastqSingle(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name = f"{Path(inputs.reads[0].fastq[0].path).name.replace('.fastq.gz', '')}_merged"
+        name = f"{Path(inputs.reads[0].output.fastq[0].path).name.replace('.fastq.gz', '')}_merged"
         merged_fastq = f"{name}.fastq.gz"
         with open(merged_fastq, "wb") as outfile:
             for reads in inputs.reads:
-                for fastq in reads.fastq:
+                for fastq in reads.output.fastq:
                     with open(fastq.path, "rb") as infile:
                         for line in infile:
                             outfile.write(line)
@@ -116,7 +116,7 @@ class MergeFastqPaired(Process):
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.0.1"
+    version = "1.1.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -126,7 +126,7 @@ class MergeFastqPaired(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.3.1"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 
@@ -160,15 +160,15 @@ class MergeFastqPaired(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name_1 = f"{Path(inputs.reads[0].fastq[0].path).name.replace('.fastq.gz', '')}_merged"
-        name_2 = f"{Path(inputs.reads[0].fastq2[0].path).name.replace('.fastq.gz', '')}_merged"
+        name_1 = f"{Path(inputs.reads[0].output.fastq[0].path).name.replace('.fastq.gz', '')}_merged"
+        name_2 = f"{Path(inputs.reads[0].output.fastq2[0].path).name.replace('.fastq.gz', '')}_merged"
         merged_fastq_1 = f"{name_1}.fastq.gz"
         merged_fastq_2 = f"{name_2}.fastq.gz"
         with open(merged_fastq_1, "wb") as outfile_1, open(
             merged_fastq_2, "wb"
         ) as outfile_2:
             for reads in inputs.reads:
-                for fastq_1, fastq_2 in zip(reads.fastq, reads.fastq2):
+                for fastq_1, fastq_2 in zip(reads.output.fastq, reads.output.fastq2):
                     with open(fastq_1.path, "rb") as infile:
                         for line in infile:
                             outfile_1.write(line)

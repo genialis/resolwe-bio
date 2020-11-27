@@ -11,13 +11,13 @@
       cores: 1
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
     relations:
       - type: group
         category: Replicate
         required: True
   data_name: '{{ cuffquant|map("sample_name")|join(", ")|default("?") }}'
-  version: 2.2.0
+  version: 2.3.0
   type: data:cuffnorm
   category: Quantify
   persistence: CACHED
@@ -201,7 +201,12 @@
           re-checkrc 'Expression file parsing failed.'
           mv expression.tab "${S_NAME}_expression.tab"
           re-export "${S_NAME}_expression.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{ exp|id }},"exp":'\"${S_NAME}_expression.tab\"'}}'
+          re-run upload-expression-cuffnorm \
+          '{
+            "exp_type":"FPKM",
+            "cxb":{{ exp|id }},
+            "exp":"'"${S_NAME}_expression.tab"'"
+          }'
         {% endfor %}
       {% else %}
         {% for exp in cuffquant %}
@@ -210,7 +215,12 @@
           re-checkrc 'Expression file parsing failed.'
           mv expression.tab "${S_NAME}_expression.tab"
           re-export "${S_NAME}_expression.tab"
-          echo 'run {"process":"upload-expression-cuffnorm","input":{"exp_type":"FPKM","cxb":{{ exp|id }},"exp":'\"${S_NAME}_expression.tab\"'}}'
+          re-run upload-expression-cuffnorm \
+          '{
+            "exp_type":"FPKM",
+            "cxb":{{ exp|id }},
+            "exp":"'"${S_NAME}_expression.tab"'"
+          }'
         {% endfor %}
       {% endif %}
 

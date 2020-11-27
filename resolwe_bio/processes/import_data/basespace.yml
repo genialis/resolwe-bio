@@ -4,14 +4,14 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/common:1.3.1
+        image: resolwebio/common:2.3.1
     resources:
       cores: 1
       memory: 1024
       network: true
       secrets: true
   data_name: 'BaseSpace ({{ file_id|default("?") }})'
-  version: 1.1.0
+  version: 1.2.0
   type: data:file
   category: Import
   persistence: TEMP

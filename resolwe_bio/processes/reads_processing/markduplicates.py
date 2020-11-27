@@ -24,13 +24,13 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:4.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
     }
     data_name = '{{ bam|sample_name|default("?") }}'
 
@@ -117,14 +117,14 @@ class MarkDuplicates(Process):
         markduplication goes through, it will append 'markduplicates'.
         """
         # Prepare output file names.
-        file_name = os.path.splitext(os.path.basename(inputs.bam.bam.path))[0]
+        file_name = os.path.splitext(os.path.basename(inputs.bam.output.bam.path))[0]
         metrics_file = f"{file_name}_metrics.txt"
         # We do not append anything particular to this object (like we did with e.g.
         # _metrics.txt" for metrics file), because this step can be skipped and the
         # name (e.g. "file_markduplicated.bam") would only confuse the matter.
 
-        species = inputs.bam.species
-        build = inputs.bam.build
+        species = inputs.bam.output.species
+        build = inputs.bam.output.build
 
         if not inputs.skip:
             if inputs.remove_duplicates:
@@ -135,7 +135,7 @@ class MarkDuplicates(Process):
             bam = file_name + ".markduplicates.bam"
             md_inputs = [
                 "--INPUT",
-                f"{inputs.bam.bam.path}",
+                f"{inputs.bam.output.bam.path}",
                 "--VALIDATION_STRINGENCY",
                 f"{inputs.validation_stringency}",
                 "--OUTPUT",
@@ -153,8 +153,8 @@ class MarkDuplicates(Process):
             Cmd["gatk"]["MarkDuplicates"](md_inputs)
         else:
             # Process skipped, output filename matches input.
-            bam = os.path.basename(inputs.bam.bam.path)
-            shutil.copy2(inputs.bam.bam.path, bam)
+            bam = os.path.basename(inputs.bam.output.bam.path)
+            shutil.copy2(inputs.bam.output.bam.path, bam)
 
             with open(metrics_file, "w") as f:
                 f.write("MarkDuplicate process skipped.")

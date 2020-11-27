@@ -98,11 +98,11 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.INTERACTIVE
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.6.0"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
         "resources": {"cores": 1, "memory": 8192},
         "relations": [{"type": "series"}],
     }
@@ -157,31 +157,31 @@ class FindSimilar(Process):
                     )
 
             labels[position] = label
-            data_positions[position].append(data.exp.path)
+            data_positions[position].append(data.output.exp.path)
         return labels, data_positions.items()
 
     def run(self, inputs, outputs):
         """Run the analysis."""
         for exp in inputs.expressions:
-            if exp.source != inputs.expressions[0].source:
+            if exp.output.source != inputs.expressions[0].output.source:
                 self.error(
                     "Input samples are of different Gene ID databases: "
-                    f"{exp.source} and {inputs.expressions[0].source}."
+                    f"{exp.output.source} and {inputs.expressions[0].output.source}."
                 )
-            if exp.species != inputs.expressions[0].species:
+            if exp.output.species != inputs.expressions[0].output.species:
                 self.error(
                     "Input samples are of different Species: "
-                    f"{exp.species} and {inputs.expressions[0].species}."
+                    f"{exp.output.species} and {inputs.expressions[0].output.species}."
                 )
-            if exp.exp_type != inputs.expressions[0].exp_type:
+            if exp.output.exp_type != inputs.expressions[0].output.exp_type:
                 self.error(
                     "Input samples are of different Expression types: "
-                    f"{exp.exp_type} and {inputs.expressions[0].exp_type}."
+                    f"{exp.output.exp_type} and {inputs.expressions[0].output.exp_type}."
                 )
-            if exp.feature_type != inputs.expressions[0].feature_type:
+            if exp.output.feature_type != inputs.expressions[0].output.feature_type:
                 self.error(
                     "Input samples are of different Feature type: "
-                    f"{exp.feature_type} and {inputs.expressions[0].feature_type}."
+                    f"{exp.output.feature_type} and {inputs.expressions[0].output.feature_type}."
                 )
 
         labels, positions = self.get_data_info(inputs.expressions)
@@ -257,7 +257,7 @@ class FindSimilar(Process):
             json.dump(formatted_output, f)
 
         outputs.similar_genes = "similar_genes.json"
-        outputs.source = inputs.expressions[0].source
-        outputs.species = inputs.expressions[0].species
-        outputs.build = inputs.expressions[0].build
-        outputs.feature_type = inputs.expressions[0].feature_type
+        outputs.source = inputs.expressions[0].output.source
+        outputs.species = inputs.expressions[0].output.species
+        outputs.build = inputs.expressions[0].output.build
+        outputs.feature_type = inputs.expressions[0].output.feature_type

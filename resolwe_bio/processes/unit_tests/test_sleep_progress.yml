@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwe/base:fedora-26
+        image: resolwe/base:fedora-33
   data_name: "Test"
-  version: 1.1.1
+  version: 1.2.0
   type: data:test:result
   persistence: CACHED
   description: |
@@ -30,17 +30,17 @@
     language: bash
     program: |
       echo "Starting..."
-      echo "{\"proc.progress\":0.0}"
+      re-progress 0.0
       sleep {{ t }}
-      echo "{\"proc.progress\":0.2}"
+      re-progress 0.2
       sleep {{ t }}
-      echo "{\"proc.progress\":0.4}"
+      re-progress 0.4
       sleep {{ t }}
-      echo "{\"proc.progress\":0.6}"
+      re-progress 0.6
       sleep {{ t }}
-      echo "{\"proc.progress\":0.8}"
+      re-progress 0.8
       sleep {{ t }}
-      echo "{\"proc.progress\":1.0}"
+      re-progress 1
 
       re-save output Done
       echo "Done."

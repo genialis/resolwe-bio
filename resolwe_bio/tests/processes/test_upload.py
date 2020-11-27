@@ -180,7 +180,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         wrong_mates = self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
         error_msg = [
             "The number of mate-pair files in split-lane samples must match. 2 and 1 "
-            "input files were given for the -fq and -fq2 inputs, respectively."
+            "input files were given for the -fq and -fq2 inputs, respectively.",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(wrong_mates.process_error, error_msg)
 
@@ -192,7 +193,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "upload-fastq-paired", inputs, Data.STATUS_ERROR
         )
         error_msg = [
-            "Non-unique input file names detected: ['mate1_reordered.fastq.gz']."
+            "Non-unique input file names detected: ['mate1_reordered.fastq.gz'].",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(wrong_mates2.process_error, error_msg)
 
@@ -206,7 +208,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Format error in mate-pairs mate1_diff_num_reads.fastq.gz and mate2_diff_num_reads.fastq.gz. "
             "Error in sequence file at unknown line: Reads are improperly paired. "
-            "There are more reads in file 2 than in file 1."
+            "There are more reads in file 2 than in file 1.",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(diff_numb_reads.process_error, error_msg)
 
@@ -220,7 +223,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Format error in mate-pairs mate1_reordered.fastq.gz and mate2_reordered.fastq.gz. "
             "Error in sequence file at unknown line: Reads are improperly paired. Read "
-            "name 'read1/1 some text' in file 1 does not match 'read2/2' in file 2."
+            "name 'read1/1 some text' in file 1 does not match 'read2/2' in file 2.",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(unordered_reads.process_error, error_msg)
 
@@ -282,7 +286,10 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         empty_input = self.run_process(
             "upload-fastq-single", {"src": ["empty.fastq.gz"]}, Data.STATUS_ERROR
         )
-        error_msg = ["Input file empty.fastq.gz contains no read sequences."]
+        error_msg = [
+            "Input file empty.fastq.gz contains no read sequences.",
+            "Validation of FASTQ file(s) failed.",
+        ]
         self.assertEqual(empty_input.process_error, error_msg)
 
         garbage_input = self.run_process(
@@ -290,7 +297,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
         error_msg = [
             "Error in file garbage.fastq.gz. Error in FASTQ file at line 1: Line expected "
-            "to start with '@', but found 'S'"
+            "to start with '@', but found 'S'",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(garbage_input.process_error, error_msg)
 
@@ -299,8 +307,9 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
         error_msg = [
             "Error in file garbage2.fastq.gz. Error in FASTQ file at line 3: Sequence descriptions "
-            "don't match ('Some random content' != '+++'). The second sequence description must "
-            "be either empty or equal to the first description."
+            "don't match ('Some random content' != '+++').\nThe second sequence description must "
+            "be either empty or equal to the first description.",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(garbage_input_2.process_error, error_msg)
 
@@ -310,7 +319,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Error in file missing_qual.fastq.gz. Error in FASTQ file at line 16: "
             "Premature end of file encountered. The incomplete final record was: "
-            "'@read4/1\nGACAGGCCGTTTGAATGTTGACGGGATGTT\n+\n'"
+            "'@read4/1\\nGACAGGCCGTTTGAATGTTGACGGGATGTT\\n+\\n'",
+            "Validation of FASTQ file(s) failed.",
         ]
         self.assertEqual(missing_qual.process_error, error_msg)
 
@@ -638,10 +648,13 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "total_size"
         ]  # Non-deterministic output.
         self.assertFile(upload_gff3, "annot_sorted", "PGSC upload_sorted.gff3")
+        del upload_gff3.output["annot_sorted_idx_igv"][
+            "total_size"
+        ]  # Non-deterministic output.
         self.assertFields(
             upload_gff3,
             "annot_sorted_idx_igv",
-            {"file": "PGSC upload_sorted.gff3.idx", "total_size": 126},
+            {"file": "PGSC upload_sorted.gff3.idx"},
         )
         self.assertFields(
             upload_gff3,
@@ -664,10 +677,13 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "total_size"
         ]  # Non-deterministic output.
         self.assertFile(upload_gtf, "annot_sorted", "Hs GRCh38_86 upload_sorted.gtf")
+        del upload_gtf.output["annot_sorted_idx_igv"][
+            "total_size"
+        ]  # Non-deterministic output.
         self.assertFields(
             upload_gtf,
             "annot_sorted_idx_igv",
-            {"file": "Hs GRCh38_86 upload_sorted.gtf.idx", "total_size": 116},
+            {"file": "Hs GRCh38_86 upload_sorted.gtf.idx"},
         )
         self.assertFields(
             upload_gtf,

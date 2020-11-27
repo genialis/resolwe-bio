@@ -7,6 +7,7 @@ import json
 import sys
 
 import xlrd
+from resolwe_runtime_utils import save, send_message
 
 file_name = sys.argv[1]
 
@@ -46,7 +47,11 @@ else:
 etcjson = '{"etc":%s}' % json.dumps(
     {"genes": genes, "timePoints": times}, separators=(",", ":")
 )
-print(etcjson)
+send_message(
+    save(
+        "etc", json.dumps({"genes": genes, "timePoints": times}, separators=(",", ":"))
+    )
+)
 zipfile = gzip.GzipFile(
     filename="",
     mode="wb",

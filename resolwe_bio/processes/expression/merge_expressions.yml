@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/common:1.3.1
+        image: resolwebio/common:2.3.1
   data_name: Expression matrix
-  version: 1.2.0
+  version: 1.3.0
   type: data:expressionset
   category: Other
   persistence: CACHED

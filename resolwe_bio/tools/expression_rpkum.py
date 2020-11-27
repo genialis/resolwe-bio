@@ -5,7 +5,7 @@ import sys
 from os.path import basename
 
 import pandas as pd
-from resolwe_runtime_utils import error
+from resolwe_runtime_utils import error, send_message
 
 
 def parse_arguments():
@@ -34,7 +34,7 @@ def parse_expression_file(exp_file):
         )
         return expression.dropna()
     except (ValueError, OSError) as parse_error:
-        print(
+        send_message(
             error(
                 "Failed to read input file {}. {}".format(
                     basename(exp_file), parse_error
@@ -60,7 +60,7 @@ def parse_mapability_file(mapability_file):
         )
         return mappability.dropna()
     except (ValueError, OSError) as parse_error:
-        print(
+        send_message(
             error(
                 "Failed to read mappability file {}. {}".format(
                     basename(mapability_file), parse_error
@@ -79,7 +79,7 @@ def main():
 
     missing_genes = expression.index.difference(mappability.index)
     if len(missing_genes) > 0:
-        print(
+        send_message(
             error(
                 "Feature ID {} is not present in the mappability file. "
                 "Make sure that the expressions and mappability file are "

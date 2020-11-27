@@ -16,7 +16,7 @@ class WaltIndex(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 1,
@@ -25,7 +25,7 @@ class WaltIndex(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.0.1"
+    version = "1.1.0"
 
     class Input:
         """Input fields for WaltIndex."""
@@ -46,20 +46,20 @@ class WaltIndex(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = Path(inputs.ref_seq.fasta.path).name
+        basename = Path(inputs.ref_seq.output.fasta.path).name
         assert basename.endswith(".fasta")
         name = basename[:-6]
 
         index_dir = Path("walt_index")
         index_dir.mkdir()
 
-        shutil.copy(Path(inputs.ref_seq.fasta.path), Path.cwd())
-        shutil.copy(Path(inputs.ref_seq.fastagz.path), Path.cwd())
-        shutil.copy(Path(inputs.ref_seq.fai.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fasta.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fastagz.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fai.path), Path.cwd())
 
         args = [
             "-c",
-            inputs.ref_seq.fasta.path,
+            inputs.ref_seq.output.fasta.path,
             "-o",
             index_dir / f"{name}.dbindex",
         ]
@@ -72,5 +72,5 @@ class WaltIndex(Process):
         outputs.fasta = f"{name}.fasta"
         outputs.fastagz = f"{name}.fasta.gz"
         outputs.fai = f"{name}.fasta.fai"
-        outputs.species = inputs.ref_seq.species
-        outputs.build = inputs.ref_seq.build
+        outputs.species = inputs.ref_seq.output.species
+        outputs.build = inputs.ref_seq.output.build

@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwe/base:fedora-26
+        image: resolwe/base:fedora-33
   data_name: "Test"
-  version: 1.1.1
+  version: 1.2.0
   type: data:test:fields
   persistence: CACHED
   description: |
@@ -195,37 +195,37 @@
     program: |
       echo "Starting..."
       echo "boolean={{ boolean }}"
-      echo "{\"out_boolean\":{% if boolean %}true{% else %}false{% endif %}}"
+      re-save out_boolean {% if boolean %}true{% else %}false{% endif %}
       echo "date={{ date }}"
-      echo "{\"out_date\":\"{{ date }}\"}"
+      re-save out_date {{ date }}
       echo "datetime={{ datetime }}"
-      echo "{\"out_datetime\":\"{{ datetime }}\"}"
+      re-save out_datetime {{ datetime }}
       echo "decimal={{ decimal }}"
-      echo "{\"out_decimal\":{{ decimal }}}"
+      re-save out_decimal {{ decimal }}
       echo "integer={{ integer }}"
-      echo "{\"out_integer\":{{ integer }}}"
+      re-save out_integer {{ integer }}
       echo "string={{ string }}"
-      echo "{\"out_string\":\"{{ string }}\"}"
+      re-save out_string {{ string }}
       echo "text={{ text|escapejs }}"
-      echo "{\"out_text\":\"{{ text|escapejs }}\"}"
+      re-save out_text {{ text|escapejs }}
       echo "url_download={{ url_download }}"
-      echo "{\"out_url_download\": {\"name\": \"{{ url_download.name }}\", \"url\": \"{{ url_download.url }}\"} }"
+      re-save out_url_download {\"name\": \"{{ url_download.name }}\", \"url\": \"{{ url_download.url }}\"}
       echo "url_view={{ url_view }}"
-      echo "{\"out_url_view\": {\"name\": \"{{ url_view.name }}\", \"url\": \"{{ url_view.url }}\"} }"
+      re-save out_url_view {\"name\": \"{{ url_view.name }}\", \"url\": \"{{ url_view.url }}\"}
       echo "group.string2={{ group.string2 }}"
-      echo "{\"out_group.string2\":\"{{ group.string2 }}\"}"
+      re-save out_group.string2 {{ group.string2 }}
       echo "group.string3={{ group.string3 }}"
-      echo "{\"out_group.string3\":\"{{ group.string3 }}\"}"
+      re-save out_group.string3 {{ group.string3 }}
       echo "group.string4={{ group.string4 }}"
-      echo "{\"out_group.string4\":\"{{ group.string4 }}\"}"
+      re-save out_group.string4 {{ group.string4 }}
       echo "group.string5={{ group.string5 }}"
-      echo "{\"out_group.string5\":\"{{ group.string5 }}\"}"
+      re-save out_group.string5 {{ group.string5 }}
       echo "group.string6={{ group.string6 }}"
-      echo "{\"out_group.string6\":\"{{ group.string6 }}\"}"
+      re-save out_group.string6 {{ group.string6 }}
       echo "group.string7={{ group.string7 }}"
-      echo "{\"out_group.string7\":\"{{ group.string7 }}\"}"
+      re-save out_group.string7 {{ group.string7 }}
       echo "tricky.tricky1.tricky2={{ tricky.tricky1.tricky2 }}"
-      echo "{\"out_tricky.tricky1.tricky2\":\"{{ tricky.tricky1.tricky2 }}\"}"
+      re-save out_tricky.tricky1.tricky2 {{ tricky.tricky1.tricky2 }}
       echo "Done."
-      echo "{\"output\": {\"url\": \"stdout.txt\"} }"
+      re-save output {\"url\": \"stdout.txt\"}
       exit 0

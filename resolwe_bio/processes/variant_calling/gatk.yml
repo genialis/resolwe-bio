@@ -10,8 +10,12 @@
     executor:
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
+    resources:
+      memory: 16384
+      cores: 1
+      network: true
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.1.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -77,12 +81,15 @@
     runtime: polyglot
     language: bash
     program: |
+      pip3 install --user resolwe-runtime-utils
+      export PATH=~/.local/bin:$PATH
+
       SAMPLE_SLUG={{ alignment|sample_slug }}
 
       # If user input both, intervals and intervals_bed, raise an error because only
       # one of the fields is required.
       {% if intervals and intervals_bed %}
-        echo "{\"proc.error\":\"You have specified intervals and intervals_bed, whereas only one is permitted.\"}"
+        re-error "You have specified intervals and intervals_bed, whereas only one is permitted."
       {% endif %}
 
       {% if intervals %}
@@ -101,22 +108,21 @@
         --dbsnp {{ dbsnp.vcf.file }} \
         -L ${INTERVALS} \
         -o "${SAMPLE_SLUG}.gatkHC.vcf"
-
-      echo "{\"proc.progress\":0.80,\"proc.rc\":$?}"
+      _re-checkrc $?
+      re-progress 0.80
 
       /usr/gitc/bgzip -c "${SAMPLE_SLUG}.gatkHC.vcf" > "${SAMPLE_SLUG}.gatkHC.vcf.gz"
-      echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+      _re-checkrc $?
+      re-progress 0.90
 
       /usr/gitc/tabix -p vcf "${SAMPLE_SLUG}.gatkHC.vcf.gz"
-      echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
+      _re-checkrc $?
+      re-progress 0.95
 
-      echo "{\"vcf\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf.gz\"}}"
-      echo "{\"tbi\":{\"file\":\"${SAMPLE_SLUG}.gatkHC.vcf.gz.tbi\"}}"
-
-      SPECIES={{ alignment.species }}
-      BUILD={{ alignment.build }}
-      echo "{\"species\":\"${SPECIES}\"}"
-      echo "{\"build\":\"${BUILD}\"}"
+      re-save-file vcf "${SAMPLE_SLUG}.gatkHC.vcf.gz"
+      re-save-file tbi "${SAMPLE_SLUG}.gatkHC.vcf.gz.tbi"
+      re-save species {{ alignment.species }}
+      re-save build {{ alignment.build }}
 
 - slug: vc-gatk4-hc
   name: GATK4 (HaplotypeCaller)
@@ -124,12 +130,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:4.1.0
+        image: resolwebio/dnaseq:5.1.0
     resources:
       memory: 16384
       cores: 4
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 1.0.0
+  version: 1.1.0
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample

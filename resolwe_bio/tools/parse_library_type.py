@@ -3,7 +3,7 @@
 import argparse
 import json
 
-from resolwe_runtime_utils import error, save
+from resolwe_runtime_utils import error, save, send_message
 
 
 def parse_arguments():
@@ -20,12 +20,12 @@ def main():
     with open(args.input_file) as infile:
         data = json.load(infile)
         if "expected_format" in data and "compatible_fragment_ratio" in data:
-            print(save("strandedness", data["expected_format"]))
-            print(
+            send_message(save("strandedness", data["expected_format"]))
+            send_message(
                 save("fragment_ratio", str(round(data["compatible_fragment_ratio"], 2)))
             )
         else:
-            print(error("Cannot parse library type information file."))
+            send_message(error("Cannot parse library type information file."))
 
 
 if __name__ == "__main__":

@@ -35,13 +35,13 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.1.0"
+    version = "3.2.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Differential expression (case vs. control)"
@@ -157,25 +157,25 @@ class Deseq(Process):
         expressions = inputs.case + inputs.control
 
         for exp in expressions:
-            if exp.source != expressions[0].source:
+            if exp.output.source != expressions[0].output.source:
                 self.error(
                     "Input samples are of different Gene ID databases: "
-                    f"{exp.source} and {expressions[0].source}."
+                    f"{exp.output.source} and {expressions[0].output.source}."
                 )
-            if exp.species != expressions[0].species:
+            if exp.output.species != expressions[0].output.species:
                 self.error(
                     "Input samples are of different Species: "
-                    f"{exp.species} and {expressions[0].species}."
+                    f"{exp.output.species} and {expressions[0].output.species}."
                 )
-            if exp.build != expressions[0].build:
+            if exp.output.build != expressions[0].output.build:
                 self.error(
                     "Input samples are of different Panel types: "
                     f"{exp.build} and {expressions[0].build}."
                 )
-            if exp.feature_type != expressions[0].feature_type:
+            if exp.output.feature_type != expressions[0].output.feature_type:
                 self.error(
                     "Input samples are of different Feature type: "
-                    f"{exp.feature_type} and {expressions[0].feature_type}."
+                    f"{exp.output.feature_type} and {expressions[0].output.feature_type}."
                 )
 
         for case in inputs.case:
@@ -190,9 +190,9 @@ class Deseq(Process):
         if all(e.type == "data:expression:nanostring:" for e in expressions):
             params = [
                 "--cases",
-                [e.exp.path for e in inputs.case],
+                [e.output.exp.path for e in inputs.case],
                 "--controls",
-                [e.exp.path for e in inputs.control],
+                [e.output.exp.path for e in inputs.control],
                 "--format",
                 "nanostring",
             ]
@@ -200,9 +200,9 @@ class Deseq(Process):
         elif all(e.type == "data:expression:rsem:" for e in expressions):
             params = [
                 "--cases",
-                [e.genes.path for e in inputs.case],
+                [e.output.genes.path for e in inputs.case],
                 "--controls",
-                [e.genes.path for e in inputs.control],
+                [e.output.genes.path for e in inputs.control],
                 "--format",
                 "rsem",
             ]
@@ -210,23 +210,23 @@ class Deseq(Process):
         elif all(e.type == "data:expression:salmon:" for e in expressions):
             params = [
                 "--cases",
-                [e.quant.path for e in inputs.case],
+                [e.output.quant.path for e in inputs.case],
                 "--controls",
-                [e.quant.path for e in inputs.control],
+                [e.output.quant.path for e in inputs.control],
                 "--format",
                 "salmon",
                 "--tx2gene",
-                inputs.case[0].txdb.path,
+                inputs.case[0].output.txdb.path,
             ]
 
         else:
-            if not all(hasattr(e.rc, "path") for e in expressions):
+            if not all(hasattr(e.output.rc, "path") for e in expressions):
                 self.error("Read counts are required when using DESeq2.")
             params = [
                 "--cases",
-                [e.rc.path for e in inputs.case],
+                [e.output.rc.path for e in inputs.case],
                 "--controls",
-                [e.rc.path for e in inputs.control],
+                [e.output.rc.path for e in inputs.control],
             ]
 
         if inputs.options.beta_prior:
@@ -239,9 +239,6 @@ class Deseq(Process):
             params.extend(["--alpha", inputs.filter_options.alpha])
 
         return_code, _, _ = Cmd["deseq.R"][params] & TEE(retcode=None)
-        if return_code:
-            self.error("Error computing differential expression (DESeq2).")
-
         self.progress(0.95)
 
         deseq_output = "diffexp_deseq2.tab"
@@ -272,10 +269,10 @@ class Deseq(Process):
         outputs.de_json = "de_data.json"
         outputs.de_file = "de_file.tab.gz"
         outputs.count_matrix = "count_matrix.tab.gz"
-        outputs.source = expressions[0].source
-        outputs.species = expressions[0].species
-        outputs.build = expressions[0].build
-        outputs.feature_type = expressions[0].feature_type
+        outputs.source = expressions[0].output.source
+        outputs.species = expressions[0].output.species
+        outputs.build = expressions[0].output.build
+        outputs.feature_type = expressions[0].output.feature_type
 
         if inputs.create_sets:
             out_dir = "gene_sets"
@@ -304,7 +301,7 @@ class Deseq(Process):
                 gene_file.rename(Path() / gene_file.name)
                 process_inputs = {
                     "src": str(gene_file.name),
-                    "source": expressions[0].source,
-                    "species": expressions[0].species,
+                    "source": expressions[0].output.source,
+                    "species": expressions[0].output.species,
                 }
                 self.run_process("upload-geneset", process_inputs)

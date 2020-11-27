@@ -22,11 +22,11 @@ class BamToBedpe(Process):
     name = "Bedtools bamtobed"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.12.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.12.0"}},
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Bedtools bamtobed ({{alignment|sample_name|default('?')}})"
-    version = "1.0.0"
+    version = "1.1.0"
     process_type = "data:bedpe"
     category = "Other"
     entity = {"type": "sample"}
@@ -46,7 +46,7 @@ class BamToBedpe(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        path = inputs.alignment.bam.path
+        path = inputs.alignment.output.bam.path
         basename = os.path.basename(path)
         assert basename.endswith(".bam")
         name = basename[:-4]
@@ -65,8 +65,8 @@ class BamToBedpe(Process):
             self.error("Converting BAM to BEDPE with Bedtools bamtobed failed.")
 
         outputs.bedpe = bedpe_file
-        outputs.species = inputs.alignment.species
-        outputs.build = inputs.alignment.build
+        outputs.species = inputs.alignment.output.species
+        outputs.build = inputs.alignment.output.build
 
 
 class ScaleBigWig(Process):
@@ -76,11 +76,11 @@ class ScaleBigWig(Process):
     name = "Deeptools bamCoverage"
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.12.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.12.0"}},
         "resources": {"cores": 1, "memory": 16384},
     }
     data_name = "Scale BigWig ({{alignment|sample_name|default('?')}})"
-    version = "1.0.1"
+    version = "1.1.0"
     process_type = "data:coverage:bigwig"
     category = "Other"
     entity = {"type": "sample"}
@@ -115,14 +115,14 @@ class ScaleBigWig(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        path = inputs.alignment.bam.path
+        path = inputs.alignment.output.bam.path
         basename = os.path.basename(path)
         assert basename.endswith(".bam")
         name = basename[:-4]
         out_file = f"{name}.SInorm.bigwig"
         out_index = f"{name}.bai"
 
-        with open(inputs.bedpe.bedpe.path) as f:
+        with open(inputs.bedpe.output.bedpe.path) as f:
             spike_count = f.readlines()
             spike_count = len(spike_count)
         scale_factor = inputs.scale / spike_count
@@ -148,5 +148,5 @@ class ScaleBigWig(Process):
             self.error("Generation of a scaled BigWig file with bamCoverage failed.")
 
         outputs.bigwig = out_file
-        outputs.species = inputs.alignment.species
-        outputs.build = inputs.alignment.build
+        outputs.species = inputs.alignment.output.species
+        outputs.build = inputs.alignment.output.build

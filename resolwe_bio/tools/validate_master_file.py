@@ -4,7 +4,7 @@
 import argparse
 import csv
 
-from resolwe_runtime_utils import error
+from resolwe_runtime_utils import error, send_message
 
 
 def parse_arguments():
@@ -33,17 +33,19 @@ def main():
         reader = csv.reader(masterfile, delimiter="\t")
         for row in reader:
             if len(row) != 12:
-                print(error("Uploaded master file must contain exactly 12 columns."))
+                send_message(
+                    error("Uploaded master file must contain exactly 12 columns.")
+                )
             if not check_dna_sequence(row[10]):
-                print(error("11th column must contain a DNA sequence."))
+                send_message(error("11th column must contain a DNA sequence."))
             if not check_dna_sequence(row[11]):
-                print(error("12th column must contain a DNA sequence."))
+                send_message(error("12th column must contain a DNA sequence."))
 
             amp_name = row[3]
             if amp_name not in amplicon_names:
                 amplicon_names.add(amp_name)
             else:
-                print(
+                send_message(
                     error(
                         "Amplicon names must be unique. Amplicon {} is seen multiple times.".format(
                             amp_name

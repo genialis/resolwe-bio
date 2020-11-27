@@ -8,7 +8,7 @@ import sys
 
 import pandas as pd
 import resdk
-from resolwe_runtime_utils import error, warning
+from resolwe_runtime_utils import error, send_message, warning
 
 CHUNK_SIZE = 1000
 
@@ -56,7 +56,7 @@ def parse_expression_file(exp_file, exp_type):
         if not all(
             column_label in ALLOWED_COLUMNS for column_label in df.columns.values
         ):
-            print(
+            send_message(
                 error(
                     "Invalid column headers {} in file {}.".format(
                         df.columns.values, exp_file
@@ -88,7 +88,7 @@ def main():
 
     if args.norm_expressions and args.norm_expressions_type:
         if len(args.norm_expressions) != len(args.norm_expressions_type):
-            print(
+            send_message(
                 error(
                     "The number of additional expression files must match the number of specified "
                     "expressions types."
@@ -99,7 +99,7 @@ def main():
     if args.norm_expressions_type:
         exp_types = [args.expressions_type] + args.norm_expressions_type
         if len(exp_types) != len(set(exp_types)):
-            print(
+            send_message(
                 error(
                     "The union of the main expression type ({}) and additional normalized expression types {} "
                     "does not contain unique items.".format(
@@ -135,7 +135,7 @@ def main():
 
     # Check if all of the input feature IDs could be mapped to the gene symbols
     if not all(f_id in feature_dict for f_id in input_features):
-        print(
+        send_message(
             warning(
                 "{} feature(s) could not be mapped to the associated feature symbols.".format(
                     sum(df.isnull().values.ravel())

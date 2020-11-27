@@ -22,7 +22,7 @@ class AlleyoopSnpEval(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:1.0.0"},
+            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class AlleyoopSnpEval(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.1.0"
+    version = "1.2.0"
 
     class Input:
         """Input fields for AlleyoopSnpEval."""
@@ -64,7 +64,7 @@ class AlleyoopSnpEval(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = os.path.basename(inputs.slamdunk.bam.path)
+        basename = os.path.basename(inputs.slamdunk.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
 
@@ -72,19 +72,19 @@ class AlleyoopSnpEval(Process):
             "-o",
             "snpeval",
             "-r",
-            inputs.ref_seq.fasta.path,
+            inputs.ref_seq.output.fasta.path,
             "-b",
-            inputs.regions.bed.path,
+            inputs.regions.output.bed.path,
             "-s",
             ".",
             "-l",
             inputs.read_length,
         ]
 
-        (Cmd["ln"]["-s", inputs.slamdunk.variants.path, f"{name}_snp.vcf"])()
+        (Cmd["ln"]["-s", inputs.slamdunk.output.variants.path, f"{name}_snp.vcf"])()
 
         return_code, _, _ = Cmd["alleyoop"]["snpeval"][args][
-            inputs.slamdunk.bam.path
+            inputs.slamdunk.output.bam.path
         ] & TEE(retcode=None)
         if return_code:
             self.error("Alleyoop snpeval analysis failed.")
@@ -95,5 +95,5 @@ class AlleyoopSnpEval(Process):
 
         outputs.report = snp_file_renamed
         outputs.plot = os.path.join("snpeval", f"{name}_SNPeval.pdf")
-        outputs.species = inputs.slamdunk.species
-        outputs.build = inputs.slamdunk.build
+        outputs.species = inputs.slamdunk.output.species
+        outputs.build = inputs.slamdunk.output.build

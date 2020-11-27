@@ -16,7 +16,7 @@ class BWAIndex(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:4.9.0"},
+            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 1,
@@ -25,7 +25,7 @@ class BWAIndex(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.0.1"
+    version = "1.1.0"
 
     class Input:
         """Input fields for BWAIndex."""
@@ -46,21 +46,21 @@ class BWAIndex(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        basename = Path(inputs.ref_seq.fasta.path).name
+        basename = Path(inputs.ref_seq.output.fasta.path).name
         assert basename.endswith(".fasta")
         name = basename[:-6]
 
         index_dir = Path("BWA_index")
         index_dir.mkdir()
 
-        shutil.copy(Path(inputs.ref_seq.fasta.path), Path.cwd())
-        shutil.copy(Path(inputs.ref_seq.fastagz.path), Path.cwd())
-        shutil.copy(Path(inputs.ref_seq.fai.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fasta.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fastagz.path), Path.cwd())
+        shutil.copy(Path(inputs.ref_seq.output.fai.path), Path.cwd())
 
         args = [
             "-p",
             index_dir / f"{name}.fasta",
-            inputs.ref_seq.fasta.path,
+            inputs.ref_seq.output.fasta.path,
         ]
 
         return_code, _, _ = Cmd["bwa"]["index"][args] & TEE(retcode=None)
@@ -71,5 +71,5 @@ class BWAIndex(Process):
         outputs.fasta = f"{name}.fasta"
         outputs.fastagz = f"{name}.fasta.gz"
         outputs.fai = f"{name}.fasta.fai"
-        outputs.species = inputs.ref_seq.species
-        outputs.build = inputs.ref_seq.build
+        outputs.species = inputs.ref_seq.output.species
+        outputs.build = inputs.ref_seq.output.build

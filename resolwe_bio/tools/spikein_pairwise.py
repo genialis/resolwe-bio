@@ -35,7 +35,7 @@ import matplotlib
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 from scipy import stats
 
 import utils
@@ -91,7 +91,7 @@ def validate_inputs(args):
     if len(exp_type_set) != 1:
         msg = "All samples should have the same expression type, but multiple expression types were given: {}."
         msg = msg.format(", ".join(exp_type_set))
-        print(warning(msg))
+        send_message(warning(msg))
 
     # Validate that same number of sample names, expression files and
     # expression types are given.
@@ -278,12 +278,12 @@ def main():
 
     if min_one_has_spikeins:
         for message in warnings:
-            print(warning(message))
+            send_message(warning(message))
     else:
         # In case all samples have zero expression for all spikeins,
         # rather print one warning that says so (instead of printing
         # warning for each of the samples).
-        print(warning("All ERCC spike-ins in all samples have zero expression."))
+        send_message(warning("All ERCC spike-ins in all samples have zero expression."))
 
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ import json
 import numpy as np
 import pandas as pd
 from pandas.api.types import is_numeric_dtype
-from resolwe_runtime_utils import error
+from resolwe_runtime_utils import error, send_message
 
 
 def parse_arguments():
@@ -73,7 +73,7 @@ def main():
                 f"that the input file has valid numeric values (i.e. "
                 f"periods for decimal places)."
             )
-            print(error(msg))
+            send_message(error(msg))
             raise ValueError(msg)
 
     if args.gene_id:

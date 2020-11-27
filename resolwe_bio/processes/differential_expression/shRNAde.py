@@ -37,13 +37,13 @@ class ShortHairpinRNADifferentialExpression(Process):
     slug = "differentialexpression-shrna"
     name = "Differential expression of shRNA"
     process_type = "data:shrna:differentialexpression:"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
     }
     data_name = '{{ parameter_file.file|default("?") }}'
 
@@ -96,7 +96,8 @@ class ShortHairpinRNADifferentialExpression(Process):
 
         # (1) Move expression files and extract files.
         sample_list = [
-            copy(src=x.exp.path, dst=dir_expressions) for x in inputs.expression_data
+            copy(src=x.output.exp.path, dst=dir_expressions)
+            for x in inputs.expression_data
         ]
 
         for fl in sample_list:
@@ -107,7 +108,7 @@ class ShortHairpinRNADifferentialExpression(Process):
                         out_file.write(line.decode())
 
         # (2)
-        r_input = f'shRNAde::doDE(input = "{inputs.parameter_file.file.path}", sample_list = "{dir_expressions}")'
+        r_input = f'shRNAde::doDE(input = "{inputs.parameter_file.output.file.path}", sample_list = "{dir_expressions}")'
 
         run_cmd = Cmd["Rscript"]["-e"][r_input]
         run_cmd()

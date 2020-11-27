@@ -9,12 +9,13 @@
     resources:
       memory: 16384
       cores: 10
+      network: true
     expression-engine: jinja
     executor:
       docker:
         image: broadinstitute/genomes-in-the-cloud:2.3.1-1504795437
   data_name: "Called variants (CheMut)"
-  version: 2.0.0
+  version: 2.1.0
   type: data:variants:vcf:chemut
   category: Other
   persistence: CACHED
@@ -159,8 +160,11 @@
     runtime: polyglot
     language: bash
     program: |
+      pip3 install --user resolwe-runtime-utils
+      export PATH=~/.local/bin:$PATH
+
       {% if br_and_ind_ra and not known_sites and not known_indels %}
-        echo "{\"proc.error\":\"Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files.\"}"
+        re-error "Variant base recalibration and indel realignment step requires known sites/indels information in the form of user provided VCF files."
       {% endif %}
 
       {% for bam in parental_strains + mutant_strains %}
@@ -187,7 +191,7 @@
           O="${BAM_FILE}_inds.bam" \
           METRICS_FILE=junk.txt \
           VALIDATION_STRINGENCY=LENIENT
-        echo "{\"proc.rc\":$?}"
+        _re-checkrc $?
 
         {% if bam in parental_strains %}
           java \
@@ -202,7 +206,7 @@
             RGSM=parental_${BAM_FILE} \
             RGCN={{reads_info.CN}} \
             RGDT={{reads_info.DT}}
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
         {% else %}
           java \
             -jar /usr/gitc/picard.jar \
@@ -216,11 +220,11 @@
             RGSM=mut_${BAM_FILE} \
             RGCN={{reads_info.CN}} \
             RGDT={{reads_info.DT}}
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
         {% endif %}
 
         samtools index "${BAM_FILE}_indh.bam"
-        echo "{\"proc.rc\":$?}"
+        _re-checkrc $?
         COUNTER=COUNTER+1
       {% endfor %}
 
@@ -238,7 +242,7 @@
             -o indel_interval.bed \
             {% if known_indels %}-known {% for indelx in known_indels %}{{ indelx.vcf.file }} {% endfor %}{% endif %} \
             -nt {{ requirements.resources.cores }}
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
 
           java \
             -jar /usr/gitc/GATK36.jar \
@@ -248,7 +252,7 @@
             -o "${BAM_FILE}_noncal.bam" \
             -targetIntervals indel_interval.bed \
             -compress 0
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
 
           echo "Base recalibration"
           java \
@@ -259,7 +263,7 @@
             -o recal_data.table \
             -knownSites {{ known_sites.vcf.file }} \
             -nct {{ requirements.resources.cores }}
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
 
           java \
             -jar /usr/gitc/GATK36.jar \
@@ -268,9 +272,9 @@
             -R {{ genome.fasta.file }} \
             -o "${BAM_FILE}_final.bam" \
             -BQSR recal_data.table
-          echo "{\"proc.rc\":$?}"
+          _re-checkrc $?
         {% endfor %}
-        echo "{\"proc.progress\":0.40}"
+        re-progress 0.4
       {% else %}
         {% for bam in parental_strains + mutant_strains %}
           BAM_FILE=`basename {{ bam.bam.file }} .bam`
@@ -298,20 +302,20 @@
         {% if Varc_param.intervals %}{% for l in Varc_param.intervals %} -L {{l}} {% endfor %}{% endif %} \
         {% if Varc_param.rf %}-rf ReassignOneMappingQuality -RMQF 255 -RMQT 60{% endif %} \
         -nct {{ requirements.resources.cores }}
-      echo "{\"proc.rc\":$?}"
-      echo "{\"proc.progress\":0.80}"
+      _re-checkrc $?
+      re-progress 0.80
 
       if [ -f GATKvariants_raw.vcf ];
       then
         /usr/gitc/bgzip -c GATKvariants_raw.vcf > GATKvariants_raw.vcf.gz
-        echo "{\"proc.progress\":0.90,\"proc.rc\":$?}"
+        _re-checkrc $?
+        re-progress 0.90
         /usr/gitc/tabix -p vcf GATKvariants_raw.vcf.gz
-        echo "{\"proc.progress\":0.95,\"proc.rc\":$?}"
-        echo "{\"vcf\":{\"file\":\"GATKvariants_raw.vcf.gz\"}}"
-        echo "{\"tbi\":{\"file\":\"GATKvariants_raw.vcf.gz.tbi\"}}"
+        _re-checkrc $?
+        re-progress 0.95
+        re-save-file vcf "GATKvariants_raw.vcf.gz"
+        re-save-file tbi "GATKvariants_raw.vcf.gz.tbi"
       fi
 
-      SPECIES={{ (parental_strains|first).species }}
-      BUILD={{ (parental_strains|first).build }}
-      echo "{\"species\":\"${SPECIES}\"}"
-      echo "{\"build\":\"${BUILD}\"}"
+      re-save species {{ (parental_strains|first).species }}
+      re-save build {{ (parental_strains|first).build }}

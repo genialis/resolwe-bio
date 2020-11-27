@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:4.9.0
+        image: resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
   data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 1.1.0
+  version: 1.2.0
   type: data:expression:shrna2quant
   category: Quantify
   flow_collection: sample

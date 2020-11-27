@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 
 
 def parse_arguments():
@@ -78,7 +78,9 @@ def main():
 
     for name, data in gene_sets.items():
         if data.empty:
-            print(warning(f"No {name}-regulated genes. Gene set was not created."))
+            send_message(
+                warning(f"No {name}-regulated genes. Gene set was not created.")
+            )
         else:
             save_genes(data, out_dir / f"{fname_prefix}_{name}.tab.gz")
 

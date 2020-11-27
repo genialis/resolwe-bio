@@ -5,6 +5,15 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Support new protocol in Resolwe 26.x
+
+
 ===================
 34.3.0 - 2020-12-14
 ===================

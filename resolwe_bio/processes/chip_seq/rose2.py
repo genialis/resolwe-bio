@@ -33,7 +33,7 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.0.1"
+    version = "5.1.0"
     category = "ChIP-Seq:Post Process"
     entity = {
         "type": "sample",
@@ -41,7 +41,7 @@ class Rose2(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/bamliquidator:1.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/bamliquidator:2.2.0"}},
     }
     data_name = "{{ input_macs|sample_name|default('?') if input_macs else rankby|sample_name|default('?') }}"
 
@@ -162,20 +162,20 @@ class Rose2(Process):
                     "from a MACS2 data object is used to rank by."
                 )
 
-            species = inputs.input_macs.species
-            build = inputs.input_macs.build
+            species = inputs.input_macs.output.species
+            build = inputs.input_macs.output.build
             if inputs.rankby:
-                if species != inputs.rankby.species:
+                if species != inputs.rankby.output.species:
                     self.error(
-                        f"Species of rankby bam file {inputs.rankby.species} "
+                        f"Species of rankby bam file {inputs.rankby.output.species} "
                         f"and MACS bed file {species} do not match. Please "
                         "provide aligned reads and annotation with the same "
                         "species."
                     )
-                if build != inputs.rankby.build:
+                if build != inputs.rankby.output.build:
                     self.error(
                         "Genome builds of rankby bam file "
-                        f"{inputs.rankby.build} and MACS bed file {build} "
+                        f"{inputs.rankby.output.build} and MACS bed file {build} "
                         "do not match. Please provide aligned reads and "
                         "annotation with the same genome build."
                     )
@@ -187,48 +187,48 @@ class Rose2(Process):
                     "from a MACS2 data object is used to rank by."
                 )
 
-            species = inputs.input_upload.species
-            if species != inputs.rankby.species:
+            species = inputs.input_upload.output.species
+            if species != inputs.rankby.output.species:
                 self.error(
-                    f"Species of rankby bam file {inputs.rankby.species} and "
+                    f"Species of rankby bam file {inputs.rankby.output.species} and "
                     f"uploaded bed file {species} do not match. Please provide"
                     " aligned reads and annotation with the same species."
                 )
 
-            build = inputs.input_upload.build
-            if build != inputs.rankby.build:
+            build = inputs.input_upload.output.build
+            if build != inputs.rankby.output.build:
                 self.error(
-                    f"Genome builds of rankby bam file {inputs.rankby.build} "
+                    f"Genome builds of rankby bam file {inputs.rankby.output.build} "
                     f"and uploaded bed file {build} do not match. Please "
                     "provide aligned reads and annotation with the same genome"
                     " build."
                 )
 
         if inputs.control:
-            if inputs.control.species != inputs.rankby.species:
+            if inputs.control.output.species != inputs.rankby.output.species:
                 self.error(
-                    f"Species of rankby bam file {inputs.rankby.species} and "
-                    f"control bam file {inputs.control.species} do not match. "
+                    f"Species of rankby bam file {inputs.rankby.output.species} and "
+                    f"control bam file {inputs.control.output.species} do not match. "
                     "Please provide aligned reads with the same species."
                 )
-            if inputs.control.build != inputs.rankby.build:
+            if inputs.control.output.build != inputs.rankby.output.build:
                 self.error(
-                    f"Genome builds of rankby bam file {inputs.rankby.build} "
-                    f"and control bam file {inputs.control.build} do not "
+                    f"Genome builds of rankby bam file {inputs.rankby.output.build} "
+                    f"and control bam file {inputs.control.output.build} do not "
                     "match. Please provide aligned reads with the same genome "
                     "build."
                 )
 
         if inputs.mask:
-            if inputs.mask.species != species:
+            if inputs.mask.output.species != species:
                 self.error(
-                    f"Species of the masking bed file {inputs.mask.species} "
+                    f"Species of the masking bed file {inputs.mask.output.species} "
                     "does not match other inputs` species. Please provide a "
                     "masking file of the same species as other inputs."
                 )
-            if inputs.mask.build != build:
+            if inputs.mask.output.build != build:
                 self.error(
-                    f"Genome build of the masking bed file {inputs.mask.build}"
+                    f"Genome build of the masking bed file {inputs.mask.output.build}"
                     " does not match other inputs` build. Please provide a "
                     "masking file of the same genome build as other inputs."
                 )
@@ -249,7 +249,7 @@ class Rose2(Process):
             )
 
         if inputs.input_upload:
-            bed_path = Path(inputs.input_upload.bed.path)
+            bed_path = Path(inputs.input_upload.output.bed.path)
             if bed_path.name[-4:] == ".bed":
                 name = bed_path.stem
                 copy(str(bed_path), bed_path.name)
@@ -259,7 +259,7 @@ class Rose2(Process):
                 (cmd > f"{name}.bed")()
 
         elif inputs.input_macs.type == "data:chipseq:callpeak:macs14:":
-            bed_path = Path(inputs.input_macs.peaks_bed.path)
+            bed_path = Path(inputs.input_macs.output.peaks_bed.path)
             if bed_path.name[-4:] == ".bed":
                 name = bed_path.stem
                 copy(str(bed_path), bed_path.name)
@@ -269,7 +269,7 @@ class Rose2(Process):
                 (cmd > f"{name}.bed")()
 
         elif inputs.input_macs.type == "data:chipseq:callpeak:macs2:":
-            narrowpeak_path = Path(inputs.input_macs.narrow_peaks.path)
+            narrowpeak_path = Path(inputs.input_macs.output.narrow_peaks.path)
             if narrowpeak_path.name[-11:] == ".narrowPeak":
                 name = narrowpeak_path.stem
                 copy(str(narrowpeak_path), f"{name}.bed")
@@ -279,19 +279,19 @@ class Rose2(Process):
                 (cmd > f"{name}.bed")()
 
         if inputs.input_macs and inputs.use_filtered_bam:
-            rankby = inputs.input_macs.case_bam.path
+            rankby = inputs.input_macs.output.case_bam.path
         else:
-            rankby = inputs.rankby.bam.path
+            rankby = inputs.rankby.output.bam.path
 
         if (
             inputs.input_macs
             and inputs.input_macs.type == "data:chipseq:callpeak:macs2:"
-            and inputs.input_macs.control_bam
+            and inputs.input_macs.output.control_bam
             and inputs.use_filtered_bam
         ):
-            control = inputs.input_macs.control_bam.path
+            control = inputs.input_macs.output.control_bam.path
         elif inputs.control:
-            control = inputs.control.bam.path
+            control = inputs.control.output.bam.path
         else:
             control = None
 
@@ -305,7 +305,7 @@ class Rose2(Process):
         if inputs.stitch or inputs.stitch == 0:
             cmd = cmd["--stitch"][inputs.stitch]
         if inputs.mask:
-            cmd = cmd["--mask"][inputs.mask.bed.path]
+            cmd = cmd["--mask"][inputs.mask.output.bed.path]
         cmd = cmd["--out"]["."]
         return_code, _, _ = cmd & TEE(retcode=None)
         if return_code:

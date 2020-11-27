@@ -37,13 +37,13 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:4.9.0"}},
+        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Differential expression (case vs. control)"
@@ -117,8 +117,8 @@ class EdgeR(Process):
             )
 
         try:
-            case_paths = [c.rc.path for c in inputs.case]
-            control_paths = [c.rc.path for c in inputs.control]
+            case_paths = [c.output.rc.path for c in inputs.case]
+            control_paths = [c.output.rc.path for c in inputs.control]
         except AttributeError:
             self.error("Read counts are required when using edgeR")
 
@@ -127,25 +127,25 @@ class EdgeR(Process):
         expressions = inputs.case + inputs.control
 
         for exp in expressions:
-            if exp.source != expressions[0].source:
+            if exp.output.source != expressions[0].output.source:
                 self.error(
                     "Input samples are of different Gene ID databases: "
-                    f"{exp.source} and {expressions[0].source}."
+                    f"{exp.output.source} and {expressions[0].output.source}."
                 )
-            if exp.species != expressions[0].species:
+            if exp.output.species != expressions[0].output.species:
                 self.error(
                     "Input samples are of different Species: "
-                    f"{exp.species} and {expressions[0].species}."
+                    f"{exp.output.species} and {expressions[0].output.species}."
                 )
-            if exp.build != expressions[0].build:
+            if exp.output.build != expressions[0].output.build:
                 self.error(
                     "Input samples are of different Panel types: "
-                    f"{exp.build} and {expressions[0].build}."
+                    f"{exp.output.build} and {expressions[0].output.build}."
                 )
-            if exp.feature_type != expressions[0].feature_type:
+            if exp.output.feature_type != expressions[0].output.feature_type:
                 self.error(
                     "Input samples are of different Feature type: "
-                    f"{exp.feature_type} and {expressions[0].feature_type}."
+                    f"{exp.output.feature_type} and {expressions[0].output.feature_type}."
                 )
 
         for case in inputs.case:
@@ -218,10 +218,10 @@ class EdgeR(Process):
         outputs.raw = f"{edger_output}.gz"
         outputs.de_json = "de_data.json"
         outputs.de_file = "de_file.tab.gz"
-        outputs.source = expressions[0].source
-        outputs.species = expressions[0].species
-        outputs.build = expressions[0].build
-        outputs.feature_type = expressions[0].feature_type
+        outputs.source = expressions[0].output.source
+        outputs.species = expressions[0].output.species
+        outputs.build = expressions[0].output.build
+        outputs.feature_type = expressions[0].output.feature_type
 
         if inputs.create_sets:
             out_dir = "gene_sets"
@@ -250,7 +250,7 @@ class EdgeR(Process):
                 gene_file.rename(Path() / gene_file.name)
                 process_inputs = {
                     "src": str(gene_file.name),
-                    "source": expressions[0].source,
-                    "species": expressions[0].species,
+                    "source": expressions[0].output.source,
+                    "species": expressions[0].output.species,
                 }
                 self.run_process("upload-geneset", process_inputs)

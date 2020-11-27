@@ -28,7 +28,7 @@ class AlignmentSieve(Process):
     slug = "alignmentsieve"
     name = "alignmentSieve"
     process_type = "data:alignment:bam:sieve"
-    version = "1.1.0"
+    version = "1.2.0"
     category = "Alignment Filtering"
     data_name = 'Sieved BAM ({{ alignment|sample_name|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -38,7 +38,7 @@ class AlignmentSieve(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:1.6.0"}},
+        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
         "resources": {
             "cores": 10,
             "memory": 16384,
@@ -96,11 +96,11 @@ class AlignmentSieve(Process):
     def run(self, inputs, outputs):
         """Run code of AlignmentSieve process."""
 
-        basename = Path(inputs.alignment.bam.path).name
+        basename = Path(inputs.alignment.output.bam.path).name
         assert basename.endswith(".bam")
         name = basename[:-4]
 
-        bam_species = inputs.alignment.species
+        bam_species = inputs.alignment.output.species
         output_bam_file = f"{name}_filtered.bam"
         filter_metrics = f"{name}_metrics.txt"
         bam_bigwig = f"{name}_filtered.bw"
@@ -108,7 +108,7 @@ class AlignmentSieve(Process):
         params = [
             "--verbose",
             "--bam",
-            inputs.alignment.bam.path,
+            inputs.alignment.output.bam.path,
             "--outFile",
             output_bam_file,
             "--filterMetrics",
@@ -166,4 +166,4 @@ class AlignmentSieve(Process):
             outputs.bigwig = bam_bigwig
 
         outputs.species = bam_species
-        outputs.build = inputs.alignment.build
+        outputs.build = inputs.alignment.output.build

@@ -6,7 +6,7 @@ import tempfile
 from subprocess import DEVNULL, PIPE, Popen
 
 import resdk
-from resolwe_runtime_utils import error, warning
+from resolwe_runtime_utils import error, send_message, warning
 
 
 def parse_arguments():
@@ -41,7 +41,7 @@ def main():
     )
 
     if len(org_features) == 0:
-        print(error("No genes were fetched from the knowledge base."))
+        send_message(error("No genes were fetched from the knowledge base."))
         exit(1)
 
     if args.source_db == args.target_db:
@@ -56,7 +56,7 @@ def main():
         )
 
         if len(mapping_res) == 0:
-            print(error("Failed to map features."))
+            send_message(error("Failed to map features."))
             exit(1)
 
         mappings = {}
@@ -65,10 +65,12 @@ def main():
                 if m.source_id not in mappings:
                     mappings[m.source_id] = m.target_id
                 else:
-                    print(warning("Mapping {} returned multiple times.".format(m)))
+                    send_message(
+                        warning("Mapping {} returned multiple times.".format(m))
+                    )
 
         if len(genes) > len(mappings):
-            print(warning("Not all features could be mapped."))
+            send_message(warning("Not all features could be mapped."))
 
         target_ids = mappings.values()
 

@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-from resolwe_runtime_utils import export_file
+from resolwe_runtime_utils import error, export_file, progress, run, save, send_message
 from six import iteritems
 
 parser = argparse.ArgumentParser(description="NGS reads demultiplexer.")
@@ -95,7 +95,7 @@ if args.mapping:
                 pool_maps[barcode] = filename
 
                 if barcode_length > 0 and barcode_length != len(barcode):
-                    print('{"proc.error":"Barcodes should be of the same length."}')
+                    send_message(error("Barcodes should be of the same length."))
                     exit(1)
                 else:
                     barcode_length = len(barcode)
@@ -167,34 +167,42 @@ def read_multiplexed(
 
         numlines = int(numlines)
         readid, matched, notmatched, badquality, skipped = 0, 0, 0, 0, 0
-        print(json.dumps({"proc.progress": progress_start}))
-        progress = progress_start
-        progress_step = (0.9 - progress) / 20.0
+        send_message(progress(progress_start))
+        _progress = progress_start
+        progress_step = (0.9 - _progress) / 20.0
         progress_span = numlines / 20
 
-        def save_results(matched, notmatched, badquality, skipped, total, progress):
+        def save_results(matched, notmatched, badquality, skipped, total, _progress):
             total = float(total)
-
-            print(
-                json.dumps(
-                    {
-                        "matched": "{:,} reads ({:.2f} %)".format(
-                            matched, 100 * matched / total
-                        ),
-                        "notmatched": "{:,} reads ({:.2f} %)".format(
-                            notmatched, 100 * notmatched / total
-                        ),
-                        "badquality": "{:,} reads ({:.2f} %)".format(
-                            badquality, 100 * badquality / total
-                        ),
-                        "skipped": "{:,} reads ({:.2f} %)".format(
-                            skipped, 100 * skipped / total
-                        ),
-                        "proc.progress": progress,
-                    },
-                    separators=(",", ":"),
+            send_message(
+                save(
+                    "matched",
+                    "{:,} reads ({:.2f} %)".format(matched, 100 * matched / total),
                 )
             )
+            send_message(
+                save(
+                    "notmatched",
+                    "{:,} reads ({:.2f} %)".format(
+                        notmatched, 100 * notmatched / total
+                    ),
+                )
+            )
+            send_message(
+                save(
+                    "badquality",
+                    "{:,} reads ({:.2f} %)".format(
+                        badquality, 100 * badquality / total
+                    ),
+                )
+            )
+            send_message(
+                save(
+                    "skipped",
+                    "{:,} reads ({:.2f} %)".format(skipped, 100 * skipped / total),
+                )
+            )
+            send_message(progress(_progress))
 
         f1 = gzip.GzipFile(reads1_file, "r")
         fbar = gzip.GzipFile(barcodes_file, "r")
@@ -302,8 +310,10 @@ def read_multiplexed(
                 skipped += 1
 
             if readid % progress_span == 0:
-                progress += progress_step
-                save_results(matched, notmatched, badquality, skipped, readid, progress)
+                _progress += progress_step
+                save_results(
+                    matched, notmatched, badquality, skipped, readid, _progress
+                )
 
         save_results(matched, notmatched, badquality, skipped, readid, 0.9)
 
@@ -331,14 +341,13 @@ for name in filenames:
             continue
 
         name2 = name.replace("_mate1", "_mate2")
-        print(export_file(name))
-        print(export_file(name2))
-        d = {
-            "process": "upload-fastq-paired",
-            "input": {"src1": [name], "src2": [name2]},
-        }
+        send_message(export_file(name))
+        send_message(export_file(name2))
+        process = "upload-fastq-paired"
+        proc_input = {"src1": [name], "src2": [name2]}
     else:
-        print(export_file(name))
-        d = {"process": "upload-fastq-single", "input": {"src": [name]}}
+        send_message(export_file(name))
+        process = "upload-fastq-single"
+        proc_input = {"src": [name]}
 
-    print("run {}".format(json.dumps(d, separators=(",", ":"))))
+    send_message(run(process, json.dumps(proc_input, separators=(",", ":"))))

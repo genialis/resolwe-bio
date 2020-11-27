@@ -6,6 +6,8 @@ import argparse
 import json
 import os
 
+from resolwe_runtime_utils import save, send_message
+
 import utils
 
 parser = argparse.ArgumentParser(description="Parses expressions for storage.")
@@ -47,4 +49,4 @@ if args.output:
     with open(args.output, "w") as f:
         json.dump(exp, f)
 else:
-    print('{"exp_json":%s}' % json.dumps(exp, separators=(",", ":")))
+    send_message(save("exp_json", json.dumps(exp, separators=(",", ":"))))

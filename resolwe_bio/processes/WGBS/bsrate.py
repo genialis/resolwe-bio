@@ -26,12 +26,12 @@ class BsConversionRate(Process):
     slug = "bs-conversion-rate"
     name = "Bisulfite conversion rate"
     process_type = "data:wgbs:bsrate"
-    version = "1.0.1"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/wgbs:1.2.0"}},
+        "executor": {"docker": {"image": "resolwebio/wgbs:2.2.0"}},
         "resources": {
             "cores": 1,
             "memory": 16384,
@@ -77,7 +77,7 @@ class BsConversionRate(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        basename = os.path.basename(inputs.mr.mr.path)
+        basename = os.path.basename(inputs.mr.output.mr.path)
         assert basename.endswith(".mr.gz")
         name = basename[:-6]
         report_file = f"{name}_spikein_bsrate.txt"
@@ -85,24 +85,24 @@ class BsConversionRate(Process):
         skip_process = inputs.skip
 
         try:
-            inputs.mr.spikein_mr.path
+            inputs.mr.output.spikein_mr.path
         except AttributeError:
             self.warning(
                 "Selected sample lacks the alignment file for unmethylated control reads."
             )
             skip_process = True
         try:
-            inputs.sequence.fasta.path
+            inputs.sequence.output.fasta.path
         except AttributeError:
             self.warning("Unmethylated control sequence was not provided.")
             skip_process = True
 
         if not skip_process:
-            (Cmd["pigz"]["-cd", inputs.mr.spikein_mr.path] > f"{name}.mr")()
+            (Cmd["pigz"]["-cd", inputs.mr.output.spikein_mr.path] > f"{name}.mr")()
 
             args = [
                 "-chrom",
-                inputs.sequence.fasta.path,
+                inputs.sequence.output.fasta.path,
                 "-output",
                 report_file,
             ]
