@@ -80,14 +80,14 @@ class UploadOrangeMetadata(Process):
     [documentation](https://orange-visual-programming.readthedocs.io/loading-your-data/index.html#header-with-attribute-type-information).
 
     An example of native tab-delimited format can be downloaded
-    [here](http://file.biolab.si/datasets/sample-head.xlsx).
+    [here](https://drive.google.com/file/d/1FR9LNraQ88lDYrSqfS8NnwxRsC6IP8ix/view?usp=sharing).
 
     """
 
     slug = "upload-orange-metadata"
     name = "Metadata table for Orange"
     process_type = "data:metadata:orange"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {

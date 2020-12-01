@@ -14,6 +14,11 @@ Added
 - Add initial general clinical descriptor schema ``general_clinical``
 - Add ``id`` field to ``Feature`` and ``Mapping`` serializers
 
+Changed
+-------
+- Update the url for the Orange table example template in
+  ``upload-orange-metadata``
+
 
 ===================
 34.2.1 - 2020-11-17
