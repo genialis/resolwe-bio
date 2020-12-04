@@ -20,7 +20,7 @@ class ImportScRNA10x(Process):
     slug = "upload-sc-10x"
     name = "Reads (scRNA 10x)"
     process_type = "data:screads:10x:"
-    version = "1.2.1"
+    version = "1.3.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -65,15 +65,18 @@ class ImportScRNA10x(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+        barcodes_files = [
+            barcode.import_file(imported_format="compressed")
+            for barcode in inputs.barcodes
+        ]
+        reads_files = [
+            reads_file.import_file(imported_format="compressed")
+            for reads_file in inputs.reads
+        ]
+
         # Check if the number of input fastqs is the same
-        if len(inputs.barcodes) != len(inputs.reads):
+        if len(barcodes_files) != len(reads_files):
             self.error("The number of reads and barcodes fastqs must be the same.")
-
-        for fastq in inputs.barcodes + inputs.reads:
-            move(fastq.file_temp, os.path.basename(fastq.path))
-
-        barcodes_files = [os.path.basename(fastq.path) for fastq in inputs.barcodes]
-        reads_files = [os.path.basename(fastq.path) for fastq in inputs.reads]
 
         cmd = Cmd["fastqc"]
         for fastq in barcodes_files + reads_files:

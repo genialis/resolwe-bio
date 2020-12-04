@@ -13,7 +13,7 @@
     resources:
       cores: 10
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.2.0
+  version: 2.3.0
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -313,7 +313,7 @@
       memory: 16384
       cores: 20
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.4.0
+  version: 2.5.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample

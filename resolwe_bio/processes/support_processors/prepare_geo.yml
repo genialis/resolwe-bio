@@ -11,9 +11,9 @@
       cores: 1
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
   data_name: 'Prepare GEO ({{name}} - ChIP-Seq)'
-  version: 2.0.2
+  version: 2.1.0
   type: data:other:geo:chipseq
   category: Other
   persistence: CACHED
@@ -155,9 +155,9 @@
       cores: 1
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
   data_name: 'Prepare GEO ({{name}} - RNA-Seq)'
-  version: 0.1.1
+  version: 0.2.0
   type: data:other:geo:rnaseq
   category: Other
   persistence: CACHED

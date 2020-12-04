@@ -28,7 +28,7 @@ class CellRangerMkref(Process):
     slug = "cellranger-mkref"
     name = "Cell Ranger Mkref"
     process_type = "data:genomeindex:10x"
-    version = "2.0.0"
+    version = "2.1.0"
     category = "scRNA-Seq"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -39,7 +39,7 @@ class CellRangerMkref(Process):
             "cores": 10,
         },
     }
-    data_name = '{{ genome.fasta.file|default("?") }}'
+    data_name = '{{ genome.output.fasta.file|default("?") }}'
 
     class Input:
         """Input fields to process CellRangerMkref."""
@@ -63,8 +63,8 @@ class CellRangerMkref(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        genome_build = inputs.genome.build
-        annotation_build = inputs.annotation.build
+        genome_build = inputs.genome.output.build
+        annotation_build = inputs.annotation.output.build
         if genome_build != annotation_build:
             self.error(
                 "Builds of the genome {} and annotation {} do not match. Please provide genome "
@@ -73,8 +73,8 @@ class CellRangerMkref(Process):
                 )
             )
 
-        genome_species = inputs.genome.species
-        annotation_species = inputs.annotation.species
+        genome_species = inputs.genome.output.species
+        annotation_species = inputs.annotation.output.species
         if genome_species != annotation_species:
             self.error(
                 "Species of genome {} and annotation {} do not match. Please provide genome "
@@ -85,8 +85,8 @@ class CellRangerMkref(Process):
 
         cmd = Cmd["cellranger"]["mkref"]
         cmd = cmd["--genome={}".format(genome_build)]
-        cmd = cmd["--genes={}".format(inputs.annotation.annot_sorted.path)]
-        cmd = cmd["--fasta={}".format(inputs.genome.fasta.path)]
+        cmd = cmd["--genes={}".format(inputs.annotation.output.annot_sorted.path)]
+        cmd = cmd["--fasta={}".format(inputs.genome.output.fasta.path)]
         cmd = cmd["--nthreads={}".format(self.requirements.resources.cores)]
         cmd = cmd[
             "--memgb={}".format(int(self.requirements.resources.memory * 0.9 / 1024))
@@ -98,7 +98,7 @@ class CellRangerMkref(Process):
         os.rename(genome_build, "cellranger_index")
 
         outputs.genome_index = "cellranger_index"
-        outputs.source = inputs.annotation.source
+        outputs.source = inputs.annotation.output.source
         outputs.species = genome_species
         outputs.build = genome_build
 
@@ -114,7 +114,7 @@ class CellRangerCount(Process):
     slug = "cellranger-count"
     name = "Cell Ranger Count"
     process_type = "data:scexpression:10x"
-    version = "1.0.5"
+    version = "1.1.0"
     category = "scRNA-Seq"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -213,7 +213,9 @@ class CellRangerCount(Process):
 
         # Format cellranger count fastq input so it follows the correct naming convention and
         # folder structure
-        for i, fastqs in enumerate(zip(inputs.reads.barcodes, inputs.reads.reads)):
+        for i, fastqs in enumerate(
+            zip(inputs.reads.output.barcodes, inputs.reads.output.reads)
+        ):
             os.symlink(
                 fastqs[0].path,
                 os.path.join(
@@ -238,7 +240,9 @@ class CellRangerCount(Process):
         cmd = Cmd["cellranger"]["count"]
         cmd = cmd["--id={}".format(sample_name)]
         cmd = cmd["--fastqs={}".format(dir_fastqs)]
-        cmd = cmd["--transcriptome={}".format(inputs.genome_index.genome_index.path)]
+        cmd = cmd[
+            "--transcriptome={}".format(inputs.genome_index.output.genome_index.path)
+        ]
         cmd = cmd["--localcores={}".format(self.requirements.resources.cores)]
         cmd = cmd[
             "--localmem={}".format(int(self.requirements.resources.memory * 0.9 / 1024))
@@ -268,8 +272,8 @@ class CellRangerCount(Process):
             "src": bam_name,
             "src2": bai_name,
             "reads": inputs.reads.id,
-            "species": inputs.genome_index.species,
-            "build": inputs.genome_index.build,
+            "species": inputs.genome_index.output.species,
+            "build": inputs.genome_index.output.build,
         }
         self.run_process("upload-bam-scseq-indexed", process_inputs)
 
@@ -288,6 +292,6 @@ class CellRangerCount(Process):
         outputs.genes_raw = os.path.join(raw_dir, "features.tsv.gz")
         outputs.barcodes_raw = os.path.join(raw_dir, "barcodes.tsv.gz")
         outputs.report = report_file
-        outputs.build = inputs.genome_index.build
-        outputs.species = inputs.genome_index.species
-        outputs.source = inputs.genome_index.source
+        outputs.build = inputs.genome_index.output.build
+        outputs.species = inputs.genome_index.output.species
+        outputs.source = inputs.genome_index.output.source

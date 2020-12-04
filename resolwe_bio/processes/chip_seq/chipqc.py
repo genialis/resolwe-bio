@@ -31,7 +31,7 @@ class ChipQC(Process):
     slug = "chipqc"
     name = "ChipQC"
     process_type = "data:chipqc"
-    version = "1.0.3"
+    version = "1.1.0"
     category = "ChIP-Seq:QC report"
     data_name = '{{ alignment|sample_name|default("?") }}'
     scheduling_class = SchedulingClass.BATCH

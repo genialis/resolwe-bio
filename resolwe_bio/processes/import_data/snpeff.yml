@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/base:ubuntu-18.04
+        image: resolwebio/base:ubuntu-20.04
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.1.1
+  version: 1.2.0
   type: data:snpeff:upload
   category: Import
   persistence: RAW

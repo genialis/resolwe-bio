@@ -6,7 +6,7 @@ import os
 import sys
 
 import pyBigWig
-from resolwe_runtime_utils import warning
+from resolwe_runtime_utils import send_message, warning
 
 MAPPINGS_DIR = "/opt/chrom_mappings/assets/"
 MAPPINGS_FILES = {
@@ -53,7 +53,7 @@ def parse_mappings(species, infile, outfile):
     # with output name and warining
     if species not in MAPPINGS_FILES:
         msg = 'Chromosome mappings for Species "{}" are not supported.'.format(species)
-        print(warning(msg))
+        send_message(warning(msg))
         os.rename(infile, outfile)
         sys.exit(0)
 
@@ -80,7 +80,7 @@ def create_new_header(infile, mappings, outfile):
 
         if not hdr:
             msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
-            print(warning(msg))
+            send_message(warning(msg))
             os.rename(infile, outfile)
             sys.exit(0)
 
@@ -105,7 +105,7 @@ def create_new_header(infile, mappings, outfile):
                     )
 
         if seq_num > 0:
-            print(
+            send_message(
                 warning(
                     "UCSC chromosome/conting mapping for {} sequence(s) is missing. "
                     "This sequence(s) will not be included in the bigWig file.".format(

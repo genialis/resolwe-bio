@@ -25,7 +25,7 @@ class Bowtie2Index(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.0.1"
+    version = "1.1.0"
 
     class Input:
         """Input fields for Bowtie2Index."""
