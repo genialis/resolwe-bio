@@ -593,7 +593,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },
@@ -647,7 +647,7 @@ re-save build "hg19"
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },

@@ -745,7 +745,7 @@ re-save-file duplicates_report "${NAME}".txt
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },
@@ -803,7 +803,7 @@ re-save-file peaks_density_plot "${NAME}".png
                     },
                     "executor": {
                         "docker": {
-                            "image": "resolwebio/base:ubuntu-18.04",
+                            "image": "resolwebio/base:ubuntu-20.04",
                         },
                     },
                 },

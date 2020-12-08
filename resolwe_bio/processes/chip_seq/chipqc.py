@@ -131,28 +131,28 @@ class ChipQC(Process):
                 f"while called peaks have {inputs.peaks.entity_name}."
             )
 
-        basename = Path(inputs.alignment.bam.path).name
+        basename = Path(inputs.alignment.output.bam.path).name
         assert basename.endswith(".bam")
         name = basename[:-4]
         report_folder = f"{name}_ChIPQCreport"
 
         if inputs.peaks.type == "data:chipseq:callpeak:macs14:":
-            peaks_basename = Path(inputs.peaks.peaks_bed.path).name
+            peaks_basename = Path(inputs.peaks.output.peaks_bed.path).name
             assert peaks_basename.endswith(".bed.gz")
             peaks_name = peaks_basename[:-7]
             peaks_file = f"{peaks_name}.bed"
-            (Cmd["pigz"]["-cd", inputs.peaks.peaks_bed.path] > peaks_file)()
+            (Cmd["pigz"]["-cd", inputs.peaks.output.peaks_bed.path] > peaks_file)()
         elif inputs.peaks.type == "data:chipseq:callpeak:macs2:":
-            peaks_file = inputs.peaks.called_peaks.path
+            peaks_file = inputs.peaks.output.called_peaks.path
 
-        if inputs.alignment.build != inputs.peaks.build:
+        if inputs.alignment.output.build != inputs.peaks.output.build:
             self.error(
                 "All input files must share the same build. "
-                f"Aligment is based on {inputs.alignment.build} while "
-                f"called peaks are based on {inputs.peaks.build}."
+                f"Aligment is based on {inputs.alignment.output.build} while "
+                f"called peaks are based on {inputs.peaks.output.build}."
             )
 
-        build = inputs.alignment.build
+        build = inputs.alignment.output.build
         genome_list = ["hg19", "hg38", "hg18", "mm10", "mm9", "rn4", "ce6", "dm3"]
         annotation = "NULL"
         if inputs.calculate_enrichment:
@@ -165,14 +165,14 @@ class ChipQC(Process):
                 )
 
         if inputs.blacklist:
-            blacklist = f'"{inputs.blacklist.bed.path}"'
+            blacklist = f'"{inputs.blacklist.output.bed.path}"'
         else:
             blacklist = "NULL"
 
         r_input = (
             'library("ChIPQC"); '
             "sample <- ChIPQCsample("
-            f'"{inputs.alignment.bam.path}",'
+            f'"{inputs.alignment.output.bam.path}",'
             f'peaks="{peaks_file}",'
             f"annotation={annotation},"
             f"mapQCth={inputs.advanced.quality_threshold},"
@@ -200,7 +200,7 @@ class ChipQC(Process):
         outputs.peaks_barplot = "Rip_mqc.png"
         outputs.peaks_density_plot = "Rap_mqc.png"
         outputs.report_folder = report_folder
-        outputs.species = inputs.alignment.species
+        outputs.species = inputs.alignment.output.species
         outputs.build = build
         if Path("GenomicFeatureEnrichment_mqc.png").is_file():
             outputs.enrichment_heatmap = "GenomicFeatureEnrichment_mqc.png"
