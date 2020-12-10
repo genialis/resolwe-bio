@@ -13,6 +13,7 @@ Added
 -------
 - Add initial general clinical descriptor schema ``general_clinical``
 - Add ``id`` field to ``Feature`` and ``Mapping`` serializers
+- Add ``resolwebio/base:ubuntu-20.04`` Docker image
 
 Changed
 -------
