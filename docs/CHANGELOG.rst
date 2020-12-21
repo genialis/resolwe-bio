@@ -9,6 +9,10 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-------
+- Add OncXerna specific clinical descriptor schema ``oncxerna_clinical``
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Support new protocol in Resolwe 26.x
