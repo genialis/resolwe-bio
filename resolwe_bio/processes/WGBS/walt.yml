@@ -10,12 +10,12 @@
     resources:
       memory: 32768
       cores: 10
-      storage: 300
+      storage: 600
     executor:
       docker:
         image: resolwebio/wgbs:2.3.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.4.1
+  version: 3.4.2
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
