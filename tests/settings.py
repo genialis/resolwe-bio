@@ -218,6 +218,11 @@ FLOW_PROCESSES_FINDERS = (
     'resolwe.flow.finders.AppDirectoriesFinder',
 )
 
+FLOW_PROCESSES_RUNTIMES = (
+    "resolwe.process.runtime.Process",
+    "resolwe_bio.process.runtime.ProcessBio",
+)
+
 FLOW_PROCESSES_DIRS = (os.path.join(PROJECT_ROOT, '../resolwe_bio/processes/'),)
 
 # Do not skip tests that fail on Docker executor if this is set via environment
