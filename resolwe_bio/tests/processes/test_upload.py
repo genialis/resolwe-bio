@@ -180,8 +180,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         wrong_mates = self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
         error_msg = [
             "The number of mate-pair files in split-lane samples must match. 2 and 1 "
-            "input files were given for the -fq and -fq2 inputs, respectively.",
-            "Validation of FASTQ file(s) failed.",
+            "input files were given for the -fq and -fq2 inputs, respectively."
         ]
         self.assertEqual(wrong_mates.process_error, error_msg)
 
@@ -193,8 +192,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "upload-fastq-paired", inputs, Data.STATUS_ERROR
         )
         error_msg = [
-            "Non-unique input file names detected: ['mate1_reordered.fastq.gz'].",
-            "Validation of FASTQ file(s) failed.",
+            "Non-unique input file names detected: ['mate1_reordered.fastq.gz']."
         ]
         self.assertEqual(wrong_mates2.process_error, error_msg)
 
@@ -208,8 +206,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Format error in mate-pairs mate1_diff_num_reads.fastq.gz and mate2_diff_num_reads.fastq.gz. "
             "Error in sequence file at unknown line: Reads are improperly paired. "
-            "There are more reads in file 2 than in file 1.",
-            "Validation of FASTQ file(s) failed.",
+            "There are more reads in file 2 than in file 1."
         ]
         self.assertEqual(diff_numb_reads.process_error, error_msg)
 
@@ -223,8 +220,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Format error in mate-pairs mate1_reordered.fastq.gz and mate2_reordered.fastq.gz. "
             "Error in sequence file at unknown line: Reads are improperly paired. Read "
-            "name 'read1/1 some text' in file 1 does not match 'read2/2' in file 2.",
-            "Validation of FASTQ file(s) failed.",
+            "name 'read1/1 some text' in file 1 does not match 'read2/2' in file 2."
         ]
         self.assertEqual(unordered_reads.process_error, error_msg)
 
@@ -286,10 +282,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         empty_input = self.run_process(
             "upload-fastq-single", {"src": ["empty.fastq.gz"]}, Data.STATUS_ERROR
         )
-        error_msg = [
-            "Input file empty.fastq.gz contains no read sequences.",
-            "Validation of FASTQ file(s) failed.",
-        ]
+        error_msg = ["Input file empty.fastq.gz contains no read sequences."]
         self.assertEqual(empty_input.process_error, error_msg)
 
         garbage_input = self.run_process(
@@ -297,8 +290,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
         error_msg = [
             "Error in file garbage.fastq.gz. Error in FASTQ file at line 1: Line expected "
-            "to start with '@', but found 'S'",
-            "Validation of FASTQ file(s) failed.",
+            "to start with '@', but found 'S'"
         ]
         self.assertEqual(garbage_input.process_error, error_msg)
 
@@ -308,8 +300,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Error in file garbage2.fastq.gz. Error in FASTQ file at line 3: Sequence descriptions "
             "don't match ('Some random content' != '+++').\nThe second sequence description must "
-            "be either empty or equal to the first description.",
-            "Validation of FASTQ file(s) failed.",
+            "be either empty or equal to the first description."
         ]
         self.assertEqual(garbage_input_2.process_error, error_msg)
 
@@ -319,8 +310,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         error_msg = [
             "Error in file missing_qual.fastq.gz. Error in FASTQ file at line 16: "
             "Premature end of file encountered. The incomplete final record was: "
-            "'@read4/1\\nGACAGGCCGTTTGAATGTTGACGGGATGTT\\n+\\n'",
-            "Validation of FASTQ file(s) failed.",
+            "'@read4/1\\nGACAGGCCGTTTGAATGTTGACGGGATGTT\\n+\\n'"
         ]
         self.assertEqual(missing_qual.process_error, error_msg)
 
