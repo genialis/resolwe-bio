@@ -1,0 +1,342 @@
+- slug: inhibrx-cell-line
+  name: InhibRx cell line annotation
+  description: Cell line specific metadata schema.
+  version: 1.0.0
+  schema:
+    - name: general_information
+      label: General information
+      group:
+        - name: cell_line_name
+          label: Cell line name
+          type: basic:string
+          required: false
+        - name: cell_line_id
+          label: Cell line ID
+          type: basic:string
+          required: false
+        - name: source
+          label: Source
+          description: |
+            Source of the cell line, e.g. Biobank, CCLE, patient derived, etc.
+          type: basic:string
+          required: false
+        - name: depmap_id
+          label: DepMap ID
+          type: basic:string
+          required: false
+        - name: general_information_description
+          label: General information description
+          type: basic:string
+          required: false
+    - name: source_subject_information
+      label: Source subject information
+      group:
+        - name: sample
+          label: Sample
+          type: basic:string
+          reqiured: false
+        - name: subject_id
+          label: Subject ID
+          type: basic:string
+          required: false
+        - name: gender
+          label: Gender
+          type:
+          required:
+          choices:
+            - label: M
+              value: m
+            - label: F
+              value: f
+        - name: age
+          label: Age
+          type: basic:decimal
+          required: false
+          description: |
+            Age in years.
+        - name: race
+          label: Race
+          type: basic:string
+          required: false
+          choices:
+            - label: White
+              value: white
+            - label: Black
+              value: black
+            - label: Non-black
+              value: non black
+            - label: Non-White
+              value: non white
+            - label: Asian
+              value: asian
+            - label: Non-Asian
+              value: non asian
+            - label: Pacific
+              value: pacific
+            - label: Non-Pacific
+              value: non pacific
+            - label: None given
+              value: none given
+        - name: location
+          label: Location
+          type: basic:string
+          required: false
+          description: |
+            Residency.
+        - name: ethnicity
+          label: Ethnicity
+          type: basic:string
+          required: false
+          choices:
+            - label: Hispanic 
+              value: hispanic
+            - label: Non-Hispanic
+              value: non hispanic
+            - label: American Indians and Alaska Natives
+              value: american indians and alaska natives
+            - label: Non-American Indians and Alaska Natives
+              value: non american indians and alaska natives
+            - label: Asians and Pacific Islanders 
+              value: asian and pacific islanders
+            - label: Non-Asians and Pacific Islanders
+              value: non asian and pacific islanders
+            - label: African American
+              value: african american
+            - label: Non-African American
+              value: non african american
+            - label: None given
+              value: none given
+        - name: life_stage
+          label: Life stage
+          type: basic:string
+          required: false
+        - name: description_of_source_subject_information
+          label: Description of Source subject information
+          type: basic:string
+          required: 
+    - name: pathological_information
+      label: Pathological information
+      group:
+        - name: disease_type
+          label: Disease type
+          type: basic:string
+          required: false
+        - name: location
+          label: Location
+          type: basic:string
+          descriptiopn: |
+            General description of where your sample was derived from, e.g. osteosarcoma, gastric cancer, etc.
+          required: false
+        - name: organ_part
+          label: Organ part
+          type: basic:string
+          requied: false
+        - name: biopsy_site
+          label: Biopsy site
+          type: basic:string
+          description: |
+            Primary or secondary site.
+          required: false
+        - name: secondary_site
+          label: Secondary site
+          type: basic:string
+          required: false
+        - name: site_subtype_1
+          label: Site subtype - 1
+          type: basic:string
+          description: |
+            Define subtype.
+          required: false
+        - name: site_subtype_2
+          label: Site subtype - 2
+          type: basic:string
+          description: |
+            Define subtype.
+          required: false
+        - name: site_subtype_3
+          label: Site subtype - 3
+          type: basic:string
+          description: |
+            Define subtype.
+          required: false
+        - name: histology
+          label: Histology
+          type: basic:string
+          required: false
+        - name: histology_subtype_1
+          label: Histology subtype - 1
+          type: basic:string
+          description: |
+            Define subtype. 
+          required: false
+        - name: histology_subtype_2
+          label: Histology subtype - 2
+          type: basic:string
+          description: |
+            Define subtype. 
+          required: false
+        - name: histology_subtype_3
+          label: Histology subtype - 3
+          type: basic:string
+          description: |
+            Define subtype. 
+          required: false
+        - name: pathologist_comments
+          label: Pathologist comments
+          type: basic:string
+          required: false
+        - name: pathologist_annotation
+          label: Pathologist annotation
+          type: basic:string
+          required: false
+        - name: mesenchymal
+          label: Mesenchymal 
+          type: basic:string
+          required: false
+          choices:
+            - label: Yes
+              value: yes
+            - label: No
+              value: no
+        - name: grading
+          label: Grading
+          type: basic:string
+          description: |
+            Disease grade information.
+          required: false
+        - name: description_of_pathological_information
+          label: Description of Pathological information
+          type: basic:string
+    - name: cell_line_information
+      label: Cell line information
+      group:
+        - name: cell_line_bank
+          label: Cell line Bank
+          type: basic:string
+          description: |
+            Cell line Banks, e.g. ATCC, ECACC, etc.
+          required: false
+        - name: cell_line_bank_id
+          label: Cell line Bank ID
+          type: basic:string
+          description: |
+            Official cell line ID.
+          required: false
+        - name: characteristics
+          label: Characteristics
+          type: basic:string
+          required: false
+        - name: growth_protocol
+          label: Growth Protocol
+          type: basic:string
+          description: |
+            Describe the conditions that were used to grow or maintain cells prior to extract preparation.
+          required: false
+        - name: supplements
+          label: Supplements
+          type: basic:string
+          description: |
+            Define which supplements were used, e.g. Pyruvate, Amino Acids, Antibiotics, etc. 
+          required: false
+        - name: freezing_protocol
+          label: Freezing Protocol
+          type: basic_string
+          required: false
+        - name: treatment_protocol
+          label: Treatment Protocol
+          type: basic:string
+          description: |
+            Describe how your sample was treated, at different timepoints, if using non-chemical treatments e.g. exercise, aging, etc.
+          required: false
+        - name: doubling_time_official
+          label: Doubling time official
+          type: basic:string
+          description: |
+            Doubling time provided by vendors.
+          required: false
+        - name: doubling_time_calculated
+          label: Doubling time calculated
+          type: basic:string
+          description: |
+            Doubling time calculated.
+          required: false
+        - name: description_of_cell_line_information
+          label: Description of Cell line information
+          type: basic:string
+          required: false
+    - name: response_and_predictions
+      label: Response and Predictions
+      group:
+        - name: ic50_clip
+          label: IC50 CLIP
+          type: basic:decimal
+          required: false
+        - name: amax_clip
+          label: Amax CLIP
+          type: basic:decimal
+          required: false
+        - name: sensitivity_clip
+          label: Sensitivity CLIP
+          type: basic:string
+          required: false
+        - name: ic50_lab
+          label: IC50 lab
+          type: basic:decimal
+          required: false
+        - name: amax_lab
+          label: Amax lab
+          type: basic:decimal
+          required: false
+        - name: sensitivity_lab
+          label: Sensitivity lab
+          type: basic:string
+          required: false
+        - name: ic50_crxx
+          label: IC50 CRXX
+          type: basic:decimal
+          required: false
+        - name: amax_crxx
+          label: Amax CRXX
+          type: basic:decimal
+          required:false
+        - name: sensitivity_crxx
+          label: Sensitivity CRXX
+          type: basic:string
+          required: fasle
+        - name: overall_sensitivity
+          label: Overall sensitivity
+          type: basic:string
+          required: false
+        - name: dr5_score
+          label: DR5 score
+          type: basic:decimal
+          description: |
+            Death Receptor 5 or TNFRSF10B.
+          required: false
+        - name: caspase_8_score
+          label: Caspase 8 score
+          type: basic:decimal
+          required: false
+        - name: two_gene_predictions
+          label: Two gene predictions
+          type: basic:integer
+          description: |
+            Class 1 as sensitive and Class 0 as resistant.
+          required:false
+          choices:
+            - label: 0
+              value: 0
+            - label: 1
+              value: 1
+        - name: grep_score
+          label: GREP score
+          type: basic:decimal
+          required: false
+        - name: grep_calss
+          label: GREP class
+          type: basic:string
+          required: false
+        - name: description_of_response_and_predictions
+          label: Description of Response and Predictions
+          type: basic:string
+          required: false
