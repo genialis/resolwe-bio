@@ -29,6 +29,7 @@ class SlamdunkAllPaired(Process):
         "resources": {
             "cores": 8,
             "memory": 16384,
+            "storage": 600,
         },
     }
     entity = {
@@ -36,7 +37,7 @@ class SlamdunkAllPaired(Process):
     }
     category = "Slamdunk"
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "2.1.0"
+    version = "2.1.2"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
