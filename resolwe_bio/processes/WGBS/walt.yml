@@ -13,9 +13,9 @@
       storage: 600
     executor:
       docker:
-        image: resolwebio/wgbs:2.3.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.3.0
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.4.2
+  version: 3.4.3
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample

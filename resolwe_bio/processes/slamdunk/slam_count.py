@@ -45,7 +45,7 @@ class SlamCount(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -58,7 +58,7 @@ class SlamCount(Process):
         "type": "sample",
     }
     data_name = '{{ tcount|sample_name|default("?") }}'
-    version = "1.1.0"
+    version = "1.1.1"
 
     class Input:
         """Input fields for SlamCount."""

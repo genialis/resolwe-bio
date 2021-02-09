@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/bamliquidator:2.0.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/bamliquidator:2.0.0
   data_name: "bamplot"
-  version: 1.4.0
+  version: 1.4.1
   type: data:bam:plot:bamplot
   category: Plot
   persistence: CACHED

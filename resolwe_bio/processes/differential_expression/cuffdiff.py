@@ -34,13 +34,15 @@ class Cuffdiff(Process):
     slug = "cuffdiff"
     name = "Cuffdiff 2.2"
     process_type = "data:differentialexpression:cuffdiff"
-    version = "3.3.0"
+    version = "3.3.1"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+        },
         "resources": {"cores": 10, "memory": 8192},
     }
     data_name = "Cuffdiff results"

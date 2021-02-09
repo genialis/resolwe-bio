@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:5.1.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.1.0
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 2.2.0
+  version: 2.2.1
   type: data:variants:vcf
   category: Import
   persistence: RAW

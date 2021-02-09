@@ -24,7 +24,7 @@ class SlamdunkAllPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 8,
@@ -37,7 +37,7 @@ class SlamdunkAllPaired(Process):
     }
     category = "Slamdunk"
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "2.1.2"
+    version = "2.1.3"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""

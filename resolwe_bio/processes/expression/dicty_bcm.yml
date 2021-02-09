@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/biox:2.0.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/biox:2.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.4.0
+  version: 1.4.1
   type: data:expression:polya
   category: Other
   flow_collection: sample

@@ -15,7 +15,7 @@
       cores: 10
       network: true
   data_name: "Preprocess BAM ({{ alignment|sample_name|default('?') }})"
-  version: 2.1.0
+  version: 2.1.1
   type: data:alignment:bam:vc
   category: Other
   flow_collection: sample

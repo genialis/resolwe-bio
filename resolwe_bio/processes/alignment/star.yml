@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.11.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0
     resources:
       memory: 36864
       cores: 10
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.4.0
+  version: 2.4.1
   type: data:alignment:bam:star
   category: Align
   flow_collection: sample
@@ -620,12 +620,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       memory: 32768
       cores: 1
   data_name: "{{ ref_seq.fasta.file|basename|default('?') }}"
-  version: 2.1.0
+  version: 2.1.1
   type: data:index:star
   category: Genome index
   persistence: CACHED

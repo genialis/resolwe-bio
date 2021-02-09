@@ -98,11 +98,13 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.INTERACTIVE
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.6.0"}
+        },
         "resources": {"cores": 1, "memory": 8192},
         "relations": [{"type": "series"}],
     }

@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       cores: 4
   data_name: "{{ bam|sample_name|default('?') }}"
-  version: 0.6.0
+  version: 0.6.1
   type: data:alignment:bam:primary
   flow_collection: sample
   category: Other

@@ -30,7 +30,7 @@ class AlleyoopCollapse(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/slamdunk:2.0.0"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/slamdunk:2.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -43,7 +43,7 @@ class AlleyoopCollapse(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.2.0"
+    version = "1.2.1"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""

@@ -33,7 +33,7 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.1.0"
+    version = "5.1.1"
     category = "ChIP-Seq:Post Process"
     entity = {
         "type": "sample",
@@ -41,7 +41,11 @@ class Rose2(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/bamliquidator:2.2.0"}},
+        "executor": {
+            "docker": {
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/bamliquidator:2.2.0"
+            }
+        },
     }
     data_name = "{{ input_macs|sample_name|default('?') if input_macs else rankby|sample_name|default('?') }}"
 

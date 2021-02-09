@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       memory: 8192
       network: true
   data_name: '{{ src.file }}'
-  version: 3.4.0
+  version: 3.4.1
   type: data:annotation:gff3
   category: Import
   persistence: RAW
@@ -132,13 +132,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       memory: 8192
       network: true
   data_name: '{{ src.file }}'
-  version: 3.4.0
+  version: 3.4.1
   type: data:annotation:gtf
   category: Import
   persistence: RAW

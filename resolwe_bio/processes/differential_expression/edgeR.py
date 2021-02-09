@@ -37,13 +37,15 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.5.0"
+    version = "1.5.1"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/rnaseq:5.9.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+        },
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Differential expression (case vs. control)"

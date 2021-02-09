@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.10.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.10.0
     resources:
       network: true
   data_name: 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
-  version: 3.4.0
+  version: 3.4.1
   type: data:goea
   category: Other
   persistence: TEMP

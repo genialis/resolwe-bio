@@ -41,7 +41,7 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -51,7 +51,9 @@ class MergeFastqSingle(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
+        },
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 
@@ -116,7 +118,7 @@ class MergeFastqPaired(Process):
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -126,7 +128,9 @@ class MergeFastqPaired(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:2.3.1"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
+        },
     }
     data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
 

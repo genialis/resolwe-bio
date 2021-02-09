@@ -31,12 +31,14 @@ class UploadProteomicsData(Process):
     slug = "upload-proteomics-sample"
     name = "Upload proteomics sample"
     process_type = "data:proteomics:massspectrometry"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.6.0"}
+        },
         "resources": {"cores": 1, "memory": 2048},
     }
     entity = {
@@ -130,12 +132,14 @@ class UploadProteomicsDataSet(Process):
     slug = "upload-proteomics-sample-set"
     name = "Upload proteomics sample set"
     process_type = "data:proteomics:sampleset"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/common:2.6.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.6.0"}
+        },
         "resources": {"cores": 1, "memory": 2048},
     }
     data_name = '{{ src.file|default("?") }}'

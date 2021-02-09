@@ -3,7 +3,7 @@
   data_name: "{{reads|sample_name|default('?')}}"
   requirements:
     expression-engine: jinja
-  version: 1.2.0
+  version: 1.2.1
   type: data:workflow:cutnrun
   category: Pipeline
   description: |

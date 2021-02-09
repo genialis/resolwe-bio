@@ -24,13 +24,15 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/dnaseq:5.2.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.2.0"}
+        },
     }
     data_name = '{{ bam|sample_name|default("?") }}'
 

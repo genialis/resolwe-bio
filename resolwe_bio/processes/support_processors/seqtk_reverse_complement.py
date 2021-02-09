@@ -23,7 +23,7 @@ class ReverseComplementSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:2.3.1"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class ReverseComplementSingle(Process):
         "type": "sample",
     }
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "1.1.0"
+    version = "1.1.1"
 
     class Input:
         """Input fields to process ReverseComplementSingle."""
@@ -85,7 +85,7 @@ class ReverseComplementPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/common:2.3.1"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"},
         },
         "resources": {
             "cores": 1,
@@ -96,7 +96,7 @@ class ReverseComplementPaired(Process):
         "type": "sample",
     }
     data_name = '{{ reads|sample_name|default("?") }}'
-    version = "1.0.1"
+    version = "1.0.2"
 
     class Input:
         """Input fields to process ReverseComplementPaired."""

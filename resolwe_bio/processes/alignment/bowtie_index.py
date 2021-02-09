@@ -16,7 +16,7 @@ class BowtieIndex(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "resolwebio/rnaseq:5.9.0"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"},
         },
         "resources": {
             "cores": 10,
@@ -25,7 +25,7 @@ class BowtieIndex(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.1.0"
+    version = "1.1.1"
 
     class Input:
         """Input fields for BowtieIndex."""

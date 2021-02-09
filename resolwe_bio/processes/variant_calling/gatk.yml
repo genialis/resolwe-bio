@@ -15,7 +15,7 @@
       cores: 1
       network: true
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample
@@ -130,12 +130,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/dnaseq:5.1.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.1.0
     resources:
       memory: 16384
       cores: 4
   data_name: "GATK HC ({{ alignment|sample_name|default('?') }})"
-  version: 1.1.0
+  version: 1.1.1
   type: data:variants:vcf:gatk:hc
   category: Other
   flow_collection: sample

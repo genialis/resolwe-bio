@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/bamliquidator:2.0.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/bamliquidator:2.0.0
   data_name: "Bamliquidator"
-  version: 0.3.0
+  version: 0.3.1
   type: data:bam:plot:bamliquidator
   category: Other
   persistence: CACHED

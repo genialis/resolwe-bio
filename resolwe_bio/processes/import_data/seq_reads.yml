@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src.0.file|default("?") }}'
-  version: 2.4.0
+  version: 2.4.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -115,12 +115,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
     resources:
       cores: 1
       network: true
   data_name: '{{ src1.0.file|default("?") }}'
-  version: 2.4.0
+  version: 2.4.1
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample
@@ -257,9 +257,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
   data_name: 'Files to FASTQ single-end ({{ (src|first).file.file }})'
-  version: 1.4.0
+  version: 1.4.1
   type: data:reads:fastq:single
   flow_collection: sample
   category: Import
@@ -356,9 +356,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
   data_name: 'Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})'
-  version: 1.4.0
+  version: 1.4.1
   type: data:reads:fastq:paired
   category: Import
   flow_collection: sample

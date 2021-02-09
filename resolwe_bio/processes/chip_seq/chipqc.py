@@ -31,7 +31,7 @@ class ChipQC(Process):
     slug = "chipqc"
     name = "ChipQC"
     process_type = "data:chipqc"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "ChIP-Seq:QC report"
     data_name = '{{ alignment|sample_name|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -41,7 +41,9 @@ class ChipQC(Process):
     }
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/chipseq:5.1.3"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/chipseq:5.1.3"}
+        },
         "resources": {
             "cores": 8,
             "memory": 16384,

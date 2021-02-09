@@ -26,12 +26,14 @@ class BsConversionRate(Process):
     slug = "bs-conversion-rate"
     name = "Bisulfite conversion rate"
     process_type = "data:wgbs:bsrate"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
-        "executor": {"docker": {"image": "resolwebio/wgbs:2.2.0"}},
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.2.0"}
+        },
         "resources": {
             "cores": 1,
             "memory": 16384,
