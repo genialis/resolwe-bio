@@ -12,6 +12,7 @@ Unreleased
 Changed
 -------
 - Move docker images from Docker Hub to Amazon ECR
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 27.x
 
 
 ===================
