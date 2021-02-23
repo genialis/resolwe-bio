@@ -73,6 +73,9 @@ setuptools.setup(
             'setuptools_scm',
             'twine',
             'six==1.12',
+            # Packaging fails on Jenkins with latest version (0.3.0). Locally
+            # it works fine, though.
+            'build==0.2.1',
         ],
     },
     classifiers=[
