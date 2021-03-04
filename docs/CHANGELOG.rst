@@ -15,6 +15,10 @@ Added
 - Fail if wrong filtering arguments are used in KB Feature / Mapping
   search endpoints
 
+Changed
+-------
+- Use Amazon ECR when building resolwebio/base Docker images
+
 Fixed
 -----
 - Fix file import in processes ``upload-multiplexed-single`` and
