@@ -167,7 +167,7 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04",
+                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
                         },
                     },
                 },
@@ -348,7 +348,7 @@ re-save feature_type "gene"
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04",
+                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
                         },
                     },
                 },

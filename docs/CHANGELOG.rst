@@ -21,6 +21,8 @@ Changed
 - Use pinned version of the ``resolwebio/base`` Docker image for
   building ``resolwebio/common`` Docker image. Update versions of
   bioinformatic tools installed in the ``resolwebio/common`` image.
+- Use only tagged versions of ``resolwebio/base`` Docker images in
+  processes
 
 Fixed
 -----

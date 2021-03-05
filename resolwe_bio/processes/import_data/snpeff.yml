@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04
+        image: public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021
     resources:
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.2.1
+  version: 1.2.2
   type: data:snpeff:upload
   category: Import
   persistence: RAW
