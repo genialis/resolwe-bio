@@ -8,5 +8,4 @@ makedb-walt
 qorts
 r-packages
 samtools
-sra-toolkit
 subread

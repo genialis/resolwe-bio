@@ -5,8 +5,8 @@
 download_and_verify \
     wehi \
     subread \
-    1.6.3 \
-    0b23094a291582725d455dbcbd3fc337e60cec04199202815b990f526b9bc8f0 \
+    2.0.1 \
+    bd4d3834ea4690d27c8b06095662343ebdabd3c24c7e6c09611bfeb61ef041fa \
     https://downloads.sourceforge.net/project/subread/subread-\${version}/subread-\${version}-Linux-x86_64.tar.gz \
     subread-\${version}-Linux-x86_64
 

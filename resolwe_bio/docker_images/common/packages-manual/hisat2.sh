@@ -5,17 +5,13 @@
 download_and_verify \
     ccb-jhu \
     hisat2 \
-    0f01dc6397a \
-    53ca877e4c9af975d58301643d5745f680ce391850b33f3c8db5a62a59f518d8 \
-    https://github.com/DaehwanKimLab/hisat2/archive/\${version}.zip \
+    2.2.1 \
+    b7a6a4bdffabaab0ef625d047598c353b6943c1edf7c6c3a367274e0416f0bb5 \
+    https://github.com/DaehwanKimLab/hisat2/archive/v\${version}.zip \
     hisat2-\${version}
 
 # build from source
 make
-
-# remove documentation and examples
-rm -r doc
-rm -r example
 
 add_binary_path \
     ccb-jhu \

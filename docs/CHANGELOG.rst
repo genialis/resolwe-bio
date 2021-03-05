@@ -18,6 +18,9 @@ Added
 Changed
 -------
 - Use Amazon ECR when building resolwebio/base Docker images
+- Use pinned version of the ``resolwebio/base`` Docker image for
+  building ``resolwebio/common`` Docker image. Update versions of
+  bioinformatic tools installed in the ``resolwebio/common`` image.
 
 Fixed
 -----

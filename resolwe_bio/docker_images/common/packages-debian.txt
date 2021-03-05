@@ -13,17 +13,15 @@ seqtk
 tabix
 zip
 
+# required for bedtools (old CLI)
+python
+
 # Required by FastQC
 default-jre
 libfindbin-libs-perl
 
 # Required for deeptools
-libpython3.6-dev
+libpython3.8-dev
 
 # Required for MultiQC
 python3-setuptools
-
-# Required by sra-toolkit
-uuid-runtime
-libxml-libxml-perl
-libany-uri-escape-perl
