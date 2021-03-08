@@ -192,6 +192,16 @@ class FeatureTestCase(TestCase, APITestCase):
         )
         self.assertEqual(len(response.data), 1)
 
+    def test_nonexistent_field(self):
+        FEATURE_SEARCH_URL = reverse("resolwebio-api:kb_feature_search")
+
+        # Test with wrong query parameter
+        response = self.client.get(
+            FEATURE_SEARCH_URL, {"nonexistent": "field"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.status_text, "Bad Request")
+
     def test_serialization(self):
         FEATURE_SEARCH_URL = reverse("resolwebio-api:kb_feature_search")
         kwargs = {"feature_id": "FT-0"}

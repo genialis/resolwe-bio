@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+- Fail if wrong filtering arguments are used in KB Feature / Mapping
+  search endpoints
+
+
 ===================
 36.0.0 - 2021-02-22
 ===================

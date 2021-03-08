@@ -12,7 +12,7 @@ from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db import models
 from django.db.models import F
 
-from resolwe.flow.filters import TEXT_LOOKUPS
+from resolwe.flow.filters import TEXT_LOOKUPS, CheckQueryParamsMixin
 
 from .models import Feature, Mapping
 
@@ -98,7 +98,7 @@ class BaseFeatureFilter(filters.FilterSet):
         }
 
 
-class FeatureFilter(BaseFeatureFilter):
+class FeatureFilter(CheckQueryParamsMixin, BaseFeatureFilter):
     """Filter the feature endpoint."""
 
     query = FullTextFilter(field_name="search")
@@ -118,7 +118,7 @@ class FeatureAutoCompleteFilter(BaseFeatureFilter):
     query = AutoCompleteFilter(field_name="search")
 
 
-class MappingFilter(filters.FilterSet):
+class MappingFilter(CheckQueryParamsMixin, filters.FilterSet):
     """Filter the mapping endpoint."""
 
     class Meta:
