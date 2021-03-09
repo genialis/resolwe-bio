@@ -15,6 +15,11 @@ Added
 - Fail if wrong filtering arguments are used in KB Feature / Mapping
   search endpoints
 
+Fixed
+-----
+- Fix file import in processes ``upload-multiplexed-single`` and
+  ``upload-multiplexed-paired``
+
 
 ===================
 36.0.0 - 2021-02-22

@@ -13,7 +13,7 @@
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.3.1
+  version: 1.3.2
   type: data:multiplexed:qseq:single
   category: Import
   persistence: RAW
@@ -37,7 +37,7 @@
     - name: annotation
       label: Barcode mapping
       type: basic:file
-      validate_regex: '(\.csv|\.tsv)$'
+      validate_regex: '(\.tsv)$'
       required: true
       description: |
         A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
@@ -73,12 +73,12 @@
       re-import {{ reads.file_temp|default(reads.file) }} {{ reads.file }} "qseq.*" "qseq" 0.1 compress
       READS_NAME=$NAME
 
-      TEMP={{ annotation.file_temp|default(annotation.file) }}
-      mv "$TEMP" {{ annotation.file }}
+      re-import {{ annotation.file_temp|default(annotation.file) }} {{ annotation.file }} "tsv" "tsv" 0.21 extract
+      ANNOTATION_NAME=$NAME
       mkdir -p temp
-      re-save-file annotation {{ annotation.file }} temp
+      re-save-file annotation "${ANNOTATION_NAME}.tsv" temp
 
-      demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m {{ annotation.file }} --progress-start 0.2
+      demultiplex.py "${BARCODES_NAME}.qseq.gz" "${READS_NAME}.qseq.gz" -m "${ANNOTATION_NAME}.tsv" --progress-start 0.2
       re-checkrc
 
       re-save-file qseq_reads ${READS_NAME}.qseq.gz
@@ -94,7 +94,7 @@
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.3.1
+  version: 1.3.2
   type: data:multiplexed:qseq:paired
   category: Import
   persistence: RAW
@@ -125,7 +125,7 @@
     - name: annotation
       label: Barcode mapping
       type: basic:file
-      validate_regex: '(\.csv|\.tsv)$'
+      validate_regex: '(\.tsv)$'
       required: true
       description: |
         A tsv file mapping barcodes to experiment name, e.g. "TCGCAGG\tHr00".
@@ -167,13 +167,12 @@
       re-import {{ reads2.file_temp|default(reads2.file) }} {{ reads2.file }} "qseq.*" "qseq" 0.14 compress
       READS_NAME2=$NAME
 
-      TEMP={{ annotation.file_temp|default(annotation.file) }}
-      mv "$TEMP" {{ annotation.file }}
+      re-import {{ annotation.file_temp|default(annotation.file) }} {{ annotation.file }} "tsv" "tsv" 0.21 extract
+      ANNOTATION_NAME=$NAME
       mkdir -p temp
-      re-checkrc
-      re-save-file annotation {{ annotation.file }} temp
+      re-save-file annotation "${ANNOTATION_NAME}.tsv" temp
 
-      demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m {{ annotation.file }} --progress-start 0.22
+      demultiplex.py "${BARCODES_NAME}.qseq.gz" -1 "${READS_NAME}.qseq.gz" -2 "${READS_NAME2}.qseq.gz" -m "${ANNOTATION_NAME}.tsv" --progress-start 0.22
       re-checkrc
 
       re-save-file qseq_reads ${READS_NAME}.qseq.gz
