@@ -28,6 +28,8 @@ Fixed
 -----
 - Fix file import in processes ``upload-multiplexed-single`` and
   ``upload-multiplexed-paired``
+- Fix ``import-sra-paired`` and ``import-sra-paired`` to correctly
+  determine Illumina 1.5 and 1.3 encoding and run recoding.
 
 
 ===================

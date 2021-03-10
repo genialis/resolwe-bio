@@ -149,7 +149,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.4.2"
+    version = "1.4.3"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -283,16 +283,20 @@ class ImportSraSingle(Process):
             encoding_file = report_dir / "fastqc_data.txt"
             encoding = Cmd["parse_encoding_type.py"](str(encoding_file))
 
-            if encoding == "Illumina 1.5" or encoding == "Illumina 1.3":
+            if encoding == "Illumina 1.5\n" or encoding == "Illumina 1.3\n":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                Cmd[
-                    "TrimmomaticSE",
-                    "-phred64",
-                    "input_reads.fastq.gz",
-                    "reformated.fastq.gz",
-                    "TOPHRED33",
-                ]()
+                return_code, _, _ = (
+                    Cmd["TrimmomaticSE"][
+                        "-phred64",
+                        "input_reads.fastq.gz",
+                        "reformated.fastq.gz",
+                        "TOPHRED33",
+                    ]
+                    & TEE(retcode=None)
+                )
+                if return_code:
+                    self.error(f"Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")
 
             elif encoding != "Sanger / Illumina 1.9\n":
@@ -317,7 +321,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.4.2"
+    version = "1.4.3"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -467,16 +471,20 @@ class ImportSraPaired(Process):
             encoding_file = report_dir / "fastqc_data.txt"
             encoding = Cmd["parse_encoding_type.py"](str(encoding_file))
 
-            if encoding == "Illumina 1.5" or encoding == "Illumina 1.3":
+            if encoding == "Illumina 1.5\n" or encoding == "Illumina 1.3\n":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                Cmd[
-                    "TrimmomaticSE",
-                    "-phred64",
-                    "input_reads.fastq.gz",
-                    "reformated.fastq.gz",
-                    "TOPHRED33",
-                ]()
+                return_code, _, _ = (
+                    Cmd["TrimmomaticSE"][
+                        "-phred64",
+                        "input_reads.fastq.gz",
+                        "reformated.fastq.gz",
+                        "TOPHRED33",
+                    ]
+                    & TEE(retcode=None)
+                )
+                if return_code:
+                    self.error(f"Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")
 
             elif encoding != "Sanger / Illumina 1.9\n":

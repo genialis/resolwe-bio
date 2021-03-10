@@ -108,6 +108,15 @@ class ImportProcessorTestCase(BioProcessTestCase):
             ],
         )
 
+        # Test the upload of reads where Illumina 1.5 encoding is detected.
+        inputs = {
+            "sra_accession": ["SRR13627909"],
+            "advanced": {"max_spot_id": 1, "prefetch": False},
+        }
+        self.run_process("import-sra", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
         # test error messages
         sra = self.run_process(
             "import-sra-single",
