@@ -66,7 +66,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.1.1"
+    version = "2.2.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -216,7 +216,7 @@ class SalmonQuant(Process):
         exp = FileField(label="Normalized expression")
         exp_json = JsonField(label="Expression (json)")
         exp_type = StringField(label="Expression type")
-        rc = FileField(label="Read counts", required=False)
+        rc = FileField(label="Gene-level estimated counts")
         exp_set = FileField(label="Expressions")
         exp_set_json = JsonField(label="Expressions (json)")
         quant = FileField(label="Salmon quant file")
@@ -331,11 +331,14 @@ class SalmonQuant(Process):
         assert annot_basename.endswith(".gtf")
         annot_name = annot_basename[:-4]
         tx2gene = "tx2gene_{}.txt".format(annot_name)
+        counts = f"{reads_name}_counts.txt"
+        counts_gz = counts + ".gz"
         if os.path.exists("salmon_output/quant.sf"):
             tximport_args = [
                 "salmon_output/quant.sf",
                 inputs.annotation.output.annot.path,
                 reads_name,
+                counts,
                 tx2gene,
             ]
             # Strip feature_id version for non-UCSC annotation source type
@@ -355,6 +358,9 @@ class SalmonQuant(Process):
 
         # Zip the gene-level abundance estimates
         (Cmd["gzip"]["-c", reads_name] > reads_name + output_suffix)()
+
+        # Zip the gene-level count estimates
+        (Cmd["gzip"]["-c", counts] > counts_gz)()
 
         # Save the abundance estimates to JSON storage
         Cmd["expression2storage.py"]("--output", "json.txt", reads_name + output_suffix)
@@ -388,6 +394,7 @@ class SalmonQuant(Process):
         outputs.quant = reads_name + ".sf"
         outputs.transcripts = transcript_out_file
         outputs.txdb = tx2gene
+        outputs.rc = counts_gz
         outputs.exp = reads_name + output_suffix
         outputs.exp_json = "json.txt"
         outputs.exp_set = reads_name + "_expressions.txt.gz"

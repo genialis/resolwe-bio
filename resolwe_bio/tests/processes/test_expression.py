@@ -836,6 +836,13 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+        self.assertFile(
+            salmon_quant,
+            "rc",
+            os.path.join("salmon_quant", "output", "salmon_counts.txt.gz"),
+            compression="gzip",
+        )
+
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_featurecounts_strandedness(self):

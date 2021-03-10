@@ -23,6 +23,8 @@ Changed
   bioinformatic tools installed in the ``resolwebio/common`` image.
 - Use only tagged versions of ``resolwebio/base`` Docker images in
   processes
+- Save gene-level estimated counts to the ``rc`` output field in the
+  ``salmon-quant`` process
 
 Fixed
 -----

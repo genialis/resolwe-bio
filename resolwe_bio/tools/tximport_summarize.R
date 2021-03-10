@@ -6,7 +6,8 @@ library(tximport)
 parser = ArgumentParser(description='Summarize TPM values to gene-level expressions.')
 parser$add_argument('infile', help="Salmon output file (transcript-level).")
 parser$add_argument('gtf', help='GTF file used for transcript-to-gene mapping.')
-parser$add_argument('outfile', help='Output file holding the gene-level abuncance estimates.')
+parser$add_argument('outfile_abundance', help='Output file holding the gene-level abundance estimates.')
+parser$add_argument('outfile_counts', help='Output file holding the gene-level counts estimates.')
 parser$add_argument('gene_mapping', help='Output file with transcript-to-gene mapping information.')
 parser$add_argument('--ignoreTxVersion', action='store_true', help='Strip feature_id version.')
 args = parser$parse_args(commandArgs(trailingOnly=TRUE))
@@ -28,10 +29,14 @@ txi_tpm = tximport(args$infile, type="salmon", tx2gene=tx2gene, ignoreTxVersion=
 
 # Ensure that the order by gene_ids is ascending,
 # e.g. ENSG001, ENSG002, ..., ENSG100
-tpm = data.frame(txi_tpm$abundance)
+tpm = data.frame(Expression = txi_tpm$abundance)
 tpm = cbind(Gene = rownames(tpm), tpm)
 rownames(tpm) = NULL
-names(tpm) = c("Gene", "Expression")
+
+counts <- data.frame(Expression = txi_tpm$counts)
+counts = cbind(Gene = rownames(counts), counts)
+rownames(counts) = NULL
 
 # Write to table
-write.table(tpm, file=args$outfile, sep="\t", quote=FALSE, row.names=FALSE)
+write.table(tpm, file=args$outfile_abundance, sep="\t", quote=FALSE, row.names=FALSE)
+write.table(tpm, file=args$outfile_counts, sep="\t", quote=FALSE, row.names=FALSE)
