@@ -6,9 +6,9 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+36.1.0 - 2021-03-15
+===================
 
 Added
 -----
@@ -17,7 +17,7 @@ Added
 
 Changed
 -------
-- Use Amazon ECR when building resolwebio/base Docker images
+- Use Amazon ECR when building ``resolwebio/base`` Docker images
 - Use pinned version of the ``resolwebio/base`` Docker image for
   building ``resolwebio/common`` Docker image. Update versions of
   bioinformatic tools installed in the ``resolwebio/common`` image.
@@ -30,8 +30,8 @@ Fixed
 -----
 - Fix file import in processes ``upload-multiplexed-single`` and
   ``upload-multiplexed-paired``
-- Fix ``import-sra-paired`` and ``import-sra-paired`` to correctly
-  determine Illumina 1.5 and 1.3 encoding and run recoding.
+- Fix ``import-sra-single`` and ``import-sra-paired`` to correctly
+  determine Illumina 1.5 and 1.3 quality encoding
 
 
 ===================
