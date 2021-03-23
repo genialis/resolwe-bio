@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.11.1"
+    version = "1.11.2"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -395,12 +395,9 @@ class MultiQC(Process):
         unsupported_data = []
 
         for d in inputs.data:
-            sample_dir = d.entity.name
-
-            if sample_dir:
-                os.makedirs(sample_dir, exist_ok=True)
-
             try:
+                sample_dir = d.entity.name
+                os.makedirs(sample_dir, exist_ok=True)
                 if d.entity.name and d.output.species and d.output.build:
                     samples.append(d.entity.name)
                     species.append(d.output.species)

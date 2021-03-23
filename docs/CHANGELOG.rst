@@ -14,6 +14,10 @@ Added
 -----
 - Add GEOparse to the ``resolwebio/common:2.7.0`` Docker image
 
+Fixed
+-----
+- Fix handling of non-sample data inputs in ``multiqc`` process
+
 
 ===================
 36.1.0 - 2021-03-15

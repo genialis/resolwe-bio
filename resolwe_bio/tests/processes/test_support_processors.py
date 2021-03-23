@@ -474,6 +474,13 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
+            # BED file is not part of a sample entity. Test if MultiQC process
+            # correctly skips this input data object
+            bed = self.run_process(
+                "upload-bed",
+                {"src": "good.bed", "species": "Homo sapiens", "build": "hg19"},
+            )
+
         multiqc = self.run_process(
             "multiqc",
             {
@@ -485,6 +492,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     star_alignment.id,
                     samtools_idxstats.id,
                     qorts_report.id,
+                    bed.id,
                 ],
                 "advanced": {
                     "dirs": True,
