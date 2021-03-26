@@ -40,39 +40,30 @@ setuptools.setup(
     },
     python_requires='>=3.6, <3.9',
     install_requires=(
-        'Django~=2.2.0',
-        'djangorestframework~=3.9.0',
-        'django-filter~=2.0.0',
+        'Django~=3.1.7',
+        'djangorestframework~=3.12.2',
+        'django-filter~=2.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=27.0a1, ==27.*',
-        # XXX: Temporarily pin urllib to 1.24.x, since requests 2.21.0
-        # has requirement urllib3<1.25,>=1.21.1
-        'urllib3~=1.24.2',
-        'wrapt~=1.11.1',
+        'wrapt~=1.12.1',
     ),
     extras_require={
         'docs': [
-            # XXX: Temporarily pin Sphinx to version 1.5.x since 1.6 doesn't
-            # work with our custom page template.
-            'Sphinx~=1.5.6',
+            'Sphinx~=3.5.3',
             'sphinx_rtd_theme',
-            # XXX: Temporarily pin docutils to version 0.15.2 since Sphinx's
-            # requirements are too open and cannot correctly install the
-            # requested pre-release version of docutils.
-            'docutils==0.15.2',
             'pyasn1>=0.4.8',
         ],
         'package': ['twine', 'wheel'],
         'test': [
             'black',
-            'flake8~=3.7.0',
-            'isort~=4.3.12',
-            'pydocstyle~=3.0.0',
-            'tblib~=1.3.0',
+            'flake8>=3.8.4',
+            'isort>=5.7.0',
+            'pydocstyle~=5.1.1',
+            'tblib>=1.7.0',
             'check-manifest',
             'setuptools_scm',
             'twine',
-            'six==1.12',
+            'six==1.15',
             # Packaging fails on Jenkins with latest version (0.3.0). Locally
             # it works fine, though.
             'build==0.2.1',
