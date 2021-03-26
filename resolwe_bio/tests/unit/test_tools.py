@@ -9,4 +9,6 @@ class TestTools(TestCase):
         import resolwe_bio.tools
 
         with self.assertRaises(AttributeError):
-            resolwe_bio.tools.__file__
+            result = resolwe_bio.tools.__file__
+            if result is None:
+                raise AttributeError("Namespace package")

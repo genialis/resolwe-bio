@@ -143,8 +143,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         error_msg = [
             (
-                "Sample 'expression' has 'ENSEMBL' gene IDs, "
-                "while sample 'wrong source' has 'UCSC' gene IDs."
+                "Sample expression has ENSEMBL gene IDs, "
+                "while sample 'wrong source' has UCSC gene IDs."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -162,7 +162,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Species."]
         error_msg = [
             (
-                "Sample 'expression' is 'Homo sapiens', "
+                "Sample expression is 'Homo sapiens', "
                 "while sample 'wrong species' is 'Mus musculus'."
             )
         ]
@@ -181,8 +181,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Expression type."]
         error_msg = [
             (
-                "Expression 'expression' has 'TPM' expression type, "
-                "while sample 'wrong expression type' has 'FPKM' expression type."
+                "Expression expression has TPM expression type, "
+                "while sample 'wrong expression type' has FPKM expression type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -200,8 +200,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Feature type."]
         error_msg = [
             (
-                "Expression 'expression' has 'gene' feature type, "
-                "while sample 'wrong feature type' has 'transcript' feature type."
+                "Expression expression has gene feature type, "
+                "while sample 'wrong feature type' has transcript feature type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -225,8 +225,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         error_msg = [
             (
-                "Gene IDs are from 'UCSC' database, "
-                "while sample 'expression' has gene IDs from 'ENSEMBL' database."
+                "Gene IDs are from UCSC database, "
+                "while sample expression has gene IDs from ENSEMBL database."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -249,7 +249,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "Selected genes must be from the same species as all expression files."
         ]
         error_msg = [
-            "Selected genes are 'Mus musculus', while expression 'expression' is 'Homo sapiens'."
+            "Selected genes are 'Mus musculus', while expression expression is 'Homo sapiens'."
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         self.assertEqual(clustering.process_error, error_msg)
@@ -571,8 +571,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         error_msg = [
             (
-                "Sample 'expression' has 'ENSEMBL' gene IDs, "
-                "while sample 'wrong source' has 'UCSC' gene IDs."
+                "Sample expression has ENSEMBL gene IDs, "
+                "while sample 'wrong source' has UCSC gene IDs."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -590,7 +590,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Species."]
         error_msg = [
             (
-                "Sample 'expression' is 'Homo sapiens', "
+                "Sample expression is 'Homo sapiens', "
                 "while sample 'wrong species' is 'Mus musculus'."
             )
         ]
@@ -609,8 +609,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Expression type."]
         error_msg = [
             (
-                "Expression 'expression' has 'TPM' expression type, "
-                "while sample 'wrong expression type' has 'FPKM' expression type."
+                "Expression expression has TPM expression type, "
+                "while sample 'wrong expression type' has FPKM expression type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -628,8 +628,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Feature type."]
         error_msg = [
             (
-                "Expression 'expression' has 'gene' feature type, "
-                "while sample 'wrong feature type' has 'transcript' feature type."
+                "Expression expression has gene feature type, "
+                "while sample 'wrong feature type' has transcript feature type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -653,8 +653,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         error_msg = [
             (
-                "Gene IDs are from 'UCSC' database, "
-                "while sample 'expression' has gene IDs from 'ENSEMBL' database."
+                "Gene IDs are from UCSC database, "
+                "while sample expression has gene IDs from ENSEMBL database."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -677,7 +677,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "Selected genes must be from the same species as all expression files."
         ]
         error_msg = [
-            "Selected genes are 'Mus musculus', while expression 'expression' is 'Homo sapiens'."
+            "Selected genes are 'Mus musculus', while expression expression is 'Homo sapiens'."
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         self.assertEqual(clustering.process_error, error_msg)
