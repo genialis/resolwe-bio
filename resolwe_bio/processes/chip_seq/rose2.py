@@ -33,7 +33,7 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.1.1"
+    version = "5.1.2"
     category = "ChIP-Seq:Post Process"
     entity = {
         "type": "sample",
@@ -313,7 +313,7 @@ class Rose2(Process):
         cmd = cmd["--out"]["."]
         return_code, _, _ = cmd & TEE(retcode=None)
         if return_code:
-            self.error(f"ROSE2 run failed.")
+            self.error("ROSE2 run failed.")
 
         outputs.all_enhancers = f"{name}_AllEnhancers.table.txt"
         outputs.enhancers_with_super = f"{name}_Enhancers_withSuper.bed"
@@ -332,7 +332,7 @@ class Rose2(Process):
             cmd["-c"]
         return_code, _, _ = cmd & TEE(retcode=None)
         if return_code:
-            self.error(f"Plotting enhancers failed.")
+            self.error("Plotting enhancers failed.")
 
         zipfile = f"{name}_output_all.zip"
         with ZipFile(zipfile, "w") as zip_file:

@@ -35,7 +35,7 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.2.1"
+    version = "3.2.2"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -262,7 +262,7 @@ class Deseq(Process):
 
         return_code, _, _ = Cmd["parse_diffexp.py"][args] & TEE(retcode=None)
         if return_code:
-            self.error(f"Error while parsing DGE results.")
+            self.error("Error while parsing DGE results.")
 
         (Cmd["gzip"][deseq_output])()
         (Cmd["gzip"]["count_matrix.tab"])()
@@ -297,7 +297,7 @@ class Deseq(Process):
                 retcode=None
             )
             if return_code:
-                self.error(f"Error while creating gene sets.")
+                self.error("Error while creating gene sets.")
 
             for gene_file in sorted(Path(out_dir).glob("*.tab.gz")):
                 gene_file.rename(Path() / gene_file.name)

@@ -37,7 +37,7 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.5.1"
+    version = "1.5.2"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -213,7 +213,7 @@ class EdgeR(Process):
 
         return_code, _, _ = Cmd["parse_diffexp.py"][args] & TEE(retcode=None)
         if return_code:
-            self.error(f"Error while parsing DGE results.")
+            self.error("Error while parsing DGE results.")
 
         (Cmd["gzip"][edger_output])()
 
@@ -246,7 +246,7 @@ class EdgeR(Process):
                 retcode=None
             )
             if return_code:
-                self.error(f"Error while creating gene sets.")
+                self.error("Error while creating gene sets.")
 
             for gene_file in sorted(Path(out_dir).glob("*.tab.gz")):
                 gene_file.rename(Path() / gene_file.name)

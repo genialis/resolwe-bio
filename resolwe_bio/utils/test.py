@@ -179,7 +179,7 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
     }
 
     def setUp(self):
-        """Set-up test gene information knowledge base."""
+        """Set up test gene information knowledge base."""
         super().setUp()
 
         call_command(

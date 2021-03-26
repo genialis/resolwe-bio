@@ -149,7 +149,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.4.3"
+    version = "1.4.4"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -296,7 +296,7 @@ class ImportSraSingle(Process):
                     & TEE(retcode=None)
                 )
                 if return_code:
-                    self.error(f"Recoding of input reads failed.")
+                    self.error("Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")
 
             elif encoding != "Sanger / Illumina 1.9\n":
@@ -484,7 +484,7 @@ class ImportSraPaired(Process):
                     & TEE(retcode=None)
                 )
                 if return_code:
-                    self.error(f"Recoding of input reads failed.")
+                    self.error("Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")
 
             elif encoding != "Sanger / Illumina 1.9\n":

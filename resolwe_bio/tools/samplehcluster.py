@@ -283,7 +283,7 @@ def main():
             msg = (
                 "Gene {} is present in some but not all of the selected samples. This "
                 "gene is excluded from the computation of hierarchical clustering of "
-                "samples.".format(len(excluded), ", ".join(excluded_names))
+                "samples.".format(", ".join(excluded_names))
             )
         else:
             msg = (
