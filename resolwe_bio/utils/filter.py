@@ -9,7 +9,7 @@ def filter_vcf_variable(line):
         return True
     elif line.startswith(b"##fileDate"):
         return True
-    elif b"/data_all/" in line:
+    elif b"/data_local/" in line:
         return True
 
 
