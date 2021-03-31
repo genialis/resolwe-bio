@@ -113,9 +113,6 @@ FLOW_EXECUTOR = {
     'CONTAINER_IMAGE': 'resolwe/bio-linux8-resolwe-preview',
     'CONTAINER_NAME_PREFIX': 'resolwebio',
     'REDIS_CONNECTION': REDIS_CONNECTION,
-    'DATA_DIR': os.path.join(PROJECT_ROOT, 'test_data'),
-    'UPLOAD_DIR': os.path.join(PROJECT_ROOT, 'test_upload'),
-    'RUNTIME_DIR': os.path.join(PROJECT_ROOT, 'test_runtime'),
     "LISTENER_CONNECTION": LISTENER_CONNECTION,
 }
 # Set custom executor command if set via environment variable
@@ -147,16 +144,6 @@ FLOW_MANAGER = {
     'NAME': 'resolwe.flow.managers.workload_connectors.local',
     'REDIS_PREFIX': manager_prefix,
     'REDIS_CONNECTION': REDIS_CONNECTION,
-}
-
-FLOW_DOCKER_VOLUME_EXTRA_OPTIONS = {
-    'data': 'Z',
-    'data_all': 'z',
-    'upload': 'z',
-    'secrets': 'Z',
-    'users': 'Z',
-    'tools': 'z',
-    'runtime': 'Z',
 }
 
 FLOW_PROCESS_MAX_CORES = 1
