@@ -15,6 +15,7 @@ Added
 - Add GEOparse to the ``resolwebio/common:2.7.0`` Docker image
 - Add fastq file validation in ``import-sra-single`` and
   ``import-sra-paired`` processes
+- Add ``geo-import`` process
 
 Changed
 -------
