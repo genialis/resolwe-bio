@@ -149,7 +149,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.4.4"
+    version = "1.5.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -160,7 +160,7 @@ class ImportSraSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/sra-tools:2.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/sra-tools:2.1.0"}
         },
         "resources": {
             "cores": 1,
@@ -250,6 +250,12 @@ class ImportSraSingle(Process):
             )
         outputs.fastq = fastq_gz
 
+        return_code, _, _ = Cmd["validate_fastq.py"]["-fq", fastq_gz] & TEE(
+            retcode=None
+        )
+        if return_code:
+            self.error("Validation of FASTQ file(s) failed.")
+
         print("Postprocessing FastQC...")
         stderr = run_fastqc([fastq_gz], "./fastqc")
         # FastQC writes both progress and errors to stderr and exits with code 0.
@@ -321,7 +327,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.4.3"
+    version = "1.5.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -332,7 +338,7 @@ class ImportSraPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/sra-tools:2.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/sra-tools:2.1.0"}
         },
         "resources": {
             "cores": 1,
@@ -451,6 +457,12 @@ class ImportSraPaired(Process):
 
         outputs.fastq = fastq_gz_1
         outputs.fastq2 = fastq_gz_2
+
+        return_code, _, _ = Cmd["validate_fastq.py"][
+            "-fq", fastq_gz_1, "-fq2", fastq_gz_2
+        ] & TEE(retcode=None)
+        if return_code:
+            self.error("Validation of FASTQ file(s) failed.")
 
         print("Postprocessing FastQC...")
         stderr = run_fastqc(fastq_gz_1 + fastq_gz_2, "./fastqc")
