@@ -1,0 +1,6 @@
+# Top-level packages.
+xopen==1.1.0 --hash=sha256:6e57d7f0598bc589bb230390ef006ab5c9f1127bbc3e8257c82f0539f8ac9436
+dnaio==0.5 --hash=sha256:8d79112afc880e9a728e5a515d36e4e4a57cc69df9dd9ddb2d99f9de800a25c0
+
+# required by xopen
+isal==0.9.0 --hash=sha256:da9163c8392a47f361d1126f37386fd8c240ba059e179520666dcb3f1441cc12

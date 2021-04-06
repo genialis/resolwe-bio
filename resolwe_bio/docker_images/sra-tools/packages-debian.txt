@@ -6,3 +6,6 @@ libany-uri-escape-perl
 # Required by FastQC
 default-jre
 libfindbin-libs-perl
+
+# Python modules
+python3-dev

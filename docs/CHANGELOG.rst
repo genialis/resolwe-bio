@@ -14,6 +14,12 @@ Added
 -----
 - Add GEOparse to the ``resolwebio/common:2.7.0`` Docker image
 
+Changed
+-------
+- Use ``resolwebio/base:ubuntu-20.04`` Docker image for building
+  ``resolwebio/sra-tools`` Docker image. Include ``dnaio`` Python
+  library in ``resolwebio/sra-tools``.
+
 Fixed
 -----
 - Fix handling of non-sample data inputs in ``multiqc`` process
