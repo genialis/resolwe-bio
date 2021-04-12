@@ -35,18 +35,16 @@ To annotate the sample in a GEO compliant way, we prepared the `sample`_
 annotation schema. An example of the customized descriptor schema is also
 `available`_.
 
-.. _sample: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/sample_geo.yml
-.. _available: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/sample_detailed.yml
+.. _sample: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/sample.yml
+.. _available: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/oncxerna_clinical.yml
 
 
 Reads
 =====
 
-To annotate raw sequencing reads we have prepared two descriptor schemas: `reads`_
-and `reads_detailed`_.
+To annotate raw sequencing reads we have prepared corresponding `reads`_ descriptor schema.
 
 .. _reads: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/reads.yml
-.. _reads_detailed: https://github.com/genialis/resolwe-bio/blob/master/resolwe_bio/descriptors/sample_detailed.yml
 
 
 
