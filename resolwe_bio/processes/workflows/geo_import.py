@@ -23,7 +23,7 @@ def parse_sample(gse, sample_name, gse_name):
         if len(v) == 1:
             sample[k] = v[0]
         else:
-            if ":" in v[0]:
+            if all(": " in substring for substring in v):
                 for meta in v:
                     key, value = meta.split(": ")
                     sample[key] = value
@@ -168,7 +168,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "1.0.0"
+    version = "1.0.1"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -332,9 +332,10 @@ class GeoImport(Process):
                     f"The upload of {series_type} is currently not supported. Samples from {series.name} will be "
                     "skipped."
                 )
-
+        meta_file = f"{inputs.gse_accession}_metadata.tsv"
         metadata = pd.concat(metadata_tables.values(), join="outer", ignore_index=False)
-        metadata.to_csv(f"{inputs.gse_accession}_metadata.tsv", sep="\t", index=False)
+        metadata.to_csv(meta_file, sep="\t", index=False)
+        self.run_process("upload-orange-metadata", {"src": meta_file})
 
         for entity_name in metadata["EntityName"].values:
             objects = Data.filter(entity__name=entity_name)

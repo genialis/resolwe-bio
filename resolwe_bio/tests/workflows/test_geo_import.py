@@ -31,6 +31,12 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             [str(outputs / "SRR13627912.fastq.gz")],
             compression="gzip",
         )
+        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        self.assertFile(
+            metadata,
+            "table",
+            str(outputs / "GSE166144_metadata.tsv"),
+        )
         del sra.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
         self.assertFields(
             sra,
