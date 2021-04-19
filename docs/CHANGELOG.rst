@@ -19,6 +19,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 28.x
 - Use ``resolwebio/base:ubuntu-20.04`` Docker image for building
   ``resolwebio/sra-tools`` Docker image. Include ``dnaio`` Python
   library in ``resolwebio/sra-tools``.
