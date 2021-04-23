@@ -4,7 +4,7 @@ from pathlib import Path
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
-from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.utils.test import KBBioProcessTestCase, skipUnlessLargeFiles
 
 
 class UploadProcessorTestCase(KBBioProcessTestCase):
@@ -841,3 +841,49 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(
             Data.objects.filter(process__slug="upload-proteomics-sample").count(), 2
         )
+
+    @skipUnlessLargeFiles(
+        "6042316072_R03C01_Red.idat.gz", "6042316072_R03C01_Grn.idat.gz"
+    )
+    @tag_process("upload-idat")
+    def test_upload_idat(self):
+        large = Path("large")
+        base_path = Path("methylation") / "inputs"
+        inputs = {
+            "red_channel": large / "6042316072_R03C01_Red.idat.gz",
+            "green_channel": large / "6042316072_R03C01_Grn.idat.gz",
+            "species": "Homo sapiens",
+            "platform": "HM450",
+        }
+
+        idat = self.run_process("upload-idat", inputs)
+
+        self.assertFile(
+            idat,
+            "red_channel",
+            large / "6042316072_R03C01_Red.idat.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            idat,
+            "green_channel",
+            large / "6042316072_R03C01_Grn.idat.gz",
+            compression="gzip",
+        )
+        self.assertFields(idat, "species", "Homo sapiens")
+        self.assertFields(idat, "platform", "HM450")
+
+        inputs.update({"species": "Mus musculus"})
+        wrong_species_input = self.run_process("upload-idat", inputs, Data.STATUS_ERROR)
+        error_msg = [
+            "Platform type HM450 does not match the selected species Mus musculus."
+        ]
+        self.assertEqual(wrong_species_input.process_error, error_msg)
+
+        inputs.update(
+            {
+                "red_channel": base_path / "wrong_sample_name_Blue.idat.gz",
+                "species": "Homo sapiens",
+            }
+        )
+        self.run_process("upload-idat", inputs, Data.STATUS_ERROR)
