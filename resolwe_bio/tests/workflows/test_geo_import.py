@@ -99,6 +99,54 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         )
         type_error = [
             "No supported series types found. Got Expression profiling by RT-PCR but only Expression profiling by "
-            "high throughput sequencing are supported."
+            "high throughput sequencing and Expression profiling by array are supported."
         ]
         self.assertEqual(rtpcr.process_error, type_error)
+
+    @with_resolwe_host
+    @tag_process("geo-import")
+    def test_geo_microarray(self):
+        base = Path("geo_import")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
+
+        # Due to Biomart instability the testing is done with the mapping file.
+        # For automatic mapping one can comment the mapping_file line.
+        dss_inputs = {
+            "gse_accession": "GSE172293",
+            "advanced": {
+                "mapping_file": str(inputs / "HuGene-2_0-st_mapping.tsv.gz"),
+                "source": "ENSEMBL",
+                "build": "GRCh38.p13",
+            },
+        }
+
+        self.run_process("geo-import", dss_inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        exp = Data.objects.filter(process__slug="mapped-microarray-expression").last()
+        self.assertFile(
+            exp,
+            "exp",
+            str(outputs / "GSM5252014_mapped_exp.tsv.gz"),
+            compression="gzip",
+        )
+        self.assertFields(exp, "species", "Homo sapiens")
+        self.assertFields(exp, "source", "ENSEMBL")
+        self.assertFields(exp, "build", "GRCh38.p13")
+        self.assertFields(
+            exp,
+            "platform",
+            "[HuGene-2_0-st] Affymetrix Human Gene 2.0 ST Array [transcript (gene) version]",
+        )
+        self.assertFields(exp, "platform_id", "GPL16686")
+        self.assertFields(exp, "probe_mapping", "Custom")
+
+        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        self.assertFile(
+            metadata,
+            "table",
+            str(outputs / "GSE172293_metadata.tsv"),
+        )

@@ -19,6 +19,11 @@ Added
   ``mapped-microarray-expression`` processes
 - Add ``map-microarray-probes`` process
 
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Support microarray expressions upload in
+  ``geo-import`` process
+
 
 ===================
 37.0.0 - 2021-04-19
