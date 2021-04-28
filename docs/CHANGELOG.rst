@@ -15,6 +15,8 @@ Added
 - Add bioservices python package to the ``resolwebio/common:2.8.0``
   Docker image
 - Add ``upload-idat`` process
+- Add ``upload-microarray-expression`` and
+  ``mapped-microarray-expression`` processes
 
 
 ===================
