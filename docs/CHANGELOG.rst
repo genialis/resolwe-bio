@@ -6,6 +6,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+- Add bioservices python package to the ``resolwebio/common:2.8.0``
+  Docker image
+
+
 ===================
 37.0.0 - 2021-04-19
 ===================
