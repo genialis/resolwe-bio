@@ -17,6 +17,7 @@ Added
 - Add ``upload-idat`` process
 - Add ``upload-microarray-expression`` and
   ``mapped-microarray-expression`` processes
+- Add ``map-microarray-probes`` process
 
 
 ===================
