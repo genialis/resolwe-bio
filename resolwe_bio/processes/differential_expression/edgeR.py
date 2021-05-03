@@ -37,7 +37,7 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.5.2"
+    version = "1.6.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -104,6 +104,11 @@ class EdgeR(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+        if any(
+            e.type == "data:expression:microarray:"
+            for e in inputs.case + inputs.control
+        ):
+            self.error("Microarray expressions are not supported.")
 
         for t in inputs.case:
             if t in inputs.control:

@@ -263,6 +263,70 @@ re-save feature_type "gene"
         self.assertFields(diff_exp, "feature_type", "gene")
 
     @with_resolwe_host
+    @tag_process("differentialexpression-deseq2", "differentialexpression-edger")
+    def test_de_microarray(self):
+        with self.preparation_stage():
+
+            expression = Process.objects.create(
+                name="Upload microarray expression data mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type="data:expression:microarray:",
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                data_name="{{ name }}",
+                input_schema=[
+                    {
+                        "name": "name",
+                        "type": "basic:string:",
+                    },
+                ],
+                output_schema=[
+                    {
+                        "name": "name",
+                        "type": "basic:string:",
+                    },
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-save name name
+""",
+                },
+            )
+
+            exp_1 = self.run_process(
+                expression.slug,
+                {"name": "mock_ma_expression"},
+            )
+
+        inputs = {
+            "case": [exp_1.id],
+            "control": [exp_1.id],
+        }
+
+        deseq2 = self.run_process(
+            "differentialexpression-deseq2", inputs, Data.STATUS_ERROR
+        )
+        edger = self.run_process(
+            "differentialexpression-edger", inputs, Data.STATUS_ERROR
+        )
+
+        error_msg = ["Microarray expressions are not supported."]
+        self.assertEqual(deseq2.process_error, error_msg)
+        self.assertEqual(edger.process_error, error_msg)
+
+    @with_resolwe_host
     @tag_process("differentialexpression-edger")
     def test_edger(self):
         with self.preparation_stage():

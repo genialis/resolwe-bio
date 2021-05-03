@@ -35,7 +35,7 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.2.2"
+    version = "3.3.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -157,6 +157,9 @@ class Deseq(Process):
         """Run the analysis."""
 
         expressions = inputs.case + inputs.control
+
+        if any(e.type == "data:expression:microarray:" for e in expressions):
+            self.error("Microarray expressions are not supported.")
 
         for exp in expressions:
             if exp.output.source != expressions[0].output.source:

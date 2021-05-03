@@ -23,6 +23,9 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Support microarray expressions upload in
   ``geo-import`` process
+- Trigger an error for microarray data in differential expression
+  processes ``differentialexpression-edger`` and
+  ``differentialexpression-deseq2``
 
 
 ===================
