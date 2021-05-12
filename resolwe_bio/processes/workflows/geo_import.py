@@ -181,7 +181,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.0.1"
+    version = "2.0.2"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -391,14 +391,13 @@ class GeoImport(Process):
                 f"Download of {inputs.gse_accession} failed. GEO parse failed with {err}"
             )
 
-        supported = set(
-            [
-                "Expression profiling by high throughput sequencing",
-                "Expression profiling by array",
-            ]
-        )
+        supported = [
+            "Expression profiling by high throughput sequencing",
+            "Expression profiling by array",
+        ]
+
         gse_type = gse.get_type() if type(gse.get_type()) is list else [gse.get_type()]
-        if set(gse_type).intersection(supported):
+        if set(gse_type).intersection(set(supported)):
             if "SuperSeries of" in gse.relations:
                 # This is a mixed GSE series which needs to be unpacked.
                 super_series = [
