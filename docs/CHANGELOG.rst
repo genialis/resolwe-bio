@@ -13,6 +13,10 @@ Changed
 -------
 - Bump GATK to version 4.2.0.0 in ``resolwebio/dnaseq:6.0.0`` Docker
   image
+- Update ``workflow-mirna``
+- Add new parameters -maximumlength/-M and -no-indels in processes
+  ``cutadapt-single`` and ``cutadatp-paired``
+- Add new id_attribute to ``featurecounts.yml``
 
 Fixed
 -----

@@ -15,7 +15,7 @@
       memory: 32768
       network: true
   data_name: "{{ alignment.aligned_reads|sample_name|default('?') }}"
-  version: 4.1.1
+  version: 4.1.2
   type: data:expression:featurecounts
   category: Quantify
   flow_collection: sample
@@ -121,6 +121,8 @@
               value: ID
             - label: geneid
               value: geneid
+            - label: miRNA name
+              value: Name
           description: |
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID will be considered as parts of the same

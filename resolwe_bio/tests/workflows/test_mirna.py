@@ -25,20 +25,40 @@ class MicroRNATestCase(KBBioProcessTestCase):
             )
 
         inputs = {
-            "genome": bowtie2_index.pk,
-            "reads": single_reads.pk,
-            "annotation": annotation.pk,
-            "feature_class": "exon",
+            "preprocessing": {
+                "reads": single_reads.pk,
+                "adapters": {"down_primers_seq": ["TAATGAACAATGCAAGTTTGA"]},
+                "filtering": {"minlen": 15, "maxlen": 35, "error_rate": 0.2},
+            },
+            "alignment": {
+                "genome": bowtie2_index.pk,
+                "alignment_options": {
+                    "mode": "--local",
+                    "speed": "--very-sensitive",
+                    "L": 8,
+                    "rep_mode": "k",
+                    "k_reports": 5,
+                },
+            },
+            "quant_options": {
+                "annotation": annotation.pk,
+                "id_attribute": "gene_id",
+                "feature_class": "exon",
+                "normalization_type": "CPM",
+                "count_multi_mapping_reads": True,
+                "allow_multi_overlap": True,
+            },
+            "assay_type": "non_specific",
         }
 
         # Run process and assert.
         self.run_process("workflow-mirna", inputs)
-        workflow = Data.objects.last()
+        workflow = Data.objects.filter(process__slug="feature_counts").last()
 
         # check featureCount summary
         self.assertFile(
             workflow, "rc", "mirna_featurecounts_rc.tab.gz", compression="gzip"
         )
         self.assertFile(
-            workflow, "exp", "mirna_featurecounts_tpm.tab.gz", compression="gzip"
+            workflow, "exp", "mirna_featurecounts_cpm.tab.gz", compression="gzip"
         )

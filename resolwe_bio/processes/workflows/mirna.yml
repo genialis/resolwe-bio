@@ -3,66 +3,335 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 2.0.0
   type: data:workflow:mirna
   category: Pipeline
   input:
-      # this set of parameters is for bowtie2
-    - name: reads
-      label: Input miRNA reads.
-      type: data:reads:fastq
-      description: |
-        Note that these reads should already be void of adapters.
-    - name: genome
-      label: Genome
-      type: data:index:bowtie2
+      # this set of parameters is for cutadapt
+    - name: preprocessing
+      label: Preprocessing options (Cutadapt)
+      group:
+        - name: reads
+          label: Input miRNA reads.
+          type: data:reads:fastq:single
+        - name: adapters
+          label: Adapters
+          group:
+            - name: up_primers_file
+              label: 5 prime adapter file
+              type: data:seq:nucleotide
+              required: false
+            - name: down_primers_file
+              label: 3 prime adapter file
+              type: data:seq:nucleotide
+              required: false
+            - name: up_primers_seq
+              label: 5 prime adapter sequence
+              type: list:basic:string
+              required: false
+            - name: down_primers_seq
+              label: 3 prime adapter sequence
+              type: list:basic:string
+              required: false
+            - name: min_overlap
+              label: Minimal overlap
+              type: basic:integer
+              default: 5
+              description: |
+                Minimum overlap for an adapter match. Default 5.
+        - name: show_advanced
+          label: Show advanced preprocessing parameters
+          type: basic:boolean
+          default: false
+        - name: trimming
+          label: Read trimming
+          hidden: '!preprocessing.show_advanced'
+          group:
+            - name: leading
+              label: Quality on 5 prime
+              type: basic:integer
+              hidden: '!preprocessing.show_advanced'
+              default: 28
+              description: |
+                Remove low quality bases from 5 prime. Specifies the minimum
+                quality required to keep a base. Default: 20.
+            - name: trailing
+              label: Quality on 3 prime
+              type: basic:integer
+              hidden: '!preprocessing.show_advanced'
+              default: 28
+              description: |
+                Remove low quality bases from the 3 prime. Specifies the minimum
+                quality required to keep a base. Default: 20.
+        - name: filtering
+          label: Filtering of processed reads
+          hidden: '!preprocessing.show_advanced'
+          group:
+            - name: minlen
+              label: Min length
+              type: basic:integer
+              hidden: '!preprocessing.show_advanced'
+              default: 15
+              description: |
+                 Drop the read if it is below a specified length. Default: 15.
+            - name: maxlen
+              label: Max length
+              type: basic:integer
+              hidden: '!preprocessing.show_advanced'
+              default: 35
+              description: |
+                Drop the read if it is above a specified length. Default: 35.
+            - name: max_n
+              label: Max numebr of N-s
+              type: basic:integer
+              hidden: '!preprocessing.show_advanced'
+              default: 1
+              description: |
+                Discard reads having more 'N' bases than specified. Default: 1.
+            - name: match_read_wildcards
+              label: Match read wildcards
+              type: basic:boolean
+              hidden: '!preprocessing.show_advanced'
+              default: true
+              description: |
+                Interpret IUPAC wildcards in reads.
+            - name: no_indels
+              label: No indels
+              type: basic:boolean
+              hidden: '!preprocessing.show_advanced'
+              default: true
+              description: |
+                Disable (disallow) insertions and deletions in adapters.
+            - name: error_rate
+              label: Error rate
+              type: basic:decimal
+              hidden: '!preprocessing.show_advanced'
+              default: 0.2
+              description: |
+                Maximum allowed error rate (no. of errors divided by the
+                length of the matching region). Default: 0.2.
+     # this set of parameters is for bowtie2
+    - name: alignment
+      label: Alignment (bowtie 2)
+      group:
+        - name: genome
+          label: Genome reference
+          type: data:index:bowtie2
+          description: |
+            Choose the genome reference against which to align reads.
+        - name: show_alignment_options
+          label: Show alignment options
+          type: basic:boolean
+          default: false
+        - name: alignment_options
+          label: Alignment options
+          hidden: '!alignment.show_alignment_options'
+          group:
+            - name: mode
+              label: Alignment mode
+              hidden: '!alignment.show_alignment_options'
+              type: basic:string
+              description: |
+                End to end: Bowtie 2 requires that the entire read align from one end to the other, without any trimming (or "soft clipping") of characters from either end.
+                Local: Bowtie 2 does not require that the entire read align from one end to the other. Rather, some characters may be omitted ("soft clipped") from the ends in order to achieve the greatest possible alignment score.
+                Default: --local (with sensitivity set to '--very-sensitive' for both options).
+              default: --local
+              choices:
+                - label: local
+                  value: --local
+                - label: end to end mode
+                  value: --end-to-end
+            - name: speed
+              label: Sensitivity
+              hidden: '!alignment.show_alignment_options'
+              type: basic:string
+              default: --very-sensitive
+              description: |
+                A quick parameter presetting for aligning accurately. This option is a shortcut for parameters as follows:
+                For both alignment modes:
+                --very-sensitive   Same as:  -D 20 -R 3 -N 0 -L 20 -i S,1,0.50
+            - name: N
+              label: Number of mismatches allowed in seed alignment (N)
+              type: basic:integer
+              hidden: '!alignment.show_alignment_options'
+              default: 0
+              description: |
+                Sets the number of mismatches allowed in seed. Can be set to 0 or 1.
+                Default: 0
+            - name: L
+              label: Length of seed substrings (L)
+              type: basic:integer
+              hidden: '!alignment.show_alignment_options'
+              default: 8
+              description: |
+                Sets the length of the seed substrings to align during multiseed alignment. The --very-sensitive preset sets -L to  20 in --end-to-end and in --local mode.
+                For miRNA, a shorter seed length is recommended. Default: -L 8
+            - name: rep_mode
+              label: Report mode
+              type: basic:string
+              hidden: '!alignment.show_alignment_options'
+              description: |
+                Tool default mode: search for multiple alignments, report the best one;
+                -k mode: search for one or more alignments, report each;
+                -a mode: search for and report all alignments.
+                Default: -k
+              default: k
+              choices:
+                - label: Tool default mode
+                  value: def
+                - label: -k mode
+                  value: k
+                - label: -a mode (very slow)
+                  value: a
+            - name: k_reports
+              label: Number of reports (for -k mode only)
+              hidden: '!alignment.show_alignment_options'
+              type: basic:integer
+              default: 5
+              description: |
+                Searches for at most X distinct, valid alignments for each read. The search terminates when it can't find more distinct valid alignments, or when it finds X, whichever happens first.
+                Default: 5
       # this set of parameters is for featureCounts
-    - name: annotation
-      label: Annotation (GTF/GFF3)
-      type: data:annotation
-    - name: id_attribute
-      label: ID attribute
+    - name: quant_options
+      label: Quantification options
+      group:
+        - name: annotation
+          label: Annotation (GTF/GFF3)
+          type: data:annotation
+        - name: id_attribute
+          label: ID attribute
+          type: basic:string
+          default: Name
+          allow_custom_choice: true
+          choices:
+            - label: miRNA name
+              value: Name
+            - label: gene_id
+              value: gene_id
+            - label: transcript_id
+              value: transcript_id
+            - label: ID
+              value: ID
+            - label: geneid
+              value: geneid
+          description: |
+            GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
+            with the same feature ID will be considered as parts of the same
+            feature. The feature ID is used to identify the counts in the
+            output table. In GTF files this is usually 'gene_id', in GFF3 files
+            this is often 'ID', and 'transcript_id' is frequently a valid
+            choice for both annotation formats. miRNA name refers to the miRBase
+            GFF3 'Name' filed and is the default option.
+        - name: feature_class
+          label: Feature class
+          type: basic:string
+          default: miRNA
+          description: |
+            Feature class (3rd column in GFF file) to be used, all features of other
+            types are ignored. Default: miRNA.
+        - name: normalization_type
+          label: Normalization type
+          type: basic:string
+          description: |
+            The default expression normalization type.
+          default: CPM
+        - name: allow_multi_overlap
+          label: |
+            Count multi-overlapping reads
+          type: basic:boolean
+          default: true
+          description: |
+            Assign reads to all their overlapping features or meta-features.
+        - name: count_multi_mapping_reads
+          label: Count multi-mapping reads
+          type: basic:boolean
+          default: true
+          description: |
+            For a multi-mapping read, all its reported alignments will be
+            counted. The 'NH' tag in BAM input is used to detect
+            multi-mapping reads.
+    - name: assay_type
+      label: Assay type
       type: basic:string
-      default: gene_id
-      allow_custom_choice: true
+      description: |
+        Indicate if strand-specific read counting should be performed. In strand non-specific
+        assay a read is considered overlapping with a feature regardless of whether it is mapped to the
+        same or the opposite strand as the feature. In strand-specific forward assay, the read has to be
+        mapped to the same strand as the feature. In strand-specific reverse assay these rules are reversed.
       choices:
-        - label: gene_id
-          value: gene_id
-        - label: transcript_id
-          value: transcript_id
-        - label: ID
-          value: ID
-        - label: geneid
-          value: geneid
-      description: |
-        GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
-        with the same feature ID will be considered as parts of the same
-        feature. The feature ID is used to identify the counts in the
-        output table. In GTF files this is usually 'gene_id', in GFF3 files
-        this is often 'ID', and 'transcript_id' is frequently a valid
-        choice for both annotation formats.
-    # this next option could perhaps be hidden and hard-coded into the workflow
-    - name: feature_class
-      label: Feature class
-      type: basic:string
-      default: miRNA
-      description: |
-        Feature class (3rd column in GFF file) to be used, all features of other
-        types are ignored.
+        - label: Strand non-specific
+          value: non_specific
+        - label: Strand-specific forward
+          value: forward
+        - label: Strand-specific reverse
+          value: reverse
+
   run:
     language: workflow
     program:
-      - id: mirna_align_bowtie2
+      - id: preprocessing
+        run: cutadapt-single
+        input:
+          reads: '{{ input.preprocessing.reads }}'
+          adapters:
+            up_primers_file: '{{ input.preprocessing.adapters.up_primers_file }}'
+            up_primers_seq: '{{ input.preprocessing.adapters.up_primers_seq }}'
+            down_primers_file: '{{ input.preprocessing.adapters.down_primers_file }}'
+            down_primers_seq: '{{ input.preprocessing.adapters.down_primers_seq }}'
+            min_overlap: '{{ input.preprocessing.adapters.min_overlap }}'
+          modify_reads:
+            leading: '{{ input.preprocessing.trimming.leading }}'
+            trailing: '{{ input.preprocessing.trimming.trailing }}'
+          filtering:
+            minlen: '{{ input.preprocessing.filtering.minlen }}'
+            maxlen: '{{ input.preprocessing.filtering.maxlen }}'
+            max_n: '{{ input.preprocessing.filtering.max_n }}'
+            match_read_wildcards: '{{ input.preprocessing.filtering.match_read_wildcards }}'
+            no_indels: '{{ input.preprocessing.filtering.no_indels }}'
+            error_rate: '{{ input.preprocessing.filtering.error_rate }}'
+      - id: align_bowtie2
         run: alignment-bowtie2
         input:
-          genome: '{{ input.genome }}'
-          reads: '{{ input.reads }}'
-      - id: mirna_featurecounts
+          genome: '{{ input.alignment.genome }}'
+          reads: '{{ steps.preprocessing }}'
+          mode: '{{ input.alignment.alignment_options.mode }}'
+          speed: '{{ input.alignment.alignment_options.speed }}'
+          alignment_options:
+            N: '{{ input.alignment.alignment_options.N }}'
+            L: '{{ input.alignment.alignment_options.L }}'
+          reporting:
+            rep_mode: '{{ input.alignment.alignment_options.rep_mode }}'
+            k_reports: '{{ input.alignment.alignment_options.k_reports }}'
+      - id: quantification
         run: feature_counts
         input:
           alignment:
-            aligned_reads: '{{ steps.mirna_align_bowtie2 }}'
+            aligned_reads: '{{ steps.align_bowtie2 }}'
+            assay_type: '{{ input.assay_type }}'
           annotation:
-            annotation: '{{ input.annotation }}'
-            id_attribute: '{{ input.id_attribute }}'
-            feature_class: '{{ input.feature_class }}'
+            annotation: '{{ input.quant_options.annotation }}'
+            id_attribute: '{{ input.quant_options.id_attribute }}'
+            feature_class: '{{ input.quant_options.feature_class }}'
+          normalization_type: '{{ input.quant_options.normalization_type }}'
+          advanced:
+            overlap:
+              allow_multi_overlap: '{{ input.quant_options.allow_multi_overlap}}'
+            multi_mapping_reads:
+              count_multi_mapping_reads: '{{ input.quant_options.count_multi_mapping_reads }}'
+      - id: idxstats
+        run: samtools-idxstats
+        input:
+          alignment: '{{ steps.align_bowtie2 }}'
+      - id: multiqc
+        run: multiqc
+        input:
+          data: '{{ [
+            input.preprocessing.reads,
+            steps.preprocessing,
+            steps.align_bowtie2,
+            steps.quantification,
+            steps.idxstats,
+            ] }}'
+          advanced:
+            dirs: true
+            config: true

@@ -9,7 +9,7 @@
       cores: 10
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.2.1
+  version: 2.3.0
   type: data:reads:fastq:single:cutadapt
   category: Trim
   flow_collection: sample
@@ -102,6 +102,12 @@
           required: false
           description: |
             Drop the read if it is below a specified length
+        - name: maxlen
+          label: Max length
+          type: basic:integer
+          required: false
+          description: |
+            Drop the read if it is above a specified length.
         - name: max_n
           label: Max numebr of N-s
           type: basic:integer
@@ -115,6 +121,12 @@
           default: false
           description: |
             Interpret IUPAC wildcards in reads.
+        - name: no_indels
+          label: No indels
+          type: basic:boolean
+          default: false
+          description: |
+            Disable (disallow) insertions and deletions in adapters.
         - name: times
           label: Times
           type: basic:integer
@@ -155,6 +167,7 @@
        and not modify_reads.trailing
        and not modify_reads.crop
        and not modify_reads.headcrop
+       and not filtering.maxlen
        and not filtering.minlen %}
         re-error "At least one parameter required"
       {% endif %}
@@ -191,7 +204,9 @@
         {% if adapters.down_primers_file %}-a file:{{adapters.down_primers_file.fasta.file}}{% endif %} \
         {% if adapters.up_primers_file %}-g file:{{adapters.up_primers_file.fasta.file}}{% endif %} \
         {% if filtering.minlen is defined %}-m {{ filtering.minlen }}{% endif %} \
+        {% if filtering.maxlen is defined %}-M {{ filtering.maxlen }}{% endif %} \
         {% if filtering.match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if filtering.no_indels %}--no-indels {% endif %} \
         {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
         --times {{ filtering.times }} \
         --error-rate {{ filtering.error_rate }} \
@@ -218,7 +233,7 @@
       cores: 10
       memory: 16384
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.4.1
+  version: 2.5.0
   type: data:reads:fastq:paired:cutadapt
   category: Trim
   flow_collection: sample
@@ -291,6 +306,12 @@
           default: false
           description: |
             Interpret IUPAC wildcards in reads.
+        - name: no_indels
+          label: No indels
+          type: basic:boolean
+          default: false
+          description: |
+            Disable (disallow) insertions and deletions in adapters.
     - name: modify_reads
       label: Modifying reads
       group:
@@ -335,6 +356,12 @@
           required: false
           description: |
             Drop the read if it is below a specified.
+        - name: maxlen
+          label: Max length
+          type: basic:integer
+          required: false
+          description: |
+            Drop the read if it is above a specified length.
         - name: max_n
           label: Max numebr of N-s
           type: basic:integer
@@ -394,6 +421,7 @@
        and not modify_reads.crop
        and not modify_reads.headcrop
        and not filtering.minlen
+       and not filtering.minlen
        and not filtering.max_n %}
         re-error "At least one parameter required"
       {% endif %}
@@ -424,7 +452,8 @@
       cat "${RW_READS[@]}" > in_rw_reads.fastq.gz
 
       cutadapt \
-        {% if filtering.minlen is defined%}--minimum-length={{ filtering.minlen }}{% endif %} \
+        {% if filtering.minlen is defined %}--minimum-length={{ filtering.minlen }}{% endif %} \
+        {% if filtering.maxlen is defined %}-M {{ filtering.maxlen }}{% endif %} \
         {% if modify_reads.headcrop is defined %}--cut={{ modify_reads.headcrop }}{% endif %} \
         {% if modify_reads.crop is defined %}--cut=-{{ modify_reads.crop }}{% endif %} \
         {% if modify_reads.nextseq_trim is defined %}--nextseq-trim {{ modify_reads.nextseq_trim }}{% endif %} \
@@ -440,6 +469,7 @@
         {% if adapters.mate2_5prime_file %}-G file:{{adapters.mate2_5prime_file.fasta.file}}{% endif %} \
         {% if filtering.max_n is defined %}--max-n {{ filtering.max_n }} {% endif %} \
         {% if adapters.match_read_wildcards %}--match-read-wildcards {% endif %} \
+        {% if filtering.no_indels %}--no-indels {% endif %} \
         --pair-filter={{ filtering.pair_filter }} \
         --error-rate {{ adapters.error_rate }} \
         --times {{ adapters.times }} \
