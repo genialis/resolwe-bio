@@ -27,7 +27,7 @@ def parse_sample(gse, sample_name, gse_name):
         else:
             if all(": " in substring for substring in v):
                 for meta in v:
-                    key, value = meta.split(": ")
+                    key, value = meta.split(": ", 1)
                     sample[key] = value
             else:
                 sample[k] = " ".join(v)
@@ -40,8 +40,7 @@ def create_metadata(gse, run_info):
         parse_sample(gse, row["Accession"], row["SampleName"])
         for _, row in run_info.iterrows()
     ]
-    metadata = pd.json_normalize(collection).set_index(["EntityName"], drop=False)
-    return metadata
+    return pd.json_normalize(collection).set_index(["EntityName"], drop=False)
 
 
 def construct_descriptor(metadata, sample_name):
@@ -182,7 +181,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.0.0"
+    version = "2.0.1"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -266,8 +265,6 @@ class GeoImport(Process):
             process_inputs["advanced"]["min_spot_id"] = inputs.advanced.min_spot_id
         if inputs.advanced.max_spot_id:
             process_inputs["advanced"]["max_spot_id"] = inputs.advanced.max_spot_id
-        if inputs.advanced.min_read_len:
-            process_inputs["advanced"]["min_read_len"] = inputs.advanced.min_read_len
         if inputs.advanced.min_read_len:
             process_inputs["advanced"]["min_read_len"] = inputs.advanced.min_read_len
 
