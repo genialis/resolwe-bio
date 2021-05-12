@@ -20,7 +20,7 @@ from resolwe.process.models import Data
 
 def parse_sample(gse, sample_name, gse_name):
     """Parse sample information from GEO."""
-    sample = {"EntityName": sample_name}
+    sample = {"mS#Sample name": sample_name}
     for k, v in gse.gsms[gse_name].metadata.items():
         if len(v) == 1:
             sample[k] = v[0]
@@ -40,7 +40,7 @@ def create_metadata(gse, run_info):
         parse_sample(gse, row["Accession"], row["SampleName"])
         for _, row in run_info.iterrows()
     ]
-    return pd.json_normalize(collection).set_index(["EntityName"], drop=False)
+    return pd.json_normalize(collection).set_index(["mS#Sample name"], drop=False)
 
 
 def construct_descriptor(metadata, sample_name):
@@ -181,7 +181,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.0.2"
+    version = "2.0.3"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -431,7 +431,7 @@ class GeoImport(Process):
         metadata.to_csv(meta_file, sep="\t", index=False)
         self.run_process("upload-orange-metadata", {"src": meta_file})
 
-        for entity_name in metadata["EntityName"].values:
+        for entity_name in metadata["mS#Sample name"].values:
             objects = Data.filter(entity__name=entity_name)
             if len(objects) > 1:
                 self.warning(
