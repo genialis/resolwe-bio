@@ -14,7 +14,13 @@ Added
 -----
 - Add bioservices python package to the ``resolwebio/common:2.8.0``
   Docker image
+- Add new parameters -maximumlength/-M and -no-indels in processes
+  ``cutadapt-single`` and ``cutadatp-paired``
+- Add new id_attribute to ``featurecounts.yml``
 
+Changed
+-------
+- Update ``workflow-mirna``
 
 ===================
 37.0.0 - 2021-04-19

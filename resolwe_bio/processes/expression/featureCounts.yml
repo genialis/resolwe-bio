@@ -121,6 +121,8 @@
               value: ID
             - label: geneid
               value: geneid
+            - label: miRNA name
+              value: Name
           description: |
             GTF/GFF3 attribute to be used as feature ID. Several GTF/GFF3 lines
             with the same feature ID will be considered as parts of the same
