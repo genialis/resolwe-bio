@@ -1,4 +1,4 @@
-FROM docker.io/resolwebio/common:1.1.3
+FROM public.ecr.aws/genialis/resolwebio/common:2.8.0
 
 MAINTAINER Resolwe Bioinformatics authors https://github.com/genialis/resolwe-bio
 
@@ -7,6 +7,3 @@ ENV MPLBACKEND Agg
 
 # Additional files:
 COPY assets/ /opt/resolwebio/assets/
-
-# Set the default JAVA version. Required for compatibility with GATK4.
-RUN update-alternatives --set java /usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java

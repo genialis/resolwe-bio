@@ -9,6 +9,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Bump GATK to version 4.2.0.0 in ``resolwebio/dnaseq:6.0.0`` Docker
+  image
+
 Fixed
 -----
 - Remove some duplicated code in ``test_probe_mapping``
