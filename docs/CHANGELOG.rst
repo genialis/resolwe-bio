@@ -5,6 +5,7 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+
 ==========
 Unreleased
 ==========
@@ -32,6 +33,7 @@ Added
 - Add ``gatk-haplotypecaller-gvcf`` process
 - Add ``workflow-wgs-gvcf`` process
 - Add ``gatk-genotype-gvcfs`` process
+- Add ``methylation_array`` docker image
 
 
 ===================

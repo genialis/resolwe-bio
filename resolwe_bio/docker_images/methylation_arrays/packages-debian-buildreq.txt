@@ -1,0 +1,4 @@
+build-essential
+liblapack3
+liblapack-dev
+gfortran
