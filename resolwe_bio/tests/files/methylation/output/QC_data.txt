@@ -1,0 +1,2 @@
+sample_name	mean_beta_cg	frac_meth_cg	frac_unmeth_cg	GCT	ethnicity	sex	age
+6042316072_R03C01	0.4704584738	36.4461027625	40.7140167538	1.2514218455	WHITE	FEMALE	72.8286200303

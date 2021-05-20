@@ -38,6 +38,7 @@ Added
 - Add ``bamtofastq-paired`` process
 - Add ``methylation_array`` docker image
 - Support downloading knowledge base features and mappings from S3 bucket
+- Add ``methylation-array-sesame`` process
 
 
 ===================

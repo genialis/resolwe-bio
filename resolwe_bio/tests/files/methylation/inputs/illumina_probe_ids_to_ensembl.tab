@@ -1,0 +1,2 @@
+relation_type	source_db	source_id	source_species	target_db	target_id	target_species
+crossdb	ILLU_HM450	cg00000029	Homo sapiens	ENSEMBL	FAKE00000000	Homo sapiens

@@ -1,9 +1,15 @@
 from pathlib import Path
 
+from django.core.management import call_command
+
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
-from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.utils.test import (
+    TEST_FILES_DIR,
+    KBBioProcessTestCase,
+    skipUnlessLargeFiles,
+)
 
 
 class MicroarrayProcessorTestCase(KBBioProcessTestCase):
@@ -110,3 +116,53 @@ class MicroarrayProcessorTestCase(KBBioProcessTestCase):
             mapped, "platform", "Affymetrix Human Genome U133 Plus 2.0 Array"
         )
         self.assertFields(mapped, "probe_mapping", "Custom")
+
+
+class MethylationArrayTestCase(KBBioProcessTestCase):
+    @skipUnlessLargeFiles("methylation_beta_values_annotated.txt.gz")
+    @tag_process("methylation-array-sesame")
+    def test_methylation_array(self):
+        base = Path("methylation")
+        test_dir = Path(TEST_FILES_DIR)
+        inputs = base / "inputs"
+        outputs = base / "output"
+        large = Path("large")
+
+        with self.preparation_stage():
+            probe_mappings = test_dir / inputs / "illumina_probe_ids_to_ensembl.tab"
+            call_command("insert_mappings", str(probe_mappings))
+
+            species = "Homo sapiens"
+            platform = "HM450"
+
+            idat = self.run_process(
+                process_slug="upload-idat",
+                input_={
+                    "red_channel": large / "6042316072_R03C01_Red.idat.gz",
+                    "green_channel": large / "6042316072_R03C01_Grn.idat.gz",
+                    "species": species,
+                    "platform": platform,
+                },
+            )
+
+        metarr = self.run_process(
+            process_slug="methylation-array-sesame",
+            input_={
+                "idat_file": idat.id,
+            },
+        )
+
+        self.assertFields(obj=metarr, path="species", value=species)
+        self.assertFields(obj=metarr, path="platform", value=platform)
+        self.assertFile(
+            obj=metarr,
+            field_path="qc_data",
+            fn=str(outputs / "QC_data.txt"),
+        )
+
+        self.assertFile(
+            obj=metarr,
+            field_path="methylation_data",
+            fn=str(large / "methylation_beta_values_annotated.txt.gz"),
+            compression="gzip",
+        )
