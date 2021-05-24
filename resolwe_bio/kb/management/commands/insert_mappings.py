@@ -8,6 +8,7 @@ Insert Knowledge Base Mappings
 import csv
 import json
 import logging
+import re
 
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand
@@ -41,6 +42,21 @@ class Command(BaseCommand):
         to_index = []
 
         relation_type_choices = list(zip(*Mapping.RELATION_TYPE_CHOICES))[0]
+
+        # Download file if it is located on S3.
+        match = re.search(r"^s3://([a-z0-9-.]{3,63})/(.*)$", options["file_name"])
+        if match:
+            try:
+                import boto3
+            except ImportError:
+                logger.exception(
+                    "Package 'boto3' must be installed to download data from S3 bucket."
+                )
+                raise
+
+            bucket, key = match.groups()
+            boto3.resource("s3").Bucket(bucket).download_file(key, key)
+            options["file_name"] = key
 
         for tab_file_name, tab_file in decompress(options["file_name"]):
             logger.info(__('Importing mappings from "{}"...', tab_file_name))
