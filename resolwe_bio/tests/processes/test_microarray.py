@@ -81,16 +81,6 @@ class MicroarrayProcessorTestCase(KBBioProcessTestCase):
                     "species": "Homo sapiens",
                 },
             )
-            unmapped = self.run_process(
-                "upload-microarray-expression",
-                {
-                    "exp": unmapped_path,
-                    "exp_type": "log2 normalized intensity signal",
-                    "platform": "Affymetrix Human Genome U133 Plus 2.0 Array",
-                    "platform_id": "GPL570",
-                    "species": "Homo sapiens",
-                },
-            )
 
         # Due to Biomart instability the testing is done with the mapping file.
         # For automatic mapping one can comment the mapping_file line.

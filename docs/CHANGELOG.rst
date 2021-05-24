@@ -5,6 +5,14 @@ Change Log
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+- Remove some duplicated code in ``test_probe_mapping``
+
 
 ===================
 38.0.0 - 2021-05-17
