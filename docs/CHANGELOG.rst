@@ -27,6 +27,7 @@ Added
 - Cap process memory consumption at 16GB
 - Add support for Python 3.9
 - Add ``wgs-preprocess`` process
+- Add ``gatk-haplotypecaller-gvcf`` process
 
 
 ===================

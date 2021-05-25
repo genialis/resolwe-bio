@@ -2,6 +2,7 @@ from pathlib import Path
 
 from resolwe.test import tag_process
 
+from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
@@ -64,3 +65,55 @@ class WgsProcessorTestCase(BioProcessTestCase):
             outputs / "wgs_preprocess_markdups_metrics.txt",
             file_filter=filter_startedon,
         )
+
+    @tag_process("gatk-haplotypecaller-gvcf")
+    def test_gatk_hc_gvcf(self):
+        base = Path("wgs")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            input_bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "analysis_ready.bam",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": inputs / "hs_b37_chr17_upto_TP53.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            intervals = self.run_process(
+                "upload-bed",
+                {
+                    "src": inputs / "hg38.intervals.bed",
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+
+        variants = self.run_process(
+            "gatk-haplotypecaller-gvcf",
+            {
+                "bam": input_bam.id,
+                "ref_seq": ref_seq.id,
+                "options": {"intervals": intervals.id},
+            },
+        )
+
+        self.assertFile(
+            variants,
+            "vcf",
+            outputs / "variants.g.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+        self.assertFields(variants, "build", "custom_build")
+        self.assertFields(variants, "species", "Homo sapiens")
