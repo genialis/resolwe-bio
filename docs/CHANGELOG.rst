@@ -12,6 +12,7 @@ Unreleased
 Added
 -----
 - Add ``wgs-preprocess`` process
+- Add ``gatk-haplotypecaller-gvcf`` process
 
 Changed
 -------
