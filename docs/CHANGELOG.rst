@@ -13,6 +13,7 @@ Added
 -----
 - Add ``wgs-preprocess`` process
 - Add ``gatk-haplotypecaller-gvcf`` process
+- Add ``workflow-wgs-gvcf`` process
 
 Changed
 -------
