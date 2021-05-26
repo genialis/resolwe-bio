@@ -14,7 +14,7 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.3.1
+  version: 2.3.2
   type: data:reads:fastq:single:trimmomatic
   category: Trim
   flow_collection: sample
@@ -180,7 +180,7 @@
       To process reads with Trimmomatic please define at least one parameter."
 
         cp in_reads.fastq.gz "${NAME}.fastq.gz"
-        cp {{ reads.fastqc_archive.0.file }} "${NAME}_fastqc.zip"
+        cp {{ reads.fastqc_archive.0.file }} "${NAME}_preprocessed_fastqc.zip"
 
         mkdir "fastqc"
         cp -r {{ reads.fastqc_url.0.refs.0}} "fastqc/${NAME}_fastqc"
@@ -188,7 +188,7 @@
         FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
         re-save-file-list fastq "${NAME}.fastq.gz"
-        re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
+        re-save-file-list fastqc_archive "${NAME}_preprocessed_fastqc.zip"
         re-save-list fastqc_url "${FASTQC_URL}"
 
       {% else %}
@@ -243,7 +243,7 @@
         re-progress 0.9
 
         mv "fastqc/${NAME}_filtered_fastqc" "fastqc/${NAME}_fastqc"
-        mv "fastqc/${NAME}_filtered_fastqc.zip" "${NAME}_fastqc.zip"
+        mv "fastqc/${NAME}_filtered_fastqc.zip" "${NAME}_preprocessed_fastqc.zip"
 
         FASTQC_URL="{\"file\":\"fastqc/${NAME}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME}_fastqc\"]}"
 
@@ -251,7 +251,7 @@
 
         re-save-file-list fastq "${NAME}_filtered.fastq.gz"
 
-        re-save-file-list fastqc_archive "${NAME}_fastqc.zip"
+        re-save-file-list fastqc_archive "${NAME}_preprocessed_fastqc.zip"
         re-save-list fastqc_url "${FASTQC_URL}"
 
       {% endif %}
@@ -268,7 +268,7 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.3.1
+  version: 2.3.2
   type: data:reads:fastq:paired:trimmomatic
   category: Trim
   flow_collection: sample
@@ -579,8 +579,8 @@
 
         mv "fastqc/${NAME1}_paired_filtered_fastqc" "fastqc/${NAME1}_fastqc"
         mv "fastqc/${NAME2}_paired_filtered_fastqc" "fastqc/${NAME2}_fastqc"
-        mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" "${NAME1}_fastqc.zip"
-        mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" "${NAME2}_fastqc.zip"
+        mv "fastqc/${NAME1}_paired_filtered_fastqc.zip" "${NAME1}_preprocessed_fastqc.zip"
+        mv "fastqc/${NAME2}_paired_filtered_fastqc.zip" "${NAME2}_preprocessed_fastqc.zip"
 
         FASTQC_URL="{\"file\":\"fastqc/${NAME1}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME1}_fastqc\"]}"
         FASTQC_URL2="{\"file\":\"fastqc/${NAME2}_fastqc/fastqc_report.html\",\"refs\":[\"fastqc/${NAME2}_fastqc\"]}"
@@ -596,8 +596,8 @@
           re-save-file fastq2_unpaired "${NAME2}_unpaired_filtered.fastq.gz"
         fi
 
-        re-save-file-list fastqc_archive "${NAME1}_fastqc.zip"
-        re-save-file-list fastqc_archive2 "${NAME2}_fastqc.zip"
+        re-save-file-list fastqc_archive "${NAME1}_preprocessed_fastqc.zip"
+        re-save-file-list fastqc_archive2 "${NAME2}_preprocessed_fastqc.zip"
         re-save-list fastqc_url "${FASTQC_URL}"
         re-save-list fastqc_url2 "${FASTQC_URL2}"
 
