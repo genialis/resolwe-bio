@@ -1,8 +1,10 @@
 import os
+from pathlib import Path
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
+from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
@@ -79,4 +81,80 @@ class WgsWorkflowTestCase(BioProcessTestCase):
             os.path.join("wgs_workflow", "output", "tp53_1fastqgz.gatkHC.vcf.gz"),
             compression="gzip",
             file_filter=filter_gatkcmd,
+        )
+
+    @tag_process("workflow-wgs-gvcf")
+    def test_gatk_hc_gvcf(self):
+        base = Path("wgs")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": inputs / "hs_b37_chr17_upto_TP53.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
+
+            reads = self.prepare_paired_reads(
+                mate1=[inputs / "TP53_1.fastq.gz"],
+                mate2=[inputs / "TP53_2.fastq.gz"],
+            )
+
+            dbsnp = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": inputs / "dbsnp_TP53.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            intervals = self.run_process(
+                "upload-bed",
+                {
+                    "src": inputs / "hg38.intervals.bed",
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+
+            adapters = self.prepare_ref_seq()
+
+        self.run_process(
+            "workflow-wgs-gvcf",
+            {
+                "reads": reads.id,
+                "ref_seq": ref_seq.id,
+                "bwa_index": bwa_index.id,
+                "known_sites": [dbsnp.id],
+                "gatk_options": {
+                    "intervals": intervals.id,
+                },
+                "trimming_options": {
+                    "adapters": adapters.id,
+                    "seed_mismatches": 2,
+                    "simple_clip_threshold": 10,
+                    "min_adapter_length": 8,
+                    "palindrome_clip_threshold": 30,
+                    "leading": 20,
+                    "trailing": 3,
+                    "minlen": 40,
+                },
+            },
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        variants = Data.objects.filter(process__slug="gatk-haplotypecaller-gvcf").last()
+        self.assertFile(
+            variants,
+            "vcf",
+            outputs / "variants_from_workflow.g.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
         )

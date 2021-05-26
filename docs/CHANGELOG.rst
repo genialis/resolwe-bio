@@ -28,6 +28,7 @@ Added
 - Add support for Python 3.9
 - Add ``wgs-preprocess`` process
 - Add ``gatk-haplotypecaller-gvcf`` process
+- Add ``workflow-wgs-gvcf`` process
 
 
 ===================
