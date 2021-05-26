@@ -21,6 +21,8 @@ Changed
 Fixed
 -----
 - Remove some duplicated code in ``test_probe_mapping``
+- Rename FastQC output bundle in Trimmomatic processes so that the
+  reports are correctly sorted/included in MultiQC reports
 
 Added
 -----
