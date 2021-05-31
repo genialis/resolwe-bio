@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from resolwe.flow.models import Process
 from resolwe.test import tag_process
 
 from resolwe_bio.utils.filter import filter_vcf_variable
@@ -124,3 +125,122 @@ class WgsProcessorTestCase(BioProcessTestCase):
         )
         self.assertFields(variants, "build", "custom_build")
         self.assertFields(variants, "species", "Homo sapiens")
+
+    @tag_process("gatk-genotype-gvcfs")
+    def test_gatk_genotypegvcfs(self):
+        base = Path("wgs")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": inputs / "hs_b37_chr17_upto_TP53.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            intervals = self.run_process(
+                "upload-bed",
+                {
+                    "src": inputs / "hg38.intervals.bed",
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+
+            # Mock upload gvcf process
+            process = Process.objects.create(
+                name="Upload GVCF mock process",
+                requirements={
+                    "expression-engine": "jinja",
+                    "resources": {
+                        "network": True,
+                    },
+                    "executor": {
+                        "docker": {
+                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                        },
+                    },
+                },
+                contributor=self.contributor,
+                type="data:variants:gvcf:",
+                entity_type="sample",
+                entity_descriptor_schema="sample",
+                data_name="{{ gvcf.file }}",
+                input_schema=[
+                    {
+                        "name": "gvcf",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "tabix",
+                        "type": "basic:file:",
+                    },
+                ],
+                output_schema=[
+                    {
+                        "name": "vcf",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "tbi",
+                        "type": "basic:file:",
+                    },
+                    {
+                        "name": "species",
+                        "type": "basic:string:",
+                    },
+                    {
+                        "name": "build",
+                        "type": "basic:string:",
+                    },
+                ],
+                run={
+                    "language": "bash",
+                    "program": r"""
+re-import {{ gvcf.file_temp|default(gvcf.file) }} {{ gvcf.file }} "g.vcf" "g.vcf" 0.1 compress
+re-save-file vcf "${NAME}.g.vcf.gz"
+re-import {{ tabix.file_temp|default(tabix.file) }} {{ tabix.file }} "g.vcf.gz.tbi" "g.vcf.gz.tbi" 0.1 extract
+re-save-file tbi "${NAME}.g.vcf.gz.tbi"
+re-save species "Homo sapiens"
+re-save build "custom_build"
+""",
+                },
+            )
+
+            gvcf_input = {
+                "gvcf": inputs / "variants.g.vcf.gz",
+                "tabix": inputs / "variants.g.vcf.gz.tbi",
+            }
+            gvcf_1 = self.run_process(process.slug, gvcf_input)
+
+            gvcf_input = {
+                "gvcf": inputs / "variants2.g.vcf.gz",
+                "tabix": inputs / "variants2.g.vcf.gz.tbi",
+            }
+            gvcf_2 = self.run_process(process.slug, gvcf_input)
+
+        joint_variants = self.run_process(
+            "gatk-genotype-gvcfs",
+            {
+                "gvcfs": [gvcf_1.id, gvcf_2.id],
+                "ref_seq": ref_seq.id,
+                "intervals": intervals.id,
+            },
+        )
+
+        self.assertFile(
+            joint_variants,
+            "vcf",
+            outputs / "joint_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+        self.assertFileExists(
+            joint_variants,
+            "tbi",
+        )
+        self.assertFields(joint_variants, "build", "custom_build")
+        self.assertFields(joint_variants, "species", "Homo sapiens")
