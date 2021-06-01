@@ -18,6 +18,10 @@ Fixed
 -----
 - Remove some duplicated code in ``test_probe_mapping``
 
+Added
+-----
+- Cap process memory consumption at 16GB
+
 
 ===================
 38.0.0 - 2021-05-17
