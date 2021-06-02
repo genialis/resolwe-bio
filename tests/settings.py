@@ -147,7 +147,7 @@ FLOW_MANAGER = {
 }
 
 FLOW_PROCESS_MAX_CORES = 1
-FLOW_PROCESS_MAX_MEM = 16384
+FLOW_PROCESS_MAX_MEM = 10240
 
 # Don't pull Docker images if set via the environment variable.
 FLOW_DOCKER_DONT_PULL = strtobool(os.environ.get('RESOLWE_DOCKER_DONT_PULL', '0'))
