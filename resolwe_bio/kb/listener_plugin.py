@@ -12,7 +12,7 @@ class ExposeFeature(ExposeObjectPlugin):
 
     full_model_name = "resolwe_bio_kb.Feature"
 
-    def filter_objects(self, user: UserClass, queryset: QuerySet) -> QuerySet:
+    def filter_objects(self, user: UserClass, queryset: QuerySet, data) -> QuerySet:
         """Filter the objects for the given user."""
         return queryset
 
@@ -22,6 +22,6 @@ class ExposeMapping(ExposeObjectPlugin):
 
     full_model_name = "resolwe_bio_kb.Mapping"
 
-    def filter_objects(self, user: UserClass, queryset: QuerySet) -> QuerySet:
+    def filter_objects(self, user: UserClass, queryset: QuerySet, data) -> QuerySet:
         """Filter the objects for the given user."""
         return queryset
