@@ -22,7 +22,7 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -34,7 +34,7 @@ class GatkGenotypeGVCFs(Process):
             "memory": 32768,
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "Cohort variants"
 
     class Input:
         """Input fields for GatkGenotypeGVCFs."""
