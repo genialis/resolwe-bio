@@ -38,7 +38,7 @@ class WorkflowWgsGvcf(Process):
         },
     }
     data_name = "WGS GVCF analysis ({{ reads|sample_name|default('?') }})"
-    version = "1.0.0"
+    version = "1.0.1"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {
@@ -246,12 +246,12 @@ class WorkflowWgsGvcf(Process):
                 "distribution.",
             )
 
-        gatk_options = GroupField(GatkOptions, label="GATK options", hidden="!advanced")
-
         trimming_options = GroupField(
             Trimming,
             label="Trimming options",
         )
+
+        gatk_options = GroupField(GatkOptions, label="GATK options", hidden="!advanced")
 
         alignment_summary = GroupField(
             AlignmentSummary, label="Alignment summary options", hidden="!advanced"
@@ -273,7 +273,7 @@ class WorkflowWgsGvcf(Process):
     def run(self, inputs, outputs):
         """Run the workflow."""
         trimmomatic = Data.create(
-            process=BioProcess.get(slug="trimmomatic-paired"),
+            process=BioProcess.filter(slug="trimmomatic-paired")[-1],
             input={
                 "reads": inputs.reads,
                 "illuminaclip": {
@@ -292,7 +292,7 @@ class WorkflowWgsGvcf(Process):
         )
 
         bam = Data.create(
-            process=BioProcess.get(slug="wgs-preprocess"),
+            process=BioProcess.filter(slug="wgs-preprocess")[-1],
             input={
                 "reads": trimmomatic,
                 "ref_seq": inputs.ref_seq,
@@ -302,7 +302,7 @@ class WorkflowWgsGvcf(Process):
         )
 
         Data.create(
-            process=BioProcess.get(slug="gatk-haplotypecaller-gvcf"),
+            process=BioProcess.filter(slug="gatk-haplotypecaller-gvcf")[-1],
             input={
                 "bam": bam,
                 "ref_seq": inputs.ref_seq,
@@ -327,12 +327,12 @@ class WorkflowWgsGvcf(Process):
             )
 
         summary = Data.create(
-            process=BioProcess.get(slug="alignment-summary"),
+            process=BioProcess.filter(slug="alignment-summary")[-1],
             input=alignment_summary_inputs,
         )
 
         wgs_metrics = Data.create(
-            process=BioProcess.get(slug="wgs-metrics"),
+            process=BioProcess.filter(slug="wgs-metrics")[-1],
             input={
                 "bam": bam,
                 "genome": inputs.ref_seq,
@@ -349,7 +349,7 @@ class WorkflowWgsGvcf(Process):
         )
 
         insert_size = Data.create(
-            process=BioProcess.get(slug="insert-size"),
+            process=BioProcess.filter(slug="insert-size")[-1],
             input={
                 "bam": bam,
                 "genome": inputs.ref_seq,
@@ -361,7 +361,7 @@ class WorkflowWgsGvcf(Process):
         )
 
         Data.create(
-            process=BioProcess.get(slug="multiqc"),
+            process=BioProcess.filter(slug="multiqc")[-1],
             input={
                 "data": [
                     inputs.reads,
