@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from resolwe.flow.models import Data, Process
 from resolwe.test import tag_process, with_resolwe_host
@@ -1439,3 +1440,37 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFile(bigwig, "bigwig", "test_bam_processing/reads.SInorm.bigwig")
         self.assertFields(bigwig, "species", species)
         self.assertFields(bigwig, "build", build)
+
+    @tag_process("bamtofastq-paired")
+    def test_bamtofastq_paired(self):
+        base = Path("bamtofastq")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "alignment.bam",
+                    "species": "Homo sapiens",
+                    "build": "hg38",
+                },
+            )
+
+        reads = self.run_process(
+            "bamtofastq-paired",
+            {"bam": bam.id},
+        )
+
+        self.assertFiles(
+            reads,
+            "fastq",
+            [outputs / "output_reads_mate1.fastq.gz"],
+            compression="gzip",
+        )
+
+        self.assertFiles(
+            reads,
+            "fastq2",
+            [outputs / "output_reads_mate2.fastq.gz"],
+            compression="gzip",
+        )

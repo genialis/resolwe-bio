@@ -34,6 +34,7 @@ Added
 - Add ``workflow-wgs-gvcf`` process
 - Add ``gatk-genotype-gvcfs`` process
 - Add ``gatk-vqsr`` process
+- Add ``bamtofastq-paired`` process
 - Add ``methylation_array`` docker image
 - Support downloading knowledge base features and mappings from S3 bucket
 
