@@ -23,7 +23,7 @@ class VariantFiltrationVqsr(Process):
     name = "GATK filter variants (VQSR)"
     category = "GATK"
     process_type = "data:variants:vcf:vqsr"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -363,7 +363,7 @@ class VariantFiltrationVqsr(Process):
             "--tranches-file",
             indels_tranches,
             "--truth-sensitivity-filter-level",
-            inputs.advanced.indel_filter_level,
+            inputs.advanced_options.indel_filter_level,
             "--create-output-variant-index",
             "true",
             "-mode",
@@ -389,7 +389,7 @@ class VariantFiltrationVqsr(Process):
             "--tranches-file",
             snps_tranches,
             "--truth-sensitivity-filter-level",
-            inputs.advanced.snp_filter_level,
+            inputs.advanced_options.snp_filter_level,
             "--create-output-variant-index",
             "false",
             "-mode",
