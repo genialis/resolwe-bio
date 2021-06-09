@@ -40,7 +40,7 @@ parser <- ArgumentParser(
 )
 
 parser$add_argument("-p", "--platform", help = "Platform used to process the data.", type = "character")
-parser$add_argument("-m", "--manifest", help = "Whichi manifest file to use in importing the data", type = "character")
+parser$add_argument("-m", "--manifest", help = "Which manifest file to use in importing the data", type = "character")
 args <- parser$parse_args(commandArgs(trailingOnly = TRUE))
 
 platform <- args$platform
@@ -87,6 +87,12 @@ ann.betas$probe_ids <- rownames(ann.betas)
 rownames(ann.betas) <- NULL
 ann.betas <- ann.betas[, c("probe_ids", "betas")]
 
+message("Appending HGNC symbols to probe ids.")
+data.manifest <- sesameDataGet(manifest)
+hgnc <- mcols(data.manifest)[, "gene_HGNC", drop = FALSE]
+hgnc$probe_ids <- rownames(hgnc)
+ann.betas <- merge(x = ann.betas, y = hgnc, all.x = TRUE)
+
 message("Preparing beta values.")
 mvals <- BetaValueToMValue(betas)
 mvals <- as.data.frame(mvals)
@@ -112,7 +118,7 @@ rownames(pvals) <- NULL
 message("Performing left join on betas and p-values.")
 ann <- merge(x = ann.betas, y = mvals, all.x = TRUE)
 ann <- merge(x = ann, y = pvals, all.x = TRUE)
-ann <- ann[, c("probe_ids", "betas", "mvals", "pvals")]
+ann <- ann[, c("probe_ids", "gene_HGNC", "betas", "mvals", "pvals")]
 
 message("Writing results to a gz file.")
 write.table(
@@ -123,10 +129,9 @@ write.table(
   col.names = TRUE,
   row.names = FALSE
 )
-#  probe_ids                   betas                  mvals                     pvals
-# cg00000029      0.0926159030437576      -3.29238153035006       0.00858568404682702
-# cg00000108      0.95457498202515        4.39329953556601        0.0005773348429986
-# cg00000109      0.823241028625149       2.21953144429026        0.00923735748797683
-# cg00000165      0.418190082745214       -0.476389038895762      0.0323988077238757
-# cg00000236      0.950865528310981       4.27443388044474        0.000924856787327788
+#  probe_ids  gene_HGNC               betas               mvals                pvals
+# cg00000029       RBL2  0.0926159030437576   -3.29238153035006  0.00858568404682702
+# cg00000108    C3orf35    0.95457498202515    4.39329953556601   0.0005773348429986
+# cg00000109     FNDC3B   0.823241028625149    2.21953144429026  0.00923735748797683
+# cg00000165         NA   0.418190082745214  -0.476389038895762   0.0323988077238757
 

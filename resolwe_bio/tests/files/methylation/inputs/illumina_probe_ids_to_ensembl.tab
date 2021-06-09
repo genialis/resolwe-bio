@@ -1,2 +1,5 @@
 relation_type	source_db	source_id	source_species	target_db	target_id	target_species
-crossdb	ILLU_HM450	cg00000029	Homo sapiens	ENSEMBL	FAKE00000000	Homo sapiens
+crossdb	ILLU_METHYL	RBL2	Homo sapiens	ENSEMBL	FAKE_RBL2	Homo sapiens
+crossdb	ILLU_METHYL	KCNQ1	Homo sapiens	ENSEMBL	FAKE_KCNQ1_1	Homo sapiens
+crossdb	ILLU_METHYL	KCNQ1	Homo sapiens	ENSEMBL	FAKE_KCNQ1_2	Homo sapiens
+crossdb	ILLU_METHYL	KCNQ1OT1	Homo sapiens	ENSEMBL	FAKE_KCNQ1OT1	Homo sapiens

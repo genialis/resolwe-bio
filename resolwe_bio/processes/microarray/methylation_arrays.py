@@ -3,6 +3,7 @@ from pathlib import Path
 from shutil import copy2
 
 import pandas as pd
+from numpy import nan
 from plumbum import TEE
 
 from resolwe.process import (
@@ -29,12 +30,13 @@ class MethylationArraySesame(ProcessBio):
     some basic statistics, such as mean beta, fraction of
     (un)methylated, GCT, predicted ethnicity, gender and age.
     Methylation data file holds betas, mvals and pvals for probe ids.
+    In addition, Ensembl IDs and HGNC gene symbol names are provided.
     """
 
     slug = "methylation-array-sesame"
     name = "Methylation analysis (SeSAMe)"
     process_type = "data:methylation:sesame"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Methylation arrays"
     data_name = 'SeSAMe array ({{ idat_file.red_channel.file|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -102,22 +104,44 @@ class MethylationArraySesame(ProcessBio):
             sep="\t",
         )
 
-        print((Cmd["cat"]["-e"]["QC_data.txt"])())
-
-        mapping_filters = {"source_db": f"ILLU_{platform}"}
+        mapping_filters = {"source_db": "ILLU_METHYL", "target_db": "ENSEMBL"}
         mappings = self.mapping.filter(**mapping_filters)
-        ensembls = [
-            {"source_id": mapping.source_id, "target_id": mapping.target_id}
+        ens = [
+            {
+                "source_id": mapping.source_id,
+                "target_id": mapping.target_id,
+            }
             for mapping in mappings
         ]
 
-        ensembls = pd.DataFrame(ensembls)
+        ens = pd.DataFrame(ens)
 
-        out = xy.merge(ensembls, left_on="probe_ids", right_on="source_id", how="left")
-        out = out[["probe_ids", "betas", "mvals", "pvals", "target_id"]]
-        out.columns = ["probe_ids", "betas", "mvals", "pvals", "ensembl_id"]
+        mapped_ids = []
+        for multigene in xy.gene_HGNC:
+            if multigene is nan:
+                mapped_ids.append(nan)
+                continue
 
-        out.to_csv(
+            multi_split = multigene.split(";")
+            mapped_tmp = []
+            for gene in multi_split:
+                ids = ens[ens.source_id == gene].target_id
+                if len(ids) == 0:
+                    mapped_tmp.append("")
+                    continue
+                mapped_tmp.append(",".join(ids))
+            # In case there are two genes with no mappings in KB, the
+            # result will look like " , " (missing values left and
+            # right). If there is only one gene (no splitting by a ,),
+            # an empty value is present.
+            mapped_tmp = ",".join(mapped_tmp)
+            mapped_ids.append(mapped_tmp)
+
+        xy["ensembl_id"] = mapped_ids
+
+        xy = xy[["probe_ids", "gene_HGNC", "betas", "mvals", "pvals", "ensembl_id"]]
+
+        xy.to_csv(
             path_or_buf=meth_data,
             sep="\t",
             index=False,
