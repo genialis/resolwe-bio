@@ -10,11 +10,25 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+
 Changed
 -------
 
+Fixed
+-----
+
+
+===================
+38.1.1 - 2021-06-14
+===================
+
+Changed
+-------
 - Remove mapping of probe_ids to ENSEMBL ids and add extra variables in
   ``methylation-array-sesame`` process
+
 
 ===================
 38.1.0 - 2021-06-14
