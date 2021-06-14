@@ -2,6 +2,7 @@
 
 library(argparse)
 library(sesame)
+library(GenomicRanges)
 
 ROOT <- "/methyl_data"
 
@@ -85,12 +86,15 @@ message("Generating result of probe ids, betas, m-values and p-values.")
 ann.betas <- as.data.frame(betas)
 ann.betas$probe_ids <- rownames(ann.betas)
 rownames(ann.betas) <- NULL
-ann.betas <- ann.betas[, c("probe_ids", "betas")]
 
-message("Appending HGNC symbols to probe ids.")
+message("Add various variables (chr, start, end..) to probe_ids and betas.")
 data.manifest <- sesameDataGet(manifest)
 hgnc <- mcols(data.manifest)[, "gene_HGNC", drop = FALSE]
 hgnc$probe_ids <- rownames(hgnc)
+hgnc$chr <- as.character(seqnames(data.manifest))
+hgnc$start <- start(data.manifest)
+hgnc$end <- end(data.manifest)
+hgnc$strand <- strand(data.manifest)
 ann.betas <- merge(x = ann.betas, y = hgnc, all.x = TRUE)
 
 message("Preparing beta values.")
@@ -118,7 +122,8 @@ rownames(pvals) <- NULL
 message("Performing left join on betas and p-values.")
 ann <- merge(x = ann.betas, y = mvals, all.x = TRUE)
 ann <- merge(x = ann, y = pvals, all.x = TRUE)
-ann <- ann[, c("probe_ids", "gene_HGNC", "betas", "mvals", "pvals")]
+colsel <- c("probe_ids", "gene_HGNC", "chr", "start", "end", "strand", "mvals", "pvals")
+ann <- ann[, colsel]
 
 message("Writing results to a gz file.")
 write.table(
@@ -129,9 +134,9 @@ write.table(
   col.names = TRUE,
   row.names = FALSE
 )
-#  probe_ids  gene_HGNC               betas               mvals                pvals
-# cg00000029       RBL2  0.0926159030437576   -3.29238153035006  0.00858568404682702
-# cg00000108    C3orf35    0.95457498202515    4.39329953556601   0.0005773348429986
-# cg00000109     FNDC3B   0.823241028625149    2.21953144429026  0.00923735748797683
-# cg00000165         NA   0.418190082745214  -0.476389038895762   0.0323988077238757
-
+#  probe_ids         chr     start       end   strand   gene_HGNC     mvals       pvals
+# <character> <character> <integer> <integer> <factor> <character> <numeric>   <numeric>
+# cg00000029       chr16  53434200  53434201        -        RBL2 -3.292382    0.008586
+# cg00000108        chr3  37417715  37417716        -     C3orf35  4.393300    0.000577
+# cg00000109        chr3 172198247 172198248        -      FNDC3B  2.219531    0.009237
+# cg00000165        chr1  90729117  90729118        +          NA -0.476389    0.032399
