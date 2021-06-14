@@ -6,9 +6,23 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
+===================
+38.1.0 - 2021-06-14
+===================
+
+Added
+-----
+- Add ``wgs-preprocess`` process
+- Add ``gatk-haplotypecaller-gvcf`` process
+- Add ``workflow-wgs-gvcf`` process
+- Add ``gatk-genotype-gvcfs`` process
+- Add ``gatk-vqsr`` process
+- Add ``bamtofastq-paired`` process
+- Add ``methylation_array`` docker image
+- Add ``methylation-array-sesame`` process
+- Add support for Python 3.9
+- Support downloading knowledge base features and mappings from S3 bucket
+- Cap process memory consumption at 10GB
 
 Changed
 -------
@@ -17,7 +31,7 @@ Changed
 - Update ``workflow-mirna``
 - Add new parameters -maximumlength/-M and -no-indels in processes
   ``cutadapt-single`` and ``cutadatp-paired``
-- Add new id_attribute to ``featurecounts.yml``
+- Add new ``id_attribute`` to ``feature_counts`` process
 
 Fixed
 -----
@@ -25,20 +39,6 @@ Fixed
 - Rename FastQC output bundle in Trimmomatic processes so that the
   reports are correctly sorted/included in MultiQC reports
 - Fix method signature for KB feature/mapping filtering
-
-Added
------
-- Cap process memory consumption at 16GB
-- Add support for Python 3.9
-- Add ``wgs-preprocess`` process
-- Add ``gatk-haplotypecaller-gvcf`` process
-- Add ``workflow-wgs-gvcf`` process
-- Add ``gatk-genotype-gvcfs`` process
-- Add ``gatk-vqsr`` process
-- Add ``bamtofastq-paired`` process
-- Add ``methylation_array`` docker image
-- Support downloading knowledge base features and mappings from S3 bucket
-- Add ``methylation-array-sesame`` process
 
 
 ===================
