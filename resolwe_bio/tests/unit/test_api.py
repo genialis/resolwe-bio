@@ -3,7 +3,7 @@ from rest_framework.test import APIRequestFactory, force_authenticate
 
 from resolwe.flow.models import Data, DescriptorSchema, Entity, Process
 from resolwe.flow.views import DataViewSet, EntityViewSet
-from resolwe.test import TestCase
+from resolwe.test import ProcessTestCase, TestCase
 
 factory = APIRequestFactory()
 
@@ -116,7 +116,9 @@ class TestDataViewSetFilters(BaseViewSetFiltersTest):
         self._check_filter({"text": "rat rattus"}, [self.data[0]])
 
 
-class TestEntityViewSetFilters(BaseViewSetFiltersTest):
+# Process test case is required to register descriptor schemas which are used in the tests. Note
+# that processes cannot be triggered as tests runs in a transaction.
+class TestEntityViewSetFilters(ProcessTestCase, BaseViewSetFiltersTest):
     def setUp(self):
         super().setUp()
 
@@ -126,30 +128,14 @@ class TestEntityViewSetFilters(BaseViewSetFiltersTest):
             }
         )
 
-        self.descriptor_schema = DescriptorSchema.objects.create(
-            slug="sample",
-            contributor=self.contributor,
-            schema=[
-                {
-                    "label": "General",
-                    "name": "general",
-                    "group": [
-                        {
-                            "name": "species",
-                            "type": "basic:string:",
-                            "label": "Species",
-                        },
-                    ],
-                }
-            ],
-        )
+        self.descriptor_schema = DescriptorSchema.objects.get(slug="sample")
 
         self.entities = [
             Entity.objects.create(
                 name="Test entity 1",
                 contributor=self.contributor,
                 descriptor_schema=self.descriptor_schema,
-                descriptor={"general": {"species": "Homo Sapiens"}},
+                descriptor={"general": {"species": "Homo sapiens"}},
             ),
             Entity.objects.create(
                 name="Test entity 2",
@@ -177,7 +163,7 @@ class TestEntityViewSetFilters(BaseViewSetFiltersTest):
         self._check_filter({"text": "sapiens"}, [self.entities[0]])
 
         # Check that changes are applied immediately.
-        self.entities[0].descriptor["general"]["species"] = "Rat rattus"
+        self.entities[0].descriptor["general"]["species"] = "Rattus norvegicus"
         self.entities[0].save()
 
-        self._check_filter({"text": "rat rattus"}, [self.entities[0]])
+        self._check_filter({"text": "rattus norvegicus"}, [self.entities[0]])
