@@ -122,7 +122,7 @@ rownames(pvals) <- NULL
 message("Performing left join on betas and p-values.")
 ann <- merge(x = ann.betas, y = mvals, all.x = TRUE)
 ann <- merge(x = ann, y = pvals, all.x = TRUE)
-colsel <- c("probe_ids", "gene_HGNC", "chr", "start", "end", "strand", "mvals", "pvals")
+colsel <- c("probe_ids", "gene_HGNC", "chr", "start", "end", "strand", "betas", "mvals", "pvals")
 ann <- ann[, colsel]
 
 message("Writing results to a gz file.")

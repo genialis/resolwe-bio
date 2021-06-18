@@ -19,6 +19,7 @@ Changed
 Fixed
 -----
 - Fix stalled sam-to-bam conversion in ``wgs-preprocess`` process
+- Return column betas to ``methylation-array-sesame`` pipeline output
 
 
 ===================
