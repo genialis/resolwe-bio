@@ -12,6 +12,8 @@ Unreleased
 
 Added
 -----
+- Add more information about output to the ``methylation-array-sesame``
+  pipeline documentation
 
 Changed
 -------
