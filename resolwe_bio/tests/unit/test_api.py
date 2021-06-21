@@ -128,42 +128,217 @@ class TestEntityViewSetFilters(ProcessTestCase, BaseViewSetFiltersTest):
             }
         )
 
-        self.descriptor_schema = DescriptorSchema.objects.get(slug="sample")
+        clinical_schema = DescriptorSchema.objects.get(slug="general-clinical")
+        sample_schema = DescriptorSchema.objects.get(slug="sample")
 
         self.entities = [
             Entity.objects.create(
                 name="Test entity 1",
                 contributor=self.contributor,
-                descriptor_schema=self.descriptor_schema,
-                descriptor={"general": {"species": "Homo sapiens"}},
+                descriptor_schema=clinical_schema,
+                descriptor={
+                    "general": {"species": "Homo sapiens"},
+                    "disease_information": {
+                        "disease_type": "Colorectal cancer",
+                        "disease_status": "Progresive",
+                    },
+                    "subject_information": {
+                        "batch": 1,
+                        "group": "Pre",
+                        "subject_id": "P-006",
+                        "sample_label": "CRC",
+                    },
+                    "immuno_oncology_treatment_type": {
+                        "io_drug": "D-00A",
+                        "io_treatment": "single",
+                    },
+                    "response_and_survival_analysis": {
+                        "pfs_event": "no",
+                        "confirmed_bor": "pd",
+                    },
+                },
             ),
             Entity.objects.create(
                 name="Test entity 2",
                 contributor=self.contributor,
-                descriptor_schema=self.descriptor_schema,
-                descriptor={"general": {"species": "Mus musculus"}},
+                descriptor_schema=clinical_schema,
+                descriptor={
+                    "general": {"species": "Homo sapiens"},
+                    "disease_information": {
+                        "disease_type": "Mesothelioma",
+                        "disease_status": "Regresive",
+                    },
+                    "subject_information": {
+                        "batch": 2,
+                        "group": "Post",
+                        "subject_id": "P-019",
+                        "sample_label": "Meso",
+                    },
+                    "immuno_oncology_treatment_type": {
+                        "io_drug": "D-12A",
+                        "io_treatment": "combo",
+                    },
+                    "response_and_survival_analysis": {
+                        "pfs_event": "yes",
+                        "confirmed_bor": "sd",
+                    },
+                },
+            ),
+            Entity.objects.create(
+                name="Test entity 3",
+                contributor=self.contributor,
+                descriptor_schema=sample_schema,
+                descriptor={
+                    "general": {
+                        "species": "Mus musculus",
+                        "description": "First sample",
+                        "biosample_source": "lung",
+                        "biosample_treatment": "dmso",
+                    }
+                },
+            ),
+            Entity.objects.create(
+                name="Test entity 4",
+                contributor=self.contributor,
+                descriptor_schema=sample_schema,
+                descriptor={
+                    "general": {
+                        "species": "Mus musculus",
+                        "description": "Second sample",
+                        "biosample_source": "liver",
+                        "biosample_treatment": "koh",
+                    }
+                },
             ),
         ]
 
     def test_filter_species(self):
-        self._check_filter({"species": "Mus musculus"}, [self.entities[1]])
-        self._check_filter({"species": "Mus"}, [self.entities[1]])
-        self._check_filter({"species": "musculus"}, [self.entities[1]])
-        self._check_filter({"species": "Homo sapiens"}, [self.entities[0]])
-        self._check_filter({"species": "Homo"}, [self.entities[0]])
-        self._check_filter({"species": "sapiens"}, [self.entities[0]])
+        self._check_filter({"species": "Mus musculus"}, self.entities[2:])
+        self._check_filter({"species": "Mus"}, self.entities[2:])
+        self._check_filter({"species": "musculus"}, self.entities[2:])
+        self._check_filter({"species": "Homo sapiens"}, self.entities[:2])
+        self._check_filter({"species": "Homo"}, self.entities[:2])
+        self._check_filter({"species": "sapiens"}, self.entities[:2])
 
     def test_filter_text(self):
         # By species.
-        self._check_filter({"text": "Mus musculus"}, [self.entities[1]])
-        self._check_filter({"text": "Mus"}, [self.entities[1]])
-        self._check_filter({"text": "musculus"}, [self.entities[1]])
-        self._check_filter({"text": "Homo sapiens"}, [self.entities[0]])
-        self._check_filter({"text": "Homo"}, [self.entities[0]])
-        self._check_filter({"text": "sapiens"}, [self.entities[0]])
+        self._check_filter({"text": "Mus musculus"}, self.entities[2:])
+        self._check_filter({"text": "Mus"}, self.entities[2:])
+        self._check_filter({"text": "musculus"}, self.entities[2:])
+        self._check_filter({"text": "Homo sapiens"}, self.entities[:2])
+        self._check_filter({"text": "Homo"}, self.entities[:2])
+        self._check_filter({"text": "sapiens"}, self.entities[:2])
 
         # Check that changes are applied immediately.
         self.entities[0].descriptor["general"]["species"] = "Rattus norvegicus"
         self.entities[0].save()
 
         self._check_filter({"text": "rattus norvegicus"}, [self.entities[0]])
+
+    def test_filter_descriptor(self):
+        # Descriptor / Subject Information / Sample Label
+        self._check_filter(
+            {"descriptor__subject_information__sample_label__icontains": "CRC"},
+            [self.entities[0]],
+        )
+        self._check_filter(
+            {"descriptor__subject_information__sample_label__icontains": "CR"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Subject Information / Subject ID
+        self._check_filter(
+            {"descriptor__subject_information__subject_id__icontains": "P-006"},
+            [self.entities[0]],
+        )
+        self._check_filter(
+            {"descriptor__subject_information__subject_id__icontains": "P-00"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Subject Information / Batch
+        self._check_filter(
+            {"descriptor__subject_information__batch__exact": "1"},
+            [self.entities[0]],
+        )
+        self._check_filter(
+            {"descriptor__subject_information__batch__exact": "xyz"},
+            None,
+            expected_status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+        # Descriptor / Subject Information / Group
+        self._check_filter(
+            {"descriptor__subject_information__group__iexact": "pre"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Disease Information / Deisease Type
+        self._check_filter(
+            {
+                "descriptor__disease_information__disease_type__icontains": "Colorectal cancer"
+            },
+            [self.entities[0]],
+        )
+        self._check_filter(
+            {"descriptor__disease_information__disease_type__icontains": "Cancer"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Disease Information / Disease Status
+        self._check_filter(
+            {"descriptor__disease_information__disease_status__iexact": "progresive"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Immuno Oncology Treatment Type / IO Drug
+        self._check_filter(
+            {"descriptor__immuno_oncology_treatment_type__io_drug__iexact": "D-00A"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Immuno Oncology Treatment Type / IO Treatment
+        self._check_filter(
+            {
+                "descriptor__immuno_oncology_treatment_type__io_treatment__iexact": "single"
+            },
+            [self.entities[0]],
+        )
+
+        # Descriptor / Response and Survival Analysis / Confirmed BOR
+        self._check_filter(
+            {"descriptor__response_and_survival_analysis__confirmed_bor__iexact": "pd"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / Response and Survival Analysis / PFS Event
+        self._check_filter(
+            {"descriptor__response_and_survival_analysis__pfs_event__iexact": "NO"},
+            [self.entities[0]],
+        )
+
+        # Descriptor / General / Description
+        self._check_filter(
+            {"descriptor__general__description__icontains": "First sample"},
+            [self.entities[2]],
+        )
+        self._check_filter(
+            {"descriptor__general__description__icontains": "first"},
+            [self.entities[2]],
+        )
+        self._check_filter(
+            {"descriptor__general__description__icontains": "sample"},
+            self.entities[2:],
+        )
+
+        # Descriptor / General / Biosample source
+        self._check_filter(
+            {"descriptor__general__biosample_source__icontains": "lung"},
+            [self.entities[2]],
+        )
+
+        # Descriptor / General / Biosample Treatment
+        self._check_filter(
+            {"descriptor__general__biosample_treatment__icontains": "dmso"},
+            [self.entities[2]],
+        )

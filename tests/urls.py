@@ -4,12 +4,15 @@ from rest_framework import routers
 
 from resolwe.api_urls import api_router as resolwe_router
 from resolwe.flow.views import EntityViewSet
+from resolwe_bio.filters import BioEntityFilter
 from resolwe_bio.kb.views import (
     FeatureSearchViewSet, FeatureAutocompleteViewSet, MappingSearchViewSet
 )
 
 from .routers import SearchRouter
 
+
+EntityViewSet.filter_class = BioEntityFilter
 
 api_router = routers.DefaultRouter(trailing_slash=False)
 api_router.register(r'sample', EntityViewSet)

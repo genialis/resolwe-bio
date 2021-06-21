@@ -14,6 +14,16 @@ Added
 -----
 - Add more information about output to the ``methylation-array-sesame``
   pipeline documentation
+- Support filtering by ``subject_information.sample_label``,
+  ``subject_information.subject_id``, ``subject_information.batch``,
+  ``subject_information.group``, ``disease_information.disease_type``,
+  ``disease_information.disease_status``,
+  ``immuno_oncology_treatment_type.io_drug``,
+  ``immuno_oncology_treatment_type.io_treatment``,
+  ``response_and_survival_analysis.confirmed_bor``,
+  ``response_and_survival_analysis.pfs_event``, ``general.description``,
+  ``general.biosample_source``, and ``general.biosample_treatment``
+  fields in sample descriptor on API
 
 Changed
 -------
