@@ -29,7 +29,7 @@ class WgsPreprocess(Process):
     slug = "wgs-preprocess"
     name = "WGS preprocess data"
     process_type = "data:alignment:bam:wgs"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -40,7 +40,7 @@ class WgsPreprocess(Process):
         },
         "resources": {
             "cores": 4,
-            "memory": 16384,
+            "memory": 32768,
             "storage": 400,
         },
     }
@@ -102,6 +102,7 @@ class WgsPreprocess(Process):
         bam_stats = f"{name}_stats.txt"
         metrics_file = f"{name}_markduplicates_metrics.txt"
 
+        aligned_sam = "aligned.sam"
         aligned_bam = "aligned.bam"
         marked_dups = "marked_duplicates.bam"
         sorted_bam = "sorted.bam"
@@ -130,12 +131,22 @@ class WgsPreprocess(Process):
             "input_reads_mate1.fastq.gz",
             "input_reads_mate2.fastq.gz",
         ]
+        (Cmd["bwa"]["mem"][bwa_inputs] > aligned_sam)()
+        self.progress(0.2)
+
+        # Convert aligned reads to BAM format
+        # Samtools sort may require 4-5 GB RAM per thread, so the CPU
+        # limit for this command is set to 4
         (
-            Cmd["bwa"]["mem"][bwa_inputs] | Cmd["samtools"]["view"]["-1"]["-"]
+            Cmd["samtools"]["view"][
+                "-1", "-@", min(4, self.requirements.resources.cores), aligned_sam
+            ]
             > aligned_bam
         )()
+        self.progress(0.25)
 
-        self.progress(0.2)
+        # File cleanup
+        Path(aligned_sam).unlink(missing_ok=True)
 
         # Mark duplicates
         mark_duplicates_inputs = [
@@ -160,6 +171,9 @@ class WgsPreprocess(Process):
             self.error("MarkDuplicates analysis failed.")
 
         self.progress(0.3)
+
+        # File cleanup
+        Path(aligned_bam).unlink(missing_ok=True)
 
         # Sort BAM file and fix NM and UQ tags
         sort_inputs = [
@@ -189,6 +203,9 @@ class WgsPreprocess(Process):
 
         self.progress(0.4)
 
+        # File cleanup
+        Path(marked_dups).unlink(missing_ok=True)
+
         # Set the read group information (required by BaseRecalibrator)
         rg_inputs = [
             "--INPUT",
@@ -214,6 +231,9 @@ class WgsPreprocess(Process):
             self.error("AddOrReplaceReadGroups tool failed.")
 
         self.progress(0.45)
+
+        # File cleanup
+        Path(sorted_bam).unlink(missing_ok=True)
 
         # BaseRecalibrator
         base_recal_inputs = [

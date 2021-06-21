@@ -18,6 +18,7 @@ Changed
 
 Fixed
 -----
+- Fix stalled sam-to-bam conversion in ``wgs-preprocess`` process
 
 
 ===================
