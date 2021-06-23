@@ -17,6 +17,7 @@ Added
 
 Changed
 -------
+- Improve automatic sample naming in the ``geo-import`` process
 
 Fixed
 -----

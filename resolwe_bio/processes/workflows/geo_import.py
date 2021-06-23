@@ -18,9 +18,9 @@ from resolwe.process import (
 from resolwe.process.models import Data
 
 
-def parse_sample(gse, sample_name, gse_name):
+def parse_sample(gse, db_accession, gse_name):
     """Parse sample information from GEO."""
-    sample = {"mS#Sample name": sample_name}
+    sample = {"Database accession": db_accession}
     for k, v in gse.gsms[gse_name].metadata.items():
         if len(v) == 1:
             sample[k] = v[0]
@@ -40,7 +40,9 @@ def create_metadata(gse, run_info):
         parse_sample(gse, row["Accession"], row["SampleName"])
         for _, row in run_info.iterrows()
     ]
-    return pd.json_normalize(collection).set_index(["mS#Sample name"], drop=False)
+    metadata = pd.json_normalize(collection)
+    metadata.insert(0, "mS#Sample name", metadata["title"])
+    return metadata.set_index(["mS#Sample name"], drop=False)
 
 
 def construct_descriptor(metadata, sample_name):
@@ -181,7 +183,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.0.3"
+    version = "2.0.4"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -306,7 +308,7 @@ class GeoImport(Process):
 
                     entity_name = process_inputs["sra_accession"][0]
                     sra_data = Data.filter(entity__name=entity_name)[-1]
-                    sra_data.entity.name = srx_id
+                    sra_data.entity.name = gsm.metadata["title"][0]
             else:
                 self.error(
                     f"Matching SRX accession number for {name} was not found in GEO metadata."
@@ -334,7 +336,7 @@ class GeoImport(Process):
 
             self.run_process("upload-microarray-expression", process_inputs)
             ma_data = Data.filter(entity__name=exp_path)[-1]
-            ma_data.entity.name = name
+            ma_data.entity.name = gsm.metadata["title"][0]
             unmapped_data.append(ma_data.id)
 
         names = [gsm for gsm in gse.gsms.keys()]
