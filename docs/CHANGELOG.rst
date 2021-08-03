@@ -6,6 +6,15 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Fixed
+-----
+- Use clean file name for gene sets from differential expressions
+
+
 ===================
 38.2.0 - 2021-07-13
 ===================
