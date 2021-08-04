@@ -10,6 +10,11 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Changed
+-------
+- Replace Bedtools with Samtools for BAM to FASTQ file format conversion
+  in ``bamtofastq-paired`` process
+
 Fixed
 -----
 - Use clean file name for gene sets from differential expressions

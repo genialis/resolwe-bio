@@ -18,10 +18,10 @@ class BamToFastqPaired(Process):
     """Convert aligned reads in BAM format to paired-end FASTQ files format."""
 
     slug = "bamtofastq-paired"
-    name = "bedtools bamtofastq (paired-end)"
+    name = "Samtools fastq (paired-end)"
     category = "BAM processing"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -60,10 +60,8 @@ class BamToFastqPaired(Process):
         """Run analysis."""
         name = Path(inputs.bam.output.bam.path).stem
         sorted_bam = f"{name}_sorted.bam"
-        mate1 = f"{name}_mate1.fastq"
-        mate1_gz = mate1 + ".gz"
-        mate2 = f"{name}_mate2.fastq"
-        mate2_gz = mate2 + ".gz"
+        mate1_gz = f"{name}_mate1.fastq.gz"
+        mate2_gz = f"{name}_mate2.fastq.gz"
 
         # For extracted paired-end reads to match, BAM file needs to be name sorted first.
         sort_args = [
@@ -81,15 +79,23 @@ class BamToFastqPaired(Process):
         self.progress(0.3)
 
         # Convert aligned reads into paired-end FASTQ files
-        extract_args = ["-i", sorted_bam, "-fq", mate1, "-fq2", mate2]
-        (Cmd["bedtools"]["bamtofastq"][extract_args] > "log.txt")()
+        extract_args = [
+            "-@",
+            self.requirements.resources.cores,
+            "-c",
+            "9",
+            "-N",
+            "-1",
+            mate1_gz,
+            "-2",
+            mate2_gz,
+            sorted_bam,
+        ]
+        return_code, _, _ = Cmd["samtools"]["fastq"][extract_args] & TEE(retcode=None)
+        if return_code:
+            self.error("Samtools fastq command failed.")
 
         self.progress(0.8)
-
-        (Cmd["gzip"][mate1])()
-        (Cmd["gzip"][mate2])()
-
-        self.progress(0.9)
 
         # Prepare final FASTQC report
         fastqc_args_mate1 = [
