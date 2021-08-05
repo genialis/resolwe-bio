@@ -36,7 +36,7 @@ class MethylationArraySesame(ProcessBio):
     slug = "methylation-array-sesame"
     name = "Methylation analysis (SeSAMe)"
     process_type = "data:methylation:sesame"
-    version = "1.2.2"
+    version = "1.3.0"
     category = "Methylation arrays"
     data_name = 'SeSAMe array ({{ idat_file.red_channel.file|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -46,7 +46,7 @@ class MethylationArraySesame(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/methylation_arrays:1.0.0"
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/methylation_arrays:1.0.1"
             }
         },
         "resources": {
