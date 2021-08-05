@@ -17,3 +17,11 @@ RUN wget -P $METHYL_ADDR http://zhouserver.research.chop.edu/sesameData/EPIC.add
   wget -P $METHYL_ADDR http://zhouserver.research.chop.edu/sesameData/HM27.address.rda && \
   wget -P $METHYL_ADDR http://zhouserver.research.chop.edu/sesameData/HM450.address.rda && \
   wget -P $METHYL_ADDR http://zhouserver.research.chop.edu/sesameData/MM285.address.rda
+
+# This container may be working offline, in which case online checking
+# for Bioconductor needs to be turned off. This is done by making a
+# local version of the config.yaml file and setting the environment
+# variable. See ?BiocManager::install for more information.
+RUN wget https://bioconductor.org/config.yaml && \
+    echo $'\n#Bioconductor config file\nBIOCONDUCTOR_CONFIG_FILE=/config.yaml' >> \
+    /usr/lib/R/etc/Renviron
