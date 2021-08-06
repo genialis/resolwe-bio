@@ -22,6 +22,7 @@ Fixed
 - Use clean file name for gene sets from differential expressions
 - Fix saving estimated counts output in ``tximport_summarize.R`` script
 - Add ``config.yaml`` to methylation_arrays Dockerfile
+- Use raw SigSet for performing QC in the SeSAMe pipeline
 
 
 ===================
