@@ -16,6 +16,8 @@ Changed
 - Replace Bedtools with Samtools for BAM to FASTQ file format conversion
   in ``bamtofastq-paired`` process
 - Bump docker image version in ``methylation-array-sesame`` process
+- Add ``qin`` and ``ignorebadquality`` options to ``bbduk-single`` and
+  ``bbduk-paired`` processes
 
 Fixed
 -----

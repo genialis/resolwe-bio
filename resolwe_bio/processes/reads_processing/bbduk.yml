@@ -16,7 +16,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.4.1
+  version: 2.5.0
   type: data:reads:fastq:single:bbduk
   category: Trim
   flow_collection: sample
@@ -209,6 +209,23 @@
           default: 6
           disabled: "operations.quality_trim == 'f'"
           description: Set trimming protocol to enable this parameter.
+        - name: quality_encoding_offset
+          label: Quality encoding offset [qin=auto]
+          type: basic:string
+          default: auto
+          choices:
+            - label: Sanger / Illumina 1.8+ (33)
+              value: "33"
+            - label: Illumina up to 1.3+, 1.5+ (64)
+              value: "64"
+            - label: Auto
+              value: auto
+          description: |
+            Quality encoding offset for input FASTQ files.
+        - name: ignore_bad_quality
+          label: Don't crash if quality values appear to be incorrect [ignorebadquality].
+          type: basic:boolean
+          default: false
         - name: trim_poly_A
           label: >
             Minimum length of poly-A or poly-T tails to trim on either end of reads [trimpolya=0]
@@ -479,6 +496,10 @@
           qtrim={{ operations.quality_trim }} \
         {% endif %} \
         trimq={{ operations.trim_quality }} \
+        qin={{ operations.quality_encoding_offset }} \
+        {% if operations.ignore_bad_quality %} \
+          ignorebadquality \
+        {% endif %} \
         trimpolya={{ operations.trim_poly_A }} \
         minlength={{ min_length }} \
         minlengthfraction={{ operations.min_length_fraction }} \
@@ -552,7 +573,7 @@
       cores: 10
       memory: 8192
   data_name: '{{ reads|sample_name|default("?") }}'
-  version: 2.4.1
+  version: 2.5.0
   type: data:reads:fastq:paired:bbduk
   category: Trim
   flow_collection: sample
@@ -754,6 +775,23 @@
           default: 6
           disabled: "operations.quality_trim == 'f'"
           description: Set trimming protocol to enable this parameter.
+        - name: quality_encoding_offset
+          label: Quality encoding offset [qin=auto]
+          type: basic:string
+          default: auto
+          choices:
+            - label: Sanger / Illumina 1.8+ (33)
+              value: "33"
+            - label: Illumina up to 1.3+, 1.5+ (64)
+              value: "64"
+            - label: Auto
+              value: auto
+          description: |
+            Quality encoding offset for input FASTQ files.
+        - name: ignore_bad_quality
+          label: Don't crash if quality values appear to be incorrect [ignorebadquality].
+          type: basic:boolean
+          default: false
         - name: trim_poly_A
           label: >
             Minimum length of poly-A or poly-T tails to trim on either end of reads [trimpolya=0]
@@ -1059,6 +1097,10 @@
           qtrim={{ operations.quality_trim }} \
         {% endif %} \
         trimq={{ operations.trim_quality }} \
+        qin={{ operations.quality_encoding_offset }} \
+        {% if operations.ignore_bad_quality %} \
+          ignorebadquality \
+        {% endif %} \
         trimpolya={{ operations.trim_poly_A }} \
         minlength={{ min_length }} \
         minlengthfraction={{ operations.min_length_fraction }} \
