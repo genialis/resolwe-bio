@@ -29,7 +29,7 @@ class WgsPreprocess(Process):
     slug = "wgs-preprocess"
     name = "WGS preprocess data"
     process_type = "data:alignment:bam:wgs"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -39,8 +39,8 @@ class WgsPreprocess(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0"}
         },
         "resources": {
-            "cores": 4,
-            "memory": 32768,
+            "cores": 2,
+            "memory": 16384,
             "storage": 400,
         },
     }

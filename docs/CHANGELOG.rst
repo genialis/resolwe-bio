@@ -7,6 +7,22 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+- Optimize CPU and memory usage in processes ``wgs-preprocess`` and
+  ``gatk-haplotypecaller-gvcf``
+
+Fixed
+-----
+
+
 ===================
 38.3.0 - 2021-08-16
 ===================
