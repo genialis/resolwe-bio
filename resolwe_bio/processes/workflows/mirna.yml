@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:mirna
   category: Pipeline
   input:
@@ -305,19 +305,16 @@
       - id: quantification
         run: feature_counts
         input:
-          alignment:
-            aligned_reads: '{{ steps.align_bowtie2 }}'
-            assay_type: '{{ input.assay_type }}'
-          annotation:
-            annotation: '{{ input.quant_options.annotation }}'
-            id_attribute: '{{ input.quant_options.id_attribute }}'
-            feature_class: '{{ input.quant_options.feature_class }}'
+          aligned_reads: '{{ steps.align_bowtie2 }}'
+          assay_type: '{{ input.assay_type }}'
+          annotation: '{{ input.quant_options.annotation }}'
+          id_attribute: '{{ input.quant_options.id_attribute }}'
+          feature_class: '{{ input.quant_options.feature_class }}'
           normalization_type: '{{ input.quant_options.normalization_type }}'
-          advanced:
-            overlap:
-              allow_multi_overlap: '{{ input.quant_options.allow_multi_overlap}}'
-            multi_mapping_reads:
-              count_multi_mapping_reads: '{{ input.quant_options.count_multi_mapping_reads }}'
+          overlap:
+            allow_multi_overlap: '{{ input.quant_options.allow_multi_overlap }}'
+          general:
+            count_multi_mapping_reads: '{{ input.quant_options.count_multi_mapping_reads }}'
       - id: idxstats
         run: samtools-idxstats
         input:

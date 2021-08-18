@@ -21,6 +21,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
   ``merge-fastq-paired`` processes to use sample relations for merging
   FASTQ files
+- **BACKWARD INCOMPATIBLE:** Rewrite ``feature_counts`` process to
+  Python
 - Support ChIP-Seq and ATAC-Seq data sets in ``geo-import`` process
 
 Fixed
@@ -42,9 +44,6 @@ Added
 
 Changed
 -------
-- **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
-  ``merge-fastq-paired`` processes to use sample relations for merging
-  FASTQ files
 - Use ``resolwebio/common:2.9.0`` Docker image version in
   ``resolwebio/dnaseq`` Docker image
 - Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``

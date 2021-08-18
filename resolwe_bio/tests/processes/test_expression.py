@@ -599,12 +599,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {
-                    "aligned_reads": bam_paired.id,
-                },
-                "annotation": {
-                    "annotation": annotation_gtf.id,
-                },
+                "aligned_reads": bam_paired.id,
+                "annotation": annotation_gtf.id,
             },
         )
         self.assertFile(
@@ -645,13 +641,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {
-                    "aligned_reads": bam_single.id,
-                },
-                "annotation": {
-                    "annotation": annotation_gff3.id,
-                    "id_attribute": "Parent",
-                },
+                "aligned_reads": bam_single.id,
+                "annotation": annotation_gff3.id,
+                "id_attribute": "Parent",
             },
         )
         self.assertFile(
@@ -672,12 +664,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {
-                    "aligned_reads": bam_ucsc.id,
-                },
-                "annotation": {
-                    "annotation": annotation_ucsc.id,
-                },
+                "aligned_reads": bam_ucsc.id,
+                "annotation": annotation_ucsc.id,
             },
         )
         self.assertFile(
@@ -692,61 +680,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             outputs / "feature_counts_out_ucsc_tpm.tab.gz",
             compression="gzip",
         )
-
-    @with_resolwe_host
-    @tag_process("feature_counts")
-    def test_feature_counts_rpkum(self):
-        base = Path("test_featurecounts")
-        outputs = base / "outputs"
-        with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="genome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
-            bowtie_index = self.run_process("bowtie-index", {"ref_seq": ref_seq.id})
-            reads = self.prepare_reads()
-            annotation = self.prepare_annotation(fn="annotation dicty.gtf.gz")
-            annotation_gff = self.prepare_annotation_gff()
-
-            aligned_reads = self.run_process(
-                "alignment-hisat2", {"genome": hisat2_index.pk, "reads": reads.pk}
-            )
-
-            mappability = self.run_process(
-                "mappability-bcm",
-                {
-                    "genome": bowtie_index.id,
-                    "gff": annotation_gff.id,
-                    "length": 50,
-                },
-            )
-
-        feature_counts = self.run_process(
-            "feature_counts",
-            {
-                "alignment": {
-                    "aligned_reads": aligned_reads.id,
-                },
-                "annotation": {
-                    "annotation": annotation.id,
-                    "id_attribute": "transcript_id",
-                },
-                "normalization_type": "RPKUM",
-                "mappability": mappability.id,
-            },
-        )
-        self.assertFile(
-            feature_counts,
-            "exp",
-            outputs / "expression_fc_rpkum.tab.gz",
-            compression="gzip",
-        )
-        self.assertFields(feature_counts, "source", "DICTYBASE")
-        self.assertFields(feature_counts, "species", "Dictyostelium discoideum")
-        self.assertFields(feature_counts, "build", "dd-05-2009")
-        self.assertFields(feature_counts, "feature_type", "gene")
 
     @tag_process("salmon-index")
     def test_salmon_index(self):
@@ -891,14 +824,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         expression = self.run_process(
             "feature_counts",
             {
-                "alignment": {
-                    "aligned_reads": aligned_reads.id,
-                    "assay_type": "auto",
-                    "cdna_index": salmon_index.id,
-                },
-                "annotation": {
-                    "annotation": annotation.id,
-                },
+                "aligned_reads": aligned_reads.id,
+                "assay_type": "auto",
+                "cdna_index": salmon_index.id,
+                "annotation": annotation.id,
             },
         )
         self.assertFile(

@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -128,11 +128,9 @@
         run: feature_counts
         input:
           normalization_type: 'CPM'
-          alignment:
-            aligned_reads: '{{ steps.star }}'
-            assay_type: '{{ input.stranded }}'
-          annotation:
-            annotation: '{{ input.annotation }}'
+          aligned_reads: '{{ steps.star }}'
+          assay_type: '{{ input.stranded }}'
+          annotation: '{{ input.annotation }}'
       - id: downsampling
         run: seqtk-sample-single
         input:
@@ -186,7 +184,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
   description: |
@@ -311,11 +309,9 @@
         run: feature_counts
         input:
           normalization_type: 'CPM'
-          alignment:
-            aligned_reads: '{{ steps.star }}'
-            assay_type: '{{ input.stranded }}'
-          annotation:
-            annotation: '{{ input.annotation }}'
+          aligned_reads: '{{ steps.star }}'
+          assay_type: '{{ input.stranded }}'
+          annotation: '{{ input.annotation }}'
       - id: downsampling
         run: seqtk-sample-paired
         input:

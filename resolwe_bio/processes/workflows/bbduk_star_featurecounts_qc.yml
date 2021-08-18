@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -511,16 +511,14 @@
       - id: quantification
         run: feature_counts
         input:
-          alignment:
-            aligned_reads: '{{ steps.alignment }}'
-            assay_type: '{{ input.quantification.assay_type }}'
-            cdna_index: '{{ input.quantification.cdna_index }}'
-            n_reads: '{{ input.quantification.n_reads }}'
-          annotation:
-            annotation: '{{ input.quantification.annotation }}'
-            feature_class: '{{ input.quantification.feature_class }}'
-            feature_type: '{{ input.quantification.feature_type }}'
-            id_attribute: '{{ input.quantification.id_attribute }}'
+          aligned_reads: '{{ steps.alignment }}'
+          assay_type: '{{ input.quantification.assay_type }}'
+          cdna_index: '{{ input.quantification.cdna_index }}'
+          n_reads: '{{ input.quantification.n_reads }}'
+          annotation: '{{ input.quantification.annotation }}'
+          feature_class: '{{ input.quantification.feature_class }}'
+          feature_type: '{{ input.quantification.feature_type }}'
+          id_attribute: '{{ input.quantification.id_attribute }}'
       - id: downsampling
         run: seqtk-sample-single
         input:
@@ -567,7 +565,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -1077,16 +1075,14 @@
       - id: quantification
         run: feature_counts
         input:
-          alignment:
-            aligned_reads: '{{ steps.alignment }}'
-            assay_type: '{{ input.quantification.assay_type }}'
-            cdna_index: '{{ input.quantification.cdna_index }}'
-            n_reads: '{{ input.quantification.n_reads }}'
-          annotation:
-            annotation: '{{ input.quantification.annotation }}'
-            feature_class: '{{ input.quantification.feature_class }}'
-            feature_type: '{{ input.quantification.feature_type }}'
-            id_attribute: '{{ input.quantification.id_attribute }}'
+          aligned_reads: '{{ steps.alignment }}'
+          annotation: '{{ input.quantification.annotation }}'
+          assay_type: '{{ input.quantification.assay_type }}'
+          cdna_index: '{{ input.quantification.cdna_index }}'
+          n_reads: '{{ input.quantification.n_reads }}'
+          feature_class: '{{ input.quantification.feature_class }}'
+          feature_type: '{{ input.quantification.feature_type }}'
+          id_attribute: '{{ input.quantification.id_attribute }}'
       - id: downsampling
         run: seqtk-sample-paired
         input:
