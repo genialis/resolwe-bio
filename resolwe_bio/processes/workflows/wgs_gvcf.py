@@ -38,7 +38,7 @@ class WorkflowWgsGvcf(Process):
         },
     }
     data_name = "WGS GVCF analysis ({{ reads|sample_name|default('?') }})"
-    version = "1.0.1"
+    version = "1.1.0"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {
@@ -61,26 +61,14 @@ class WorkflowWgsGvcf(Process):
             default=False,
         )
 
-        class GatkOptions:
-            """Options."""
-
-            intervals = DataField(
-                "bed",
-                label="Intervals BED file",
-                description="Use intervals BED file to limit the analysis to "
-                "the specified parts of the genome.",
-                required=False,
-            )
-
-            contamination = IntegerField(
-                label="Contamination fraction",
-                default=0,
-                description="Fraction of contamination in sequencing "
-                "data (for all samples) to aggressively remove.",
-            )
-
         class Trimming:
             """Trimming parameters."""
+
+            enable_trimming = BooleanField(
+                label="Trim and quality filter input data",
+                description="Enable or disable adapter trimming and QC filtering procedure.",
+                default=False,
+            )
 
             adapters = DataField(
                 "seq:nucleotide",
@@ -88,6 +76,7 @@ class WorkflowWgsGvcf(Process):
                 required=False,
                 description="Adapter sequences in FASTA format that will "
                 "be removed from the reads.",
+                disabled="!trimming_options.enable_trimming",
             )
 
             seed_mismatches = IntegerField(
@@ -138,6 +127,7 @@ class WorkflowWgsGvcf(Process):
                 required=False,
                 description="Remove low quality bases from the beginning, "
                 "if below a threshold quality.",
+                disabled="!trimming_options.enable_trimming",
             )
 
             trailing = IntegerField(
@@ -145,12 +135,32 @@ class WorkflowWgsGvcf(Process):
                 required=False,
                 description="Remove low quality bases from the end, if "
                 "below a threshold quality.",
+                disabled="!trimming_options.enable_trimming",
             )
 
             minlen = IntegerField(
                 label="Minimum length",
                 required=False,
                 description="Drop the read if it is below a specified length.",
+                disabled="!trimming_options.enable_trimming",
+            )
+
+        class GatkOptions:
+            """Options."""
+
+            intervals = DataField(
+                "bed",
+                label="Intervals BED file",
+                description="Use intervals BED file to limit the analysis to "
+                "the specified parts of the genome.",
+                required=False,
+            )
+
+            contamination = IntegerField(
+                label="Contamination fraction",
+                default=0,
+                description="Fraction of contamination in sequencing "
+                "data (for all samples) to aggressively remove.",
             )
 
         class AlignmentSummary:
@@ -247,8 +257,7 @@ class WorkflowWgsGvcf(Process):
             )
 
         trimming_options = GroupField(
-            Trimming,
-            label="Trimming options",
+            Trimming, label="Trimming options", hidden="!advanced"
         )
 
         gatk_options = GroupField(GatkOptions, label="GATK options", hidden="!advanced")
@@ -272,29 +281,32 @@ class WorkflowWgsGvcf(Process):
 
     def run(self, inputs, outputs):
         """Run the workflow."""
-        trimmomatic = Data.create(
-            process=BioProcess.filter(slug="trimmomatic-paired")[-1],
-            input={
-                "reads": inputs.reads,
-                "illuminaclip": {
-                    "adapters": inputs.trimming_options.adapters,
-                    "seed_mismatches": inputs.trimming_options.seed_mismatches,
-                    "simple_clip_threshold": inputs.trimming_options.simple_clip_threshold,
-                    "palindrome_clip_threshold": inputs.trimming_options.palindrome_clip_threshold,
-                    "min_adapter_length": inputs.trimming_options.min_adapter_length,
+        if inputs.trimming_options.enable_trimming:
+            trimmomatic = Data.create(
+                process=BioProcess.filter(slug="trimmomatic-paired")[-1],
+                input={
+                    "reads": inputs.reads,
+                    "illuminaclip": {
+                        "adapters": inputs.trimming_options.adapters,
+                        "seed_mismatches": inputs.trimming_options.seed_mismatches,
+                        "simple_clip_threshold": inputs.trimming_options.simple_clip_threshold,
+                        "palindrome_clip_threshold": inputs.trimming_options.palindrome_clip_threshold,
+                        "min_adapter_length": inputs.trimming_options.min_adapter_length,
+                    },
+                    "trim_bases": {
+                        "trailing": inputs.trimming_options.trailing,
+                        "leading": inputs.trimming_options.leading,
+                    },
+                    "reads_filtering": {"minlen": inputs.trimming_options.minlen},
                 },
-                "trim_bases": {
-                    "trailing": inputs.trimming_options.trailing,
-                    "leading": inputs.trimming_options.leading,
-                },
-                "reads_filtering": {"minlen": inputs.trimming_options.minlen},
-            },
-        )
+            )
 
         bam = Data.create(
             process=BioProcess.filter(slug="wgs-preprocess")[-1],
             input={
-                "reads": trimmomatic,
+                "reads": trimmomatic
+                if inputs.trimming_options.enable_trimming
+                else inputs.reads,
                 "ref_seq": inputs.ref_seq,
                 "bwa_index": inputs.bwa_index,
                 "known_sites": inputs.known_sites,
@@ -359,17 +371,16 @@ class WorkflowWgsGvcf(Process):
                 "assume_sorted": True,
             },
         )
-
+        multiqc_inputs = [
+            inputs.reads,
+            bam,
+            summary,
+            wgs_metrics,
+            insert_size,
+        ]
+        if inputs.trimming_options.enable_trimming:
+            multiqc_inputs.append(trimmomatic)
         Data.create(
             process=BioProcess.filter(slug="multiqc")[-1],
-            input={
-                "data": [
-                    inputs.reads,
-                    trimmomatic,
-                    bam,
-                    summary,
-                    wgs_metrics,
-                    insert_size,
-                ]
-            },
+            input={"data": multiqc_inputs},
         )

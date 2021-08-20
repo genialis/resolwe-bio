@@ -17,6 +17,8 @@ Added
 Changed
 -------
 - Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
+- Make the read trimming step (trimmomatic) optional in the
+  ``workflow-wgs-gvcf`` workflow
 
 Fixed
 -----
