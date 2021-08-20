@@ -16,8 +16,7 @@ Added
 
 Changed
 -------
-- Optimize CPU and memory usage in processes ``wgs-preprocess`` and
-  ``gatk-haplotypecaller-gvcf``
+- Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
 
 Fixed
 -----
