@@ -29,7 +29,7 @@ class WgsPreprocess(Process):
     slug = "wgs-preprocess"
     name = "WGS preprocess data"
     process_type = "data:alignment:bam:wgs"
-    version = "1.1.2"
+    version = "1.2.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -49,7 +49,12 @@ class WgsPreprocess(Process):
     class Input:
         """Input fields to process WgsPreprocess."""
 
-        reads = DataField("reads:fastq:paired", label="Input sample")
+        reads = DataField(
+            "reads:fastq:paired", label="Input sample (FASTQ)", required=False
+        )
+        aligned_reads = DataField(
+            "alignment:bam", label="Input sample (BAM)", required=False
+        )
         ref_seq = DataField("seq:nucleotide", label="Reference sequence")
         bwa_index = DataField("index:bwa", label="BWA genome index")
         known_sites = ListField(
@@ -90,18 +95,6 @@ class WgsPreprocess(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
-        # Define output file names
-        name = inputs.reads.entity_name
-        if name == None or name == "":
-            mate1_path = Path(inputs.reads.output.fastq[0].path).name
-            assert mate1_path.endswith(".fastq.gz")
-            name = mate1_path[:-9]
-
-        index_fasta_name = Path(inputs.bwa_index.output.fasta.path).name
-        bam = f"{name}.bam"
-        bam_stats = f"{name}_stats.txt"
-        metrics_file = f"{name}_markduplicates_metrics.txt"
-
         aligned_sam = "aligned.sam"
         aligned_bam = "aligned.bam"
         marked_dups = "marked_duplicates.bam"
@@ -109,30 +102,96 @@ class WgsPreprocess(Process):
         sorted_rg = "sorted_rg.bam"
         recal_table = "recal_data.csv"
 
-        # Concatenate multi-lane read files
-        (
-            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
-            > "input_reads_mate1.fastq.gz"
-        )()
-        (
-            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]]
-            > "input_reads_mate2.fastq.gz"
-        )()
+        index_fasta_name = Path(inputs.bwa_index.output.fasta.path).name
 
-        self.progress(0.05)
+        if not inputs.reads and not inputs.aligned_reads:
+            self.error("Please provide FASTQ or BAM input files.")
+        if inputs.reads and inputs.aligned_reads:
+            self.error(
+                "Please provide input data in either FASTQ or aligned BAM format, not both."
+            )
 
-        # Align reads with BWA MEM
-        bwa_inputs = [
-            "-K 100000000",
-            "-v 3",
-            f"-t {self.requirements.resources.cores}",
-            "-Y",
-            f"{Path(inputs.bwa_index.output.index.path) / index_fasta_name}",
-            "input_reads_mate1.fastq.gz",
-            "input_reads_mate2.fastq.gz",
-        ]
-        (Cmd["bwa"]["mem"][bwa_inputs] > aligned_sam)()
-        self.progress(0.2)
+        if inputs.reads:
+            # Define output file names
+            name = inputs.reads.entity_name
+            if not name:
+                mate1_path = Path(inputs.reads.output.fastq[0].path).name
+                assert mate1_path.endswith(".fastq.gz")
+                name = mate1_path[:-9]
+
+            # Concatenate multi-lane read files
+            (
+                Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
+                > "input_reads_mate1.fastq.gz"
+            )()
+            (
+                Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]]
+                > "input_reads_mate2.fastq.gz"
+            )()
+
+            self.progress(0.05)
+
+            # Align reads with BWA MEM
+            bwa_inputs = [
+                "-K 100000000",
+                "-v 3",
+                f"-t {self.requirements.resources.cores}",
+                "-Y",
+                f"{Path(inputs.bwa_index.output.index.path) / index_fasta_name}",
+                "input_reads_mate1.fastq.gz",
+                "input_reads_mate2.fastq.gz",
+            ]
+            (Cmd["bwa"]["mem"][bwa_inputs] > aligned_sam)()
+            self.progress(0.2)
+
+        else:
+            if inputs.aligned_reads.output.species != inputs.bwa_index.output.species:
+                self.error(
+                    "Species information for the input BAM file doesn't match the BWA index species information."
+                )
+
+            # Define output file names
+            name = inputs.aligned_reads.entity_name
+            if not name:
+                bam_path = Path(inputs.aligned_reads.output.bam.path).name
+                assert bam_path.endswith(".bam")
+                name = bam_path[:-4]
+
+            collate_inputs = [
+                f"-@ {self.requirements.resources.cores}",
+                "-O",
+                inputs.aligned_reads.output.bam.path,
+                "-",
+            ]
+
+            fastq_inputs = [
+                f"-@ {self.requirements.resources.cores}",
+                "-c 9",
+                "-N",
+                "-c singletons.fastq",
+                "-",
+            ]
+
+            bwa_inputs = [
+                "-K 100000000",
+                "-v 3",
+                f"-t {self.requirements.resources.cores}",
+                "-p",
+                "-Y",
+                f"{Path(inputs.bwa_index.output.index.path) / index_fasta_name}",
+                "-",
+            ]
+
+            (
+                Cmd["samtools"]["collate"][collate_inputs]
+                | Cmd["samtools"]["fastq"][fastq_inputs]
+                | Cmd["bwa"]["mem"][bwa_inputs]
+                > aligned_sam
+            )()
+
+        bam = f"{name}.bam"
+        bam_stats = f"{name}_stats.txt"
+        metrics_file = f"{name}_markduplicates_metrics.txt"
 
         # Convert aligned reads to BAM format
         # Samtools sort may require 4-5 GB RAM per thread, so the CPU

@@ -19,6 +19,8 @@ Changed
 - Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
 - Make the read trimming step (trimmomatic) optional in the
   ``workflow-wgs-gvcf`` workflow
+- Add aligned reads (BAM format) as an alternative input option in the
+  ``wgs-preprocess`` process
 
 Fixed
 -----
