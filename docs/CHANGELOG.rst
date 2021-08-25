@@ -24,6 +24,9 @@ Changed
 
 Fixed
 -----
+- Fix an edge case in ``methylation-array-sesame`` process where calling
+  the ``sesame.R`` script using Plumbum was failing for some compressed
+  IDAT inputs due to the file encoding issues
 
 
 ===================
