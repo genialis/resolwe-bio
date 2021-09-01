@@ -30,7 +30,7 @@ class WgsPreprocess(Process):
     slug = "wgs-preprocess"
     name = "WGS preprocess data"
     process_type = "data:alignment:bam:wgs"
-    version = "1.2.1"
+    version = "1.2.2"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -42,7 +42,7 @@ class WgsPreprocess(Process):
         "resources": {
             "cores": 4,
             "memory": 32768,
-            "storage": 800,
+            "storage": 600,
         },
     }
     data_name = '{{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }}'
@@ -224,6 +224,8 @@ class WgsPreprocess(Process):
             inputs.advanced_options.pixel_distance,
             "--ASSUME_SORT_ORDER",
             "queryname",
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["MarkDuplicates"][mark_duplicates_inputs] & TEE(
