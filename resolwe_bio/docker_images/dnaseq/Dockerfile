@@ -1,4 +1,4 @@
-FROM public.ecr.aws/genialis/resolwebio/common:2.8.0
+FROM public.ecr.aws/genialis/resolwebio/common:2.9.0
 
 MAINTAINER Resolwe Bioinformatics authors https://github.com/genialis/resolwe-bio
 

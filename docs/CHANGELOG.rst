@@ -13,9 +13,12 @@ Unreleased
 
 Added
 -----
+- Add BWA-mem2 to the ``resolwebio/common`` Docker image
 
 Changed
 -------
+- Use ``resolwebio/common:2.9.0`` Docker image version in
+  ``resolwebio/dnaseq`` Docker image
 - Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
 - Make the read trimming step (trimmomatic) optional in the
   ``workflow-wgs-gvcf`` workflow
