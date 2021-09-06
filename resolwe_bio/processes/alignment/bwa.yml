@@ -11,11 +11,11 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0
     resources:
-      cores: 20
-      memory: 16384
+      cores: 4
+      memory: 32768
       storage: 300
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.3.2
+  version: 3.3.3
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample

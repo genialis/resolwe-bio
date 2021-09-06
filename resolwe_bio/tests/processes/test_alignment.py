@@ -501,6 +501,59 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             sample.descriptor["general"]["species"], "Dictyostelium discoideum"
         )
 
+    @tag_process("bwamem2-index", "alignment-bwa-mem2")
+    def test_bwa2(self):
+        input_folder = Path("test_bwa") / "input"
+        output_folder = Path("test_bwa") / "output"
+        with self.preparation_stage():
+            ref_seq = self.prepare_ref_seq(
+                fn=str(input_folder / "g.en ome.fasta.gz"),
+                species="Dictyostelium discoideum",
+                build="dd-05-2009",
+            )
+            reads = self.prepare_reads()
+            reads_paired = self.prepare_paired_reads(
+                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
+                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
+            )
+
+        bwa2_index = self.run_process("bwamem2-index", {"ref_seq": ref_seq.id})
+        self.assertDir(bwa2_index, "index", output_folder / "bwa-mem2_index.tar.gz")
+        self.assertFile(bwa2_index, "fasta", output_folder / "genome.fasta")
+        self.assertFile(
+            bwa2_index, "fastagz", output_folder / "genome.fasta.gz", compression="gzip"
+        )
+        self.assertFile(bwa2_index, "fai", output_folder / "genome.fasta.fai")
+        self.assertFields(bwa2_index, "species", "Dictyostelium discoideum")
+        self.assertFields(bwa2_index, "build", "dd-05-2009")
+
+        single_end_mem = self.run_process(
+            "alignment-bwa-mem2", {"genome": bwa2_index.id, "reads": reads.id}
+        )
+        self.assertFile(
+            single_end_mem, "stats", output_folder / "bwa_mem_reads_report.txt"
+        )
+
+        paired_end_mem = self.run_process(
+            "alignment-bwa-mem2", {"genome": bwa2_index.id, "reads": reads_paired.id}
+        )
+        self.assertFile(
+            paired_end_mem, "stats", output_folder / "bwa_mem_paired_reads_report.txt"
+        )
+        self.assertFile(
+            paired_end_mem,
+            "unmapped",
+            output_folder / "bwa_mem_unmapped_reads.fastq.gz",
+            compression="gzip",
+            sort=True,
+        )
+        self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
+        self.assertFields(paired_end_mem, "build", "dd-05-2009")
+        sample = Sample.objects.get(data=paired_end_mem)
+        self.assertEqual(
+            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
+        )
+
     @tag_process("hisat2-index", "alignment-hisat2")
     def test_hisat2(self):
         input_folder = Path("test_hisat2") / "input"

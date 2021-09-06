@@ -14,6 +14,10 @@ Unreleased
 Added
 -----
 - Add BWA-mem2 to the ``resolwebio/common`` Docker image
+- Add ``bwamem2-index`` process
+- Add ``bwamem2`` process
+- Add ``wgs-preprocess-bwa2`` process
+
 
 Changed
 -------
@@ -24,6 +28,8 @@ Changed
   ``workflow-wgs-gvcf`` workflow
 - Add aligned reads (BAM format) as an alternative input option in the
   ``wgs-preprocess`` process
+- Set the requirements for number of cores from 20 to 4 and memory from
+  16 GB to 32 GB in ``alignment-bwa-mem`` process
 
 Fixed
 -----
