@@ -17,6 +17,7 @@ Added
 - Add ``bwamem2-index`` process
 - Add ``bwamem2`` process
 - Add ``wgs-preprocess-bwa2`` process
+- Add ``upload-bwamem2-index`` process
 
 
 Changed
