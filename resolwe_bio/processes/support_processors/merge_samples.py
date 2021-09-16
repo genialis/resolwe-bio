@@ -1,218 +1,190 @@
 """Merge FASTQs."""
 from pathlib import Path
-from shutil import move
 
-from plumbum import TEE
-
-from resolwe.process import (
-    Cmd,
-    DataField,
-    FileField,
-    FileHtmlField,
-    ListField,
-    Process,
-    SchedulingClass,
-)
+from resolwe.process import Data, DataField, ListField, Process, SchedulingClass
 
 
-def run_fastqc(fastqs, output_dir):
-    """Run fastQC on given FASTQs.
+def get_label(data):
+    """Get relation partition label of data object."""
+    for relation in data.relations:
+        if relation.category == "Replicate":
+            label = next(
+                p.label for p in relation.partitions if p.entity_id == data.entity_id
+            )
 
-    :param list fastqs: List of fastqs
-    :param str output_dir: Output directory
+    if label:
+        return label
+    else:
+        return
 
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(exist_ok=True)
 
-    cmd = Cmd["fastqc"]
-    for fastq in fastqs:
-        cmd = cmd[fastq]
-    cmd = cmd["--extract"]
-    cmd = cmd[f"--outdir={str(output_path)}"]
-    _, _, stderr = cmd & TEE
+def create_symlinks(paths):
+    """Create symlinks with unique file names."""
+    container_paths = [f"{n}_{Path(path).name}" for n, path in enumerate(paths)]
+    for container_path, path in zip(container_paths, paths):
+        Path(container_path).symlink_to(path)
+    return container_paths
 
-    return stderr
+
+def group_paths(data_objects, second_pair=False):
+    """Group read paths grouped by relation labels."""
+    labeled_paths = {}
+    for data in data_objects:
+        label = get_label(data=data)
+        if second_pair:
+            read_paths = [fastq.path for fastq in data.output.fastq2]
+        else:
+            read_paths = [fastq.path for fastq in data.output.fastq]
+        if label in labeled_paths:
+            labeled_paths[label].extend(read_paths)
+        else:
+            labeled_paths[label] = read_paths
+    return labeled_paths.items()
 
 
 class MergeFastqSingle(Process):
-    """Merge single-end FASTQs into one sample."""
+    """Merge single-end FASTQs into one sample.
+
+    Samples are merged based on the defined replicate group relations
+    and then uploaded as separate samples.
+    """
 
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.1.1"
+    version = "2.0.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
-    entity = {
-        "type": "sample",
-        "descriptor_schema": "sample",
-        "always_create": True,
-    }
     requirements = {
         "expression-engine": "jinja",
         "executor": {
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
         },
+        "relations": [{"type": "group"}],
     }
-    data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
+    data_name = "Merge FASTQ (single-end)"
 
     class Input:
         """Input fields to process MergeFastqSingle."""
 
         reads = ListField(
             DataField(data_type="reads:fastq:single:"),
-            label="Reads data objects",
+            label="Select relations",
+            description="Define and select replicate relations.",
+            relation_type="group",
         )
-
-    class Output:
-        """Output fields to process MergeFastqSingle."""
-
-        fastq = ListField(FileField(), label="Reads file")
-        fastqc_url = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC",
-        )
-        fastqc_archive = ListField(FileField(), label="Download FastQC archive")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name = f"{Path(inputs.reads[0].output.fastq[0].path).name.replace('.fastq.gz', '')}_merged"
-        merged_fastq = f"{name}.fastq.gz"
-        with open(merged_fastq, "wb") as outfile:
-            for reads in inputs.reads:
-                for fastq in reads.output.fastq:
-                    with open(fastq.path, "rb") as infile:
-                        for line in infile:
-                            outfile.write(line)
 
-        outputs.fastq = [merged_fastq]
+        # Check if user has selected multiple read objects from the same sample
+        data_by_sample = {}
+        for data in inputs.reads:
+            if data.entity_id in data_by_sample:
+                self.warning(
+                    "There are multiple read objects for "
+                    f"{data.entity_name}. Using only the first one."
+                )
+                if int(data.id) < int(data_by_sample[data.entity_id].id):
+                    data_by_sample[data.entity_id] = data
+            else:
+                data_by_sample[data.entity_id] = data
 
-        print("Postprocessing FastQC...")
-        stderr = run_fastqc([merged_fastq], "./fastqc")
-        # FastQC writes both progress and errors to stderr and exits with code 0.
-        # Catch if file is empty, wrong format... (Failed to process) or
-        # if file path does not exist, file cannot be read (Skipping).
-        if "Failed to process" in stderr or "Skipping" in stderr:
-            self.error("Failed while processing with FastQC.")
+        reads = [*data_by_sample.values()]
+        labeled_reads = group_paths(data_objects=reads)
 
-        fastqc = f"{name}_fastqc.zip"
-        fastqc_path = Path("fastqc")
-        move(str(fastqc_path / fastqc), ".")
+        for label, paths in labeled_reads:
+            if label is None:
+                self.error(
+                    "Missing sample relation. Please make sure all objects have replicate relations defined."
+                )
+            symlinks = create_symlinks(paths=paths)
 
-        report_dir = fastqc_path / f"{name}_fastqc"
-        fastqc_url = [
-            {
-                "file": str(report_dir / "fastqc_report.html"),
-                "refs": [str(fastqc_path)],
-            }
-        ]
+            self.run_process(
+                slug="upload-fastq-single",
+                inputs={
+                    "src": symlinks,
+                    "merge_lanes": True,
+                },
+            )
 
-        outputs.fastqc_url = fastqc_url
-        outputs.fastqc_archive = [fastqc]
+            merged_objects = Data.filter(entity__name=symlinks[0])
+            # Sort by id and select the newest data object.
+            merged_objects.sort(key=lambda x: x.id)
+            merged_data = merged_objects[-1]
+            merged_data.name = label
+            merged_data.entity.name = label
 
 
 class MergeFastqPaired(Process):
-    """Merge paired-end FASTQs into one sample."""
+    """Merge paired-end FASTQs into one sample.
+
+    Samples are merged based on the defined replicate group relations
+    and then uploaded as separate samples.
+    """
 
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.1.1"
+    version = "2.0.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
-    entity = {
-        "type": "sample",
-        "descriptor_schema": "sample",
-        "always_create": True,
-    }
     requirements = {
         "expression-engine": "jinja",
         "executor": {
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
         },
+        "relations": [{"type": "group"}],
     }
-    data_name = '{{ reads|map("sample_name")|join(", ")|default("?") }}'
+    data_name = "Merge FASTQ (paired-end)"
 
     class Input:
         """Input fields to process MergeFastqPaired."""
 
         reads = ListField(
             DataField(data_type="reads:fastq:paired:"),
-            label="Reads data objects",
-        )
-
-    class Output:
-        """Output fields to process MergeFastqPaired."""
-
-        fastq = ListField(FileField(), label="Reads file (mate 1)")
-        fastq2 = ListField(FileField(), label="Reads file (mate 2)")
-        fastqc_url = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC (mate 1)",
-        )
-        fastqc_url2 = ListField(
-            FileHtmlField(),
-            label="Quality control with FastQC (mate 2)",
-        )
-        fastqc_archive = ListField(
-            FileField(), label="Download FastQC archive (mate 1)"
-        )
-        fastqc_archive2 = ListField(
-            FileField(), label="Download FastQC archive (mate 2)"
+            label="Select relations",
+            description="Define and select Replicate relations.",
+            relation_type="group",
         )
 
     def run(self, inputs, outputs):
         """Run the analysis."""
-        name_1 = f"{Path(inputs.reads[0].output.fastq[0].path).name.replace('.fastq.gz', '')}_merged"
-        name_2 = f"{Path(inputs.reads[0].output.fastq2[0].path).name.replace('.fastq.gz', '')}_merged"
-        merged_fastq_1 = f"{name_1}.fastq.gz"
-        merged_fastq_2 = f"{name_2}.fastq.gz"
-        with open(merged_fastq_1, "wb") as outfile_1, open(
-            merged_fastq_2, "wb"
-        ) as outfile_2:
-            for reads in inputs.reads:
-                for fastq_1, fastq_2 in zip(reads.output.fastq, reads.output.fastq2):
-                    with open(fastq_1.path, "rb") as infile:
-                        for line in infile:
-                            outfile_1.write(line)
-                    with open(fastq_2.path, "rb") as infile:
-                        for line in infile:
-                            outfile_2.write(line)
+        # Check if user has selected multiple read objects from the same sample
+        data_by_sample = {}
+        for data in inputs.reads:
+            if data.entity_id in data_by_sample:
+                self.warning(
+                    "There are multiple read objects for "
+                    f"{data.entity_name}. Using only the first one."
+                )
+                if int(data.id) < int(data_by_sample[data.entity_id].id):
+                    data_by_sample[data.entity_id] = data
+            else:
+                data_by_sample[data.entity_id] = data
 
-        outputs.fastq = [merged_fastq_1]
-        outputs.fastq2 = [merged_fastq_2]
+        reads = [*data_by_sample.values()]
+        labeled_reads = group_paths(data_objects=reads)
+        labeled_reads_2 = group_paths(data_objects=reads, second_pair=True)
+        for (label, paths), (_, paths_2) in zip(labeled_reads, labeled_reads_2):
+            if label is None:
+                self.error(
+                    "Missing sample relation. Please make sure all objects have replicate relations defined."
+                )
+            symlinks = create_symlinks(paths=paths)
+            symlinks_2 = create_symlinks(paths=paths_2)
+            self.run_process(
+                slug="upload-fastq-paired",
+                inputs={
+                    "src1": symlinks,
+                    "src2": symlinks_2,
+                    "merge_lanes": True,
+                },
+            )
 
-        fastqc_1 = [f"{name_1}_fastqc.zip"]
-        fastqc_2 = [f"{name_2}_fastqc.zip"]
-        fastqc_path = Path("fastqc")
-        report_dir_1 = fastqc_path / f"{name_1}_fastqc"
-        fastqc_url_1 = [
-            {
-                "file": str(report_dir_1 / "fastqc_report.html"),
-                "refs": [str(report_dir_1)],
-            }
-        ]
-        report_dir_2 = fastqc_path / f"{name_2}_fastqc"
-        fastqc_url_2 = [
-            {
-                "file": str(report_dir_2 / "fastqc_report.html"),
-                "refs": [str(report_dir_2)],
-            }
-        ]
-
-        print("Postprocessing FastQC...")
-        stderr = run_fastqc([merged_fastq_1, merged_fastq_2], "./fastqc")
-        # FastQC writes both progress and errors to stderr and exits with code 0.
-        # Catch if file is empty, wrong format... (Failed to process) or
-        # if file path does not exist, file cannot be read (Skipping).
-        if "Failed to process" in stderr or "Skipping" in stderr:
-            self.error("Failed while processing with FastQC.")
-
-        for fastqc_zip in Path("fastqc").glob("*_fastqc.zip"):
-            move(str(fastqc_zip), ".")
-
-        outputs.fastqc_url = fastqc_url_1
-        outputs.fastqc_url2 = fastqc_url_2
-        outputs.fastqc_archive = fastqc_1
-        outputs.fastqc_archive2 = fastqc_2
+            merged_objects = Data.filter(entity__name=symlinks[0])
+            # Sort by id and select the newest data object.
+            merged_objects.sort(key=lambda x: x.id)
+            merged_data = merged_objects[-1]
+            merged_data.name = label
+            merged_data.entity.name = label

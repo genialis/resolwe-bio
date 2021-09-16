@@ -7,6 +7,17 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
+  ``merge-fastq-paired`` processes to use sample relations for merging
+  FASTQ files
+
+
 ===================
 38.4.0 - 2021-09-14
 ===================
@@ -22,6 +33,9 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
+  ``merge-fastq-paired`` processes to use sample relations for merging
+  FASTQ files
 - Use ``resolwebio/common:2.9.0`` Docker image version in
   ``resolwebio/dnaseq`` Docker image
 - Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
