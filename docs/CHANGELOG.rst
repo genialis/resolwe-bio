@@ -11,11 +11,18 @@ This project adheres to `Semantic Versioning <http://semver.org/>`_.
 Unreleased
 ==========
 
+Added
+-----
+- Add ``gatk-refine-variants`` process
+
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
   ``merge-fastq-paired`` processes to use sample relations for merging
   FASTQ files
+
+Fixed
+-----
 
 
 ===================

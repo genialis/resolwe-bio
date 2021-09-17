@@ -1,4 +1,5 @@
 from os.path import join
+from pathlib import Path
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
@@ -379,3 +380,49 @@ class VariantCallingTestCase(BioProcessTestCase):
             },
         )
         self.assertFile(final_var_gatk, "annotation", "56GSID.gatk.finalvars.txt")
+
+    @tag_process("gatk-refine-variants")
+    def test_gatk_refinement(self):
+        input_folder = Path("variant_refinement") / "input"
+        output_folder = Path("variant_refinement") / "output"
+        with self.preparation_stage():
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": input_folder / "chrX_1_28000.fa.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            variants_main = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "snp.recalibrated_chrX_28000.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            vcf_pop = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "chrX_28000.renamed.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+        gatk_cgp = self.run_process(
+            "gatk-refine-variants",
+            {
+                "vcf": variants_main.id,
+                "ref_seq": ref_seq.id,
+                "vcf_pop": vcf_pop.id,
+            },
+        )
+        self.assertFile(
+            gatk_cgp,
+            "vcf",
+            output_folder / "variants.refined.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
