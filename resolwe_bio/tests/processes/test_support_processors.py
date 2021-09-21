@@ -1,7 +1,10 @@
 import os
 from pathlib import Path
 
+from guardian.shortcuts import assign_perm
+
 from resolwe.flow.models import Data, Process
+from resolwe.flow.models.entity import Relation, RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.models import Sample
@@ -10,6 +13,9 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class SupportProcessorTestCase(KBBioProcessTestCase):
+
+    fixtures = ["relationtypes.yaml"]
+
     @tag_process("bam-split")
     def test_bam_split(self):
         with self.preparation_stage():
@@ -1354,8 +1360,44 @@ re-save-file lane_attributes "${NAME}".txt
             )
             reads_paired_2 = self.prepare_paired_reads()
 
-        inputs = {"reads": [reads_single_1.id, reads_single_2.id]}
-        merged_1 = self.run_process("merge-fastq-single", inputs)
+            rel_type_group = RelationType.objects.get(name="group")
+
+            replicate_group = Relation.objects.create(
+                contributor=self.contributor,
+                collection=self.collection,
+                type=rel_type_group,
+                category="Replicate",
+            )
+            assign_perm("view_relation", self.contributor, replicate_group)
+
+            RelationPartition.objects.create(
+                relation=replicate_group,
+                entity=reads_single_1.entity,
+                label="single_sample",
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group,
+                entity=reads_single_2.entity,
+                label="single_sample",
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group,
+                entity=reads_paired_1.entity,
+                label="paired_sample",
+            )
+            RelationPartition.objects.create(
+                relation=replicate_group,
+                entity=reads_paired_2.entity,
+                label="paired_sample",
+            )
+
+        inputs = {"reads": [reads_single_1.pk, reads_single_2.pk]}
+        self.run_process("merge-fastq-single", inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        merged_1 = Data.objects.filter(process__slug="upload-fastq-single").last()
         self.assertFiles(
             merged_1,
             "fastq",
@@ -1363,8 +1405,13 @@ re-save-file lane_attributes "${NAME}".txt
             compression="gzip",
         )
 
-        inputs = {"reads": [reads_paired_1.id, reads_paired_2.id]}
-        merged_2 = self.run_process("merge-fastq-paired", inputs)
+        inputs = {"reads": [reads_paired_1.pk, reads_paired_2.pk]}
+        self.run_process("merge-fastq-paired", inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        merged_2 = Data.objects.filter(process__slug="upload-fastq-paired").last()
         self.assertFiles(
             merged_2,
             "fastq",

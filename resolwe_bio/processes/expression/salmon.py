@@ -66,7 +66,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.2.0"
+    version = "2.2.1"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

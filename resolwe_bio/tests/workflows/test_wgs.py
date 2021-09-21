@@ -135,6 +135,7 @@ class WgsWorkflowTestCase(BioProcessTestCase):
                     "intervals": intervals.id,
                 },
                 "trimming_options": {
+                    "enable_trimming": True,
                     "adapters": adapters.id,
                     "seed_mismatches": 2,
                     "simple_clip_threshold": 10,

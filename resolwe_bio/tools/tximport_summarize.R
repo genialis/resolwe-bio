@@ -39,4 +39,4 @@ rownames(counts) = NULL
 
 # Write to table
 write.table(tpm, file=args$outfile_abundance, sep="\t", quote=FALSE, row.names=FALSE)
-write.table(tpm, file=args$outfile_counts, sep="\t", quote=FALSE, row.names=FALSE)
+write.table(counts, file=args$outfile_counts, sep="\t", quote=FALSE, row.names=FALSE)

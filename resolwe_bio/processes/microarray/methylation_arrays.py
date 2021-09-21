@@ -1,6 +1,7 @@
 """Process methylation array data."""
+import gzip
+import shutil
 from pathlib import Path
-from shutil import copy2
 
 from plumbum import TEE
 
@@ -36,7 +37,7 @@ class MethylationArraySesame(ProcessBio):
     slug = "methylation-array-sesame"
     name = "Methylation analysis (SeSAMe)"
     process_type = "data:methylation:sesame"
-    version = "1.2.2"
+    version = "1.3.2"
     category = "Methylation arrays"
     data_name = 'SeSAMe array ({{ idat_file.red_channel.file|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -46,7 +47,7 @@ class MethylationArraySesame(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/methylation_arrays:1.0.0"
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/methylation_arrays:1.0.1"
             }
         },
         "resources": {
@@ -81,7 +82,16 @@ class MethylationArraySesame(ProcessBio):
 
         red = inputs.idat_file.output.red_channel.path
         green = inputs.idat_file.output.green_channel.path
-        [copy2(src=x, dst=dirdata.name) for x in [red, green]]
+        # Decompress the input IDAT files to the destination folder. This
+        # fixes an edge case where calling the sesame.R script using
+        # Plumbum was failing for some compressed IDAT inputs due to the
+        # file encoding issues
+        for idat in [red, green]:
+            with gzip.open(idat, "rb") as in_file:
+                with open(
+                    dirdata / Path(idat).name.rsplit(".", 1)[0], "wb"
+                ) as out_file:
+                    shutil.copyfileobj(in_file, out_file)
 
         platform = inputs.idat_file.output.platform
         manifest = f"{platform}.hg38.manifest"

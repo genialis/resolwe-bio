@@ -9,3 +9,4 @@ qorts
 r-packages
 samtools
 subread
+bwa-mem2

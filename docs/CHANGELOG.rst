@@ -1,9 +1,76 @@
+
 ##########
 Change Log
 ##########
 
 All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
+
+
+==========
+Unreleased
+==========
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
+  ``merge-fastq-paired`` processes to use sample relations for merging
+  FASTQ files
+
+
+===================
+38.4.0 - 2021-09-14
+===================
+
+Added
+-----
+- Add BWA-mem2 to the ``resolwebio/common`` Docker image
+- Add ``bwamem2-index`` process
+- Add ``bwamem2`` process
+- Add ``wgs-preprocess-bwa2`` process
+- Add ``upload-bwamem2-index`` process
+
+
+Changed
+-------
+- **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
+  ``merge-fastq-paired`` processes to use sample relations for merging
+  FASTQ files
+- Use ``resolwebio/common:2.9.0`` Docker image version in
+  ``resolwebio/dnaseq`` Docker image
+- Optimize CPU usage in process ``gatk-haplotypecaller-gvcf``
+- Make the read trimming step (trimmomatic) optional in the
+  ``workflow-wgs-gvcf`` workflow
+- Add aligned reads (BAM format) as an alternative input option in the
+  ``wgs-preprocess`` process
+- Set the requirements for number of cores from 20 to 4 and memory from
+  16 GB to 32 GB in ``alignment-bwa-mem`` process
+
+Fixed
+-----
+- Fix an edge case in ``methylation-array-sesame`` process where calling
+  the ``sesame.R`` script using Plumbum was failing for some compressed
+  IDAT inputs due to the file encoding issues
+
+
+===================
+38.3.0 - 2021-08-16
+===================
+
+Changed
+-------
+- Replace Bedtools with Samtools for BAM to FASTQ file format conversion
+  in ``bamtofastq-paired`` process
+- Bump docker image version in ``methylation-array-sesame`` process
+- Add ``qin`` and ``ignorebadquality`` options to ``bbduk-single`` and
+  ``bbduk-paired`` processes
+
+Fixed
+-----
+- Use clean file name for gene sets from differential expressions
+- Fix saving estimated counts output in ``tximport_summarize.R`` script
+- Add ``config.yaml`` to methylation_arrays Dockerfile
+- Use raw SigSet for performing QC in the SeSAMe pipeline
 
 
 ===================

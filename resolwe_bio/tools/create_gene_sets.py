@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Create gene set table."""
 import argparse
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -39,10 +40,12 @@ def save_genes(data_frame, outfname):
 
 def generate_name(analysis_name, tool_name, logfc=1, fdr=0.05):
     """Generate name for gene sets."""
-    if " " in analysis_name:
-        analysis_name = analysis_name.replace(" ", "_")
-    if " " in tool_name:
-        tool_name = tool_name.replace(" ", "_")
+    analysis_name = analysis_name.strip().replace(" ", "_")
+    analysis_name = re.sub(r"[^-\w.]", "", analysis_name)
+
+    tool_name = tool_name.strip().replace(" ", "_")
+    tool_name = re.sub(r"[^-\w.]", "", tool_name)
+
     return f"{analysis_name}_{tool_name}_logFC{logfc}_FDR{fdr}"
 
 

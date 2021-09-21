@@ -70,7 +70,7 @@ betas <- openSesame(x = idat, platform = platform, what = "beta", BPPARAM = Mult
 # Coerce QC data into a data frame and write to file.
 message("Performing QC on the data.")
 qc.attr <- c("sample_name", "mean_beta_cg", "frac_meth_cg", "frac_unmeth_cg", "GCT", "ethnicity", "sex", "age")
-qc.info <- sesameQC(sset = sigset)
+qc.info <- sesameQC(sset = idat)
 qc.info <- as.data.frame(qc.info)
 qc.info$sample_name <- basename(root)
 qc.data <- qc.info[, qc.attr]

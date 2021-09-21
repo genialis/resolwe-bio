@@ -18,26 +18,26 @@ from resolwe.process import (
 )
 
 
-class WgsPreprocess(Process):
+class WgsPreprocess_BWA2(Process):
     """Prepare analysis ready BAM file.
 
     This process follows GATK best practices procedure to prepare
     analysis-ready BAM file. The steps included are read alignment using
-    BWA MEM, marking of duplicates (Picard MarkDuplicates), BAM sorting,
+    BWA MEM2, marking of duplicates (Picard MarkDuplicates), BAM sorting,
     read-group assignment and base quality score recalibration (BQSR).
     """
 
-    slug = "wgs-preprocess"
-    name = "WGS preprocess data"
-    process_type = "data:alignment:bam:wgs"
-    version = "1.2.2"
+    slug = "wgs-preprocess-bwa2"
+    name = "WGS preprocess data with bwa-mem2"
+    process_type = "data:alignment:bam:wgsbwa2"
+    version = "1.0.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"}
         },
         "resources": {
             "cores": 4,
@@ -48,7 +48,7 @@ class WgsPreprocess(Process):
     data_name = '{{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }}'
 
     class Input:
-        """Input fields to process WgsPreprocess."""
+        """Input fields to process WgsPreprocess_BWA2."""
 
         reads = DataField(
             "reads:fastq:paired", label="Input sample (FASTQ)", required=False
@@ -57,7 +57,7 @@ class WgsPreprocess(Process):
             "alignment:bam", label="Input sample (BAM)", required=False
         )
         ref_seq = DataField("seq:nucleotide", label="Reference sequence")
-        bwa_index = DataField("index:bwa", label="BWA genome index")
+        bwa_index = DataField("index:bwamem2", label="BWA-MEM2 genome index")
         known_sites = ListField(
             DataField("variants:vcf"), label="Known sites of variation (VCF)"
         )
@@ -84,7 +84,7 @@ class WgsPreprocess(Process):
         )
 
     class Output:
-        """Output fields to process WgsPreprocess."""
+        """Output fields to process WgsPreprocess_BWA2."""
 
         bam = FileField(label="Analysis ready BAM file")
         bai = FileField(label="BAM file index")
@@ -134,7 +134,7 @@ class WgsPreprocess(Process):
 
             self.progress(0.05)
 
-            # Align reads with BWA MEM
+            # Align reads with BWA MEM2
             bwa_inputs = [
                 "-K 100000000",
                 "-v 3",
@@ -144,13 +144,13 @@ class WgsPreprocess(Process):
                 "input_reads_mate1.fastq.gz",
                 "input_reads_mate2.fastq.gz",
             ]
-            (Cmd["bwa"]["mem"][bwa_inputs] > aligned_sam)()
+            (Cmd["bwa-mem2"]["mem"][bwa_inputs] > aligned_sam)()
             self.progress(0.2)
 
         else:
             if inputs.aligned_reads.output.species != inputs.bwa_index.output.species:
                 self.error(
-                    "Species information for the input BAM file doesn't match the BWA index species information."
+                    "Species information for the input BAM file doesn't match the BWA-MEM2 index species information."
                 )
 
             # Define output file names
@@ -188,7 +188,7 @@ class WgsPreprocess(Process):
             (
                 Cmd["samtools"]["collate"][collate_inputs]
                 | Cmd["samtools"]["fastq"][fastq_inputs]
-                | Cmd["bwa"]["mem"][bwa_inputs]
+                | Cmd["bwa-mem2"]["mem"][bwa_inputs]
                 > aligned_sam
             )()
 
