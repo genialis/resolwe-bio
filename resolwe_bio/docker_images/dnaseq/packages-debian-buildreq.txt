@@ -5,6 +5,9 @@ libcurl4-openssl-dev
 zlib1g-dev
 libbz2-dev
 liblzma-dev
+libpng-dev
+git
+libmysqlclient-dev
 
 # Required for Bioconductor packages
 liblapack-dev

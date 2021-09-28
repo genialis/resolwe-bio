@@ -4,3 +4,5 @@ lofreq
 primerclip
 r-packages
 bamclipper
+perl-packages
+ensembl-vep

@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add ``gatk-refine-variants`` process
+- Add ensembl-vep to the ``resolwebio/dnaseq:6.2.0`` Docker image
 
 Changed
 -------
