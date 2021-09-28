@@ -99,7 +99,8 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         )
         type_error = [
             "No supported series types found. Got Expression profiling by RT-PCR but only Expression profiling by "
-            "high throughput sequencing and Expression profiling by array are supported."
+            "high throughput sequencing, Expression profiling by array, Genome binding/occupancy profiling by "
+            "high throughput sequencing are supported."
         ]
         self.assertEqual(rtpcr.process_error, type_error)
 
@@ -150,3 +151,66 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             "table",
             str(outputs / "GSE172293_metadata.tsv"),
         )
+
+    @with_resolwe_host
+    @tag_process("geo-import")
+    def test_geo_chipseq(self):
+        base = Path("geo_import")
+        outputs = base / "outputs"
+
+        dss_inputs = {
+            "gse_accession": "GSE176232",
+            "advanced": {"max_spot_id": 1, "prefetch": False},
+        }
+
+        self.run_process("geo-import", dss_inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        sra = Data.objects.filter(process__slug="import-sra-single").last()
+        self.assertFiles(
+            sra,
+            "fastq",
+            [str(outputs / "SRR14743655.fastq.gz")],
+            compression="gzip",
+        )
+        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        self.assertFile(
+            metadata,
+            "table",
+            str(outputs / "GSE176232_metadata.tsv"),
+        )
+        del sra.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
+        self.assertFields(
+            sra,
+            "fastqc_url",
+            [
+                {
+                    "file": "fastqc/SRR14743655_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/SRR14743655_fastqc"],
+                },
+            ],
+        )
+        descriptor = {
+            "general": {
+                "species": "Homo sapiens",
+                "annotator": "Matthew,T,Weirauch",
+                "cell_line": "GM12878 (B-Lymphocyte) LCL",
+                "description": "ChIP_EBNA2_GM12878_rep2-E00457",
+                "biosample_type": "cell_line",
+                "growth_protocol": "Cells were cultured in 10% FBS supplemented RPMI 1640 medium for 2 weeks.",
+                "biosample_source": "GM12878 (B-Lymphocyte) LCL",
+                "treatment_protocol": "",
+            },
+            "experiment": {
+                "molecule": "genomic_dna",
+                "assay_type": "chip-seq",
+                "extract_protocol": (
+                    "Cells were crosslinked and nuclei were sonicated as described previously (Lu et al. 2015). "
+                    "Libraries were prepared via ChIPmentation (Schmidl et al. 2015)."
+                ),
+            },
+        }
+
+        self.assertEqual(sra.entity.descriptor, descriptor)

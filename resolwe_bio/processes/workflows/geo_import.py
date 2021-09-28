@@ -84,6 +84,8 @@ def construct_descriptor(metadata, sample_name):
     ]
     assay_types = [
         "rna-seq",
+        "chip-seq",
+        "atac-seq",
         "other",
     ]
     platform_types = [
@@ -150,9 +152,13 @@ class GeoImport(Process):
     WARNING: Additional costs for storage and processing may be incurred
     if a very large data set is selected.
 
-    RNA-seq and expression microarray datasets can be uploaded. For
-    RNA-Seq data sets this runs the SRA import process for each
-    experiment (SRX) from the selected RNA-Seq GEO Series.
+    RNA-seq ChIP-Seq, ATAC-Seq and expression microarray datasets can be
+    uploaded.
+
+    For RNA-Seq data sets this runs the SRA import process for each
+    experiment (SRX) from the selected RNA-Seq GEO Series. The same
+    procedure is followed for ChIP-Seq and ATAC-Seq data sets.
+
     If GSE contains microarray data, it downloads individual samples and
     uploads them as microarray expression objects. Probe IDs can be
     mapped to the Ensembl IDs if the corresponding GPL platform is
@@ -178,12 +184,12 @@ class GeoImport(Process):
         },
         "resources": {
             "cores": 1,
-            "memory": 8192,
+            "memory": 16384,
             "network": True,
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.0.4"
+    version = "2.1.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -272,9 +278,13 @@ class GeoImport(Process):
 
         sample_info = {}
         for name, gsm in gse.gsms.items():
-            sample_found = re.findall(
-                r"(SRX\d{6,8})", str(gse.gsms[name].relations["SRA"])
-            )
+            if "SRA" in gse.gsms[name].relations:
+                sample_found = re.findall(
+                    r"(SRX\d{6,8})", str(gse.gsms[name].relations["SRA"])
+                )
+            else:
+                sample_found = None
+
             if sample_found:
                 for srx_id in sample_found:
                     sample_info[srx_id] = name
@@ -310,8 +320,9 @@ class GeoImport(Process):
                     sra_data = Data.filter(entity__name=entity_name)[-1]
                     sra_data.entity.name = gsm.metadata["title"][0]
             else:
-                self.error(
-                    f"Matching SRX accession number for {name} was not found in GEO metadata."
+                self.warning(
+                    f"Matching SRX accession number for {gsm.metadata['title'][0]}({name} "
+                    "was not found in GEO metadata."
                 )
 
         return pd.DataFrame(
@@ -396,6 +407,7 @@ class GeoImport(Process):
         supported = [
             "Expression profiling by high throughput sequencing",
             "Expression profiling by array",
+            "Genome binding/occupancy profiling by high throughput sequencing",
         ]
 
         gse_type = gse.get_type() if type(gse.get_type()) is list else [gse.get_type()]
@@ -410,7 +422,7 @@ class GeoImport(Process):
                 super_series = [gse]
         else:
             self.error(
-                f"No supported series types found. Got {', '.join(gse_type)} but only {' and '.join(supported)} "
+                f"No supported series types found. Got {', '.join(gse_type)} but only {', '.join(supported)} "
                 "are supported."
             )
 
@@ -422,6 +434,12 @@ class GeoImport(Process):
                 metadata_tables[series.name] = create_metadata(series, run_info)
             elif series_type == "Expression profiling by array":
                 run_info = self.upload_ma_gse(inputs, series)
+                metadata_tables[series.name] = create_metadata(series, run_info)
+            elif (
+                series_type
+                == "Genome binding/occupancy profiling by high throughput sequencing"
+            ):
+                run_info = self.upload_rna_gse(inputs, series)
                 metadata_tables[series.name] = create_metadata(series, run_info)
             else:
                 self.warning(

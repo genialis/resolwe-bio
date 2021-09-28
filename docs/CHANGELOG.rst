@@ -20,6 +20,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Update ``merge-fastq-single`` and
   ``merge-fastq-paired`` processes to use sample relations for merging
   FASTQ files
+- Support ChIP-Seq and ATAC-Seq data sets in ``geo-import`` process
 
 Fixed
 -----
