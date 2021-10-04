@@ -4,7 +4,7 @@ from pathlib import Path
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
-from resolwe_bio.utils.filter import filter_vcf_variable
+from resolwe_bio.utils.filter import filter_html, filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
@@ -425,4 +425,54 @@ class VariantCallingTestCase(BioProcessTestCase):
             output_folder / "variants.refined.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
+        )
+
+    @tag_process("ensembl-vep")
+    def test_ensembl_vep(self):
+        input_folder = Path("ensembl-vep") / "input"
+        output_folder = Path("ensembl-vep") / "output"
+        with self.preparation_stage():
+            vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "snp.recalibrated_chrX_28000.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            cache = self.run_process(
+                "upload-vep-cache",
+                {
+                    "cache_file": input_folder / "cache_homo_sapiens_X.tar.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                    "release": "103",
+                },
+            )
+        vep = self.run_process(
+            "ensembl-vep",
+            {
+                "vcf": vcf.id,
+                "cache": cache.id,
+            },
+        )
+        self.assertFile(
+            vep,
+            "vcf",
+            output_folder / "snp_annotated.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+        self.assertFile(vep, "tbi", output_folder / "snp_annotated.vcf.gz.tbi")
+        self.assertFile(
+            vep,
+            "summary",
+            output_folder / "snp_annotated.vcf_summary.html",
+            file_filter=filter_html,
+        )
+        self.assertEqual(
+            vep.process_warning,
+            [
+                "The current version of Ensembl-VEP is 104. It is recommended that cache version is also 104"
+            ],
         )

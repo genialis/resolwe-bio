@@ -887,3 +887,23 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             }
         )
         self.run_process("upload-idat", inputs, Data.STATUS_ERROR)
+
+    @tag_process("upload-vep-cache")
+    def test_upload_vep_cache(self):
+        input_folder = Path("ensembl-vep") / "input"
+        output_folder = Path("ensembl-vep") / "output"
+        vep_cache = self.run_process(
+            "upload-vep-cache",
+            {
+                "cache_file": input_folder / "cache_homo_sapiens_X.tar.gz",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+                "release": "104",
+            },
+        )
+        self.assertDir(
+            vep_cache, "cache", output_folder / "cache_homo_sapiens_X.tar.gz"
+        )
+        self.assertFields(vep_cache, "species", "Homo sapiens")
+        self.assertFields(vep_cache, "build", "GRCh38")
+        self.assertFields(vep_cache, "release", "104")

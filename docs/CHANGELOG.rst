@@ -15,6 +15,8 @@ Added
 -----
 - Add ``gatk-refine-variants`` process
 - Add ensembl-vep to the ``resolwebio/dnaseq:6.2.0`` Docker image
+- Add ``upload-vep-cache`` process
+- Add ``ensembl-vep`` process
 
 Changed
 -------
