@@ -200,7 +200,7 @@ class featureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.0.0"
+    version = "5.0.1"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -678,7 +678,7 @@ class featureCounts(ProcessBio):
             if paired_end:
                 reads_input = ["-1", "mate1.fastq", "-2", "mate2.fastq"]
             else:
-                reads_input = ["-s", "reads.fastq"]
+                reads_input = ["-0", "reads.fastq"]
 
             fastq_args = [
                 f"-@ {self.requirements.resources.cores}",

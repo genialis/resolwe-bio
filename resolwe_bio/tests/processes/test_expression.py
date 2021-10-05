@@ -812,7 +812,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
-            aligned_reads = self.run_process(
+            aligned_reads_paired = self.run_process(
                 "upload-bam",
                 {
                     "src": "feature counts_detect_strandedness.bam",
@@ -821,17 +821,42 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
-        expression = self.run_process(
+            aligned_reads_single = self.run_process(
+                "upload-bam",
+                {
+                    "src": "feature counts_detect_strandedness_single.bam",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+
+        expression_paired = self.run_process(
             "feature_counts",
             {
-                "aligned_reads": aligned_reads.id,
+                "aligned_reads": aligned_reads_paired.id,
                 "assay_type": "auto",
                 "cdna_index": salmon_index.id,
                 "annotation": annotation.id,
             },
         )
         self.assertFile(
-            expression,
+            expression_paired,
+            "exp",
+            outputs / "auto_detect_strand_tpm.tab.gz",
+            compression="gzip",
+        )
+
+        expression_single = self.run_process(
+            "feature_counts",
+            {
+                "aligned_reads": aligned_reads_single.id,
+                "assay_type": "auto",
+                "cdna_index": salmon_index.id,
+                "annotation": annotation.id,
+            },
+        )
+        self.assertFile(
+            expression_single,
             "exp",
             outputs / "auto_detect_strand_tpm.tab.gz",
             compression="gzip",
