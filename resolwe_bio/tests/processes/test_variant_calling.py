@@ -476,3 +476,29 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "The current version of Ensembl-VEP is 104. It is recommended that cache version is also 104"
             ],
         )
+
+    @tag_process("variants-to-table")
+    def test_variants_to_table(self):
+        input_folder = Path("variants_to_table") / "input"
+        output_folder = Path("variants_to_table") / "output"
+        with self.preparation_stage():
+            vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "refined_variants.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+        variants = self.run_process(
+            "variants-to-table",
+            {
+                "vcf": vcf.id,
+                "vcf_fields": ["CHROM", "POS", "ALT"],
+                "advanced_options": {
+                    "gf_fields": ["GT", "GQ"],
+                    "split_alleles": False,
+                },
+            },
+        )
+        self.assertFile(variants, "tsv", output_folder / "variants_to_table.tsv")

@@ -17,6 +17,7 @@ Added
 - Add ensembl-vep to the ``resolwebio/dnaseq:6.2.0`` Docker image
 - Add ``upload-vep-cache`` process
 - Add ``ensembl-vep`` process
+- Add ``variants-to-table`` process
 
 Changed
 -------
