@@ -200,7 +200,7 @@ class featureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.0.1"
+    version = "5.0.2"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -666,7 +666,7 @@ class featureCounts(ProcessBio):
                         f"-@ {self.requirements.resources.cores}",
                         "-h",
                         f"-s {sampling_rate}",
-                        strand_check_bam,
+                        bam_file,
                     ]
                     | Cmd["samtools"]["sort"][
                         f"-@ {self.requirements.resources.cores}", "-n", "-"
