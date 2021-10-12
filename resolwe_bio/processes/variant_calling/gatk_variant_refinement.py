@@ -15,15 +15,25 @@ from resolwe.process import (
 
 
 class GatkGenotypeRefinement(Process):
-    """Run GATK Genotype Refinement."""
+    """Run GATK Genotype Refinement.
+
+    The goal of the Genotype Refinement workflow is to use
+    additional data to improve the accuracy of genotype calls
+    and to filter genotype calls that are not reliable enough
+    for downstream analysis. In this sense it serves as an
+    optional extension of the variant calling workflow, intended
+    for researchers whose work requires high-quality identification
+    of individual genotypes.
+    For additional information, please see
+    [manual page](https://gatk.broadinstitute.org/hc/en-us/articles/360035531432-Genotype-Refinement-workflow-for-germline-short-variants)
+    """
 
     slug = "gatk-refine-variants"
     name = "GATK refine variants"
     category = "GATK"
-    process_type = "data:variants:variants:refinevariants"
-    version = "1.0.0"
+    process_type = "data:variants:vcf:refinevariants"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
-    entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
