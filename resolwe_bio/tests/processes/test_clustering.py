@@ -1,7 +1,5 @@
 from pathlib import Path
 
-from guardian.shortcuts import assign_perm
-
 from resolwe.flow.models import Data, Entity, Relation, RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
 
@@ -1000,7 +998,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 category="time-series",
                 unit=Relation.UNIT_HOUR,
             )
-            assign_perm("view_relation", self.contributor, relation)
+            relation.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=relation, entity=exp_1.entity, label="4h", position=4
@@ -1357,7 +1355,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 category="time-series",
                 unit=Relation.UNIT_HOUR,
             )
-            assign_perm("view_relation", self.contributor, relation)
+            relation.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=relation, entity=exp_1.entity, label="4h", position=4

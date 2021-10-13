@@ -19,6 +19,7 @@ settings.configure(
         'django.contrib.auth',
         'django.contrib.contenttypes',
         'guardian',
+        'resolwe.permissions',
         'resolwe.flow',
         'resolwe.storage',
         'resolwe_bio',

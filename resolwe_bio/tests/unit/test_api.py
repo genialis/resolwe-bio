@@ -13,9 +13,15 @@ class BaseViewSetFiltersTest(TestCase):
         self, query_args, expected, expected_status_code=status.HTTP_200_OK
     ):
         """Check that query_args filter to expected queryset."""
+
+        print("query_args", query_args)
+
         request = factory.get("/", query_args, format="json")
         force_authenticate(request, self.admin)
         response = self.viewset(request)
+
+        print(response)
+        print(response.data)
 
         if status.is_success(response.status_code):
             self.assertEqual(len(response.data), len(expected))
@@ -24,6 +30,7 @@ class BaseViewSetFiltersTest(TestCase):
                 [item["id"] for item in response.data],
             )
         else:
+            print("Failed" * 100)
             self.assertEqual(response.status_code, expected_status_code)
             response.render()
             return response

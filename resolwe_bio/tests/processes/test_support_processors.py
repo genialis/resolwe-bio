@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
 
-from guardian.shortcuts import assign_perm
-
 from resolwe.flow.models import Data, Process
 from resolwe.flow.models.entity import Relation, RelationPartition, RelationType
 from resolwe.test import tag_process, with_resolwe_host
@@ -1368,7 +1366,7 @@ re-save-file lane_attributes "${NAME}".txt
                 type=rel_type_group,
                 category="Replicate",
             )
-            assign_perm("view_relation", self.contributor, replicate_group)
+            replicate_group.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=replicate_group,
