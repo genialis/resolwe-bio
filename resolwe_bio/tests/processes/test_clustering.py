@@ -909,6 +909,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 source="dictybase",
                 species="Dictyostelium discoideum",
             )
+
             exp_2 = self.prepare_expression(
                 f_exp=str(inputs / "discoideum_4h_2.txt.gz"),
                 name="expression 2",
@@ -993,12 +994,11 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             rel_type_series = RelationType.objects.get(name="series")
             relation = Relation.objects.create(
                 contributor=self.contributor,
-                collection=self.collection,
                 type=rel_type_series,
                 category="time-series",
                 unit=Relation.UNIT_HOUR,
+                collection=self.collection,
             )
-            relation.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=relation, entity=exp_1.entity, label="4h", position=4
@@ -1355,7 +1355,6 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 category="time-series",
                 unit=Relation.UNIT_HOUR,
             )
-            relation.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=relation, entity=exp_1.entity, label="4h", position=4

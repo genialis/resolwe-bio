@@ -1349,6 +1349,7 @@ re-save-file lane_attributes "${NAME}".txt
 
     @tag_process("merge-fastq-single", "merge-fastq-paired")
     def test_merge_fastq(self):
+        self.collection.set_permission("view", self.contributor)
         with self.preparation_stage():
             reads_single_1 = self.prepare_reads()
             reads_single_2 = self.prepare_reads()
@@ -1366,7 +1367,6 @@ re-save-file lane_attributes "${NAME}".txt
                 type=rel_type_group,
                 category="Replicate",
             )
-            replicate_group.set_permission("view_relation", self.contributor)
 
             RelationPartition.objects.create(
                 relation=replicate_group,
