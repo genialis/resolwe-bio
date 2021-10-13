@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 29.x
 - Add ``qin`` and ``ignorebadquality`` BBduk options to workflows
   ``workflow-bbduk-salmon-qc-single``,
   ``workflow-bbduk-salmon-qc-paired``,
@@ -25,6 +26,7 @@ Changed
   ``workflow-bbduk-star-fc-quant-paired``,
   ``workflow-bbduk-star-htseq``,
   ``workflow-bbduk-star-htseq-paired``
+
 
 Fixed
 -----

@@ -13,6 +13,7 @@ class BaseViewSetFiltersTest(TestCase):
         self, query_args, expected, expected_status_code=status.HTTP_200_OK
     ):
         """Check that query_args filter to expected queryset."""
+
         request = factory.get("/", query_args, format="json")
         force_authenticate(request, self.admin)
         response = self.viewset(request)

@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test import LiveServerTestCase
 
+from resolwe.flow.models import Collection
 from resolwe.test import ProcessTestCase
 
 from resolwe_bio.models import Sample
@@ -179,8 +180,12 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
     }
 
     def setUp(self):
-        """Set up test gene information knowledge base."""
+        """Set up test gene information knowledge base, create collection."""
         super().setUp()
+
+        self.collection = Collection.objects.create(
+            name="Test collection", contributor=self.admin
+        )
 
         call_command(
             "insert_features", os.path.join(TEST_FILES_DIR, "features_gsea.tab.zip")
@@ -188,3 +193,7 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
         call_command(
             "insert_mappings", os.path.join(TEST_FILES_DIR, "mappings_gsea.tab.zip")
         )
+
+    def run_process(self, *args, **kwargs):
+        """Run processes in collection."""
+        return super().run_process(*args, **kwargs, collection=self.collection)
