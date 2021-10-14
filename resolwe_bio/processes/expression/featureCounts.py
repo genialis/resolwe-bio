@@ -200,7 +200,7 @@ class featureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.0.2"
+    version = "5.0.3"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -580,7 +580,7 @@ class featureCounts(ProcessBio):
             required=False,
             description="Read assignment results for each read (or fragment if paired end).",
         )
-        read_assignments = FileField(
+        strandedness_report = FileField(
             label="Strandedness report file",
             required=False,
         )
@@ -674,19 +674,21 @@ class featureCounts(ProcessBio):
                     > strand_check_bam
                 )()
 
-            # prepare reads input
+            # Consider only proper paired-end reads for strandedness detection (-0, -s to /dev/null).
+            # Failure to do so will result in improper strandedness detection, which
+            # will directly impact expressions from featureCounts.
+            fastq_args = [f"-@ {self.requirements.resources.cores}", "-N"]
             if paired_end:
                 reads_input = ["-1", "mate1.fastq", "-2", "mate2.fastq"]
+                fastq_args.extend(["-0", "/dev/null", "-s", "/dev/null"])
             else:
                 reads_input = ["-0", "reads.fastq"]
 
-            fastq_args = [
-                f"-@ {self.requirements.resources.cores}",
-                "-N",
-                reads_input,
-                strand_check_bam,
-            ]
-            return_code, _, _ = Cmd["samtools"]["fastq"][fastq_args] & TEE(retcode=None)
+            fastq_args.extend(reads_input)
+
+            return_code, _, _ = Cmd["samtools"]["fastq"][fastq_args][
+                strand_check_bam
+            ] & TEE(retcode=None)
             if return_code:
                 self.error("Samtools fastq command failed.")
 
@@ -712,6 +714,7 @@ class featureCounts(ProcessBio):
 
             # Extract the strandedness code from the JSON report produced by the Salmon tool
             lib_type_report = f"{salmon_out_folder}/lib_format_counts.json"
+            outputs.strandedness_report = lib_type_report
             strand_code = json.load(open(lib_type_report)).get("expected_format", "")
 
             if strand_code:
