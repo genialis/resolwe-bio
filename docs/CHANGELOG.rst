@@ -7,6 +7,29 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+
+Changed
+-------
+- Add ``qin`` and ``ignorebadquality`` BBduk options to workflows
+  ``workflow-bbduk-salmon-qc-single``,
+  ``workflow-bbduk-salmon-qc-paired``,
+  ``workflow-bbduk-star-featurecounts-qc-single``,
+  ``workflow-bbduk-star-featurecounts-qc-paired``,
+  ``workflow-bbduk-star-fc-quant-single``,
+  ``workflow-bbduk-star-fc-quant-paired``,
+  ``workflow-bbduk-star-htseq``,
+  ``workflow-bbduk-star-htseq-paired``
+
+Fixed
+-----
+
+
 ===================
 39.0.0 - 2021-10-19
 ===================
