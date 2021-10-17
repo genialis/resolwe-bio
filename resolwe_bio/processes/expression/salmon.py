@@ -1,4 +1,6 @@
 """Salmon Quant."""
+import gzip
+import io
 import json
 import os
 
@@ -15,10 +17,11 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     JsonField,
-    Process,
     SchedulingClass,
     StringField,
 )
+
+from resolwe_bio.process.runtime import ProcessBio
 
 
 def parse_transcript_exp(infile, outfile):
@@ -43,7 +46,90 @@ def parse_transcript_exp(infile, outfile):
     )
 
 
-class SalmonQuant(Process):
+def expression_to_storage(exp_input, exp_output):
+    """Convert expressions file to JSON format."""
+
+    def isfloat(value):
+        """Check if value is float."""
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+    with io.TextIOWrapper(io.BufferedReader(gzip.open(exp_input))) as f:
+        # Split lines by tabs
+        # Ignore lines without a number in second column
+        # Build a dictionary of gene-expression pairs
+        exp = {
+            "genes": {
+                gene_exp[0]: float(gene_exp[1])
+                for gene_exp in (l.split("\t") for l in f)
+                if len(gene_exp) == 2 and isfloat(gene_exp[1])
+            }
+        }
+
+    with open(file=exp_output, mode="wt") as f:
+        json.dump(exp, f)
+
+    return exp_output
+
+
+def rename_cols(infile, outfile, abundance_unit):
+    """Rename columns in expression file."""
+    exp = pd.read_csv(
+        infile,
+        sep="\t",
+        skip_blank_lines=True,
+        usecols=["Gene", "Expression"],
+        index_col="Gene",
+        dtype={
+            "Gene": str,
+            "Expression": float,
+        },
+        squeeze=True,
+    )
+    return exp.to_csv(
+        outfile,
+        index_label="FEATURE_ID",
+        header=[abundance_unit],
+        sep="\t",
+    )
+
+
+def prepare_expression_set(infile, abundance_unit, feature_dict, outfile_name):
+    """Prepare expression set output data."""
+    exp = pd.read_csv(infile, sep="\t", float_precision="round_trip")
+    exp["FEATURE_ID"] = exp["FEATURE_ID"].astype("str")
+    exp["GENE_SYMBOL"] = exp["FEATURE_ID"].map(feature_dict)
+    input_features = exp["FEATURE_ID"].tolist()
+    # Check if all of the input feature IDs could be mapped to the gene symbols
+    if not all(f_id in feature_dict for f_id in input_features):
+        print(
+            f"{sum(exp.isnull().values.ravel())} feature(s) "
+            f"could not be mapped to the associated feature symbols."
+        )
+    columns = ["FEATURE_ID", "GENE_SYMBOL", abundance_unit]
+    exp_set = exp[columns]
+    # Replace NaN values with empty string
+    exp_set.fillna("", inplace=True)
+
+    # Write to file
+    exp_set.to_csv(
+        outfile_name + ".txt.gz",
+        header=True,
+        index=False,
+        sep="\t",
+        compression="gzip",
+    )
+
+    # Write to JSON
+    df_dict = exp_set.set_index("FEATURE_ID").to_dict(orient="index")
+    with open(outfile_name + ".json", "w") as f:
+        json.dump({"genes": df_dict}, f, allow_nan=False)
+
+
+class SalmonQuant(ProcessBio):
     """Perform mapping-based estimation of transcript abundance from RNA-seq reads.
 
     Final abundance estimates are summarized to the gene-level using
@@ -66,7 +152,7 @@ class SalmonQuant(Process):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.2.1"
+    version = "2.3.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -363,26 +449,38 @@ class SalmonQuant(Process):
         (Cmd["gzip"]["-c", counts] > counts_gz)()
 
         # Save the abundance estimates to JSON storage
-        Cmd["expression2storage.py"]("--output", "json.txt", reads_name + output_suffix)
-
-        # Prepare expression set file with feature_id -> gene_id mappings
-        exp_set_args = [
-            "--expressions",
-            reads_name + output_suffix,
-            "--source_db",
-            inputs.salmon_index.output.source,
-            "--species",
-            inputs.salmon_index.output.species,
-            "--output_name",
-            reads_name + "_expressions",
-            "--expressions_type",
-            abundance_unit,
-        ]
-        return_code, _, _ = Cmd["create_expression_set.py"][exp_set_args] & TEE(
-            retcode=None
+        json_output = "json.txt"
+        expression_to_storage(
+            exp_input=(reads_name + output_suffix), exp_output=json_output
         )
-        if return_code:
-            self.error("Error while preparing the expression set file.")
+
+        # Rename columns of the expression file
+        reads_name_renamed = f"{reads_name}_renamed"
+        rename_cols(
+            infile=reads_name, outfile=reads_name_renamed, abundance_unit=abundance_unit
+        )
+
+        # Prepare the expression set outputs
+        feature_ids = pd.read_csv(
+            reads_name_renamed, sep="\t", index_col="FEATURE_ID"
+        ).index.tolist()
+
+        feature_filters = {
+            "source": inputs.annotation.output.source,
+            "species": inputs.annotation.output.species,
+            "feature_id__in": feature_ids,
+        }
+
+        feature_ids_to_names = {
+            f.feature_id: f.name for f in self.feature.filter(**feature_filters)
+        }
+
+        prepare_expression_set(
+            infile=reads_name_renamed,
+            abundance_unit=abundance_unit,
+            feature_dict=feature_ids_to_names,
+            outfile_name=f"{reads_name}_expressions",
+        )
 
         Cmd["ln"]["-s", "salmon_output/quant.sf", reads_name + ".sf"]()
 
@@ -396,7 +494,7 @@ class SalmonQuant(Process):
         outputs.txdb = tx2gene
         outputs.rc = counts_gz
         outputs.exp = reads_name + output_suffix
-        outputs.exp_json = "json.txt"
+        outputs.exp_json = json_output
         outputs.exp_set = reads_name + "_expressions.txt.gz"
         outputs.exp_set_json = reads_name + "_expressions.json"
         outputs.strandedness = strandedness

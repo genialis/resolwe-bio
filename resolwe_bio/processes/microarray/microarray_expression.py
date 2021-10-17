@@ -4,10 +4,9 @@ import io
 import json
 from pathlib import Path
 
-from plumbum import TEE
+import pandas as pd
 
 from resolwe.process import (
-    Cmd,
     DataField,
     FileField,
     JsonField,
@@ -16,6 +15,8 @@ from resolwe.process import (
     SchedulingClass,
     StringField,
 )
+
+from resolwe_bio.process.runtime import ProcessBio
 
 
 def gzopen(fname):
@@ -48,6 +49,62 @@ def expression_to_json(infile, outfile):
 
         with open(outfile, "w") as f:
             json.dump(exp, f)
+
+
+def rename_cols(infile, outfile):
+    """Rename columns in expression file."""
+    exp = pd.read_csv(
+        infile,
+        compression="gzip",
+        sep="\t",
+        skip_blank_lines=True,
+        usecols=["Gene", "Expression"],
+        index_col="Gene",
+        dtype={
+            "Gene": str,
+            "Expression": float,
+        },
+        squeeze=True,
+    )
+    return exp.to_csv(
+        outfile,
+        index_label="FEATURE_ID",
+        header=["log2 normalized intensity signal"],
+        sep="\t",
+    )
+
+
+def prepare_expression_set(exp_file, feature_dict, outfile_name):
+    """Prepare expression set output data."""
+    exp = pd.read_csv(exp_file, sep="\t", float_precision="round_trip")
+    exp["FEATURE_ID"] = exp["FEATURE_ID"].astype("str")
+    exp["GENE_SYMBOL"] = exp["FEATURE_ID"].map(feature_dict)
+    input_features = exp["FEATURE_ID"].tolist()
+    # Check if all of the input feature IDs could be mapped to the gene symbols
+    if not all(f_id in feature_dict for f_id in input_features):
+        print(
+            f"{sum(exp.isnull().values.ravel())} feature(s) "
+            f"could not be mapped to the associated feature symbols."
+        )
+    # Reorder columns
+    columns = ["FEATURE_ID", "GENE_SYMBOL", "log2 normalized intensity signal"]
+    exp_set = exp[columns]
+    # Replace NaN values with empty string
+    exp_set.fillna("", inplace=True)
+
+    # Write to file
+    exp_set.to_csv(
+        outfile_name + ".txt.gz",
+        header=True,
+        index=False,
+        sep="\t",
+        compression="gzip",
+    )
+
+    # Write to JSON
+    df_dict = exp_set.set_index("FEATURE_ID").to_dict(orient="index")
+    with open(outfile_name + ".json", "w") as f:
+        json.dump({"genes": df_dict}, f, allow_nan=False)
 
 
 class ImportMicroarrayExpression(Process):
@@ -137,13 +194,13 @@ class ImportMicroarrayExpression(Process):
         outputs.species = inputs.species
 
 
-class MicroarrayExpression(Process):
+class MicroarrayExpression(ProcessBio):
     """Upload normalized and mapped microarray expression data."""
 
     slug = "mapped-microarray-expression"
     name = "Mapped microarray expression"
     process_type = "data:expression:microarray"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -224,23 +281,30 @@ class MicroarrayExpression(Process):
 
         expression_to_json(exp, "json.txt")
 
-        exp_set_args = [
-            "--expressions",
-            exp,
-            "--source_db",
-            inputs.source,
-            "--species",
-            inputs.exp_unmapped.output.species,
-            "--output_name",
-            name + "_expressions",
-            "--expressions_type",
-            inputs.exp_unmapped.output.exp_type,
-        ]
-        return_code, _, _ = Cmd["create_expression_set.py"][exp_set_args] & TEE(
-            retcode=None
+        # Rename columns of the expression file
+        exp_renamed = f"{exp}_renamed"
+        rename_cols(infile=exp, outfile=exp_renamed)
+
+        # Prepare the expression set outputs
+        feature_ids = pd.read_csv(
+            exp_renamed, sep="\t", index_col="FEATURE_ID"
+        ).index.tolist()
+
+        feature_filters = {
+            "source": inputs.source,
+            "species": inputs.exp_unmapped.output.species,
+            "feature_id__in": feature_ids,
+        }
+
+        feature_ids_to_names = {
+            f.feature_id: f.name for f in self.feature.filter(**feature_filters)
+        }
+
+        prepare_expression_set(
+            exp_file=exp_renamed,
+            feature_dict=feature_ids_to_names,
+            outfile_name=f"{name}_expressions",
         )
-        if return_code:
-            self.error("Error while preparing the expression set file.")
 
         if inputs.exp_unmapped.output.platform_id:
             outputs.platform_id = inputs.exp_unmapped.output.platform_id

@@ -2,10 +2,11 @@
 import os
 
 import pandas as pd
-import resdk
 from plumbum import TEE
 
-from resolwe.process import Cmd, DataField, FileField, Process, StringField
+from resolwe.process import Cmd, DataField, FileField, StringField
+
+from resolwe_bio.process.runtime import ProcessBio
 
 
 def compute_tpm(tcount):
@@ -21,7 +22,7 @@ def compute_tpm(tcount):
     return exp
 
 
-class AlleyoopCollapse(Process):
+class AlleyoopCollapse(ProcessBio):
     """Run Alleyoop collapse tool on Slamdunk results."""
 
     slug = "alleyoop-collapse"
@@ -43,7 +44,7 @@ class AlleyoopCollapse(Process):
     }
     category = "Slamdunk"
     data_name = '{{ slamdunk|sample_name|default("?") }}'
-    version = "1.2.1"
+    version = "1.3.0"
 
     class Input:
         """Input fields for SlamdunkAllPaired."""
@@ -91,8 +92,6 @@ class AlleyoopCollapse(Process):
         tcount_tpm = compute_tpm(collapsed_output)
 
         # Map gene symbols to feature IDs
-        res = resdk.Resolwe()
-        CHUNK_SIZE = 1000
         feature_dict = {}
         out_columns = [
             "gene_symbol",
@@ -109,18 +108,13 @@ class AlleyoopCollapse(Process):
         ]
 
         input_features = tcount_tpm.index.tolist()
-        features_sublists = [
-            input_features[i : i + CHUNK_SIZE]
-            for i in range(0, len(input_features), CHUNK_SIZE)
-        ]
 
-        for fsublist in features_sublists:
-            features = res.feature.filter(
-                source=inputs.source,
-                species=inputs.slamdunk.output.species,
-                feature_id__in=fsublist,
-            )
-            feature_dict.update({f.feature_id: f.name for f in features})
+        features = {
+            "source": inputs.source,
+            "species": inputs.slamdunk.output.species,
+            "feature_id__in": input_features,
+        }
+        feature_dict = {f.feature_id: f.name for f in self.feature.filter(**features)}
 
         tcount_tpm["gene_symbol"] = tcount_tpm.index.map(feature_dict)
         tcount_tpm.to_csv(collapsed_output, columns=out_columns, sep="\t")

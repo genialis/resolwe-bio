@@ -29,11 +29,13 @@ Changed
   ``workflow-bbduk-star-fc-quant-paired``,
   ``workflow-bbduk-star-htseq``,
   ``workflow-bbduk-star-htseq-paired``
+- Replace ReSDK interface with Python API calls when accesing the
+  gene KB in processes ``salmon-quant``, ``alleyoop-collapse``,
+  ``slam-count`` and ``mapped-microarray-expression``
 
 
 Fixed
 -----
-
 
 ===================
 39.0.0 - 2021-10-19
