@@ -30,6 +30,8 @@ Changed
   ``gatk-genomicsdb-import`` for importing GVCFs into the database and
   use it as an input in the parallelised ``gatk-genotype-gvcfs`` process
 - Support ChIP-Seq and ATAC-Seq data sets in ``geo-import`` process
+- Replace the stdout/stdin file interface in SortSam / SetNmMdAndUqTags
+  stage of the ``wgs-preprocess-bwa2`` with two distinct analysis steps
 
 Fixed
 -----

@@ -30,7 +30,7 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -101,6 +101,7 @@ class WgsPreprocess_BWA2(Process):
         aligned_sam = "aligned.sam"
         aligned_bam = "aligned.bam"
         marked_dups = "marked_duplicates.bam"
+        sorted_temp = "sorted_temp.bam"
         sorted_bam = "sorted.bam"
         sorted_rg = "sorted_rg.bam"
         recal_table = "recal_data.csv"
@@ -244,7 +245,7 @@ class WgsPreprocess_BWA2(Process):
             "--INPUT",
             marked_dups,
             "--OUTPUT",
-            "/dev/stdout",
+            sorted_temp,
             "--TMP_DIR",
             TMPDIR,
             "--SORT_ORDER",
@@ -252,9 +253,16 @@ class WgsPreprocess_BWA2(Process):
             "--CREATE_INDEX",
             "false",
         ]
+
+        return_code, _, _ = Cmd["gatk"]["SortSam"][sort_inputs] & TEE(retcode=None)
+        if return_code:
+            self.error("SortSam analysis failed.")
+
+        self.progress(0.35)
+
         set_tag_inputs = [
             "--INPUT",
-            "/dev/stdin",
+            sorted_temp,
             "--OUTPUT",
             sorted_bam,
             "--TMP_DIR",
@@ -264,15 +272,18 @@ class WgsPreprocess_BWA2(Process):
             "--REFERENCE_SEQUENCE",
             inputs.ref_seq.output.fasta.path,
         ]
-        (
-            Cmd["gatk"]["SortSam"][sort_inputs]
-            | Cmd["gatk"]["SetNmMdAndUqTags"][set_tag_inputs]
-        )()
+
+        return_code, _, _ = Cmd["gatk"]["SetNmMdAndUqTags"][set_tag_inputs] & TEE(
+            retcode=None
+        )
+        if return_code:
+            self.error("SetNmMdAndUqTags analysis failed.")
 
         self.progress(0.4)
 
         # File cleanup
         Path(marked_dups).unlink(missing_ok=True)
+        Path(sorted_temp).unlink(missing_ok=True)
 
         # Set the read group information (required by BaseRecalibrator)
         rg_inputs = [
