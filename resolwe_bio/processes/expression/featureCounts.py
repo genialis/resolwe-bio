@@ -200,7 +200,7 @@ class featureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.0.3"
+    version = "5.0.4"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -657,7 +657,6 @@ class featureCounts(ProcessBio):
         if inputs.assay_type == "auto":
             all_reads = int(Cmd["samtools"]["view"]["-c", bam_file]().strip())
             sampling_rate = min(inputs.n_reads / all_reads, 1)
-            strand_check_bam = bam_file
             # subsample the BAM file
             if sampling_rate < 1:
                 strand_check_bam = "subsampled_sorted.bam"
@@ -673,6 +672,19 @@ class featureCounts(ProcessBio):
                     ]
                     > strand_check_bam
                 )()
+            else:
+                strand_check_bam = "sorted.bam"
+                sort_args = [
+                    f"-@ {self.requirements.resources.cores}",
+                    "-n",
+                    "-o",
+                    strand_check_bam,
+                ]
+                return_code, _, _ = Cmd["samtools"]["sort"][sort_args][bam_file] & TEE(
+                    retcode=None
+                )
+                if return_code:
+                    self.error("Error while running Samtools sort.")
 
             # Consider only proper paired-end reads for strandedness detection (-0, -s to /dev/null).
             # Failure to do so will result in improper strandedness detection, which
