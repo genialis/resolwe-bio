@@ -19,8 +19,8 @@ class WorkflowWgsGvcf(Process):
     The pipeline follows GATK best practices recommendations and prepares
     single-sample paired-end sequencing data for a joint-genotyping step.
 
-    The pipeline steps include Trimmomatic (read trimming), read alignment
-    (BWA-MEM), marking of duplicates (Picard MarkDuplicates), recalibration
+    The pipeline steps include read trimming (Trimmomatic), read alignment
+    (BWA-MEM2), marking of duplicates (Picard MarkDuplicates), recalibration
     of base quality scores (ApplyBQSR) and calling of variants
     (GATK HaplotypeCaller in GVCF mode). The QC reports (FASTQC report,
     Picard AlignmentSummaryMetrics, CollectWgsMetrics and InsertSizeMetrics)
@@ -37,8 +37,8 @@ class WorkflowWgsGvcf(Process):
             },
         },
     }
-    data_name = "WGS GVCF analysis ({{ reads|sample_name|default('?') }})"
-    version = "1.1.0"
+    data_name = 'WGS GVCF analysis ({{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }})'
+    version = "2.0.0"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {
@@ -48,9 +48,24 @@ class WorkflowWgsGvcf(Process):
     class Input:
         """Input fields."""
 
-        reads = DataField("reads:fastq:paired", label="Input sample")
+        reads = DataField(
+            "reads:fastq:paired",
+            label="Input sample (FASTQ)",
+            required=False,
+            disabled="aligned_reads",
+            description="Input data in FASTQ format. This input type allows for optional "
+            "read trimming procedure and is mutually exclusive with the BAM input file type.",
+        )
+        aligned_reads = DataField(
+            "alignment:bam",
+            label="Input sample (BAM)",
+            required=False,
+            disabled="reads",
+            description="Input data in BAM format. This input file type is mutually exclusive "
+            "with the FASTQ input file type and does not allow for read trimming procedure.",
+        )
         ref_seq = DataField("seq:nucleotide", label="Reference sequence")
-        bwa_index = DataField("index:bwa", label="BWA genome index")
+        bwa_index = DataField("index:bwamem2", label="BWA genome index")
         known_sites = ListField(
             DataField("variants:vcf"), label="Known sites of variation (VCF)"
         )
@@ -281,9 +296,22 @@ class WorkflowWgsGvcf(Process):
 
     def run(self, inputs, outputs):
         """Run the workflow."""
-        if inputs.trimming_options.enable_trimming:
+        if not inputs.reads and not inputs.aligned_reads:
+            self.error("Please provide FASTQ or BAM input files.")
+        if inputs.reads and inputs.aligned_reads:
+            self.error(
+                "Please provide input data in either FASTQ or aligned BAM format, not both."
+            )
+
+        preprocess_inputs = {
+            "ref_seq": inputs.ref_seq,
+            "bwa_index": inputs.bwa_index,
+            "known_sites": inputs.known_sites,
+        }
+
+        if inputs.reads and inputs.trimming_options.enable_trimming:
             trimmomatic = Data.create(
-                process=BioProcess.filter(slug="trimmomatic-paired")[-1],
+                process=BioProcess.get_latest(slug="trimmomatic-paired"),
                 input={
                     "reads": inputs.reads,
                     "illuminaclip": {
@@ -300,21 +328,19 @@ class WorkflowWgsGvcf(Process):
                     "reads_filtering": {"minlen": inputs.trimming_options.minlen},
                 },
             )
+            preprocess_inputs.update(reads=trimmomatic)
+        elif inputs.reads and not inputs.trimming_options.enable_trimming:
+            preprocess_inputs.update(reads=inputs.reads)
+        else:
+            preprocess_inputs.update(aligned_reads=inputs.aligned_reads)
 
         bam = Data.create(
-            process=BioProcess.filter(slug="wgs-preprocess")[-1],
-            input={
-                "reads": trimmomatic
-                if inputs.trimming_options.enable_trimming
-                else inputs.reads,
-                "ref_seq": inputs.ref_seq,
-                "bwa_index": inputs.bwa_index,
-                "known_sites": inputs.known_sites,
-            },
+            process=BioProcess.get_latest(slug="wgs-preprocess-bwa2"),
+            input=preprocess_inputs,
         )
 
         Data.create(
-            process=BioProcess.filter(slug="gatk-haplotypecaller-gvcf")[-1],
+            process=BioProcess.get_latest(slug="gatk-haplotypecaller-gvcf"),
             input={
                 "bam": bam,
                 "ref_seq": inputs.ref_seq,
@@ -339,12 +365,12 @@ class WorkflowWgsGvcf(Process):
             )
 
         summary = Data.create(
-            process=BioProcess.filter(slug="alignment-summary")[-1],
+            process=BioProcess.get_latest(slug="alignment-summary"),
             input=alignment_summary_inputs,
         )
 
         wgs_metrics = Data.create(
-            process=BioProcess.filter(slug="wgs-metrics")[-1],
+            process=BioProcess.get_latest(slug="wgs-metrics"),
             input={
                 "bam": bam,
                 "genome": inputs.ref_seq,
@@ -361,7 +387,7 @@ class WorkflowWgsGvcf(Process):
         )
 
         insert_size = Data.create(
-            process=BioProcess.filter(slug="insert-size")[-1],
+            process=BioProcess.get_latest(slug="insert-size"),
             input={
                 "bam": bam,
                 "genome": inputs.ref_seq,
@@ -372,15 +398,16 @@ class WorkflowWgsGvcf(Process):
             },
         )
         multiqc_inputs = [
-            inputs.reads,
             bam,
             summary,
             wgs_metrics,
             insert_size,
         ]
-        if inputs.trimming_options.enable_trimming:
+        if inputs.reads:
+            multiqc_inputs.append(inputs.reads)
+        if trimmomatic:
             multiqc_inputs.append(trimmomatic)
         Data.create(
-            process=BioProcess.filter(slug="multiqc")[-1],
+            process=BioProcess.get_latest(slug="multiqc"),
             input={"data": multiqc_inputs},
         )

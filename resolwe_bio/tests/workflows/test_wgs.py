@@ -97,7 +97,7 @@ class WgsWorkflowTestCase(BioProcessTestCase):
                     "build": "custom_build",
                 },
             )
-            bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
+            bwa_index = self.run_process("bwamem2-index", {"ref_seq": ref_seq.id})
 
             reads = self.prepare_paired_reads(
                 mate1=[inputs / "TP53_1.fastq.gz"],

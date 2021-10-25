@@ -17,6 +17,9 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 29.x
+- **BACKWARD INCOMPATIBLE:** Update ``workflow-wgs-gvcf`` to include
+  BWA-MEM2-based preprocessing step. Support triggering the pipeline
+  using a pre-aligned BAM input file
 - Add ``qin`` and ``ignorebadquality`` BBduk options to workflows
   ``workflow-bbduk-salmon-qc-single``,
   ``workflow-bbduk-salmon-qc-paired``,
