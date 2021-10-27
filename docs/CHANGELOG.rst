@@ -41,6 +41,7 @@ Changed
 
 Fixed
 -----
+- Fix data name and advanced options in ``variants-to-table`` process
 
 
 ===================

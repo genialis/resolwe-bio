@@ -28,7 +28,7 @@ class GatkVariantsToTable(Process):
     name = "GATK VariantsToTable"
     category = "GATK"
     process_type = "data:variantstable"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -41,7 +41,7 @@ class GatkVariantsToTable(Process):
             "storage": 200,
         },
     }
-    data_name = '{{vcf.file|default("?") }}'
+    data_name = "Variants in table"
 
     class Input:
         """Input fields for GATK VariantsToTable."""
@@ -110,8 +110,6 @@ class GatkVariantsToTable(Process):
         args = [
             "-V",
             inputs.vcf.output.vcf.path,
-            "--split-multi-allelic",
-            inputs.advanced_options.split_alleles,
             "-O",
             variants_table,
         ]
@@ -121,6 +119,9 @@ class GatkVariantsToTable(Process):
 
         for gf_field in inputs.advanced_options.gf_fields:
             args.extend(["-GF", gf_field])
+
+        if inputs.advanced_options.split_alleles:
+            args.append("--split-multi-allelic")
 
         return_code, _, _ = Cmd["gatk"]["VariantsToTable"][args] & TEE(retcode=None)
         if return_code:
