@@ -18,6 +18,7 @@ Changed
 -------
 - Rewrite processes ``seqtk-sample-single`` and ``seqtk-sample-paired``
   to Python
+- Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python
 
 Fixed
 -----

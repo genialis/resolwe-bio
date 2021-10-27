@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
@@ -342,55 +344,92 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
 
     @tag_process("bbduk-single")
     def test_bbduk_single(self):
+        input_folder = Path("bbduk") / "input"
+        output_folder = Path("bbduk") / "output"
         with self.preparation_stage():
             reads = self.prepare_reads(
-                ["bbduk test reads.fastq.gz", "rRNA forw.fastq.gz"]
+                [
+                    input_folder / "bbduk_test_reads.fastq.gz",
+                    input_folder / "rRNA_forw.fastq.gz",
+                ]
+            )
+            ref_seq = self.prepare_ref_seq(
+                fn=input_folder / "bbduk_adapters.fasta",
+                species="Other",
+                build="Custom",
+            )
+            barcodes = self.prepare_ref_seq(
+                fn=input_folder / "barcodes.fasta",
+                species="Other",
+                build="Custom",
             )
 
         inputs = {
             "reads": reads.id,
+            "reference": {
+                "sequences": [ref_seq.id],
+            },
+            "header_parsing": {
+                "barcode_files": [barcodes.id],
+            },
+            "operations": {
+                "quality_trim": "l",
+            },
         }
         filtered_reads = self.run_process("bbduk-single", inputs)
 
         self.assertFiles(
-            filtered_reads, "fastq", ["bbduk_reads.fastq.gz"], compression="gzip"
+            filtered_reads,
+            "fastq",
+            [output_folder / "bbduk_test_reads_preprocessed.fastq.gz"],
+            compression="gzip",
         )
         del filtered_reads.output["fastqc_url"][0][
             "total_size"
         ]  # Non-deterministic output.
         report = {
-            "file": "fastqc/bbduk test reads_preprocessed_fastqc/fastqc_report.html",
+            "file": "fastqc/bbduk_test_reads_preprocessed_fastqc/fastqc_report.html",
             "refs": [
-                "fastqc/bbduk test reads_preprocessed_fastqc",
+                "fastqc/bbduk_test_reads_preprocessed_fastqc",
             ],
         }
         self.assertFields(filtered_reads, "fastqc_url", [report])
 
     @tag_process("bbduk-paired")
     def test_bbduk_paired(self):
+        input_folder = Path("bbduk") / "input"
+        output_folder = Path("bbduk") / "output"
         with self.preparation_stage():
             reads_paired = self.prepare_paired_reads(
-                ["rRNA forw.fastq.gz"], ["rRNA_rew.fastq.gz"]
+                [input_folder / "rRNA_forw.fastq.gz"],
+                [input_folder / "rRNA_rew.fastq.gz"],
             )
 
         inputs = {
             "reads": reads_paired.id,
         }
+
         filtered_reads = self.run_process("bbduk-paired", inputs)
 
         self.assertFiles(
-            filtered_reads, "fastq", ["bbduk_fw_reads.fastq.gz"], compression="gzip"
+            filtered_reads,
+            "fastq",
+            [output_folder / "bbduk_fw_reads.fastq.gz"],
+            compression="gzip",
         )
         self.assertFiles(
-            filtered_reads, "fastq2", ["bbduk_rv_reads.fastq.gz"], compression="gzip"
+            filtered_reads,
+            "fastq2",
+            [output_folder / "bbduk_rv_reads.fastq.gz"],
+            compression="gzip",
         )
         del filtered_reads.output["fastqc_url"][0][
             "total_size"
         ]  # Non-deterministic output.
         report = {
-            "file": "fastqc/rRNA forw_preprocessed_fastqc/fastqc_report.html",
+            "file": "fastqc/rRNA_forw_preprocessed_fastqc/fastqc_report.html",
             "refs": [
-                "fastqc/rRNA forw_preprocessed_fastqc",
+                "fastqc/rRNA_forw_preprocessed_fastqc",
             ],
         }
         self.assertFields(filtered_reads, "fastqc_url", [report])
