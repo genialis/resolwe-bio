@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.1.0
+  version: 3.2.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -177,10 +177,15 @@
         input:
           reads: '{{ steps.downsampling }}'
           genome: '{{ input.qc.globin_reference }}'
+      - id: alignment_qorts
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.star_index }}'
       - id: qorts
         run: qorts-qc
         input:
-          alignment: '{{ steps.star }}'
+          alignment: '{{ steps.alignment_qorts }}'
           annotation: '{{ input.annotation }}'
           options:
             stranded: '{{ input.stranded }}'
@@ -211,7 +216,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.1.0
+  version: 3.2.0
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
   description: |
@@ -385,10 +390,15 @@
         input:
           reads: '{{ steps.downsampling }}'
           genome: '{{ input.qc.globin_reference }}'
+      - id: alignment_qorts
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.star_index }}'
       - id: qorts
         run: qorts-qc
         input:
-          alignment: '{{ steps.star }}'
+          alignment: '{{ steps.alignment_qorts }}'
           annotation: '{{ input.annotation }}'
           options:
             stranded: '{{ input.stranded }}'

@@ -32,10 +32,15 @@ Changed
 - Replace ReSDK interface with Python API calls when accesing the
   gene KB in processes ``salmon-quant``, ``alleyoop-collapse``,
   ``slam-count`` and ``mapped-microarray-expression``
-
+- Use downsampled alignment for running QoRTs in 3' mRNA-Seq workflows
+  ``workflow-bbduk-star-fc-quant-single``,
+  ``workflow-bbduk-star-fc-quant-paired``,
+  ``workflow-cutadapt-star-fc-quant-single``,
+  ``workflow-cutadapt-star-fc-quant-wo-depletion-single``
 
 Fixed
 -----
+
 
 ===================
 39.0.0 - 2021-10-19

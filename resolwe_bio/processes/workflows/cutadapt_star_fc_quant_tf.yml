@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.0.0
+  version: 3.1.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -144,10 +144,15 @@
         input:
           reads: '{{ steps.downsampling }}'
           genome: '{{ input.globin_reference }}'
+      - id: alignment_qorts
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.star_index }}'
       - id: qorts
         run: qorts-qc
         input:
-          alignment: '{{ steps.star }}'
+          alignment: '{{ steps.alignment_qorts }}'
           annotation: '{{ input.annotation }}'
           options:
             stranded: 'forward'
@@ -175,7 +180,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.0.0
+  version: 3.1.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -218,6 +223,35 @@
             Trim low-quality bases from 3' end of each read before
             adapter removal. The use of this option will override the use
             of NextSeq/NovaSeq-specific trim option.
+    - name: downsampling
+      label: Downsampling (Seqtk)
+      hidden: '!show_advanced'
+      group:
+        - name: n_reads
+          label: Number of reads
+          type: basic:integer
+          default: 1000000
+        - name: seed
+          label: Seed
+          type: basic:integer
+          default: 11
+        - name: fraction
+          label: Fraction
+          type: basic:decimal
+          required: false
+          range: [0.0, 1.0]
+          description: |
+            Use the fraction of reads in range [0.0, 1.0] from the
+            original input file instead of the absolute number of reads.
+            If set, this will override the "Number of reads" input
+            parameter.
+        - name: two_pass
+          label: 2-pass mode
+          type: basic:boolean
+          default: false
+          description: |
+            Enable two-pass mode when down-sampling. Two-pass mode is twice
+            as slow but with much reduced memory consumption.
   run:
     language: workflow
     program:
@@ -253,10 +287,24 @@
           aligned_reads: '{{ steps.star }}'
           assay_type: 'forward'
           annotation: '{{ input.annotation }}'
+      - id: downsampling
+        run: seqtk-sample-single
+        input:
+          reads: '{{ steps.cutadapt }}'
+          n_reads: '{{ input.downsampling.n_reads }}'
+          advanced:
+            seed: '{{ input.downsampling.seed }}'
+            fraction: '{{ input.downsampling.fraction }}'
+            two_pass: '{{ input.downsampling.two_pass }}'
+      - id: alignment_qorts
+        run: alignment-star
+        input:
+          reads: '{{ steps.downsampling }}'
+          genome: '{{ input.star_index }}'
       - id: qorts
         run: qorts-qc
         input:
-          alignment: '{{ steps.star }}'
+          alignment: '{{ steps.alignment_qorts }}'
           annotation: '{{ input.annotation }}'
           options:
             stranded: 'forward'
