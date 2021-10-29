@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Rewrite ``alignment-star`` and
+  ``alignment-star-index`` processes to Python
 - Rewrite processes ``seqtk-sample-single`` and ``seqtk-sample-paired``
   to Python
 - Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python

@@ -184,7 +184,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -203,7 +203,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -329,7 +329,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -349,7 +349,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -460,7 +460,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -479,7 +479,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -839,7 +839,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -859,7 +859,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -978,7 +978,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": rrna_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )
@@ -996,7 +996,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "ref_seq": globin_reference.id,
                     "source": "NCBI",
                     "advanced": {
-                        "genomeSAindexNbases": 2,
+                        "genome_sa_string_len": 2,
                     },
                 },
             )

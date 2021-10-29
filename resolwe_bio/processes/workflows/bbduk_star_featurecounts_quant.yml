@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.2.0
+  version: 4.0.0
   type: data:workflow:quant:featurecounts:single
   category: Pipeline
   description: |
@@ -141,16 +141,16 @@
           genome: '{{ input.star_index }}'
           reads: '{{ steps.bbduk_filtering }}'
           filtering:
-            outFilterType: BySJout
-            outFilterMultimapNmax: 20
-            outFilterMismatchNmax: 999
-            outFilterMismatchNoverLmax: 0.6
+            out_filter_type: BySJout
+            out_multimap_max: 20
+            out_mismatch_max: 999
+            out_mismatch_nl_max: 0.6
           alignment:
-            alignSJoverhangMin: 8
-            alignSJDBoverhangMin: 1
-            alignIntronMin: 20
-            alignIntronMax: 1000000
-            alignMatesGapMax: 1000000
+            align_overhang_min: 8
+            align_sjdb_overhang_min: 1
+            align_intron_size_min: 20
+            align_intron_size_max: 1000000
+            align_gap_max: 1000000
       - id: featureCounts
         run: feature_counts
         input:
@@ -216,7 +216,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.2.0
+  version: 4.0.0
   type: data:workflow:quant:featurecounts:paired
   category: Pipeline
   description: |
@@ -354,16 +354,16 @@
           genome: '{{ input.star_index }}'
           reads: '{{ steps.bbduk_filtering }}'
           filtering:
-            outFilterType: BySJout
-            outFilterMultimapNmax: 20
-            outFilterMismatchNmax: 999
-            outFilterMismatchNoverLmax: 0.6
+            out_filter_type: BySJout
+            out_multimap_max: 20
+            out_mismatch_max: 999
+            out_mismatch_nl_max: 0.6
           alignment:
-            alignSJoverhangMin: 8
-            alignSJDBoverhangMin: 1
-            alignIntronMin: 20
-            alignIntronMax: 1000000
-            alignMatesGapMax: 1000000
+            align_overhang_min: 8
+            align_sjdb_overhang_min: 1
+            align_intron_size_min: 20
+            align_intron_size_max: 1000000
+            align_gap_max: 1000000
       - id: featureCounts
         run: feature_counts
         input:

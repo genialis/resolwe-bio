@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:rnaseq:rsem
   category: Pipeline
   description: |
@@ -89,13 +89,6 @@
             disabled: "!star.t_coordinates.quantmode"
             description: |
               By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
-          - name: gene_counts
-            label: Count reads
-            type: basic:boolean
-            default: false
-            disabled: "!star.t_coordinates.quantmode"
-            description: |
-              With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
       - name: filtering
         label: Output filtering
         group:
@@ -177,22 +170,21 @@
           noncannonical: '{{ input.star.noncannonical }}'
           detect_chimeric:
             chimeric: '{{ input.star.detect_chimeric.chimeric }}'
-            chimSegmentMin: '{{ input.star.detect_chimeric.chimSegmentMin }}'
+            chim_segment_min: '{{ input.star.detect_chimeric.chimSegmentMin }}'
           t_coordinates:
-            quantmode: '{{ input.star.t_coordinates.quantmode }}'
-            singleend: '{{ input.star.t_coordinates.singleend }}'
-            gene_counts: '{{ input.star.t_coordinates.gene_counts }}'
+            quant_mode: '{{ input.star.t_coordinates.quantmode }}'
+            single_end: '{{ input.star.t_coordinates.singleend }}'
           filtering:
-            outFilterType: '{{ input.star.filtering.outFilterType }}'
-            outFilterMultimapNmax: '{{ input.star.filtering.outFilterMultimapNmax }}'
-            outFilterMismatchNmax: '{{ input.star.filtering.outFilterMismatchNmax }}'
-            outFilterMismatchNoverLmax: '{{ input.star.filtering.outFilterMismatchNoverLmax }}'
+            out_filter_type: '{{ input.star.filtering.outFilterType }}'
+            out_multimap_max: '{{ input.star.filtering.outFilterMultimapNmax }}'
+            out_mismatch_max: '{{ input.star.filtering.outFilterMismatchNmax }}'
+            out_mismatch_nl_max: '{{ input.star.filtering.outFilterMismatchNoverLmax }}'
           alignment:
-            alignSJoverhangMin: '{{ input.star.alignment.alignSJoverhangMin }}'
-            alignSJDBoverhangMin: '{{ input.star.alignment.alignSJDBoverhangMin }}'
-            alignIntronMin: '{{ input.star.alignment.alignIntronMin }}'
-            alignIntronMax: '{{ input.star.alignment.alignIntronMax }}'
-            alignMatesGapMax: '{{ input.star.alignment.alignMatesGapMax }}'
+            align_overhang_min: '{{ input.star.alignment.alignSJoverhangMin }}'
+            align_sjdb_overhang_min: '{{ input.star.alignment.alignSJDBoverhangMin }}'
+            align_intron_size_min: '{{ input.star.alignment.alignIntronMin }}'
+            align_intron_size_max: '{{ input.star.alignment.alignIntronMax }}'
+            align_gap_max: '{{ input.star.alignment.alignMatesGapMax }}'
       - id: rsem
         run: rsem
         input:
@@ -206,7 +198,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 2.0.1
+  version: 3.0.0
   type: data:workflow:rnaseq:rsem
   category: Pipeline
   description: |
@@ -292,13 +284,6 @@
             disabled: "!star.t_coordinates.quantmode"
             description: |
               By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed. Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
-          - name: gene_counts
-            label: Count reads
-            type: basic:boolean
-            default: false
-            disabled: "!star.t_coordinates.quantmode"
-            description: |
-              With --quantMode GeneCounts option STAR will count number reads per gene while mapping. A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the paired-end read are checked for overlaps. The counts coincide with those produced by htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which correspond to different strandedness options: column 1: gene ID; column 2: counts for unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with RNA (htseq-count option -s reverse).
       - name: filtering
         label: Output filtering
         group:
@@ -380,22 +365,21 @@
           noncannonical: '{{input.star.noncannonical}}'
           detect_chimeric:
             chimeric: '{{input.star.detect_chimeric.chimeric}}'
-            chimSegmentMin: '{{input.star.detect_chimeric.chimSegmentMin}}'
+            chim_segment_min: '{{input.star.detect_chimeric.chimSegmentMin}}'
           t_coordinates:
-            quantmode: '{{input.star.t_coordinates.quantmode}}'
-            singleend: '{{input.star.t_coordinates.singleend}}'
-            gene_counts: '{{input.star.t_coordinates.gene_counts}}'
+            quant_mode: '{{input.star.t_coordinates.quantmode}}'
+            single_end: '{{input.star.t_coordinates.singleend}}'
           filtering:
-            outFilterType: '{{input.star.filtering.outFilterType}}'
-            outFilterMultimapNmax: '{{input.star.filtering.outFilterMultimapNmax}}'
-            outFilterMismatchNmax: '{{input.star.filtering.outFilterMismatchNmax}}'
-            outFilterMismatchNoverLmax: '{{input.star.filtering.outFilterMismatchNoverLmax}}'
+            out_filter_type: '{{input.star.filtering.outFilterType}}'
+            out_multimap_max: '{{input.star.filtering.outFilterMultimapNmax}}'
+            out_mismatch_max: '{{input.star.filtering.outFilterMismatchNmax}}'
+            out_mismatch_nl_max: '{{input.star.filtering.outFilterMismatchNoverLmax}}'
           alignment:
-            alignSJoverhangMin: '{{input.star.alignment.alignSJoverhangMin}}'
-            alignSJDBoverhangMin: '{{input.star.alignment.alignSJDBoverhangMin}}'
-            alignIntronMin: '{{input.star.alignment.alignIntronMin}}'
-            alignIntronMax: '{{input.star.alignment.alignIntronMax}}'
-            alignMatesGapMax: '{{input.star.alignment.alignMatesGapMax}}'
+            align_overhang_min: '{{input.star.alignment.alignSJoverhangMin}}'
+            align_sjdb_overhang_min: '{{input.star.alignment.alignSJDBoverhangMin}}'
+            align_intron_size_min: '{{input.star.alignment.alignIntronMin}}'
+            align_intron_size_max: '{{input.star.alignment.alignIntronMax}}'
+            align_gap_max: '{{input.star.alignment.alignMatesGapMax}}'
       - id: rsem
         run: rsem
         input:

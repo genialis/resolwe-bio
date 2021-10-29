@@ -3,7 +3,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.1.0
+  version: 4.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -191,20 +191,6 @@
                 By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed.
                 Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the
                 transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
-            - name: gene_counts
-              label: Count reads
-              type: basic:boolean
-              default: false
-              disabled: "t_coordinates.quantmode != true"
-              description: |
-                With --quantMode GeneCounts option STAR will count number reads per gene while mapping.
-                A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the
-                paired-end read are checked for overlaps. The counts coincide with those produced by
-                htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which
-                correspond to different strandedness options: column 1: gene ID; column 2: counts for
-                unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA
-                (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned
-                with RNA (htseq-count option -s reverse).
         - name: filtering
           label: Output Filtering
           hidden: '!alignment.show_advanced'
@@ -306,16 +292,10 @@
           group:
             - name: outSAMunmapped
               label: --outSAMunmapped
-              type: basic:string
+              type: basic:boolean
               description: |
                 Output of unmapped reads in the SAM format.
-              required: false
-              default: None
-              choices:
-                - label: None
-                  value: None
-                - label: Within
-                  value: Within
+              default: false
             - name: outSAMattributes
               label: --outSAMattributes
               type: basic:string
@@ -507,28 +487,27 @@
           noncannonical: '{{ input.alignment.noncannonical }}'
           detect_chimeric:
             chimeric: '{{ input.alignment.detect_chimeric.chimeric }}'
-            chimSegmentMin: '{{ input.alignment.detect_chimeric.chimSegmentMin }}'
+            chim_segment_min: '{{ input.alignment.detect_chimeric.chimSegmentMin }}'
           t_coordinates:
-            quantmode: '{{ input.alignment.t_coordinates.quantmode }}'
-            singleend: '{{ input.alignment.t_coordinates.singleend }}'
-            gene_counts: '{{ input.alignment.t_coordinates.gene_counts }}'
+            quant_mode: '{{ input.alignment.t_coordinates.quantmode }}'
+            single_end: '{{ input.alignment.t_coordinates.singleend }}'
           filtering:
-            outFilterType: '{{ input.alignment.filtering.outFilterType }}'
-            outFilterMultimapNmax: '{{ input.alignment.filtering.outFilterMultimapNmax }}'
-            outFilterMismatchNmax: '{{ input.alignment.filtering.outFilterMismatchNmax }}'
-            outFilterMismatchNoverLmax: '{{ input.alignment.filtering.outFilterMismatchNoverLmax }}'
-            outFilterScoreMin: '{{ input.alignment.filtering.outFilterScoreMin }}'
+            out_filter_type: '{{ input.alignment.filtering.outFilterType }}'
+            out_multimap_max: '{{ input.alignment.filtering.outFilterMultimapNmax }}'
+            out_mismatch_max: '{{ input.alignment.filtering.outFilterMismatchNmax }}'
+            out_mismatch_nl_max: '{{ input.alignment.filtering.outFilterMismatchNoverLmax }}'
+            out_score_min: '{{ input.alignment.filtering.outFilterScoreMin }}'
           alignment:
-            alignSJoverhangMin: '{{ input.alignment.alignment.alignSJoverhangMin }}'
-            alignSJDBoverhangMin: '{{ input.alignment.alignment.alignSJDBoverhangMin }}'
-            alignIntronMin: '{{ input.alignment.alignment.alignIntronMin }}'
-            alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
-            alignMatesGapMax: '{{ input.alignment.alignment.alignMatesGapMax }}'
-            alignEndsType: '{{ input.alignment.alignment.alignEndsType }}'
-          output_sam_bam:
-            outSAMunmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
-            outSAMattributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
-            outSAMattrRGline: '{{ input.alignment.output_sam_bam.outSAMattrRGline }}'
+            align_overhang_min: '{{ input.alignment.alignment.alignSJoverhangMin }}'
+            align_sjdb_overhang_min: '{{ input.alignment.alignment.alignSJDBoverhangMin }}'
+            align_intron_size_min: '{{ input.alignment.alignment.alignIntronMin }}'
+            align_intron_size_max: '{{ input.alignment.alignment.alignIntronMax }}'
+            align_gap_max: '{{ input.alignment.alignment.alignMatesGapMax }}'
+            align_end_alignment: '{{ input.alignment.alignment.alignEndsType }}'
+          output_options:
+            out_unmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
+            out_sam_attributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
+            out_rg_line: '{{ input.alignment.output_sam_bam.outSAMattrRGline }}'
       - id: quantification
         run: feature_counts
         input:
@@ -586,7 +565,7 @@
   data_name: "{{ preprocessing.reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 3.1.0
+  version: 4.0.0
   type: data:workflow:rnaseq:featurecounts:qc
   category: Pipeline
   description: |
@@ -774,20 +753,6 @@
                 By default, the output satisfies RSEM requirements: soft-clipping or indels are not allowed.
                 Use --quantTranscriptomeBan Singleend to allow insertions, deletions ans soft-clips in the
                 transcriptomic alignments, which can be used by some expression quantification software (e.g. eXpress).
-            - name: gene_counts
-              label: Count reads
-              type: basic:boolean
-              default: false
-              disabled: "t_coordinates.quantmode != true"
-              description: |
-                With --quantMode GeneCounts option STAR will count number reads per gene while mapping.
-                A read is counted if it overlaps (1nt or more) one and only one gene. Both ends of the
-                paired-end read are checked for overlaps. The counts coincide with those produced by
-                htseq-count with default parameters. ReadsPerGene.out.tab file with 4 columns which
-                correspond to different strandedness options: column 1: gene ID; column 2: counts for
-                unstranded RNA-seq; column 3: counts for the 1st read strand aligned with RNA
-                (htseq-count option -s yes); column 4: counts for the 2nd read strand aligned with
-                RNA (htseq-count option -s reverse).
         - name: filtering
           label: Output Filtering
           hidden: '!alignment.show_advanced'
@@ -889,16 +854,10 @@
           group:
             - name: outSAMunmapped
               label: --outSAMunmapped
-              type: basic:string
+              type: basic:boolean
               description: |
                 Output of unmapped reads in the SAM format.
-              required: false
-              default: None
-              choices:
-                - label: None
-                  value: None
-                - label: Within
-                  value: Within
+              default: false
             - name: outSAMattributes
               label: --outSAMattributes
               type: basic:string
@@ -1092,28 +1051,27 @@
           noncannonical: '{{ input.alignment.noncannonical }}'
           detect_chimeric:
             chimeric: '{{ input.alignment.detect_chimeric.chimeric }}'
-            chimSegmentMin: '{{ input.alignment.detect_chimeric.chimSegmentMin }}'
+            chim_segment_min: '{{ input.alignment.detect_chimeric.chimSegmentMin }}'
           t_coordinates:
-            quantmode: '{{ input.alignment.t_coordinates.quantmode }}'
-            singleend: '{{ input.alignment.t_coordinates.singleend }}'
-            gene_counts: '{{ input.alignment.t_coordinates.gene_counts }}'
+            quant_mode: '{{ input.alignment.t_coordinates.quantmode }}'
+            single_end: '{{ input.alignment.t_coordinates.singleend }}'
           filtering:
-            outFilterType: '{{ input.alignment.filtering.outFilterType }}'
-            outFilterMultimapNmax: '{{ input.alignment.filtering.outFilterMultimapNmax }}'
-            outFilterMismatchNmax: '{{ input.alignment.filtering.outFilterMismatchNmax }}'
-            outFilterMismatchNoverLmax: '{{ input.alignment.filtering.outFilterMismatchNoverLmax }}'
-            outFilterScoreMin: '{{ input.alignment.filtering.outFilterScoreMin }}'
+            out_filter_type: '{{ input.alignment.filtering.outFilterType }}'
+            out_multimap_max: '{{ input.alignment.filtering.outFilterMultimapNmax }}'
+            out_mismatch_max: '{{ input.alignment.filtering.outFilterMismatchNmax }}'
+            out_mismatch_nl_max: '{{ input.alignment.filtering.outFilterMismatchNoverLmax }}'
+            out_score_min: '{{ input.alignment.filtering.outFilterScoreMin }}'
           alignment:
-            alignSJoverhangMin: '{{ input.alignment.alignment.alignSJoverhangMin }}'
-            alignSJDBoverhangMin: '{{ input.alignment.alignment.alignSJDBoverhangMin }}'
-            alignIntronMin: '{{ input.alignment.alignment.alignIntronMin }}'
-            alignIntronMax: '{{ input.alignment.alignment.alignIntronMax }}'
-            alignMatesGapMax: '{{ input.alignment.alignment.alignMatesGapMax }}'
-            alignEndsType: '{{ input.alignment.alignment.alignEndsType }}'
-          output_sam_bam:
-            outSAMunmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
-            outSAMattributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
-            outSAMattrRGline: '{{ input.alignment.output_sam_bam.outSAMattrRGline }}'
+            align_overhang_min: '{{ input.alignment.alignment.alignSJoverhangMin }}'
+            align_sjdb_overhang_min: '{{ input.alignment.alignment.alignSJDBoverhangMin }}'
+            align_intron_size_min: '{{ input.alignment.alignment.alignIntronMin }}'
+            align_intron_size_max: '{{ input.alignment.alignment.alignIntronMax }}'
+            align_gap_max: '{{ input.alignment.alignment.alignMatesGapMax }}'
+            align_end_alignment: '{{ input.alignment.alignment.alignEndsType }}'
+          output_options:
+            out_unmapped: '{{ input.alignment.output_sam_bam.outSAMunmapped }}'
+            out_sam_attributes: '{{ input.alignment.output_sam_bam.outSAMattributes }}'
+            out_rg_line: '{{ input.alignment.output_sam_bam.outSAMattrRGline }}'
       - id: quantification
         run: feature_counts
         input:

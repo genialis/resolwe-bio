@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 from resolwe.flow.models import Data
@@ -194,41 +193,33 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("alignment-star-index", "alignment-star")
     def test_star(self):
+        input_folder = Path("test_star") / "input"
+        output_folder = Path("test_star") / "output"
         with self.preparation_stage():
             reads = self.prepare_reads(
-                [
-                    os.path.join(
-                        "test_star",
-                        "input",
-                        "hs_single bbduk_star_htseq_reads_single.fastq.gz",
-                    )
-                ]
+                [str(input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz")]
             )
             paired_reads = self.prepare_paired_reads(
                 mate1=[
-                    os.path.join(
-                        "test_star",
-                        "input",
-                        "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz",
+                    str(
+                        input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"
                     )
                 ],
                 mate2=[
-                    os.path.join(
-                        "test_star",
-                        "input",
-                        "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz",
+                    str(
+                        input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"
                     )
                 ],
             )
             annotation = self.prepare_annotation(
-                os.path.join("test_star", "input", "hs annotation.gtf.gz"),
+                fn=str(input_folder / "hs annotation.gtf.gz"),
                 source="ENSEMBL",
                 species="Homo sapiens",
                 build="GRCh38_ens90",
             )
 
             inputs = {
-                "src": os.path.join("test_star", "input", "hs genome.fasta.gz"),
+                "src": str(input_folder / "hs genome.fasta.gz"),
                 "species": "Homo sapiens",
                 "build": "GRCh38_ens90",
             }
@@ -236,13 +227,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
-
-        gene_counts_star_single = os.path.join(
-            "test_star", "output", "gene_counts_star_single.tab.gz"
-        )
-        star_expression_single = os.path.join(
-            "test_star", "output", "star_expression_single.tab.gz"
-        )
 
         # prepare genome indices
         star_index = self.run_process(
@@ -258,13 +242,23 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             },
         )
 
+        def filter_star_report(line):
+            """Filter variable lines from the STAR stats file."""
+            variable_lines = [
+                b"Started job on",
+                b"Started mapping on",
+                b"Finished on",
+                b"Mapping speed, Million of reads per hour",
+            ]
+            if any(variable_substring in line for variable_substring in variable_lines):
+                return True
+
         # test STAR alignment
         inputs = {
             "genome": star_index.id,
             "reads": reads.id,
             "t_coordinates": {
-                "quantmode": True,
-                "gene_counts": True,
+                "quant_mode": True,
             },
             "two_pass_mapping": {
                 "two_pass_mode": True,
@@ -274,133 +268,51 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             },
         }
         aligned_reads = self.run_process("alignment-star", inputs)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_single, compression="gzip"
-        )
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            str(output_folder / "hs_single_stats.txt"),
+            file_filter=filter_star_report,
+        )
         sample = Sample.objects.get(data=aligned_reads)
         self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
-
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_single, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFields(exp, "species", "Homo sapiens")
-        self.assertFields(exp, "build", "GRCh38_ens90")
-        self.assertFields(exp, "feature_type", "gene")
-
-        inputs["star_sort"] = True
-        aligned_reads = self.run_process("alignment-star", inputs)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_single, compression="gzip"
-        )
-        self.assertFields(aligned_reads, "species", "Homo sapiens")
-        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_single, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFields(exp, "species", "Homo sapiens")
-        self.assertFields(exp, "build", "GRCh38_ens90")
-        self.assertFields(exp, "feature_type", "gene")
 
         inputs["genome"] = star_index_wo_annot.id
         inputs["annotation"] = annotation.id
         aligned_reads = self.run_process("alignment-star", inputs)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
 
-        self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_single, compression="gzip"
-        )
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_single, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFields(exp, "species", "Homo sapiens")
-        self.assertFields(exp, "build", "GRCh38_ens90")
-        self.assertFields(exp, "feature_type", "gene")
-
-        inputs["star_sort"] = False
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            str(output_folder / "hs_single_stats.txt"),
+            file_filter=filter_star_report,
+        )
         aligned_reads = self.run_process("alignment-star", inputs)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
 
-        self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_single, compression="gzip"
-        )
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_single, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFields(exp, "species", "Homo sapiens")
-        self.assertFields(exp, "build", "GRCh38_ens90")
-        self.assertFields(exp, "feature_type", "gene")
-
-        bigwig_star_ens_paired = os.path.join(
-            "test_star", "output", "bigwig_star_ens_paired.bw"
-        )
-        gene_counts_star_paired = os.path.join(
-            "test_star", "output", "gene_counts_star_paired.tab.gz"
-        )
-        star_expression_paired = os.path.join(
-            "test_star", "output", "star_expression_paired.tab.gz"
-        )
-        star_out_exp_set = os.path.join(
-            "test_star", "output", "star_out_exp_set.txt.gz"
-        )
-        star_exp_set = os.path.join("test_star", "output", "star_exp_set.json.gz")
 
         inputs = {
             "genome": star_index.id,
             "reads": paired_reads.id,
             "t_coordinates": {
-                "quantmode": True,
-                "gene_counts": True,
+                "quant_mode": True,
             },
             "two_pass_mapping": {
                 "two_pass_mode": True,
             },
-            "star_sort": True,
         }
         aligned_reads = self.run_process("alignment-star", inputs)
-        self.assertFile(aligned_reads, "bigwig", bigwig_star_ens_paired)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
         self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_paired, compression="gzip"
+            aligned_reads,
+            "stats",
+            str(output_folder / "hs_paired_stats.txt"),
+            file_filter=filter_star_report,
         )
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_paired, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFile(exp, "exp_set", star_out_exp_set, compression="gzip")
-        self.assertJSON(exp, exp.output["exp_set_json"], "", star_exp_set)
-
-        inputs["star_sort"] = False
-        aligned_reads = self.run_process("alignment-star", inputs)
-        self.assertFile(aligned_reads, "bigwig", bigwig_star_ens_paired)
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        self.assertFile(
-            aligned_reads, "gene_counts", gene_counts_star_paired, compression="gzip"
-        )
-        exp = Data.objects.last()
-        self.assertFile(exp, "exp", star_expression_paired, compression="gzip")
-        self.assertFields(exp, "source", "ENSEMBL")
-        self.assertFile(exp, "exp_set", star_out_exp_set, compression="gzip")
-        self.assertJSON(exp, exp.output["exp_set_json"], "", star_exp_set)
 
     @tag_process(
         "bwa-index", "alignment-bwa-aln", "alignment-bwa-sw", "alignment-bwa-mem"
