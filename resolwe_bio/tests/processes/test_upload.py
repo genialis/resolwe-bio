@@ -52,6 +52,9 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("upload-expression")
     def test_upload_expression(self):
+        input_folder = Path("test_upload_expression") / "input"
+        output_folder = Path("test_upload_expression") / "output"
+
         inputs = {
             "exp_type": "TPM",
             "exp_name": "Expression",
@@ -62,8 +65,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.run_process("upload-expression", inputs, Data.STATUS_ERROR)
 
         inputs = {
-            "exp": "exp_1_tpm.tab.gz",
-            "rc": "exp_1_rc.tab.gz",
+            "exp": input_folder / "exp_1_tpm.tab.gz",
+            "rc": input_folder / "exp_1_rc.tab.gz",
             "exp_name": "Expression",
             "source": "UCSC",
             "species": "Homo sapiens",
@@ -72,22 +75,30 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.run_process("upload-expression", inputs, Data.STATUS_ERROR)
 
         inputs = {
-            "rc": "exp_1_rc.tab.gz",
+            "rc": input_folder / "exp_1_rc.tab.gz",
             "exp_name": "Expression",
             "source": "UCSC",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         exp_3 = self.run_process("upload-expression", inputs)
-        self.assertFile(exp_3, "rc", "exp_1_rc.tab.gz")
-        self.assertFile(exp_3, "exp", "exp_1_rc.tab.gz")
-        self.assertJSON(exp_3, exp_3.output["exp_json"], "", "exp_1.json.gz")
+        self.assertFile(exp_3, "rc", output_folder / "exp_1_rc.tab.gz")
+        self.assertFile(exp_3, "exp", output_folder / "exp_1_rc.tab.gz")
+        self.assertFile(
+            exp_3,
+            "exp_set",
+            output_folder / "exp_1_rc_expressions3.txt.gz",
+            compression="gzip",
+        )
+        self.assertJSON(
+            exp_3, exp_3.output["exp_json"], "", output_folder / "exp_1.json.gz"
+        )
         self.assertFields(exp_3, "species", "Homo sapiens")
         self.assertFields(exp_3, "build", "hg19")
         self.assertFields(exp_3, "feature_type", "gene")
 
         inputs = {
-            "exp": "exp_1_tpm.tab.gz",
+            "exp": input_folder / "exp_1_tpm.tab.gz",
             "exp_type": "TPM",
             "exp_name": "Expression",
             "source": "UCSC",
@@ -95,11 +106,17 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "build": "hg19",
         }
         exp_4 = self.run_process("upload-expression", inputs)
-        self.assertFile(exp_4, "exp", "exp_1_tpm.tab.gz")
+        self.assertFile(exp_4, "exp", output_folder / "exp_1_tpm.tab.gz")
+        self.assertFile(
+            exp_4,
+            "exp_set",
+            output_folder / "exp_1_tpm_expressions.txt.gz",
+            compression="gzip",
+        )
 
         inputs = {
-            "rc": "exp_1_rc.tab.gz",
-            "exp": "exp_1_tpm.tab.gz",
+            "rc": input_folder / "exp_1_rc.tab.gz",
+            "exp": input_folder / "exp_1_tpm.tab.gz",
             "exp_type": "TPM",
             "exp_name": "Expression",
             "source": "UCSC",
@@ -108,57 +125,127 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         }
         exp_5 = self.run_process("upload-expression", inputs)
         self.assertFields(exp_5, "exp_type", "TPM")
-        self.assertFile(exp_5, "exp", "exp_1_tpm.tab.gz")
-        self.assertFile(exp_5, "rc", "exp_1_rc.tab.gz")
-        self.assertJSON(exp_5, exp_5.output["exp_json"], "", "exp_1_norm.json.gz")
+        self.assertFile(exp_5, "exp", output_folder / "exp_1_tpm.tab.gz")
+        self.assertFile(exp_5, "rc", output_folder / "exp_1_rc.tab.gz")
+        self.assertFile(
+            exp_5,
+            "exp_set",
+            output_folder / "exp_1_rc_expressions5.txt.gz",
+            compression="gzip",
+        )
         self.assertJSON(
-            exp_5, exp_5.output["exp_set_json"], "", "upload_exp_norm_set.json.gz"
+            exp_5, exp_5.output["exp_json"], "", output_folder / "exp_1_norm.json.gz"
+        )
+        self.assertJSON(
+            exp_5,
+            exp_5.output["exp_set_json"],
+            "",
+            output_folder / "upload_exp_norm_set.json.gz",
         )
 
         inputs = {
-            "rc": "exp_mac_line_ending.txt.gz",
+            "rc": input_folder / "exp_mac_line_ending.txt.gz",
             "exp_name": "Expression",
             "source": "UCSC",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         exp_6 = self.run_process("upload-expression", inputs)
-        self.assertJSON(exp_6, exp_6.output["exp_json"], "", "exp.json.gz")
+        self.assertJSON(
+            exp_6, exp_6.output["exp_json"], "", output_folder / "exp.json.gz"
+        )
+        self.assertFile(exp_6, "rc", output_folder / "exp_mac_line_ending.tab.gz")
+        self.assertFile(
+            exp_6,
+            "exp_set",
+            output_folder / "exp_mac_line_ending_expressions.txt.gz",
+            compression="gzip",
+        )
 
         inputs = {
-            "rc": "exp_unix_line_ending.txt.gz",
+            "rc": input_folder / "exp_unix_line_ending.txt.gz",
             "exp_name": "Expression",
             "source": "UCSC",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         exp_7 = self.run_process("upload-expression", inputs)
-        self.assertJSON(exp_7, exp_7.output["exp_json"], "", "exp.json.gz")
+        self.assertJSON(
+            exp_7, exp_7.output["exp_json"], "", output_folder / "exp.json.gz"
+        )
 
         inputs = {
-            "rc": "exp_windows_line_ending.txt.gz",
+            "rc": input_folder / "exp_windows_line_ending.txt.gz",
             "exp_name": "Expression",
             "source": "UCSC",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         exp_8 = self.run_process("upload-expression", inputs)
-        self.assertJSON(exp_8, exp_8.output["exp_json"], "", "exp.json.gz")
+        self.assertJSON(
+            exp_8, exp_8.output["exp_json"], "", output_folder / "exp.json.gz"
+        )
 
         # Check handling of numerical feature_ids in expression file
         inputs = {
-            "rc": "mm_ncbi_exp.tab.gz",
+            "rc": input_folder / "mm_ncbi_exp.tab.gz",
             "exp_name": "Expression",
             "source": "NCBI",
             "species": "Mus musculus",
             "build": "hg19",
         }
         exp_9 = self.run_process("upload-expression", inputs)
-        self.assertFile(exp_9, "exp_set", "mm_ncbi_exp_set.txt.gz", compression="gzip")
+        self.assertFile(
+            exp_9,
+            "exp_set",
+            output_folder / "mm_ncbi_exp_set.txt.gz",
+            compression="gzip",
+        )
+
+        inputs = {
+            "exp": input_folder / "exp_1_tpm.tsv.gz",
+            "exp_type": "TPM",
+            "exp_name": "Expression",
+            "source": "UCSC",
+            "species": "Homo sapiens",
+            "build": "hg19",
+        }
+        exp_10 = self.run_process("upload-expression", inputs)
+        self.assertFile(exp_10, "exp", output_folder / "exp_1_tpm.tab.gz")
+        self.assertFile(
+            exp_10,
+            "exp_set",
+            output_folder / "exp_1_tpm_expressions.txt.gz",
+            compression="gzip",
+        )
+
+        # Test files with wrong extension
+        inputs = {
+            "rc": input_folder / "exp_1_rc.xlsx.gz",
+            "exp": input_folder / "exp_1_tpm.tab.gz",
+            "exp_type": "TPM",
+            "exp_name": "Expression",
+            "source": "UCSC",
+            "species": "Homo sapiens",
+            "build": "hg19",
+        }
+        self.run_process("upload-expression", inputs, Data.STATUS_ERROR)
+
+        inputs = {
+            "exp": input_folder / "exp_1_tpm.gz",
+            "exp_type": "TPM",
+            "exp_name": "Expression",
+            "source": "UCSC",
+            "species": "Homo sapiens",
+            "build": "hg19",
+        }
+        self.run_process("upload-expression", inputs, Data.STATUS_ERROR)
 
     @with_resolwe_host
     @tag_process("upload-cxb", "upload-expression-cuffnorm")
     def test_upload_cuffquant_expr(self):
+        input_folder = Path("test_upload_expression") / "input"
+        output_folder = Path("test_upload_expression") / "output"
         inputs = {
             "src": "cuffquant 1.cxb",
             "source": "UCSC",
@@ -167,9 +254,15 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         }
         cxb = self.run_process("upload-cxb", inputs)
 
-        inputs = {"exp": "cuffquant_exp.tab", "cxb": cxb.id}
+        inputs = {"exp": input_folder / "cuffquant_exp.tab", "cxb": cxb.id}
         exp = self.run_process("upload-expression-cuffnorm", inputs)
         self.assertFields(exp, "feature_type", "gene")
+        self.assertFile(
+            exp,
+            "exp_set",
+            output_folder / "cuffquant_exp_expressions.txt.gz",
+            compression="gzip",
+        )
 
     @tag_process("upload-fastq-paired")
     def test_upload_paired_end_reads(self):

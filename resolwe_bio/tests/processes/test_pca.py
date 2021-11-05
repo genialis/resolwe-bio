@@ -106,21 +106,21 @@ class PcaProcessorTestCase(KBBioProcessTestCase):
     def test_pca_ncbi(self):
         with self.preparation_stage():
             expression_1 = self.prepare_expression(
-                f_exp="clustering_NCBI.gz",
+                f_exp="clustering_NCBI.tab.gz",
                 f_type="rc",
                 name="Expression",
                 source="NCBI",
                 species="Homo sapiens",
             )
             expression_2 = self.prepare_expression(
-                f_exp="clustering_NCBI_1.gz",
+                f_exp="clustering_NCBI_1.tab.gz",
                 f_type="rc",
                 name="Expression",
                 source="NCBI",
                 species="Homo sapiens",
             )
             expression_3 = self.prepare_expression(
-                f_exp="clustering_NCBI_2.gz",
+                f_exp="clustering_NCBI_2.tab.gz",
                 f_type="rc",
                 name="Expression",
                 source="NCBI",

@@ -18,6 +18,8 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Rewrite ``alignment-star`` and
   ``alignment-star-index`` processes to Python
+- **BACKWARD INCOMPATIBLE:** Rewrite processes ``upload-expression``
+  and ``upload-expression-cuffnorm`` to Python
 - Rewrite processes ``seqtk-sample-single`` and ``seqtk-sample-paired``
   to Python
 - Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python
