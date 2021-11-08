@@ -71,7 +71,7 @@ AUTHENTICATION_BACKENDS = (
     "resolwe.permissions.permissions.ResolwePermissionBackend",
 )
 
-ANONYMOUS_USER_ID = -1
+ANONYMOUS_USER_NAME = "public"
 
 # Check if PostgreSQL settings are set via environment variables
 pgname = os.environ.get('RESOLWE_POSTGRESQL_NAME', 'resolwe-bio')

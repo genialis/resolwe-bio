@@ -37,6 +37,7 @@ Changed
   ``workflow-bbduk-star-fc-quant-paired``,
   ``workflow-cutadapt-star-fc-quant-single``,
   ``workflow-cutadapt-star-fc-quant-wo-depletion-single``
+- Replace ANONYMOUS_USER_ID with ANONYMOUS_USER_NAME in settings.py
 
 Fixed
 -----
