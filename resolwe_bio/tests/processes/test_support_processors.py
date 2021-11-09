@@ -975,15 +975,22 @@ re-save-file lane_attributes "${NAME}".txt
 
     @tag_process("seqtk-sample-single", "seqtk-sample-paired")
     def test_seqtk_sample(self):
+        input_folder = Path("seqtk") / "input"
+        output_folder = Path("seqtk") / "output"
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",
-                {"src": ["hs_single bbduk_star_htseq_reads_single.fastq.gz"]},
+                {
+                    "src": [
+                        input_folder
+                        / "hs_single_bbduk_star_htseq_reads_single.fastq.gz"
+                    ]
+                },
             )
 
             paired_reads = self.prepare_paired_reads(
-                ["hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"],
-                ["hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"],
+                [input_folder / "hs_paired_R1_workflow_bbduk_star_htseq.fastq.gz"],
+                [input_folder / "hs_paired_R2_workflow_bbduk_star_htseq.fastq.gz"],
             )
 
         inputs_single = {
@@ -998,7 +1005,7 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFiles(
             seqtk_single,
             "fastq",
-            ["seqtk_subsampled_reads_single_end.fastq.gz"],
+            [output_folder / "seqtk_subsampled_reads_single_end.fastq.gz"],
             compression="gzip",
         )
 
@@ -1014,13 +1021,13 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFiles(
             seqtk_paired,
             "fastq",
-            ["seqtk_subsampled_reads_paired_end_mate1.fastq.gz"],
+            [output_folder / "seqtk_subsampled_reads_paired_end_mate1.fastq.gz"],
             compression="gzip",
         )
         self.assertFiles(
             seqtk_paired,
             "fastq2",
-            ["seqtk_subsampled_reads_paired_end_mate2.fastq.gz"],
+            [output_folder / "seqtk_subsampled_reads_paired_end_mate2.fastq.gz"],
             compression="gzip",
         )
 

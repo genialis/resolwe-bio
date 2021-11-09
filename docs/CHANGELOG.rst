@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Rewrite processes ``seqtk-sample-single`` and ``seqtk-sample-paired``
+  to Python
 
 Fixed
 -----
