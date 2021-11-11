@@ -483,3 +483,42 @@ re-save build "custom_build"
         )
         self.assertFields(joint_variants, "build", "custom_build")
         self.assertFields(joint_variants, "species", "Homo sapiens")
+
+    @tag_process("gatk-merge-vcfs")
+    def test_gatk_merge_vcfs(self):
+        base = Path("wgs")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            vcf_1 = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": inputs / "vcf_1.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            vcf_2 = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": inputs / "vcf_2.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+        merged_vcfs = self.run_process(
+            "gatk-merge-vcfs",
+            {"vcfs": [vcf_1.id, vcf_2.id]},
+        )
+
+        self.assertFile(
+            merged_vcfs,
+            "vcf",
+            outputs / "merged_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+        self.assertFields(merged_vcfs, "build", "custom_build")
+        self.assertFields(merged_vcfs, "species", "Homo sapiens")

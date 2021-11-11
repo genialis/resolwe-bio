@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``gatk-merge-vcfs`` process
 
 Changed
 -------
