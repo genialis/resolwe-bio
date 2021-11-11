@@ -38,7 +38,7 @@ class WorkflowWgsGvcf(Process):
         },
     }
     data_name = 'WGS GVCF analysis ({{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }})'
-    version = "2.0.0"
+    version = "2.0.1"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {
@@ -405,7 +405,7 @@ class WorkflowWgsGvcf(Process):
         ]
         if inputs.reads:
             multiqc_inputs.append(inputs.reads)
-        if trimmomatic:
+        if inputs.reads and inputs.trimming_options.enable_trimming:
             multiqc_inputs.append(trimmomatic)
         Data.create(
             process=BioProcess.get_latest(slug="multiqc"),
