@@ -1,4 +1,5 @@
 """Run GATK GenomicsDBImport tool."""
+import os
 import shutil
 from pathlib import Path
 
@@ -26,7 +27,7 @@ class GenomicsDBImport(Process):
     name = "GATK GenomicsDBImport"
     category = "GATK"
     process_type = "data:genomicsdb"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -108,6 +109,19 @@ class GenomicsDBImport(Process):
                 "effect if only one batch is used.",
             )
 
+            max_heap_size = IntegerField(
+                label="Java maximum heap size in GB (Xmx)",
+                default=28,
+                description="Set the maximum Java heap size.",
+            )
+
+            use_cms_gc = BooleanField(
+                label="Use CMS Garbage Collector in Java",
+                default=True,
+                description="The Concurrent Mark Sweep (CMS) implementation uses multiple garbage "
+                "collector threads for garbage collection.",
+            )
+
         advanced_options = GroupField(
             AdvancedOptions, label="Advanced options", hidden="!advanced"
         )
@@ -169,6 +183,14 @@ class GenomicsDBImport(Process):
         else:
             self.error("Intervals file is required for creating a new database.")
 
+        java_memory = min(
+            int(self.requirements.resources.memory / 1024),
+            inputs.advanced_options.max_heap_size,
+        )
+        java_options = f"-Xmx{java_memory}g"
+        if inputs.advanced_options.use_cms_gc:
+            java_options += " -XX:+UseConcMarkSweepGC"
+
         db_import_args.extend(
             [
                 "--sample-name-map",
@@ -177,16 +199,23 @@ class GenomicsDBImport(Process):
                 inputs.advanced_options.batch_size,
                 "--reader-threads",
                 min(self.requirements.resources.cores, 5),
+                "--verbosity",
+                "DEBUG",
+                "--tmp-dir",
+                os.environ.get("TMPDIR"),
+                "--java-options",
+                java_options,
             ]
         )
 
         if inputs.advanced_options.consolidate:
             db_import_args.append("--consolidate")
 
-        return_code, _, _ = Cmd["gatk"]["GenomicsDBImport"][db_import_args] & TEE(
-            retcode=None
-        )
+        return_code, stdout, stderr = Cmd["gatk"]["GenomicsDBImport"][
+            db_import_args
+        ] & TEE(retcode=None)
         if return_code:
+            print(stdout, stderr)
             self.error("GATK GenomicsDBImport tool failed.")
 
         output_bed = f"./{intervals.name}"
