@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+40.0.0 - 2021-11-12
+===================
+
+Added
+-----
 - Add ``gatk-merge-vcfs`` process
 
 Changed
@@ -21,7 +35,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Update ``workflow-wgs-gvcf`` to include
   BWA-MEM2-based preprocessing step. Support triggering the pipeline
   using a pre-aligned BAM input file
-- Add ``qin`` and ``ignorebadquality`` BBduk options to workflows
+- Add ``qin`` and ``ignorebadquality`` BBDuk options to workflows
   ``workflow-bbduk-salmon-qc-single``,
   ``workflow-bbduk-salmon-qc-paired``,
   ``workflow-bbduk-star-featurecounts-qc-single``,
@@ -38,7 +52,8 @@ Changed
   ``workflow-bbduk-star-fc-quant-paired``,
   ``workflow-cutadapt-star-fc-quant-single``,
   ``workflow-cutadapt-star-fc-quant-wo-depletion-single``
-- Replace ANONYMOUS_USER_ID with ANONYMOUS_USER_NAME in settings.py
+- Replace ``ANONYMOUS_USER_ID`` with ``ANONYMOUS_USER_NAME`` in
+  settings.py
 - Add java memory settings in ``gatk-genomicsdb-import``
 
 Fixed
