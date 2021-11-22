@@ -21,6 +21,8 @@ Changed
 
 Fixed
 -----
+- Fix gene order in processes ``clustering-hierarchical-samples`` and
+  ``clustering-hierarchical-genes``
 
 
 ===================

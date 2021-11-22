@@ -433,7 +433,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 "hierarchical clustering of samples with correlation distance metric."
             ),
             (
-                "3 genes (C20orf96, ZCCHC3, NRSN2-AS1) are present in some but not all of the "
+                "3 genes (C20orf96, NRSN2-AS1, ZCCHC3) are present in some but not all of the "
                 "selected samples. Those genes are excluded from the computation of hierarchical "
                 "clustering of samples."
             ),

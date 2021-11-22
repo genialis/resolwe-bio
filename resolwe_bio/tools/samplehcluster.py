@@ -178,7 +178,7 @@ def get_gene_names(feature_ids, source, species):
     features = res.feature.filter(
         feature_id__in=feature_ids, source=source, species=species
     )
-    return [feature.name for feature in features]
+    return sorted([feature.name for feature in features])
 
 
 def main():
