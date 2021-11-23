@@ -23,6 +23,8 @@ Changed
 - Rewrite processes ``seqtk-sample-single`` and ``seqtk-sample-paired``
   to Python
 - Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python
+- Rewrite processes ``upload-fastq-single``, ``upload-fastq-paired``,
+  ``files-to-fastq-single`` and ``files-to-fastq-paired`` to Python
 
 Fixed
 -----

@@ -266,9 +266,14 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("upload-fastq-paired")
     def test_upload_paired_end_reads(self):
+        input_folder = Path("test_fastq_upload") / "input"
+        output_folder = Path("test_fastq_upload") / "output"
         inputs = {
-            "src1": ["mate1_reordered.fastq.gz", "mate1_diff_num_reads.fastq.gz"],
-            "src2": ["mate2_reordered.fastq.gz"],
+            "src1": [
+                input_folder / "mate1_reordered.fastq.gz",
+                input_folder / "mate1_diff_num_reads.fastq.gz",
+            ],
+            "src2": [input_folder / "mate2_reordered.fastq.gz"],
         }
         wrong_mates = self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
         error_msg = [
@@ -278,8 +283,11 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(wrong_mates.process_error, error_msg)
 
         inputs = {
-            "src1": ["mate1_reordered.fastq.gz", "mate1_reordered.fastq.gz"],
-            "src2": ["mate2_reordered.fastq.gz"],
+            "src1": [
+                input_folder / "mate1_reordered.fastq.gz",
+                input_folder / "mate1_reordered.fastq.gz",
+            ],
+            "src2": [input_folder / "mate2_reordered.fastq.gz"],
         }
         wrong_mates2 = self.run_process(
             "upload-fastq-paired", inputs, Data.STATUS_ERROR
@@ -290,8 +298,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(wrong_mates2.process_error, error_msg)
 
         inputs = {
-            "src1": ["mate1_diff_num_reads.fastq.gz"],
-            "src2": ["mate2_diff_num_reads.fastq.gz"],
+            "src1": [input_folder / "mate1_diff_num_reads.fastq.gz"],
+            "src2": [input_folder / "mate2_diff_num_reads.fastq.gz"],
         }
         diff_numb_reads = self.run_process(
             "upload-fastq-paired", inputs, Data.STATUS_ERROR
@@ -304,8 +312,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(diff_numb_reads.process_error, error_msg)
 
         inputs = {
-            "src1": ["mate1_reordered.fastq.gz"],
-            "src2": ["mate2_reordered.fastq.gz"],
+            "src1": [input_folder / "mate1_reordered.fastq.gz"],
+            "src2": [input_folder / "mate2_reordered.fastq.gz"],
         }
         unordered_reads = self.run_process(
             "upload-fastq-paired", inputs, Data.STATUS_ERROR
@@ -317,21 +325,31 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(unordered_reads.process_error, error_msg)
 
-        inputs = {"src1": ["mate1.fastq.gz"], "src2": ["mate2.fastq.gz"]}
+        inputs = {
+            "src1": [input_folder / "mate1.fastq.gz"],
+            "src2": [input_folder / "mate2.fastq.gz"],
+        }
         self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
 
-        inputs = {"src1": ["rRNA forw.fastq.gz"], "src2": ["rRNA_rew.fastq.gz"]}
+        inputs = {
+            "src1": [input_folder / "rRNA_forw.fastq.gz"],
+            "src2": [input_folder / "rRNA_rew.fastq.gz"],
+        }
         reads = self.run_process("upload-fastq-paired", inputs)
-        self.assertFiles(reads, "fastq", ["rRNA forw.fastq.gz"], compression="gzip")
-        self.assertFiles(reads, "fastq2", ["rRNA_rew.fastq.gz"], compression="gzip")
+        self.assertFiles(
+            reads, "fastq", [output_folder / "rRNA_forw.fastq.gz"], compression="gzip"
+        )
+        self.assertFiles(
+            reads, "fastq2", [output_folder / "rRNA_rew.fastq.gz"], compression="gzip"
+        )
         del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
         self.assertFields(
             reads,
             "fastqc_url",
             [
                 {
-                    "file": "fastqc/rRNA forw_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/rRNA forw_fastqc"],
+                    "file": "fastqc/rRNA_forw_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/rRNA_forw_fastqc"],
                     "size": 343222,
                 }
             ],
@@ -352,34 +370,87 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         merged_lanes = self.run_process(
             "upload-fastq-paired",
             {
-                "src1": ["old_encoding.fastq.gz", "old_encoding1.fastq.gz"],
-                "src2": ["old_encoding_R2.fastq.gz", "old_encoding1_R2.fastq.gz"],
+                "src1": [
+                    input_folder / "old_encoding.fastq.gz",
+                    input_folder / "old_encoding1.fastq.gz",
+                ],
+                "src2": [
+                    input_folder / "old_encoding_R2.fastq.gz",
+                    input_folder / "old_encoding1_R2.fastq.gz",
+                ],
                 "merge_lanes": True,
             },
         )
         self.assertFiles(
             merged_lanes,
             "fastq",
-            ["paired_end_merged_lanes_mate1.fastq.gz"],
+            [output_folder / "paired_end_merged_lanes_mate1.fastq.gz"],
             compression="gzip",
         )
         self.assertFiles(
             merged_lanes,
             "fastq2",
-            ["paired_end_merged_lanes_mate2.fastq.gz"],
+            [output_folder / "paired_end_merged_lanes_mate2.fastq.gz"],
             compression="gzip",
         )
 
+        inputs = {
+            "src1": [input_folder / "rRNA_forw.fastq"],
+            "src2": [input_folder / "rRNA_rew.fastq"],
+        }
+        reads = self.run_process("upload-fastq-paired", inputs)
+        self.assertFiles(
+            reads, "fastq", [output_folder / "rRNA_forw.fastq.gz"], compression="gzip"
+        )
+        self.assertFiles(
+            reads, "fastq2", [output_folder / "rRNA_rew.fastq.gz"], compression="gzip"
+        )
+        del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
+        self.assertFields(
+            reads,
+            "fastqc_url",
+            [
+                {
+                    "file": "fastqc/rRNA_forw_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/rRNA_forw_fastqc"],
+                    "size": 343222,
+                }
+            ],
+        )
+        del reads.output["fastqc_url2"][0]["total_size"]  # Non-deterministic output.
+        self.assertFields(
+            reads,
+            "fastqc_url2",
+            [
+                {
+                    "file": "fastqc/rRNA_rew_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/rRNA_rew_fastqc"],
+                    "size": 323297,
+                }
+            ],
+        )
+        inputs = {
+            "src1": [input_folder / "genome.fasta.gz"],
+            "src2": [input_folder / "rRNA_rew.fastq"],
+        }
+        reads = self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
+
     @tag_process("upload-fastq-single")
     def test_upload_single_end_reads(self):
+        input_folder = Path("test_fastq_upload") / "input"
+        output_folder = Path("test_fastq_upload") / "output"
         empty_input = self.run_process(
-            "upload-fastq-single", {"src": ["empty.fastq.gz"]}, Data.STATUS_ERROR
+            "upload-fastq-single",
+            {"src": [input_folder / "empty.fastq.gz"]},
+            Data.STATUS_ERROR,
         )
         error_msg = ["Input file empty.fastq.gz contains no read sequences."]
         self.assertEqual(empty_input.process_error, error_msg)
 
         garbage_input = self.run_process(
-            "upload-fastq-single", {"src": ["garbage.fastq.gz"]}, Data.STATUS_ERROR
+            "upload-fastq-single",
+            {"src": [input_folder / "garbage.fastq.gz"]},
+            Data.STATUS_ERROR,
         )
         error_msg = [
             "Error in file garbage.fastq.gz. Error in FASTQ file at line 1: Line expected "
@@ -388,7 +459,9 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(garbage_input.process_error, error_msg)
 
         garbage_input_2 = self.run_process(
-            "upload-fastq-single", {"src": ["garbage2.fastq.gz"]}, Data.STATUS_ERROR
+            "upload-fastq-single",
+            {"src": [input_folder / "garbage2.fastq.gz"]},
+            Data.STATUS_ERROR,
         )
         error_msg = [
             "Error in file garbage2.fastq.gz. Error in FASTQ file at line 3: Sequence descriptions "
@@ -398,7 +471,9 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(garbage_input_2.process_error, error_msg)
 
         missing_qual = self.run_process(
-            "upload-fastq-single", {"src": ["missing_qual.fastq.gz"]}, Data.STATUS_ERROR
+            "upload-fastq-single",
+            {"src": [input_folder / "missing_qual.fastq.gz"]},
+            Data.STATUS_ERROR,
         )
         error_msg = [
             "Error in file missing_qual.fastq.gz. Error in FASTQ file at line 16: "
@@ -407,16 +482,24 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(missing_qual.process_error, error_msg)
 
-        inputs = {"src": ["mate1.fastq.gz"]}
+        inputs = {"src": [input_folder / "mate1.fastq.gz"]}
         self.run_process("upload-fastq-single", inputs, Data.STATUS_ERROR)
 
-        inputs = {"src": ["rRNA forw.fastq.gz", "rRNA_rew.fastq.gz"]}
+        inputs = {
+            "src": [
+                input_folder / "rRNA_forw.fastq.gz",
+                input_folder / "rRNA_rew.fastq.gz",
+            ]
+        }
         reads = self.run_process("upload-fastq-single", inputs)
 
         self.assertFiles(
             reads,
             "fastq",
-            ["rRNA_forw_single.fastq.gz", "rRNA_rew.fastq.gz"],
+            [
+                output_folder / "rRNA_forw_single.fastq.gz",
+                output_folder / "rRNA_rew.fastq.gz",
+            ],
             compression="gzip",
         )
         del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
@@ -426,8 +509,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             "fastqc_url",
             [
                 {
-                    "file": "fastqc/rRNA forw_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/rRNA forw_fastqc"],
+                    "file": "fastqc/rRNA_forw_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/rRNA_forw_fastqc"],
                     "size": 343222,
                 },
                 {
@@ -441,14 +524,35 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         merged_lanes = self.run_process(
             "upload-fastq-single",
             {
-                "src": ["rRNA forw.fastq.gz", "rRNA_rew.fastq.gz"],
+                "src": [
+                    input_folder / "rRNA_forw.fastq.gz",
+                    input_folder / "rRNA_rew.fastq.gz",
+                ],
                 "merge_lanes": True,
             },
         )
         self.assertFiles(
             merged_lanes,
             "fastq",
-            ["merged_single_end_reads.fastq.gz"],
+            [output_folder / "merged_single_end_reads.fastq.gz"],
+            compression="gzip",
+        )
+
+        inputs = {
+            "src": [
+                input_folder / "rRNA_forw.fq.gz",
+                input_folder / "rRNA_rew.fq.gz",
+            ]
+        }
+        reads = self.run_process("upload-fastq-single", inputs)
+
+        self.assertFiles(
+            reads,
+            "fastq",
+            [
+                output_folder / "rRNA_forw.fastq.gz",
+                output_folder / "rRNA_rew.fastq.gz",
+            ],
             compression="gzip",
         )
 

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from resolwe.flow.models import Secret
 from resolwe.test import tag_process
 
@@ -111,12 +113,13 @@ class FilesToReadsTestCase(BioProcessTestCase):
             },
         )
 
+        test_folder = Path("test_fastq_upload") / "input"
         self.assertFiles(
             reads,
             "fastq",
             [
-                "TestPaired_S1_L001_R1_001.fastq.gz",
-                "TestPaired_S1_L002_R1_001.fastq.gz",
+                test_folder / "TestPaired_S1_L001_R1_001.fastq.gz",
+                test_folder / "TestPaired_S1_L002_R1_001.fastq.gz",
             ],
             compression="gzip",
         )
@@ -124,8 +127,8 @@ class FilesToReadsTestCase(BioProcessTestCase):
             reads,
             "fastq2",
             [
-                "TestPaired_S1_L001_R2_001.fastq.gz",
-                "TestPaired_S1_L002_R2_001.fastq.gz",
+                test_folder / "TestPaired_S1_L001_R2_001.fastq.gz",
+                test_folder / "TestPaired_S1_L002_R2_001.fastq.gz",
             ],
             compression="gzip",
         )
@@ -164,12 +167,14 @@ class FilesToReadsTestCase(BioProcessTestCase):
 
     @tag_process("upload-file", "files-to-fastq-single")
     def test_files_fq_single(self):
+        input_folder = Path("test_fastq_upload") / "input"
+        output_folder = Path("test_fastq_upload") / "output"
         with self.preparation_stage():
             lane_1 = self.run_process(
-                "upload-file", {"src": "Test_S1_L001_R1_001.fastq.gz"}
+                "upload-file", {"src": input_folder / "Test_S1_L001_R1_001.fastq.gz"}
             )
             lane_2 = self.run_process(
-                "upload-file", {"src": "Test_S1_L002_R1_001.fastq.gz"}
+                "upload-file", {"src": input_folder / "Test_S1_L002_R1_001.fastq.gz"}
             )
 
         reads = self.run_process(
@@ -179,7 +184,10 @@ class FilesToReadsTestCase(BioProcessTestCase):
         self.assertFiles(
             reads,
             "fastq",
-            ["Test_S1_L001_R1_001.fastq.gz", "Test_S1_L002_R1_001.fastq.gz"],
+            [
+                input_folder / "Test_S1_L001_R1_001.fastq.gz",
+                input_folder / "Test_S1_L002_R1_001.fastq.gz",
+            ],
             compression="gzip",
         )
         del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
@@ -207,23 +215,32 @@ class FilesToReadsTestCase(BioProcessTestCase):
             },
         )
         self.assertFiles(
-            reads, "fastq", ["Test_S1_L001_R1_001_merged.fastq.gz"], compression="gzip"
+            reads,
+            "fastq",
+            [output_folder / "Test_S1_L001_R1_001_merged.fastq.gz"],
+            compression="gzip",
         )
 
     @tag_process("upload-file", "files-to-fastq-paired")
     def test_files_fq_paired(self):
+        input_folder = Path("test_fastq_upload") / "input"
+        output_folder = Path("test_fastq_upload") / "output"
         with self.preparation_stage():
             mate_1_lane_1 = self.run_process(
-                "upload-file", {"src": "TestPaired_S1_L001_R1_001.fastq.gz"}
+                "upload-file",
+                {"src": input_folder / "TestPaired_S1_L001_R1_001.fastq.gz"},
             )
             mate_1_lane_2 = self.run_process(
-                "upload-file", {"src": "TestPaired_S1_L002_R1_001.fastq.gz"}
+                "upload-file",
+                {"src": input_folder / "TestPaired_S1_L002_R1_001.fastq.gz"},
             )
             mate_2_lane_1 = self.run_process(
-                "upload-file", {"src": "TestPaired_S1_L001_R2_001.fastq.gz"}
+                "upload-file",
+                {"src": input_folder / "TestPaired_S1_L001_R2_001.fastq.gz"},
             )
             mate_2_lane_2 = self.run_process(
-                "upload-file", {"src": "TestPaired_S1_L002_R2_001.fastq.gz"}
+                "upload-file",
+                {"src": input_folder / "TestPaired_S1_L002_R2_001.fastq.gz"},
             )
 
         reads = self.run_process(
@@ -238,8 +255,8 @@ class FilesToReadsTestCase(BioProcessTestCase):
             reads,
             "fastq",
             [
-                "TestPaired_S1_L001_R1_001.fastq.gz",
-                "TestPaired_S1_L002_R1_001.fastq.gz",
+                input_folder / "TestPaired_S1_L001_R1_001.fastq.gz",
+                input_folder / "TestPaired_S1_L002_R1_001.fastq.gz",
             ],
             compression="gzip",
         )
@@ -247,8 +264,8 @@ class FilesToReadsTestCase(BioProcessTestCase):
             reads,
             "fastq2",
             [
-                "TestPaired_S1_L001_R2_001.fastq.gz",
-                "TestPaired_S1_L002_R2_001.fastq.gz",
+                input_folder / "TestPaired_S1_L001_R2_001.fastq.gz",
+                input_folder / "TestPaired_S1_L002_R2_001.fastq.gz",
             ],
             compression="gzip",
         )
@@ -296,12 +313,12 @@ class FilesToReadsTestCase(BioProcessTestCase):
         self.assertFiles(
             reads,
             "fastq",
-            ["TestPaired_S1_L001_R1_001_merged.fastq.gz"],
+            [output_folder / "TestPaired_S1_L001_R1_001_merged.fastq.gz"],
             compression="gzip",
         )
         self.assertFiles(
             reads,
             "fastq2",
-            ["TestPaired_S1_L001_R2_001_merged.fastq.gz"],
+            [output_folder / "TestPaired_S1_L001_R2_001_merged.fastq.gz"],
             compression="gzip",
         )
