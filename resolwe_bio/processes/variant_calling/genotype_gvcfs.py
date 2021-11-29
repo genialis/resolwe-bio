@@ -25,7 +25,7 @@ def create_vcf_path(interval_path):
 
 @delayed
 @wrap_non_picklable_objects
-def run_genotype_gvcfs(interval_path, ref_seq_path, db_path, dbsnp_path):
+def run_genotype_gvcfs(interval_path, ref_seq_path, db_path, dbsnp_path, java_memory):
     """Run genotyping on a specifed interval."""
     variants_interval = create_vcf_path(interval_path)
 
@@ -45,6 +45,8 @@ def run_genotype_gvcfs(interval_path, ref_seq_path, db_path, dbsnp_path):
         "-G",
         "AS_StandardAnnotation",
         "--only-output-calls-starting-in-intervals",
+        "--java-options",
+        f"-Xmx{java_memory}g",
     ]
 
     return_code, _, _ = Cmd["gatk"]["GenotypeGVCFs"][genotype_gvcfs_inputs] & TEE(
@@ -60,7 +62,7 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "2.0.0"
+    version = "2.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -92,39 +94,17 @@ class GatkGenotypeGVCFs(Process):
         class AdvancedOptions:
             """Advanced options."""
 
-            batch_size = IntegerField(
-                label="Batch size",
-                default=0,
-                description="Batch size controls the number of samples "
-                "for which readers are open at once and therefore provides "
-                "a way to minimize memory consumption. However, it can "
-                "take longer to complete. Use the consolidate flag if more "
-                "than a hundred batches were used. This will improve feature "
-                "read time. batchSize=0 means no batching "
-                "(i.e. readers for all samples will be opened at once).",
-            )
-
-            consolidate = BooleanField(
-                label="Consolidate",
-                default=False,
-                description="Boolean flag to enable consolidation. If "
-                "importing data in batches, a new fragment is created for "
-                "each batch. In case thousands of fragments are created, "
-                "GenomicsDB feature readers will try to open ~20x as many "
-                "files. Also, internally GenomicsDB would consume more "
-                "memory to maintain bookkeeping data from all fragments. "
-                "Use this flag to merge all fragments into one. Merging "
-                "can potentially improve read performance, however overall "
-                "benefit might not be noticeable as the top Java layers "
-                "have significantly higher overheads. This flag has no "
-                "effect if only one batch is used.",
-            )
             n_jobs = IntegerField(
                 label="Number of concurent jobs",
                 description="Use a fixed number of jobs for genotyping "
                 "instead of determining it based on the number of available "
                 "cores.",
                 required=False,
+            )
+            max_heap_size = IntegerField(
+                label="Java maximum heap size in GB (Xmx)",
+                default=28,
+                description="Set the maximum Java heap size.",
             )
 
         advanced_options = GroupField(
@@ -174,12 +154,18 @@ class GatkGenotypeGVCFs(Process):
 
         intervals = [path for path in intervals_path.glob("*.interval_list")]
 
+        java_memory = min(
+            int(self.requirements.resources.memory / 1024),
+            inputs.advanced_options.max_heap_size,
+        )
+
         return_codes = Parallel(n_jobs=n_jobs)(
             run_genotype_gvcfs(
                 interval_path,
                 ref_seq_path=inputs.ref_seq.output.fasta.path,
                 db_path=inputs.database.output.database.path,
                 dbsnp_path=inputs.dbsnp.output.vcf.path,
+                java_memory=java_memory,
             )
             for interval_path in intervals
         )

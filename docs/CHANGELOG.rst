@@ -25,6 +25,8 @@ Changed
 - Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python
 - Rewrite processes ``upload-fastq-single``, ``upload-fastq-paired``,
   ``files-to-fastq-single`` and ``files-to-fastq-paired`` to Python
+- Add java memory setting and remove unused inputs in
+  ``gatk-genotype-gvcfs``
 
 Fixed
 -----
