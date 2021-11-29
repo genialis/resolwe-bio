@@ -105,6 +105,14 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(gene_set, "species", "Dictyostelium discoideum")
         self.assertFields(gene_set, "source", "DICTYBASE")
 
+        inputs["filter_options"]["independent"] = False
+        diff_exp = self.run_process("differentialexpression-deseq2", inputs)
+        self.assertFileExists(diff_exp, "raw")
+        self.assertFields(diff_exp, "source", "DICTYBASE")
+        self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
+        self.assertFields(diff_exp, "build", "dd-05-2009")
+        self.assertFields(diff_exp, "feature_type", "gene")
+
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_source(self):

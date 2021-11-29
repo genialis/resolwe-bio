@@ -35,7 +35,7 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.3.0"
+    version = "3.4.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -125,7 +125,7 @@ class Deseq(Process):
             )
             independent = BooleanField(
                 label="Apply independent gene filtering",
-                default=False,
+                default=True,
             )
             alpha = FloatField(
                 label="Significance cut-off used for optimizing independent "
@@ -241,7 +241,7 @@ class Deseq(Process):
         if inputs.filter_options.cook:
             params.extend(["--cooks-cutoff", inputs.filter_options.cooks_cutoff])
         if inputs.filter_options.independent:
-            params.extend(["--alpha", inputs.filter_options.alpha])
+            params.extend(["--independent", "--alpha", inputs.filter_options.alpha])
 
         return_code, _, _ = Cmd["deseq.R"][params] & TEE(retcode=None)
         self.progress(0.95)

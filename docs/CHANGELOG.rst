@@ -27,6 +27,9 @@ Changed
   ``files-to-fastq-single`` and ``files-to-fastq-paired`` to Python
 - Add java memory setting and remove unused inputs in
   ``gatk-genotype-gvcfs``
+- Change the ``independent`` field to True by default in process
+  ``differentialexpression-deseq2`` to match the behaviour of the R
+  script
 
 Fixed
 -----

@@ -17,6 +17,7 @@ parser$add_argument('--controls', nargs='+', help='Controls', required=TRUE)
 parser$add_argument('--beta-prior', action='store_true')
 parser$add_argument('--min-count-sum', type='integer', help='Minimum count sum', default=0)
 parser$add_argument('--cooks-cutoff', type='double', help="Cook's cut-off", default=FALSE)
+parser$add_argument('--independent', help="Independent filtering", action="store_true")
 parser$add_argument('--alpha', type='double', help="Alpha", default=0.1)
 parser$add_argument('--format', choices=c('rc', 'rsem', 'salmon', 'nanostring'), default='rc')
 parser$add_argument('--tx2gene', help='Transcript to gene mapping')
@@ -63,7 +64,9 @@ if (args$format == 'rsem') {
 dds <- dds[rowSums(counts(dds)) >= args$min_count_sum, ]
 dds <- tryCatch(DESeq(dds, betaPrior=args$beta_prior), error=error)
 
-result <- results(dds, cooksCutoff=args$cooks_cutoff, alpha=args$alpha)
+result <- results(dds, cooksCutoff=args$cooks_cutoff, alpha=args$alpha,
+    independentFiltering=args$independent
+)
 result <- result[order(result$padj), ]
 write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=FALSE, col.names=NA)
 # Use file names for the column headers in the count matrix output file
