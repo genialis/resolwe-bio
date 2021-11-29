@@ -241,6 +241,17 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         }
         self.run_process("upload-expression", inputs, Data.STATUS_ERROR)
 
+        inputs = {
+            "rc": input_folder / "exp.1_rc.tab.gz",
+            "exp_name": "Expression",
+            "source": "UCSC",
+            "species": "Homo sapiens",
+            "build": "hg19",
+        }
+        exp_13 = self.run_process("upload-expression", inputs)
+        self.assertFields(exp_13, "rc", {"file": "exp.1_rc.tab.gz", "total_size": 99})
+        self.assertFields(exp_13, "exp", {"file": "exp.1_rc.tab.gz", "total_size": 99})
+
     @with_resolwe_host
     @tag_process("upload-cxb", "upload-expression-cuffnorm")
     def test_upload_cuffquant_expr(self):

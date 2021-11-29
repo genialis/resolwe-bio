@@ -108,7 +108,7 @@ def expression_to_storage(infile, outfile):
 
 def replace_extension(infile):
     """Replace extensions of file."""
-    extensions = "".join(Path(str(infile)).suffixes)
+    extensions = "".join(Path(str(infile)).suffixes[-2:])
     new_ext = ".tab.gz"
     outfile = str(infile).replace(extensions, new_ext)
     return outfile
@@ -125,7 +125,7 @@ class UploadExpression(ProcessBio):
     slug = "upload-expression"
     name = "Expression data"
     process_type = "data:expression"
-    version = "2.5.0"
+    version = "2.5.1"
     category = "Import"
     data_name = "{{ exp_name }}"
     scheduling_class = SchedulingClass.BATCH
