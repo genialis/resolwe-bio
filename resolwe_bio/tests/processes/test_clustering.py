@@ -10,37 +10,39 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("clustering-hierarchical-samples")
     def test_sample_clustering(self):
+        input_folder = Path("hierarchical_clustering") / "input"
+        output_folder = Path("hierarchical_clustering") / "output"
         with self.preparation_stage():
             expression_1 = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="expression",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             wrong_source = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="wrong source",
                 source="UCSC",
                 species="Homo sapiens",
             )
             wrong_species = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="wrong species",
                 source="ENSEMBL",
                 species="Mus musculus",
             )
             wrong_expression_type = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="FPKM",
                 name="wrong expression type",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             wrong_feature_type = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 feature_type="transcript",
                 name="wrong feature type",
@@ -48,49 +50,49 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 species="Homo sapiens",
             )
             expression_2 = self.prepare_expression(
-                f_exp="clustering_ensembl_2.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_2.tab.gz",
                 f_type="TPM",
                 name="expression 2",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_3 = self.prepare_expression(
-                f_exp="clustering_ensembl_3.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_3.tab.gz",
                 f_type="TPM",
                 name="expression 3",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_5 = self.prepare_expression(
-                f_exp="clustering_ensembl_5.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_5.tab.gz",
                 f_type="TPM",
                 name="expression 5",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_6 = self.prepare_expression(
-                f_exp="clustering_ensembl_6.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_6.tab.gz",
                 f_type="TPM",
                 name="expression 6",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_7 = self.prepare_expression(
-                f_exp="clustering_ensembl_7.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_7.tab.gz",
                 f_type="TPM",
                 name="expression 7",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_8 = self.prepare_expression(
-                f_exp="clustering_int1.tab.gz",
+                f_exp=input_folder / "clustering_int1.tab.gz",
                 f_type="TPM",
                 name="expression int 1",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_9 = self.prepare_expression(
-                f_exp="clustering_int2.tab.gz",
+                f_exp=input_folder / "clustering_int2.tab.gz",
                 f_type="TPM",
                 name="expression int 2",
                 source="ENSEMBL",
@@ -108,7 +110,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         }
         clustering = self.run_process("clustering-hierarchical-samples", inputs)
         saved_json, test_json = self.get_json(
-            "clustering_out_sample.json.gz", clustering.output["cluster"]
+            output_folder / "clustering_out_sample.json.gz",
+            clustering.output["cluster"],
         )
         # correct sample IDs
         saved_json["sample_ids"] = {
@@ -142,7 +145,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Sample expression has ENSEMBL gene IDs, "
-                "while sample 'wrong source' has UCSC gene IDs."
+                "while sample wrong source has UCSC gene IDs."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -160,8 +163,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Species."]
         error_msg = [
             (
-                "Sample expression is 'Homo sapiens', "
-                "while sample 'wrong species' is 'Mus musculus'."
+                "Sample expression is Homo sapiens, "
+                "while sample wrong species is Mus musculus."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -180,7 +183,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Expression expression has TPM expression type, "
-                "while sample 'wrong expression type' has FPKM expression type."
+                "while sample wrong expression type has FPKM expression type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -199,7 +202,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Expression expression has gene feature type, "
-                "while sample 'wrong feature type' has transcript feature type."
+                "while sample wrong feature type has transcript feature type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -247,7 +250,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "Selected genes must be from the same species as all expression files."
         ]
         error_msg = [
-            "Selected genes are 'Mus musculus', while expression expression is 'Homo sapiens'."
+            "Selected genes are Mus musculus, while expression expression is Homo sapiens."
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         self.assertEqual(clustering.process_error, error_msg)
@@ -440,44 +443,46 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         saved_json, test_json = self.get_json(
-            "sample_cluster_data.json.gz", clustering.output["cluster"]
+            output_folder / "sample_cluster_data.json.gz", clustering.output["cluster"]
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 
     @with_resolwe_host
     @tag_process("clustering-hierarchical-genes")
     def test_gene_clustering(self):
+        input_folder = Path("hierarchical_clustering") / "input"
+        output_folder = Path("hierarchical_clustering") / "output"
         with self.preparation_stage():
             expression_1 = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="expression",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             wrong_source = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="wrong source",
                 source="UCSC",
                 species="Homo sapiens",
             )
             wrong_species = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 name="wrong species",
                 source="ENSEMBL",
                 species="Mus musculus",
             )
             wrong_expression_type = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="FPKM",
                 name="wrong expression type",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             wrong_feature_type = self.prepare_expression(
-                f_exp="clustering_ensembl_1.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_1.tab.gz",
                 f_type="TPM",
                 feature_type="transcript",
                 name="wrong feature type",
@@ -485,49 +490,49 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 species="Homo sapiens",
             )
             expression_2 = self.prepare_expression(
-                f_exp="clustering_ensembl_2.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_2.tab.gz",
                 f_type="TPM",
                 name="expression 2",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_3 = self.prepare_expression(
-                f_exp="clustering_ensembl_3.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_3.tab.gz",
                 f_type="TPM",
                 name="expression 3",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_4 = self.prepare_expression(
-                f_exp="clustering_ensembl_4.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_4.tab.gz",
                 f_type="TPM",
                 name="expression 4",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_5 = self.prepare_expression(
-                f_exp="clustering_ensembl_5.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_5.tab.gz",
                 f_type="TPM",
                 name="expression 5",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_7 = self.prepare_expression(
-                f_exp="clustering_ensembl_7.tab.gz",
+                f_exp=input_folder / "clustering_ensembl_7.tab.gz",
                 f_type="TPM",
                 name="expression 7",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_8 = self.prepare_expression(
-                f_exp="clustering_int1.tab.gz",
+                f_exp=input_folder / "clustering_int1.tab.gz",
                 f_type="TPM",
                 name="expression int 1",
                 source="ENSEMBL",
                 species="Homo sapiens",
             )
             expression_9 = self.prepare_expression(
-                f_exp="clustering_int2.tab.gz",
+                f_exp=input_folder / "clustering_int2.tab.gz",
                 f_type="TPM",
                 name="expression int 2",
                 source="ENSEMBL",
@@ -545,7 +550,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         }
         clustering = self.run_process("clustering-hierarchical-genes", inputs)
         saved_json, test_json = self.get_json(
-            "clustering_out_genes.json.gz", clustering.output["cluster"]
+            output_folder / "clustering_out_genes.json.gz", clustering.output["cluster"]
         )
         self.assertEqual(saved_json.keys(), test_json.keys())
         for key in saved_json:
@@ -570,7 +575,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Sample expression has ENSEMBL gene IDs, "
-                "while sample 'wrong source' has UCSC gene IDs."
+                "while sample wrong source has UCSC gene IDs."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -588,8 +593,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         warning_msg = ["All expressions must be of the same Species."]
         error_msg = [
             (
-                "Sample expression is 'Homo sapiens', "
-                "while sample 'wrong species' is 'Mus musculus'."
+                "Sample expression is Homo sapiens, "
+                "while sample wrong species is Mus musculus."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -608,7 +613,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Expression expression has TPM expression type, "
-                "while sample 'wrong expression type' has FPKM expression type."
+                "while sample wrong expression type has FPKM expression type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -627,7 +632,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         error_msg = [
             (
                 "Expression expression has gene feature type, "
-                "while sample 'wrong feature type' has transcript feature type."
+                "while sample wrong feature type has transcript feature type."
             )
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
@@ -675,7 +680,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "Selected genes must be from the same species as all expression files."
         ]
         error_msg = [
-            "Selected genes are 'Mus musculus', while expression expression is 'Homo sapiens'."
+            "Selected genes are Mus musculus, while expression expression is Homo sapiens."
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         self.assertEqual(clustering.process_error, error_msg)
@@ -820,7 +825,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         saved_json, test_json = self.get_json(
-            "gene_cluster_filtered.json.gz", clustering.output["cluster"]
+            output_folder / "gene_cluster_filtered.json.gz",
+            clustering.output["cluster"],
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 
@@ -890,7 +896,7 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(clustering.process_warning, warning_msg)
         saved_json, test_json = self.get_json(
-            "gene_cluster_data.json.gz", clustering.output["cluster"]
+            output_folder / "gene_cluster_data.json.gz", clustering.output["cluster"]
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 

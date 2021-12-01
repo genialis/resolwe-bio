@@ -30,6 +30,8 @@ Changed
 - Change the ``independent`` field to True by default in process
   ``differentialexpression-deseq2`` to match the behaviour of the R
   script
+- Rewrite processes ``clustering-hierarchical-samples`` and
+  ``clustering-hierarchical-genes`` to Python
 
 Fixed
 -----
