@@ -125,7 +125,7 @@ class UploadExpression(ProcessBio):
     slug = "upload-expression"
     name = "Expression data"
     process_type = "data:expression"
-    version = "2.5.1"
+    version = "2.5.2"
     category = "Import"
     data_name = "{{ exp_name }}"
     scheduling_class = SchedulingClass.BATCH
@@ -151,13 +151,13 @@ class UploadExpression(ProcessBio):
         rc = FileField(
             label="Read counts (raw expression)",
             description="Reads mapped to genomic features (raw count data). "
-            "Supported extensions: .txt.gz (preferred), .tab.* or .txt.*",
+            "Supported extensions: .txt.gz (preferred), .tab.*, .txt.* or .tsv.*",
             required=False,
         )
         exp = FileField(
             label="Normalized expression",
             description="Normalized expression data. Supported extensions: .tab.gz "
-            "(preferred) or .tab.*",
+            "(preferred), .tab.*, .txt.* or .tsv.*",
             required=False,
         )
         exp_name = StringField(
