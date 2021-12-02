@@ -68,7 +68,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.0.0"
+    version = "3.0.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -230,7 +230,8 @@ class AlignmentStar(Process):
                 required=False,
                 range=[0.0, 1.0],
                 description="Alignment will be output only if its ratio of mismatches to *mapped* "
-                "length is less than or equal to this value (default: 0.3).",
+                "length is less than or equal to this value (default: 0.3). The value should be "
+                "between 0.0 and 1.0.",
             )
 
             out_score_min = IntegerField(
@@ -247,7 +248,7 @@ class AlignmentStar(Process):
                 description="Alignment will be output only if its ratio of mismatches to *read* "
                 "length is less than or equal to this value (default: 1.0). Using 0.04 for "
                 "2x100bp, the max number of mismatches is calculated as 0.04*200=8 for the paired "
-                "read.",
+                "read. The value should be between 0.0 and 1.0.",
             )
 
         class AlignmentOptions:
@@ -421,11 +422,11 @@ class AlignmentStar(Process):
 
         try:
             if (
-                inputs.reads.entity.descriptor["general.species"]
+                inputs.reads.entity.descriptor["general"]["species"]
                 != inputs.genome.output.species
             ):
                 self.warning(
-                    f"Species of reads ({inputs.reads.entity.descriptor['general.species']}) "
+                    f"Species of reads ({inputs.reads.entity.descriptor['general']['species']}) "
                     f"and genome ({inputs.genome.output.species}) do not match."
                 )
         except KeyError:
