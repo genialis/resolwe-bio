@@ -181,7 +181,7 @@ class UploadFastqSingle(Process):
     slug = "upload-fastq-single"
     name = "FASTQ file (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "2.5.0"
+    version = "2.5.1"
     category = "Import"
     data_name = '{{ src.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -250,7 +250,6 @@ class UploadFastqSingle(Process):
                         shutil.copyfileobj(infile, outfile)
             fastqgz = [fastqz]
 
-        self.info("Postprocessing FastQC...")
         stderr = run_fastqc([fastqgz], "./fastqc")
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
@@ -319,7 +318,7 @@ class UploadFastqPaired(Process):
     slug = "upload-fastq-paired"
     name = "FASTQ file (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "2.5.0"
+    version = "2.5.1"
     category = "Import"
     data_name = '{{ src1.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -349,7 +348,7 @@ class UploadFastqPaired(Process):
         )
         src2 = ListField(
             FileField(),
-            label="Mate 2",
+            label="Mate2",
             description="Sequencing reads in FASTQ format. "
             "Supported extensions: .fastq.gz (preferred), .fq.* or .fastq.*",
         )
@@ -471,7 +470,6 @@ class UploadFastqPaired(Process):
                 }
             ]
 
-        self.info("Postprocessing FastQC...")
         stderr = run_fastqc(mate1_fastqgz + mate2_fastqgz, "./fastqc")
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
@@ -524,7 +522,7 @@ class FilesToFastqSingle(Process):
     slug = "files-to-fastq-single"
     name = "Convert files to reads (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.5.0"
+    version = "1.5.1"
     category = "Import"
     data_name = "Files to FASTQ single-end ({{ (src|first).file.file }})"
     scheduling_class = SchedulingClass.BATCH
@@ -595,7 +593,6 @@ class FilesToFastqSingle(Process):
                         shutil.copyfileobj(infile, outfile)
             fastqgz = [fastqz]
 
-        self.info("Postprocessing FastQC...")
         stderr = run_fastqc([fastqgz], "./fastqc")
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
@@ -660,7 +657,7 @@ class FilesToFastqPaired(Process):
     slug = "files-to-fastq-paired"
     name = "Convert files to reads (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.5.0"
+    version = "1.5.1"
     category = "Import"
     data_name = "Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})"
     scheduling_class = SchedulingClass.BATCH
@@ -684,7 +681,7 @@ class FilesToFastqPaired(Process):
         )
         src2 = ListField(
             DataField("file"),
-            label="Mate 2",
+            label="Mate2",
         )
         merge_lanes = BooleanField(
             label="Merge lanes",
@@ -818,7 +815,6 @@ class FilesToFastqPaired(Process):
                 }
             ]
 
-        self.info("Postprocessing FastQC...")
         stderr = run_fastqc(mate1_fastqgz + mate2_fastqgz, "./fastqc")
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
