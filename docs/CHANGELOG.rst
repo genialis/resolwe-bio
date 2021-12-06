@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Rewrite ``goenrichment`` process to Python
 
 Fixed
 -----
