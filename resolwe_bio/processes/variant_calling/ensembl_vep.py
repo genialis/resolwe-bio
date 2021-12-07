@@ -7,6 +7,7 @@ from resolwe.process import (
     DataField,
     FileField,
     FileHtmlField,
+    IntegerField,
     Process,
     SchedulingClass,
     StringField,
@@ -28,7 +29,7 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -51,6 +52,13 @@ class EnsemblVep(Process):
             label="Input VCF file",
         )
         cache = DataField("vep:cache", label="Cache directory for Ensembl-VEP")
+
+        n_forks = IntegerField(
+            label="Number of forks",
+            default=2,
+            description="Using forking enables VEP to run multiple parallel threads, with each "
+            "thread processing a subset of your input. Forking can dramatically improve runtime.",
+        )
 
     class Output:
         """Output fields for EnsemblVep."""
@@ -95,6 +103,8 @@ class EnsemblVep(Process):
             inputs.vcf.output.vcf.path,
             "-o",
             annotated_vcf,
+            "--fork",
+            min(inputs.n_forks, self.requirements.resources.cores),
         ]
 
         return_code, _, _ = Cmd["vep"][args] & TEE(retcode=None)

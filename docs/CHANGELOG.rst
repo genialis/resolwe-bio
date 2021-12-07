@@ -32,6 +32,7 @@ Changed
   script
 - Rewrite processes ``clustering-hierarchical-samples`` and
   ``clustering-hierarchical-genes`` to Python
+- Add ``--fork`` parameter in ``ensembl-vep`` process
 
 Fixed
 -----
