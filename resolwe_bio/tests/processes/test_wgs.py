@@ -522,3 +522,46 @@ re-save build "custom_build"
         )
         self.assertFields(merged_vcfs, "build", "custom_build")
         self.assertFields(merged_vcfs, "species", "Homo sapiens")
+
+    @tag_process("gatk-select-variants")
+    def test_gatk_select_variants(self):
+        base = Path("wgs")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": inputs / "vcf_1.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            intervals = self.run_process(
+                "upload-bed",
+                {
+                    "src": inputs / "chr17_single_interval.bed",
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+
+        selected_variants = self.run_process(
+            process_slug="gatk-select-variants",
+            input_={
+                "vcf": vcf.id,
+                "intervals": intervals.id,
+                "select_type": ["SNP", "INDEL"],
+            },
+        )
+
+        self.assertFile(
+            selected_variants,
+            "vcf",
+            outputs / "selected_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+        self.assertFields(selected_variants, "build", "custom_build")
+        self.assertFields(selected_variants, "species", "Homo sapiens")

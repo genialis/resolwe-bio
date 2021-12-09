@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``gatk-select-variants`` process
 
 Changed
 -------
