@@ -29,6 +29,8 @@ Changed
   workflows (``htseq-count``, ``htseq-count-raw``,
   ``workflow-rnaseq-single``, ``workflow-rnaseq-paired``,
   ``workflow-bbduk-star-htseq``).
+- **BACKWARD INCOMPATIBLE:** Unify Feature autocomplete and search
+  endpoints into a single endpoint
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
 

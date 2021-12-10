@@ -49,25 +49,6 @@ class FullTextFilter(filters.BaseCSVFilter):
         return result_qs.order_by("-rank")
 
 
-class AutoCompleteFilter(filters.Filter):
-    """Filter for auto-complete search."""
-
-    def filter(self, queryset, value):
-        """Filter field by text-search vector."""
-        if not value:
-            return queryset.none()
-
-        query = SearchQuery(value, config="simple")
-
-        return (
-            queryset.filter(**{self.field_name: query})
-            # This assumes that field is already a TextSearch vector and thus
-            # doesn't need to be transformed. To achieve that F function is
-            # required.
-            .annotate(rank=SearchRank(F(self.field_name), query)).order_by("-rank")
-        )
-
-
 class MultichoiceCharFilter(filters.BaseCSVFilter):
     """Filter by comma-separated strings."""
 
@@ -79,8 +60,10 @@ class MultichoiceCharFilter(filters.BaseCSVFilter):
         return queryset.filter(**{"{}__in".format(self.field_name): value})
 
 
-class BaseFeatureFilter(filters.FilterSet):
-    """Base filter for feature endpoint."""
+class FeatureFilter(CheckQueryParamsMixin, filters.FilterSet):
+    """Filter the feature endpoint."""
+
+    query = FullTextFilter(field_name="search")
 
     class Meta:
         """Filter configuration."""
@@ -90,32 +73,13 @@ class BaseFeatureFilter(filters.FilterSet):
             "source": ["exact"],
             "species": ["exact"],
             "type": ["exact"],
+            "feature_id": ["exact", "in"],
         }
         filter_overrides = {
             models.CharField: {
                 "filter_class": MultichoiceCharFilter,
             },
         }
-
-
-class FeatureFilter(CheckQueryParamsMixin, BaseFeatureFilter):
-    """Filter the feature endpoint."""
-
-    query = FullTextFilter(field_name="search")
-
-    class Meta(BaseFeatureFilter.Meta):
-        """Filter configuration."""
-
-        fields = {
-            **BaseFeatureFilter.Meta.fields,
-            "feature_id": ["exact", "in"],
-        }
-
-
-class FeatureAutoCompleteFilter(BaseFeatureFilter):
-    """Filter the auto-complete feature endpoint."""
-
-    query = AutoCompleteFilter(field_name="search")
 
 
 class MappingFilter(CheckQueryParamsMixin, filters.FilterSet):

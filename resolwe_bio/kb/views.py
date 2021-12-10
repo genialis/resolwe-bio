@@ -8,18 +8,21 @@ Views
 from rest_framework import mixins, viewsets
 
 from .backends import ResolweBioFilterBackend
-from .filters import FeatureAutoCompleteFilter, FeatureFilter, MappingFilter
+from .filters import FeatureFilter, MappingFilter
 from .models import Feature, Mapping
 from .pagination import LimitOffsetPostPagination
 from .serializers import FeatureSerializer, MappingSerializer
 
 
-class FeatureSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """Endpoint used for feature search.
 
     Request:
      - query
      - source
+     - species
+     - type
+     - feature_id
 
     Response:
      - a list of matching features
@@ -33,20 +36,6 @@ class FeatureSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     ordering_fields = ("name",)
     ordering = "name"
-
-    def list_with_post(self, request):
-        """Endpoint handler."""
-        return self.list(request)
-
-
-class FeatureAutocompleteViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """Endpoint used for feature autocompletion."""
-
-    queryset = Feature.objects.all()
-    serializer_class = FeatureSerializer
-    filter_backends = [ResolweBioFilterBackend]
-    filter_class = FeatureAutoCompleteFilter
-    pagination_class = LimitOffsetPostPagination
 
     def list_with_post(self, request):
         """Endpoint handler."""
