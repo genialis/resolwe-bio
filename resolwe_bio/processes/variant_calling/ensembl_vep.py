@@ -29,7 +29,7 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -42,7 +42,7 @@ class EnsemblVep(Process):
             "storage": 200,
         },
     }
-    data_name = '{{vcf.file|default("?") }}'
+    data_name = "Annotated variants (VEP)"
 
     class Input:
         """Input fields for EnsemblVep."""
