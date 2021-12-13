@@ -22,7 +22,7 @@ class GatkSelectVariants(Process):
     name = "GATK SelectVariants"
     category = "GATK"
     process_type = "data:variants:vcf:selectvariants"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -134,7 +134,7 @@ class GatkSelectVariants(Process):
                     "The genome build information of the provided reference "
                     "sequence file does not match the build of the input VCFs."
                 )
-            args.extend("-R", inputs.advanced_options.ref_seq.output.fasta.path)
+            args.extend(["-R", inputs.advanced_options.ref_seq.output.fasta.path])
 
         if inputs.intervals:
             args.extend(["-L", inputs.intervals.output.bed.path])
