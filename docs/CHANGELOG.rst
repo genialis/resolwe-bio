@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+41.0.0 - 2021-12-13
+===================
+
+Added
+-----
 - Add ``gatk-select-variants`` process
 
 Changed
@@ -26,19 +40,14 @@ Changed
 - Rewrite ``bbduk-single`` and ``bbduk-paired`` processes to Python
 - Rewrite processes ``upload-fastq-single``, ``upload-fastq-paired``,
   ``files-to-fastq-single`` and ``files-to-fastq-paired`` to Python
+- Rewrite processes ``clustering-hierarchical-samples`` and
+  ``clustering-hierarchical-genes`` to Python
 - Add java memory setting and remove unused inputs in
   ``gatk-genotype-gvcfs``
 - Change the ``independent`` field to True by default in process
   ``differentialexpression-deseq2`` to match the behaviour of the R
   script
-- Rewrite processes ``clustering-hierarchical-samples`` and
-  ``clustering-hierarchical-genes`` to Python
 - Add ``--fork`` parameter in ``ensembl-vep`` process
-
-Fixed
------
-- Fix gene order in processes ``clustering-hierarchical-samples`` and
-  ``clustering-hierarchical-genes``
 
 
 ===================
