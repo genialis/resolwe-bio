@@ -68,7 +68,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.0.1"
+    version = "3.0.2"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -413,7 +413,6 @@ class AlignmentStar(Process):
             label="Alignment (trancriptome coordinates)", required=False
         )
         stats = FileField(label="Statistics")
-        bigwig = FileField(label="BigWig file", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
