@@ -288,3 +288,24 @@ class FeatureTestCase(TestCase, APITestCase):
         )
         self.assertEqual(len(response.data), 1)
         self.assertFeatureEqual(response.data[0], feature)
+
+    def test_feature_paste(self):
+        FEATURE_URL = f"{reverse('resolwebio-api:kb_feature')}/paste"
+
+        # Query by pasted genes.
+        response = self.client.post(
+            FEATURE_URL, {"pasted": ["FOO1", "FT-2"]}, format="json"
+        )
+        self.assertEqual(len(response.data), 2)
+
+        # Name and feature ID for the same gene should return a single result.
+        response = self.client.post(
+            FEATURE_URL, {"pasted": ["FOO1", "FT-1"]}, format="json"
+        )
+        self.assertEqual(len(response.data), 1)
+
+        # Filtering by aliases should not work.
+        response = self.client.post(
+            FEATURE_URL, {"pasted": ["FOO1", "BAR2"]}, format="json"
+        )
+        self.assertEqual(len(response.data), 1)

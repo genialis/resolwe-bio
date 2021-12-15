@@ -5,13 +5,20 @@ Views
 =====
 
 """
+import logging
+
+from django.db.models import Q
 from rest_framework import mixins, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .backends import ResolweBioFilterBackend
 from .filters import FeatureFilter, MappingFilter
 from .models import Feature, Mapping
 from .pagination import LimitOffsetPostPagination
 from .serializers import FeatureSerializer, MappingSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -40,6 +47,24 @@ class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     def list_with_post(self, request):
         """Endpoint handler."""
         return self.list(request)
+
+    @action(methods=["post"], detail=False)
+    def paste(self, request):
+        """Endpoint used for exactly matching pasted genes."""
+        queryset = self.filter_queryset(self.get_queryset())
+
+        pasted = request.data["pasted"]
+        queryset = queryset.filter(Q(name__in=pasted) | Q(feature_id__in=pasted))
+
+        logger.info("Pasted genes: {}".format(", ".join(pasted)))
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class MappingSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add an action for resolving pasted genes on Feature endpoint
 
 Changed
 -------
