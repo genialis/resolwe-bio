@@ -38,6 +38,7 @@ Changed
 - Remove redundant ``wgs-preprocess`` process
 - Add scatter-gather approach for ``BaseRecalibrator`` and ``ApplyBQSR``
   in ``wgs-preprocess-bwa2`` process
+- Rewrite process ``basespace-file-import`` to Python
 
 Fixed
 -----

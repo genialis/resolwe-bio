@@ -9,14 +9,23 @@ from resolwe_bio.utils.test import BioProcessTestCase
 class FilesToReadsTestCase(BioProcessTestCase):
     @tag_process("basespace-file-import", "files-to-fastq-single")
     def external_test_files_fq_single(self):
+        """The following access token was created by the user Jan Otonicar on December
+        the 15th, 2021. All the files in this test were uploaded to his basespace profile.
+        To create a new acces token follow this link
+        https://developer.basespace.illumina.com/docs/content/documentation/authentication/obtaining-access-tokens
+        """
+        output_folder = Path("basespace_import") / "output"
         with self.preparation_stage():
             # Token with limited scope pre-obtained from dedicated BaseSpace testing app.
             handle = Secret.objects.create_secret(
-                "9bdf059c759a429f8af52ca084130060", self.admin
+                "d23ee29d4db4454480ad89d925475913", self.admin
             )
 
+            file_id1 = "25157957505"
+            file_id2 = "25157957506"
+
             import_inputs_1 = {
-                "file_id": "9461130722",
+                "file_id": file_id1,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_1 = self.run_process(
@@ -24,7 +33,7 @@ class FilesToReadsTestCase(BioProcessTestCase):
             )
 
             import_inputs_2 = {
-                "file_id": "9461121664",
+                "file_id": file_id2,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_2 = self.run_process(
@@ -37,38 +46,52 @@ class FilesToReadsTestCase(BioProcessTestCase):
         )
 
         self.assertFiles(
-            reads,
-            "fastq",
-            ["Test_S1_L001_R1_001.fastq.gz", "Test_S1_L002_R1_001.fastq.gz"],
+            obj=reads,
+            field_path="fastq",
+            fn_list=[
+                output_folder / "single_S1_L001_R1_001.fastq.gz",
+                output_folder / "single_S1_L002_R1_001.fastq.gz",
+            ],
             compression="gzip",
         )
         del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
         del reads.output["fastqc_url"][1]["total_size"]  # Non-deterministic output.
         self.assertFields(
-            reads,
-            "fastqc_url",
-            [
+            obj=reads,
+            path="fastqc_url",
+            value=[
                 {
-                    "file": "fastqc/Test_S1_L001_R1_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/Test_S1_L001_R1_001_fastqc"],
+                    "file": "fastqc/test1_S1_L001_R1_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test1_S1_L001_R1_001_fastqc"],
                 },
                 {
-                    "file": "fastqc/Test_S1_L002_R1_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/Test_S1_L002_R1_001_fastqc"],
+                    "file": "fastqc/test1_S1_L002_R1_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test1_S1_L002_R1_001_fastqc"],
                 },
             ],
         )
 
     @tag_process("basespace-file-import", "files-to-fastq-paired")
     def external_test_files_fq_paired(self):
+        """The following access token was created by the user Jan Otonicar on December
+        the 15th, 2021. All the files in this test were uploaded to his basespace profile.
+        To create a new acces token follow this link
+        https://developer.basespace.illumina.com/docs/content/documentation/authentication/obtaining-access-tokens
+        """
+        output_folder = Path("basespace_import") / "output"
         with self.preparation_stage():
             # Token with limited scope pre-obtained from dedicated BaseSpace testing app.
             handle = Secret.objects.create_secret(
-                "d0728b8cceb7455786665453d28c7ebc", self.admin
+                "d23ee29d4db4454480ad89d925475913", self.admin
             )
 
+            file_idU1 = "25158080061"
+            file_idU2 = "25158080063"
+            file_idD1 = "25158080064"
+            file_idD2 = "25158080062"
+
             upstream_inputs_1 = {
-                "file_id": "9864012319",
+                "file_id": file_idU1,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_upstream_1 = self.run_process(
@@ -76,7 +99,7 @@ class FilesToReadsTestCase(BioProcessTestCase):
             )
 
             upstream_inputs_2 = {
-                "file_id": "9863993106",
+                "file_id": file_idU2,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_upstream_2 = self.run_process(
@@ -84,7 +107,7 @@ class FilesToReadsTestCase(BioProcessTestCase):
             )
 
             downstream_inputs_1 = {
-                "file_id": "9863999826",
+                "file_id": file_idD1,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_downstream_1 = self.run_process(
@@ -92,7 +115,7 @@ class FilesToReadsTestCase(BioProcessTestCase):
             )
 
             downstream_inputs_2 = {
-                "file_id": "9863993107",
+                "file_id": file_idD2,
                 "access_token_secret": {"handle": handle},
             }
             basespace_import_downstream_2 = self.run_process(
@@ -113,54 +136,53 @@ class FilesToReadsTestCase(BioProcessTestCase):
             },
         )
 
-        test_folder = Path("test_fastq_upload") / "input"
         self.assertFiles(
-            reads,
-            "fastq",
-            [
-                test_folder / "TestPaired_S1_L001_R1_001.fastq.gz",
-                test_folder / "TestPaired_S1_L002_R1_001.fastq.gz",
+            obj=reads,
+            field_path="fastq",
+            fn_list=[
+                output_folder / "paired_S1_L001_R1_001.fastq.gz",
+                output_folder / "paired_S1_L002_R1_001.fastq.gz",
             ],
             compression="gzip",
         )
         self.assertFiles(
-            reads,
-            "fastq2",
-            [
-                test_folder / "TestPaired_S1_L001_R2_001.fastq.gz",
-                test_folder / "TestPaired_S1_L002_R2_001.fastq.gz",
+            obj=reads,
+            field_path="fastq2",
+            fn_list=[
+                output_folder / "paired_S1_L001_R2_001.fastq.gz",
+                output_folder / "paired_S1_L002_R2_001.fastq.gz",
             ],
             compression="gzip",
         )
         del reads.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
         del reads.output["fastqc_url"][1]["total_size"]  # Non-deterministic output.
         self.assertFields(
-            reads,
-            "fastqc_url",
-            [
+            obj=reads,
+            path="fastqc_url",
+            value=[
                 {
-                    "file": "fastqc/TestPaired_S1_L001_R1_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/TestPaired_S1_L001_R1_001_fastqc"],
+                    "file": "fastqc/test2_S1_L001_R1_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test2_S1_L001_R1_001_fastqc"],
                 },
                 {
-                    "file": "fastqc/TestPaired_S1_L002_R1_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/TestPaired_S1_L002_R1_001_fastqc"],
+                    "file": "fastqc/test2_S1_L002_R1_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test2_S1_L002_R1_001_fastqc"],
                 },
             ],
         )
         del reads.output["fastqc_url2"][0]["total_size"]  # Non-deterministic output.
         del reads.output["fastqc_url2"][1]["total_size"]  # Non-deterministic output.
         self.assertFields(
-            reads,
-            "fastqc_url2",
-            [
+            obj=reads,
+            path="fastqc_url2",
+            value=[
                 {
-                    "file": "fastqc/TestPaired_S1_L001_R2_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/TestPaired_S1_L001_R2_001_fastqc"],
+                    "file": "fastqc/test2_S1_L001_R2_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test2_S1_L001_R2_001_fastqc"],
                 },
                 {
-                    "file": "fastqc/TestPaired_S1_L002_R2_001_fastqc/fastqc_report.html",
-                    "refs": ["fastqc/TestPaired_S1_L002_R2_001_fastqc"],
+                    "file": "fastqc/test2_S1_L002_R2_001_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/test2_S1_L002_R2_001_fastqc"],
                 },
             ],
         )

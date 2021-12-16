@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from resolwe.flow.models import Data, Secret
 from resolwe.test import tag_process
@@ -156,14 +157,63 @@ class ImportProcessorTestCase(BioProcessTestCase):
 
     @tag_process("basespace-file-import")
     def external_test_basespace_import(self):
+        """The following access token was created by the user Jan Otonicar
+        on December the 15th, 2021. All files used in this test were uploaded
+        to his basespace account. In order to create a new access token follow this link
+        https://developer.basespace.illumina.com/docs/content/documentation/authentication/obtaining-access-tokens.
+        """
+        output_folder = Path("basespace_import") / "output"
         # Token with limited scope pre-obtained from dedicated BaseSpace testing app.
         handle = Secret.objects.create_secret(
-            "9bdf059c759a429f8af52ca084130060", self.admin
+            "d23ee29d4db4454480ad89d925475913", self.admin
         )
 
-        inputs = {"file_id": "9461130722", "access_token_secret": {"handle": handle}}
+        file_id = "25157957505"
+
+        inputs = {"file_id": file_id, "access_token_secret": {"handle": handle}}
         file = self.run_process("basespace-file-import", inputs)
 
         self.assertFile(
-            file, "file", "Test_S1_L001_R1_001.fastq.gz", compression="gzip"
+            obj=file,
+            field_path="file",
+            fn=str(output_folder / "single_S1_L001_R1_001.fastq.gz"),
+            compression="gzip",
         )
+
+        inputs = {
+            "file_id": file_id,
+            "access_token_secret": {"handle": handle},
+            "advanced": {"output": "filename", "tries": 6, "verbose": True},
+        }
+        file = self.run_process("basespace-file-import", inputs)
+
+        self.assertFile(
+            obj=file,
+            field_path="file",
+            fn=str(output_folder / "single_S1_L001_R1_001.fastq.gz"),
+            compression="gzip",
+        )
+
+        false_id = "2515795493"
+
+        inputs = {"file_id": false_id, "access_token_secret": {"handle": handle}}
+        file = self.run_process("basespace-file-import", inputs, Data.STATUS_ERROR)
+
+        error_msg = [
+            f"BaseSpace file https://api.basespace.illumina.com/v1pre3/files/{false_id} "
+            "not found"
+        ]
+        self.assertEqual(file.process_error, error_msg)
+
+        handle = Secret.objects.create_secret(
+            "secret/d23ee29d4db4454480ad89d925438213", self.admin
+        )
+
+        inputs = {"file_id": file_id, "access_token_secret": {"handle": handle}}
+        file = self.run_process("basespace-file-import", inputs, Data.STATUS_ERROR)
+
+        error_msg = [
+            "Authentication failed on URL "
+            f"https://api.basespace.illumina.com/v1pre3/files/{file_id}"
+        ]
+        self.assertEqual(file.process_error, error_msg)
