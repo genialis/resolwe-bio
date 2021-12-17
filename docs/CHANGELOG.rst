@@ -25,9 +25,12 @@ Changed
   ``workflow-custom-cutadapt-star-rsem-single``,
   ``workflow-custom-cutadapt-star-rsem-paired``,
   ``cutadapt-custom-single``, ``cutadapt-custom-paired``).
+- **BACKWARD INCOMPATIBLE:** Remove HTSeq-count tool and related
+  workflows (``htseq-count``, ``htseq-count-raw``,
+  ``workflow-rnaseq-single``, ``workflow-rnaseq-paired``,
+  ``workflow-bbduk-star-htseq``).
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
-
 
 Fixed
 -----
