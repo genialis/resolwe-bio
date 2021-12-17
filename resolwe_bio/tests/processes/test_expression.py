@@ -439,35 +439,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFields(expression, "feature_type", "gene")
 
-    @tag_process("index-fasta-nucl")
-    def test_index_fasta_nucl(self):
-        with self.preparation_stage():
-            inputs = {
-                "src": "HS chr21_ensembl.fa.gz",
-                "species": "Homo sapiens",
-                "build": "ens_90",
-            }
-            genome = self.run_process("upload-fasta-nucl", inputs)
-
-            inputs = {
-                "src": "HS chr21_short.gtf.gz",
-                "source": "ENSEMBL",
-                "species": "Homo sapiens",
-                "build": "ens_90",
-            }
-            annotation = self.run_process("upload-gtf", inputs)
-
-        inputs = {"nucl": genome.pk, "annotation": annotation.pk}
-        index_fasta_nucl = self.run_process("index-fasta-nucl", inputs)
-
-        del index_fasta_nucl.output["rsem_index"][
-            "total_size"
-        ]  # Non-deterministic output.
-        self.assertFields(index_fasta_nucl, "rsem_index", {"dir": "rsem"})
-        self.assertFields(index_fasta_nucl, "source", "ENSEMBL")
-        self.assertFields(index_fasta_nucl, "species", "Homo sapiens")
-        self.assertFields(index_fasta_nucl, "build", "ens_90")
-
     @with_resolwe_host
     @tag_process("mergeexpressions")
     def test_mergeexpression(self):

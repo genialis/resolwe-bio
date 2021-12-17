@@ -18,8 +18,16 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Run ``ensembl-vep`` process offline and add
   mandatory reference sequence input
+- **BACKWARD INCOMPATIBLE:** Remove Diagenode CATS RNA-seq pipeline and
+  related tools (``rsem``, ``index-fasta-nucl``,
+  ``workflow-custom-cutadapt-star-htseq-single``,
+  ``workflow-custom-cutadapt-star-htseq-paired``,
+  ``workflow-custom-cutadapt-star-rsem-single``,
+  ``workflow-custom-cutadapt-star-rsem-paired``,
+  ``cutadapt-custom-single``, ``cutadapt-custom-paired``).
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
+
 
 Fixed
 -----

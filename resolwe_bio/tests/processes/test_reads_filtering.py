@@ -239,43 +239,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
-    @tag_process("cutadapt-custom-single", "cutadapt-custom-paired")
-    def test_cutadapt_custom(self):
-        with self.preparation_stage():
-            reads_single = self.prepare_reads(
-                ["cutadapt single.fastq.gz", "cutadapt_single1.fastq.gz"]
-            )
-            reads_paired = self.prepare_paired_reads(
-                mate1=["cutadapt mate1.fastq.gz"], mate2=["cutadapt mate2.fastq.gz"]
-            )
-
-        inputs_single = {"reads": reads_single.id}
-        inputs_paired = {"reads": reads_paired.id}
-
-        cutadapt_single = self.run_process("cutadapt-custom-single", inputs_single)
-        cutadapt_paired = self.run_process("cutadapt-custom-paired", inputs_paired)
-
-        self.assertFiles(
-            cutadapt_single,
-            "fastq",
-            ["cutadapt_custom_single_trimmed.fastq.gz"],
-            compression="gzip",
-        )
-
-        self.assertFiles(
-            cutadapt_paired,
-            "fastq",
-            ["cutadapt_custom_paired_forward_trimmed.fastq.gz"],
-            compression="gzip",
-        )
-
-        self.assertFiles(
-            cutadapt_paired,
-            "fastq2",
-            ["cutadapt_custom_paired_reverse_trimmed.fastq.gz"],
-            compression="gzip",
-        )
-
     @tag_process("cutadapt-3prime-single")
     def test_cutadapt_3prime_single(self):
         with self.preparation_stage():
