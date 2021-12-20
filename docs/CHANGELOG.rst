@@ -17,6 +17,7 @@ Added
 Changed
 -------
 - Rewrite ``goenrichment`` process to Python
+- Change Ensembl-VEP version check in ``ensembl-vep`` process
 
 Fixed
 -----

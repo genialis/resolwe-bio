@@ -473,7 +473,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertEqual(
             vep.process_warning,
             [
-                "The current version of Ensembl-VEP is 104. It is recommended that cache version is also 104"
+                "The current version of Ensembl-VEP is 104. "
+                "It is recommended that cache version is also 104."
             ],
         )
 

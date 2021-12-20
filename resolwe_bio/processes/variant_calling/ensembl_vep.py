@@ -14,6 +14,35 @@ from resolwe.process import (
 )
 
 
+def check_version(stdout):
+    """Check version of Ensembl-VEP.
+
+    Example of the first part of an output from the command `vep --help`:
+    #----------------------------------#
+    # ENSEMBL VARIANT EFFECT PREDICTOR #
+    #----------------------------------#
+
+    Versions:
+    ensembl              : 104.1af1dce
+    ensembl-funcgen      : 104.59ae779
+    ensembl-io           : 104.1d3bb6e
+    ensembl-variation    : 104.6154f8b
+    ensembl-vep          : 104.3
+
+    Help: dev@ensembl.org , helpdesk@ensembl.org
+    Twitter: @ensembl
+    """
+    vep_version = int(
+        float(
+            next(
+                (line for line in stdout.split("\n") if "ensembl-vep" in line)
+            ).split()[2]
+        )
+    )
+
+    return vep_version
+
+
 class EnsemblVep(Process):
     """Run Ensembl-VEP.
 
@@ -29,7 +58,7 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "1.1.1"
+    version = "1.1.2"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -86,9 +115,13 @@ class EnsemblVep(Process):
                 "Build information for the input VCF file and cache don't match."
             )
 
-        if inputs.cache.output.release != "104":
+        _, stdout, _ = Cmd["vep"]["--help"] & TEE(retcode=None)
+        vep_version = check_version(stdout=stdout)
+
+        if inputs.cache.output.release != vep_version:
             self.warning(
-                "The current version of Ensembl-VEP is 104. It is recommended that cache version is also 104"
+                f"The current version of Ensembl-VEP is {vep_version}. "
+                f"It is recommended that cache version is also {vep_version}."
             )
 
         args = [
