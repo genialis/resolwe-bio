@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Run ``ensembl-vep`` process offline and add
+  mandatory reference sequence input
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
 

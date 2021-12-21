@@ -449,11 +449,20 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "release": "103",
                 },
             )
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": input_folder / "chrX_1_28000.fa.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
         vep = self.run_process(
             "ensembl-vep",
             {
                 "vcf": vcf.id,
                 "cache": cache.id,
+                "ref_seq": ref_seq.id,
             },
         )
         self.assertFile(

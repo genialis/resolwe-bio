@@ -58,7 +58,7 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "1.1.2"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -81,6 +81,7 @@ class EnsemblVep(Process):
             label="Input VCF file",
         )
         cache = DataField("vep:cache", label="Cache directory for Ensembl-VEP")
+        ref_seq = DataField("seq:nucleotide", label="Reference sequence")
 
         n_forks = IntegerField(
             label="Number of forks",
@@ -138,10 +139,14 @@ class EnsemblVep(Process):
             annotated_vcf,
             "--fork",
             min(inputs.n_forks, self.requirements.resources.cores),
+            "--offline",
+            "--fasta",
+            inputs.ref_seq.output.fasta.path,
         ]
 
-        return_code, _, _ = Cmd["vep"][args] & TEE(retcode=None)
+        return_code, stdout, stderr = Cmd["vep"][args] & TEE(retcode=None)
         if return_code:
+            print(stdout, stderr)
             self.error("Ensembl-VEP failed.")
 
         (Cmd["bgzip"]["-c", annotated_vcf] > annotated_vcf_gz)()
