@@ -87,39 +87,42 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(macs14, "summits_tbi_jbrowse", "macs14_summits.gz.tbi")
         self.assertFile(macs14, "treat_bigwig", "macs14_treat.bw")
 
-    @tag_process("macs2-callpeak", "archive-samples")
+    @tag_process("macs2-callpeak-beta", "archive-samples")
     def test_macs2(self):
+        base_folder = Path("macs2")
+        input_folder = base_folder / "input"
+        output_folder = base_folder / "output"
         with self.preparation_stage():
             inputs = {
-                "src": "macs2/input/SRR5675973_chr17.bam",
+                "src": str(input_folder / "SRR5675973_chr17.bam"),
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
             case_1 = self.run_process("upload-bam", inputs)
 
             inputs = {
-                "src": "macs2/input/SRR5675974_chr17.bam",
+                "src": str(input_folder / "SRR5675974_chr17.bam"),
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
             control_1 = self.run_process("upload-bam", inputs)
 
             inputs = {
-                "src": "macs2/input/SRR5675975_chr17.bam",
+                "src": str(input_folder / "SRR5675975_chr17.bam"),
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
             case_2 = self.run_process("upload-bam", inputs)
 
             inputs = {
-                "src": "macs2/input/SRR5675976_chr17.bam",
+                "src": str(input_folder / "SRR5675976_chr17.bam"),
                 "species": "Homo sapiens",
                 "build": "hg19",
             }
             control_2 = self.run_process("upload-bam", inputs)
 
             inputs = {
-                "src": "macs2/input/paired_end_discodeum.bam",
+                "src": str(input_folder / "paired_end_discodeum.bam"),
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
@@ -128,7 +131,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             promoters = self.run_process(
                 "upload-bed",
                 {
-                    "src": "macs2/input/promoter_regions.bed",
+                    "src": str(input_folder / "promoter_regions.bed"),
                     "species": "Homo sapiens",
                     "build": "hg19",
                 },
@@ -144,17 +147,21 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_sample1 = self.run_process("macs2-callpeak", inputs)
+        macs_sample1 = self.run_process("macs2-callpeak-beta", inputs)
 
         self.assertFields(macs_sample1, "species", "Homo sapiens")
         self.assertFields(macs_sample1, "build", "hg19")
         self.assertFile(
-            macs_sample1, "case_prepeak_qc", "macs2/output/case_prepeak_qc.txt"
+            macs_sample1, "case_prepeak_qc", str(output_folder / "case_prepeak_qc.txt")
         )
         self.assertFile(
-            macs_sample1, "control_prepeak_qc", "macs2/output/control_prepeak_qc.txt"
+            macs_sample1,
+            "control_prepeak_qc",
+            str(output_folder / "control_prepeak_qc.txt"),
         )
-        self.assertFile(macs_sample1, "chip_qc", "macs2/output/postpeak_qc_report.txt")
+        self.assertFile(
+            macs_sample1, "chip_qc", str(output_folder / "postpeak_qc_report.txt")
+        )
         self.assertFileExists(macs_sample1, "called_peaks")
         self.assertFileExists(macs_sample1, "narrow_peaks")
         self.assertFileExists(macs_sample1, "narrow_peaks_bigbed_igv_ucsc")
@@ -179,7 +186,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_sample2 = self.run_process("macs2-callpeak", inputs)
+        macs_sample2 = self.run_process("macs2-callpeak-beta", inputs)
 
         self.assertFields(macs_sample2, "species", "Homo sapiens")
         self.assertFields(macs_sample2, "build", "hg19")
@@ -212,7 +219,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_paired = self.run_process("macs2-callpeak", inputs)
+        macs_paired = self.run_process("macs2-callpeak-beta", inputs)
         self.assertFields(macs_paired, "species", "Dictyostelium discoideum")
         self.assertFields(macs_paired, "build", "dd-05-2009")
         self.assertFileExists(macs_paired, "chip_qc")
@@ -224,7 +231,9 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs_paired, "summits_bigbed_igv_ucsc")
 
         inputs["settings"]["shift"] = 10
-        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
+        macs_paired_err = self.run_process(
+            "macs2-callpeak-beta", inputs, Data.STATUS_ERROR
+        )
         err_msg = [
             "Shift values other than 0 are not supported when the format is BAMPE."
         ]
@@ -236,7 +245,9 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "format": "BAMPE",
             },
         }
-        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
+        macs_paired_err = self.run_process(
+            "macs2-callpeak-beta", inputs, Data.STATUS_ERROR
+        )
         err_msg = ["No paired-end reads were detected but BAMPE format was selected."]
         self.assertEqual(macs_paired_err.process_error, err_msg)
 

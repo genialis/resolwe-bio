@@ -18,6 +18,7 @@ Added
 - Add ExtendedCollectionFilter filter to allow filtering collections by samples
   containing given species, tissue type, outcome or treatment type
 - Add process ``reference-space`` and ``upload-ml-expression``
+- Add a beta version of MACS 2.0 Python process ``macs2-callpeak-beta``
 
 Changed
 -------
