@@ -1,0 +1,3 @@
+DROP TRIGGER resolwe_bio_kb_feature_biut ON resolwe_bio_kb_feature;
+DROP FUNCTION resolwe_bio_kb_feature_biut();
+DROP FUNCTION generate_resolwe_bio_kb_feature_search(resolwe_bio_kb_feature);

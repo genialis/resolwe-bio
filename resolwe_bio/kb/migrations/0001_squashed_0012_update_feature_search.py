@@ -8,17 +8,20 @@ import django.contrib.postgres.search
 from django.db import connection, migrations, models
 
 
-def load_triggers(apps, schema_editor):
-    file_names = [
-        "triggers_feature.sql",
-        # "triggers_mapping.sql",
-    ]
+def _execute_sql_file(file_name):
     with connection.cursor() as c:
-        for file_name in file_names:
-            file_path = os.path.join(os.path.dirname(__file__), file_name)
-            with open(file_path) as fh:
-                sql_statement = fh.read()
-            c.execute(sql_statement)
+        file_path = os.path.join(os.path.dirname(__file__), file_name)
+        with open(file_path) as fh:
+            sql_statement = fh.read()
+        c.execute(sql_statement)
+
+
+def load_triggers(apps, schema_editor):
+    _execute_sql_file("triggers_feature.sql")
+
+
+def delete_triggers(apps, schema_editor):
+    _execute_sql_file("reverse_triggers_feature.sql")
 
 
 class Migration(migrations.Migration):
@@ -199,7 +202,9 @@ class Migration(migrations.Migration):
                 name="uniq_feature_source_feature_id_species",
             ),
         ),
-        migrations.RunPython(load_triggers),
+        migrations.RunPython(load_triggers, delete_triggers),
         # Update existing entries.
-        migrations.RunSQL("UPDATE resolwe_bio_kb_feature SET id=id;"),
+        migrations.RunSQL(
+            "UPDATE resolwe_bio_kb_feature SET id=id;", migrations.RunSQL.noop
+        ),
     ]
