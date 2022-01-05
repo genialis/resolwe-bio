@@ -168,7 +168,7 @@ def expression_to_storage(rc_input, rc_output):
     return rc_output
 
 
-class featureCounts(ProcessBio):
+class FeatureCounts(ProcessBio):
     """Quantify sequencing reads aligned to genomic features.
 
     featureCounts is a highly efficient general-purpose read summarization
@@ -200,7 +200,7 @@ class featureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.0.4"
+    version = "5.1.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -651,7 +651,7 @@ class featureCounts(ProcessBio):
         if int(Cmd["samtools"]["view"]["-c", "-f", "1", bam_file]().strip()) == 0:
             paired_end = False
 
-        self.progress = 0.05
+        self.progress(0.05)
 
         # set strandedness
         if inputs.assay_type == "auto":
@@ -745,7 +745,7 @@ class featureCounts(ProcessBio):
         else:
             strandedness = STRANDEDNESS_CODES[inputs.assay_type]
 
-        self.progress = 0.1
+        self.progress(0.1)
 
         # Replace empty gene_id entries in annotation file if source is UCSC
         annotation_file = inputs.annotation.output.annot.path
@@ -873,7 +873,7 @@ class featureCounts(ProcessBio):
         if return_code:
             self.error("Error while running featureCounts.")
 
-        self.progress = 0.8
+        self.progress(0.8)
 
         raw_counts = "rc.txt"
         tpm = "tpm.txt"
@@ -897,7 +897,7 @@ class featureCounts(ProcessBio):
         if return_code:
             self.error("Error while normalizing counts using rnanorm.")
 
-        self.progress = 0.9
+        self.progress(0.9)
 
         # prepare the expression set outputs
         feature_ids = pd.read_csv(
@@ -922,7 +922,7 @@ class featureCounts(ProcessBio):
             outfile_name=f"{name}_expressions",
         )
 
-        self.progress = 0.95
+        self.progress(0.95)
 
         # rename and compress the expression files
         rename_columns_and_compress(raw_counts, f"{name}_rc.tab.gz")

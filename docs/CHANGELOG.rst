@@ -34,10 +34,12 @@ Changed
   endpoints into a single endpoint
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
+- Rename ``featureCounts`` class to ``FeatureCounts``
 
 Fixed
 -----
 - Fix build mismatch error message in ``differentialexpression-deseq2``
+- Fix how ``self.progress`` is called in ``FeatureCounts``
 
 
 ===================
