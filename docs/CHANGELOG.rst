@@ -19,6 +19,11 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Rewrite processes
   ``workflow-bbduk-star-featurecounts-qc-single`` and
   ``workflow-bbduk-star-featurecounts-qc-paired`` to Python
+- **BACKWARD INCOMPATIBLE:** Rewrite workflows
+  ``workflow-bbduk-star-fc-quant-single``,
+  ``workflow-bbduk-star-fc-quant-paired``,
+  ``workflow-cutadapt-star-fc-quant-single`` and
+  ``workflow-cutadapt-star-fc-quant-wo-depletion-single`` to Python
 
 Fixed
 -----

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
@@ -30,10 +32,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
 
     @with_resolwe_host
-    @tag_process(
-        "workflow-bbduk-star-fc-quant-single", "workflow-bbduk-star-fc-quant-paired"
-    )
+    @tag_process("workflow-quantseq")
     def test_bbduk_star_fc_quant_workflow(self):
+        output_folder = Path("quantseq") / "output"
         with self.preparation_stage():
             inputs = {"src": ["hs_single bbduk_star_htseq_reads_single.fastq.gz"]}
             reads = self.run_processor("upload-fastq-single", inputs)
@@ -103,17 +104,16 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
 
         self.run_process(
-            "workflow-bbduk-star-fc-quant-single",
+            "workflow-quantseq",
             {
+                "trimming_tool": "bbduk",
                 "reads": reads.id,
-                "star_index": star_index.id,
                 "adapters": [adapters.id],
+                "genome": star_index.id,
                 "annotation": annotation.id,
-                "stranded": "forward",
-                "qc": {
-                    "rrna_reference": rrna_star_index.id,
-                    "globin_reference": globin_star_index.id,
-                },
+                "assay_type": "forward",
+                "rrna_reference": rrna_star_index.id,
+                "globin_reference": globin_star_index.id,
             },
         )
 
@@ -124,13 +124,13 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts,
             "rc",
-            "workflow_bbduk_star_fc_quant_single_rc.tab.gz",
+            output_folder / "workflow_bbduk_star_fc_quant_single_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
             feature_counts,
             "exp",
-            "workflow_bbduk_star_fc_quant_single_cpm.tab.gz",
+            output_folder / "workflow_bbduk_star_fc_quant_single_cpm.tab.gz",
             compression="gzip",
         )
         self.assertFields(feature_counts, "exp_type", "CPM")
@@ -138,17 +138,16 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(feature_counts, "species", "Homo sapiens")
 
         self.run_process(
-            "workflow-bbduk-star-fc-quant-paired",
+            "workflow-quantseq",
             {
+                "trimming_tool": "bbduk",
                 "reads": paired_reads.id,
                 "adapters": [adapters.id],
-                "star_index": star_index.id,
+                "genome": star_index.id,
                 "annotation": annotation.id,
-                "stranded": "reverse",
-                "qc": {
-                    "rrna_reference": rrna_star_index.id,
-                    "globin_reference": globin_star_index.id,
-                },
+                "assay_type": "reverse",
+                "rrna_reference": rrna_star_index.id,
+                "globin_reference": globin_star_index.id,
             },
         )
 
@@ -159,13 +158,13 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             fc_paired,
             "rc",
-            "workflow_bbduk_star_fc_quant_paired_rc.tab.gz",
+            output_folder / "workflow_bbduk_star_fc_quant_paired_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
             fc_paired,
             "exp",
-            "workflow_bbduk_star_fc_quant_paired_cpm.tab.g",
+            output_folder / "workflow_bbduk_star_fc_quant_paired_cpm.tab.g",
             compression="gzip",
         )
         self.assertFields(fc_paired, "exp_type", "CPM")
@@ -173,11 +172,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(fc_paired, "species", "Homo sapiens")
 
     @with_resolwe_host
-    @tag_process(
-        "workflow-cutadapt-star-fc-quant-single",
-        "workflow-cutadapt-star-fc-quant-wo-depletion-single",
-    )
+    @tag_process("workflow-quantseq")
     def test_cutadapt_star_fc_quant_workflow(self):
+        output_folder = Path("quantseq") / "output"
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",
@@ -249,10 +246,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
 
         self.run_process(
-            "workflow-cutadapt-star-fc-quant-single",
+            "workflow-quantseq",
             {
+                "trimming_tool": "cutadapt",
                 "reads": reads.id,
-                "star_index": star_index.id,
+                "genome": star_index.id,
                 "annotation": annotation.id,
                 "rrna_reference": rrna_star_index.id,
                 "globin_reference": globin_star_index.id,
@@ -266,13 +264,13 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts,
             "rc",
-            "workflow_cutadapt_star_fc_quant_single_rc.tab.gz",
+            output_folder / "workflow_cutadapt_star_fc_quant_single_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
             feature_counts,
             "exp",
-            "workflow_cutadapt_star_fc_quant_single_cpm.tab.gz",
+            output_folder / "workflow_cutadapt_star_fc_quant_single_cpm.tab.gz",
             compression="gzip",
         )
         self.assertFields(feature_counts, "exp_type", "CPM")
@@ -280,10 +278,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(feature_counts, "species", "Homo sapiens")
 
         self.run_process(
-            "workflow-cutadapt-star-fc-quant-wo-depletion-single",
+            "workflow-quantseq",
             {
+                "trimming_tool": "cutadapt",
                 "reads": reads.id,
-                "star_index": star_index.id,
+                "genome": star_index.id,
                 "annotation": annotation.id,
             },
         )
@@ -295,13 +294,13 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts,
             "rc",
-            "workflow_cutadapt_star_fc_quant_single_rc.tab.gz",
+            output_folder / "workflow_cutadapt_star_fc_quant_single_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
             feature_counts,
             "exp",
-            "workflow_cutadapt_star_fc_quant_single_cpm.tab.gz",
+            output_folder / "workflow_cutadapt_star_fc_quant_single_cpm.tab.gz",
             compression="gzip",
         )
         self.assertFields(feature_counts, "exp_type", "CPM")
