@@ -35,7 +35,7 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.4.0"
+    version = "3.4.1"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -174,8 +174,8 @@ class Deseq(Process):
                 )
             if exp.output.build != expressions[0].output.build:
                 self.error(
-                    "Input samples are of different Panel types: "
-                    f"{exp.build} and {expressions[0].build}."
+                    "Input samples are of different Build: "
+                    f"{exp.output.build} and {expressions[0].output.build}."
                 )
             if exp.output.feature_type != expressions[0].output.feature_type:
                 self.error(

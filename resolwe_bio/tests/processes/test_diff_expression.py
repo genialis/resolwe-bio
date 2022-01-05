@@ -126,6 +126,22 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
 
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
+    def test_deseq2_build(self):
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(build="dd-05-2009")
+            expression_2 = self.prepare_expression(build="dd-42-2009")
+
+        inputs = {"case": [expression_1.pk], "control": [expression_2.pk]}
+
+        deseq2 = self.run_process(
+            "differentialexpression-deseq2", inputs, Data.STATUS_ERROR
+        )
+
+        error_msg = ["Input samples are of different Build: dd-42-2009 and dd-05-2009."]
+        self.assertEqual(deseq2.process_error, error_msg)
+
+    @with_resolwe_host
+    @tag_process("differentialexpression-deseq2")
     def test_deseq2_expression_error(self):
         with self.preparation_stage():
             case = self.prepare_expression(

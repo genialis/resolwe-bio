@@ -37,6 +37,7 @@ Changed
 
 Fixed
 -----
+- Fix build mismatch error message in ``differentialexpression-deseq2``
 
 
 ===================
