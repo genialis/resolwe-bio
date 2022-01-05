@@ -310,8 +310,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
     @with_resolwe_host
     @tag_process(
-        "workflow-bbduk-star-featurecounts-qc-single",
-        "workflow-bbduk-star-featurecounts-qc-paired",
+        "workflow-bbduk-star-featurecounts-qc",
     )
     def test_bbduk_star_featurecounts_workflow(self):
         with self.preparation_stage():
@@ -379,24 +378,18 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             )
 
         inputs = {
+            "reads": reads.id,
+            "genome": star_index.id,
+            "annotation": annotation.id,
+            "rrna_reference": rrna_star_index.id,
+            "globin_reference": globin_star_index.id,
             "preprocessing": {
-                "reads": reads.id,
                 "adapters": [adapters.id],
                 "custom_adapter_sequences": ["ACTGACTGACTG", "AAACCCTTT"],
             },
-            "alignment": {
-                "genome": star_index.id,
-            },
-            "quantification": {
-                "annotation": annotation.id,
-            },
-            "qc": {
-                "rrna_reference": rrna_star_index.id,
-                "globin_reference": globin_star_index.id,
-            },
         }
 
-        self.run_process("workflow-bbduk-star-featurecounts-qc-single", inputs)
+        self.run_process("workflow-bbduk-star-featurecounts-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug="feature_counts").last()
@@ -408,8 +401,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
 
-        inputs["preprocessing"]["reads"] = paired_reads.id
-        self.run_process("workflow-bbduk-star-featurecounts-qc-paired", inputs)
+        inputs["reads"] = paired_reads.id
+        self.run_process("workflow-bbduk-star-featurecounts-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug="feature_counts").last()
@@ -424,7 +417,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         # test the pipeline without the adapter sequences specified
         del inputs["preprocessing"]["adapters"]
         del inputs["preprocessing"]["custom_adapter_sequences"]
-        self.run_process("workflow-bbduk-star-featurecounts-qc-paired", inputs)
+        self.run_process("workflow-bbduk-star-featurecounts-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug="feature_counts").last()

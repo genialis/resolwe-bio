@@ -16,6 +16,9 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Rewrite processes
+  ``workflow-bbduk-star-featurecounts-qc-single`` and
+  ``workflow-bbduk-star-featurecounts-qc-paired`` to Python
 
 Fixed
 -----
