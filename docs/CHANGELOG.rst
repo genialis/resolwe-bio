@@ -24,6 +24,9 @@ Changed
   ``workflow-bbduk-star-fc-quant-paired``,
   ``workflow-cutadapt-star-fc-quant-single`` and
   ``workflow-cutadapt-star-fc-quant-wo-depletion-single`` to Python
+- **BACKWARD INCOMPATIBLE:** Rewrite workflows
+  ``workflow-bbduk-salmon-qc-single`` and
+  ``workflow-bbduk-salmon-qc-paired`` to Python
 
 Fixed
 -----

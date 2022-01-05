@@ -556,7 +556,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(exp, "species", "Homo sapiens")
 
     @with_resolwe_host
-    @tag_process("workflow-bbduk-salmon-qc-single", "workflow-bbduk-salmon-qc-paired")
+    @tag_process("workflow-bbduk-salmon-qc")
     def test_salmon_workflow(self):
         with self.preparation_stage():
             reads = self.prepare_reads(
@@ -654,10 +654,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             },
             "quantification": {
                 "min_assigned_frag": 1,
+                "gc_bias": False,
             },
         }
 
-        self.run_process("workflow-bbduk-salmon-qc-single", inputs)
+        self.run_process("workflow-bbduk-salmon-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         salmon_single_end = Data.objects.get(process__slug="salmon-quant")
@@ -671,7 +672,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_single_end, "source", "ENSEMBL")
 
         inputs["reads"] = paired_reads.id
-        self.run_process("workflow-bbduk-salmon-qc-paired", inputs)
+        inputs["quantification"]["gc_bias"] = True
+        self.run_process("workflow-bbduk-salmon-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         salmon_paired_end = Data.objects.filter(process__slug="salmon-quant").last()
