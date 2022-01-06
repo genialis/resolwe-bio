@@ -35,6 +35,7 @@ Changed
 - Rewrite ``goenrichment`` process to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
 - Rename ``featureCounts`` class to ``FeatureCounts``
+- Remove redundant ``wgs-preprocess`` process
 
 Fixed
 -----
