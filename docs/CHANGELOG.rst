@@ -36,6 +36,8 @@ Changed
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
 - Rename ``featureCounts`` class to ``FeatureCounts``
 - Remove redundant ``wgs-preprocess`` process
+- Add scatter-gather approach for ``BaseRecalibrator`` and ``ApplyBQSR``
+  in ``wgs-preprocess-bwa2`` process
 
 Fixed
 -----

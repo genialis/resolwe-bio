@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 
+import pandas as pd
+from joblib import Parallel, delayed, wrap_non_picklable_objects
 from plumbum import TEE
 
 from resolwe.process import (
@@ -18,6 +20,102 @@ from resolwe.process import (
 )
 
 
+def prepare_chromosome_sizes(fai_path, bed_path):
+    """Prepare a BED file with chromosome sizes."""
+    fai = pd.read_csv(
+        fai_path,
+        sep="\t",
+        header=None,
+        names=["chr", "length", "offset", "line_bases", "line_width"],
+    )
+    fai = fai.drop(columns=["offset", "line_bases", "line_width"])
+    fai.insert(loc=1, column="start", value=0)
+    fai.to_csv(bed_path, sep="\t", header=False, index=False)
+
+
+def prepare_scattered_inputs(results_dir, pattern="*"):
+    """Prepare the input arguments for scattered input files.
+
+    This expects the files in results_dir to be named using four number
+    interval notation used by GATK SplitIntervals (e.g. 0001-scattered).
+    Names are used for sorting, which ensures the correct concatenation
+    order.
+    """
+    input_list = []
+    for scattered_output in sorted(results_dir.glob(pattern)):
+        input_list.extend(["-I", scattered_output])
+    return input_list
+
+
+@delayed
+@wrap_non_picklable_objects
+def run_base_recalibration(
+    intput_bam, known_sites, interval_path, ref_seq_path, tmp, parent_dir
+):
+    """Run BaseRecalibrator on a specifed interval."""
+    recal_interval = f"{parent_dir.name}/{interval_path.stem}.recal_data.csv"
+
+    base_recal_inputs = [
+        "-R",
+        ref_seq_path,
+        "-I",
+        intput_bam,
+        "--use-original-qualities",
+        "--tmp-dir",
+        tmp,
+        "-L",
+        interval_path,
+        "-O",
+        recal_interval,
+    ]
+    # Add known sites to the input parameters of BaseRecalibrator.
+    for site in known_sites:
+        base_recal_inputs.extend(["--known-sites", f"{site.output.vcf.path}"])
+
+    return_code, stdout, stderr = Cmd["gatk"]["BaseRecalibrator"][
+        base_recal_inputs
+    ] & TEE(retcode=None)
+    if return_code:
+        print(f"Error in {interval_path.stem} interval.", stdout, stderr)
+    return return_code
+
+
+@delayed
+@wrap_non_picklable_objects
+def run_apply_bqsr(
+    intput_bam, recal_table, interval_path, ref_seq_path, tmp, parent_dir
+):
+    """Run ApplyBQSR on a specifed interval."""
+    bqsr_interval_bam = f"{parent_dir.name}/{interval_path.stem}.bam"
+
+    apply_bqsr_inputs = [
+        "-R",
+        ref_seq_path,
+        "-I",
+        intput_bam,
+        "-O",
+        bqsr_interval_bam,
+        "-bqsr",
+        recal_table,
+        "--static-quantized-quals",
+        "10",
+        "--static-quantized-quals",
+        "20",
+        "--static-quantized-quals",
+        "30",
+        "--add-output-sam-program-record",
+        "--use-original-qualities",
+        "--tmp-dir",
+        tmp,
+    ]
+    return_code, stdout, stderr = Cmd["gatk"]["ApplyBQSR"][apply_bqsr_inputs] & TEE(
+        retcode=None
+    )
+    if return_code:
+        print("Error in {interval_path.stem} interval.", stdout, stderr)
+    return return_code
+
+
 class WgsPreprocess_BWA2(Process):
     """Prepare analysis ready BAM file.
 
@@ -30,7 +128,7 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.0.1"
+    version = "1.1.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -77,6 +175,14 @@ class WgsPreprocess_BWA2(Process):
                 description="Set the optical pixel distance, e.g. "
                 "distance between clusters. Modify this parameter to "
                 "ensure compatibility with older Illumina platforms.",
+            )
+
+            n_jobs = IntegerField(
+                label="Number of concurent jobs",
+                description="Use a fixed number of jobs for quality score "
+                "recalibration of determining it based on the number of "
+                "available cores.",
+                required=False,
             )
 
         advanced_options = GroupField(
@@ -303,6 +409,8 @@ class WgsPreprocess_BWA2(Process):
             "X",
             "--RGSM",
             name,
+            "--CREATE_INDEX",
+            True,
         ]
 
         return_code, _, _ = Cmd["gatk"]["AddOrReplaceReadGroups"][rg_inputs] & TEE(
@@ -316,56 +424,103 @@ class WgsPreprocess_BWA2(Process):
         # File cleanup
         Path(sorted_bam).unlink(missing_ok=True)
 
-        # BaseRecalibrator
-        base_recal_inputs = [
+        # Prepare files for scattering over chromosomes
+        intervals_path = Path("intervals_folder")
+        intervals_path.mkdir(exist_ok=True)
+
+        if inputs.advanced_options.n_jobs:
+            n_jobs = max(inputs.advanced_options.n_jobs, 1)
+        else:
+            n_jobs = max(self.requirements.resources.cores, 1)
+
+        chromosome_sizes = "chromosome_sizes.bed"
+        prepare_chromosome_sizes(
+            fai_path=inputs.ref_seq.output.fai.path, bed_path=chromosome_sizes
+        )
+
+        split_intervals_inputs = [
             "-R",
             inputs.ref_seq.output.fasta.path,
-            "-I",
-            sorted_rg,
-            "--use-original-qualities",
-            "--tmp-dir",
-            TMPDIR,
+            "-L",
+            chromosome_sizes,
+            "--scatter-count",
+            n_jobs,
+            "--subdivision-mode",
+            "BALANCING_WITHOUT_INTERVAL_SUBDIVISION_WITH_OVERFLOW",
             "-O",
-            recal_table,
+            str(intervals_path),
         ]
-        # Add known sites to the input parameters of BaseRecalibrator.
-        for site in inputs.known_sites:
-            base_recal_inputs.extend(["--known-sites", f"{site.output.vcf.path}"])
-
-        return_code, _, _ = Cmd["gatk"]["BaseRecalibrator"][base_recal_inputs] & TEE(
+        return_code, _, _ = Cmd["gatk"]["SplitIntervals"][split_intervals_inputs] & TEE(
             retcode=None
         )
         if return_code:
-            self.error("BaseRecalibrator analysis failed.")
+            self.error("SplitIntervals tool failed.")
+
+        # BaseRecalibrator
+        recal_dir = Path("recal_tables")
+        recal_dir.mkdir(exist_ok=True)
+
+        intervals = [path for path in intervals_path.glob("*.interval_list")]
+        return_codes = Parallel(n_jobs=n_jobs)(
+            run_base_recalibration(
+                intput_bam=sorted_rg,
+                known_sites=inputs.known_sites,
+                interval_path=interval_path,
+                ref_seq_path=inputs.ref_seq.output.fasta.path,
+                tmp=TMPDIR,
+                parent_dir=recal_dir,
+            )
+            for interval_path in intervals
+        )
+        if any(return_codes):
+            self.error("GATK BaseRecalibrator tool failed.")
+
+        gather_bqsr_inputs = [
+            "-O",
+            recal_table,
+            *prepare_scattered_inputs(results_dir=recal_dir, pattern="*.csv"),
+        ]
+
+        return_code, stdout, stderr = Cmd["gatk"]["GatherBQSRReports"][
+            gather_bqsr_inputs
+        ] & TEE(retcode=None)
+        if return_code:
+            print(stdout, stderr)
+            self.error("GatherBQSRReports tool failed.")
 
         self.progress(0.6)
 
         # ApplyBQSR
-        apply_bqsr_inputs = [
-            "-R",
-            inputs.ref_seq.output.fasta.path,
-            "-I",
-            sorted_rg,
+        bqsr_dir = Path("bqsr_bams")
+        bqsr_dir.mkdir(exist_ok=True)
+
+        return_codes = Parallel(n_jobs=n_jobs)(
+            run_apply_bqsr(
+                intput_bam=sorted_rg,
+                recal_table=recal_table,
+                interval_path=interval_path,
+                ref_seq_path=inputs.ref_seq.output.fasta.path,
+                tmp=TMPDIR,
+                parent_dir=bqsr_dir,
+            )
+            for interval_path in intervals
+        )
+        if any(return_codes):
+            self.error("GATK ApplyBQSR tool failed.")
+
+        gather_bam_inputs = [
             "-O",
             bam,
-            "-bqsr",
-            recal_table,
-            "--static-quantized-quals",
-            "10",
-            "--static-quantized-quals",
-            "20",
-            "--static-quantized-quals",
-            "30",
-            "--add-output-sam-program-record",
-            "--use-original-qualities",
-            "--tmp-dir",
+            *prepare_scattered_inputs(results_dir=bqsr_dir, pattern="*.bam"),
+            "--TMP_DIR",
             TMPDIR,
         ]
-        return_code, _, _ = Cmd["gatk"]["ApplyBQSR"][apply_bqsr_inputs] & TEE(
+
+        return_code, _, _ = Cmd["gatk"]["GatherBamFiles"][gather_bam_inputs] & TEE(
             retcode=None
         )
         if return_code:
-            self.error("ApplyBQSR analysis failed.")
+            self.error("GatherBamFiles tool failed.")
 
         self.progress(0.9)
 
