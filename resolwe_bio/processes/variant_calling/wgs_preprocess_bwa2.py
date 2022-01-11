@@ -105,6 +105,8 @@ def run_apply_bqsr(
         "30",
         "--add-output-sam-program-record",
         "--use-original-qualities",
+        "-L",
+        interval_path,
         "--tmp-dir",
         tmp,
     ]
@@ -112,7 +114,7 @@ def run_apply_bqsr(
         retcode=None
     )
     if return_code:
-        print("Error in {interval_path.stem} interval.", stdout, stderr)
+        print(f"Error in {interval_path.stem} interval.", stdout, stderr)
     return return_code
 
 
@@ -128,7 +130,7 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
