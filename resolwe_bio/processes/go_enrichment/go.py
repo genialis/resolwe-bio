@@ -1,8 +1,6 @@
 """Gene Ontology Enrichment Analysis."""
 import tempfile
 
-from plumbum import TEE
-
 from resolwe.process import (
     Cmd,
     DataField,
@@ -24,7 +22,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.5.0"
+    version = "3.5.1"
     category = "Other"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -132,15 +130,7 @@ class GOEnrichmentAnalysis(ProcessBio):
                 input_genes.name,
             ]
 
-            return_code, stdout, stderr = Cmd["processor"][args] & TEE(retcode=None)
-            if return_code:
-                print(stderr)
-                self.error(
-                    "Error occurred with processor. See standard output for more details."
-                )
-
-            with open("terms.json", "w") as f:
-                f.write(stdout + " ")
+            (Cmd["processor"][args] > "terms.json")()
 
         outputs.source = inputs.gaf.output.source
         outputs.species = inputs.gaf.output.species
