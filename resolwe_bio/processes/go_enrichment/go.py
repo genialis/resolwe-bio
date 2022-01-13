@@ -22,7 +22,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.5.1"
+    version = "3.5.2"
     category = "Other"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -105,18 +105,18 @@ class GOEnrichmentAnalysis(ProcessBio):
             if len(mapping_res) == 0:
                 self.error("Failed to map features.")
 
-            mappings = {}
+            mapped_ids = []
+            target_ids = []
             for m in mapping_res:
                 if m.source_id in inputs.genes:
-                    if m.source_id not in mappings:
-                        mappings[m.source_id] = m.target_id
+                    target_ids.append(m.target_id)
+                    if m.source_id not in mapped_ids:
+                        mapped_ids.append(m.source_id)
                     else:
                         self.warning(f"Mapping {m} returned multiple times.")
 
-            if len(inputs.genes) > len(mappings):
+            if len(inputs.genes) > len(mapped_ids):
                 self.warning("Not all features could be mapped.")
-
-            target_ids = mappings.values()
 
         with tempfile.NamedTemporaryFile() as input_genes:
             input_genes.write(" ".join(target_ids).encode("UTF-8"))
