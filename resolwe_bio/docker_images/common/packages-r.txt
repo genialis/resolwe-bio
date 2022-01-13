@@ -1,3 +1,3 @@
-BiocManager
-argparse
-devtools
+argparse@2.0.3
+devtools@2.4.0
+bioc::Rsamtools@2.6.0
