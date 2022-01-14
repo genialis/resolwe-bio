@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+42.0.0 - 2022-01-14
+===================
+
+Added
+-----
 - Add an action for resolving pasted genes on Feature endpoint
 - Make Knowledge base squashed migration reversable
 
@@ -31,15 +45,15 @@ Changed
   workflows (``htseq-count``, ``htseq-count-raw``,
   ``workflow-rnaseq-single``, ``workflow-rnaseq-paired``,
   ``workflow-bbduk-star-htseq``).
+- **BACKWARD INCOMPATIBLE:** Remove redundant ``wgs-preprocess`` process
 - **BACKWARD INCOMPATIBLE:** Unify Feature autocomplete and search
   endpoints into a single endpoint
 - Rewrite ``goenrichment`` process to Python
+- Rewrite process ``basespace-file-import`` to Python
 - Change Ensembl-VEP version check in ``ensembl-vep`` process
 - Rename ``featureCounts`` class to ``FeatureCounts``
-- Remove redundant ``wgs-preprocess`` process
 - Add scatter-gather approach for ``BaseRecalibrator`` and ``ApplyBQSR``
   in ``wgs-preprocess-bwa2`` process
-- Rewrite process ``basespace-file-import`` to Python
 
 Fixed
 -----
