@@ -2,7 +2,6 @@ bowtie
 bowtie2
 bwa
 gawk
-picard-tools
 pigz
 python3-numpy
 python3-six

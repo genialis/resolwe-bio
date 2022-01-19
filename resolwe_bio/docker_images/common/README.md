@@ -12,7 +12,7 @@ Included tools:
 * Bowtie2 (v2.3.5.1)
 * BWA (v0.7.17-r1188) 
 * bwa-mem2 (v2.2.1)
-* Picard (2.18.25)
+* Picard (2.26.10)
 * deepTools (3.5.0)
 * FastQC (v0.11.9)
 * HISAT2 (2.2.1)
