@@ -723,3 +723,40 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             ["trimgalore/outputs/mate2_trimmed.fastq.gz"],
             compression="gzip",
         )
+
+    @tag_process("gatk-split-ncigar")
+    def test_split_Ncigar_reads(self):
+        input_folder = Path("splitNcigar_reads") / "input"
+        output_folder = Path("splitNcigar_reads") / "output"
+        with self.preparation_stage():
+            species = "Homo sapiens"
+            build = "GRCh38"
+
+            bam = self.prepare_bam(
+                fn=(input_folder / "chr1_500.bam"),
+                species=species,
+                build=build,
+            )
+            ref_seq = self.prepare_ref_seq(
+                fn=(input_folder / "chr1_1-15000.fasta.gz"),
+                species=species,
+                build=build,
+            )
+
+        splitNcigar = self.run_process(
+            "gatk-split-ncigar",
+            {
+                "bam": bam.id,
+                "ref_seq": ref_seq.id,
+            },
+        )
+
+        self.assertFileExists(splitNcigar, "bam")
+        self.assertFileExists(splitNcigar, "bai")
+        self.assertFile(
+            splitNcigar,
+            "stats",
+            output_folder / "split_cigar_stats.txt",
+        )
+        self.assertFields(splitNcigar, "species", species)
+        self.assertFields(splitNcigar, "build", build)

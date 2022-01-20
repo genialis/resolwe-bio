@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``gatk-split-ncigar`` process
 
 Changed
 -------
