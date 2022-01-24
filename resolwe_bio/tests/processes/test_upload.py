@@ -755,6 +755,49 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("upload-fasta-nucl")
     def test_upload_nucl_seq(self):
+
+        self.run_process(
+            "upload-fasta-nucl",
+            {
+                "src": os.path.join("nucl_seq", "input", "chrX_1_30000.fasta.gz"),
+                "species": "Homo sapiens",
+                "build": "test",
+            },
+        )
+
+        self.run_process(
+            "upload-fasta-nucl",
+            {
+                "src": os.path.join("nucl_seq", "input", "chrX_1_30000.fasta"),
+                "species": "Homo sapiens",
+                "build": "test",
+            },
+        )
+
+        self.run_process(
+            "upload-fasta-nucl",
+            {
+                "src": os.path.join("nucl_seq", "input", "chrX_1_30000.fa.gz"),
+                "species": "Homo sapiens",
+                "build": "test",
+            },
+        )
+
+        wrong_extension = self.run_process(
+            "upload-fasta-nucl",
+            {
+                "src": os.path.join("nucl_seq", "input", "chrX_1_30000.fastq.gz"),
+                "species": "Homo sapiens",
+                "build": "test",
+            },
+            Data.STATUS_ERROR,
+        )
+        error_msg = [
+            "The imported file has unsupported file name extension. "
+            "The supported extensions are ('.fa', '.fasta')."
+        ]
+        self.assertEqual(wrong_extension.process_error, error_msg)
+
         seq = self.run_process(
             "upload-fasta-nucl",
             {

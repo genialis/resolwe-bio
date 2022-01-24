@@ -30,6 +30,7 @@ Changed
 
 Fixed
 -----
+- Fix file import and process progress updates in ``upload-fasta-nucl``
 
 
 ===================

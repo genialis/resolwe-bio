@@ -26,7 +26,7 @@ class ImportFastaNucleotide(Process):
     slug = "upload-fasta-nucl"
     name = "FASTA file"
     process_type = "data:seq:nucleotide"
-    version = "3.1.1"
+    version = "3.1.2"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -102,7 +102,7 @@ class ImportFastaNucleotide(Process):
             imported_format="extracted", progress_to=0.2
         )
 
-        supported_extensions = (".fa", ".fasta", ".faa", ".fna", ".ffn", ".frn")
+        supported_extensions = (".fa", ".fasta")
         if not fasta_path.endswith(supported_extensions):
             self.error(
                 f"The imported file has unsupported file name extension. "
@@ -111,28 +111,35 @@ class ImportFastaNucleotide(Process):
 
         # validate the format of the uploaded fasta file
         self.validate_fasta(fasta_path)
-        self.progress = 0.2
+        self.progress(0.3)
 
-        # ensure the .fasta suffix and compress the output
-        fasta_path = Path(fasta_path)
-        output_fasta = fasta_path.with_suffix(".fasta")
-        fasta_path.rename(output_fasta)
-        Cmd["pigz"]["-k", output_fasta]()
-        self.progress = 0.4
+        # ensure the .fasta suffix
+        fasta = Path(fasta_path)
+        output_fasta = fasta.with_suffix(".fasta")
+        fasta.rename(output_fasta)
 
-        # create a .fai index file
-        Cmd["samtools"]["faidx", output_fasta]()
-        self.progress = 0.6
+        if output_fasta.is_file():
+            # compress the input file
+            Cmd["pigz"]["-k", "-f", output_fasta]()
+            self.progress(0.4)
 
-        # Create fasta dictionary file
-        fasta_dict = f"{output_fasta.stem}.dict"
-        Cmd["picard-tools"][
-            "CreateSequenceDictionary", f"R={output_fasta.name}", f"O={fasta_dict}"
-        ]()
-        self.progress = 0.8
+            # create a .fai index file
+            Cmd["samtools"]["faidx", output_fasta]()
+            self.progress(0.6)
 
-        # check the number of sequences in the .fasta file
-        seq_number = Cmd["grep"]["-c", "^>", output_fasta]().strip()
+            # Create fasta dictionary file
+            fasta_dict = f"{output_fasta.stem}.dict"
+            Cmd["picard-tools"][
+                "CreateSequenceDictionary", f"R={output_fasta.name}", f"O={fasta_dict}"
+            ]()
+            self.progress(0.8)
+
+            # check the number of sequences in the .fasta file
+            seq_number = Cmd["grep"]["-c", "^>", output_fasta]().strip()
+        else:
+            self.error(
+                f"The imported file {fasta} could not be successfully renamed to {output_fasta}"
+            )
 
         # save the outputs
         outputs.fasta = output_fasta.name
