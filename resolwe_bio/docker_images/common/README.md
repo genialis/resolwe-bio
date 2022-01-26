@@ -17,7 +17,7 @@ Included tools:
 * FastQC (v0.11.9)
 * HISAT2 (2.2.1)
 * HTSeq (0.13.5)
-* MultiQC (1.9.0)
+* MultiQC (1.11)
 * QoRTs (1.3.0)
 * Rsamtools (2.2.3)
 * Samtools (1.14)
