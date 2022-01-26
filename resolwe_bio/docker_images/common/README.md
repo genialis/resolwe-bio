@@ -20,7 +20,7 @@ Included tools:
 * MultiQC (1.9.0)
 * QoRTs (1.3.0)
 * Rsamtools (2.2.3)
-* Samtools (1.11)
+* Samtools (1.14)
 * Seqtk (1.3-r106)
 * Subread (2.0.1)
 * Tabix (1.10.2-3)

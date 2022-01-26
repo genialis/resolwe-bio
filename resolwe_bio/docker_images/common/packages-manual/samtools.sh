@@ -5,8 +5,8 @@
 download_and_verify \
     samtools \
     samtools \
-    1.11 \
-    e283cebd6c1c49f0cf8a3ca4fa56e1d651496b4d2e42f80ab75991a9ece4e5b6 \
+    1.14 \
+    9341dabaa98b0ea7d60fd47e42af25df43a7d3d64d8e654cdf852974546b7d74 \
     https://github.com/samtools/samtools/releases/download/\${version}/samtools-\${version}.tar.bz2 \
     samtools-\${version}
 
