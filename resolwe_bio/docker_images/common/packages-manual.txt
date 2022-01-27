@@ -1,3 +1,4 @@
+bcftools
 bedgraphtobigwig
 bedtobigbed
 bedtools

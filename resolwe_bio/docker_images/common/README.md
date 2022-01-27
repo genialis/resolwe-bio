@@ -5,6 +5,7 @@ https://hub.docker.com/r/resolwebio/base/) image.
 
 Included tools:
 ---------------
+* bcftools (1.14)
 * bedGraphToBigWig (kent-v365)
 * bedToBigBed (kent-v365)
 * Bedtools (2.30.0)

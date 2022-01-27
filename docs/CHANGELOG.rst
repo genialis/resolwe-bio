@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add bcftools version 1.14 to ``resolwebio/common`` Docker image
 
 Changed
 -------
@@ -27,6 +28,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Rewrite workflows
   ``workflow-bbduk-salmon-qc-single`` and
   ``workflow-bbduk-salmon-qc-paired`` to Python
+- Changes to ``resolwebio/common:3.0.0`` Docker image include pinning
+  of R version and corresponding packages, fixed Python to 3.8,
+  updated picard-tools to version 2.26.10, updated samtools to
+  version 1.14 and updated MultiQC to version 1.11
 
 Fixed
 -----
