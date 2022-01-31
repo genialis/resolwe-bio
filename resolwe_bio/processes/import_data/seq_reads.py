@@ -284,15 +284,12 @@ class UploadFastqSingle(Process):
                     "Recoding input reads from Phred64 encoding to Phred33 encoding."
                 )
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, stderr = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, stderr = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     print(stderr)
                     self.error("Error while running TrimmomaticSE.")
@@ -488,15 +485,12 @@ class UploadFastqPaired(Process):
             if encoding == "Illumina 1.5" or encoding == "Illumina 1.3":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, stderr = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, stderr = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     print(stderr)
                     self.error("Recoding of input reads failed.")
@@ -628,15 +622,12 @@ class FilesToFastqSingle(Process):
                     "Recoding input reads from Phred64 encoding to Phred33 encoding."
                 )
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, stderr = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, stderr = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     print(stderr)
                     self.error("Error while running TrimmomaticSE.")
@@ -833,15 +824,12 @@ class FilesToFastqPaired(Process):
             if encoding == "Illumina 1.5" or encoding == "Illumina 1.3":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, stderr = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, stderr = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     print(stderr)
                     self.error("Recoding of input reads failed.")

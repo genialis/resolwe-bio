@@ -22,7 +22,7 @@ def find_large_files(directory, limit):
     for f in sorted(os.listdir(directory)):
         file_path = os.path.join(directory, f)
         size = os.path.getsize(file_path)
-        if size > limit * 1024 ** 2:
+        if size > limit * 1024**2:
             large_files.append(file_path)
     return large_files
 

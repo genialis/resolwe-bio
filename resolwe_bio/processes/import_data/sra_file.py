@@ -292,15 +292,12 @@ class ImportSraSingle(Process):
             if encoding == "Illumina 1.5\n" or encoding == "Illumina 1.3\n":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, _ = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, _ = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     self.error("Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")
@@ -486,15 +483,12 @@ class ImportSraPaired(Process):
             if encoding == "Illumina 1.5\n" or encoding == "Illumina 1.3\n":
                 print("Recoding input reads from Phred64 encoding to Phred33 encoding.")
                 Path(f"{reads_name}.fastq.gz").rename("input_reads.fastq.gz")
-                return_code, _, _ = (
-                    Cmd["TrimmomaticSE"][
-                        "-phred64",
-                        "input_reads.fastq.gz",
-                        "reformated.fastq.gz",
-                        "TOPHRED33",
-                    ]
-                    & TEE(retcode=None)
-                )
+                return_code, _, _ = Cmd["TrimmomaticSE"][
+                    "-phred64",
+                    "input_reads.fastq.gz",
+                    "reformated.fastq.gz",
+                    "TOPHRED33",
+                ] & TEE(retcode=None)
                 if return_code:
                     self.error("Recoding of input reads failed.")
                 Path("reformated.fastq.gz").rename(f"{reads_name}.fastq.gz")

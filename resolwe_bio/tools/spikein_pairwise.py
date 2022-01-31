@@ -186,7 +186,7 @@ def plot_scatter(scatter, zero, nonzero, exp_type):
         y=0.9,
         s="\n".join(
             [
-                "$R^2$ = {}".format(round(r_value ** 2, 2)),
+                "$R^2$ = {}".format(round(r_value**2, 2)),
                 "{} / {} transcripts not detected".format(
                     len(zero), len(zero) + len(nonzero)
                 ),
