@@ -43,7 +43,7 @@ class WorkflowBBDukStarFcQC(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "5.0.0"
+    version = "5.0.1"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -214,7 +214,7 @@ class WorkflowBBDukStarFcQC(Process):
                 chim_segment_min = IntegerField(
                     label="Minimum length of chimeric segment [--chimSegmentMin]",
                     default=20,
-                    disabled="!detect_chimeric.chimeric",
+                    disabled="!alignment.chimeric_reads.chimeric",
                 )
 
             class TranscriptOutputOptions:
