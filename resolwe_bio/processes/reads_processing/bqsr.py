@@ -3,9 +3,11 @@ import os
 import shutil
 
 from resolwe.process import (
+    BooleanField,
     Cmd,
     DataField,
     FileField,
+    GroupField,
     ListField,
     Process,
     SchedulingClass,
@@ -25,14 +27,14 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.1.1"
+    version = "2.2.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.2.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
     }
     data_name = '{{ bam|sample_name|default("?") }}'
@@ -81,6 +83,20 @@ class BQSR(Process):
             ],
             default="STRICT",
         )
+
+        class Advanced:
+            """Advanced options."""
+
+            use_original_qualities = BooleanField(
+                label="Use the base quality scores from the OQ tag",
+                description="This flag tells GATK to use the original base qualities "
+                "(that were in the data before BQSR/recalibration) which are stored in the OQ tag, if they are "
+                "present, rather than use the post-recalibration quality scores. If no OQ tag is present for a "
+                "read, the standard qual score will be used.",
+                default=False,
+            )
+
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields to BaseQualityScoreRecalibrator."""
@@ -178,6 +194,9 @@ class BQSR(Process):
         if inputs.intervals:
             br_inputs.extend(["--intervals", f"{inputs.intervals.output.bed.path}"])
 
+        if inputs.advanced.use_original_qualities:
+            br_inputs.append("--use-original-qualities")
+
         # Add known sites to the input parameters of BaseRecalibrator.
         for site in inputs.known_sites:
             br_inputs.extend(["--known-sites", f"{site.output.vcf.path}"])
@@ -200,6 +219,10 @@ class BQSR(Process):
             "--read-validation-stringency",
             f"{inputs.validation_stringency}",
         ]
+
+        if inputs.advanced.use_original_qualities:
+            ab_inputs.append("--use-original-qualities")
+
         Cmd["gatk"]["ApplyBQSR"](ab_inputs)
 
         stats = f"{bam}_stats.txt"

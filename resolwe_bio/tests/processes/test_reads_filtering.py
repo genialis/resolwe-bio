@@ -579,6 +579,25 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "One or more read_group argument(s) improperly formatted.",
             )
 
+            bqsr_inputs = {
+                "bam": bam.id,
+                "reference": reference.id,
+                "known_sites": [i.id for i in ks_dbsnp],
+                "intervals": intervals.id,
+                "advanced": {"use_original_qualities": True},
+            }
+            bqsr = self.run_process("bqsr", bqsr_inputs)
+            self.assertFileExists(bqsr, "bam")
+            self.assertFileExists(bqsr, "bai")
+            self.assertFile(
+                bqsr,
+                "stats",
+                "./bqsr/output/TP53.primerclipped.markduplicates.bam_stats.txt",
+            )
+            self.assertFile(
+                bqsr, "bigwig", "./bqsr/output/TP53.primerclipped.markduplicates.bw"
+            )
+
     @tag_process("alignmentsieve")
     def test_alignmentsieve(self):
         species = "Homo sapiens"

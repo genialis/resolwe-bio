@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Add parameter ``--use-original-qualities`` to ``bqsr`` process
 
 Fixed
 -----
