@@ -9,6 +9,6 @@ Included bioinformatics tools:
 ------------------------------
 * bamclipper (1.1.1)
 * CheMut
-* GATK (4.2.0.0)
+* GATK (4.2.4.1)
 * LoFreq (2.1.3.1)
 * Primerclip (v180308)

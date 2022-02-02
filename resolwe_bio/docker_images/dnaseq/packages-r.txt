@@ -1,0 +1,6 @@
+assertthat@0.2.1
+argparse@2.0.3
+devtools@2.4.0
+bioc::IRanges@2.26.0
+bioc::GenomicRanges@1.44.0
+bioc::Rsamtools@2.8.0

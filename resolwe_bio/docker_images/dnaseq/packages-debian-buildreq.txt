@@ -1,18 +1,4 @@
-build-essential
-python3-dev
 python3-pip
-libcurl4-openssl-dev
-zlib1g-dev
-libbz2-dev
-liblzma-dev
-libpng-dev
 git
 libmysqlclient-dev
 
-# Required for Bioconductor packages
-liblapack-dev
-
-# Listed explicitly so they are removed correctly.
-gcc
-g++
-gfortran

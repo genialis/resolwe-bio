@@ -2,3 +2,16 @@ python
 python3-setuptools
 python3-wheel
 parallel
+r-base-core=4.1.1-*
+r-base-dev=4.1.1-*
+gcc
+g++
+gfortran
+build-essential
+python3-dev
+libcurl4-openssl-dev
+zlib1g-dev
+libbz2-dev
+liblzma-dev
+liblapack-dev
+libpng-dev

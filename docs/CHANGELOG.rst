@@ -34,6 +34,8 @@ Changed
   version 1.14 and updated MultiQC to version 1.11
 - Normalize processes that use ``resolwebio/common`` Docker image to
   use the latest version 3.0.0 and modify tests as necessary
+- Bump GATK version to 4.2.4.1 and pin R package versions in
+  ``resolwebio/dnaseq:6.3.0`` Docker image
 
 Fixed
 -----
