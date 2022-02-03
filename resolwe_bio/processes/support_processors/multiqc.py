@@ -305,7 +305,7 @@ class MultiQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"},
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.11.2"
+    version = "1.12.0"
 
     class Input:
         """Input fields to process MultiQC."""

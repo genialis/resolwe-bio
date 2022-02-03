@@ -11,7 +11,7 @@ class SamtoolsIdxstats(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1",
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0",
             },
         },
         "resources": {
@@ -20,7 +20,7 @@ class SamtoolsIdxstats(Process):
         },
     }
     data_name = "Samtools idxstats ({{alignment|sample_name}})"
-    version = "1.2.1"
+    version = "1.3.0"
     process_type = "data:samtools:idxstats"
     category = "Other"
     entity = {

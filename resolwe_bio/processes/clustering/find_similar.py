@@ -98,12 +98,12 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.INTERACTIVE
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.6.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {"cores": 1, "memory": 8192},
         "relations": [{"type": "series"}],
@@ -246,7 +246,7 @@ class FindSimilar(Process):
         expressions = expressions.drop(inputs.gene)
 
         distances = np.array(
-            [distance_func(selected_etc, etc) for etc in expressions.as_matrix()]
+            [distance_func(selected_etc, etc) for etc in expressions.values]
         )
         genes = expressions.index
         similarity = [

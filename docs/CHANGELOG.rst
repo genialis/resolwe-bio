@@ -32,6 +32,8 @@ Changed
   of R version and corresponding packages, fixed Python to 3.8,
   updated picard-tools to version 2.26.10, updated samtools to
   version 1.14 and updated MultiQC to version 1.11
+- Normalize processes that use ``resolwebio/common`` Docker image to
+  use the latest version 3.0.0 and modify tests as necessary
 
 Fixed
 -----

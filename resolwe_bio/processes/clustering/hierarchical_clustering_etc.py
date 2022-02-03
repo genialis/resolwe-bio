@@ -106,12 +106,12 @@ class ClusterTimeCourse(Process):
     slug = "clustering-hierarchical-etc"
     name = "Hierarchical clustering of time courses"
     process_type = "data:clustering:hierarchical:etc"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.INTERACTIVE
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.6.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {"cores": 1, "memory": 8192},
         "relations": [{"type": "series"}],

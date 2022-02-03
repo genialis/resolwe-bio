@@ -163,14 +163,14 @@ class BaseSpaceImport(Process):
     slug = "basespace-file-import"
     name = "BaseSpace file"
     process_type = "data:file"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Import"
     data_name = 'BaseSpace ({{ file_id|default("?") }})'
     persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {
             "cores": 1,

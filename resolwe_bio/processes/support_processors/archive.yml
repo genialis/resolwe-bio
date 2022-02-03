@@ -5,10 +5,10 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1
+        image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
     resources:
       cores: 10
-  version: 0.4.1
+  version: 0.5.0
   type: data:archive:samples
   category: Other
   persistence: TEMP

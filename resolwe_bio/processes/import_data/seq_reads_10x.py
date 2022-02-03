@@ -17,7 +17,7 @@ class ImportScRNA10x(Process):
     slug = "upload-sc-10x"
     name = "Reads (scRNA 10x)"
     process_type = "data:screads:10x:"
-    version = "1.3.1"
+    version = "1.4.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     entity = {
@@ -27,7 +27,7 @@ class ImportScRNA10x(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
     }
     data_name = '{{ reads.0.file|default("?") }}'

@@ -21,12 +21,12 @@ class BamToFastqPaired(Process):
     name = "Samtools fastq (paired-end)"
     category = "BAM processing"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.1.0"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.8.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {
             "cores": 4,

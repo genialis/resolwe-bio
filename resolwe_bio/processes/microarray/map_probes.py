@@ -92,12 +92,12 @@ class MapMicroarrayProbes(Process):
     slug = "map-microarray-probes"
     name = "Map microarray probes"
     process_type = "data:microarray:mapping"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.8.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
     }
     data_name = "Probe mapping"

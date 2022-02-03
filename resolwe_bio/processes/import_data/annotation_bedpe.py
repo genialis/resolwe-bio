@@ -10,13 +10,13 @@ class ImportBEDPEFile(Process):
     name = "BEDPE file"
     process_type = "data:bedpe:"
     data_name = '{{ src.file|default("?") }}'
-    version = "1.2.1"
+    version = "1.3.0"
     category = "Import"
     requirements = {
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.3.1",
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0",
             },
         },
         "resources": {

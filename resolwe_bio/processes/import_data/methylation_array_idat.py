@@ -25,13 +25,13 @@ class UploadIdatData(Process):
     slug = "upload-idat"
     name = "IDAT file"
     process_type = "data:methylationarray:idat"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:2.7.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {"cores": 1, "memory": 2048},
     }

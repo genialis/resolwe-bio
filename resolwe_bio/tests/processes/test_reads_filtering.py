@@ -601,11 +601,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             },
         }
 
+        # Produced .bam files are not deterministic and are not ideal
+        # to run tests on. Ergo, we are testing for the stats file.
         max_filteredbam = self.run_process("alignmentsieve", params)
         self.assertFile(
             obj=max_filteredbam,
-            field_path="bam",
-            fn="./test_alignmentsieve/output/filtered_max_149.bam",
+            field_path="stats",
+            fn="./test_alignmentsieve/output/filtered_max_149_stats.txt",
         )
         self.assertFile(
             obj=max_filteredbam,
@@ -620,8 +622,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         min_filteredbam = self.run_process("alignmentsieve", params)
         self.assertFile(
             min_filteredbam,
-            field_path="bam",
-            fn="./test_alignmentsieve/output/filtered_min_150.bam",
+            field_path="stats",
+            fn="./test_alignmentsieve/output/filtered_min_150_stats.txt",
         )
         self.assertFile(
             obj=min_filteredbam,
