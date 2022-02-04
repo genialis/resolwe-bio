@@ -151,10 +151,12 @@ class VariantCallingTestCase(BioProcessTestCase):
     @tag_process("vc-gatk-hc", "vc-gatk4-hc")
     def test_gatk_haplotypecaller(self):
         with self.preparation_stage():
+            input_folder = Path("haplotypecaller") / "input"
+            output_folder = Path("haplotypecaller") / "output"
             alignment = self.run_process(
                 "upload-bam",
                 {
-                    "src": join("large", "56GSID_10k.realigned.bqsrCal.bam"),
+                    "src": Path("large") / "56GSID_10k.realigned.bqsrCal.bam",
                     "species": "Homo sapiens",
                     "build": "b37",
                 },
@@ -171,7 +173,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             bed_file = self.run_process(
                 "upload-bed",
                 {
-                    "src": "./haplotypecaller/input/56G_masterfile_test_merged_targets_5col.bed",
+                    "src": input_folder / "56G_masterfile_test_merged_targets_5col.bed",
                     "species": "Homo sapiens",
                     "build": "b37",
                 },
@@ -196,7 +198,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             gatk3_vars,
             "vcf",
-            "56GSID_10k.gatkHC.vcf.gz",
+            output_folder / "56GSID_10k.gatkHC.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )
@@ -215,7 +217,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             gatk4_vars,
             "vcf",
-            "56GSID_10k.gatkHC4.vcf.gz",
+            output_folder / "56GSID_10k.gatkHC4.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )
@@ -241,22 +243,6 @@ class VariantCallingTestCase(BioProcessTestCase):
             "You have specified intervals and intervals_bed, whereas only one is permitted.",
         )
 
-        gatk4_incol = self.run_process(
-            "vc-gatk4-hc",
-            {
-                "alignment": alignment.id,
-                "intervals": master_file.id,
-                "intervals_bed": bed_file.id,
-                "genome": genome.id,
-                "dbsnp": dbsnp.id,
-            },
-            Data.STATUS_ERROR,
-        )
-        self.assertEqual(
-            gatk4_incol.process_error[0],
-            "You have specified intervals and intervals_bed, whereas only one is permitted.",
-        )
-
         gatk3_bed = self.run_process(
             "vc-gatk-hc",
             {
@@ -265,6 +251,13 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "genome": genome.id,
                 "dbsnp": dbsnp.id,
             },
+        )
+        self.assertFile(
+            gatk3_bed,
+            "vcf",
+            output_folder / "56GSID_10k.gatkHC.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
         )
 
         gatk4_bed = self.run_process(
@@ -280,15 +273,32 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             gatk4_bed,
             "vcf",
-            "56GSID_10k.gatkHC4.vcf.gz",
+            output_folder / "56GSID_10k.gatkHC4.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )
 
+        # Test specifically for HaplotypeCaller with RNA-seq data
+        gatk_rnaseq = self.run_process(
+            "vc-gatk4-hc",
+            {
+                "alignment": alignment.id,
+                "genome": genome.id,
+                "dbsnp": dbsnp.id,
+                "mbq": 10,
+                "advanced": {
+                    "soft_clipped": True,
+                    "java_gc_threads": 3,
+                    "max_heap_size": 7,
+                },
+            },
+        )
+        self.assertFields(gatk_rnaseq, "build", "b37")
+        self.assertFields(gatk_rnaseq, "species", "Homo sapiens")
         self.assertFile(
-            gatk3_bed,
+            gatk_rnaseq,
             "vcf",
-            "56GSID_10k.gatkHC.vcf.gz",
+            output_folder / "56GSID_10k.rna-seq.gatkHC.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )

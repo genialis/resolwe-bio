@@ -25,6 +25,7 @@ Changed
   process
 - Normalize processes that use ``resolwebio/dnaseq`` Docker image to
   use the latest version 6.3.1 and modify tests as necessary
+- Rewrite process ``vc-gatk4-hc`` to Python
 
 Fixed
 -----
