@@ -62,12 +62,12 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "2.1.0"
+    version = "2.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 16,

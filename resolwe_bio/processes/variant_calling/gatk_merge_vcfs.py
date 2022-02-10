@@ -22,12 +22,12 @@ class GatkMergeVcfs(Process):
     name = "GATK MergeVcfs"
     category = "GATK"
     process_type = "data:variants:vcf:mergevcfs"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 2,

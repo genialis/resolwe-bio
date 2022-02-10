@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.1.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1
   data_name: "CollectTargetedPcrMetrics ({{ alignment|sample_name|default('?') }})"
-  version: 1.1.1
+  version: 1.2.0
   type: data:picard:coverage
   category: Other
   flow_collection: sample
@@ -48,7 +48,7 @@
       cat header.txt {{ master_file.bedfile.file }} > fullintervals.txt
       cat header.txt {{ master_file.bedfile.file }} > noprimerintervals.txt
 
-      picard-tools \
+      java -jar /opt/broadinstitute/picard-tools/picard.jar \
         CollectTargetedPcrMetrics \
           I={{ alignment.bam.file }} \
           O="${SAMPLE_SLUG}.targetPCRmetrics.txt" \

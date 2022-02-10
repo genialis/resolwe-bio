@@ -424,7 +424,7 @@ re-save build "custom_build"
         self.assertFile(
             merged_vcfs,
             "vcf",
-            outputs / "merged_variants.vcf.gz",
+            outputs / "combined_variants.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )

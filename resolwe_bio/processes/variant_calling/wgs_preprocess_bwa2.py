@@ -130,14 +130,14 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 4,

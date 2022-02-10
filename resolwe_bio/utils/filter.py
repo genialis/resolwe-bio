@@ -15,6 +15,8 @@ def filter_vcf_variable(line):
         return True
     elif line.startswith(b"## ensembl"):
         return True
+    elif line.startswith(b"##contig"):
+        return True
 
 
 def filter_comment_lines(line):

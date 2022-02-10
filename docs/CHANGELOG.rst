@@ -22,6 +22,8 @@ Changed
   ``resolwebio/common:3.0.1`` Docker image
 - Add parameter ``--exclude-filtered`` to ``gatk-select-variants``
   process
+- Normalize processes that use ``resolwebio/dnaseq`` Docker image to
+  use the latest version 6.3.1 and modify tests as necessary
 
 Fixed
 -----

@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.1.0
+        image: public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1
     resources:
       memory: 32768
   data_name: "Coverage ({{ alignment|sample_name|default('?') }})"
-  version: 4.2.1
+  version: 4.3.0
   type: data:coverage
   category: Other
   flow_collection: sample

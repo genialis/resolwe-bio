@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0
+        image: public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1
     resources:
       cores: 4
       memory: 32768
       storage: 300
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 1.0.0
+  version: 1.1.0
   type: data:alignment:bam:bwamem2
   category: Align
   flow_collection: sample

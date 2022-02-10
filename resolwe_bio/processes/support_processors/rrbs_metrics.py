@@ -31,13 +31,13 @@ class CollectRrbsMetrics(Process):
     name = "Picard CollectRrbsMetrics"
     category = "Picard"
     process_type = "data:picard:rrbs"
-    version = "2.1.1"
+    version = "2.2.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:5.2.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "memory": 32768,

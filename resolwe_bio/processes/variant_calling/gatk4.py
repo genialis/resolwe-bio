@@ -24,13 +24,13 @@ class GatkHaplotypeCallerGvcf(Process):
     name = "GATK HaplotypeCaller (GVCF)"
     category = "GATK"
     process_type = "data:variants:gvcf"
-    version = "1.0.1"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 1,

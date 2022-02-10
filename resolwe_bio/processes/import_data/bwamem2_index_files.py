@@ -18,13 +18,13 @@ class ImportBWA2Index(Process):
     slug = "upload-bwamem2-index"
     name = "BWA-MEM2 index files"
     process_type = "data:index:bwamem2"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"},
         },
     }
     data_name = '{{ ref_seq.file|default("?") }}'

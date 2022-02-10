@@ -33,12 +33,12 @@ class WorkflowWgsGvcf(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0",
+                "image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1",
             },
         },
     }
     data_name = 'WGS GVCF analysis ({{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }})'
-    version = "2.0.1"
+    version = "2.1.0"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {

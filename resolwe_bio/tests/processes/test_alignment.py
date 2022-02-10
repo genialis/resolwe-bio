@@ -390,14 +390,14 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads.id}
         )
         self.assertFile(
-            single_end_mem, "stats", output_folder / "bwa_mem_reads_report.txt"
+            single_end_mem, "stats", output_folder / "bwa_mem1_reads_report.txt"
         )
 
         paired_end_mem = self.run_process(
             "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads_paired.id}
         )
         self.assertFile(
-            paired_end_mem, "stats", output_folder / "bwa_mem_paired_reads_report.txt"
+            paired_end_mem, "stats", output_folder / "bwa_mem1_paired_reads_report.txt"
         )
         self.assertFile(
             paired_end_mem,

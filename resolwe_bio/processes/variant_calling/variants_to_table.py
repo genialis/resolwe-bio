@@ -28,12 +28,12 @@ class GatkVariantsToTable(Process):
     name = "GATK VariantsToTable"
     category = "GATK"
     process_type = "data:variantstable"
-    version = "1.0.1"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.2.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 2,

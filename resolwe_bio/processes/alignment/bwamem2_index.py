@@ -16,7 +16,7 @@ class BWAMEM2Index(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"},
         },
         "resources": {
             "cores": 6,
@@ -25,7 +25,7 @@ class BWAMEM2Index(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.0.0"
+    version = "1.1.0"
 
     class Input:
         """Input fields for BWAMEM2Index."""

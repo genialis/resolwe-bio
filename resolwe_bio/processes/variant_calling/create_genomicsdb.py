@@ -27,12 +27,12 @@ class GenomicsDBImport(Process):
     name = "GATK GenomicsDBImport"
     category = "GATK"
     process_type = "data:genomicsdb"
-    version = "1.1.0"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 4,

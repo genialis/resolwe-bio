@@ -11,13 +11,13 @@ class ImportEnsemblVepCache(Process):
     slug = "upload-vep-cache"
     name = "Ensembl-VEP cache directory"
     process_type = "data:vep:cache"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.2.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"},
         },
     }
     data_name = '{{ cache_file.file|default("?") }}'

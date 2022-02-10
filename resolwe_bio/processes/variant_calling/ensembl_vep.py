@@ -58,12 +58,12 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "2.0.0"
+    version = "2.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.2.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 2,
