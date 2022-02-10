@@ -40,7 +40,7 @@ setuptools.setup(
     },
     python_requires='>=3.6, <3.10',
     install_requires=(
-        'Django~=3.1.7',
+        'Django~=3.2.12',
         'djangorestframework~=3.12.2',
         'django-filter~=2.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.

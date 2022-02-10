@@ -60,6 +60,7 @@ Changed
   use the latest version 3.0.0 and modify tests as necessary
 - Bump GATK version to 4.2.4.1 and pin R package versions in
   ``resolwebio/dnaseq:6.3.0`` Docker image
+- **BACKWARD INCOMPATIBLE:** Bump Django requirement to version 3.2
 
 Fixed
 -----
