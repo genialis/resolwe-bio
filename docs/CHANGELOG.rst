@@ -40,6 +40,8 @@ Changed
 Fixed
 -----
 - Fix file import and process progress updates in ``upload-fasta-nucl``
+- Fix Ensembl-VEP installation in ``resolwebio/dnaseq:6.3.1`` Docker
+  image
 
 
 ===================

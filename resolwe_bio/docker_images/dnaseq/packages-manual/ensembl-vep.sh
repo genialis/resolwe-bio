@@ -11,8 +11,7 @@ download_and_verify \
     ensembl-vep-release-\${version}
 
 
-perl INSTALL.pl --AUTO al
-
+perl INSTALL.pl --AUTO al --NO_UPDATE
 # this command disables the removal of these two packages with apt-get autoremove
 apt-mark manual libmysqlclient21 mysql-common
 
