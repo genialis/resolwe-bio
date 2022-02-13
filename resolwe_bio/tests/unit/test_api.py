@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from resolwe.flow.models import Data, DescriptorSchema, Entity, Process
-from resolwe.flow.views import DataViewSet, EntityViewSet
+from resolwe.flow.models import Collection, Data, DescriptorSchema, Entity, Process
+from resolwe.flow.views import CollectionViewSet, DataViewSet, EntityViewSet
 from resolwe.test import ProcessTestCase, TestCase
 
 factory = APIRequestFactory()
@@ -28,6 +29,164 @@ class BaseViewSetFiltersTest(TestCase):
             self.assertEqual(response.status_code, expected_status_code)
             response.render()
             return response
+
+
+class TestCollectionViewSetFilters(BaseViewSetFiltersTest):
+    def setUp(self):
+        super().setUp()
+
+        self.viewset = CollectionViewSet.as_view(
+            actions={
+                "get": "list",
+            }
+        )
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.contributor = get_user_model().objects.create_user(
+            username="joemiller",
+            email="contributor@test.com",
+            first_name="Joe",
+            last_name="Miller",
+        )
+
+        cls.descriptor_schema = DescriptorSchema.objects.create(
+            slug="test-schema",
+            version="1.0.0",
+            contributor=cls.contributor,
+            schema=[
+                {
+                    "name": "general",
+                    "group": [
+                        {"name": "species", "type": "basic:string:", "required": False},
+                        {"name": "organ", "type": "basic:string:", "required": False},
+                        {
+                            "name": "biosample_treatment",
+                            "type": "basic:string:",
+                            "required": False,
+                        },
+                        {
+                            "name": "biosample_source",
+                            "type": "basic:string:",
+                            "required": False,
+                        },
+                    ],
+                },
+                {
+                    "name": "response_and_survival_analysis",
+                    "group": [
+                        {
+                            "name": "confirmed_bor",
+                            "type": "basic:string:",
+                            "required": False,
+                        }
+                    ],
+                },
+            ],
+        )
+
+        cls.collections = [
+            Collection.objects.create(
+                contributor=cls.contributor,
+            ),
+            Collection.objects.create(
+                contributor=cls.contributor,
+            ),
+            Collection.objects.create(
+                contributor=cls.contributor,
+            ),
+        ]
+        cls.entities = [
+            Entity.objects.create(
+                name="Test entity 0",
+                collection=cls.collections[0],
+                contributor=cls.contributor,
+                descriptor_schema=cls.descriptor_schema,
+                descriptor={
+                    "general": {
+                        "species": "Homo sapiens",
+                        "organ": "CRC",
+                        "biosample_source": "CRC",
+                        "biosample_treatment": "koh",
+                    },
+                    "response_and_survival_analysis": {
+                        "confirmed_bor": "pd",
+                    },
+                },
+            ),
+            Entity.objects.create(
+                name="Test entity 1",
+                collection=cls.collections[1],
+                contributor=cls.contributor,
+                descriptor_schema=cls.descriptor_schema,
+                descriptor={
+                    "general": {"species": "Homo sapiens", "organ": "CRC"},
+                    "response_and_survival_analysis": {
+                        "confirmed_bor": "sd",
+                    },
+                },
+            ),
+            Entity.objects.create(
+                name="Test entity 2",
+                collection=cls.collections[0],
+                contributor=cls.contributor,
+                descriptor_schema=cls.descriptor_schema,
+                descriptor={
+                    "general": {
+                        "species": "Mus musculus",
+                        "organ": "CRC",
+                        "biosample_treatment": "dmso",
+                    },
+                },
+            ),
+            Entity.objects.create(
+                name="Test entity 3",
+                collection=cls.collections[2],
+                contributor=cls.contributor,
+                descriptor_schema=cls.descriptor_schema,
+                descriptor={
+                    "general": {
+                        "species": "Mus musculus",
+                        "biosample_treatment": "dmso",
+                    },
+                    "response_and_survival_analysis": {
+                        "confirmed_bor": "pd",
+                    },
+                },
+            ),
+        ]
+        cls.collections[0].save()
+        cls.collections[1].save()
+        cls.collections[2].save()
+
+    # Descriptor / General / Species
+    def test_filter_species(self):
+        self._check_filter(
+            {"descriptor__general__species": "homo"}, self.collections[:2]
+        )
+        self._check_filter(
+            {"descriptor__general__species": "SAPIENS"}, self.collections[:2]
+        )
+        self._check_filter({"descriptor__general__species": "homo erectus"}, [])
+
+    # Tissue type (queries several fields, including General / Organ)
+    def test_filter_organ(self):
+        self._check_filter({"tissue_type": "crc"}, self.collections[:2])
+        self._check_filter({"tissue_type": "rcr"}, [])
+
+    # Treatment type (queries several fields, including General / biosample_treatment)
+    def test_filter_treatment(self):
+        self._check_filter({"treatment": "koh"}, [self.collections[0]])
+        self._check_filter(
+            {"treatment": "dmso"}, [self.collections[0], self.collections[2]]
+        )
+
+    # Outcome (queries several fields)
+    def test_filter_outcome_is_defined(self):
+        self._check_filter({"outcome_is_defined": "sd"}, [self.collections[1]])
+        self._check_filter(
+            {"outcome_is_defined": "pd"}, [self.collections[0], self.collections[2]]
+        )
 
 
 class TestDataViewSetFilters(BaseViewSetFiltersTest):

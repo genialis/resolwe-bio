@@ -15,6 +15,8 @@ Added
 -----
 - Add processes ``gatk-variant-filtration-single`` and
   ``gatk-select-variants-single``
+- Add ExtendedCollectionFilter filter to allow filtering collections by samples
+  containing given species, tissue type, outcome or treatment type
 
 Changed
 -------
