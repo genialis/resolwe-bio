@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+43.0.0 - 2022-02-14
+===================
+
+Added
+-----
 - Add bcftools version 1.14 to ``resolwebio/common`` Docker image
 
 Changed
