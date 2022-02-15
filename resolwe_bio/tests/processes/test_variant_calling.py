@@ -512,3 +512,62 @@ class VariantCallingTestCase(BioProcessTestCase):
             },
         )
         self.assertFile(variants, "tsv", output_folder / "variants_to_table.tsv")
+
+    @tag_process("gatk-variant-filtration")
+    def test_variant_filtration(self):
+        input_folder = Path("variant_filtration") / "input"
+        output_folder = Path("variant_filtration") / "output"
+        with self.preparation_stage():
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": input_folder / "chr1_19000.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "chr1_19000.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+        filtering = self.run_process(
+            "gatk-variant-filtration",
+            {
+                "vcf": vcf.id,
+                "ref_seq": ref_seq.id,
+                "filter_expressions": ["FS > 30.0", "QD < 2.0", "DP > 20"],
+                "filter_name": ["FS", "QD", "DP"],
+                "advanced": {
+                    "window": 35,
+                    "java_gc_threads": 3,
+                    "max_heap_size": 8,
+                },
+            },
+        )
+        self.assertFile(
+            filtering,
+            "vcf",
+            output_folder / "filtered_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
+        filtering_error = {
+            "vcf": vcf.id,
+            "ref_seq": ref_seq.id,
+            "filter_expressions": ["QD < 2.0", "DP > 20"],
+            "filter_name": ["FS", "QD", "DP"],
+        }
+
+        filtering = self.run_process(
+            "gatk-variant-filtration", filtering_error, Data.STATUS_ERROR
+        )
+        error_msg = [
+            ("The number of filter expressions and filter names is not the same.")
+        ]
+        self.assertEqual(filtering.process_error, error_msg)

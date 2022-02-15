@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add ``gatk-split-ncigar`` process
+- Add process ``gatk-variant-filtration``
 
 Changed
 -------
