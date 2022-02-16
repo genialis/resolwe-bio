@@ -28,6 +28,11 @@ Changed
 - Normalize processes that use ``resolwebio/dnaseq`` Docker image to
   use the latest version 6.3.1 and modify tests as necessary
 - Rewrite process ``vc-gatk4-hc`` to Python
+- Update Python package versions in ``resolwebio/rnaseq:6.0.0`` Docker
+  image to go along with Python 3.8, pin R package versions in
+  ``resolwebio/rnaseq:6.0.0`` to match those from
+  ``resolwebio/common:3.0.1`` Docker image and update genome-tools to
+  1.6.2 in ``resolwebio/rnaseq:6.0.0`` Docker image
 
 Fixed
 -----

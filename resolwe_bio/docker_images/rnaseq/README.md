@@ -15,7 +15,7 @@ Included bioinformatics tools:
 * dexseq_prepare_annotation2 (v1.0.0)
 * edgeR (v3.26.6)
 * gotea (v0.0.4)
-* genometools (1.5.9)
+* genometools (1.6.2)
 * igvtools (v2.3.98)
 * jbrowse (v1.16.6)
 * loadSubread (0.0.1)

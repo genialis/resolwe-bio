@@ -3,8 +3,8 @@
 download_and_verify \
     genometools \
     genometools \
-    1.5.10 \
-    a6aa7f158a3cef90fea8d0fe24bfad0c3ee96b17b3ba0c1f6462582593af679e \
+    1.6.2 \
+    974825ddc42602bdce3d5fbe2b6e2726e7a35e81b532a0dc236f6e375d18adac \
     https://github.com/genometools/genometools/archive/v\${version}.tar.gz \
     genometools-\${version}
 
