@@ -1,7 +1,0 @@
-affy
-DESeq2
-DEXSeq
-edgeR
-GenomicFeatures
-rtracklayer
-tximport
