@@ -1,10 +1,7 @@
-build-essential
 python3-setuptools
 python3-wheel
 
 # Required for some R packages
-gfortran
-liblapack-dev
 libopenblas-dev
 libxml2-dev
 

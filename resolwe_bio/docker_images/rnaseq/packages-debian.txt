@@ -1,6 +1,11 @@
 file
 libjpeg-dev
 libpng-dev
+build-essential
+
+# required to build some R packages
+gfortran
+liblapack-dev
 
 # Python modules
 python3-dev
