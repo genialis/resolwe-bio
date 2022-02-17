@@ -24,6 +24,11 @@ extra_fn_clean_exts:
     - .rRNA
     - fastqgz
 
+# Specify the directories MultiQC will skip when searching for the
+# report files
+fn_ignore_dirs:
+  - tmp
+
 # Opt-out of remotely checking that you're running the latest version
 no_version_check: True
 

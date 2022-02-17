@@ -18,6 +18,8 @@ Added
 Changed
 -------
 - Add parameter ``--use-original-qualities`` to ``bqsr`` process
+- Add ``fn_ignore_dirs`` options to MultiQC configuration file in
+  ``resolwebio/common:3.0.1`` Docker image
 
 Fixed
 -----
