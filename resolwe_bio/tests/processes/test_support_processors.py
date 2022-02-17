@@ -503,6 +503,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 "advanced": {
                     "dirs": True,
                     "config": True,
+                    "cl_config": "fn_ignore_dirs: [tmp]",
                 },
             },
         )

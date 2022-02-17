@@ -305,7 +305,7 @@ class MultiQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:3.0.1"},
         },
         "resources": {
             "cores": 1,
@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.12.0"
+    version = "1.12.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -600,7 +600,7 @@ class MultiQC(Process):
             args.extend(["-c", "/opt/resolwebio/assets/multiqc_config.yml"])
 
         if inputs.advanced.cl_config:
-            args.extend(["--cl-config ", inputs.advanced.output.cl_config])
+            args.extend(["--cl-config", inputs.advanced.cl_config])
 
         with Cmd.env(LC_ALL="C.UTF-8"):
             return_code, _, _ = Cmd["multiqc"]["."][args] & TEE(retcode=None)

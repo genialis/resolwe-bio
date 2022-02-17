@@ -37,6 +37,9 @@ Changed
 
 Fixed
 -----
+- Fix ``--cl-config`` input option in MultiQC process. Use
+  ``resolwebio/common:3.0.1`` Docker image with updated MultiQC
+  configuration file to omit parsing the unwanted ``tmp`` folder
 
 
 ===================
