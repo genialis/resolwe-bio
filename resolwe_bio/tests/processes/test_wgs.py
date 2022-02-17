@@ -455,6 +455,15 @@ re-save build "custom_build"
                 },
             )
 
+            vcf_filtered = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": inputs / "filtered_variants.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
         selected_variants = self.run_process(
             process_slug="gatk-select-variants",
             input_={
@@ -473,3 +482,20 @@ re-save build "custom_build"
         )
         self.assertFields(selected_variants, "build", "custom_build")
         self.assertFields(selected_variants, "species", "Homo sapiens")
+
+        exclude_filtered = self.run_process(
+            process_slug="gatk-select-variants",
+            input_={
+                "vcf": vcf_filtered.id,
+                "select_type": ["SNP"],
+                "exclude_filtered": True,
+            },
+        )
+
+        self.assertFile(
+            exclude_filtered,
+            "vcf",
+            outputs / "selected_variants_filtered.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )

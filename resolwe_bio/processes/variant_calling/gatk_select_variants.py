@@ -22,12 +22,12 @@ class GatkSelectVariants(Process):
     name = "GATK SelectVariants"
     category = "GATK"
     process_type = "data:variants:vcf:selectvariants"
-    version = "1.0.1"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.1.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/dnaseq:6.3.1"}
         },
         "resources": {
             "cores": 2,
@@ -61,10 +61,11 @@ class GatkSelectVariants(Process):
             required=False,
         )
 
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
+        exclude_filtered = BooleanField(
+            label="Don't include filtered sites",
             default=False,
+            description="If this flag is enabled, sites that have been marked as filtered (i.e. have "
+            "anything other than `.` or `PASS` in the FILTER field) will be excluded from the output.",
         )
 
         class AdvancedOptions:
@@ -88,9 +89,7 @@ class GatkSelectVariants(Process):
                 description="Set the maximum Java heap size (in GB).",
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for GatkSelectVariants."""
@@ -141,6 +140,9 @@ class GatkSelectVariants(Process):
         if inputs.select_type:
             for type in inputs.select_type:
                 args.extend(["-select-type", type])
+
+        if inputs.exclude_filtered:
+            args.append("--exclude-filtered")
 
         return_code, stdout, stderr = Cmd["gatk"]["SelectVariants"][args] & TEE(
             retcode=None
