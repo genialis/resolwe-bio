@@ -44,7 +44,7 @@ setuptools.setup(
         'djangorestframework~=3.12.2',
         'django-filter~=2.4.0',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
-        'resolwe >=29.0a1, ==29.*',
+        'resolwe >=30.0a1, ==30.*',
         'wrapt~=1.12.1',
     ),
     extras_require={
