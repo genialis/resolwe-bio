@@ -15,6 +15,7 @@ Added
 -----
 - Add ``gatk-split-ncigar`` process
 - Add process ``gatk-variant-filtration``
+- Add support for ``Python`` 3.10
 
 Changed
 -------
