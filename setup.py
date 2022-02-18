@@ -41,31 +41,29 @@ setuptools.setup(
     python_requires='>=3.6, <3.11',
     install_requires=(
         'Django~=3.2.12',
-        'djangorestframework~=3.12.2',
-        'django-filter~=2.4.0',
+        'djangorestframework~=3.13.1',
+        'django-filter~=21.1',
         # XXX: Required due to issue https://github.com/pypa/pip/issues/4905.
         'resolwe >=30.0a1, ==30.*',
-        'wrapt~=1.12.1',
+        'wrapt~=1.13.3',
     ),
     extras_require={
         'docs': [
-            'Sphinx~=3.5.3',
+            'Sphinx~=4.3.2',
             'sphinx_rtd_theme',
             'pyasn1>=0.4.8',
         ],
         'package': ['twine', 'wheel'],
         'test': [
             'black',
-            'flake8>=3.8.4',
-            'isort>=5.7.0',
-            'pydocstyle~=5.1.1',
+            'flake8>=4.0.1',
+            'isort>=5.10.1',
+            'pydocstyle~=6.1.1',
             'tblib>=1.7.0',
             'check-manifest',
             'setuptools_scm',
             'twine',
-            'six==1.15',
-            # Packaging fails on Jenkins with latest version (0.3.0). Locally
-            # it works fine, though.
+            'six==1.16',
             'build==0.2.1',
         ],
     },
