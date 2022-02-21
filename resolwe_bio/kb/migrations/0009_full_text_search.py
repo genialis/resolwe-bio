@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("resolwe_bio_kb", "0008_callable_defaults"),
-        ("flow", "0043_full_text_search"),
+        ("flow", "0001_squashed_0043_full_text_search"),
     ]
 
     operations = [
