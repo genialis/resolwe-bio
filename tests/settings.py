@@ -70,6 +70,8 @@ AUTHENTICATION_BACKENDS = (
     "resolwe.permissions.permissions.ResolwePermissionBackend",
 )
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 ANONYMOUS_USER_NAME = "public"
 
 # Check if PostgreSQL settings are set via environment variables
