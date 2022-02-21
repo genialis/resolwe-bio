@@ -25,23 +25,7 @@ def load_relation_types(apps, schema_editor):
 
 class Migration(migrations.Migration):
 
-    replaces = [
-        ("resolwe_bio", "0001_initial"),
-        ("resolwe_bio", "0002_sample_presample"),
-        ("resolwe_bio", "0003_fix_jsonfields"),
-        ("resolwe_bio", "0004_add_owner"),
-        ("resolwe_bio", "0005_make_date_indexes"),
-        ("resolwe_bio", "0006_alter_versionfield"),
-        ("resolwe_bio", "0007_sample_descriptor_dirty"),
-        ("resolwe_bio", "0008_migrate_sample"),
-        ("resolwe_bio", "0009_delete_sample"),
-        ("resolwe_bio", "0010_add_relation_types"),
-        ("resolwe_bio", "0011_nucletide_seq"),
-        ("resolwe_bio", "0012_full_text_search"),
-        ("resolwe_bio", "0013_star_index"),
-        ("resolwe_bio", "0014_star_index2"),
-        ("resolwe_bio", "0015_sample_indices"),
-    ]
+    initial = True
 
     operations = [
         migrations.RunPython(load_relation_types),
