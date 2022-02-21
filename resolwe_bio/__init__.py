@@ -5,4 +5,3 @@ Resolwe Bioinfomratics
 ======================
 
 """
-default_app_config = "resolwe_bio.apps.BaseConfig"
