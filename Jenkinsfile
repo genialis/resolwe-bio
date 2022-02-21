@@ -96,17 +96,35 @@ throttle(["resolwe_bio"]) {
                         ]) {
                             sh "tox -e migrations ${tox_extra_args}"
 
-                            if (env.CHANGE_TARGET) {
-                                // Run partial test suite depending on detected changes to the
-                                // target branch if we are testing a pull request.
-                                withEnv([
-                                    "RESOLWE_TEST_ONLY_CHANGES_TO=origin/${env.CHANGE_TARGET}"
-                                ]) {
-                                    sh "tox -e py36-partial ${tox_extra_args}"
-                                }
-                            } else {
-                                sh "tox -e py36 ${tox_extra_args}"
-                            }
+                            // if (env.CHANGE_TARGET) {
+                            //     // Run partial test suite depending on detected changes to the
+                            //     // target branch if we are testing a pull request.
+                            //     withEnv([
+                            //         "RESOLWE_TEST_ONLY_CHANGES_TO=origin/${env.CHANGE_TARGET}"
+                            //     ]) {
+                            //         sh "tox -e py36-partial ${tox_extra_args}"
+                            //     }
+                            // } else {
+                            //     sh "tox -e py36 ${tox_extra_args}"
+                            // }
+                        }
+                    }
+                }
+
+                stage("Release") {
+                    GIT_TAG = sh(script: "git tag --points-at HEAD", returnStdout: true).trim()
+                    if (GIT_TAG =~ /^\d+\.\d+\.\d+/) {
+                        // Create a pristine working directory for a clean build.
+                        sh "git reset --hard"
+                        sh "git clean -dx --force"
+
+                        withEnv([
+                            "TWINE_USERNAME=__token__",
+                            "TWINE_PASSWORD=credentials('testpypi-genialis-bot')",
+                            "TWINE_REPOSITORY=testpypi",
+                            "TOX_WORKDIR=${tox_workdir}"
+                        ]) {
+                            sh "tox -e release"
                         }
                     }
                 }

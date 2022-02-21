@@ -53,7 +53,7 @@ setuptools.setup(
             'sphinx_rtd_theme',
             'pyasn1>=0.4.8',
         ],
-        'package': ['twine', 'wheel'],
+        'package': ['setuptools_scm', 'twine', 'wheel'],
         'test': [
             'black',
             'flake8>=3.8.4',
