@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.12.1"
+    version = "1.13.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -453,6 +453,12 @@ class MultiQC(Process):
                         create_markdup_plot(markdup_samples, markdup_reports)
                 except AttributeError:
                     pass
+
+            elif d.process.type == "data:alignment:bam:bqsr:":
+                name = os.path.basename(d.output.recal_table.path)
+                create_symlink(
+                    d.output.recal_table.path, os.path.join(sample_dir, name)
+                )
 
             elif d.process.type.startswith("data:alignment:bam"):
                 name = os.path.basename(d.output.stats.path)

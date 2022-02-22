@@ -3,6 +3,7 @@ from pathlib import Path
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
+from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -685,3 +686,95 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         )
         self.assertFields(salmon_paired_end, "exp_type", "TPM")
         self.assertFields(salmon_paired_end, "source", "ENSEMBL")
+
+    @tag_process("workflow-rnaseq-variantcalling")
+    def test_rnaseq_variantcalling(self):
+        input_folder = Path("rnaseq_variantcalling") / "input"
+        output_folder = Path("rnaseq_variantcalling") / "output"
+        with self.preparation_stage():
+            reads = self.run_process(
+                "upload-fastq-single",
+                {"src": [input_folder / "chr1_19000_R1.fastq.gz"]},
+            )
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": input_folder / "chr1_19000.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            adapters = self.prepare_ref_seq()
+            star_index = self.run_process(
+                "alignment-star-index",
+                {
+                    "ref_seq": ref_seq.id,
+                    "source": "ENSEMBL",
+                },
+            )
+
+            dbsnp = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "dbsnp-hg38.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            intervals = self.run_process(
+                "upload-bed",
+                {
+                    "src": input_folder / "hg38.intervals.bed",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+        input_workflow = {
+            "reads": reads.id,
+            "bbduk": {
+                "adapters": [adapters.id],
+            },
+            "ref_seq": ref_seq.id,
+            "genome": star_index.id,
+            "dbsnp": dbsnp.id,
+            "exclude_filtered": True,
+            "select_variants": {
+                "select_type": ["SNP", "INDEL"],
+            },
+        }
+
+        self.run_process(
+            process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        variants = Data.objects.filter(process__slug="gatk-select-variants").last()
+        self.assertFile(
+            variants,
+            "vcf",
+            output_folder / "selected_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
+        # Test for workflow without reads preprocessing
+        input_workflow["preprocessing"] = False
+        input_workflow["intervals"] = intervals.id
+        self.run_process(
+            process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
+        )
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        variants = Data.objects.filter(process__slug="gatk-select-variants").last()
+        self.assertFile(
+            variants,
+            "vcf",
+            output_folder / "selected_variants_interval.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
