@@ -1,4 +1,4 @@
-Sample slug	function	gene	spo-early	spo-mid	heat 0	heat 10	heat 20
+Sample slug	function	mS#gene	spo-early	spo-mid	heat 0	heat 10	heat 20
 sample-1	Proteas	YDR427W	0.301	0.546		-0.009	0.024
 sample-2	Proteas	YGL048C	0.208		-0.061	-0.039	0.003
 sample-3	Resp	YBR039W	-0.179	-0.219	-0.097		-0.011

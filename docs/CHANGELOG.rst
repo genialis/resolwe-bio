@@ -24,6 +24,9 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 30.x
 - **BACKWARD INCOMPATIBLE:** Change the slug of the process
   ``snpeff`` to ``snpeff-legacy``
+- **BACKWARD INCOMPATIBLE:** Deprecate process ``upload-orange-metadata``
+  in favour of processes ``upload-metadata`` and
+  ``upload-metadata-unique``
 - Add parameter ``--use-original-qualities`` to ``bqsr`` process
 - Add ``fn_ignore_dirs`` options to MultiQC configuration file in
   ``resolwebio/common:3.0.1`` Docker image

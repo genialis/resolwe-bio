@@ -2,7 +2,7 @@ from pathlib import Path
 
 from django.test import LiveServerTestCase
 
-from resolwe.flow.models import Data
+from resolwe.flow.models import Collection, Data
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.utils.test import BioProcessTestCase
@@ -14,12 +14,17 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
     def test_dss_geo(self):
         base = Path("geo_import")
         outputs = base / "outputs"
+
+        collection = Collection.objects.create(
+            name="Test collection", contributor=self.contributor
+        )
+
         dss_inputs = {
             "gse_accession": "GSE166144",
             "advanced": {"max_spot_id": 1, "prefetch": False},
         }
 
-        self.run_process("geo-import", dss_inputs)
+        self.run_process("geo-import", dss_inputs, collection=collection)
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -31,7 +36,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             [str(outputs / "SRR13627912.fastq.gz")],
             compression="gzip",
         )
-        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        metadata = Data.objects.filter(process__slug="upload-metadata-unique").last()
         self.assertFile(
             metadata,
             "table",
@@ -111,6 +116,10 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         inputs = base / "inputs"
         outputs = base / "outputs"
 
+        collection = Collection.objects.create(
+            name="Test collection", contributor=self.contributor
+        )
+
         # Due to Biomart instability the testing is done with the mapping file.
         # For automatic mapping one can comment the mapping_file line.
         dss_inputs = {
@@ -122,7 +131,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             },
         }
 
-        self.run_process("geo-import", dss_inputs)
+        self.run_process("geo-import", dss_inputs, collection=collection)
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -145,7 +154,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         self.assertFields(exp, "platform_id", "GPL16686")
         self.assertFields(exp, "probe_mapping", "Custom")
 
-        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        metadata = Data.objects.filter(process__slug="upload-metadata-unique").last()
         self.assertFile(
             metadata,
             "table",
@@ -158,12 +167,16 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         base = Path("geo_import")
         outputs = base / "outputs"
 
+        collection = Collection.objects.create(
+            name="Test collection", contributor=self.contributor
+        )
+
         dss_inputs = {
             "gse_accession": "GSE176232",
             "advanced": {"max_spot_id": 1, "prefetch": False},
         }
 
-        self.run_process("geo-import", dss_inputs)
+        self.run_process("geo-import", dss_inputs, collection=collection)
 
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -175,7 +188,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             [str(outputs / "SRR14743655.fastq.gz")],
             compression="gzip",
         )
-        metadata = Data.objects.filter(process__slug="upload-orange-metadata").last()
+        metadata = Data.objects.filter(process__slug="upload-metadata-unique").last()
         self.assertFile(
             metadata,
             "table",

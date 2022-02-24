@@ -41,8 +41,8 @@ def create_metadata(gse, run_info):
         for _, row in run_info.iterrows()
     ]
     metadata = pd.json_normalize(collection)
-    metadata.insert(0, "mS#Sample name", metadata["title"])
-    return metadata.set_index(["mS#Sample name"], drop=False)
+    metadata.insert(0, "Sample name", metadata["title"])
+    return metadata.set_index(["Sample name"], drop=False)
 
 
 def construct_descriptor(metadata, sample_name):
@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.2.0"
+    version = "2.3.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -449,9 +449,9 @@ class GeoImport(Process):
         meta_file = f"{inputs.gse_accession}_metadata.tsv"
         metadata = pd.concat(metadata_tables.values(), join="outer", ignore_index=False)
         metadata.to_csv(meta_file, sep="\t", index=False)
-        self.run_process("upload-orange-metadata", {"src": meta_file})
+        self.run_process("upload-metadata-unique", {"src": meta_file})
 
-        for entity_name in metadata["mS#Sample name"].values:
+        for entity_name in metadata["Sample name"].values:
             objects = Data.filter(entity__name=entity_name)
             if len(objects) > 1:
                 self.warning(

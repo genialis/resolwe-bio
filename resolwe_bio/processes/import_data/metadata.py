@@ -1,93 +1,76 @@
-"""Upload metadata table in Orange format."""
+"""Upload metadata table."""
 from pathlib import Path
 
-import Orange
+import pandas as pd
 
-from resolwe.process import (
-    FileField,
-    IntegerField,
-    Process,
-    SchedulingClass,
-    StringField,
-)
+from resolwe.process import FileField, IntegerField, Process, SchedulingClass
+from resolwe.process.models import Collection, Entity
 
-
-def format_missing(missing):
-    """Format number of missing values as percentage."""
-    if missing:
-        return f"({missing:.1%} missing values)"
-    else:
-        return "(no missing values)"
+SAMPLE_COLUMNS = {
+    "Sample ID": "id",
+    "Sample slug": "slug",
+    "Sample name": "name",
+}
 
 
-def get_features_description(data):
-    """Get formatted features description."""
-    missing_features = format_missing(
-        data.has_missing_attribute() and data.get_nan_frequency_attribute()
-    )
-    return f"{len(data.domain.attributes)} {missing_features}"
-
-
-def get_target_description(data):
-    """Get formatted target class description."""
-    missing_in_class = format_missing(
-        data.has_missing_class() and data.get_nan_frequency_attribute()
-    )
-
-    if data.domain.has_continuous_class:
-        target_description = f"Regression; numerical class {missing_in_class}"
-    elif data.domain.has_discrete_class:
-        target_description = (
-            "Classification; categorical class "
-            f"with {len(data.domain.class_var.values)} values {missing_in_class}"
-        )
-    elif data.domain.class_vars:
-        target_description = (
-            "Multi-target; "
-            f"{len(data.domain.class_vars)} target variables "
-            f"{missing_in_class}"
-        )
-    else:
-        target_description = "Not defined"
-
-    return target_description
-
-
-def change_suffix(path):
+def lower_suffix(path, info):
     """Change suffix of a file to lowercase."""
-    new_path = path.with_suffix(path.suffix.lower())
-    path.replace(new_path)
-    return new_path
+    if not path.suffix.islower():
+        new_path = path.with_suffix(path.suffix.lower())
+        path.replace(new_path)
+        info("File extension of the table was replaced with a lower case version.")
+        return new_path
+    else:
+        return path
 
 
-class UploadOrangeMetadata(Process):
-    """Upload metadata table in Orange format.
+def read_tabular_data(path, sample_columns, error):
+    """Convert the uploaded file to Pandas data frame."""
+    extensions = [".csv", ".tab", ".tsv", ".xlsx", ".xls"]
+    if path.suffix not in extensions:
+        error(
+            "Unsupported file name extension. Supported extensions "
+            f"are {', '.join(extensions)}."
+        )
+    try:
+        if path.suffix == ".xls":
+            df = pd.read_excel(path, engine="xlrd")
+        elif path.suffix == ".xlsx":
+            df = pd.read_excel(path, engine="openpyxl")
+        elif any(path.suffix == ext for ext in [".tab", ".tsv"]):
+            df = pd.read_csv(path, sep="\t")
+        elif path.suffix == ".csv":
+            df = pd.read_csv(path)
+        else:
+            df = pd.DataFrame()
+    except Exception as err:
+        error(f"It was not possible to read the provided data table. {err}")
 
-    Orange can read files in native tab-delimited format, or can load
-    data from any of the major standard spreadsheet file types, like CSV
-    and Excel. Native format starts with the names of attributes with
-    prefixes that define attribute type (continuous, discrete, time,
-    string) and role (class, meta, ignore, instance weights). Prefixes
-    are separated from the attribute name with a hash sign (“#”).
+    if len(df.columns.intersection(sample_columns)) != 1:
+        error(
+            f"The uploaded metadata table needs to contain "
+            f"exactly one of the following columns: "
+            f"{sorted(sample_columns.keys())}."
+        )
 
-    Legacy format with three header rows is also supported. The first
-    row lists feature (column) names. The second header row gives the
-    attribute type and the third header line contains role information
-    to identify dependent features (class), irrelevant features (ignore)
-    or meta features (meta).
+    if len(df) < 1:
+        error("The uploaded table contains no samples.")
 
-    For more information see Orange
-    [documentation](https://orange-visual-programming.readthedocs.io/loading-your-data/index.html#header-with-attribute-type-information).
+    return df
 
-    An example of native tab-delimited format can be downloaded
-    [here](https://drive.google.com/file/d/1FR9LNraQ88lDYrSqfS8NnwxRsC6IP8ix/view?usp=sharing).
 
+class UploadMetadataUnique(Process):
+    """Upload metadata file where each row corresponds to a single sample.
+
+    The uploaded metadata table represents one-to-one (1:1) relation to
+    samples in the working collection. Metadata table must contain a column
+    with one of the following headers: "Sample ID", "Sample name" or "Sample slug".
     """
 
-    slug = "upload-orange-metadata"
-    name = "Metadata table for Orange"
-    process_type = "data:metadata:orange"
-    version = "1.1.1"
+    slug = "upload-metadata-unique"
+    name = "Metadata table (one-to-one)"
+    process_type = "data:metadata:unique"
+    version = "1.0.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -95,61 +78,150 @@ class UploadOrangeMetadata(Process):
         "executor": {
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/orange:2.0.0"}
         },
-        "resources": {"cores": 1, "memory": 8192},
+        "resources": {
+            "cores": 1,
+            "memory": 8192,
+            "storage": 10,
+        },
     }
     data_name = '{{ src.file|default("?") }}'
 
     class Input:
-        """Input field to process UploadOrangeMetadata."""
+        """Input field to process UploadMetadataUnique."""
 
         src = FileField(
             label="Table with metadata",
-            description="The table should be in Orange format and use "
-            "one of the following extensions: .csv, .tab, .tsv, .xlsx, "
-            ".xls",
+            description="The metadata table should use one of the following "
+            "extensions: .csv, .tab, .tsv, .xlsx, .xls",
         )
 
     class Output:
-        """Output field of the process UploadOrangeMetadata."""
+        """Output field of the process UploadMetadataUnique."""
 
         table = FileField(label="Uploaded table")
         n_samples = IntegerField(label="Number of samples")
-        features = StringField(label="Number of features")
-        target = StringField(label="Target class description")
-        n_metas = IntegerField(label="Number of meta attributes")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
 
-        table_path = inputs.src.import_file(imported_format="extracted")
-
-        extensions = [".csv", ".tab", ".tsv", ".xlsx", ".xls"]
-        path = Path(table_path)
-
-        if path.suffix in [e.upper() for e in extensions]:
-            path = change_suffix(path)
-            self.info(
-                "File extension of the table was replaced with a lower case version."
-            )
-
-        if path.suffix not in extensions:
+        collections = Collection.filter(data__id=self.data.id)
+        if not collections:
             self.error(
-                "Unsupported file name extension. Supported extensions "
-                f"are {', '.join(extensions)}."
+                "Metadata table was not uploaded to a Collection. "
+                "Matching of metadata entries to Sample objects is not possible."
             )
 
-        try:
-            data = Orange.data.Table.from_file(str(path))
-        except Exception as err:
-            outputs.table = str(path)
-            self.error(f"Orange is unable to read the provided data table. {err}")
+        samples = Entity.filter(collection_id=collections[0].id)
 
-        n_samples = len(data)
-        if n_samples < 1:
-            self.error("The uploaded table contains no samples.")
+        path = Path(inputs.src.import_file(imported_format="extracted"))
+
+        # change the file suffix if it is either upper or mixed case
+        path = lower_suffix(path, info=self.info)
+
+        df_data = read_tabular_data(path, SAMPLE_COLUMNS, error=self.error)
+
+        sample_header = df_data.columns.intersection(SAMPLE_COLUMNS)[0]
+
+        col_samples = {
+            getattr(sample, SAMPLE_COLUMNS[sample_header]) for sample in samples
+        }
+
+        df_samples = df_data[sample_header]
+        intersection = col_samples.intersection(df_samples.values)
+
+        if not intersection:
+            self.warning(
+                "None of the samples listed in the uploaded Sample metadata table "
+                "match the Samples in the working Collection."
+            )
+
+        dup_samples = df_samples[df_samples.duplicated()]
+        if not dup_samples.empty:
+            self.error(
+                f"Duplicated metadata entries {dup_samples.tolist()} were found. "
+                f"Please use the metadata upload process that "
+                f"allows for one-to-many relations instead."
+            )
 
         outputs.table = str(path)
-        outputs.n_samples = n_samples
-        outputs.features = get_features_description(data)
-        outputs.target = get_target_description(data)
-        outputs.n_metas = len(data.domain.metas)
+        outputs.n_samples = len(df_samples.unique())
+
+
+class UploadMetadata(Process):
+    """Upload metadata file where more than one row can match to a single sample.
+
+    The uploaded metadata table represents one-to-many (1:n) relation to
+    samples in the working collection. Metadata table must contain a column
+    with one of the following headers: "Sample ID", "Sample name" or "Sample slug".
+    """
+
+    slug = "upload-metadata"
+    name = "Metadata table"
+    process_type = "data:metadata"
+    version = "1.0.0"
+    category = "Import"
+    scheduling_class = SchedulingClass.BATCH
+    requirements = {
+        "expression-engine": "jinja",
+        "executor": {
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/orange:2.0.0"}
+        },
+        "resources": {
+            "cores": 1,
+            "memory": 8192,
+            "storage": 10,
+        },
+    }
+    data_name = '{{ src.file|default("?") }}'
+
+    class Input:
+        """Input field to process UploadMetadata."""
+
+        src = FileField(
+            label="Table with metadata",
+            description="The metadata table should use one of the following "
+            "extensions: .csv, .tab, .tsv, .xlsx, .xls",
+        )
+
+    class Output:
+        """Output field of the process UploadMetadata."""
+
+        table = FileField(label="Uploaded table")
+        n_samples = IntegerField(label="Number of samples")
+
+    def run(self, inputs, outputs):
+        """Run the analysis."""
+
+        collections = Collection.filter(data__id=self.data.id)
+        if not collections:
+            self.error(
+                "Metadata table was not uploaded to a Collection. "
+                "Matching of metadata entries to Sample objects is not possible."
+            )
+
+        samples = Entity.filter(collection_id=collections[0].id)
+
+        path = Path(inputs.src.import_file(imported_format="extracted"))
+
+        # change the file suffix if it is either upper or mixed case
+        path = lower_suffix(path, info=self.info)
+
+        df_data = read_tabular_data(path, SAMPLE_COLUMNS, error=self.error)
+
+        sample_header = df_data.columns.intersection(SAMPLE_COLUMNS)[0]
+
+        col_samples = {
+            getattr(sample, SAMPLE_COLUMNS[sample_header]) for sample in samples
+        }
+
+        df_samples = df_data[sample_header]
+        intersection = col_samples.intersection(df_samples.values)
+
+        if not intersection:
+            self.warning(
+                "None of the samples listed in the uploaded Sample metadata table "
+                "match the Samples in the working Collection."
+            )
+
+        outputs.table = str(path)
+        outputs.n_samples = len(df_samples.unique())
