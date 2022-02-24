@@ -8,6 +8,7 @@ from resolwe.process import (
     DataField,
     FileField,
     GroupField,
+    IntegerField,
     ListField,
     Process,
     SchedulingClass,
@@ -27,7 +28,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.2.0"
+    version = "2.3.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -95,6 +96,16 @@ class BQSR(Process):
                 "read, the standard qual score will be used.",
                 default=False,
             )
+            java_gc_threads = IntegerField(
+                label="Java ParallelGCThreads",
+                default=2,
+                description="Sets the number of threads used during parallel phases of the garbage collectors.",
+            )
+            max_heap_size = IntegerField(
+                label="Java maximum heap size (Xmx)",
+                default=12,
+                description="Set the maximum Java heap size (in GB).",
+            )
 
         advanced = GroupField(Advanced, label="Advanced options")
 
@@ -118,6 +129,10 @@ class BQSR(Process):
 
         species = inputs.bam.output.species
 
+        gc_threads = min(
+            self.requirements.resources.cores, inputs.advanced.java_gc_threads
+        )
+
         # Parse read_group argument from a string, delimited by a ; and =
         # into a form that will be accepted by AddOrReplaceReadGroups tool.
         # E.g. '-LB=DAB;-PL=Illumina;-PU=barcode;-SM=sample1' should become
@@ -125,6 +140,8 @@ class BQSR(Process):
         # prepended by INPUT and OUTPUT.
         if inputs.read_group:
             arrg = [
+                "--java-options",
+                f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced.max_heap_size}g",
                 "--INPUT",
                 f"{inputs.bam.output.bam.path}",
                 "--VALIDATION_STRINGENCY",
@@ -182,6 +199,8 @@ class BQSR(Process):
 
         recal_table = f"{file_name}_recalibration.table"
         br_inputs = [
+            "--java-options",
+            f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced.max_heap_size}g",
             "--input",
             f"{bam_rg}",
             "--output",
@@ -208,6 +227,8 @@ class BQSR(Process):
 
         # Apply base recalibration.
         ab_inputs = [
+            "--java-options",
+            f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced.max_heap_size}g",
             "--input",
             f"{bam_rg}",
             "--output",

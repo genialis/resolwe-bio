@@ -24,7 +24,7 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -98,7 +98,23 @@ class MarkDuplicates(Process):
                 default=480,
             )
 
+        class Advanced:
+            """Advanced options."""
+
+            java_gc_threads = IntegerField(
+                label="Java ParallelGCThreads",
+                default=2,
+                description="Sets the number of threads used during parallel phases of the garbage collectors.",
+            )
+            max_heap_size = IntegerField(
+                label="Java maximum heap size (Xmx)",
+                default=12,
+                description="Set the maximum Java heap size (in GB).",
+            )
+
         bigwig_opts = GroupField(BigWigOptions, label="BigWig options")
+
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields to process MarkDuplicates."""
@@ -128,6 +144,10 @@ class MarkDuplicates(Process):
         species = inputs.bam.output.species
         build = inputs.bam.output.build
 
+        gc_threads = min(
+            self.requirements.resources.cores, inputs.advanced.java_gc_threads
+        )
+
         if not inputs.skip:
             if inputs.remove_duplicates:
                 rmd = "true"
@@ -136,6 +156,8 @@ class MarkDuplicates(Process):
 
             bam = file_name + ".markduplicates.bam"
             md_inputs = [
+                "--java-options",
+                f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced.max_heap_size}g",
                 "--INPUT",
                 f"{inputs.bam.output.bam.path}",
                 "--VALIDATION_STRINGENCY",

@@ -463,6 +463,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "bigwig_binsize": 50,
                 "bigwig_timeout": 30,
             },
+            "advanced": {
+                "java_gc_threads": 3,
+                "max_heap_size": 10,
+            },
         }
         removed_md = self.run_process("markduplicates", md_inputs)
 
@@ -584,7 +588,11 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "reference": reference.id,
                 "known_sites": [i.id for i in ks_dbsnp],
                 "intervals": intervals.id,
-                "advanced": {"use_original_qualities": True},
+                "advanced": {
+                    "use_original_qualities": True,
+                    "java_gc_threads": 3,
+                    "max_heap_size": 10,
+                },
             }
             bqsr = self.run_process("bqsr", bqsr_inputs)
             self.assertFileExists(bqsr, "bam")
@@ -748,6 +756,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             {
                 "bam": bam.id,
                 "ref_seq": ref_seq.id,
+                "advanced": {
+                    "java_gc_threads": 3,
+                    "max_heap_size": 10,
+                },
             },
         )
 

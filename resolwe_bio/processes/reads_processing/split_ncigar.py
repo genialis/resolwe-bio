@@ -7,6 +7,8 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    GroupField,
+    IntegerField,
     Process,
     SchedulingClass,
     StringField,
@@ -27,7 +29,7 @@ class GatkSplitNCigarReads(Process):
     name = "GATK SplitNCigarReads"
     category = "GATK"
     process_type = "data:alignment:bam:splitncigar"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -40,6 +42,7 @@ class GatkSplitNCigarReads(Process):
             "storage": 200,
         },
     }
+    entity = {"type": "sample"}
 
     data_name = '{{ bam|sample_name|default("?") }}'
 
@@ -54,6 +57,22 @@ class GatkSplitNCigarReads(Process):
             data_type="seq:nucleotide",
             label="Reference sequence FASTA file",
         )
+
+        class Advanced:
+            """Advanced options."""
+
+            java_gc_threads = IntegerField(
+                label="Java ParallelGCThreads",
+                default=2,
+                description="Sets the number of threads used during parallel phases of the garbage collectors.",
+            )
+            max_heap_size = IntegerField(
+                label="Java maximum heap size (Xmx)",
+                default=12,
+                description="Set the maximum Java heap size (in GB).",
+            )
+
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields for GatkSplitNCigarReads."""
@@ -71,7 +90,13 @@ class GatkSplitNCigarReads(Process):
         bam = file_name + ".splitNcigar.bam"
         bai = file_name + ".splitNcigar.bai"
 
+        gc_threads = min(
+            self.requirements.resources.cores, inputs.advanced.java_gc_threads
+        )
+
         args = [
+            "--java-options",
+            f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced.max_heap_size}g",
             "-R",
             inputs.ref_seq.output.fasta.path,
             "-I",
