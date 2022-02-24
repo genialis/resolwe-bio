@@ -5,6 +5,7 @@ Django settings for running tests for Resolwe package.
 
 import os
 import re
+import sys
 from distutils.util import strtobool  # pylint: disable=import-error,no-name-in-module
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
@@ -100,14 +101,24 @@ REDIS_CONNECTION = {
     'db': int(os.environ.get('RESOLWE_REDIS_DATABASE', 0)),
 }
 LISTENER_CONNECTION = {
-    "hosts": {
-        "docker": "172.17.0.1",
-    },
+    # Keys in the hosts dictionary are workload connector names. Currently
+    # supported are 'local', 'kubertenes', 'celery' and 'slurm'.
+    "hosts": {"local": "172.17.0.1"},
     "port": int(os.environ.get("RESOLWE_LISTENER_SERVICE_PORT", 53893)),
     "min_port": 50000,
     "max_port": 60000,
     "protocol": "tcp",
 }
+
+# The IP address where listener is available from the communication container.
+# The setting is a dictionary where key is the name of the workload connector.
+COMMUNICATION_CONTAINER_LISTENER_CONNECTION = {"local": "172.17.0.1"}
+
+# Settings in OSX/Windows are different since Docker runs in a virtual machine.
+if sys.platform == "darwin":
+    LISTENER_CONNECTION["hosts"]["local"] = "0.0.0.0"
+    COMMUNICATION_CONTAINER_LISTENER_CONNECTION = {"local": "127.0.0.1"}
+
 FLOW_EXECUTOR = {
     'NAME': 'resolwe.flow.executors.docker',
     # XXX: Change to a stable resolwe image when it will include all the required tools
