@@ -22,14 +22,14 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.2.1"
+    version = "1.3.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
             "cores": 10,

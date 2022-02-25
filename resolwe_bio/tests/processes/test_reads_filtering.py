@@ -14,7 +14,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             adapters = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "bbduk_adapters.fasta",
+                    "src": Path("bbduk", "input", "bbduk_adapters.fasta"),
                     "species": "Other",
                     "build": "Illumina adapters",
                 },

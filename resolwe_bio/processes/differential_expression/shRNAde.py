@@ -3,6 +3,8 @@ import gzip
 import os
 from shutil import copy
 
+import pandas as pd
+
 from resolwe.process import (
     Cmd,
     DataField,
@@ -37,14 +39,14 @@ class ShortHairpinRNADifferentialExpression(Process):
     slug = "differentialexpression-shrna"
     name = "Differential expression of shRNA"
     process_type = "data:shrna:differentialexpression:"
-    version = "1.2.1"
+    version = "1.3.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
     }
     data_name = '{{ parameter_file.file|default("?") }}'
@@ -120,6 +122,11 @@ class ShortHairpinRNADifferentialExpression(Process):
         result_class = "class_results.txt"
         result_beneficial = "beneficial_counts.txt"
         result_lethal = "lethal_counts.txt"
+
+        # Due to stochasticity
+        xy = pd.read_csv(filepath_or_buffer=result_deseq, sep="\t")
+        xy = xy.round(7)
+        xy.to_csv(path_or_buf=result_deseq, sep="\t")
 
         to_compress = [result_deseq, result_class, result_beneficial, result_lethal]
 

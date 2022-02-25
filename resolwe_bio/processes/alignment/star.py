@@ -68,14 +68,14 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.0.2"
+    version = "3.1.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 10,

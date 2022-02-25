@@ -17,13 +17,20 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("bam-split")
     def test_bam_split(self):
+        bam_input = Path("test_bam", "input")
+        bam_output = Path("test_bam", "output")
+
         with self.preparation_stage():
             bam = self.prepare_bam(
-                fn="hybrid.bam", species="Mus musculus", build="mm10_dm6"
+                fn=bam_input / "hybrid.bam", species="Mus musculus", build="mm10_dm6"
             )
 
-            header = self.run_process("upload-header-sam", {"src": "mm10_header.sam"})
-            header2 = self.run_process("upload-header-sam", {"src": "dm6_header.sam"})
+            header = self.run_process(
+                "upload-header-sam", {"src": bam_input / "mm10_header.sam"}
+            )
+            header2 = self.run_process(
+                "upload-header-sam", {"src": bam_input / "dm6_header.sam"}
+            )
 
         inputs = {
             "bam": bam.id,
@@ -31,14 +38,14 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         bam1 = self.run_process("bam-split", inputs)
         bam2 = Data.objects.last()
 
-        self.assertFile(bam1, "bam", "hybrid_mm10.bam")
-        self.assertFile(bam1, "bai", "hybrid_mm10.bam.bai")
-        self.assertFile(bam1, "bigwig", "hybrid_mm10.bw")
+        self.assertFile(bam1, "bam", bam_output / "hybrid_mm10.bam")
+        self.assertFile(bam1, "bai", bam_output / "hybrid_mm10.bam.bai")
+        self.assertFile(bam1, "bigwig", bam_output / "hybrid_mm10.bw")
         self.assertFields(bam1, "species", "Mus musculus")
         self.assertFields(bam1, "build", "mm10")
-        self.assertFile(bam2, "bam", "hybrid_dm6.bam")
-        self.assertFile(bam2, "bai", "hybrid_dm6.bam.bai")
-        self.assertFile(bam2, "bigwig", "hybrid_dm6.bw")
+        self.assertFile(bam2, "bam", bam_output / "hybrid_dm6.bam")
+        self.assertFile(bam2, "bai", bam_output / "hybrid_dm6.bam.bai")
+        self.assertFile(bam2, "bigwig", bam_output / "hybrid_dm6.bw")
         self.assertFields(bam2, "species", "Drosophila melanogaster")
         self.assertFields(bam2, "build", "dm6")
 
@@ -47,14 +54,14 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         bam1 = self.run_process("bam-split", inputs)
         bam2 = Data.objects.last()
 
-        self.assertFile(bam1, "bam", "hybrid_mm10.bam")
-        self.assertFile(bam1, "bai", "hybrid_mm10.bam.bai")
-        self.assertFile(bam1, "bigwig", "hybrid_mm10.bw")
+        self.assertFile(bam1, "bam", bam_output / "hybrid_mm10.bam")
+        self.assertFile(bam1, "bai", bam_output / "hybrid_mm10.bam.bai")
+        self.assertFile(bam1, "bigwig", bam_output / "hybrid_mm10.bw")
         self.assertFields(bam1, "species", "Mus musculus")
         self.assertFields(bam1, "build", "mm10")
-        self.assertFile(bam2, "bam", "hybrid_dm6.bam")
-        self.assertFile(bam2, "bai", "hybrid_dm6.bam.bai")
-        self.assertFile(bam2, "bigwig", "hybrid_dm6.bw")
+        self.assertFile(bam2, "bam", bam_output / "hybrid_dm6.bam")
+        self.assertFile(bam2, "bai", bam_output / "hybrid_dm6.bam.bai")
+        self.assertFile(bam2, "bigwig", bam_output / "hybrid_dm6.bw")
         self.assertFields(bam2, "species", "Drosophila melanogaster")
         self.assertFields(bam2, "build", "dm6")
 
@@ -403,6 +410,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("multiqc")
     def test_multiqc(self):
+
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",
@@ -421,8 +429,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             bam_samtools = self.run_process(
                 "upload-bam-indexed",
                 {
-                    "src": "alignment_position_sorted.bam",
-                    "src2": "alignment_position_sorted.bam.bai",
+                    "src": Path("test_bam", "output", "alignment_position_sorted.bam"),
+                    "src2": Path(
+                        "test_bam", "output", "alignment_position_sorted.bam.bai"
+                    ),
                     "species": "Homo sapiens",
                     "build": "hg19",
                 },
@@ -1156,7 +1166,9 @@ re-save-file lane_attributes "${NAME}".txt
     @tag_process("samtools-idxstats")
     def test_samtools_idxstats(self):
         with self.preparation_stage():
-            alignment = self.prepare_bam(fn="alignment_position_sorted.bam")
+            alignment = self.prepare_bam(
+                fn=Path("test_bam", "output", "alignment_position_sorted.bam")
+            )
 
         idxstats = self.run_process("samtools-idxstats", {"alignment": alignment.id})
         self.assertFile(idxstats, "report", "samtools_idxstats_report.txt")

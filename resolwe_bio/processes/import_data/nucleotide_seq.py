@@ -26,14 +26,14 @@ class ImportFastaNucleotide(Process):
     slug = "upload-fasta-nucl"
     name = "FASTA file"
     process_type = "data:seq:nucleotide"
-    version = "3.1.2"
+    version = "3.2.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 2,
@@ -129,7 +129,7 @@ class ImportFastaNucleotide(Process):
 
             # Create fasta dictionary file
             fasta_dict = f"{output_fasta.stem}.dict"
-            Cmd["picard-tools"][
+            Cmd["java"]["-jar", "/opt/broadinstitute/picard-tools/picard.jar"][
                 "CreateSequenceDictionary", f"R={output_fasta.name}", f"O={fasta_dict}"
             ]()
             self.progress(0.8)

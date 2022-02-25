@@ -35,14 +35,14 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.4.1"
+    version = "3.5.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {"cores": 1, "memory": 8192},
     }

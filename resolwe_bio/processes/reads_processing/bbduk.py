@@ -39,7 +39,7 @@ class BBDukSingle(Process):
     slug = "bbduk-single"
     name = "BBDuk (single-end)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "2.6.0"
+    version = "2.7.0"
     category = "Trim"
     data_name = '{{ reads|sample_name|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -50,7 +50,7 @@ class BBDukSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 10,
@@ -635,7 +635,7 @@ class BBDukPaired(Process):
     slug = "bbduk-paired"
     name = "BBDuk (paired-end)"
     process_type = "data:reads:fastq:paired:bbduk"
-    version = "2.6.0"
+    version = "2.7.0"
     category = "Trim"
     data_name = '{{ reads|sample_name|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -646,7 +646,7 @@ class BBDukPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 10,

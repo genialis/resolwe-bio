@@ -181,7 +181,7 @@ class UploadFastqSingle(Process):
     slug = "upload-fastq-single"
     name = "FASTQ file (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "2.5.1"
+    version = "2.6.0"
     category = "Import"
     data_name = '{{ src.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -192,7 +192,7 @@ class UploadFastqSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 1,
@@ -315,7 +315,7 @@ class UploadFastqPaired(Process):
     slug = "upload-fastq-paired"
     name = "FASTQ file (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "2.5.1"
+    version = "2.6.0"
     category = "Import"
     data_name = '{{ src1.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -326,7 +326,7 @@ class UploadFastqPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 1,
@@ -516,7 +516,7 @@ class FilesToFastqSingle(Process):
     slug = "files-to-fastq-single"
     name = "Convert files to reads (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.5.1"
+    version = "1.6.0"
     category = "Import"
     data_name = "Files to FASTQ single-end ({{ (src|first).file.file }})"
     scheduling_class = SchedulingClass.BATCH
@@ -527,7 +527,7 @@ class FilesToFastqSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
     }
 
@@ -648,7 +648,7 @@ class FilesToFastqPaired(Process):
     slug = "files-to-fastq-paired"
     name = "Convert files to reads (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.5.1"
+    version = "1.6.0"
     category = "Import"
     data_name = "Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})"
     scheduling_class = SchedulingClass.BATCH
@@ -659,7 +659,7 @@ class FilesToFastqPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
     }
 

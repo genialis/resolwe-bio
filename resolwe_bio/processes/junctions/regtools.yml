@@ -9,13 +9,13 @@
     {{ alignment_star|sample_name|default('') }}
     {{ alignment|sample_name|default('') }}
     {{ input_bed_junctions.bed.file|default('') }}
-  version: 1.1.1
+  version: 1.2.0
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   category: Splice Junctions
   flow_collection: sample
   persistence: CACHED

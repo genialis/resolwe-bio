@@ -10,22 +10,42 @@ from resolwe_bio.utils.test import KBBioProcessTestCase, skipUnlessLargeFiles
 class UploadProcessorTestCase(KBBioProcessTestCase):
     @tag_process("upload-bam", "upload-bam-indexed")
     def test_bam_upload(self):
+        base_input = Path("test_bam")
+        input_folder = base_input / "input"
+        output_folder = base_input / "output"
+
         inputs = {
-            "src": "alignment_name_sorted.bam",
+            "src": input_folder / "alignment_name_sorted.bam",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         upload_bam = self.run_process("upload-bam", inputs)
-        self.assertFile(upload_bam, "bam", "alignment_position_sorted.bam")
-        self.assertFile(upload_bam, "bai", "alignment_bam_upload_index.bai")
-        self.assertFile(upload_bam, "stats", "alignment_bam_upload_stats.txt")
-        self.assertFile(upload_bam, "bigwig", "alignment_bam_upload_bigwig.bw")
-        self.assertFields(upload_bam, "species", "Homo sapiens")
-        self.assertFields(upload_bam, "build", "hg19")
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bam",
+            fn=output_folder / "alignment_position_sorted.bam",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bai",
+            fn=output_folder / "alignment_bam_upload_index.bai",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="stats",
+            fn=output_folder / "alignment_bam_upload_stats.txt",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bigwig",
+            fn=output_folder / "alignment_bam_upload_bigwig.bw",
+        )
+        self.assertFields(obj=upload_bam, path="species", value="Homo sapiens")
+        self.assertFields(obj=upload_bam, path="build", value="hg19")
 
         inputs = {
-            "src": "alignment_position_sorted.bam",
-            "src2": "alignment_bam_upload_index.bam.bai",
+            "src": output_folder / "alignment_position_sorted.bam",
+            "src2": input_folder / "alignment_bam_upload_index.bam.bai",
             "species": "Homo sapiens",
             "build": "hg19",
         }
@@ -36,18 +56,34 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
 
         inputs = {
-            "src": "alignment_position_sorted.bam",
-            "src2": "alignment_position_sorted.bam.bai",
+            "src": output_folder / "alignment_position_sorted.bam",
+            "src2": output_folder / "alignment_position_sorted.bam.bai",
             "species": "Homo sapiens",
             "build": "hg19",
         }
         upload_bam = self.run_process("upload-bam-indexed", inputs)
-        self.assertFile(upload_bam, "bam", "alignment_position_sorted.bam")
-        self.assertFile(upload_bam, "bai", "alignment_position_sorted.bam.bai")
-        self.assertFile(upload_bam, "stats", "alignment_bam_upload_stats.txt")
-        self.assertFile(upload_bam, "bigwig", "alignment_bam_upload_bigwig.bw")
-        self.assertFields(upload_bam, "species", "Homo sapiens")
-        self.assertFields(upload_bam, "build", "hg19")
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bam",
+            fn=output_folder / "alignment_position_sorted.bam",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bai",
+            fn=output_folder / "alignment_position_sorted.bam.bai",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="stats",
+            fn=output_folder / "alignment_bam_upload_stats.txt",
+        )
+        self.assertFile(
+            obj=upload_bam,
+            field_path="bigwig",
+            fn=output_folder / "alignment_bam_upload_bigwig.bw",
+        )
+        self.assertFields(obj=upload_bam, path="species", value="Homo sapiens")
+        self.assertFields(obj=upload_bam, path="build", value="hg19")
 
     @with_resolwe_host
     @tag_process("upload-expression")
@@ -463,9 +499,11 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             {"src": [input_folder / "garbage.fastq.gz"]},
             Data.STATUS_ERROR,
         )
+
         error_msg = [
-            "Error in file garbage.fastq.gz. Error in FASTQ file at line 1: Line expected "
-            "to start with '@', but found 'S'"
+            "Error in file garbage.fastq.gz. Error in FASTQ file at line 2: Premature "
+            "end of file encountered. The incomplete final record was: 'Some random "
+            "content\\n'"
         ]
         self.assertEqual(garbage_input.process_error, error_msg)
 

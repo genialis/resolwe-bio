@@ -25,14 +25,14 @@ class CutadaptCorallSingle(Process):
     slug = "cutadapt-corall-single"
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.2.1"
+    version = "1.3.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
             "cores": 10,
@@ -198,14 +198,14 @@ class CutadaptCorallPaired(Process):
     slug = "cutadapt-corall-paired"
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = "data:reads:fastq:paired:cutadapt:"
-    version = "1.1.2"
+    version = "1.2.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
             "cores": 10,

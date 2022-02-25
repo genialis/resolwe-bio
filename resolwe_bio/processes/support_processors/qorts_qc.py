@@ -33,7 +33,7 @@ class QortsQC(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.10.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
             },
         },
         "resources": {
@@ -42,7 +42,7 @@ class QortsQC(Process):
         },
     }
     data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = "1.5.1"
+    version = "1.6.0"
     process_type = "data:qorts:qc"
     category = "Other"
     entity = {

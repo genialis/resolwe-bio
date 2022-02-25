@@ -190,7 +190,7 @@ class FeatureCounts(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
             },
         },
         "resources": {
@@ -200,7 +200,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.1.0"
+    version = "5.2.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {

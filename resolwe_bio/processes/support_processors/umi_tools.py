@@ -23,7 +23,7 @@ class UmiToolsDedup(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
             },
         },
         "resources": {
@@ -32,7 +32,7 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "UMI-tools dedup ({{alignment|sample_name}})"
-    version = "1.2.1"
+    version = "1.3.0"
     process_type = "data:alignment:bam:umitools:dedup"
     category = "Other"
     entity = {

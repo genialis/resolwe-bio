@@ -125,7 +125,7 @@ class UploadExpression(ProcessBio):
     slug = "upload-expression"
     name = "Expression data"
     process_type = "data:expression"
-    version = "2.5.2"
+    version = "2.6.0"
     category = "Import"
     data_name = "{{ exp_name }}"
     scheduling_class = SchedulingClass.BATCH
@@ -136,7 +136,7 @@ class UploadExpression(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 1,
@@ -332,7 +332,7 @@ class UploadExpressionCuffnorm(ProcessBio):
     slug = "upload-expression-cuffnorm"
     name = "Expression data (Cuffnorm)"
     process_type = "data:expression"
-    version = "1.7.0"
+    version = "1.8.0"
     category = "Import"
     data_name = '{{ exp.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -343,7 +343,7 @@ class UploadExpressionCuffnorm(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 1,

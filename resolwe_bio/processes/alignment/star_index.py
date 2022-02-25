@@ -26,12 +26,12 @@ class StarIndex(Process):
     slug = "alignment-star-index"
     name = "STAR genome index"
     process_type = "data:index:star"
-    version = "3.0.0"
+    version = "3.1.0"
     category = "Genome index"
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
             "cores": 1,

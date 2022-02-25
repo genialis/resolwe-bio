@@ -33,7 +33,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.10.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {"cores": 1, "memory": 16384, "storage": 50},
     }

@@ -142,7 +142,7 @@ class SalmonQuant(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.10.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
             },
         },
         "resources": {
@@ -152,7 +152,7 @@ class SalmonQuant(ProcessBio):
         },
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.3.0"
+    version = "2.4.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

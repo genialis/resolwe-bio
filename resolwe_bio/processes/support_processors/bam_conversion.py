@@ -23,12 +23,12 @@ class BamToBedpe(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.12.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "Bedtools bamtobed ({{alignment|sample_name|default('?')}})"
-    version = "1.1.1"
+    version = "1.2.0"
     process_type = "data:bedpe"
     category = "Other"
     entity = {"type": "sample"}
@@ -79,12 +79,12 @@ class ScaleBigWig(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.12.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {"cores": 1, "memory": 16384},
     }
     data_name = "Scale BigWig ({{alignment|sample_name|default('?')}})"
-    version = "1.1.1"
+    version = "1.2.0"
     process_type = "data:coverage:bigwig"
     category = "Other"
     entity = {"type": "sample"}

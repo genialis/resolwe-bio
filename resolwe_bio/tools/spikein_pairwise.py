@@ -138,7 +138,7 @@ def get_measured(
     if only_zero:
         exp = exp[exp == 0]
     elif only_nonzero:
-        exp = exp.iloc[exp.nonzero()[0]]
+        exp = exp.iloc[exp.to_numpy().nonzero()[0]]
 
     if log2:
         exp = np.log2(exp)
@@ -148,7 +148,9 @@ def get_measured(
 
 def merge_expected_measured(expected, measured):
     """Merge expected and measured data."""
-    merged = pd.concat([expected, measured], axis=1, join_axes=[measured.index])
+    merged = pd.concat([expected, measured], axis=1)
+    merged = merged.reindex(measured.index)
+
     return merged
 
 

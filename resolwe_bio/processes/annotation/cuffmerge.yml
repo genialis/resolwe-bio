@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: 'Merged annotation (Cuffmerge)'
-  version: 2.1.1
+  version: 2.2.0
   type: data:annotation:cuffmerge
   category: Quantify
   persistence: CACHED

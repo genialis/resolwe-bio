@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.9.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 4
   data_name: "{{ bam|sample_name|default('?') }}"
-  version: 0.6.1
+  version: 0.7.0
   type: data:alignment:bam:primary
   flow_collection: sample
   category: Other
@@ -79,7 +79,7 @@
         re-error "${BUILD} is not a valid hybrid genome build. Accepted builds are: \"mm10_dm6\", \"hg19_dm6\", \"hg19_mm10\"."
       {% endif %}
 
-      samtools view -h -o "${NAME}.sam" "${BAM}"
+      samtools view --no-PG -h -o "${NAME}.sam" "${BAM}"
       re-checkrc
       re-progress 0.05
 

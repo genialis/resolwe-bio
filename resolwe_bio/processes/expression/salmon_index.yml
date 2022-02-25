@@ -7,9 +7,9 @@
       memory: 32768
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.10.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 2.1.1
+  version: 2.2.0
   type: data:index:salmon
   persistence: CACHED
   description: |

@@ -39,6 +39,8 @@ Changed
   image
 - Add additional file output with source ids and target ids to process
   ``goenrichment``
+- Normalized all processes that rely on ``rnaseq`` Docker image to use
+  the latest ``resolwebio/rnaseq:6.0.0`` Docker image version
 
 Fixed
 -----

@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 4
       memory: 32768
       storage: 300
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.3.3
+  version: 3.4.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -270,12 +270,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 20
       memory: 16384
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.3.1
+  version: 2.4.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -448,12 +448,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.11.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 20
       memory: 16384
   data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.3.1
+  version: 2.4.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample

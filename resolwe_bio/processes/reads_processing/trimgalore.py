@@ -45,14 +45,14 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "Trim"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/rnaseq:5.12.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
             "cores": 10,
