@@ -1,9 +1,12 @@
 """Gene Ontology Enrichment Analysis."""
+import csv
 import tempfile
+from collections import defaultdict
 
 from resolwe.process import (
     Cmd,
     DataField,
+    FileField,
     FloatField,
     IntegerField,
     JsonField,
@@ -22,7 +25,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.5.2"
+    version = "3.6.0"
     category = "Other"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -69,6 +72,7 @@ class GOEnrichmentAnalysis(ProcessBio):
         """Output fields to process GOEnrichmentAnalysis."""
 
         terms = JsonField(label="Enriched terms")
+        ids = FileField(label="Mapped ids", required=False)
         source = StringField(label="Source")
         species = StringField(label="Species")
 
@@ -105,18 +109,25 @@ class GOEnrichmentAnalysis(ProcessBio):
             if len(mapping_res) == 0:
                 self.error("Failed to map features.")
 
-            mapped_ids = []
+            ids = defaultdict(list)
             target_ids = []
             for m in mapping_res:
                 if m.source_id in inputs.genes:
                     target_ids.append(m.target_id)
-                    if m.source_id not in mapped_ids:
-                        mapped_ids.append(m.source_id)
-                    else:
-                        self.warning(f"Mapping {m} returned multiple times.")
+                    if m.source_id in ids:
+                        self.warning(f"Mapping {m.source_id} returned multiple times.")
+                    ids[m.source_id].append(m.target_id)
 
-            if len(inputs.genes) > len(mapped_ids):
+            if len(inputs.genes) > len(ids):
                 self.warning("Not all features could be mapped.")
+
+            if len(target_ids) > 0:
+                with open("mapped_ids.txt", "w") as f:
+                    writer = csv.writer(f, delimiter="\t", lineterminator="\n")
+                    for key, value in ids.items():
+                        for v in value:
+                            writer.writerow([key, v])
+                outputs.ids = "mapped_ids.txt"
 
         with tempfile.NamedTemporaryFile() as input_genes:
             input_genes.write(" ".join(target_ids).encode("UTF-8"))

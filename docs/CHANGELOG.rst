@@ -37,6 +37,8 @@ Changed
 - Add Java memory settings to processes ``bqsr`` and ``markduplicates``
 - Update SnpEff version to 5.1 in ``resolwebio/snpeff:2.1.0`` Docker
   image
+- Add additional file output with source ids and target ids to process
+  ``goenrichment``
 
 Fixed
 -----

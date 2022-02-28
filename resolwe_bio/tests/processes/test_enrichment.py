@@ -67,6 +67,15 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
         input_folder = Path("goenrichment") / "input"
         output_folder = Path("goenrichment") / "output"
         with self.preparation_stage():
+            inputs = {"src": input_folder / "go.obo.gz"}
+            ontology_hs = self.run_process("upload-obo", inputs)
+
+            inputs = {
+                "src": input_folder / "goa_human.gaf.txt.gz",
+                "source": "UniProtKB",
+                "species": "Homo sapiens",
+            }
+            gaf_hs = self.run_process("upload-gaf", inputs)
             inputs = {"src": input_folder / "ontology_mus_cropped.obo.gz"}
             ontology = self.run_process("upload-obo", inputs)
 
@@ -84,6 +93,24 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
             }
             gaf_error = self.run_process("upload-gaf", inputs)
 
+        inputs = {
+            "ontology": ontology_hs.pk,
+            "gaf": gaf_hs.pk,
+            "genes": [
+                "ENSG00000247315",
+                "ENSG00000125875",
+                "ENSG00000101255",
+                "ENSG00000125841",
+            ],
+            "source": "ENSEMBL",
+            "species": "Homo sapiens",
+        }
+        enrichment = self.run_process("goenrichment", inputs)
+        self.assertFile(enrichment, "ids", output_folder / "mapped_ids.txt")
+        self.assertEqual(
+            enrichment.process_warning[0],
+            "Mapping ENSG00000125841 returned multiple times.",
+        )
         inputs = {
             "ontology": ontology.pk,
             "gaf": gaf.pk,
