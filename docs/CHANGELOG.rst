@@ -35,6 +35,8 @@ Changed
   ``resolwebio/common:3.0.1`` Docker image and update genome-tools to
   1.6.2 in ``resolwebio/rnaseq:6.0.0`` Docker image
 - Add Java memory settings to processes ``bqsr`` and ``markduplicates``
+- Update SnpEff version to 5.1 in ``resolwebio/snpeff:2.1.0`` Docker
+  image
 
 Fixed
 -----

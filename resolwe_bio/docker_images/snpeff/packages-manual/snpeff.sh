@@ -5,13 +5,15 @@
 download_and_verify \
     snpeff \
     snpeff \
-    4_3k \
-    396fadbefb4994838713c9a3e96393d16e7ec833254a962834e7cbd699b9f35e \
-    https://sourceforge.net/projects/snpeff/files/snpEff_v\${version}_core.zip \
+    5_1 \
+    01a244c8043fd4abe0e8087d0d3f1f7e05bdd6edc71df7a315d55cac59fb285d \
+    https://snpeff.blob.core.windows.net/versions/snpEff_v\${version}_core.zip \
     snpEff
 
 rm -rf clinEff examples
+
 java -jar snpEff.jar download GRCh37.75 -v
+java -jar snpEff.jar download GRCh38.99 -v
 
 mkdir bin
 
@@ -36,3 +38,8 @@ add_binary_path \
     snpeff \
     snpeff \
     bin
+
+add_binary_path \
+    snpeff \
+    snpeff \
+    scripts
