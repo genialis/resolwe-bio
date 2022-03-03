@@ -48,6 +48,7 @@ Fixed
   ``resolwebio/common:3.0.1`` Docker image with updated MultiQC
   configuration file to omit parsing the unwanted ``tmp`` folder
 - Fix LISTENER_CONNECTION settings to work on Mac
+- Add tool Tabix to ``resolwebio/snpeff:2.1.1`` Docker image
 
 
 ===================
