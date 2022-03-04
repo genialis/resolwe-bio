@@ -3,7 +3,7 @@
   data_name: "{{ reads|sample_name|default('?') }}"
   requirements:
     expression-engine: jinja
-  version: 5.0.1
+  version: 5.0.2
   category: Pipeline
   description: |
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.
@@ -151,13 +151,13 @@
           min_bq: '{{input.lofreq.min_bq}}'
           min_alt_bq: '{{input.lofreq.min_alt_bq}}'
       - id: annotate_gatk
-        run: snpeff
+        run: snpeff-legacy
         input:
           variants: '{{steps.gatk_hc}}'
           known_vars_annot: '{{input.var_annot.known_vars_db}}'
           var_source: 'gatk_hc'
       - id: annotate_lofreq
-        run: snpeff
+        run: snpeff-legacy
         input:
           variants: '{{steps.lofreq}}'
           known_vars_annot: '{{input.var_annot.known_vars_db}}'

@@ -17,10 +17,13 @@ Added
 - Add process ``gatk-variant-filtration``
 - Add support for ``Python`` 3.10
 - Add workflow ``workflow-rnaseq-variantcalling``
+- Add process ``snpeff``
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 30.x
+- **BACKWARD INCOMPATIBLE:** Change the slug of the process
+  ``snpeff`` to ``snpeff-legacy``
 - Add parameter ``--use-original-qualities`` to ``bqsr`` process
 - Add ``fn_ignore_dirs`` options to MultiQC configuration file in
   ``resolwebio/common:3.0.1`` Docker image

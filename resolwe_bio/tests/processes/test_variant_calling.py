@@ -342,13 +342,15 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(lofreq_vars, "build", "b37")
         self.assertFields(lofreq_vars, "species", "Homo sapiens")
 
-    @tag_process("snpeff")
+    @tag_process("snpeff-legacy", "snpeff")
     def test_snpeff(self):
         with self.preparation_stage():
+            input_folder = Path("snpeff") / "input"
+            output_folder = Path("snpeff") / "output"
             variants_lf = self.run_process(
                 "upload-variants-vcf",
                 {
-                    "src": "56GSID_10k.lf.vcf",
+                    "src": input_folder / "56GSID_10k.lf.vcf",
                     "species": "Homo sapiens",
                     "build": "b37",
                 },
@@ -356,7 +358,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             variants_gatk = self.run_process(
                 "upload-variants-vcf",
                 {
-                    "src": "56GSID_10k0.gatkHC.vcf",
+                    "src": input_folder / "56GSID_10k0.gatkHC.vcf",
                     "species": "Homo sapiens",
                     "build": "b37",
                 },
@@ -369,9 +371,33 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "build": "b37",
                 },
             )
+            variants_rna = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "filtered_snpeff.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            dbsnp_rna = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "dbsnp.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh37",
+                },
+            )
+            genes = self.run_process(
+                "upload-geneset",
+                {
+                    "src": input_folder / "set_of_genes.txt",
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                },
+            )
 
         final_var_lf = self.run_process(
-            "snpeff",
+            "snpeff-legacy",
             {
                 "variants": variants_lf.id,
                 "known_vars_annot": [dbsnp.id],
@@ -382,14 +408,92 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertRegex(final_var_lf.process_warning[0], r"Inconsistency for entry .*")
 
         final_var_gatk = self.run_process(
-            "snpeff",
+            "snpeff-legacy",
             {
                 "variants": variants_gatk.id,
                 "known_vars_annot": [dbsnp.id],
                 "var_source": "gatk_hc",
             },
         )
-        self.assertFile(final_var_gatk, "annotation", "56GSID.gatk.finalvars.txt")
+        self.assertFile(
+            final_var_gatk, "annotation", output_folder / "56GSID.gatk.finalvars.txt"
+        )
+
+        snpeff = self.run_process(
+            "snpeff",
+            {
+                "variants": variants_rna.id,
+                "database": "GRCh38.99",
+                "dbsnp": dbsnp_rna.id,
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            snpeff.process_error[0],
+            "Genome build for the DBSNP file and used database "
+            "should be the same. DBSNP file is based on "
+            "GRCh37, while snpEff database is based on "
+            "GRCh38.",
+        )
+
+        snpeff_filtering = self.run_process(
+            "snpeff",
+            {
+                "variants": variants_rna.id,
+                "database": "GRCh38.99",
+                "filtering_options": "( REF = 'A' )",
+                "extract_fields": [
+                    "CHROM",
+                    "POS",
+                    "REF",
+                    "ALT",
+                    "ANN[*].GENE",
+                    "ANN[*].HGVS_P",
+                ],
+                "advanced": {"one_per_line": True},
+            },
+        )
+        self.assertFile(
+            snpeff_filtering,
+            "vcf_extracted",
+            output_folder / "extracted_variants.vcf.gz",
+            compression="gzip",
+            file_filter=filter_vcf_variable,
+        )
+        self.assertFile(
+            snpeff_filtering,
+            "vcf",
+            output_folder / "filtered_variants.vcf.gz",
+            compression="gzip",
+            file_filter=filter_vcf_variable,
+        )
+
+        snpeff_filtering = self.run_process(
+            "snpeff",
+            {
+                "variants": variants_rna.id,
+                "database": "GRCh38.99",
+                "filtering_options": "ANN[*].EFFECT has 'missense_variant'",
+                "sets": [genes.id],
+                "extract_fields": [
+                    "CHROM",
+                    "POS",
+                    "ID",
+                    "REF",
+                    "ALT",
+                    "QUAL",
+                    "ANN[*].GENE",
+                    "ANN[*].HGVS_P",
+                ],
+            },
+        )
+        self.assertFile(
+            snpeff_filtering,
+            "vcf_extracted",
+            output_folder / "variants_set.vcf.gz",
+            compression="gzip",
+            file_filter=filter_vcf_variable,
+        )
 
     @tag_process("gatk-refine-variants")
     def test_gatk_refinement(self):
