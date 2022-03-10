@@ -35,7 +35,7 @@ class GatkHaplotypeCaller(Process):
     name = "GATK4 (HaplotypeCaller)"
     category = "GATK"
     process_type = "data:variants:vcf:gatk:hc"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -80,7 +80,7 @@ class GatkHaplotypeCaller(Process):
         )
         stand_call_conf = IntegerField(
             label="Min call confidence threshold",
-            default=20,
+            default=30,
             description="The minimum phred-scaled confidence threshold at which "
             "variants should be called.",
         )
