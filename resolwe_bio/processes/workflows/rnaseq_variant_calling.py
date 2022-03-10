@@ -36,7 +36,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = 'RNA-seq Variants ({{ reads|sample_name|default("?") }})'
-    version = "1.0.0"
+    version = "1.1.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -142,6 +142,38 @@ class WorkflowRnaseqVariantCalling(Process):
                 default=[],
                 description="Custom adapter sequences can be specified by inputting them "
                 "one by one and pressing Enter after each sequence.",
+            )
+            kmer_length = IntegerField(
+                label="K-mer length [k=]",
+                default=23,
+                description="Kmer length used for finding contaminants. "
+                "Contaminants shorter than kmer length will not be found. "
+                "Kmer length must be at least 1.",
+            )
+            min_k = IntegerField(
+                label="Minimum k-mer length at right end of reads used for trimming [mink=]",
+                default=11,
+                disabled="preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0",
+            )
+            hamming_distance = IntegerField(
+                label="Maximum Hamming distance for k-mers [hammingdistance=]",
+                default=1,
+                description="Hamming distance i.e. the number of mismatches allowed in the kmer.",
+            )
+            maxns = IntegerField(
+                label="Max Ns after trimming [maxns=]",
+                default=-1,
+                description="If non-negative, reads with more Ns than this (after trimming) will be discarded.",
+            )
+            trim_quality = IntegerField(
+                label="Average quality below which to trim region [trimq=]",
+                default=28,
+                description="Phred algorithm is used, which is more accurate than naive trimming.",
+            )
+            min_length = IntegerField(
+                label="Minimum read length [minlength=]",
+                default=30,
+                description="Reads shorter than minimum read length after trimming are discarded.",
             )
             quality_encoding_offset = StringField(
                 label="Quality encoding offset",
@@ -300,18 +332,18 @@ class WorkflowRnaseqVariantCalling(Process):
             # in workflow-bbduk-star-featurecounts-qc
             input_preprocessing = {
                 "reads": inputs.reads,
-                "min_length": 20,
+                "min_length": inputs.bbduk.min_length,
                 "reference": {
                     "sequences": inputs.bbduk.adapters or [],
                     "literal_sequences": inputs.bbduk.custom_adapter_sequences,
                 },
                 "processing": {
-                    "kmer_length": 23,
-                    "hamming_distance": 1,
+                    "kmer_length": inputs.bbduk.kmer_length,
+                    "hamming_distance": inputs.bbduk.hamming_distance,
                 },
                 "operations": {
                     "quality_trim": "r",
-                    "trim_quality": 10,
+                    "trim_quality": inputs.bbduk.trim_quality,
                     "quality_encoding_offset": inputs.bbduk.quality_encoding_offset,
                     "ignore_bad_quality": inputs.bbduk.ignore_bad_quality,
                     "maxns": 1,
@@ -324,7 +356,7 @@ class WorkflowRnaseqVariantCalling(Process):
                 input_preprocessing["operations"]["k_trim"] = "f"
 
             if inputs.bbduk.adapters or inputs.bbduk.custom_adapter_sequences:
-                input_preprocessing["operations"]["min_k"] = 11
+                input_preprocessing["operations"]["min_k"] = inputs.bbduk.min_k
             else:
                 input_preprocessing["operations"]["min_k"] = -1
 
