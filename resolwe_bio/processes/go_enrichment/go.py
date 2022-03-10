@@ -25,7 +25,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.6.0"
+    version = "3.6.1"
     category = "Other"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -124,6 +124,7 @@ class GOEnrichmentAnalysis(ProcessBio):
             if len(target_ids) > 0:
                 with open("mapped_ids.txt", "w") as f:
                     writer = csv.writer(f, delimiter="\t", lineterminator="\n")
+                    writer.writerow([inputs.source, inputs.gaf.output.source])
                     for key, value in ids.items():
                         for v in value:
                             writer.writerow([key, v])
