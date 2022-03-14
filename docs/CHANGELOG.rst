@@ -13,11 +13,25 @@ Unreleased
 
 Added
 -----
-- Add ``gatk-split-ncigar`` process
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+44.0.0 - 2022-03-14
+===================
+
+Added
+-----
+- Add process ``gatk-split-ncigar``
 - Add process ``gatk-variant-filtration``
-- Add support for ``Python`` 3.10
-- Add workflow ``workflow-rnaseq-variantcalling``
 - Add process ``snpeff``
+- Add workflow ``workflow-rnaseq-variantcalling``
+- Add support for ``Python`` 3.10
 
 Changed
 -------
@@ -35,17 +49,17 @@ Changed
 - Normalize processes that use ``resolwebio/dnaseq`` Docker image to
   use the latest version 6.3.1 and modify tests as necessary
 - Rewrite process ``vc-gatk4-hc`` to Python
-- Update Python package versions in ``resolwebio/rnaseq:6.0.0`` Docker
-  image to go along with Python 3.8, pin R package versions in
-  ``resolwebio/rnaseq:6.0.0`` to match those from
-  ``resolwebio/common:3.0.1`` Docker image and update genome-tools to
-  1.6.2 in ``resolwebio/rnaseq:6.0.0`` Docker image
+- Prepare ``resolwebio/rnaseq:6.0.0`` Docker image:
+
+  - Update Python package versions for Python 3.8
+  - Pin R package versions
+  - Bump genome-tools to 1.6.2
 - Add Java memory settings to processes ``bqsr`` and ``markduplicates``
 - Update SnpEff version to 5.1 in ``resolwebio/snpeff:2.1.0`` Docker
   image
 - Add additional file output with source ids and target ids to process
   ``goenrichment``
-- Normalized all processes that rely on ``rnaseq`` Docker image to use
+- Normalize all processes that rely on ``rnaseq`` Docker image  to use
   the latest ``resolwebio/rnaseq:6.0.0`` Docker image version
 
 Fixed
