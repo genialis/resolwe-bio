@@ -1,4 +1,6 @@
 """Run variant filtration using VQSR tool."""
+import os
+
 from plumbum import TEE
 
 from resolwe.process import (
@@ -23,7 +25,7 @@ class VariantFiltrationVqsr(Process):
     name = "GATK filter variants (VQSR)"
     category = "GATK"
     process_type = "data:variants:vcf:vqsr"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -170,6 +172,9 @@ class VariantFiltrationVqsr(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         variants = "snp.recalibrated.vcf"
         variants_gz = variants + ".gz"
         variants_index = variants_gz + ".tbi"
@@ -196,6 +201,8 @@ class VariantFiltrationVqsr(Process):
             "ExcessHet",
             "-O",
             excesshet_vcf,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["VariantFiltration"][variant_filtration] & TEE(
@@ -210,6 +217,8 @@ class VariantFiltrationVqsr(Process):
             excesshet_vcf,
             "-O",
             sites_only_vcf,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["MakeSitesOnlyVcf"][make_sites_only_args] & TEE(
@@ -264,6 +273,8 @@ class VariantFiltrationVqsr(Process):
             indels_tranches,
             "--resource:dbsnp,known=true,training=false,truth=false,prior=2",
             inputs.resource_files.dbsnp.output.vcf.path,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if inputs.resource_files.mills:
@@ -311,6 +322,8 @@ class VariantFiltrationVqsr(Process):
             snps_tranches,
             "-resource:dbsnp,known=true,training=false,truth=false,prior=7",
             inputs.resource_files.dbsnp.output.vcf.path,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if inputs.resource_files.hapmap:
@@ -368,6 +381,8 @@ class VariantFiltrationVqsr(Process):
             "true",
             "-mode",
             "INDEL",
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if inputs.advanced_options.use_as_anno:
@@ -394,6 +409,8 @@ class VariantFiltrationVqsr(Process):
             "false",
             "-mode",
             "SNP",
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if inputs.advanced_options.use_as_anno:

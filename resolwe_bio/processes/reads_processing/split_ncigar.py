@@ -1,4 +1,5 @@
 """Run GATK SplitNCigarReads."""
+import os
 from pathlib import Path
 
 from plumbum import TEE
@@ -29,7 +30,7 @@ class GatkSplitNCigarReads(Process):
     name = "GATK SplitNCigarReads"
     category = "GATK"
     process_type = "data:alignment:bam:splitncigar"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -86,6 +87,8 @@ class GatkSplitNCigarReads(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         file_name = Path(inputs.bam.output.bam.path).name[:-4]
         bam = file_name + ".splitNcigar.bam"
         bai = file_name + ".splitNcigar.bai"
@@ -103,6 +106,8 @@ class GatkSplitNCigarReads(Process):
             inputs.bam.output.bam.path,
             "-O",
             bam,
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         return_code, stdout, stderr = Cmd["gatk"]["SplitNCigarReads"][args] & TEE(

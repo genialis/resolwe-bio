@@ -24,7 +24,7 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.5.0"
+    version = "1.5.1"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -134,6 +134,8 @@ class MarkDuplicates(Process):
         is skipped, there will be no modification of the filename, whereas if
         markduplication goes through, it will append 'markduplicates'.
         """
+        TMPDIR = os.environ.get("TMPDIR")
+
         # Prepare output file names.
         file_name = os.path.splitext(os.path.basename(inputs.bam.output.bam.path))[0]
         metrics_file = f"{file_name}_metrics.txt"
@@ -166,6 +168,8 @@ class MarkDuplicates(Process):
                 f"{bam}",
                 "--METRICS_FILE",
                 f"{metrics_file}",
+                "--TMP_DIR",
+                TMPDIR,
             ]
 
             if inputs.remove_duplicates:

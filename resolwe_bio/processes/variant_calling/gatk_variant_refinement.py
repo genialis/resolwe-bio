@@ -32,7 +32,7 @@ class GatkGenotypeRefinement(Process):
     name = "GATK refine variants"
     category = "GATK"
     process_type = "data:variants:vcf:refinevariants"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -138,6 +138,8 @@ class GatkGenotypeRefinement(Process):
             "--create-output-variant-index",
             "--genotype-filter-expression",
             "GQ < 20",
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["VariantFiltration"][args_filtration] & TEE(

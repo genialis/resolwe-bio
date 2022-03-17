@@ -48,7 +48,7 @@ class InsertSizeMetrics(Process):
     name = "Picard WGS Metrics"
     category = "Picard"
     process_type = "data:picard:wgsmetrics"
-    version = "2.2.0"
+    version = "2.2.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -144,6 +144,9 @@ class InsertSizeMetrics(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         basename = os.path.basename(inputs.bam.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
@@ -174,6 +177,8 @@ class InsertSizeMetrics(Process):
             inputs.options.sample_size,
             "--VALIDATION_STRINGENCY",
             inputs.options.validation_stringency,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["CollectWgsMetrics"][args] & TEE(retcode=None)

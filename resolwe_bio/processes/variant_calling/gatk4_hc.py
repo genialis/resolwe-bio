@@ -1,5 +1,5 @@
 """Run GATK HaplotypeCaller."""
-
+import os
 from pathlib import Path
 
 from plumbum import TEE
@@ -35,7 +35,7 @@ class GatkHaplotypeCaller(Process):
     name = "GATK4 (HaplotypeCaller)"
     category = "GATK"
     process_type = "data:variants:vcf:gatk:hc"
-    version = "1.2.1"
+    version = "1.2.2"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -130,6 +130,8 @@ class GatkHaplotypeCaller(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         name = Path(inputs.alignment.output.bam.path).stem
         variants = name + ".gatkHC.vcf"
         variants_gz = variants + ".gz"
@@ -156,6 +158,8 @@ class GatkHaplotypeCaller(Process):
             inputs.max_reads,
             "--standard-min-confidence-threshold-for-calling",
             inputs.stand_call_conf,
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         if inputs.advanced.soft_clipped:

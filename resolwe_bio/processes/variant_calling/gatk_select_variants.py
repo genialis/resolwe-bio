@@ -1,4 +1,6 @@
 """Run GATK SelectVariants."""
+import os
+
 from plumbum import TEE
 
 from resolwe.process import (
@@ -22,7 +24,7 @@ class GatkSelectVariants(Process):
     name = "GATK SelectVariants"
     category = "GATK"
     process_type = "data:variants:vcf:selectvariants"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -102,6 +104,8 @@ class GatkSelectVariants(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         selected_variants = "selected_variants.vcf.gz"
         selected_variants_index = selected_variants + ".tbi"
         species = inputs.vcf.output.species
@@ -117,6 +121,8 @@ class GatkSelectVariants(Process):
             inputs.vcf.output.vcf.path,
             "--output",
             selected_variants,
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         if inputs.advanced_options.ref_seq:

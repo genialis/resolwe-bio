@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Specify tmp dir for GATK processes
 
 Fixed
 -----

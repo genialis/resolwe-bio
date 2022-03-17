@@ -1,5 +1,5 @@
 """Run GATK HaplotypeCaller in GVCF mode."""
-
+import os
 from pathlib import Path
 
 from plumbum import TEE
@@ -24,7 +24,7 @@ class GatkHaplotypeCallerGvcf(Process):
     name = "GATK HaplotypeCaller (GVCF)"
     category = "GATK"
     process_type = "data:variants:gvcf"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -78,6 +78,9 @@ class GatkHaplotypeCallerGvcf(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         name = Path(inputs.bam.output.bam.path).stem
         variants = name + ".g.vcf"
         variants_gz = variants + ".gz"
@@ -92,6 +95,8 @@ class GatkHaplotypeCallerGvcf(Process):
             variants,
             "-contamination",
             inputs.options.contamination,
+            "--tmp-dir",
+            TMPDIR,
             "-G",
             "StandardAnnotation",
             "-G",

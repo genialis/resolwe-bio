@@ -1,4 +1,6 @@
 """Run GATK VariantFiltration."""
+import os
+
 from plumbum import TEE
 
 from resolwe.process import (
@@ -28,7 +30,7 @@ class GatkVariantFiltration(Process):
     name = "GATK VariantFiltration"
     category = "GATK"
     process_type = "data:variants:vcf:variantfiltration"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -114,6 +116,8 @@ class GatkVariantFiltration(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         filtered_variants = "filtered_variants.vcf.gz"
         filtered_variants_index = filtered_variants + ".tbi"
 
@@ -139,6 +143,8 @@ class GatkVariantFiltration(Process):
             inputs.advanced.window,
             "--cluster",
             inputs.advanced.cluster,
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         for name, exp in zip(inputs.filter_name, inputs.filter_expressions):

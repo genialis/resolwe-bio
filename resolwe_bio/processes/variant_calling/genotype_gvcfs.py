@@ -1,4 +1,5 @@
 """Run GATK GenotypeGVCFs tool."""
+import os
 from pathlib import Path
 
 from joblib import Parallel, delayed, wrap_non_picklable_objects
@@ -16,6 +17,8 @@ from resolwe.process import (
     StringField,
 )
 from resolwe.process.fields import DirField
+
+TMPDIR = os.environ.get("TMPDIR")
 
 
 def create_vcf_path(interval_path):
@@ -47,6 +50,8 @@ def run_genotype_gvcfs(interval_path, ref_seq_path, db_path, dbsnp_path, java_me
         "--only-output-calls-starting-in-intervals",
         "--java-options",
         f"-Xmx{java_memory}g",
+        "--tmp-dir",
+        TMPDIR,
     ]
 
     return_code, _, _ = Cmd["gatk"]["GenotypeGVCFs"][genotype_gvcfs_inputs] & TEE(
@@ -62,7 +67,7 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "2.2.0"
+    version = "2.2.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -144,6 +149,8 @@ class GatkGenotypeGVCFs(Process):
             n_jobs,
             "-O",
             str(intervals_path),
+            "--tmp-dir",
+            TMPDIR,
         ]
         return_code, _, _ = Cmd["gatk"]["SplitIntervals"][split_intervals_inputs] & TEE(
             retcode=None
@@ -190,6 +197,8 @@ class GatkGenotypeGVCFs(Process):
             inputs.ref_seq.output.fasta.path,
             "--CREATE_INDEX",
             "false",
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         return_code, _, _ = Cmd["gatk"]["GatherVcfs"][merge_inputs] & TEE(retcode=None)

@@ -28,7 +28,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.3.0"
+    version = "2.3.1"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -122,6 +122,9 @@ class BQSR(Process):
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         # Prepare output file names.
         bam = os.path.basename(inputs.bam.output.bam.path)
         file_name = os.path.splitext(os.path.basename(inputs.bam.output.bam.path))[0]
@@ -148,6 +151,8 @@ class BQSR(Process):
                 f"{inputs.validation_stringency}",
                 "--OUTPUT",
                 f"{bam_rg}",
+                "--TMP_DIR",
+                TMPDIR,
             ]
 
             present_tags = []
@@ -209,6 +214,8 @@ class BQSR(Process):
             f"{inputs.reference.output.fasta.path}",
             "--read-validation-stringency",
             f"{inputs.validation_stringency}",
+            "--tmp-dir",
+            TMPDIR,
         ]
         if inputs.intervals:
             br_inputs.extend(["--intervals", f"{inputs.intervals.output.bed.path}"])
@@ -239,6 +246,8 @@ class BQSR(Process):
             f"{recal_table}",
             "--read-validation-stringency",
             f"{inputs.validation_stringency}",
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         if inputs.advanced.use_original_qualities:

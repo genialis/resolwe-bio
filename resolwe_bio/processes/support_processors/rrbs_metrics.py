@@ -31,7 +31,7 @@ class CollectRrbsMetrics(Process):
     name = "Picard CollectRrbsMetrics"
     category = "Picard"
     process_type = "data:picard:rrbs"
-    version = "2.2.0"
+    version = "2.2.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -100,6 +100,9 @@ class CollectRrbsMetrics(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         basename = os.path.basename(inputs.bam.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
@@ -121,6 +124,8 @@ class CollectRrbsMetrics(Process):
             inputs.validation_stringency,
             "--ASSUME_SORTED",
             inputs.assume_sorted,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if 0 <= inputs.mismatch_rate <= 1:

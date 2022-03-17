@@ -27,7 +27,7 @@ class AlignmentSummary(Process):
     name = "Picard AlignmentSummary"
     category = "Picard"
     process_type = "data:picard:summary"
-    version = "2.2.0"
+    version = "2.2.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -104,6 +104,9 @@ class AlignmentSummary(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         basename = os.path.basename(inputs.bam.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
@@ -126,6 +129,8 @@ class AlignmentSummary(Process):
             inputs.pair_orientation,
             "--IS_BISULFITE_SEQUENCED",
             inputs.bisulfite,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if inputs.adapters:

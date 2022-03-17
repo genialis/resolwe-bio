@@ -1,4 +1,6 @@
 """Run GATK MergeVcfs."""
+import os
+
 from plumbum import TEE
 
 from resolwe.process import (
@@ -22,7 +24,7 @@ class GatkMergeVcfs(Process):
     name = "GATK MergeVcfs"
     category = "GATK"
     process_type = "data:variants:vcf:mergevcfs"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -86,6 +88,8 @@ class GatkMergeVcfs(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         combined_variants = "combined_variants.vcf.gz"
         combined_variants_index = combined_variants + ".tbi"
         vcf_list = "input_variant_files.list"
@@ -114,6 +118,7 @@ class GatkMergeVcfs(Process):
             f"-XX:ParallelGCThreads={gc_threads} -Xmx{inputs.advanced_options.max_heap_size}g",
             f"I={vcf_list}",
             f"O={combined_variants}",
+            f"TMP_DIR={TMPDIR}",
         ]
 
         if inputs.advanced_options.ref_seq:

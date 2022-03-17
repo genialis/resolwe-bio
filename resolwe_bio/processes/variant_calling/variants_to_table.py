@@ -1,4 +1,5 @@
 """Run GATK VariantsToTable."""
+import os
 
 from plumbum import TEE
 
@@ -28,7 +29,7 @@ class GatkVariantsToTable(Process):
     name = "GATK VariantsToTable"
     category = "GATK"
     process_type = "data:variantstable"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -105,6 +106,8 @@ class GatkVariantsToTable(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        TMPDIR = os.environ.get("TMPDIR")
+
         variants_table = "variants_table.tsv"
 
         args = [
@@ -112,6 +115,8 @@ class GatkVariantsToTable(Process):
             inputs.vcf.output.vcf.path,
             "-O",
             variants_table,
+            "--tmp-dir",
+            TMPDIR,
         ]
 
         for field in inputs.vcf_fields:

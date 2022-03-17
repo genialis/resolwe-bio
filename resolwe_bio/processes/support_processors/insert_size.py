@@ -26,7 +26,7 @@ class InsertSizeMetrics(Process):
     name = "Picard InsertSizeMetrics"
     category = "Picard"
     process_type = "data:picard:insert"
-    version = "2.2.0"
+    version = "2.2.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -98,6 +98,9 @@ class InsertSizeMetrics(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
+
+        TMPDIR = os.environ.get("TMPDIR")
+
         basename = os.path.basename(inputs.bam.output.bam.path)
         assert basename.endswith(".bam")
         name = basename[:-4]
@@ -121,6 +124,8 @@ class InsertSizeMetrics(Process):
             inputs.validation_stringency,
             "--ASSUME_SORTED",
             inputs.assume_sorted,
+            "--TMP_DIR",
+            TMPDIR,
         ]
 
         if 0 <= inputs.minimum_fraction <= 0.5:
