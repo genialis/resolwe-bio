@@ -17,6 +17,7 @@ Added
   ``gatk-select-variants-single``
 - Add ExtendedCollectionFilter filter to allow filtering collections by samples
   containing given species, tissue type, outcome or treatment type
+- Add process ``reference-space`` and ``upload-ml-expression``
 
 Changed
 -------

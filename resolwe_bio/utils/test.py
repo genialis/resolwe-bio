@@ -196,4 +196,5 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
 
     def run_process(self, *args, **kwargs):
         """Run processes in collection."""
-        return super().run_process(*args, **kwargs, collection=self.collection)
+        kwargs["collection"] = kwargs.get("collection", self.collection)
+        return super().run_process(*args, **kwargs)
