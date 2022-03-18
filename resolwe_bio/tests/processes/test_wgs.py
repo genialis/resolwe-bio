@@ -431,7 +431,7 @@ re-save build "custom_build"
         self.assertFields(merged_vcfs, "build", "custom_build")
         self.assertFields(merged_vcfs, "species", "Homo sapiens")
 
-    @tag_process("gatk-select-variants")
+    @tag_process("gatk-select-variants", "gatk-select-variants-single")
     def test_gatk_select_variants(self):
         base = Path("wgs")
         inputs = base / "input"
@@ -484,7 +484,7 @@ re-save build "custom_build"
         self.assertFields(selected_variants, "species", "Homo sapiens")
 
         exclude_filtered = self.run_process(
-            process_slug="gatk-select-variants",
+            process_slug="gatk-select-variants-single",
             input_={
                 "vcf": vcf_filtered.id,
                 "select_type": ["SNP"],
