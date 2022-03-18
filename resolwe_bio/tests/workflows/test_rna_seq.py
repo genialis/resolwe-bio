@@ -752,7 +752,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        variants = Data.objects.filter(process__slug="gatk-select-variants").last()
+        variants = Data.objects.filter(
+            process__slug="gatk-select-variants-single"
+        ).last()
         self.assertFile(
             variants,
             "vcf",
@@ -770,7 +772,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        variants = Data.objects.filter(process__slug="gatk-select-variants").last()
+        variants = Data.objects.filter(
+            process__slug="gatk-select-variants-single"
+        ).last()
         self.assertFile(
             variants,
             "vcf",

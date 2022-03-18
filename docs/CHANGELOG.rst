@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add processes ``gatk-variant-filtration-single`` and
+  ``gatk-select-variants-single``
 
 Changed
 -------
@@ -20,6 +22,8 @@ Changed
 
 Fixed
 -----
+- Attach GATK VariantFiltration and SelectVariants output to the
+  Sample object in ``workflow-rnaseq-variantcalling`` pipeline
 
 
 ===================

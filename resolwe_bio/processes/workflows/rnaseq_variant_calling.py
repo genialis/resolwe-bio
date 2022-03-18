@@ -36,7 +36,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = 'RNA-seq Variants ({{ reads|sample_name|default("?") }})'
-    version = "1.1.0"
+    version = "1.2.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -470,7 +470,7 @@ class WorkflowRnaseqVariantCalling(Process):
         }
 
         filtration = Data.create(
-            process=BioProcess.get_latest(slug="gatk-variant-filtration"),
+            process=BioProcess.get_latest(slug="gatk-variant-filtration-single"),
             input=input_filtration,
         )
 
@@ -486,7 +486,7 @@ class WorkflowRnaseqVariantCalling(Process):
             }
 
             Data.create(
-                process=BioProcess.get_latest(slug="gatk-select-variants"),
+                process=BioProcess.get_latest(slug="gatk-select-variants-single"),
                 input=input_select,
             )
 
