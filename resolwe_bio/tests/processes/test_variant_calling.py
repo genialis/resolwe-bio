@@ -627,7 +627,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         )
         self.assertFile(variants, "tsv", output_folder / "variants_to_table.tsv")
 
-    @tag_process("gatk-variant-filtration")
+    @tag_process("gatk-variant-filtration", "gatk-variant-filtration-single")
     def test_variant_filtration(self):
         input_folder = Path("variant_filtration") / "input"
         output_folder = Path("variant_filtration") / "output"
@@ -649,8 +649,17 @@ class VariantCallingTestCase(BioProcessTestCase):
                 },
             )
 
-        filtering = self.run_process(
-            "gatk-variant-filtration",
+            vcf_multi_sample = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "chr1_19000_multi_sample.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+        filtering_single_sample = self.run_process(
+            "gatk-variant-filtration-single",
             {
                 "vcf": vcf.id,
                 "ref_seq": ref_seq.id,
@@ -664,7 +673,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             },
         )
         self.assertFile(
-            filtering,
+            filtering_single_sample,
             "vcf",
             output_folder / "filtered_variants.vcf.gz",
             file_filter=filter_vcf_variable,
@@ -679,9 +688,52 @@ class VariantCallingTestCase(BioProcessTestCase):
         }
 
         filtering = self.run_process(
-            "gatk-variant-filtration", filtering_error, Data.STATUS_ERROR
+            "gatk-variant-filtration-single", filtering_error, Data.STATUS_ERROR
         )
         error_msg = [
             ("The number of filter expressions and filter names is not the same.")
         ]
         self.assertEqual(filtering.process_error, error_msg)
+
+        filtering_multi_sample = self.run_process(
+            "gatk-variant-filtration",
+            {
+                "vcf": vcf_multi_sample.id,
+                "ref_seq": ref_seq.id,
+                "filter_expressions": ["FS > 30.0", "QD < 2.0", "DP > 20"],
+                "filter_name": ["FS", "QD", "DP"],
+                "advanced": {
+                    "window": 35,
+                    "java_gc_threads": 3,
+                    "max_heap_size": 8,
+                },
+            },
+        )
+        self.assertFile(
+            filtering_multi_sample,
+            "vcf",
+            output_folder / "filtered_variants_multi_sample.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
+        wrong_process_inputs = {
+            "vcf": vcf_multi_sample.id,
+            "ref_seq": ref_seq.id,
+            "filter_expressions": ["FS > 30.0", "QD < 2.0", "DP > 20"],
+            "filter_name": ["FS", "QD", "DP"],
+            "advanced": {
+                "window": 35,
+                "java_gc_threads": 3,
+                "max_heap_size": 8,
+            },
+        }
+
+        wrong_process = self.run_process(
+            "gatk-variant-filtration-single", wrong_process_inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            "The input VCF should contain data for a single sample. "
+            "The input contains data for 2 sample(s)."
+        ]
+        self.assertEqual(wrong_process.process_error, error_msg)
