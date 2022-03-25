@@ -1540,3 +1540,120 @@ re-save-file lane_attributes "${NAME}".txt
             [outputs / "output_reads_mate2.fastq.gz"],
             compression="gzip",
         )
+
+    @tag_process("mutations-table")
+    def test_report_variants(self):
+        input_folder = Path("report_variants") / "input"
+        output_folder = Path("report_variants") / "output"
+        with self.preparation_stage():
+            reference_vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "KRAS_annotated.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            reference_vcf2 = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "filtered_variants.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            table = self.run_process(
+                "variants-to-table",
+                {
+                    "vcf": reference_vcf.id,
+                    "vcf_fields": ["CHROM", "POS", "ID", "REF", "ALT", "ANN"],
+                },
+            )
+            table2 = self.run_process(
+                "variants-to-table",
+                {
+                    "vcf": reference_vcf2.id,
+                    "vcf_fields": ["CHROM", "POS", "ID", "REF", "ALT", "ANN"],
+                },
+            )
+            variants_vcf = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "KRAS_mutation.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            no_mutation = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "no_mutation.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            snpeff = self.run_process(
+                "snpeff",
+                {
+                    "variants": variants_vcf.id,
+                },
+            )
+            snpeff_nomutation = self.run_process(
+                "snpeff",
+                {
+                    "variants": no_mutation.id,
+                },
+            )
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": input_folder / "chr12_KRAS_sorted.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+
+        snpeff.entity = bam.entity
+        snpeff_nomutation.entity = bam.entity
+        snpeff.save()
+        snpeff_nomutation.save()
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff.id,
+                "reference": table.id,
+                "bam": bam.id,
+                "mutations": ["KRAS: Gly12, Gly13"],
+            },
+        )
+        self.assertFile(report, "tsv", output_folder / "KRAS_gly13.tsv")
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff_nomutation.id,
+                "reference": table2.id,
+                "bam": bam.id,
+                "mutations": ["KRAS", "EGFR"],
+            },
+        )
+        self.assertFile(report, "tsv", output_folder / "no_mutations.tsv")
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff_nomutation.id,
+                "reference": table2.id,
+                "bam": bam.id,
+                "mutations": ["KRAS: Gly12,Gly13, Gln61, Ar3"],
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            report.process_error,
+            [
+                "The input amino acid Ar3 is in the wrong format "
+                "or is not among the 20 standard amino acids."
+            ],
+        )

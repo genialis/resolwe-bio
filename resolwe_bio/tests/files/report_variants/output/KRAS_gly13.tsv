@@ -1,0 +1,4 @@
+CHROM	POS	ID	QUAL	REF	ALT	DP	Gene_Name	HGVS.p	Allele	Annotation	Annotation_Impact	SAMPLENAME1.GT	Feature_ID	Base_A	Base_C	Base_G	Base_T	Total_depth
+chr12	25245347	rs112445441	974.64	C	T	44.0	KRAS	p.Gly13Asp	T	missense_variant	MODERATE	C/T	ENST00000256078.9,ENST00000311936.8,ENST00000556131.1,ENST00000557334.5	0	14	0	33	47
+chr12	25245350	rs121913529		C			KRAS	no mutation at position Gly12 detected						0	51	0	0	51
+chr12	25245351	rs121913530		C			KRAS	no mutation at position Gly12 detected						0	50	0	0	50

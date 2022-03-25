@@ -19,6 +19,7 @@ Added
   containing given species, tissue type, outcome or treatment type
 - Add process ``reference-space`` and ``upload-ml-expression``
 - Add a beta version of MACS 2.0 Python process ``macs2-callpeak-beta``
+- Add process ``mutations-table``
 
 Changed
 -------
