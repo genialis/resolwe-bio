@@ -1,9 +1,12 @@
 - slug: workflow-macs-rose
   name: "MACS2 - ROSE2"
   data_name: "{{ case|sample_name|default('?') }}"
+  entity:
+    type: sample
+    input: case
   requirements:
     expression-engine: jinja
-  version: 1.3.2
+  version: 1.3.3
   type: data:workflow:chipseq:macs2rose2
   category: Pipeline
   input:
@@ -420,9 +423,12 @@
 - slug: workflow-macs2
   name: "MACS2"
   data_name: "{{ case|sample_name|default('?') }}"
+  entity:
+    type: sample
+    input: case
   requirements:
     expression-engine: jinja
-  version: 1.1.2
+  version: 1.1.3
   type: data:workflow:chipseq:macs2rose2
   category: Pipeline
   input:
@@ -802,9 +808,11 @@
 - slug: workflow-subsample-bwa-aln-single
   name: "Subsample FASTQ and BWA Aln (single-end)"
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 1.0.2
   type: data:workflow:chipseq:seqtkbwaaln
   category: Pipeline
   input:
@@ -919,9 +927,11 @@
 - slug: workflow-subsample-bwa-aln-paired
   name: "Subsample FASTQ and BWA Aln (paired-end)"
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 1.0.1
+  version: 1.0.2
   type: data:workflow:chipseq:seqtkbwaaln
   category: Pipeline
   input:

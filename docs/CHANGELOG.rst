@@ -24,6 +24,7 @@ Added
 Changed
 -------
 - Specify tmp dir for GATK processes
+- Attach workflow data objects to Samples
 
 Fixed
 -----

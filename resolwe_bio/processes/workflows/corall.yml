@@ -1,9 +1,11 @@
 - slug: workflow-corall-single
   name: "Cutadapt - STAR - StringTie (Corall, single-end)"
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 5.0.0
+  version: 5.0.1
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -204,9 +206,11 @@
 - slug: workflow-corall-paired
   name: "Cutadapt - STAR - StringTie (Corall, paired-end)"
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 5.0.0
+  version: 5.0.1
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |

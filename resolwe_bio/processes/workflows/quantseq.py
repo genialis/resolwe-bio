@@ -36,7 +36,10 @@ class WorkflowQuantSeq(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "5.0.0"
+    version = "5.0.1"
+    entity = {
+        "type": "sample",
+    }
     process_type = "data:workflow:quant:featurecounts"
     category = "Pipeline"
 

@@ -1,9 +1,11 @@
 - slug: workflow-cutnrun
   name: Cut & Run
   data_name: "{{reads|sample_name|default('?')}}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 1.2.1
+  version: 1.2.2
   type: data:workflow:cutnrun
   category: Pipeline
   description: |

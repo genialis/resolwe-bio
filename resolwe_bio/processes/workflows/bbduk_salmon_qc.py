@@ -39,7 +39,10 @@ class WorkflowBbdukSalmonQc(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "4.0.0"
+    entity = {
+        "type": "sample",
+    }
+    version = "4.0.1"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 

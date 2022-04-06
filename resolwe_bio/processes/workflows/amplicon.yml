@@ -1,9 +1,11 @@
 - slug: workflow-accel
   name: Accel Amplicon Pipeline
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 5.0.2
+  version: 5.0.3
   category: Pipeline
   description: |
     Processing pipeline to analyse the Accel-Amplicon NGS panel data.

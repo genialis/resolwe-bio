@@ -1,9 +1,11 @@
 - slug: workflow-wgbs-single
   name: WGBS (single-end)
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 2.1.1
+  version: 2.1.2
   type: data:workflow:wgbs
   category: Pipeline
   description: |
@@ -419,9 +421,11 @@
 - slug: workflow-wgbs-paired
   name: WGBS (paired-end)
   data_name: "{{ reads|sample_name|default('?') }}"
+  entity:
+    type: sample
   requirements:
     expression-engine: jinja
-  version: 2.1.1
+  version: 2.1.2
   type: data:workflow:wgbs
   category: Pipeline
   description: |

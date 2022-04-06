@@ -43,7 +43,10 @@ class WorkflowBBDukStarFcQC(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|sample_name|default('?') }}"
-    version = "5.0.1"
+    entity = {
+        "type": "sample",
+    }
+    version = "5.0.2"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
