@@ -27,6 +27,8 @@ Fixed
 -----
 - Attach GATK VariantFiltration and SelectVariants output to the
   Sample object in ``workflow-rnaseq-variantcalling`` pipeline
+- Set ``Persistence`` property to ``TEMP`` for processes
+  ``find-similar`` and ``clustering-hierarchical-etc``
 
 
 ===================

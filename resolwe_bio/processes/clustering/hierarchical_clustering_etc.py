@@ -12,6 +12,7 @@ from resolwe.process import (
     DataField,
     JsonField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -106,8 +107,9 @@ class ClusterTimeCourse(Process):
     slug = "clustering-hierarchical-etc"
     name = "Hierarchical clustering of time courses"
     process_type = "data:clustering:hierarchical:etc"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.INTERACTIVE
+    persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
         "executor": {

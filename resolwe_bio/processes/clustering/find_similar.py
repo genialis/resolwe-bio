@@ -10,6 +10,7 @@ from resolwe.process import (
     DataField,
     JsonField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -98,8 +99,9 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.INTERACTIVE
+    persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
         "executor": {
