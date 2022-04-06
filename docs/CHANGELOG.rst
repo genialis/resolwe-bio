@@ -31,6 +31,7 @@ Fixed
   Sample object in ``workflow-rnaseq-variantcalling`` pipeline
 - Set ``Persistence`` property to ``TEMP`` for processes
   ``find-similar`` and ``clustering-hierarchical-etc``
+- Fix input schema in pipeline ``workflow-rnaseq-variantcalling``
 
 
 ===================

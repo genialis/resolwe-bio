@@ -36,7 +36,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = 'RNA-seq Variants ({{ reads|sample_name|default("?") }})'
-    version = "1.2.0"
+    version = "1.2.1"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -153,7 +153,7 @@ class WorkflowRnaseqVariantCalling(Process):
             min_k = IntegerField(
                 label="Minimum k-mer length at right end of reads used for trimming [mink=]",
                 default=11,
-                disabled="preprocessing.adapters.length === 0 && preprocessing.custom_adapter_sequences.length === 0",
+                disabled="bbduk.adapters.length === 0 && bbduk.custom_adapter_sequences.length === 0",
             )
             hamming_distance = IntegerField(
                 label="Maximum Hamming distance for k-mers [hammingdistance=]",
