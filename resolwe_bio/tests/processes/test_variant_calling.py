@@ -1,4 +1,3 @@
-from os.path import join
 from pathlib import Path
 
 from resolwe.flow.models import Data
@@ -79,76 +78,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(filtered_variants, "build", "dd-05-2009")
         self.assertFields(filtered_variants, "species", "Dictyostelium discoideum")
 
-    @skipUnlessLargeFiles("56GSID_10k_mate1_RG.bam")
-    @tag_process("vc-realign-recalibrate")
-    def test_vc_preprocess_bam(self):
-        with self.preparation_stage():
-            bam_input = {
-                "src": join("large", "56GSID_10k_mate1_RG.bam"),
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            bam = self.run_process("upload-bam", bam_input)
-            inputs = {
-                "src": "hs_b37_chr2_small.fasta.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            genome = self.run_process("upload-fasta-nucl", inputs)
-            vcf_input = {
-                "src": "1000G_phase1.indels.b37_chr2_small.vcf.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            indels = self.run_process("upload-variants-vcf", vcf_input)
-            dbsnp_input = {
-                "src": "dbsnp_138.b37.chr2_small.vcf.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            dbsnp = self.run_process("upload-variants-vcf", dbsnp_input)
-
-        inputs = {
-            "alignment": bam.id,
-            "genome": genome.id,
-            "known_indels": [indels.id],
-            "known_vars": [dbsnp.id],
-        }
-
-        variants = self.run_process("vc-realign-recalibrate", inputs)
-        self.assertFields(variants, "build", "b37")
-        self.assertFields(variants, "species", "Homo sapiens")
-
-    @skipUnlessLargeFiles("56GSID_10k_mate1_RG.bam")
-    @tag_process("picard-pcrmetrics")
-    def test_collecttargetedpcrmetrics(self):
-        with self.preparation_stage():
-            bam_input = {
-                "src": join("large", "56GSID_10k_mate1_RG.bam"),
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            bam = self.run_process("upload-bam", bam_input)
-            master_file = self.prepare_amplicon_master_file()
-
-            inputs = {
-                "src": "hs_b37_chr2_small.fasta.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            genome = self.run_process("upload-fasta-nucl", inputs)
-
-        inputs = {
-            "alignment": bam.id,
-            "master_file": master_file.id,
-            "genome": genome.id,
-        }
-
-        pcrmetrics = self.run_process("picard-pcrmetrics", inputs)
-        self.assertFile(pcrmetrics, "target_coverage", "picard.perTargetCov.txt")
-
     @skipUnlessLargeFiles("56GSID_10k.realigned.bqsrCal.bam")
-    @tag_process("vc-gatk-hc", "vc-gatk4-hc")
+    @tag_process("vc-gatk4-hc")
     def test_gatk_haplotypecaller(self):
         with self.preparation_stage():
             input_folder = Path("haplotypecaller") / "input"
@@ -169,7 +100,6 @@ class VariantCallingTestCase(BioProcessTestCase):
             }
             genome = self.run_process("upload-fasta-nucl", inputs)
 
-            master_file = self.prepare_amplicon_master_file()
             bed_file = self.run_process(
                 "upload-bed",
                 {
@@ -186,81 +116,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             }
             dbsnp = self.run_process("upload-variants-vcf", dbsnp_input)
 
-        gatk3_vars = self.run_process(
-            "vc-gatk-hc",
-            {
-                "alignment": alignment.id,
-                "intervals": master_file.id,
-                "genome": genome.id,
-                "dbsnp": dbsnp.id,
-            },
-        )
-        self.assertFile(
-            gatk3_vars,
-            "vcf",
-            output_folder / "56GSID_10k.gatkHC.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
-        self.assertFields(gatk3_vars, "build", "b37")
-        self.assertFields(gatk3_vars, "species", "Homo sapiens")
-
-        gatk4_vars = self.run_process(
-            "vc-gatk4-hc",
-            {
-                "alignment": alignment.id,
-                "intervals": master_file.id,
-                "genome": genome.id,
-                "dbsnp": dbsnp.id,
-            },
-        )
-        self.assertFile(
-            gatk4_vars,
-            "vcf",
-            output_folder / "56GSID_10k.gatkHC4.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
-        self.assertFields(gatk4_vars, "build", "b37")
-        self.assertFields(gatk4_vars, "species", "Homo sapiens")
-
-        # This chunk checks that user is specifying only master file or bed
-        # file, but not both. Once we remove the dependence on master file,
-        # this test will be obsolete.
-        gatk3_incol = self.run_process(
-            "vc-gatk-hc",
-            {
-                "alignment": alignment.id,
-                "intervals": master_file.id,
-                "intervals_bed": bed_file.id,
-                "genome": genome.id,
-                "dbsnp": dbsnp.id,
-            },
-            Data.STATUS_ERROR,
-        )
-        self.assertEqual(
-            gatk3_incol.process_error[0],
-            "You have specified intervals and intervals_bed, whereas only one is permitted.",
-        )
-
-        gatk3_bed = self.run_process(
-            "vc-gatk-hc",
-            {
-                "alignment": alignment.id,
-                "intervals_bed": bed_file.id,
-                "genome": genome.id,
-                "dbsnp": dbsnp.id,
-            },
-        )
-        self.assertFile(
-            gatk3_bed,
-            "vcf",
-            output_folder / "56GSID_10k.gatkHC.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
-
-        gatk4_bed = self.run_process(
+        gatk4 = self.run_process(
             "vc-gatk4-hc",
             {
                 "alignment": alignment.id,
@@ -271,7 +127,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         )
 
         self.assertFile(
-            gatk4_bed,
+            gatk4,
             "vcf",
             output_folder / "56GSID_10k.gatkHC4.vcf.gz",
             file_filter=filter_vcf_variable,
@@ -303,74 +159,11 @@ class VariantCallingTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
-    @skipUnlessLargeFiles("56GSID_10k.realigned.bqsrCal.bam")
-    @tag_process("lofreq")
-    def test_lofreq(self):
-        with self.preparation_stage():
-            alignment = self.run_process(
-                "upload-bam",
-                {
-                    "src": join("large", "56GSID_10k.realigned.bqsrCal.bam"),
-                    "species": "Homo sapiens",
-                    "build": "b37",
-                },
-            )
-
-            inputs = {
-                "src": "hs_b37_chr2_small.fasta.gz",
-                "species": "Homo sapiens",
-                "build": "b37",
-            }
-            genome = self.run_process("upload-fasta-nucl", inputs)
-
-            master_file = self.prepare_amplicon_master_file()
-
-        inputs = {
-            "alignment": alignment.id,
-            "intervals": master_file.id,
-            "genome": genome.id,
-        }
-
-        lofreq_vars = self.run_process("lofreq", inputs)
-        self.assertFile(
-            lofreq_vars,
-            "vcf",
-            "56GSID_10k.lf.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
-        self.assertFields(lofreq_vars, "build", "b37")
-        self.assertFields(lofreq_vars, "species", "Homo sapiens")
-
-    @tag_process("snpeff-legacy", "snpeff")
+    @tag_process("snpeff")
     def test_snpeff(self):
         with self.preparation_stage():
             input_folder = Path("snpeff") / "input"
             output_folder = Path("snpeff") / "output"
-            variants_lf = self.run_process(
-                "upload-variants-vcf",
-                {
-                    "src": input_folder / "56GSID_10k.lf.vcf",
-                    "species": "Homo sapiens",
-                    "build": "b37",
-                },
-            )
-            variants_gatk = self.run_process(
-                "upload-variants-vcf",
-                {
-                    "src": input_folder / "56GSID_10k0.gatkHC.vcf",
-                    "species": "Homo sapiens",
-                    "build": "b37",
-                },
-            )
-            dbsnp = self.run_process(
-                "upload-variants-vcf",
-                {
-                    "src": "dbsnp_138.b37.chr2_small.vcf.gz",
-                    "species": "Homo sapiens",
-                    "build": "b37",
-                },
-            )
             variants_rna = self.run_process(
                 "upload-variants-vcf",
                 {
@@ -395,29 +188,6 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "species": "Homo sapiens",
                 },
             )
-
-        final_var_lf = self.run_process(
-            "snpeff-legacy",
-            {
-                "variants": variants_lf.id,
-                "known_vars_annot": [dbsnp.id],
-                "var_source": "lofreq",
-            },
-        )
-        self.assertFile(final_var_lf, "annotation", "56GSID.lf.finalvars.txt")
-        self.assertRegex(final_var_lf.process_warning[0], r"Inconsistency for entry .*")
-
-        final_var_gatk = self.run_process(
-            "snpeff-legacy",
-            {
-                "variants": variants_gatk.id,
-                "known_vars_annot": [dbsnp.id],
-                "var_source": "gatk_hc",
-            },
-        )
-        self.assertFile(
-            final_var_gatk, "annotation", output_folder / "56GSID.gatk.finalvars.txt"
-        )
 
         snpeff = self.run_process(
             "snpeff",

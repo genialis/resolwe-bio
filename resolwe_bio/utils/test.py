@@ -151,14 +151,6 @@ class BioProcessTestCase(ProcessTestCase):
             sample.save()
         return expression
 
-    def prepare_amplicon_master_file(
-        self, mfile="56G_masterfile_test.txt", pname="56G panel, v2"
-    ):
-        """Prepare amplicon master file."""
-        return self.run_process(
-            "upload-master-file", {"src": mfile, "panel_name": pname}
-        )
-
 
 class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
     """Class for bioinformatics process tests that use knowledge base.

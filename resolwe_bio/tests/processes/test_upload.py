@@ -758,32 +758,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
-    @tag_process("upload-master-file")
-    def test_upload_master_file(self):
-        inputs = {"src": "56G_masterfile_corrupted.txt", "panel_name": "56G panel, v2"}
-        master_file = self.run_process("upload-master-file", inputs, Data.STATUS_ERROR)
-
-        # Check for non-unique amplicon names
-        inputs["src"] = "56G masterfile_dup_amplicon_names.txt.gz"
-        master_file = self.run_process("upload-master-file", inputs, Data.STATUS_ERROR)
-
-        # Check if primer sequences are allowed also in lowercase
-        inputs["src"] = "56G masterfile_lowercase_bases.txt.gz"
-        self.run_process("upload-master-file", inputs)
-
-        inputs["src"] = "56G_masterfile_170113.txt.gz"
-        master_file = self.run_process("upload-master-file", inputs)
-
-        self.assertFile(master_file, "bedfile", "amplicon_master_file_merged.bed")
-        self.assertFile(
-            master_file, "nomergebed", "amplicon_master_file_nomergebed.bed"
-        )
-        self.assertFile(
-            master_file, "olapfreebed", "amplicon_master_file_olapfreebed.bed"
-        )
-        self.assertFile(master_file, "primers", "amplicon_primers.bed")
-        self.assertFields(master_file, "panel_name", "56G panel, v2")
-
     @tag_process("upload-etc")
     def test_upload_etc(self):
         inputs = {"src": "etc_upload_input.xls"}

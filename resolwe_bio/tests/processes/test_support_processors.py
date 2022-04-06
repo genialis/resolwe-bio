@@ -85,9 +85,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
     @tag_process("archive-samples")
     def test_ars(self):
         with self.preparation_stage():
-            txt_file = self.run_process(
-                "upload-file", {"src": "56G_masterfile_test.txt"}
-            )
+            txt_file = self.run_process("upload-file", {"src": "markdup_stats.txt"})
             bam_input = {
                 "src": "bamplot_alignment.bam",
                 "species": "Mus musculus",

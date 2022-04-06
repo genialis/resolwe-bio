@@ -35,7 +35,7 @@ class GatkHaplotypeCaller(Process):
     name = "GATK4 (HaplotypeCaller)"
     category = "GATK"
     process_type = "data:variants:vcf:gatk:hc"
-    version = "1.2.2"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -57,21 +57,11 @@ class GatkHaplotypeCaller(Process):
             data_type="alignment:bam", label="Analysis ready BAM file"
         )
         genome = DataField(data_type="seq:nucleotide", label="Reference genome")
-        intervals = DataField(
-            data_type="masterfile:amplicon",
-            label="Intervals (from master file)",
-            description="Use this option to perform the analysis over only part of the genome. "
-            "This option is not compatible with ``intervals_bed`` option.",
-            required=False,
-            disabled="intervals_bed",
-        )
         intervals_bed = DataField(
             data_type="bed",
             label="Intervals (from BED file)",
-            description="Use this option to perform the analysis over only part of the genome. "
-            "This options is not compatible with ``intervals`` option.",
+            description="Use this option to perform the analysis over only part of the genome.",
             required=False,
-            disabled="intervals",
         )
         dbsnp = DataField(
             data_type="variants:vcf",
@@ -165,9 +155,7 @@ class GatkHaplotypeCaller(Process):
         if inputs.advanced.soft_clipped:
             args.append("--dont-use-soft-clipped-bases")
 
-        if inputs.intervals:
-            args.extend(["-L", inputs.intervals.output.bedfile.path])
-        elif inputs.intervals_bed:
+        if inputs.intervals_bed:
             args.extend(["-L", inputs.intervals_bed.output.bed.path])
 
         return_code, stdout, stderr = Cmd["gatk"]["HaplotypeCaller"][args] & TEE(

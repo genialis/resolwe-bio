@@ -25,6 +25,13 @@ Changed
 -------
 - Specify tmp dir for GATK processes
 - Attach workflow data objects to Samples
+- Remove ``workflow-accel`` pipeline and related process:
+  ``align-bwa-trim``, ``coveragebed``, ``picard-pcrmetrics``,
+  ``upload-picard-pcrmetrics``, ``upload-picard-pcrmetrics``,
+  ``vc-realign-recalibrate``, ``vc-gatk-hc``, ``lofreq``,
+  ``snpeff-legacy``, ``amplicon-report``, ``amplicon-table``,
+  ``upload-master-file``, ``amplicon-archive-multi-report``,
+  ``upload-snpeff``
 
 Fixed
 -----
