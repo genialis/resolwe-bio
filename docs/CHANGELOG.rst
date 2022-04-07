@@ -32,6 +32,11 @@ Changed
   ``snpeff-legacy``, ``amplicon-report``, ``amplicon-table``,
   ``upload-master-file``, ``amplicon-archive-multi-report``,
   ``upload-snpeff``
+- Rewrite to Python:
+
+  - ``upload-geneset``
+  - ``create-geneset``
+  - ``create-geneset-venn``
 
 Fixed
 -----
