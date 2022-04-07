@@ -681,6 +681,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(geneset, "source", "UCSC")
         self.assertFields(geneset, "species", "Homo sapiens")
         self.assertJSON(geneset, geneset.output["geneset_json"], "", "geneset.json.gz")
+        self.assertEqual(geneset.descriptor_schema.slug, "geneset")
 
     @tag_process("create-geneset")
     def test_create_geneset(self):
@@ -697,6 +698,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(geneset, "source", "UCSC")
         self.assertFields(geneset, "species", "Homo sapiens")
+        self.assertEqual(geneset.descriptor_schema.slug, "geneset")
 
         inputs = {
             "genes": ["1", "3", "3", "2"],
@@ -710,6 +712,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             geneset_2, geneset_2.output["geneset_json"], "", "geneset_3.json.gz"
         )
         self.assertEqual(geneset_2.process_warning[0], "Removed duplicated genes.")
+        self.assertEqual(geneset_2.descriptor_schema.slug, "geneset")
 
     @tag_process("create-geneset-venn")
     def test_create_venn(self):
@@ -726,6 +729,7 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertJSON(venn, venn.output["venn"], "", "venn.json.gz")
         self.assertFields(venn, "source", "UCSC")
         self.assertFields(venn, "species", "Homo sapiens")
+        self.assertEqual(venn.descriptor_schema.slug, "geneset")
 
     @tag_process("upload-fastq-single")
     def test_upload_reformating_single(self):

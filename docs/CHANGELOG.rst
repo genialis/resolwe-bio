@@ -32,7 +32,8 @@ Changed
   ``snpeff-legacy``, ``amplicon-report``, ``amplicon-table``,
   ``upload-master-file``, ``amplicon-archive-multi-report``,
   ``upload-snpeff``
-- Rewrite to Python:
+- Rewrite processes to Python and add ``geneset`` DescriptorSchema to
+  Data made by processes:
 
   - ``upload-geneset``
   - ``create-geneset``

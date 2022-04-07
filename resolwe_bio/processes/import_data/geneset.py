@@ -12,6 +12,7 @@ from resolwe.process import (
     SchedulingClass,
     StringField,
 )
+from resolwe.process.models import DescriptorSchema
 
 
 def parse_geneset_file(geneset_file, warning):
@@ -127,6 +128,10 @@ class UploadGeneset(Process):
         outputs.source = inputs.source
         outputs.species = inputs.species
 
+        # Set the descriptor schema of this object to geneset
+        ds = DescriptorSchema.get_latest(slug="geneset")
+        self.data.descriptor_schema = ds.id
+
 
 class CreateGeneset(Process):
     """Create a gene set from a list of genes."""
@@ -209,6 +214,10 @@ class CreateGeneset(Process):
 
         outputs.source = inputs.source
         outputs.species = inputs.species
+
+        # Set the descriptor schema of this object to geneset
+        ds = DescriptorSchema.get_latest(slug="geneset")
+        self.data.descriptor_schema = ds.id
 
 
 class CreateGenesetVenn(Process):
@@ -300,3 +309,7 @@ class CreateGenesetVenn(Process):
 
         venn_file = inputs.venn.import_file(imported_format="extracted")
         outputs.venn = venn_file
+
+        # Set the descriptor schema of this object to geneset
+        ds = DescriptorSchema.get_latest(slug="geneset")
+        self.data.descriptor_schema = ds.id
