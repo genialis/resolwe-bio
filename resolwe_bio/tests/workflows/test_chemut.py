@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from resolwe.flow.models import Data
 from resolwe.test import tag_process
 
@@ -8,20 +10,28 @@ from resolwe_bio.utils.test import BioProcessTestCase
 class CheMutWorkflowTestCase(BioProcessTestCase):
     @tag_process("workflow-chemut")
     def test_chemut_workflow(self):
+        input_folder = Path("chemut") / "input"
+        output_folder = Path("chemut") / "output"
         with self.preparation_stage():
             inputs = {
-                "src": "chemut_genome.fasta.gz",
+                "src": input_folder / "chemut_genome.fasta.gz",
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
             ref_seq = self.run_process("upload-fasta-nucl", inputs)
             bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
-            inputs = {"src1": ["AX4_mate1.fq.gz"], "src2": ["AX4_mate2.fq.gz"]}
+            inputs = {
+                "src1": [input_folder / "AX4_mate1.fq.gz"],
+                "src2": [input_folder / "AX4_mate2.fq.gz"],
+            }
 
             parental_reads = self.run_process("upload-fastq-paired", inputs)
 
-            inputs = {"src1": ["CM_mate1.fq.gz"], "src2": ["CM_mate2.fq.gz"]}
+            inputs = {
+                "src1": [input_folder / "CM_mate1.fq.gz"],
+                "src2": [input_folder / "CM_mate2.fq.gz"],
+            }
 
             mut_reads = self.run_process("upload-fastq-paired", inputs)
 
@@ -38,7 +48,7 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
                 "parental_strains": [align_parental.id],
                 "mutant_strains": [align_mut.id],
                 "genome": ref_seq.id,
-                "Vc": {"stand_emit_conf": 15, "stand_call_conf": 35, "rf": True},
+                "Vc": {"stand_call_conf": 35},
                 "Vf": {"read_depth": 7},
             },
         )
@@ -46,11 +56,11 @@ class CheMutWorkflowTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        variants = Data.objects.last()
+        variants = Data.objects.filter(process__slug="filtering-chemut").last()
         self.assertFile(
             variants,
             "vcf",
-            "chemut.vcf.gz",
+            output_folder / "chemut.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )

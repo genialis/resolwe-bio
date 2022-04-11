@@ -3,7 +3,7 @@
   data_name: 'CheMut'
   requirements:
     expression-engine: jinja
-  version: 1.0.2
+  version: 2.0.0
   type: data:workflow:chemut
   category: Pipeline
   input:
@@ -11,7 +11,10 @@
       label: Analysis type
       type: basic:string
       description: |
-        Choice of the analysis type. Use "SNV" or "INDEL" options to run the GATK analysis only on the haploid portion of the dicty genome. Choose options SNV_CHR2 or INDEL_CHR2 to run the analysis only on the diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
+        Choice of the analysis type. Use "SNV" or "INDEL" options to run the
+        GATK analysis only on the haploid portion of the dicty genome.
+        Choose options SNV_CHR2 or INDEL_CHR2 to run the analysis only on the
+        diploid portion of CHR2 (-ploidy 2 -L chr2:2263132-3015703).
       choices:
         - label: SNV
           value: snv
@@ -34,73 +37,36 @@
     - name: Vc
       label: Variant Calling
       group:
-        - name: advanced
-          label: Advanced options
+        - name: base_recalibration
+          label: Do variant base recalibration
           type: basic:boolean
           default: false
-          required: false
-        - name: br_and_ind_ra
-          label: Do variant base recalibration and indel realignment
-          type: basic:boolean
-          default: false
-          required: false
-          hidden: "Vc.advanced === false"
-        - name: dbsnp
-          label: Use dbSNP file
-          type: basic:boolean
-          default: false
-          required: false
-          hidden: "Vc.advanced === false"
-          description: |
-            rsIDs from this file are used to populate the ID column of the output. Also, the DB INFO flag will be set when appropriate. dbSNP is not used in any way for the calculations themselves.
         - name: known_sites
           label: Known sites (dbSNP)
           type: data:variants:vcf
           required: false
-          hidden: "Vc.advanced === false || Vc.br_and_ind_ra === false && Vc.dbsnp === false"
         - name: known_indels
           label: Known indels
           type: list:data:variants:vcf
           required: false
-          hidden: "Vc.advanced === false || Vc.br_and_ind_ra === false"
-        - name: stand_emit_conf
-          label: Emission confidence threshold
-          type: basic:integer
-          default: 10
-          required: false
-          hidden: "Vc.advanced === false"
-          description: |
-            The minimum confidence threshold (phred-scaled) at which the program should emit sites that appear to be possibly variant.
+          hidden: "Vc.base_recalibration === false"
         - name: stand_call_conf
           label: Calling confidence threshold
           type: basic:integer
           default: 30
-          required: false
-          hidden: "Vc.advanced === false"
           description: |
-            The minimum confidence threshold (phred-scaled) at which the program should emit variant sites as called. If a site's associated genotype has a confidence score lower than the calling threshold, the program will emit the site as filtered and will annotate it as LowQual. This threshold separates high confidence calls from low confidence calls.
-        - name: rf
-          label: ReasignOneMappingQuality Filter
-          type: basic:boolean
-          default: false
-          required: false
-          hidden: "Vc.advanced === false"
-          description: |
-            This read transformer will change a certain read mapping quality to a different value without affecting reads that have other mapping qualities. This is intended primarily for users of RNA-Seq data handling programs such as TopHat, which use MAPQ = 255 to designate uniquely aligned reads. According to convention, 255 normally designates "unknown" quality, and most GATK tools automatically ignore such reads. By reassigning a different mapping quality to those specific reads, users of TopHat and other tools can circumvent this problem without affecting the rest of their dataset.
+            The minimum confidence threshold (phred-scaled) at which the program
+            should emit variant sites as called. If a site's associated genotype
+            has a confidence score lower than the calling threshold, the program
+            will emit the site as filtered and will annotate it as LowQual. This
+            threshold separates high confidence calls from low confidence calls.
     - name: Vf
       label: Variant Filtering
       group:
-        - name: advanced
-          label: Advanced options
-          type: basic:boolean
-          default: false
-          required: false
         - name: read_depth
           label: Read depth cutoff
           type: basic:integer
           default: 5
-          required: false
-          hidden: "Vf.advanced === false"
           description: |
             The minimum number of replicate reads required for a variant site to be included.
   run:
@@ -112,17 +78,13 @@
           genome: '{{input.genome}}'
           parental_strains: '{{input.parental_strains}}'
           mutant_strains: '{{input.mutant_strains}}'
-          br_and_ind_ra: '{{input.Vc.br_and_ind_ra}}'
-          dbsnp: '{{input.Vc.dbsnp}}'
+          base_recalibration: '{{input.Vc.base_recalibration}}'
           known_sites: '{{input.Vc.known_sites}}'
           known_indels: '{{input.Vc.known_indels}}'
-          Varc_param:
-            stand_emit_conf: '{{input.Vc.stand_emit_conf}}'
+          hc:
             stand_call_conf: '{{input.Vc.stand_call_conf}}'
             ploidy: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2")|yesno(2, 1) }}'
-            glm: '{{ (input.analysis_type == "snv_chr2" or input.analysis_type == "snv")|yesno("SNP", "INDEL") }}'
             intervals: '{{ ["chr2:2263132-3015703"] if (input.analysis_type == "snv_chr2" or input.analysis_type == "indel_chr2")}}'
-            rf: '{{input.Vc.rf}}'
       - id: variant_filtering
         run: filtering-chemut
         input:

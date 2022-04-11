@@ -10,20 +10,28 @@ from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 class VariantCallingTestCase(BioProcessTestCase):
     @tag_process("vc-chemut")
     def test_variant_calling_chemut(self):
+        input_folder = Path("chemut") / "input"
+        output_folder = Path("chemut") / "output"
         with self.preparation_stage():
             inputs = {
-                "src": "chemut_genome.fasta.gz",
+                "src": input_folder / "chemut_genome.fasta.gz",
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
             ref_seq = self.run_process("upload-fasta-nucl", inputs)
             bwa_index = self.run_process("bwa-index", {"ref_seq": ref_seq.id})
 
-            inputs = {"src1": ["AX4_mate1.fq.gz"], "src2": ["AX4_mate2.fq.gz"]}
+            inputs = {
+                "src1": [input_folder / "AX4_mate1.fq.gz"],
+                "src2": [input_folder / "AX4_mate2.fq.gz"],
+            }
 
             parental_reads = self.run_process("upload-fastq-paired", inputs)
 
-            inputs = {"src1": ["CM_mate1.fq.gz"], "src2": ["CM_mate2.fq.gz"]}
+            inputs = {
+                "src1": [input_folder / "CM_mate1.fq.gz"],
+                "src2": [input_folder / "CM_mate2.fq.gz"],
+            }
 
             mut_reads = self.run_process("upload-fastq-paired", inputs)
 
@@ -43,18 +51,26 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "CN": "def",
                 "DT": "2014-08-05",
             },
-            "Varc_param": {"stand_emit_conf": 10, "stand_call_conf": 30},
         }
 
         variants = self.run_process("vc-chemut", inputs)
+        self.assertFile(
+            variants,
+            "vcf",
+            output_folder / "GATKvariants_raw.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
         self.assertFields(variants, "build", "dd-05-2009")
         self.assertFields(variants, "species", "Dictyostelium discoideum")
 
     @tag_process("filtering-chemut")
     def test_filtering_chemut(self):
+        input_folder = Path("chemut") / "input"
+        output_folder = Path("chemut") / "output"
         with self.preparation_stage():
             vcf_input = {
-                "src": "variant_calling_filtering.vcf.gz",
+                "src": input_folder / "variant_calling_filtering.vcf.gz",
                 "species": "Dictyostelium discoideum",
                 "build": "dd-05-2009",
             }
@@ -72,7 +88,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             filtered_variants,
             "vcf",
-            "variant_calling_filtered_variants.vcf.gz",
+            output_folder / "variant_calling_filtered_variants.vcf.gz",
             compression="gzip",
         )
         self.assertFields(filtered_variants, "build", "dd-05-2009")
