@@ -153,6 +153,7 @@ def read_bed(bed_file, col_names):
         sep="\t",
         header=None,
         names=col_names,
+        float_precision="round_trip",
     )
 
 
@@ -361,9 +362,10 @@ def subsample_tagalign(tagalign_file, out_file, is_paired, n_sub, compression=No
         # Subsample only R1 reads which are in every second row.
         tagalign = tagalign.iloc[::2, :]
 
-    n_sub = min(n_sub, len(tagalign.index))
-
     tagalign = drop_mt(tagalign)
+
+    # Sample size has to be less or equal to the number of entries.
+    n_sub = min(n_sub, len(tagalign.index))
     tagalign = tagalign.sample(n=n_sub, random_state=42)
     tagalign.to_csv(
         out_file, sep="\t", index=False, header=False, compression=compression
@@ -623,10 +625,10 @@ class Macs2(Process):
     [PBC bottlenecking coefficients, NSC, and RSC](https://genome.ucsc.edu/ENCODE/qualityMetrics.html#chipSeq).
     """
 
-    slug = "macs2-callpeak-beta"
-    name = "MACS 2.0 (Beta)"
+    slug = "macs2-callpeak"
+    name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.4.0"
+    version = "4.4.1"
     category = "ChIP-Seq:Call Peaks"
     data_name = "{{ case|sample_name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -1394,8 +1396,8 @@ class Macs2(Process):
             callpeak_params.extend(
                 [
                     "-m",
-                    inputs.settings.settings.mfold_lower,
-                    inputs.settings.settings.mfold_upper,
+                    inputs.settings.mfold_lower,
+                    inputs.settings.mfold_upper,
                 ]
             )
 
@@ -1465,8 +1467,9 @@ class Macs2(Process):
         if Path(model_script).is_file():
             return_code, _, _ = Cmd["Rscript"][model_script] & TEE(retcode=None)
 
-        if return_code:
-            self.error(f"Running R script {model_script} failed.")
+            if return_code:
+                self.error(f"Running R script {model_script} failed.")
+
             outputs.model = f"{case_name}_model.pdf"
 
         self.progress(0.8)

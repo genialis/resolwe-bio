@@ -87,7 +87,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(macs14, "summits_tbi_jbrowse", "macs14_summits.gz.tbi")
         self.assertFile(macs14, "treat_bigwig", "macs14_treat.bw")
 
-    @tag_process("macs2-callpeak-beta", "archive-samples")
+    @tag_process("macs2-callpeak", "archive-samples")
     def test_macs2(self):
         base_folder = Path("macs2")
         input_folder = base_folder / "input"
@@ -147,7 +147,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_sample1 = self.run_process("macs2-callpeak-beta", inputs)
+        macs_sample1 = self.run_process("macs2-callpeak", inputs)
 
         self.assertFields(macs_sample1, "species", "Homo sapiens")
         self.assertFields(macs_sample1, "build", "hg19")
@@ -186,7 +186,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_sample2 = self.run_process("macs2-callpeak-beta", inputs)
+        macs_sample2 = self.run_process("macs2-callpeak", inputs)
 
         self.assertFields(macs_sample2, "species", "Homo sapiens")
         self.assertFields(macs_sample2, "build", "hg19")
@@ -219,7 +219,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "bedgraph": True,
             },
         }
-        macs_paired = self.run_process("macs2-callpeak-beta", inputs)
+        macs_paired = self.run_process("macs2-callpeak", inputs)
         self.assertFields(macs_paired, "species", "Dictyostelium discoideum")
         self.assertFields(macs_paired, "build", "dd-05-2009")
         self.assertFileExists(macs_paired, "chip_qc")
@@ -231,9 +231,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs_paired, "summits_bigbed_igv_ucsc")
 
         inputs["settings"]["shift"] = 10
-        macs_paired_err = self.run_process(
-            "macs2-callpeak-beta", inputs, Data.STATUS_ERROR
-        )
+        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
         err_msg = [
             "Shift values other than 0 are not supported when the format is BAMPE."
         ]
@@ -245,9 +243,7 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 "format": "BAMPE",
             },
         }
-        macs_paired_err = self.run_process(
-            "macs2-callpeak-beta", inputs, Data.STATUS_ERROR
-        )
+        macs_paired_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
         err_msg = ["No paired-end reads were detected but BAMPE format was selected."]
         self.assertEqual(macs_paired_err.process_error, err_msg)
 
