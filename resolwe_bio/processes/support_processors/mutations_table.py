@@ -62,7 +62,7 @@ AMINOACIDS = [
 ]
 
 
-def get_output_table(mutations, reference, variants_table, output_table, genes):
+def get_output_table(mutations, reference, variants_table, output_table, genes, error):
     """Prepare output table."""
 
     for gene in mutations:
@@ -80,6 +80,11 @@ def get_output_table(mutations, reference, variants_table, output_table, genes):
                         ].tolist()
                     )
                 )
+                if len(positions) == 0:
+                    error(
+                        f"There are no known variants for gene {gene} at "
+                        f"amino acid {mutation}."
+                    )
                 if (
                     variants_table.loc[
                         (variants_table["HGVS.p"].str.contains(mutation))
@@ -130,7 +135,8 @@ def get_output_table(mutations, reference, variants_table, output_table, genes):
                     ].tolist()
                 )
             )
-
+            if len(positions) == 0:
+                error(f"There are no known variants for gene {gene}.")
             if (variants_table.loc[(variants_table["Gene_Name"] == gene)]).empty:
                 for position in positions:
                     chrom = reference.loc[
@@ -298,7 +304,7 @@ class MutationsTable(Process):
     }
     category = "Other"
     data_name = 'Mutations table ({{ variants|sample_name|default("?") }})'
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -497,6 +503,7 @@ class MutationsTable(Process):
             variants_table=variants_table,
             output_table=output_table,
             genes=genes,
+            error=self.error,
         )
 
         get_depth(variants_table=output_table, bam=bam)

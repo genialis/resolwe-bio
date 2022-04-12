@@ -1633,10 +1633,26 @@ re-save-file lane_attributes "${NAME}".txt
                 "variants": snpeff_nomutation.id,
                 "reference": table2.id,
                 "bam": bam.id,
-                "mutations": ["KRAS", "EGFR"],
+                "mutations": ["KRAS"],
             },
         )
         self.assertFile(report, "tsv", output_folder / "no_mutations.tsv")
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff.id,
+                "reference": table.id,
+                "vcf_fields": ["CHROM", "POS", "ID", "QUAL", "REF", "ANN"],
+                "bam": bam.id,
+                "mutations": ["KRAS: Ala11"],
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            report.process_error,
+            ["There are no known variants for gene KRAS at amino acid Ala11."],
+        )
 
         report = self.run_process(
             "mutations-table",
