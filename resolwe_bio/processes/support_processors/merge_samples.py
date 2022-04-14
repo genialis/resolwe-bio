@@ -4,18 +4,25 @@ from pathlib import Path
 from resolwe.process import Data, DataField, ListField, Process, SchedulingClass
 
 
-def get_label(data):
+def get_label(data, warning):
     """Get relation partition label of data object."""
+    label = None
     for relation in data.relations:
         if relation.category == "Replicate":
             label = next(
                 p.label for p in relation.partitions if p.entity_id == data.entity_id
             )
+        else:
+            other_relation = next(
+                p for p in relation.partitions if p.entity_id == data.entity_id
+            )
+            if other_relation:
+                warning(
+                    f"Sample {data.entity.name} has defined {relation.category} "
+                    "relation. Samples will only be merged based on Replicate relations."
+                )
 
-    if label:
-        return label
-    else:
-        return
+    return label
 
 
 def create_symlinks(paths):
@@ -26,11 +33,11 @@ def create_symlinks(paths):
     return container_paths
 
 
-def group_paths(data_objects, second_pair=False):
+def group_paths(data_objects, warning, second_pair=False):
     """Group read paths grouped by relation labels."""
     labeled_paths = {}
     for data in data_objects:
-        label = get_label(data=data)
+        label = get_label(data=data, warning=warning)
         if second_pair:
             read_paths = [fastq.path for fastq in data.output.fastq2]
         else:
@@ -52,7 +59,7 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "2.1.0"
+    version = "2.1.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -91,12 +98,13 @@ class MergeFastqSingle(Process):
                 data_by_sample[data.entity_id] = data
 
         reads = [*data_by_sample.values()]
-        labeled_reads = group_paths(data_objects=reads)
+        labeled_reads = group_paths(data_objects=reads, warning=self.warning)
 
         for label, paths in labeled_reads:
             if label is None:
                 self.error(
-                    "Missing sample relation. Please make sure all objects have replicate relations defined."
+                    "Missing replicate relations. Please make sure you have selected and defined "
+                    "replicate sample relations."
                 )
             symlinks = create_symlinks(paths=paths)
 
@@ -126,7 +134,7 @@ class MergeFastqPaired(Process):
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "2.1.0"
+    version = "2.1.1"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -164,12 +172,15 @@ class MergeFastqPaired(Process):
                 data_by_sample[data.entity_id] = data
 
         reads = [*data_by_sample.values()]
-        labeled_reads = group_paths(data_objects=reads)
-        labeled_reads_2 = group_paths(data_objects=reads, second_pair=True)
+        labeled_reads = group_paths(data_objects=reads, warning=self.warning)
+        labeled_reads_2 = group_paths(
+            data_objects=reads, second_pair=True, warning=self.warning
+        )
         for (label, paths), (_, paths_2) in zip(labeled_reads, labeled_reads_2):
             if label is None:
                 self.error(
-                    "Missing sample relation. Please make sure all objects have replicate relations defined."
+                    "Missing replicate relations. Please make sure you have selected and defined "
+                    "replicate sample relations."
                 )
             symlinks = create_symlinks(paths=paths)
             symlinks_2 = create_symlinks(paths=paths_2)

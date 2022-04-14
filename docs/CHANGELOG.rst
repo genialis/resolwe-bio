@@ -46,6 +46,8 @@ Fixed
 - Set ``Persistence`` property to ``TEMP`` for processes
   ``find-similar`` and ``clustering-hierarchical-etc``
 - Fix input schema in pipeline ``workflow-rnaseq-variantcalling``
+- Fail gracefully when no relation labels are found in
+  ``merge-fastq-single`` and ``merge-fastq-paired`` processes
 
 
 ===================

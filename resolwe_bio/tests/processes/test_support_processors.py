@@ -1387,6 +1387,13 @@ re-save-file lane_attributes "${NAME}".txt
                 category="Replicate",
             )
 
+            treatment_group = Relation.objects.create(
+                contributor=self.contributor,
+                collection=self.collection,
+                type=rel_type_group,
+                category="Treatment",
+            )
+
             RelationPartition.objects.create(
                 relation=replicate_group,
                 entity=reads_single_1.entity,
@@ -1420,6 +1427,24 @@ re-save-file lane_attributes "${NAME}".txt
             "fastq",
             [os.path.join("merge-fastq", "output", "reads_merged.fastq.gz")],
             compression="gzip",
+        )
+
+        RelationPartition.objects.create(
+            relation=treatment_group,
+            entity=reads_single_1.entity,
+            label="treatment 1",
+        )
+
+        inputs = {"reads": [reads_single_1.pk, reads_single_2.pk]}
+        merge_process = self.run_process("merge-fastq-single", inputs)
+
+        relation_warn = (
+            "Sample reads.fastq.gz has defined Treatment relation. "
+            "Samples will only be merged based on Replicate relations."
+        )
+        self.assertEqual(
+            merge_process.process_warning,
+            [relation_warn],
         )
 
         inputs = {"reads": [reads_paired_1.pk, reads_paired_2.pk]}
