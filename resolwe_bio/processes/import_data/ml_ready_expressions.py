@@ -13,7 +13,7 @@ class UploadMLExpression(Process):
     slug = "upload-ml-expression"
     name = "ML-ready expression"
     process_type = "data:ml:table:expressions"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -39,8 +39,28 @@ class UploadMLExpression(Process):
             "with label sample_id) and ENSEMBL IDs (recommended but not "
             "required) for the column names.",
         )
-        source = StringField(label="Feature source")
-        species = StringField(label="Species")
+        source = StringField(
+            label="Feature source",
+            allow_custom_choice=True,
+            choices=[
+                ("AFFY", "AFFY"),
+                ("DICTYBASE", "DICTYBASE"),
+                ("ENSEMBL", "ENSEMBL"),
+                ("NCBI", "NCBI"),
+                ("UCSC", "UCSC"),
+            ],
+        )
+        species = StringField(
+            label="Species",
+            description="Species latin name.",
+            allow_custom_choice=True,
+            choices=[
+                ("Homo sapiens", "Homo sapiens"),
+                ("Mus musculus", "Mus musculus"),
+                ("Rattus norvegicus", "Rattus norvegicus"),
+                ("Dictyostelium discoideum", "Dictyostelium discoideum"),
+            ],
+        )
         reference_space = DataField(
             "ml:space", label="Reference space of ML-ready data"
         )
@@ -76,7 +96,7 @@ class UploadMLExpression(Process):
         sample_ids_server = [s.id for s in samples]
         missing = set(sample_ids_df) - set(sample_ids_server)
         if missing:
-            missing_str = ", ".join(list(missing)[:5]) + (
+            missing_str = ", ".join(map(str, list(missing)[:5])) + (
                 "..." if len(missing) > 5 else ""
             )
             self.error(

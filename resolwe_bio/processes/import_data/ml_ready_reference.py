@@ -24,7 +24,7 @@ class ReferenceSpace(ProcessBio):
     slug = "reference-space"
     name = "Reference space"
     process_type = "data:ml:space"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -45,8 +45,28 @@ class ReferenceSpace(ProcessBio):
 
         name = StringField(label="Reference space name")
         description = StringField(label="Reference space description")
-        source = StringField(label="Feature ID source")
-        species = StringField(label="Species")
+        source = StringField(
+            label="Feature source",
+            allow_custom_choice=True,
+            choices=[
+                ("AFFY", "AFFY"),
+                ("DICTYBASE", "DICTYBASE"),
+                ("ENSEMBL", "ENSEMBL"),
+                ("NCBI", "NCBI"),
+                ("UCSC", "UCSC"),
+            ],
+        )
+        species = StringField(
+            label="Species",
+            description="Species latin name.",
+            allow_custom_choice=True,
+            choices=[
+                ("Homo sapiens", "Homo sapiens"),
+                ("Mus musculus", "Mus musculus"),
+                ("Rattus norvegicus", "Rattus norvegicus"),
+                ("Dictyostelium discoideum", "Dictyostelium discoideum"),
+            ],
+        )
         training_data = FileField(
             label="Traning data",
             description="A TAB separated file containing expression values "
@@ -104,7 +124,7 @@ class ReferenceSpace(ProcessBio):
         sample_ids_server = [s.id for s in samples]
         missing = set(sample_ids_df) - set(sample_ids_server)
         if missing:
-            missing_str = ", ".join(list(missing)[:5]) + (
+            missing_str = ", ".join(map(str, list(missing)[:5])) + (
                 "..." if len(missing) > 5 else ""
             )
             self.error(
