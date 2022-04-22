@@ -396,8 +396,14 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts, "rc", "feature_counts_rc_single.tab.gz", compression="gzip"
         )
+        self.assertEqual(
+            feature_counts.name, "Quantified (hs sim_reads_single.fastq.gz)"
+        )
+
         globin = Data.objects.filter(process__slug="alignment-star").last()
         self.assertFields(globin, "build", "globin")
+        self.assertEqual(globin.name, "Globin aligned (hs sim_reads_single.fastq.gz)")
+
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
 
@@ -409,8 +415,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts, "rc", "feature_counts_rc_paired.tab.gz", compression="gzip"
         )
+        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
+
         globin = Data.objects.filter(process__slug="alignment-star").last()
         self.assertFields(globin, "build", "globin")
+        self.assertEqual(globin.name, "Globin aligned (hs sim_reads1.fastq.gz)")
+
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
 
@@ -427,6 +437,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             "feature_counts_rc_paired_wo_adapter_trim.tab.gz",
             compression="gzip",
         )
+        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
 
     @with_resolwe_host
     @tag_process("workflow-corall-single", "workflow-corall-paired")

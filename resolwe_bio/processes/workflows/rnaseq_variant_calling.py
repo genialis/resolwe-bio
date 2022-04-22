@@ -35,8 +35,8 @@ class WorkflowRnaseqVariantCalling(Process):
             },
         },
     }
-    data_name = 'RNA-seq Variants ({{ reads|sample_name|default("?") }})'
-    version = "1.2.1"
+    data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
+    version = "1.3.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -370,6 +370,7 @@ class WorkflowRnaseqVariantCalling(Process):
             preprocessing = Data.create(
                 process=BioProcess.get_latest(slug=slug_bbduk),
                 input=input_preprocessing,
+                name=f"Trimmed ({inputs.reads.name})",
             )
 
         input_star = {
@@ -386,6 +387,7 @@ class WorkflowRnaseqVariantCalling(Process):
         alignment = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
             input=input_star,
+            name=f"Aligned ({inputs.reads.name})",
         )
 
         mark_duplicates = Data.create(
@@ -397,6 +399,7 @@ class WorkflowRnaseqVariantCalling(Process):
                     "max_heap_size": inputs.advanced.max_heap_size,
                 },
             },
+            name=f"Marked duplicates ({inputs.reads.name})",
         )
 
         split_ncigar = Data.create(
@@ -409,6 +412,7 @@ class WorkflowRnaseqVariantCalling(Process):
                     "max_heap_size": inputs.advanced.max_heap_size,
                 },
             },
+            name=f"Split reads ({inputs.reads.name})",
         )
 
         input_bqsr = {
@@ -433,6 +437,7 @@ class WorkflowRnaseqVariantCalling(Process):
         bqsr = Data.create(
             process=BioProcess.get_latest(slug="bqsr"),
             input=input_bqsr,
+            name=f"Recalibrated ({inputs.reads.name})",
         )
 
         input_hc = {
@@ -454,6 +459,7 @@ class WorkflowRnaseqVariantCalling(Process):
         hc = Data.create(
             process=BioProcess.get_latest(slug="vc-gatk4-hc"),
             input=input_hc,
+            name=f"Genotypes ({inputs.reads.name})",
         )
 
         input_filtration = {
@@ -472,6 +478,7 @@ class WorkflowRnaseqVariantCalling(Process):
         filtration = Data.create(
             process=BioProcess.get_latest(slug="gatk-variant-filtration-single"),
             input=input_filtration,
+            name=f"Filtered genotypes ({inputs.reads.name})",
         )
 
         if inputs.exclude_filtered:
@@ -488,6 +495,7 @@ class WorkflowRnaseqVariantCalling(Process):
             Data.create(
                 process=BioProcess.get_latest(slug="gatk-select-variants-single"),
                 input=input_select,
+                name=f"Selected genotypes ({inputs.reads.name})",
             )
 
         multiqc_tools = [inputs.reads, alignment, mark_duplicates, bqsr]

@@ -1,11 +1,11 @@
 - slug: workflow-atac-seq
   name: ATAC-Seq
-  data_name: "{{ reads|sample_name|default('?') }}"
+  data_name: "{{ reads|name|default('?') }}"
   entity:
     type: sample
   requirements:
     expression-engine: jinja
-  version: 3.0.2
+  version: 3.1.0
   type: data:workflow:atacseq
   category: Pipeline
   description: |

@@ -30,7 +30,7 @@ class GatkSplitNCigarReads(Process):
     name = "GATK SplitNCigarReads"
     category = "GATK"
     process_type = "data:alignment:bam:splitncigar"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -45,7 +45,7 @@ class GatkSplitNCigarReads(Process):
     }
     entity = {"type": "sample"}
 
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields for GatkSplitNCigarReads."""

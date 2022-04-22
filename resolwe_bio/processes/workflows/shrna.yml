@@ -1,11 +1,11 @@
 - slug: workflow-trim-align-quant
   name: shRNA quantification
-  data_name: "{{ reads|sample_name|default('?') }}"
+  data_name: "{{ reads|name|default('?') }}"
   entity:
     type: sample
   requirements:
     expression-engine: jinja
-  version: 1.0.2
+  version: 1.1.0
   type: data:workflow:trimalquant
   category: Pipeline
   input:

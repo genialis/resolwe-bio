@@ -440,7 +440,7 @@ re-save name name
                         },
                     },
                 },
-                data_name="shRNA expression ({{ reads|sample_name|default('?') }})",
+                data_name="shRNA expression ({{ reads|name|default('?') }})",
                 # data_name="shRNA expression ({{ input_data | name | default('?') }})",
                 contributor=self.contributor,
                 type="data:expression:shrna2quant:",

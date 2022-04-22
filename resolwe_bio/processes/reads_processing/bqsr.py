@@ -28,7 +28,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.3.1"
+    version = "2.4.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -38,7 +38,7 @@ class BQSR(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields to perform Base quality score recalibration."""

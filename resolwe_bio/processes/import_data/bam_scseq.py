@@ -15,7 +15,7 @@ class ImportScBam(Process):
     slug = "upload-bam-scseq-indexed"
     name = "Single cell BAM file and index"
     process_type = "data:alignment:bam:scseq"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -25,7 +25,7 @@ class ImportScBam(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields to process Import ScBam."""

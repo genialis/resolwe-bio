@@ -312,8 +312,8 @@
     resources:
       memory: 16384
       cores: 20
-  data_name: "{{ reads|sample_name|default('?') }}"
-  version: 2.6.0
+  data_name: "{{ reads|name|default('?') }}"
+  version: 2.7.0
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample

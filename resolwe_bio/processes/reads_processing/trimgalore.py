@@ -45,7 +45,7 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Trim"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -59,7 +59,7 @@ class TrimGalorePaired(Process):
             "memory": 16384,
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields of trimGalorePaired."""

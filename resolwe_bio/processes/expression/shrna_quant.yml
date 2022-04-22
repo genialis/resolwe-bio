@@ -12,8 +12,8 @@
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 1
-  data_name: "{{ alignment|sample_name|default('?') }}"
-  version: 1.3.0
+  data_name: "{{ alignment|name|default('?') }}"
+  version: 1.4.0
   type: data:expression:shrna2quant
   category: Quantify
   flow_collection: sample

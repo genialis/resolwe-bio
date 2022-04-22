@@ -37,8 +37,8 @@ class WorkflowWgsGvcf(Process):
             },
         },
     }
-    data_name = 'WGS GVCF analysis ({{ reads|sample_name|default("?") if reads else aligned_reads|sample_name|default("?") }})'
-    version = "2.1.0"
+    data_name = "WGS GVCF analysis ({{ reads|name|default('?') if reads else aligned_reads|name|default('?') }})"
+    version = "2.2.0"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {

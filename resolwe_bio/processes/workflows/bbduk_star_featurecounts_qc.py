@@ -42,11 +42,11 @@ class WorkflowBBDukStarFcQC(Process):
     requirements = {
         "expression-engine": "jinja",
     }
-    data_name = "{{ reads|sample_name|default('?') }}"
+    data_name = "{{ reads|name|default('?') }}"
     entity = {
         "type": "sample",
     }
-    version = "5.0.2"
+    version = "5.1.0"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -560,6 +560,7 @@ class WorkflowBBDukStarFcQC(Process):
         preprocessing = Data.create(
             process=BioProcess.get_latest(slug=slug_bbduk),
             input=input_bbduk,
+            name=f"Trimmed ({inputs.reads.name})",
         )
 
         input_star = {
@@ -644,6 +645,7 @@ class WorkflowBBDukStarFcQC(Process):
         alignment = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
             input=input_star,
+            name=f"Aligned ({inputs.reads.name})",
         )
 
         input_featurecounts = {
@@ -662,6 +664,7 @@ class WorkflowBBDukStarFcQC(Process):
         quantification = Data.create(
             process=BioProcess.get_latest(slug="feature_counts"),
             input=input_featurecounts,
+            name=f"Quantified ({inputs.reads.name})",
         )
 
         input_seqtk = {
@@ -684,6 +687,7 @@ class WorkflowBBDukStarFcQC(Process):
         downsampling = Data.create(
             process=BioProcess.get_latest(slug=slug_seqtk),
             input=input_seqtk,
+            name=f"Subsampled ({inputs.reads.name})",
         )
 
         alignment_qc_rrna = Data.create(
@@ -692,6 +696,7 @@ class WorkflowBBDukStarFcQC(Process):
                 "reads": downsampling,
                 "genome": inputs.rrna_reference,
             },
+            name=f"rRNA aligned ({inputs.reads.name})",
         )
         alignment_qc_globin = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
@@ -699,6 +704,7 @@ class WorkflowBBDukStarFcQC(Process):
                 "reads": downsampling,
                 "genome": inputs.globin_reference,
             },
+            name=f"Globin aligned ({inputs.reads.name})",
         )
 
         idxstats = Data.create(
@@ -706,6 +712,7 @@ class WorkflowBBDukStarFcQC(Process):
             input={
                 "alignment": alignment,
             },
+            name=f"Alignment summary ({inputs.reads.name})",
         )
 
         input_multiqc = {

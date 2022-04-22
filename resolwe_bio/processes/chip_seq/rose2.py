@@ -33,7 +33,7 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.1.2"
+    version = "5.2.0"
     category = "ChIP-Seq:Post Process"
     entity = {
         "type": "sample",
@@ -47,7 +47,9 @@ class Rose2(Process):
             }
         },
     }
-    data_name = "{{ input_macs|sample_name|default('?') if input_macs else rankby|sample_name|default('?') }}"
+    data_name = (
+        "{{ input_macs|name|default('?') if input_macs else rankby|name|default('?') }}"
+    )
 
     class Input:
         """Input fields to process ROSE2."""

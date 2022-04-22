@@ -117,7 +117,7 @@ class CellRangerCount(Process):
     slug = "cellranger-count"
     name = "Cell Ranger Count"
     process_type = "data:scexpression:10x"
-    version = "1.1.1"
+    version = "1.2.0"
     category = "scRNA-Seq"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -131,7 +131,7 @@ class CellRangerCount(Process):
             "cores": 10,
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields to process ImportScRNA10x."""

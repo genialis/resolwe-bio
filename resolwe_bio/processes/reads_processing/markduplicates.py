@@ -24,7 +24,7 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.5.1"
+    version = "1.6.0"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -34,7 +34,7 @@ class MarkDuplicates(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields to process MarkDuplicates."""

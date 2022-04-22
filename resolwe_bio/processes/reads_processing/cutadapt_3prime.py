@@ -22,7 +22,7 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -36,7 +36,7 @@ class Cutadapt3Prime(Process):
             "memory": 16384,
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields."""

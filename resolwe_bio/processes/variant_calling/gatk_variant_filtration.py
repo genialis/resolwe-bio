@@ -199,7 +199,7 @@ class GatkVariantFiltrationSingle(Process):
     slug = "gatk-variant-filtration-single"
     process_type = "data:variants:vcf:variantfiltration:single"
     name = "GATK VariantFiltration (single-sample)"
-    version = "1.0.0"
+    version = "1.1.0"
     entity = {
         "type": "sample",
     }
@@ -216,7 +216,7 @@ class GatkVariantFiltrationSingle(Process):
             "storage": 200,
         },
     }
-    data_name = "Filtered variants ({{ vcf|sample_name|default('?') }})"
+    data_name = "{{ vcf|name|default('?') }}"
 
     class Input:
         """Input fields for GatkVariantFiltrationSingle."""

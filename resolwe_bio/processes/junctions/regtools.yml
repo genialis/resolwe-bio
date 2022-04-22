@@ -6,10 +6,10 @@
 - slug: regtools-junctions-annotate
   name: Annotate novel splice junctions (regtools)
   data_name: >
-    {{ alignment_star|sample_name|default('') }}
-    {{ alignment|sample_name|default('') }}
+    {{ alignment_star|name|default('') }}
+    {{ alignment|name|default('') }}
     {{ input_bed_junctions.bed.file|default('') }}
-  version: 1.2.0
+  version: 1.3.0
   type: data:junctions:regtools
   requirements:
     expression-engine: jinja

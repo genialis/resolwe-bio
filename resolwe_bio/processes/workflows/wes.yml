@@ -1,11 +1,11 @@
 - slug: workflow-wes
   name: Whole exome sequencing (WES) analysis
-  data_name: "{{ reads|sample_name|default('?') }}"
+  data_name: "{{ reads|name|default('?') }}"
   entity:
     type: sample
   requirements:
     expression-engine: jinja
-  version: 3.0.2
+  version: 3.1.0
   type: data:workflow:wes
   category: Pipeline
   description: |

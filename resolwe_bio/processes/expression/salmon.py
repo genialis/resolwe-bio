@@ -151,8 +151,8 @@ class SalmonQuant(ProcessBio):
             "network": True,
         },
     }
-    data_name = "{{ reads|sample_name|default('?') }}"
-    version = "2.4.0"
+    data_name = "{{ reads|name|default('?') }}"
+    version = "2.5.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

@@ -38,11 +38,11 @@ class WorkflowBbdukSalmonQc(Process):
     requirements = {
         "expression-engine": "jinja",
     }
-    data_name = "{{ reads|sample_name|default('?') }}"
+    data_name = "{{ reads|name|default('?') }}"
     entity = {
         "type": "sample",
     }
-    version = "4.0.1"
+    version = "4.1.0"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 
@@ -291,7 +291,9 @@ class WorkflowBbdukSalmonQc(Process):
             self.error("Wrong reads input type.")
 
         preprocessing = Data.create(
-            process=BioProcess.get_latest(bbduk_slug), input=input_bbduk
+            process=BioProcess.get_latest(bbduk_slug),
+            input=input_bbduk,
+            name=f"Trimmed ({inputs.reads.name})",
         )
 
         input_salmon = {
@@ -317,6 +319,7 @@ class WorkflowBbdukSalmonQc(Process):
         quantification = Data.create(
             process=BioProcess.get_latest(slug="salmon-quant"),
             input=input_salmon,
+            name=f"Quantified ({inputs.reads.name})",
         )
 
         input_seqtk = {
@@ -337,7 +340,9 @@ class WorkflowBbdukSalmonQc(Process):
             self.error("Wrong reads input type.")
 
         downsampling = Data.create(
-            process=BioProcess.get_latest(slug=seqtk_slug), input=input_seqtk
+            process=BioProcess.get_latest(slug=seqtk_slug),
+            input=input_seqtk,
+            name=f"Subsampled ({inputs.reads.name})",
         )
 
         alignment_qc = Data.create(
@@ -346,6 +351,7 @@ class WorkflowBbdukSalmonQc(Process):
                 "reads": downsampling,
                 "genome": inputs.genome,
             },
+            name=f"Aligned subset ({inputs.reads.name})",
         )
 
         alignment_qc_rrna = Data.create(
@@ -354,6 +360,7 @@ class WorkflowBbdukSalmonQc(Process):
                 "reads": downsampling,
                 "genome": inputs.rrna_reference,
             },
+            name=f"rRNA aligned ({inputs.reads.name})",
         )
 
         alignment_qc_globin = Data.create(
@@ -362,6 +369,7 @@ class WorkflowBbdukSalmonQc(Process):
                 "reads": downsampling,
                 "genome": inputs.globin_reference,
             },
+            name=f"Globin aligned ({inputs.reads.name})",
         )
 
         qorts = Data.create(
@@ -375,6 +383,7 @@ class WorkflowBbdukSalmonQc(Process):
                     "n_reads": 5000000,
                 },
             },
+            name=f"QoRTs QC report ({inputs.reads.name})",
         )
 
         idxstats = Data.create(
@@ -382,6 +391,7 @@ class WorkflowBbdukSalmonQc(Process):
             input={
                 "alignment": alignment_qc,
             },
+            name=f"Alignment summary ({inputs.reads.name})",
         )
 
         input_multiqc = {

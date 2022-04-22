@@ -12,8 +12,8 @@
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       cores: 4
-  data_name: "{{ bam|sample_name|default('?') }}"
-  version: 0.7.0
+  data_name: "{{ bam|name|default('?') }}"
+  version: 0.8.0
   type: data:alignment:bam:primary
   flow_collection: sample
   category: Other

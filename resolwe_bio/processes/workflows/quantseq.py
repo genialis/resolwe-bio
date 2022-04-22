@@ -35,8 +35,8 @@ class WorkflowQuantSeq(Process):
     requirements = {
         "expression-engine": "jinja",
     }
-    data_name = "{{ reads|sample_name|default('?') }}"
-    version = "5.0.1"
+    data_name = "{{ reads|name|default('?') }}"
+    version = "5.1.0"
     entity = {
         "type": "sample",
     }
@@ -237,7 +237,9 @@ class WorkflowQuantSeq(Process):
                 )
 
         preprocessing = Data.create(
-            process=BioProcess.get_latest(process_slug), input=input_preprocessing
+            process=BioProcess.get_latest(process_slug),
+            input=input_preprocessing,
+            name=f"Trimmed ({inputs.reads.name})",
         )
 
         input_star = {
@@ -268,6 +270,7 @@ class WorkflowQuantSeq(Process):
         alignment = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
             input=input_star,
+            name=f"Aligned ({inputs.reads.name})",
         )
 
         input_featurecounts = {
@@ -284,6 +287,7 @@ class WorkflowQuantSeq(Process):
         quantification = Data.create(
             process=BioProcess.get_latest(slug="feature_counts"),
             input=input_featurecounts,
+            name=f"Quantified ({inputs.reads.name})",
         )
 
         input_seqtk = {
@@ -306,6 +310,7 @@ class WorkflowQuantSeq(Process):
         downsampling = Data.create(
             process=BioProcess.get_latest(slug=process_slug),
             input=input_seqtk,
+            name=f"Subsampled ({inputs.reads.name})",
         )
 
         idxstats = Data.create(
@@ -313,6 +318,7 @@ class WorkflowQuantSeq(Process):
             input={
                 "alignment": alignment,
             },
+            name=f"Alignment summary ({inputs.reads.name})",
         )
 
         alignment_qorts = Data.create(
@@ -321,6 +327,7 @@ class WorkflowQuantSeq(Process):
                 "reads": downsampling,
                 "genome": inputs.genome,
             },
+            name=f"Aligned subset ({inputs.reads.name})",
         )
         input_qorts = {
             "alignment": alignment_qorts,
@@ -337,6 +344,7 @@ class WorkflowQuantSeq(Process):
         qorts = Data.create(
             process=BioProcess.get_latest(slug="qorts-qc"),
             input=input_qorts,
+            name=f"QoRTs QC report ({inputs.reads.name})",
         )
 
         multiqc_inputs = [

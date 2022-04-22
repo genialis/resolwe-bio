@@ -21,7 +21,7 @@ class BamToFastqPaired(Process):
     name = "Samtools fastq (paired-end)"
     category = "BAM processing"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.2.0"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -35,7 +35,7 @@ class BamToFastqPaired(Process):
         },
     }
     entity = {"type": "sample"}
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields for BamToFastqPaired."""

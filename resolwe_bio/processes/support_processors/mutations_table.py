@@ -314,8 +314,8 @@ class MutationsTable(Process):
         "type": "sample",
     }
     category = "Other"
-    data_name = 'Mutations table ({{ variants|sample_name|default("?") }})'
-    version = "1.0.2"
+    data_name = "{{ variants|name|default('?') }}"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 

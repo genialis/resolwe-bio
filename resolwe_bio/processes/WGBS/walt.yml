@@ -14,8 +14,8 @@
     executor:
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.3.0
-  data_name: "{{ reads|sample_name|default('?') }}"
-  version: 3.4.3
+  data_name: "{{ reads|name|default('?') }}"
+  version: 3.5.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample

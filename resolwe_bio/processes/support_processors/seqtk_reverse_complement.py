@@ -33,8 +33,8 @@ class ReverseComplementSingle(Process):
     entity = {
         "type": "sample",
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
-    version = "1.2.0"
+    data_name = "{{ reads|name|default('?') }}"
+    version = "1.3.0"
 
     class Input:
         """Input fields to process ReverseComplementSingle."""
@@ -95,8 +95,8 @@ class ReverseComplementPaired(Process):
     entity = {
         "type": "sample",
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
-    version = "1.1.0"
+    data_name = "{{ reads|name|default('?') }}"
+    version = "1.2.0"
 
     class Input:
         """Input fields to process ReverseComplementPaired."""

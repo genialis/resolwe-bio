@@ -24,7 +24,7 @@ class GatkHaplotypeCallerGvcf(Process):
     name = "GATK HaplotypeCaller (GVCF)"
     category = "GATK"
     process_type = "data:variants:gvcf"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -37,7 +37,7 @@ class GatkHaplotypeCallerGvcf(Process):
             "memory": 8192,
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields for GatkHaplotypeCallerGvcf."""

@@ -25,6 +25,8 @@ Changed
   ``workflow-slamdunk-paired`` and related code in ``multiqc``
 - Use ``resolwebio/common:3.1.0`` in ``upload-metadata-unique`` and
   ``upload-metadata`` processes
+- Use the parent Data object name for the data name of processes and
+  workflows previously named after the sample name of the input file
 
 Fixed
 -----

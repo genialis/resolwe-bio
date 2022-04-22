@@ -27,8 +27,8 @@ class BamToBedpe(Process):
         },
         "resources": {"cores": 1, "memory": 8192},
     }
-    data_name = "Bedtools bamtobed ({{alignment|sample_name|default('?')}})"
-    version = "1.2.0"
+    data_name = "{{ alignment|name|default('?') }}"
+    version = "1.3.0"
     process_type = "data:bedpe"
     category = "Other"
     entity = {"type": "sample"}
@@ -83,8 +83,8 @@ class ScaleBigWig(Process):
         },
         "resources": {"cores": 1, "memory": 16384},
     }
-    data_name = "Scale BigWig ({{alignment|sample_name|default('?')}})"
-    version = "1.2.0"
+    data_name = "{{ alignment|name|default('?') }}"
+    version = "1.3.0"
     process_type = "data:coverage:bigwig"
     category = "Other"
     entity = {"type": "sample"}

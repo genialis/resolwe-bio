@@ -23,7 +23,7 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Clipping"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -33,7 +33,7 @@ class Bamclipper(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/dnaseq:6.3.1"}
         },
     }
-    data_name = '{{ alignment|sample_name|default("?") }}'
+    data_name = "{{ alignment|name|default('?') }}"
 
     class Input:
         """Input fields to process Bamclipper."""

@@ -19,8 +19,8 @@ class SamtoolsIdxstats(Process):
             "memory": 4096,
         },
     }
-    data_name = "Samtools idxstats ({{alignment|sample_name}})"
-    version = "1.3.0"
+    data_name = "{{ alignment|name|default('?') }}"
+    version = "1.4.0"
     process_type = "data:samtools:idxstats"
     category = "Other"
     entity = {

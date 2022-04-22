@@ -199,8 +199,8 @@ class FeatureCounts(ProcessBio):
             "network": True,
         },
     }
-    data_name = "{{ aligned_reads|sample_name|default('?') }}"
-    version = "5.2.0"
+    data_name = "{{ aligned_reads|name|default('?') }}"
+    version = "5.3.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {

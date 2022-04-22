@@ -25,7 +25,7 @@ class CutadaptCorallSingle(Process):
     slug = "cutadapt-corall-single"
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -39,7 +39,7 @@ class CutadaptCorallSingle(Process):
             "memory": 16384,
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields."""
@@ -198,7 +198,7 @@ class CutadaptCorallPaired(Process):
     slug = "cutadapt-corall-paired"
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = "data:reads:fastq:paired:cutadapt:"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Other"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -212,7 +212,7 @@ class CutadaptCorallPaired(Process):
             "memory": 16384,
         },
     }
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields."""

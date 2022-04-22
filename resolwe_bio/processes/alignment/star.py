@@ -68,7 +68,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.1.0"
+    version = "3.2.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -82,7 +82,7 @@ class AlignmentStar(Process):
             "memory": 36864,
         },
     }
-    data_name = "{{ reads|sample_name|default('?') }}"
+    data_name = "{{ reads|name|default('?') }}"
 
     class Input:
         """Input fields to process AlignmentStar."""

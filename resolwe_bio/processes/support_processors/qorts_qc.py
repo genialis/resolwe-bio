@@ -41,8 +41,8 @@ class QortsQC(Process):
             "memory": 32768,
         },
     }
-    data_name = "QoRTs QC report ({{alignment|sample_name}})"
-    version = "1.6.0"
+    data_name = "{{ alignment|name|default('?') }}"
+    version = "1.7.0"
     process_type = "data:qorts:qc"
     category = "Other"
     entity = {

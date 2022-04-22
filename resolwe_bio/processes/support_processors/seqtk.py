@@ -30,9 +30,9 @@ class SeqtkSampleSingle(Process):
     slug = "seqtk-sample-single"
     name = "Subsample FASTQ (single-end)"
     process_type = "data:reads:fastq:single:seqtk"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Other"
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     entity = {
@@ -164,9 +164,9 @@ class SeqtkSamplePaired(Process):
     slug = "seqtk-sample-paired"
     name = "Subsample FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired:seqtk"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Other"
-    data_name = '{{ reads|sample_name|default("?") }}'
+    data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     entity = {

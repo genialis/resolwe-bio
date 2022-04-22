@@ -31,7 +31,7 @@ class CollectRrbsMetrics(Process):
     name = "Picard CollectRrbsMetrics"
     category = "Picard"
     process_type = "data:picard:rrbs"
-    version = "2.2.1"
+    version = "2.3.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -43,7 +43,7 @@ class CollectRrbsMetrics(Process):
             "memory": 32768,
         },
     }
-    data_name = '{{ bam|sample_name|default("?") }}'
+    data_name = "{{ bam|name|default('?') }}"
 
     class Input:
         """Input fields for CollectRrbsMetrics."""

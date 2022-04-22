@@ -8,8 +8,8 @@
     executor:
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
-  data_name: 'Library strandedness ({{ reads|sample_name }})'
-  version: 0.5.0
+  data_name: "{{ reads|name|default('?') }}"
+  version: 0.6.0
   type: data:strandedness
   persistence: CACHED
   description: |

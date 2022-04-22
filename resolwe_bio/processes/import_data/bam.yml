@@ -224,8 +224,8 @@
     resources:
       cores: 4
       network: true
-  data_name: "{{ bam|sample_name|default('?') }}"
-  version: 0.8.0
+  data_name: "{{ bam|name|default('?') }}"
+  version: 0.9.0
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import

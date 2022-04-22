@@ -200,7 +200,7 @@ class MicroarrayExpression(ProcessBio):
     slug = "mapped-microarray-expression"
     name = "Mapped microarray expression"
     process_type = "data:expression:microarray"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -216,7 +216,7 @@ class MicroarrayExpression(ProcessBio):
             "network": True,
         },
     }
-    data_name = '{{ exp_unmapped|sample_name|default("?") }}'
+    data_name = "{{ exp_unmapped|name|default('?') }}"
 
     class Input:
         """Input fields to process MicroarrayExpression."""

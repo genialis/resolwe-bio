@@ -31,8 +31,8 @@ class UmiToolsDedup(Process):
             "memory": 16384,
         },
     }
-    data_name = "UMI-tools dedup ({{alignment|sample_name}})"
-    version = "1.3.0"
+    data_name = "{{ alignment|name|default('?') }}"
+    version = "1.4.0"
     process_type = "data:alignment:bam:umitools:dedup"
     category = "Other"
     entity = {

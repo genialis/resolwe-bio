@@ -28,9 +28,9 @@ class AlignmentSieve(Process):
     slug = "alignmentsieve"
     name = "alignmentSieve"
     process_type = "data:alignment:bam:sieve"
-    version = "1.3.0"
+    version = "1.4.0"
     category = "Alignment Filtering"
-    data_name = 'Sieved BAM ({{ alignment|sample_name|default("?") }})'
+    data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     entity = {

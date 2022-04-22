@@ -195,7 +195,7 @@ class GatkSelectVariantsSingleSample(Process):
     slug = "gatk-select-variants-single"
     process_type = "data:variants:vcf:selectvariants:single"
     name = "GATK SelectVariants (single-sample)"
-    version = "1.0.0"
+    version = "1.1.0"
     entity = {
         "type": "sample",
     }
@@ -213,7 +213,7 @@ class GatkSelectVariantsSingleSample(Process):
         },
     }
 
-    data_name = "Selected variants ({{ vcf|sample_name|default('?') }})"
+    data_name = "{{ vcf|name|default('?') }}"
 
     class Input:
         """Input fields for GatkSelectVariantsSingleSample."""
