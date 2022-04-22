@@ -70,6 +70,8 @@ sphinxcontrib-devhelp==1.0.2 --hash=sha256:8165223f9a335cc1af7ffe1ed31d2871f3252
 # Pandas dependencies.
 python-dateutil==2.8.1 --hash=sha256:75bb3f31ea686f1197762692a9ee6a7550b59fc6ca3a1f4b5d7e32fb98e2da2a
 pytz==2021.1 --hash=sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798
+openpyxl==3.0.9 --hash=sha256:8f3b11bd896a95468a4ab162fc4fcd260d46157155d1f8bfaabb99d88cfcf79f
+et_xmlfile==1.1.0 --hash=sha256:a2ba85d1d6a74ef63837eed693bcb89c3f752169b0e3e7ae5b16ca5e1b3deada
 
 # Bioservices dependencies.
 gevent==21.1.2 --hash=sha256:520cc2a029a9eef436e4e56b007af7859315cafa21937d43c1d5269f12f2c981

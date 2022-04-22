@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Add ``openpyxl`` Python package in ``resolwebio/common:3.1.0`` Docker
+  image
 
 Fixed
 -----
