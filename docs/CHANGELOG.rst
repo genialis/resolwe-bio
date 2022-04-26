@@ -19,6 +19,10 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Update GATK to GATK4 in process ``vc-chemut``
   and update the workflow ``workflow-chemut``
 - Rewrite the process ``filtering-chemut`` to Python
+- Remove slamseq processes ``alleyoop-collapse``, ``alleyoop-rates``,
+  ``alleyoop-snpeval``, ``alleyoop-summary``, ``alleyoop-utr-rates``,
+  ``slam-count``, ``slamdunk-all-paired`` the workflow
+  ``workflow-slamdunk-paired`` and related code in ``multiqc``
 
 Fixed
 -----

@@ -317,7 +317,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.13.0"
+    version = "1.14.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -506,15 +506,6 @@ class MultiQC(Process):
                 create_symlink(d.output.salmon_output.path, sample_dir)
                 # Strandedness report might not exist in legacy Salmon objects
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
-
-            elif d.process.type.startswith("data:alleyoop"):
-                create_symlink(d.output.report.path, sample_dir)
-                # Alleyoop summary may contain PCA plot data
-                try:
-                    if os.path.isfile(d.output.plot_data.path):
-                        create_symlink(d.output.plot_data.path, sample_dir)
-                except AttributeError:
-                    pass
 
             elif d.process.type.startswith("data:picard"):
                 name = os.path.basename(d.output.report.path)
