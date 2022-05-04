@@ -23,6 +23,8 @@ Changed
   ``alleyoop-snpeval``, ``alleyoop-summary``, ``alleyoop-utr-rates``,
   ``slam-count``, ``slamdunk-all-paired`` the workflow
   ``workflow-slamdunk-paired`` and related code in ``multiqc``
+- Use ``resolwebio/common:3.1.0`` in ``upload-metadata-unique`` and
+  ``upload-metadata`` processes
 
 Fixed
 -----

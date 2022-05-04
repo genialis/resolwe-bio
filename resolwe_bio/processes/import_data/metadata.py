@@ -70,13 +70,13 @@ class UploadMetadataUnique(Process):
     slug = "upload-metadata-unique"
     name = "Metadata table (one-to-one)"
     process_type = "data:metadata:unique"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/orange:2.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.1.0"}
         },
         "resources": {
             "cores": 1,
@@ -158,13 +158,13 @@ class UploadMetadata(Process):
     slug = "upload-metadata"
     name = "Metadata table"
     process_type = "data:metadata"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/orange:2.0.0"}
+            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.1.0"}
         },
         "resources": {
             "cores": 1,
