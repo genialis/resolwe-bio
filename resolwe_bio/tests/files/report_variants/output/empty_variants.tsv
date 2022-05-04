@@ -1,0 +1,5 @@
+CHROM	POS	ID	QUAL	REF	ALT	DP	ANN	Gene_Name	HGVS.p	Base_A	Base_C	Base_G	Base_T	Total_depth
+chr12	25245347	rs112445441		C				KRAS	no mutation at position Gly13 detected	0	14	0	33	47
+chr12	25245348	rs121913535		C				KRAS	no mutation at position Gly13 detected	0	48	0	0	48
+chr12	25245350	rs121913529		C				KRAS	no mutation at position Gly12 detected	0	51	0	0	51
+chr12	25245351	rs121913530		C				KRAS	no mutation at position Gly12 detected	0	50	0	0	50

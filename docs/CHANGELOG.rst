@@ -26,6 +26,8 @@ Changed
 
 Fixed
 -----
+- Update the process ``mutations-table`` so that it handles empty input
+  VCF files
 
 
 ===================

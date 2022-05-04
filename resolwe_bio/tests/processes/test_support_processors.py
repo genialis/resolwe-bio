@@ -1523,6 +1523,14 @@ re-save-file lane_attributes "${NAME}".txt
                     "build": "GRCh38",
                 },
             )
+            no_input = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "empty.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
             snpeff = self.run_process(
                 "snpeff",
                 {
@@ -1533,6 +1541,12 @@ re-save-file lane_attributes "${NAME}".txt
                 "snpeff",
                 {
                     "variants": no_mutation.id,
+                },
+            )
+            snpeff_noinput = self.run_process(
+                "snpeff",
+                {
+                    "variants": no_input.id,
                 },
             )
             bam = self.run_process(
@@ -1546,8 +1560,10 @@ re-save-file lane_attributes "${NAME}".txt
 
         snpeff.entity = bam.entity
         snpeff_nomutation.entity = bam.entity
+        snpeff_noinput.entity = bam.entity
         snpeff.save()
         snpeff_nomutation.save()
+        snpeff_noinput.save()
 
         report = self.run_process(
             "mutations-table",
@@ -1570,6 +1586,20 @@ re-save-file lane_attributes "${NAME}".txt
             },
         )
         self.assertFile(report, "tsv", output_folder / "no_mutations.tsv")
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff_noinput.id,
+                "reference": table.id,
+                "bam": bam.id,
+                "mutations": ["KRAS: Gly12, Gly13"],
+            },
+        )
+        self.assertFile(report, "tsv", output_folder / "empty_variants.tsv")
+        self.assertEqual(
+            report.process_warning, ["There are no variants in the input VCF file."]
+        )
 
         report = self.run_process(
             "mutations-table",

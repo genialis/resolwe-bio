@@ -86,11 +86,14 @@ def get_output_table(mutations, reference, variants_table, output_table, genes, 
                         f"amino acid {mutation}."
                     )
                 if (
-                    variants_table.loc[
-                        (variants_table["HGVS.p"].str.contains(mutation))
-                        & (variants_table["Gene_Name"] == gene)
-                    ]
-                ).empty:
+                    variants_table.empty
+                    or (
+                        variants_table.loc[
+                            (variants_table["HGVS.p"].str.contains(mutation))
+                            & (variants_table["Gene_Name"] == gene)
+                        ]
+                    ).empty
+                ):
                     for position in positions:
                         # Using [0] here because because if reference table was processed with
                         # the option 'split_alleles', there will be multiple rows for one position
@@ -137,7 +140,10 @@ def get_output_table(mutations, reference, variants_table, output_table, genes, 
             )
             if len(positions) == 0:
                 error(f"There are no known variants for gene {gene}.")
-            if (variants_table.loc[(variants_table["Gene_Name"] == gene)]).empty:
+            if (
+                variants_table.empty
+                or (variants_table.loc[(variants_table["Gene_Name"] == gene)]).empty
+            ):
                 for position in positions:
                     chrom = reference.loc[
                         reference["POS"] == position, "CHROM"
@@ -201,7 +207,7 @@ def get_mutations(input_mutations, error):
     return mutations
 
 
-def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields):
+def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields, warning):
     """Prepare variants table."""
 
     variants_table = pd.read_csv(
@@ -210,23 +216,28 @@ def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields):
         header=0,
         float_precision="round_trip",
     )
-    vcf_fields.remove("ANN")
-    variants_table = ann_field_to_df(
-        variants_table=variants_table,
-        ann_fields=ann_fields,
-        vcf_fields=vcf_fields,
-        gt_fields=[f"SAMPLENAME1.{field}" for field in gt_fields],
-    )
-    # Collapse multiple transcripts of one variant to one line
-    variants_table = (
-        variants_table.groupby(
-            vcf_fields
-            + [field for field in ann_fields if field != "Feature_ID"]
-            + [col for col in variants_table.columns if col.endswith("GT")]
-        )["Feature_ID"]
-        .apply(",".join)
-        .reset_index()
-    )
+    if variants_table.empty:
+        warning("There are no variants in the input VCF file.")
+        for ann in ann_fields:
+            variants_table[ann] = None
+    else:
+        vcf_fields.remove("ANN")
+        variants_table = ann_field_to_df(
+            variants_table=variants_table,
+            ann_fields=ann_fields,
+            vcf_fields=vcf_fields,
+            gt_fields=[f"SAMPLENAME1.{field}" for field in gt_fields],
+        )
+        # Collapse multiple transcripts of one variant to one line
+        variants_table = (
+            variants_table.groupby(
+                vcf_fields
+                + [field for field in ann_fields if field != "Feature_ID"]
+                + [col for col in variants_table.columns if col.endswith("GT")]
+            )["Feature_ID"]
+            .apply(",".join)
+            .reset_index()
+        )
 
     return variants_table
 
@@ -304,7 +315,7 @@ class MutationsTable(Process):
     }
     category = "Other"
     data_name = 'Mutations table ({{ variants|sample_name|default("?") }})'
-    version = "1.0.1"
+    version = "1.0.2"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -314,7 +325,9 @@ class MutationsTable(Process):
         variants = DataField(
             data_type="variants:vcf:snpeff",
             label="Annotated variants",
-            description="Variants annotated with SnpEff.",
+            description="Variants annotated with SnpEff. VCF file used for "
+            "annotation should only be filtered but should include the filtered "
+            "variants.",
         )
         mutations = ListField(
             StringField(),
@@ -394,6 +407,12 @@ class MutationsTable(Process):
                 "records on separate lines of output.",
                 default=True,
             )
+            show_filtered = BooleanField(
+                label="Include filtered records in the output",
+                default=True,
+                description="Include filtered records in the output of the GATK "
+                "VariantsToTable.",
+            )
             gf_fields = ListField(
                 StringField(),
                 label="Include FORMAT/sample-level fields",
@@ -466,6 +485,8 @@ class MutationsTable(Process):
             args.extend(["-GF", gf_field])
         if inputs.advanced.split_alleles:
             args.append("--split-multi-allelic")
+        if inputs.advanced.show_filtered:
+            args.append("--show-filtered")
 
         return_code, stdout, stderr = Cmd["gatk"]["VariantsToTable"][args] & TEE(
             retcode=None
@@ -479,6 +500,7 @@ class MutationsTable(Process):
             vcf_fields=inputs.vcf_fields,
             ann_fields=inputs.ann_fields,
             gt_fields=inputs.advanced.gf_fields,
+            warning=self.warning,
         )
         reference = ann_field_to_df(
             variants_table=reference,
