@@ -40,12 +40,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
         self.assertFile(bam1, "bam", bam_output / "hybrid_mm10.bam")
         self.assertFile(bam1, "bai", bam_output / "hybrid_mm10.bam.bai")
-        self.assertFile(bam1, "bigwig", bam_output / "hybrid_mm10.bw")
         self.assertFields(bam1, "species", "Mus musculus")
         self.assertFields(bam1, "build", "mm10")
         self.assertFile(bam2, "bam", bam_output / "hybrid_dm6.bam")
         self.assertFile(bam2, "bai", bam_output / "hybrid_dm6.bam.bai")
-        self.assertFile(bam2, "bigwig", bam_output / "hybrid_dm6.bw")
         self.assertFields(bam2, "species", "Drosophila melanogaster")
         self.assertFields(bam2, "build", "dm6")
 
@@ -56,12 +54,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
         self.assertFile(bam1, "bam", bam_output / "hybrid_mm10.bam")
         self.assertFile(bam1, "bai", bam_output / "hybrid_mm10.bam.bai")
-        self.assertFile(bam1, "bigwig", bam_output / "hybrid_mm10.bw")
         self.assertFields(bam1, "species", "Mus musculus")
         self.assertFields(bam1, "build", "mm10")
         self.assertFile(bam2, "bam", bam_output / "hybrid_dm6.bam")
         self.assertFile(bam2, "bai", bam_output / "hybrid_dm6.bam.bai")
-        self.assertFile(bam2, "bigwig", bam_output / "hybrid_dm6.bw")
         self.assertFields(bam2, "species", "Drosophila melanogaster")
         self.assertFields(bam2, "build", "dm6")
 

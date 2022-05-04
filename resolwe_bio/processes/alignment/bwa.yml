@@ -15,7 +15,7 @@
       memory: 32768
       storage: 300
   data_name: "{{ reads|name|default('?') }}"
-  version: 3.5.0
+  version: 3.6.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -128,10 +128,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -260,9 +256,6 @@
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
-      #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}
-
 
 - slug: alignment-bwa-sw
   name: BWA SW
@@ -275,7 +268,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.4.0
+  version: 2.5.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -323,10 +316,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -439,8 +428,6 @@
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
 
-      #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}
 
 - slug: alignment-bwa-aln
   name: BWA ALN
@@ -453,7 +440,7 @@
       cores: 20
       memory: 16384
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.5.0
+  version: 2.6.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample
@@ -527,10 +514,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -662,6 +645,3 @@
       if [ -f "${NAME}_unmapped.fastq.gz" ]; then
         re-save-file unmapped "${NAME}_unmapped.fastq.gz"
       fi
-
-      #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}

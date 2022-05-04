@@ -14,7 +14,7 @@
       cores: 4
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.7.0
+  version: 1.8.0
   type: data:alignment:bam:upload
   flow_collection: sample
   category: Import
@@ -62,10 +62,6 @@
     - name: stats
       label: Alignment statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -110,9 +106,6 @@
         re-save species {{ species }}
         re-save build {{ build }}
 
-        # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${NAME}.bam" {{ species }} {{ requirements.resources.cores }}
-
 - slug: upload-bam-indexed
   name: BAM file and index
   requirements:
@@ -124,7 +117,7 @@
       cores: 4
       network: true
   data_name: '{{ src.file|default("?") }}'
-  version: 1.7.0
+  version: 1.8.0
   type: data:alignment:bam:upload
   category: Import
   flow_collection: sample
@@ -178,10 +171,6 @@
     - name: stats
       label: Alignment statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -211,9 +200,6 @@
           re-error "BAI should have the same name as BAM with .bai extension"
         fi
 
-        # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${BAM_NAME}.bam" {{ species }} {{ requirements.resources.cores }}
-
 - slug: upload-bam-secondary
   name: Secondary hybrid BAM file
   requirements:
@@ -225,7 +211,7 @@
       cores: 4
       network: true
   data_name: "{{ bam|name|default('?') }}"
-  version: 0.9.0
+  version: 0.10.0
   type: data:alignment:bam:secondary
   flow_collection: sample
   category: Import
@@ -269,10 +255,6 @@
     - name: stats
       label: Alignment statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: species
       label: Species
       type: basic:string
@@ -297,6 +279,3 @@
         re-save-file stats "${NAME}_stats.txt"
         re-save species {{ species }}
         re-save build {{ build }}
-
-        # computation time limit for bamCoverage is 480s per GB
-        bamtobigwig.sh "${NAME}.bam" {{ species }} {{ requirements.resources.cores }}

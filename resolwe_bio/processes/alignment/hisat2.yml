@@ -14,7 +14,7 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.5.0
+  version: 2.6.0
   type: data:alignment:bam:hisat2
   category: Align
   flow_collection: sample
@@ -74,10 +74,6 @@
       required: false
     - name: unmapped_r
       label: Unmapped reads (mate 2)
-      type: basic:file
-      required: false
-    - name: bigwig
-      label: BigWig file
       type: basic:file
       required: false
     - name: species
@@ -179,6 +175,3 @@
 
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
-
-      #computation time limit for bamCoverage is 480s per GB
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}

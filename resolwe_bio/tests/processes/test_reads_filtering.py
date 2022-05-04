@@ -437,7 +437,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFile(
             clipped, "stats", "./bamclipper/output/TP53.primerclipped.bam_stats.txt"
         )
-        self.assertFile(clipped, "bigwig", "./bamclipper/output/TP53.primerclipped.bw")
         self.assertFields(clipped, "species", species)
         self.assertFields(clipped, "build", build)
 
@@ -459,10 +458,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         md_inputs = {
             "bam": bam.id,
             "remove_duplicates": True,
-            "bigwig_opts": {
-                "bigwig_binsize": 50,
-                "bigwig_timeout": 30,
-            },
             "advanced": {
                 "java_gc_threads": 3,
                 "max_heap_size": 10,
@@ -481,11 +476,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             removed_md,
             "stats",
             "./markduplicate/output/TP53.primerclipped.markduplicates.bam_stats.txt",
-        )
-        self.assertFile(
-            removed_md,
-            "bigwig",
-            "./markduplicate/output/TP53.primerclipped.markduplicates.bw",
         )
         self.assertFile(
             removed_md,
@@ -548,9 +538,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "./bqsr/output/TP53.primerclipped.markduplicates.bam_stats.txt",
             )
             self.assertFile(
-                bqsr, "bigwig", "./bqsr/output/TP53.primerclipped.markduplicates.bw"
-            )
-            self.assertFile(
                 bqsr,
                 "recal_table",
                 "./bqsr/output/TP53.primerclipped.markduplicates_recalibration.table",
@@ -602,9 +589,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "stats",
                 "./bqsr/output/TP53.primerclipped.markduplicates.bam_stats.txt",
             )
-            self.assertFile(
-                bqsr, "bigwig", "./bqsr/output/TP53.primerclipped.markduplicates.bw"
-            )
 
     @tag_process("alignmentsieve")
     def test_alignmentsieve(self):
@@ -622,10 +606,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         params = {
             "alignment": bam.id,
             "max_fragment_length": 149,
-            "bigwig_opts": {
-                "bigwig_binsize": 50,
-                "bigwig_timeout": 30,
-            },
         }
 
         # Produced .bam files are not deterministic and are not ideal
@@ -635,11 +615,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             obj=max_filteredbam,
             field_path="stats",
             fn="./test_alignmentsieve/output/filtered_max_149_stats.txt",
-        )
-        self.assertFile(
-            obj=max_filteredbam,
-            field_path="bigwig",
-            fn="./test_alignmentsieve/output/filtered_max_149.bw",
         )
 
         params = {
@@ -651,11 +626,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             min_filteredbam,
             field_path="stats",
             fn="./test_alignmentsieve/output/filtered_min_150_stats.txt",
-        )
-        self.assertFile(
-            obj=min_filteredbam,
-            field_path="bigwig",
-            fn="./test_alignmentsieve/output/filtered_min_150.bw",
         )
 
     @tag_process("trimgalore-paired")

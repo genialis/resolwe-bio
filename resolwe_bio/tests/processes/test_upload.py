@@ -35,11 +35,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             field_path="stats",
             fn=output_folder / "alignment_bam_upload_stats.txt",
         )
-        self.assertFile(
-            obj=upload_bam,
-            field_path="bigwig",
-            fn=output_folder / "alignment_bam_upload_bigwig.bw",
-        )
         self.assertFields(obj=upload_bam, path="species", value="Homo sapiens")
         self.assertFields(obj=upload_bam, path="build", value="hg19")
 
@@ -76,11 +71,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             obj=upload_bam,
             field_path="stats",
             fn=output_folder / "alignment_bam_upload_stats.txt",
-        )
-        self.assertFile(
-            obj=upload_bam,
-            field_path="bigwig",
-            fn=output_folder / "alignment_bam_upload_bigwig.bw",
         )
         self.assertFields(obj=upload_bam, path="species", value="Homo sapiens")
         self.assertFields(obj=upload_bam, path="build", value="hg19")

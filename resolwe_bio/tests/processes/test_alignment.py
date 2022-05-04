@@ -142,10 +142,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "rfg": "5,3",
                 "score_min": "L,-0.6,-0.6",
             },
-            "misc_opts": {
-                "bw_binsize": 50,
-                "bw_timeout": 30,
-            },
         }
         single_end = self.run_process("alignment-bowtie2", inputs)
         self.assertFile(single_end, "stats", output_folder / "bowtie2_reads_report.txt")
@@ -544,9 +540,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             sample_paired = Sample.objects.get(data=reads_paired)
             sample_paired.name = "Paired-end reads"
             sample_paired.save()
-            no_mapping_reads = self.prepare_reads(
-                fn=[str(input_folder / "reads-map-to-nowhere.fastq.gz")]
-            )
 
         hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
         self.assertDir(hisat2_index, "index", output_folder / "hisat2_index.tar.gz")
@@ -573,14 +566,11 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             sort=True,
         )
         self.assertFileExists(single_end, "splice_junctions")
-        msg = "Neither of the chromosomes in the input file has a valid UCSC pair. No mapping will be done."
-        self.assertEqual(single_end.process_warning, [msg])
 
         paired_end = self.run_process(
             "alignment-hisat2", {"genome": hisat2_index.id, "reads": reads_paired.id}
         )
         self.assertFile(paired_end, "stats", output_folder / "hisat2_paired_report.txt")
-        self.assertFile(paired_end, "bigwig", output_folder / "hisat2_paired_bigwig.bw")
         self.assertFile(
             paired_end,
             "unmapped_f",
@@ -599,60 +589,5 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(paired_end, "species", "Homo sapiens")
         self.assertFields(paired_end, "build", "GRCh38.p12")
 
-        no_mapping = self.run_process(
-            "alignment-hisat2",
-            {"reads": no_mapping_reads.id, "genome": hisat2_index.id},
-        )
-        self.assertEqual(
-            no_mapping.process_warning,
-            ["Bam file has no entries. No bigWig file will be made."],
-        )
-
-    @tag_process("alignment-hisat2")
-    def test_hisat2_bigwig(self):
-        input_folder = Path("test_hisat2") / "input"
-        output_folder = Path("test_hisat2") / "output"
-        with self.preparation_stage():
-            paired_reads_ucsc = self.prepare_paired_reads(
-                mate1=["SRR2124780_1 1k.fastq.gz"], mate2=["SRR2124780_2 1k.fastq.gz"]
-            )
-            paired_reads_ncbi = self.prepare_paired_reads(
-                mate1=["GRCh38.p12_NCBIchr21_R1.fq.gz"],
-                mate2=["GRCh38.p12_NCBIchr21_R2.fq.gz"],
-            )
-
-            ref_seq_ucsc = self.prepare_ref_seq(
-                fn=str(input_folder / "hg38_chr21_9M.fa.gz"),
-                species="Homo sapiens",
-                build="hg38",
-            )
-            hisat2_index_ucsc = self.run_process(
-                "hisat2-index", {"ref_seq": ref_seq_ucsc.id}
-            )
-
-            ref_seq_ncbi = self.prepare_ref_seq(
-                fn=str(input_folder / "GRCh38.p12_NCBIchr21_9M.fasta.gz"),
-                species="Homo sapiens",
-                build="GRCh38.p12",
-            )
-            hisat2_index_ncbi = self.run_process(
-                "hisat2-index", {"ref_seq": ref_seq_ncbi.id}
-            )
-
-        aligned_reads = self.run_process(
-            "alignment-hisat2",
-            {"genome": hisat2_index_ucsc.id, "reads": paired_reads_ucsc.id},
-        )
-        self.assertFile(
-            aligned_reads, "bigwig", output_folder / "hisat2_paired_ucsc_bigwig.bw"
-        )
-
-        aligned_reads = self.run_process(
-            "alignment-hisat2",
-            {"genome": hisat2_index_ncbi.id, "reads": paired_reads_ncbi.id},
-        )
-        self.assertFile(
-            aligned_reads, "bigwig", output_folder / "hisat2_paired_ncbi_bigwig.bw"
-        )
-        sample = Sample.objects.get(data=aligned_reads)
+        sample = Sample.objects.get(data=paired_end)
         self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")

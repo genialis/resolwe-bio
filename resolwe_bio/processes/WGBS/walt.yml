@@ -15,7 +15,7 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.3.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 3.5.0
+  version: 3.6.0
   type: data:alignment:bam:walt
   category: Align
   flow_collection: sample
@@ -88,10 +88,6 @@
     - name: stats
       label: Statistics
       type: basic:file
-    - name: bigwig
-      label: BigWig file
-      type: basic:file
-      required: false
     - name: mr
       label: Alignment file (MR)
       type: basic:file
@@ -278,4 +274,3 @@
       re-save-file stats "${NAME}_report.txt"
       re-save species {{ genome.species }}
       re-save build {{ genome.build }}
-      bamtobigwig.sh "${NAME}.bam" {{ genome.species }} {{ requirements.resources.cores }}

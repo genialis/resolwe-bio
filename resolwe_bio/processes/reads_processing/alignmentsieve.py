@@ -8,7 +8,6 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
-    GroupField,
     IntegerField,
     Persistence,
     Process,
@@ -28,7 +27,7 @@ class AlignmentSieve(Process):
     slug = "alignmentsieve"
     name = "alignmentSieve"
     process_type = "data:alignment:bam:sieve"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Alignment Filtering"
     data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -67,31 +66,12 @@ class AlignmentSieve(Process):
             default=0,
         )
 
-        class BigWigOptions:
-            """Options for calculating BigWig."""
-
-            bigwig_binsize = IntegerField(
-                label="BigWig bin size",
-                description="Size of the bins, in bases, for the output of the "
-                "bigwig/bedgraph file. Default is 50.",
-                default=50,
-            )
-            bigwig_timeout = IntegerField(
-                label="BigWig timeout",
-                description="Number of seconds before creation of BigWig timeouts. "
-                "Default is after 480 seconds (8 minutes).",
-                default=480,
-            )
-
-        bigwig_opts = GroupField(BigWigOptions, label="BigWig options")
-
     class Output:
         """Output fields to process AlignmentSieve."""
 
         bam = FileField(label="Sieved BAM file")
         bai = FileField(label="Index of sieved BAM file")
         stats = FileField(label="Alignment statistics")
-        bigwig = FileField(label="BigWig file", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
@@ -105,7 +85,6 @@ class AlignmentSieve(Process):
         bam_species = inputs.alignment.output.species
         output_bam_file = f"{name}_filtered.bam"
         filter_metrics = f"{name}_metrics.txt"
-        bam_bigwig = f"{name}_filtered.bw"
 
         params = [
             "--verbose",
@@ -148,24 +127,6 @@ class AlignmentSieve(Process):
 
         outputs.stats = stats
         self.progress(0.75)
-
-        btb_inputs = [
-            output_bam_file,
-            bam_species,
-            self.requirements.resources.cores,
-            "deeptools",
-            inputs.bigwig_opts.bigwig_binsize,
-            inputs.bigwig_opts.bigwig_timeout,
-        ]
-
-        check_bigwig, _, _ = Cmd["bamtobigwig.sh"][btb_inputs] & TEE(retcode=None)
-
-        self.progress(0.99)
-
-        if check_bigwig:
-            self.info("BigWig file not calculated.")
-        else:
-            outputs.bigwig = bam_bigwig
 
         outputs.species = bam_species
         outputs.build = inputs.alignment.output.build

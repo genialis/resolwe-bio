@@ -28,6 +28,13 @@ Changed
 - Use the parent Data object name for the data name of processes and
   workflows previously named after the sample name of the input file
 - Remove Docker files from project
+- Remove BigWig outputs created with ``bamtobigwig.sh`` script in
+  processes ``walt``, ``alignment-bowtie``, ``alignment-bowtie2``,
+  ``alignment-bwa-mem``, ``alignment-bwa-sw``, ``alignment-bwa-aln``,
+  ``alignment-bwa-mem2``, ``alignment-hisat2``, ``upload-bam``,
+  ``upload-bam-indexed``, ``upload-bam-secondary``, ``alignmentsieve``,
+  ``bamclipper``, ``bqsr``, ``markduplicates``, ``bam-split``,
+  ``umi-tools-dedup`` and workflow ``workflow-cutnrun``
 
 Fixed
 -----

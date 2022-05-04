@@ -32,7 +32,7 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.4.0"
+    version = "1.5.0"
     process_type = "data:alignment:bam:umitools:dedup"
     category = "Other"
     entity = {
@@ -54,7 +54,6 @@ class UmiToolsDedup(Process):
         stats = FileField(label="Alignment statistics")
         dedup_log = FileField(label="Deduplication log")
         dedup_stats = FileField(label="Deduplication stats")
-        bigwig = FileField(label="BigWig file", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
@@ -106,16 +105,6 @@ class UmiToolsDedup(Process):
 
         # Calculate alignment statistics
         (Cmd["samtools"]["flagstat", out_bam] > stats)()
-
-        # Calculate BigWig file
-        bigwig_args = [
-            out_bam,
-            inputs.alignment.output.species,
-            self.requirements.resources.cores,
-        ]
-        return_code, _, _ = Cmd["bamtobigwig.sh"][bigwig_args] & TEE(retcode=None)
-        if return_code:
-            self.error("Failed to calculate BigWig file.")
 
         # Save the outputs
         outputs.bam = out_bam

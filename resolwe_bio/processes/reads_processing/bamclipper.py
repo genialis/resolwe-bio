@@ -23,7 +23,7 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Clipping"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -52,7 +52,6 @@ class Bamclipper(Process):
         bam = FileField(label="Clipped BAM file")
         bai = FileField(label="Index of clipped BAM file")
         stats = FileField(label="Alignment statistics")
-        bigwig = FileField(label="BigWig file", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
@@ -67,7 +66,6 @@ class Bamclipper(Process):
         if inputs.skip:
             bam = f"{name}.bamclipper_skipped.bam"
             bai = f"{bam}.bai"
-            bigwig = f"{bam[:-4]}.bw"
 
             copy2(inputs.alignment.output.bam.path, bam)
 
@@ -101,7 +99,6 @@ class Bamclipper(Process):
 
             bam = f"{name}.primerclipped.bam"
             bai = f"{bam}.bai"
-            bigwig = f"{bam[:-4]}.bw"
 
             self.progress(0.5)
 
@@ -124,21 +121,6 @@ class Bamclipper(Process):
 
         stats = f"{bam}_stats.txt"
         (Cmd["samtools"]["flagstat"][f"{bam}"] > stats)()
-
-        self.progress(0.8)
-
-        btb_inputs = [
-            f"{bam}",
-            f"{bam_species}",
-            f"{self.requirements.resources.cores}",
-        ]
-
-        Cmd["bamtobigwig.sh"](btb_inputs)
-
-        if not os.path.exists(bigwig):
-            self.info("BigWig file not calculated.")
-        else:
-            outputs.bigwig = bigwig
 
         self.progress(0.9)
 
