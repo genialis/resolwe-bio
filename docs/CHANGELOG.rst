@@ -27,6 +27,7 @@ Changed
   ``upload-metadata`` processes
 - Use the parent Data object name for the data name of processes and
   workflows previously named after the sample name of the input file
+- Remove Docker files from project
 
 Fixed
 -----

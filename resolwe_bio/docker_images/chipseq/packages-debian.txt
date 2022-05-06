@@ -1,9 +1,0 @@
-python-numpy
-python-pip
-
-# required for SPP
-gawk
-
-# Required for ChipQC
-libxml2-dev
-libssl-dev

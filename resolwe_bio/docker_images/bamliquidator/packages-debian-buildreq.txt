@@ -1,5 +1,0 @@
-build-essential
-python-dev
-python-setuptools
-python-wheel
-software-properties-common

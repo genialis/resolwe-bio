@@ -50,9 +50,6 @@ Read the following guidelines and remove them before opening the pull request.
 
 * Each commit should be minimal (i.e. 1 change) and self-contained (including
   tests).
-* Changes to Docker images need to be accepted in a separate pull request.
-  Before the new images can be used for automated testing of your PR, they
-  must be manually tagged and pushed to Amazon ECR.
 * Mark incomplete PRs with the [WIP] (Work In Progress) tag.
 * Do not paste links to private repositories from the public one.
 

@@ -1,3 +1,0 @@
-python-numpy
-python-pip
-python-six

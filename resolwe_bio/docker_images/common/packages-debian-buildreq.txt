@@ -1,8 +1,0 @@
-software-properties-common
-
-# Required for Samtools
-libxml2-dev
-
-# Required for R devtools
-libssl-dev
-libcurl4-openssl-dev
