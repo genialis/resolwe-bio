@@ -75,12 +75,19 @@ class VariantCallingTestCase(BioProcessTestCase):
                 "build": "dd-05-2009",
             }
             variants = self.run_process("upload-variants-vcf", vcf_input)
+            inputs = {
+                "src": input_folder / "dd_chr1.fasta.gz",
+                "species": "Dictyostelium discoideum",
+                "build": "dd-05-2009",
+            }
+            ref_seq = self.run_process("upload-fasta-nucl", inputs)
 
         inputs = {
             "variants": variants.pk,
             "analysis_type": "snv",
-            "parental_strain": "AX4",
-            "mutant_strain": "mutant",
+            "parental_strain": "parental",
+            "mutant_strain": "mut",
+            "genome": ref_seq.id,
             "read_depth": 5,
         }
 
@@ -88,7 +95,26 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             filtered_variants,
             "vcf",
-            output_folder / "variant_calling_filtered_variants.vcf.gz",
+            output_folder / "snv_filtered.vcf.gz",
+            compression="gzip",
+        )
+        self.assertFields(filtered_variants, "build", "dd-05-2009")
+        self.assertFields(filtered_variants, "species", "Dictyostelium discoideum")
+
+        inputs = {
+            "variants": variants.pk,
+            "analysis_type": "indel",
+            "parental_strain": "parental",
+            "mutant_strain": "mut",
+            "genome": ref_seq.id,
+            "read_depth": 5,
+        }
+
+        filtered_variants = self.run_process("filtering-chemut", inputs)
+        self.assertFile(
+            filtered_variants,
+            "vcf",
+            output_folder / "indel_filtered.vcf.gz",
             compression="gzip",
         )
         self.assertFields(filtered_variants, "build", "dd-05-2009")

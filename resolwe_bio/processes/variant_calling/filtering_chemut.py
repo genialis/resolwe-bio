@@ -54,7 +54,7 @@ class FilteringCheMut(Process):
     name = "Variant filtering (CheMut)"
     category = "Other"
     process_type = "data:variants:vcf:filtering"
-    version = "1.7.0"
+    version = "1.8.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
@@ -93,6 +93,7 @@ class FilteringCheMut(Process):
             label="Mutant strain prefix",
             default="mut",
         )
+        genome = DataField(data_type="seq:nucleotide", label="Reference genome")
         read_depth = IntegerField(
             label="Read Depth Cutoff",
             default=5,
@@ -157,10 +158,45 @@ class FilteringCheMut(Process):
 
         (Cmd["bgzip"]["-dc"][inputs.variants.output.vcf.path] > vcf_file)()
 
+        if inputs.variants.output.species != inputs.genome.output.species:
+            self.error(
+                "Species for variants and FASTA reference do not match. "
+                f"Variants are from {inputs.variants.output.species}, while FASTA "
+                f"reference is from {inputs.genome.output.species}."
+            )
+        if inputs.variants.output.build != inputs.genome.output.build:
+            self.error(
+                "Genome build for variants and FASTA reference do not match. "
+                f"Variants have build {inputs.variants.output.build}, while FASTA "
+                f"reference has build {inputs.genome.output.build}."
+            )
+
+        selected_variants = f"selected_{vcf_file}"
+        input_selected = [
+            "-R",
+            inputs.genome.output.fasta.path,
+            "-V",
+            vcf_file,
+            "-O",
+            selected_variants,
+        ]
+
+        if "snv" in inputs.analysis_type:
+            input_selected.extend(["--select-type-to-include", "SNP"])
+        elif "indel" in inputs.analysis_type:
+            input_selected.extend(["--select-type-to-include", "INDEL"])
+
+        return_code, stdout, stderr = Cmd["gatk"]["SelectVariants"][
+            input_selected
+        ] & TEE(retcode=None)
+        if return_code:
+            print(stdout, stderr)
+            self.error("GATK SelectVariants tool failed.")
+
         r_input = (
             "library(chemut); "
             f"{inputs.analysis_type}("
-            f"input_file = '{vcf_file}', "
+            f"input_file = '{selected_variants}', "
             f"parental_strain = '{inputs.parental_strain}', "
             f"mutant_strain = '{inputs.mutant_strain}', "
             f"read_depth = {inputs.read_depth})"
@@ -171,12 +207,12 @@ class FilteringCheMut(Process):
             print(stderr)
             self.error(f"Error while running the script {inputs.analysis_type}.R")
 
-        output_dir = Path(f"{vcf_file}_{inputs.read_depth}")
+        output_dir = Path(f"{selected_variants}_{inputs.read_depth}")
         if not output_dir.exists():
             output_dir.mkdir()
 
         append_sample_info(
-            vcf_file=vcf_file,
+            vcf_file=selected_variants,
             summary=str(output_dir / "summary.txt"),
             warning=self.warning,
             error=self.error,
