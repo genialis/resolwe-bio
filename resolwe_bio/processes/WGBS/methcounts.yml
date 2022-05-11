@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.2.0
+        image: public.ecr.aws/genialis/resolwebio/wgbs:3.0.0
   data_name: "{{ alignment|name|default('?') }}"
-  version: 3.2.0
+  version: 3.3.0
   type: data:wgbs:methcounts
   category: WGBS
   flow_collection: sample

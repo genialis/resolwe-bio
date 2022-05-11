@@ -13,7 +13,7 @@
       storage: 600
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/wgbs:2.3.0
+        image: public.ecr.aws/genialis/resolwebio/wgbs:3.0.0
   data_name: "{{ reads|name|default('?') }}"
   version: 3.6.0
   type: data:alignment:bam:walt

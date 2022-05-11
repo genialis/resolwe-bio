@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Use ``resolwebio/wgbs:3.0.0`` in ``walt``, ``methcounts``, ``hmr`` and
+  ``bs-conversion-rate`` processes
 
 Fixed
 -----
