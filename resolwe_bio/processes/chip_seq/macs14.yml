@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/chipseq:5.0.0
+        image: public.ecr.aws/genialis/resolwebio/chipseq:6.0.0
   data_name: "{{ treatment|name|default('?') }}"
-  version: 3.4.0
+  version: 3.5.0
   type: data:chipseq:callpeak:macs14
   entity:
     type: sample

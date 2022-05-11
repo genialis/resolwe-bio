@@ -9,12 +9,12 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/chipseq:5.0.0
+        image: public.ecr.aws/genialis/resolwebio/chipseq:6.0.0
     resources:
       memory: 16384
       cores: 10
   data_name: "{{ alignment|name|default('?') }}"
-  version: 0.4.0
+  version: 0.5.0
   type: data:prepeakqc
   category: ChIP-Seq:QC report
   flow_collection: sample
@@ -104,14 +104,14 @@
       # Get alignment metrics
       echo -e "TOTAL_READS\tMAPPED_READS\tMAPPED_PERCENTAGE" > align_metrics.txt
       {% if alignment|type|subtype('data:alignment:bam:bwamem') %}
-        sed -n '1p;5p' {{ alignment.stats.file }} | \
+        sed -n '1p;7p' {{ alignment.stats.file }} | \
         paste -s | \
         tr -d '(' | \
         tr ' ' '\t' | \
         cut -f 1,11,15 >> align_metrics.txt
       {% else %}
         samtools flagstat {{ alignment.bam.file }} | \
-        sed -n '1p;5p' | \
+        sed -n '1p;7p' | \
         paste -s | \
         tr -d '(' | \
         tr ':' ' ' | \
@@ -130,7 +130,7 @@
         re-progress 0.1
 
         # Mark duplicate reads
-        picard-tools MarkDuplicates \
+        java -jar /opt/broadinstitute/picard-tools/picard.jar MarkDuplicates \
           INPUT="${NAME}_filtered.bam" \
           OUTPUT="${NAME}_filtered_tmp.bam" \
           METRICS_FILE="${NAME}_duplicates_metrics.txt" \
@@ -219,7 +219,7 @@
         re-progress 0.3
 
         # Mark duplicate reads
-        picard-tools MarkDuplicates \
+        java -jar /opt/broadinstitute/picard-tools/picard.jar MarkDuplicates \
           INPUT="${NAME}_filtered.bam" \
           OUTPUT="${NAME}_filtered_tmp.bam" \
           METRICS_FILE="${NAME}_duplicates_metrics.txt" \

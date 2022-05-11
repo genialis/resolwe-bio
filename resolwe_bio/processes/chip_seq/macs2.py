@@ -628,7 +628,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.5.0"
+    version = "4.6.0"
     category = "ChIP-Seq:Call Peaks"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -637,7 +637,7 @@ class Macs2(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/chipseq:5.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/chipseq:6.0.0"}
         },
         "resources": {
             "cores": 4,
@@ -1203,9 +1203,9 @@ class Macs2(Process):
                 "REMOVE_DUPLICATES=false",
             ]
 
-            return_code, stdout, stderr = Cmd["picard-tools"]["MarkDuplicates"][
-                markdup_params
-            ] & TEE(retcode=None)
+            return_code, stdout, stderr = Cmd["java"]["-jar"][
+                "/opt/broadinstitute/picard-tools/picard.jar"
+            ]["MarkDuplicates"][markdup_params] & TEE(retcode=None)
 
             if return_code:
                 print(stdout, stderr)
