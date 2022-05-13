@@ -16,6 +16,20 @@ Added
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+45.0.0 - 2022-05-13
+===================
+
+Added
+-----
+
+Changed
+-------
 - **BACKWARD INCOMPATIBLE:** Update GATK to GATK4 in process ``vc-chemut``
   and update the workflow ``workflow-chemut``
 - Rewrite the process ``filtering-chemut`` to Python
