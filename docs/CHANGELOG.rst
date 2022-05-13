@@ -13,6 +13,7 @@ Unrelased
 
 Added
 -----
+- Add ``xengsort-index`` and ``xengsort-classify`` proceses
 
 Changed
 -------

@@ -1,0 +1,16 @@
+# 2022-05-17 13:10:24: xengsort classify: reading index '/data_local/5/Homo_sapiens_GRCh38_Mus_musculus_GRCm38.h5'...
+# Loading hash index '/data_local/5/Homo_sapiens_GRCh38_Mus_musculus_GRCm38.h5'...
+# Importing value set 'values.xenograft 3'...
+# Hash functions: linear945:linear9123641:linear349341847
+# Building hash table of type '3FCVbb'...
+# npages=13907, slots=55628, n=55628
+# Bits per entry: 42; per page: 168 -> 168
+# Table bits: 2336376;  MB: 0.3;  GB: 0.000
+# Allocated uint64 hash table of shape (36506,)
+# Final hash functions: ('linear945', 'linear9123641', 'linear349341847')
+# 2022-05-17 13:10:24: Begin classification
+# using xengsort (default) classification mode
+# processing contiguous 25-mers
+prefix	host	graft	ambiguous	both	neither
+SRR9130497_100_1	43	13	0	0	6
+# 2022-05-17 13:10:45: Done after 0.349 min

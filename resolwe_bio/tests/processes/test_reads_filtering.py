@@ -742,3 +742,160 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         )
         self.assertFields(splitNcigar, "species", species)
         self.assertFields(splitNcigar, "build", build)
+
+    @tag_process("xengsort-index", "xengsort-classify")
+    def test_xengsort(self):
+        def filter_variable_lines(line):
+            """Filter variable lines."""
+            if line.startswith(b"#"):
+                return True
+            elif line.startswith(b"time"):
+                return True
+
+        input_folder = Path("xengsort") / "input"
+        output_folder = Path("xengsort") / "output"
+        with self.preparation_stage():
+            graft_ref = self.prepare_ref_seq(
+                fn=str(input_folder / "hsa_GRCh38_chr8_127735500-127736500.fasta.gz"),
+                species="Homo sapiens",
+                build="GRCh38",
+            )
+
+            host_ref = self.prepare_ref_seq(
+                fn=str(input_folder / "mmu_GRCm38_chr15_61857500-61858500.fasta.gz"),
+                species="Mus musculus",
+                build="GRCm38",
+            )
+
+            reads = self.prepare_reads(
+                fn=[str(input_folder / "SRR9130497_100_1.fastq.gz")],
+            )
+
+            paired_reads = self.prepare_paired_reads(
+                mate1=[str(input_folder / "SRR9130497_100_1.fastq.gz")],
+                mate2=[str(input_folder / "SRR9130497_100_2.fastq.gz")],
+            )
+
+        index = self.run_process(
+            process_slug="xengsort-index",
+            input_={
+                "graft_refs": [graft_ref.id],
+                "host_refs": [host_ref.id],
+            },
+        )
+
+        self.assertFields(index, "graft_species", "Homo sapiens")
+        self.assertFields(index, "graft_build", "GRCh38")
+        self.assertFields(index, "host_species", "Mus musculus")
+        self.assertFields(index, "host_build", "GRCm38")
+
+        self.assertFile(
+            index,
+            "stats",
+            str(output_folder / "index_stats.txt"),
+            file_filter=filter_variable_lines,
+        )
+
+        # File contents are the same but the HDF5 file format storage
+        # specification allows for several timestamps in the data object
+        # headers. This prevents us from assesing contents of the index.
+        self.assertFileExists(index, "index")
+
+        classify = self.run_process(
+            process_slug="xengsort-classify",
+            input_={
+                "reads": reads.id,
+                "index": index.id,
+                "upload_reads": "graft, host",
+            },
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFields(classify, "graft_species", "Homo sapiens")
+        self.assertFields(classify, "graft_build", "GRCh38")
+        self.assertFields(classify, "host_species", "Mus musculus")
+        self.assertFields(classify, "host_build", "GRCm38")
+
+        self.assertFile(
+            classify,
+            "stats",
+            str(output_folder / "classification_stats_single.txt"),
+            file_filter=filter_variable_lines,
+        )
+
+        self.assertFile(
+            classify,
+            "graft1",
+            str(output_folder / "graft_reads_single.fastq.gz"),
+            compression="gzip",
+        )
+
+        fastq = Data.objects.get(
+            process__slug="upload-fastq-single", name="SRR9130497_100_1-graft.fastq.gz"
+        )
+
+        self.assertFiles(
+            fastq,
+            "fastq",
+            [str(output_folder / "graft_reads_single.fastq.gz")],
+            compression="gzip",
+        )
+
+        classify_paired = self.run_process(
+            process_slug="xengsort-classify",
+            input_={
+                "reads": paired_reads.id,
+                "index": index.id,
+                "upload_reads": "graft",
+                "merge_both": True,
+            },
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        self.assertFields(classify_paired, "graft_species", "Homo sapiens")
+        self.assertFields(classify_paired, "graft_build", "GRCh38")
+        self.assertFields(classify_paired, "host_species", "Mus musculus")
+        self.assertFields(classify_paired, "host_build", "GRCm38")
+
+        self.assertFile(
+            classify_paired,
+            "stats",
+            str(output_folder / "classification_stats_paired.txt"),
+            file_filter=filter_variable_lines,
+        )
+
+        self.assertFile(
+            classify_paired,
+            "graft1",
+            str(output_folder / "graft_reads_1.fastq.gz"),
+            compression="gzip",
+        )
+
+        self.assertFile(
+            classify_paired,
+            "graft2",
+            str(output_folder / "graft_reads_2.fastq.gz"),
+            compression="gzip",
+        )
+
+        fastq_paired = Data.objects.get(
+            process__slug="upload-fastq-paired",
+            name="SRR9130497_100_1-graft-both.1.fastq.gz",
+        )
+
+        self.assertFiles(
+            fastq_paired,
+            "fastq",
+            [str(output_folder / "graft_reads_1.fastq.gz")],
+            compression="gzip",
+        )
+        self.assertFiles(
+            fastq_paired,
+            "fastq2",
+            [str(output_folder / "graft_reads_2.fastq.gz")],
+            compression="gzip",
+        )

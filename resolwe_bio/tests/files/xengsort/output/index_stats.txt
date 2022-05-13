@@ -1,0 +1,59 @@
+# 2022-05-17 08:22:33: Will build index 'Homo_sapiens_GRCh38_Mus_musculus_GRCm38.h5' from FASTAs.
+# Imported value set 'values.xenograft 3'.
+# Dataset parameters: None
+# Updated parameters: (48951, '3FCVbb', False, 'linear945:linear9123641:linear349341847', 4, -1, 0.88)
+# Allocating hash table for 55628 objects, functions 'linear945:linear9123641:linear349341847'...
+# npages=13907, slots=55628, n=55628
+# Bits per entry: 42; per page: 168 -> 168
+# Table bits: 2336376;  MB: 0.3;  GB: 0.000
+# Allocated uint64 hash table of shape (36506,)
+# Final hash functions: ('linear945', 'linear9123641', 'linear349341847')
+# Memory for hash table: 0.279 MB
+# Info:  rcmode=max, walkseed=7
+# Number of threads for computing weak k-mers: 1
+# Building from FASTA, using rcmode=max, maxfailures=0
+# processing contiguous 25-mers
+# Processing 'host.fasta':
+# Building from FASTA, using rcmode=max, maxfailures=0
+# processing contiguous 25-mers
+# Processing 'graft.fasta':
+# 2022-05-17 08:23:00: Begin computing weak k-mers...
+# 2022-05-17 08:23:28: Done computing weak k-mers after 28.04 sec.
+# 2022-05-17 08:23:28: SUCCESS, processed 1954 k-mers.
+# Writing index file 'Homo_sapiens_GRCh38_Mus_musculus_GRCm38.h5'...
+# 2022-05-17 08:23:28: Collecting statistics...
+
+Extreme walk lengths:
+1+: 1954.0x
+1+: 1954.0x
+1+: 1954.0x
+walk average [all]: 1.0000
+
+Value statistics:
+1: 917 (48.416%)
+2: 977 (51.584%)
+values nonzero: 1894 (100.000%)
+
+Page fill statistics:
+0: 12126
+1: 1682 (12.095%)
+2: 86 (0.618%)
+3: 12 (0.086%)
+4: 1 (0.007%)
+fill nonzero: 1781 (12.807%)
+fill average [all]: 0.1362
+
+Choice statistics:
+0: 53734
+1: 1894 (100.000%)
+choice nonzero: 1894 (3.405%)
+choice average [positive]: 1.0000
+
+shortcut bits statistics:
+
+absent average: 2.9998
+
+time sec: 56.2
+time min: 0.937
+
+# 2022-05-17 08:23:29: Done.
