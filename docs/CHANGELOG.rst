@@ -13,6 +13,7 @@ Unrelased
 
 Added
 -----
+- Add ``general`` descriptor schema
 
 Changed
 -------
