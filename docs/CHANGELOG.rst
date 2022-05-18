@@ -24,6 +24,8 @@ Changed
 
 Fixed
 -----
+- Fix sporadically failing tests of ``macs2-callpeak`` by removing
+  pipes in Plumbum commands
 
 
 ===================

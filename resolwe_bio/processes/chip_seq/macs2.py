@@ -420,18 +420,28 @@ def correct_bed_file(in_bed, out_bed, error):
 
 def clip_bed(in_bed, out_bed, chromosome_sizes, file_type, error):
     """Clip bed file to remove off-chromosome places."""
-    clip_command = (
-        Cmd["bedtools"]["slop"]["-i", in_bed, "-g", chromosome_sizes, "-b", 0]
-        | Cmd["bedClip"]["stdin", chromosome_sizes, out_bed]
-    )
+    padded_bed = Path("padded.bed")
+    slop_command = Cmd["bedtools"]["slop"][
+        "-i", in_bed, "-g", chromosome_sizes, "-b", 0
+    ] > str(padded_bed)
 
-    return_code = clip_command & RETCODE
+    return_code = slop_command & RETCODE
 
     if return_code:
+        error(f"Failed to increase the size of features in {file_type} file.")
+
+    return_code, _, stderr = Cmd["bedClip"][
+        padded_bed, chromosome_sizes, out_bed
+    ] & TEE(retcode=None)
+
+    if return_code:
+        print(stderr)
         error(
             "Preventing the extension of intervals beyond chromosome boundaries for "
             f"{file_type} file failed."
         )
+
+    padded_bed.unlink()
 
 
 def create_big_bed(in_file, out_bb, chromosome_sizes, file_type, error):
@@ -628,7 +638,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.6.0"
+    version = "4.6.1"
     category = "ChIP-Seq:Call Peaks"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
