@@ -21,6 +21,7 @@ Changed
 - Use ``resolwebio/chipseq:6.0.0`` in ``chipqc``, ``macs2-callpeak``,
   ``macs14``, ``qc-prepeak``, ``chipseq-peakscore``,
   ``chipseq-genescore`` and ``upload-bed`` processes
+- Change ``merge-fastq-single`` and ``merge-fastq-paired`` process type
 
 Fixed
 -----
