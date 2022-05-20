@@ -54,7 +54,7 @@ class FilteringCheMut(Process):
     name = "Variant filtering (CheMut)"
     category = "Other"
     process_type = "data:variants:vcf:filtering"
-    version = "1.8.0"
+    version = "1.8.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
@@ -233,8 +233,8 @@ class FilteringCheMut(Process):
         else:
             self.error("No variants have passed the filters. VCF file was not created.")
 
-        if (output_dir / "variants_filtered.txt").exists():
-            outputs.variants_filtered = str(output_dir / "variants_filtered.txt")
+        if (output_dir / "variant_filtered.txt").exists():
+            outputs.variants_filtered = str(output_dir / "variant_filtered.txt")
 
         if (output_dir / "variant_mult_alt.txt").exists():
             outputs.variants_filtered_alt = str(output_dir / "variant_mult_alt.txt")

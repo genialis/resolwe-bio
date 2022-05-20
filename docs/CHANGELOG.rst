@@ -28,6 +28,7 @@ Fixed
 -----
 - Fix sporadically failing tests of ``macs2-callpeak`` by removing
   pipes in Plumbum commands
+- Fix variants_filtered output in ``filtering-chemut`` process
 
 
 ===================

@@ -98,6 +98,11 @@ class VariantCallingTestCase(BioProcessTestCase):
             output_folder / "snv_filtered.vcf.gz",
             compression="gzip",
         )
+        self.assertFile(
+            filtered_variants,
+            "variants_filtered",
+            output_folder / "variant_filtered.txt",
+        )
         self.assertFields(filtered_variants, "build", "dd-05-2009")
         self.assertFields(filtered_variants, "species", "Dictyostelium discoideum")
 

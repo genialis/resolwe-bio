@@ -60,6 +60,12 @@
             has a confidence score lower than the calling threshold, the program
             will emit the site as filtered and will annotate it as LowQual. This
             threshold separates high confidence calls from low confidence calls.
+        - name: mbq
+          label: Min base quality
+          type: basic:integer
+          default: 10
+          description: |
+            Minimum base quality required to consider a base for calling.
     - name: Vf
       label: Variant Filtering
       group:
