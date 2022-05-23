@@ -18,10 +18,11 @@ Changed
 -------
 - Use ``resolwebio/wgbs:3.0.0`` in ``walt``, ``methcounts``, ``hmr`` and
   ``bs-conversion-rate`` processes
-- Use ``resolwebio/chipseq:6.0.0`` in ``chipqc``, ``macs2-callpeak``,
-  ``macs14``, ``qc-prepeak``, ``chipseq-peakscore``,
-  ``chipseq-genescore`` and ``upload-bed`` processes
+- Use ``resolwebio/chipseq:6.0.0`` in ``macs2-callpeak``, ``macs14``,
+  ``qc-prepeak``, ``chipseq-peakscore``, ``chipseq-genescore`` and
+  ``upload-bed`` processes
 - Change ``merge-fastq-single`` and ``merge-fastq-paired`` process type
+- Use ``resolwebio/chipseq:6.1.0`` in ``chipqc`` process
 
 Fixed
 -----
