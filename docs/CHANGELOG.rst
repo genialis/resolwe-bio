@@ -26,6 +26,8 @@ Changed
 - Use ``resolwebio/chipseq:6.1.0`` in ``chipqc`` process
 - Use ``resolwebio/methylation_arrays:1.1.0`` in the
   ``methylation-array-sesame`` process
+- Improve error reporting for invalid fragment length estimates and fix
+  memory issues with MarkDuplicates in ``macs2-callpeak`` process
 
 Fixed
 -----

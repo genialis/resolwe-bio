@@ -638,7 +638,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.6.1"
+    version = "4.7.0"
     category = "ChIP-Seq:Call Peaks"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -651,7 +651,7 @@ class Macs2(Process):
         },
         "resources": {
             "cores": 4,
-            "memory": 16384,
+            "memory": 32768,
         },
     }
 
@@ -1041,9 +1041,12 @@ class Macs2(Process):
     def run(self, inputs, outputs):
         """Run the analysis."""
 
-        os.environ[
-            "_JAVA_OPTIONS"
-        ] = f"-Xms256M -Xmx{self.requirements.resources.memory // 1024}g"
+        TMPDIR = os.environ.get("TMPDIR")
+
+        # Allow Java to allocate 80% of the maximum memory available in
+        # the container because the process itself uses some memory.
+        java_memory = self.requirements.resources.memory // 1024 // 1.25
+        os.environ["_JAVA_OPTIONS"] = f"-Xms256M -Xmx{java_memory}g"
 
         if inputs.settings.broad and inputs.settings.call_summits:
             self.error(
@@ -1211,6 +1214,7 @@ class Macs2(Process):
                 "VALIDATION_STRINGENCY=LENIENT",
                 "ASSUME_SORTED=true",
                 "REMOVE_DUPLICATES=false",
+                f"TMP_DIR={TMPDIR}",
             ]
 
             return_code, stdout, stderr = Cmd["java"]["-jar"][
@@ -1308,7 +1312,7 @@ class Macs2(Process):
                 print(stdout, stderr)
                 self.error(f"SPP processing failed for {alignment.name}.")
 
-            cc_metrics = pd.read_csv(
+            cc_report = pd.read_csv(
                 cross_correlation_report,
                 sep="\t",
                 index_col=0,
@@ -1317,13 +1321,21 @@ class Macs2(Process):
             )
 
             # Some columns have top 3 predictions and only the first one is needed.
-            cc_metrics = cc_metrics.apply(lambda col: col.str.split(",").str[0])
+            cc_metrics = cc_report.apply(lambda col: col.str.split(",").str[0])
 
             # Use case's estimated fragment length only.
             if not is_control:
                 frag_len = int(
                     cc_metrics.loc[subsampled_tagalign, "Est. Fragment Len."]
                 )
+
+                if frag_len < 0 and inputs.tagalign and inputs.settings.extsize is None:
+                    self.error(
+                        "Failed to estimate fragment length because the top estimate is negative. "
+                        "Top three estimates were: "
+                        f"{cc_report.loc[subsampled_tagalign, 'Est. Fragment Len.']}. "
+                        "Please manually define the Extension size [--extsize] parameter."
+                    )
 
             metrics = merge_dict(metrics, cc_metrics.loc[subsampled_tagalign].to_dict())
 

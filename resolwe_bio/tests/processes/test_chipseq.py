@@ -247,6 +247,25 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         err_msg = ["No paired-end reads were detected but BAMPE format was selected."]
         self.assertEqual(macs_paired_err.process_error, err_msg)
 
+        # Test negative fragment length estimate error.
+        inputs = {
+            "case": paired_end.id,
+            "tagalign": True,
+            "settings": {
+                "pvalue": 0.05,
+                "duplicates": "all",
+                "bedgraph": True,
+            },
+        }
+
+        macs_fraglen_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
+        err_msg = [
+            "Failed to estimate fragment length because the top estimate is negative. Top three "
+            "estimates were: -370,125,-280. Please manually define the Extension size [--extsize] "
+            "parameter."
+        ]
+        self.assertEqual(macs_fraglen_err.process_error, err_msg)
+
     @skipUnlessLargeFiles("rose2_case.bam", "rose2_control.bam")
     @tag_process("rose2")
     def test_rose2(self):
