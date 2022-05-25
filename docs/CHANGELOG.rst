@@ -23,6 +23,8 @@ Changed
   ``upload-bed`` processes
 - Change ``merge-fastq-single`` and ``merge-fastq-paired`` process type
 - Use ``resolwebio/chipseq:6.1.0`` in ``chipqc`` process
+- Use ``resolwebio/methylation_arrays:1.1.0`` in the
+  ``methylation-array-sesame`` process
 
 Fixed
 -----
