@@ -28,6 +28,7 @@ Changed
   ``methylation-array-sesame`` process
 - Improve error reporting for invalid fragment length estimates and fix
   memory issues with MarkDuplicates in ``macs2-callpeak`` process
+- Remove ``make_report.py`` script from resolwe-bio
 
 Fixed
 -----
