@@ -38,6 +38,7 @@ Fixed
   pipes in Plumbum commands
 - Fix variants_filtered output in ``filtering-chemut`` process
 - Fix typo in ``alignment-star`` process
+- Remove unused tools bigwig_chroms_to_ucsc.py and check_bam_source.py
 
 
 ===================
