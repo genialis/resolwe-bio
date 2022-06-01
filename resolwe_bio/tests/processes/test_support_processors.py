@@ -1393,12 +1393,16 @@ re-save-file lane_attributes "${NAME}".txt
             },
         )
 
-        self.assertFile(bed, "bedpe", "test_bam_processing/reads.bedpe")
+        self.assertFile(bed, "bedpe", Path("bam_processing") / "input" / "reads.bedpe")
         self.assertFields(bed, "species", species)
         self.assertFields(bed, "build", build)
 
-    @tag_process("scale-bigwig")
+    @tag_process("calculate-bigwig")
     def test_scale_bigwig(self):
+        base = Path("bam_processing")
+        inputs = base / "input"
+        outputs = base / "output"
+
         with self.preparation_stage():
             species = "Dictyostelium discoideum"
             build = "dd-05-2009"
@@ -1415,14 +1419,19 @@ re-save-file lane_attributes "${NAME}".txt
             bedpe = self.run_process(
                 "upload-bedpe",
                 {
-                    "src": "test_bam_processing/reads.bedpe",
+                    "src": inputs / "reads.bedpe",
                     "species": species,
                     "build": build,
                 },
             )
 
-        bigwig = self.run_process(
-            "scale-bigwig",
+        bigwig = self.run_process("calculate-bigwig", {"alignment": bam.id})
+        self.assertFile(bigwig, "bigwig", outputs / "reads.bigwig")
+        self.assertFields(bigwig, "species", species)
+        self.assertFields(bigwig, "build", build)
+
+        scaled_bigwig = self.run_process(
+            "calculate-bigwig",
             {
                 "alignment": bam.id,
                 "bedpe": bedpe.id,
@@ -1430,9 +1439,9 @@ re-save-file lane_attributes "${NAME}".txt
             },
         )
 
-        self.assertFile(bigwig, "bigwig", "test_bam_processing/reads.SInorm.bigwig")
-        self.assertFields(bigwig, "species", species)
-        self.assertFields(bigwig, "build", build)
+        self.assertFile(scaled_bigwig, "bigwig", outputs / "reads.SInorm.bigwig")
+        self.assertFields(scaled_bigwig, "species", species)
+        self.assertFields(scaled_bigwig, "build", build)
 
     @tag_process("bamtofastq-paired")
     def test_bamtofastq_paired(self):

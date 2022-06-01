@@ -17,6 +17,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Generalize the ``scale-bigwig`` process
+  and rename it to ``calculate-bigwig``
 - Use ``resolwebio/wgbs:3.0.0`` in ``walt``, ``methcounts``, ``hmr`` and
   ``bs-conversion-rate`` processes
 - Use ``resolwebio/chipseq:6.0.0`` in ``macs2-callpeak``, ``macs14``,

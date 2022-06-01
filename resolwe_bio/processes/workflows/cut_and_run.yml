@@ -5,7 +5,7 @@
     type: sample
   requirements:
     expression-engine: jinja
-  version: 1.4.0
+  version: 1.5.0
   type: data:workflow:cutnrun
   category: Pipeline
   description: |
@@ -631,7 +631,7 @@
         input:
           alignment: "{{steps.spikein_rmdup}}"
       - id: spikein_normalizebw
-        run: scale-bigwig
+        run: calculate-bigwig
         input:
           alignment: "{{steps.spikein_rmdup}}"
           bedpe: "{{steps.spikein_normfactor}}"
