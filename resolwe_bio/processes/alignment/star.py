@@ -68,7 +68,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.2.0"
+    version = "3.2.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -410,7 +410,7 @@ class AlignmentStar(Process):
         sj = FileField(label="Splice junctions")
         chimeric = FileField(label="Chimeric alignments", required=False)
         alignment_transcriptome = FileField(
-            label="Alignment (trancriptome coordinates)", required=False
+            label="Alignment (transcriptome coordinates)", required=False
         )
         stats = FileField(label="Statistics")
         species = StringField(label="Species")
