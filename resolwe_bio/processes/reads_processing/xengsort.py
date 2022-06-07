@@ -76,12 +76,12 @@ class XengsortIndex(Process):
         },
         "resources": {
             "cores": 4,
-            "memory": 16384,
+            "memory": 32768,
         },
     }
     category = "Xenograft processing"
     data_name = "Xengsort index"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
