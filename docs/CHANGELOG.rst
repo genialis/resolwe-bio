@@ -13,6 +13,20 @@ Unrelased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+46.0.0 - 2022-06-13
+===================
+
+Added
+-----
 - Add ``xengsort-index`` and ``xengsort-classify`` proceses
 
 Changed
