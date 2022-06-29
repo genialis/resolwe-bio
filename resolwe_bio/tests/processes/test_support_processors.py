@@ -775,13 +775,13 @@ re-save-file case_prepeak_qc "${NAME}".txt
                     "src": os.path.join("chipqc", "output", "PeakProfile_mqc.png"),
                 },
             )
-            set_sample_name(chipqc, "ChipQC test")
+            set_sample_name(chipqc, "ChipQC test.fastq.gz")
 
             postpeak_qc_report = self.run_process(
                 peak_qc.slug,
                 {"src": os.path.join("chipqc", "input", "postpeak_qc_report.txt")},
             )
-            set_sample_name(postpeak_qc_report, "ChipQC test")
+            set_sample_name(postpeak_qc_report, "ChipQC test.fastq.gz")
 
         multiqc = self.run_process(
             "multiqc",

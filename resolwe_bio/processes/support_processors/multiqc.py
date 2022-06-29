@@ -1,6 +1,7 @@
 """Prepare MultiQC report."""
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 from plumbum import TEE
@@ -317,7 +318,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.14.0"
+    version = "1.15.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -519,23 +520,36 @@ class MultiQC(Process):
                 create_bsrate_table(bsrate_samples, bsrate_reports)
 
             elif d.process.type == "data:chipqc:":
-                plot_paths = [
-                    d.output.ccplot.path,
-                    d.output.coverage_histogram.path,
-                    d.output.peak_profile.path,
-                    d.output.peaks_barplot.path,
-                    d.output.peaks_density_plot.path,
-                ]
-                for path in plot_paths:
-                    name = os.path.basename(path)
-                    create_symlink(path, os.path.join(sample_dir, name))
+                plot_paths = {
+                    "CC plot": d.output.ccplot.path,
+                    "Coverage histogram": d.output.coverage_histogram.path,
+                    "Peak profile": d.output.peak_profile.path,
+                    "Peaks barplot": d.output.peaks_barplot.path,
+                    "Peaks density plot": d.output.peaks_density_plot.path,
+                }
+
+                # Here we have to use the plot name for naming the
+                # folder and sample name as the plot name to avoid
+                # missing plots in the final report. This workaround is
+                # used to avoid duplicated names caused by file
+                # name cleaning when storing plots in the sample_dir.
+                # For example,`some_sample.fastq.gz/CC_plot_mqc.png`
+                # and `some_sample.fastq.gz/PeakProfile_mqc.png ` would
+                # both be simplified to `some_sample`.
+                name = f"{d.entity.name}_mqc.png"
+                for plot_name, path in plot_paths.items():
+                    new_dir = Path(plot_name)
+                    new_dir.mkdir(exist_ok=True)
+                    create_symlink(src=path, dst=new_dir / name)
+
                 # ChipQC may contain enrichment heatmap
                 try:
                     if os.path.isfile(d.output.enrichment_heatmap.path):
-                        name = os.path.basename(d.output.enrichment_heatmap.path)
+                        new_dir = Path("Genomic Feature Enrichment").mkdir(
+                            exist_ok=True
+                        )
                         create_symlink(
-                            d.output.enrichment_heatmap.path,
-                            os.path.join(sample_dir, name),
+                            src=d.output.enrichment_heatmap.path, dst=new_dir / name
                         )
                 except AttributeError:
                     pass

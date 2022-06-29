@@ -21,6 +21,8 @@ Changed
 
 Fixed
 -----
+- Fix ChIPQC plot rendering in ``multiqc`` process for samples
+  containing file extensions in their name
 
 
 ===================
