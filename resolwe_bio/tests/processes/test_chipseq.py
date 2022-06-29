@@ -258,13 +258,13 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             },
         }
 
-        macs_fraglen_err = self.run_process("macs2-callpeak", inputs, Data.STATUS_ERROR)
-        err_msg = [
-            "Failed to estimate fragment length because the top estimate is negative. Top three "
-            "estimates were: -370,125,-280. Please manually define the Extension size [--extsize] "
-            "parameter."
+        macs_fraglen = self.run_process("macs2-callpeak", inputs)
+        warning_msg = [
+            "SPP estimated negative fragment length which can not be used by "
+            "MACS2. Using 125 from the top estimates (-370,125,-280) as "
+            "the estimate of extension size [--extsize] for MACS2."
         ]
-        self.assertEqual(macs_fraglen_err.process_error, err_msg)
+        self.assertEqual(macs_fraglen.process_warning, warning_msg)
 
     @skipUnlessLargeFiles("rose2_case.bam", "rose2_control.bam")
     @tag_process("rose2")

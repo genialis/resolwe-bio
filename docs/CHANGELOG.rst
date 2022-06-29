@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Use all three fragment length estimates before failing due to negative
+  the estimate in ``macs2-callpeak`` process
 
 Fixed
 -----

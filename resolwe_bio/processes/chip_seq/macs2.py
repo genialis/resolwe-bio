@@ -616,6 +616,17 @@ def shift_reads(tagalign, out_name, chromosome_sizes, frag_len, error):
     return len(shifted_df.index)
 
 
+def get_frag_len(estimates):
+    """Get the first fragment length estimate that is greater than 0."""
+    for estimate in estimates:
+        if estimate > 0:
+            frag_len = estimate
+            break
+        else:
+            frag_len = None
+    return frag_len
+
+
 class Macs2(Process):
     """Call ChIP-Seq peaks with MACS 2.0.
 
@@ -638,7 +649,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.7.0"
+    version = "4.8.0"
     category = "ChIP-Seq:Call Peaks"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -1325,16 +1336,39 @@ class Macs2(Process):
 
             # Use case's estimated fragment length only.
             if not is_control:
-                frag_len = int(
-                    cc_metrics.loc[subsampled_tagalign, "Est. Fragment Len."]
-                )
+                fraglen_estimates = cc_report.loc[
+                    subsampled_tagalign, "Est. Fragment Len."
+                ]
 
-                if frag_len < 0 and inputs.tagalign and inputs.settings.extsize is None:
-                    self.error(
-                        "Failed to estimate fragment length because the top estimate is negative. "
-                        "Top three estimates were: "
-                        f"{cc_report.loc[subsampled_tagalign, 'Est. Fragment Len.']}. "
-                        "Please manually define the Extension size [--extsize] parameter."
+                estimate_list = [int(x) for x in fraglen_estimates.split(",")]
+                frag_len = get_frag_len(estimates=estimate_list)
+
+                if inputs.tagalign and inputs.settings.extsize is None:
+                    if not frag_len:
+                        self.error(
+                            "Failed to estimate fragment length. No estimates were larger than "
+                            f"zero. The top estimates were: {fraglen_estimates}. Please manually "
+                            "specify the Extension size [--extsize] parameter."
+                        )
+                    elif frag_len != estimate_list[0]:
+                        self.warning(
+                            "SPP estimated negative fragment length which can not be used by "
+                            f"MACS2. Using {frag_len} from the top estimates "
+                            f"({fraglen_estimates}) as the estimate of extension size [--extsize] "
+                            "for MACS2."
+                        )
+
+                # When not using tagAlign as an input we need to keep the first
+                # estimate for post-peak QC steps.
+                if (
+                    not inputs.tagalign
+                    and inputs.settings.extsize is None
+                    and frag_len is None
+                ):
+                    frag_len = estimate_list[0]
+                    self.warning(
+                        "No fragment length estimate was greater than 0. Using the first "
+                        f"estimate: {frag_len} for read shifting in post-peak QC."
                     )
 
             metrics = merge_dict(metrics, cc_metrics.loc[subsampled_tagalign].to_dict())
