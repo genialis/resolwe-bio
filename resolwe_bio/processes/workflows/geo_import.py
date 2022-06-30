@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.3.0"
+    version = "2.4.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -288,16 +288,31 @@ class GeoImport(Process):
             if sample_found:
                 for srx_id in sample_found:
                     sample_info[srx_id] = name
-                    sra_url = f"http://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?save=efetch&db=sra&rettype=runinfo&term={srx_id}"
                     info_file = f"{gse.name}.csv"
-                    run_info = requests.get(sra_url).content
-                    if run_info == b"\n":
+                    run_info = requests.get(
+                        url="https://eutils.ncbi.nlm.nih.gov/Traces/sra/sra.cgi",
+                        params={
+                            "save": "efetch",
+                            "db": "sra",
+                            "rettype": "runinfo",
+                            "term": srx_id,
+                        },
+                    )
+
+                    if run_info.status_code != 200:
                         self.error(
                             f"Failed to fetch SRA runs for project {srx_id} belonging to {gse.name}."
                         )
+
+                    elif run_info.text.isspace():
+                        self.error(
+                            f"Got an empty response from SRA for SRX ID {srx_id} belonging to {gse.name}."
+                        )
+
                     else:
                         with open(info_file, "wb") as handle:
-                            handle.write(requests.get(sra_url).content)
+                            handle.write(run_info.content)
+
                     run_info = pd.read_csv(
                         info_file, usecols=["Run", "SampleName", "LibraryLayout"]
                     )

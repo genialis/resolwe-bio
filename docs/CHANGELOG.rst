@@ -23,6 +23,8 @@ Fixed
 -----
 - Fix ChIPQC plot rendering in ``multiqc`` process for samples
   containing file extensions in their name
+- Update SRA url for fetching experiment metadata in ``geo-import``
+  process
 
 
 ===================
