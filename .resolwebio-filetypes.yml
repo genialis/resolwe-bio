@@ -1,6 +1,9 @@
 # Processes.
 - type: process
   match: '^resolwe_bio/processes/.+\.ya?ml$'
+# Python processes.
+- type: python_process
+  match: '^resolwe_bio/processes/.+\.py$'
 # Tests.
 - type: test
   match: '^resolwe_bio/tests/.+\.py$'
