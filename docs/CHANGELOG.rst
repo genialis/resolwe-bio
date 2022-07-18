@@ -13,6 +13,20 @@ Unrelased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+47.0.0 - 2022-07-18
+===================
+
+Added
+-----
 - Add ``general`` descriptor schema
 
 Changed
