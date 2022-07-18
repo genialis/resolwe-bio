@@ -17,6 +17,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 31.x
 - Use all three fragment length estimates before failing due to negative
   the estimate in ``macs2-callpeak`` process
 
