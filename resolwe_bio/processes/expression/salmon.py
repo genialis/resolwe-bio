@@ -152,7 +152,7 @@ class SalmonQuant(ProcessBio):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.5.0"
+    version = "2.6.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -293,6 +293,37 @@ class SalmonQuant(ProcessBio):
                 "must be assigned to the transcriptome "
                 "for quantification to proceed.",
             )
+            num_bootstraps = IntegerField(
+                label="--numBootstraps",
+                description="Salmon has the ability to optionally "
+                "compute bootstrapped abundance estimates. This is "
+                "done by resampling (with replacement) from the counts "
+                "assigned to the fragment equivalence classes, and then "
+                "re-running the optimization procedure, either the EM or VBEM, "
+                "for each such sample. The values of these different bootstraps "
+                "allows us to assess technical variance in the main abundance "
+                "estimates we produce. Such estimates can be useful for downstream "
+                "(e.g. differential expression) tools that can make use of such "
+                "uncertainty estimates. This option takes a positive integer that "
+                "dictates the number of bootstrap samples to compute. The more samples "
+                "computed, the better the estimates of varaiance, but the more "
+                "computation (and time) required.",
+                disabled="options.num_gibbs_samples",
+                required=False,
+            )
+            num_gibbs_samples = IntegerField(
+                label="--numGibbsSamples",
+                description="Just as with the bootstrap procedure above, this option "
+                "produces samples that allow us to estimate the variance in abundance "
+                "estimates. However, in this case the samples are generated using posterior "
+                "Gibbs sampling over the fragment equivalence classes rather than "
+                "bootstrapping. We are currently analyzing these different approaches to "
+                "assess the potential trade-offs in time / accuracy. The --numBootstraps "
+                "and --numGibbsSamples options are mutually exclusive (i.e. in a given run, "
+                "you must set at most one of these options to a positive integer.)",
+                disabled="options.num_bootstraps",
+                required=False,
+            )
 
         options = GroupField(Options, label="Options", hidden="!advanced")
 
@@ -305,6 +336,7 @@ class SalmonQuant(ProcessBio):
         rc = FileField(label="Gene-level estimated counts")
         exp_set = FileField(label="Expressions")
         exp_set_json = JsonField(label="Expressions (json)")
+        variance = FileField(label="Variance of inferential replicates", required=False)
         quant = FileField(label="Salmon quant file")
         transcripts = FileField(label="Transcript-level expressions")
         salmon_output = DirField(label="Salmon output")
@@ -404,6 +436,11 @@ class SalmonQuant(ProcessBio):
         if inputs.options.consensus_slack is not None:
             args.extend(["--consensusSlack", inputs.options.consensus_slack])
 
+        if inputs.options.num_bootstraps:
+            args.extend(["--numBootstraps", inputs.options.num_bootstraps])
+        elif inputs.options.num_gibbs_samples:
+            args.extend(["--numGibbsSamples", inputs.options.num_gibbs_samples])
+
         # Run Salmon Quant
         return_code, _, _ = Cmd["salmon"]["quant"][args] & TEE(retcode=None)
         if return_code:
@@ -431,6 +468,12 @@ class SalmonQuant(ProcessBio):
             # UCSC annotation type (mm10) contains features with dot in gene names
             if inputs.annotation.output.source != "UCSC":
                 tximport_args.append("--ignoreTxVersion")
+
+            if inputs.options.num_bootstraps or inputs.options.num_gibbs_samples:
+                tximport_args.append("--variance")
+                variance = f"variance_{reads_name}"
+                variance_gz = variance + ".txt.gz"
+
             return_code, _, _ = Cmd["tximport_summarize.R"][tximport_args] & TEE(
                 retcode=None
             )
@@ -447,6 +490,10 @@ class SalmonQuant(ProcessBio):
 
         # Zip the gene-level count estimates
         (Cmd["gzip"]["-c", counts] > counts_gz)()
+
+        if inputs.options.num_bootstraps or inputs.options.num_gibbs_samples:
+            (Cmd["gzip"]["-c", variance] > variance_gz)()
+            outputs.variance = variance_gz
 
         # Save the abundance estimates to JSON storage
         json_output = "json.txt"

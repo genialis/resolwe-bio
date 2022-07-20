@@ -589,6 +589,38 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+        inputs = {
+            "reads": reads.id,
+            "salmon_index": salmon_index.id,
+            "annotation": annotation.id,
+            "options": {
+                "min_assigned_frag": 5,
+                "gc_bias": True,
+                "seq_bias": True,
+                "incompat_prior": 0.05,
+                "min_score_fraction": 0.7,
+                "consensus_slack": 0.25,
+                "no_length_correction": False,
+                "discard_orphans_quasi": True,
+                "num_bootstraps": 5,
+            },
+        }
+        salmon_quant = self.run_process("salmon-quant", inputs)
+
+        self.assertFile(
+            salmon_quant,
+            "transcripts",
+            os.path.join("salmon_quant", "output", "salmon_transcripts_tpm.tab.gz"),
+            compression="gzip",
+        )
+
+        self.assertFile(
+            salmon_quant,
+            "variance",
+            os.path.join("salmon_quant", "output", "variance_salmon.txt.gz"),
+            compression="gzip",
+        )
+
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_featurecounts_strandedness(self):

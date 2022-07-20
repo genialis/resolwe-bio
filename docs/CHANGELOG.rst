@@ -13,6 +13,8 @@ Unrelased
 
 Added
 -----
+- Add optional calculation of variance in abundance estimates in
+  the process ``salmon-quant``
 
 Changed
 -------
