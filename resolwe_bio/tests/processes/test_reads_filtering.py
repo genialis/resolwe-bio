@@ -899,3 +899,69 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             [str(output_folder / "graft_reads_2.fastq.gz")],
             compression="gzip",
         )
+
+    @tag_process("rnaseq-vc-preprocess")
+    def test_rnaseq_vc_preprocess(self):
+        input_folder = Path("rnaseq_variantcalling") / "input"
+        output_folder = Path("rnaseq_variantcalling") / "output"
+        with self.preparation_stage():
+
+            reads = self.run_process(
+                "upload-fastq-single",
+                {"src": [input_folder / "chr1_19000_R1.fastq.gz"]},
+            )
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": input_folder / "chr1_19000.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            star_index = self.run_process(
+                "alignment-star-index",
+                {
+                    "ref_seq": ref_seq.id,
+                    "source": "ENSEMBL",
+                },
+            )
+            dbsnp = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "dbsnp-hg38.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+            star = self.run_process(
+                "alignment-star",
+                {
+                    "reads": reads.id,
+                    "genome": star_index.id,
+                    "two_pass_mapping": {"two_pass_mode": True},
+                    "output_options": {"out_unmapped": True},
+                },
+            )
+
+        def filter_startedon(line):
+            return line.startswith(b"# Started on:") or line.startswith(
+                b"# MarkDuplicates"
+            )
+
+        inputs = {
+            "bam": star.id,
+            "ref_seq": ref_seq.id,
+            "known_sites": [dbsnp.id],
+        }
+
+        preprocess = self.run_process("rnaseq-vc-preprocess", inputs)
+
+        self.assertFile(
+            preprocess, "stats", output_folder / "chr1_19000_R1.bam_stats.txt"
+        )
+        self.assertFile(
+            preprocess,
+            "metrics_file",
+            output_folder / "chr1_19000_R1_markduplicates_metrics.txt",
+            file_filter=filter_startedon,
+        )

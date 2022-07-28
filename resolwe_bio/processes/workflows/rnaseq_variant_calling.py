@@ -36,7 +36,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
-    version = "1.3.0"
+    version = "1.4.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -270,7 +270,7 @@ class WorkflowRnaseqVariantCalling(Process):
     class Output:
         """Output fields."""
 
-        # Workflow do not have outputs.
+        # Workflow does not have outputs.
 
     def run(self, inputs, outputs):
         """Run the workflow."""
@@ -390,58 +390,24 @@ class WorkflowRnaseqVariantCalling(Process):
             name=f"Aligned ({inputs.reads.name})",
         )
 
-        mark_duplicates = Data.create(
-            process=BioProcess.get_latest(slug="markduplicates"),
-            input={
-                "bam": alignment,
-                "advanced": {
-                    "java_gc_threads": inputs.advanced.java_gc_threads,
-                    "max_heap_size": inputs.advanced.max_heap_size,
-                },
-            },
-            name=f"Marked duplicates ({inputs.reads.name})",
-        )
-
-        split_ncigar = Data.create(
-            process=BioProcess.get_latest(slug="gatk-split-ncigar"),
-            input={
-                "bam": mark_duplicates,
-                "ref_seq": inputs.ref_seq,
-                "advanced": {
-                    "java_gc_threads": inputs.advanced.java_gc_threads,
-                    "max_heap_size": inputs.advanced.max_heap_size,
-                },
-            },
-            name=f"Split reads ({inputs.reads.name})",
-        )
-
-        input_bqsr = {
-            "bam": split_ncigar,
-            "reference": inputs.ref_seq,
+        input_preprocess = {
+            "bam": alignment,
+            "ref_seq": inputs.ref_seq,
             "known_sites": [inputs.dbsnp],
             "read_group": inputs.read_group,
-            "advanced": {
-                "use_original_qualities": True,
-                "java_gc_threads": inputs.advanced.java_gc_threads,
-                "max_heap_size": inputs.advanced.max_heap_size,
-            },
         }
-
-        if inputs.intervals:
-            input_bqsr["intervals"] = inputs.intervals
-
         if inputs.indels:
             for indel in inputs.indels:
-                input_bqsr["known_sites"].append(indel)
+                input_preprocess["known_sites"].append(indel)
 
-        bqsr = Data.create(
-            process=BioProcess.get_latest(slug="bqsr"),
-            input=input_bqsr,
-            name=f"Recalibrated ({inputs.reads.name})",
+        preprocess = Data.create(
+            process=BioProcess.get_latest(slug="rnaseq-vc-preprocess"),
+            input=input_preprocess,
+            name=f"Preprocessed ({inputs.reads.name})",
         )
 
         input_hc = {
-            "alignment": bqsr,
+            "alignment": preprocess,
             "genome": inputs.ref_seq,
             "dbsnp": inputs.dbsnp,
             "stand_call_conf": inputs.haplotype_caller.stand_call_conf,
@@ -498,7 +464,7 @@ class WorkflowRnaseqVariantCalling(Process):
                 name=f"Selected genotypes ({inputs.reads.name})",
             )
 
-        multiqc_tools = [inputs.reads, alignment, mark_duplicates, bqsr]
+        multiqc_tools = [inputs.reads, alignment]
 
         if inputs.preprocessing:
             multiqc_tools.append(preprocessing)

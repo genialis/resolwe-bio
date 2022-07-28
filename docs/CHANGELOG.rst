@@ -15,6 +15,7 @@ Added
 -----
 - Add optional calculation of variance in abundance estimates in
   the process ``salmon-quant``
+- Add process ``rnaseq-vc-preprocess``
 
 Changed
 -------
