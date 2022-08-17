@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Add options to calculate variance in abundance estimates in
+  the workflow ``workflow-bbduk-salmon-qc``
 
 Fixed
 -----

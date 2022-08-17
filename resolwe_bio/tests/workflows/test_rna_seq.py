@@ -685,6 +685,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
         inputs["reads"] = paired_reads.id
         inputs["quantification"]["gc_bias"] = True
+        inputs["quantification"]["num_bootstraps"] = 5
         self.run_process("workflow-bbduk-salmon-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
@@ -697,6 +698,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         )
         self.assertFields(salmon_paired_end, "exp_type", "TPM")
         self.assertFields(salmon_paired_end, "source", "ENSEMBL")
+        self.assertFileExists(salmon_paired_end, "variance")
 
     @tag_process("workflow-rnaseq-variantcalling")
     def test_rnaseq_variantcalling(self):

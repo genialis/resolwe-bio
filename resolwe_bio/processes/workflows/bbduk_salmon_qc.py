@@ -42,7 +42,7 @@ class WorkflowBbdukSalmonQc(Process):
     entity = {
         "type": "sample",
     }
-    version = "4.1.0"
+    version = "4.2.0"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 
@@ -187,12 +187,42 @@ class WorkflowBbdukSalmonQc(Process):
                 "select for this parameter is 4. A value of 0 signifies the use of basic rich "
                 "equivalence classes.",
             )
-
             min_assigned_frag = IntegerField(
                 label="Minimum number of assigned fragments",
                 default=10,
                 description="The minimum number of fragments that must be assigned to the "
                 "transcriptome for quantification to proceed.",
+            )
+            num_bootstraps = IntegerField(
+                label="--numBootstraps",
+                description="Salmon has the ability to optionally "
+                "compute bootstrapped abundance estimates. This is "
+                "done by resampling (with replacement) from the counts "
+                "assigned to the fragment equivalence classes, and then "
+                "re-running the optimization procedure, either the EM or VBEM, "
+                "for each such sample. The values of these different bootstraps "
+                "allows us to assess technical variance in the main abundance "
+                "estimates we produce. Such estimates can be useful for downstream "
+                "(e.g. differential expression) tools that can make use of such "
+                "uncertainty estimates. This option takes a positive integer that "
+                "dictates the number of bootstrap samples to compute. The more samples "
+                "computed, the better the estimates of varaiance, but the more "
+                "computation (and time) required.",
+                disabled="quantification.num_gibbs_samples",
+                required=False,
+            )
+            num_gibbs_samples = IntegerField(
+                label="--numGibbsSamples",
+                description="Just as with the bootstrap procedure above, this option "
+                "produces samples that allow us to estimate the variance in abundance "
+                "estimates. However, in this case the samples are generated using posterior "
+                "Gibbs sampling over the fragment equivalence classes rather than "
+                "bootstrapping. We are currently analyzing these different approaches to "
+                "assess the potential trade-offs in time / accuracy. The --numBootstraps "
+                "and --numGibbsSamples options are mutually exclusive (i.e. in a given run, "
+                "you must set at most one of these options to a positive integer.)",
+                disabled="quantification.num_bootstraps",
+                required=False,
             )
 
         class Downsampling:
@@ -315,6 +345,16 @@ class WorkflowBbdukSalmonQc(Process):
 
         if inputs.quantification.gc_bias:
             input_salmon["options"]["gc_bias"] = inputs.quantification.gc_bias
+
+        if inputs.quantification.num_bootstraps:
+            input_salmon["options"][
+                "num_bootstraps"
+            ] = inputs.quantification.num_bootstraps
+
+        if inputs.quantification.num_gibbs_samples:
+            input_salmon["options"][
+                "num_gibbs_samples"
+            ] = inputs.quantification.num_gibbs_samples
 
         quantification = Data.create(
             process=BioProcess.get_latest(slug="salmon-quant"),
