@@ -7,21 +7,29 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-=========
-Unrelased
-=========
+==========
+Unreleased
+==========
 
 Added
 -----
-- Add optional calculation of variance in abundance estimates in
-  the process ``salmon-quant``
-- Add process ``rnaseq-vc-preprocess``
 
 Changed
 -------
 
 Fixed
 -----
+
+
+===================
+47.1.0 - 2022-08-19
+===================
+
+Added
+-----
+- Add optional calculation of variance in abundance estimates in
+  the process ``salmon-quant``
+- Add process ``rnaseq-vc-preprocess``
 
 
 ===================
