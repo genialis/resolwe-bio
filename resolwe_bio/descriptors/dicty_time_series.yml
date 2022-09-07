@@ -1,0 +1,29 @@
+- slug: dicty-time-series
+  name: dictyExpress time series
+  description: Annotation schema for dictyExpress time series experiments.
+  version: 1.0.0
+  schema:
+    - name: project
+      label: Project
+      type: basic:string
+      required: false
+    - name: citation
+      label: Citation
+      type: basic:url:view
+      required: false
+    - name: details
+      label: Details
+      type: basic:string
+      required: false
+    - name: strain
+      label: Strain
+      type: basic:string
+      required: false
+    - name: growth
+      label: Growth
+      type: basic:string
+      required: false
+    - name: treatment
+      label: Treatment
+      type: basic:string
+      required: false

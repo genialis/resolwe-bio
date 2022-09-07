@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add dictyExpress time series descriptor schema
 
 Changed
 -------
