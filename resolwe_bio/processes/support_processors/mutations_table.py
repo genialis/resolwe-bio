@@ -1,4 +1,5 @@
 """Report mutations from RNA-seq Variant Calling Pipeline."""
+import gzip
 import os
 from collections import defaultdict
 
@@ -14,10 +15,11 @@ from resolwe.process import (
     GroupField,
     ListField,
     Persistence,
-    Process,
     SchedulingClass,
     StringField,
 )
+
+from resolwe_bio.process.runtime import ProcessBio
 
 ANN_COLUMNS = [
     "Allele",
@@ -207,6 +209,17 @@ def get_mutations(input_mutations, error):
     return mutations
 
 
+def prepare_geneset(geneset):
+    """Prepare gene set for further analysis."""
+
+    mutations = []
+    with gzip.open(geneset, "rb") as file_in:
+        for gene in file_in:
+            mutations.append(gene.decode().rstrip())
+
+    return mutations
+
+
 def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields, warning):
     """Prepare variants table."""
 
@@ -285,7 +298,7 @@ def get_depth(variants_table, bam):
     return variants_table.to_csv("mutations.tsv", sep="\t")
 
 
-class MutationsTable(Process):
+class MutationsTable(ProcessBio):
     """Report mutations in a table from RNA-seq Variant Calling Pipeline.
 
     This process reports only mutations selected in the process input.
@@ -315,7 +328,7 @@ class MutationsTable(Process):
     }
     category = "Other"
     data_name = "{{ variants|name|default('?') }}"
-    version = "1.1.0"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -338,6 +351,17 @@ class MutationsTable(Process):
             "with ','. Example of an input: 'KRAS: Gly12, Gly61'. Press enter "
             "after each input (gene + mutations). NOTE: Field only accepts "
             "three character amino acid symbols.",
+            disabled="geneset",
+            required=False,
+        )
+        geneset = DataField(
+            data_type="geneset",
+            label="Gene set",
+            description="Select a gene set with genes you are interested in. "
+            "Only variants of genes in the selected gene set will be in the "
+            "output.",
+            disabled="mutations",
+            required=False,
         )
         vcf_fields = ListField(
             StringField(),
@@ -346,7 +370,9 @@ class MutationsTable(Process):
             "INFO field to include in the output table. "
             "The field can be any standard VCF column (e.g. CHROM, ID, QUAL) "
             "or any annotation name in the INFO field (e.g. AC, AF). "
-            "Required fields are CHROM, POS, ID, REF and ANN.",
+            "Required fields are CHROM, POS, ID, REF and ANN. If your variants "
+            "file was annotated with clinvar information then fields CLNDN, "
+            "CLNSIG and CLNSIGCONF might be of your interest.",
             default=[
                 "CHROM",
                 "POS",
@@ -436,6 +462,11 @@ class MutationsTable(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
+        if not inputs.mutations and not inputs.geneset:
+            self.error(
+                "Mutations or geneset were not specified. You must either enter desired "
+                "mutations or select your geneset of interest."
+            )
         if not all(
             field in inputs.vcf_fields for field in ["CHROM", "POS", "ID", "REF", "ANN"]
         ):
@@ -511,7 +542,29 @@ class MutationsTable(Process):
             vcf_fields=["CHROM", "POS", "ID", "REF"],
         )
 
-        mutations = get_mutations(input_mutations=inputs.mutations, error=self.error)
+        if inputs.mutations:
+            mutations = get_mutations(
+                input_mutations=inputs.mutations, error=self.error
+            )
+        elif inputs.geneset:
+            geneset = prepare_geneset(inputs.geneset.output.geneset.path)
+
+            feature_filters = {
+                "source": inputs.geneset.output.source,
+                "species": inputs.geneset.output.species,
+                "feature_id__in": geneset,
+            }
+
+            geneset = [f.name for f in self.feature.filter(**feature_filters)]
+            if len(geneset) == 0:
+                self.error(
+                    "Geneset is either empty or no gene IDs were mapped to gene symbols."
+                )
+
+            mutations = defaultdict(list)
+            for gene in geneset:
+                mutations[gene] = []
+
         bam = pysam.AlignmentFile(inputs.bam.output.bam.path, "rb")
         # Set up the output dataframe
         output_table = pd.DataFrame()

@@ -1,0 +1,10 @@
+CHROM	POS	ID	QUAL	REF	ALT	DP	ANN	CLNDN	CLNSIG	Allele	Annotation	Annotation_Impact	Gene_Name	HGVS.p	SAMPLENAME1.GT	Feature_ID	Base_A	Base_C	Base_G	Base_T	Total_depth
+chr12	25206394	rs1137189;308075	8699.05	A	T	384.0		Noonan_syndrome	Likely_benign	T	3_prime_UTR_variant	MODIFIER	KRAS		T/T	ENST00000256078.9,ENST00000311936.8	0	0	0	0	0
+chr12	25206394	rs1137189;308075	8699.05	A	T	384.0		Noonan_syndrome	Likely_benign	T	downstream_gene_variant	MODIFIER	KRAS		T/T	ENST00000557334.5	0	0	0	0	0
+chr12	25206418	rs1137188;308076	10865.059999999998	G	A	344.0		Noonan_syndrome	Likely_benign	A	3_prime_UTR_variant	MODIFIER	KRAS		A/A	ENST00000256078.9,ENST00000311936.8	0	0	0	0	0
+chr12	25206418	rs1137188;308076	10865.059999999998	G	A	344.0		Noonan_syndrome	Likely_benign	A	downstream_gene_variant	MODIFIER	KRAS		A/A	ENST00000557334.5	0	0	0	0	0
+chr12	25206530	rs34176876;308077	11672.029999999999	TA	T	413.0		Noonan_syndrome	Likely_benign	T	3_prime_UTR_variant	MODIFIER	KRAS		T/T	ENST00000256078.9,ENST00000311936.8	0	0	0	0	0
+chr12	25206530	rs34176876;308077	11672.029999999999	TA	T	413.0		Noonan_syndrome	Likely_benign	T	downstream_gene_variant	MODIFIER	KRAS		T/T	ENST00000557334.5	0	0	0	0	0
+chr12	25206907	rs13096;308082	9234.06	T	C	337.0		Noonan_syndrome	Likely_benign	C	3_prime_UTR_variant	MODIFIER	KRAS		C/C	ENST00000256078.9,ENST00000311936.8	0	0	0	0	0
+chr12	25206907	rs13096;308082	9234.06	T	C	337.0		Noonan_syndrome	Likely_benign	C	downstream_gene_variant	MODIFIER	KRAS		C/C	ENST00000557334.5	0	0	0	0	0
+chr12	25245348	rs121913535;45123	7936.639999999999	C	A	337.0		Non-small_cell_lung_carcinoma|Neoplasm_of_the_large_intestine|Autoimmune_lymphoproliferative_syndrome_type_4|not_provided	Pathogenic	A	missense_variant	MODERATE	KRAS	p.Gly13Cys	C/A	ENST00000256078.9,ENST00000311936.8,ENST00000556131.1,ENST00000557334.5	0	48	0	0	48

@@ -1520,6 +1520,14 @@ re-save-file lane_attributes "${NAME}".txt
                     "build": "GRCh38",
                 },
             )
+            variants_clinvar = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "filtered_variants_clinvar.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
             no_mutation = self.run_process(
                 "upload-variants-vcf",
                 {
@@ -1540,6 +1548,17 @@ re-save-file lane_attributes "${NAME}".txt
                 "snpeff",
                 {
                     "variants": variants_vcf.id,
+                },
+            )
+            snpeff_clinvar = self.run_process(
+                "snpeff", {"variants": variants_clinvar.id}
+            )
+            geneset = self.run_process(
+                "create-geneset",
+                {
+                    "genes": ["ENSG00000133703"],
+                    "species": "Homo sapiens",
+                    "source": "ENSEMBL",
                 },
             )
             snpeff_nomutation = self.run_process(
@@ -1566,9 +1585,11 @@ re-save-file lane_attributes "${NAME}".txt
         snpeff.entity = bam.entity
         snpeff_nomutation.entity = bam.entity
         snpeff_noinput.entity = bam.entity
+        snpeff_clinvar.entity = bam.entity
         snpeff.save()
         snpeff_nomutation.save()
         snpeff_noinput.save()
+        snpeff_clinvar.save()
 
         report = self.run_process(
             "mutations-table",
@@ -1638,4 +1659,31 @@ re-save-file lane_attributes "${NAME}".txt
                 "The input amino acid Ar3 is in the wrong format "
                 "or is not among the 20 standard amino acids."
             ],
+        )
+
+        report = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff_clinvar.id,
+                "reference": table.id,
+                "bam": bam.id,
+                "geneset": geneset.id,
+                "vcf_fields": [
+                    "CHROM",
+                    "POS",
+                    "ID",
+                    "QUAL",
+                    "REF",
+                    "ALT",
+                    "DP",
+                    "ANN",
+                    "CLNDN",
+                    "CLNSIG",
+                ],
+            },
+        )
+        self.assertFile(
+            report,
+            "tsv",
+            output_folder / "mutations_clinvar.tsv",
         )
