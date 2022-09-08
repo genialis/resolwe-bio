@@ -19,6 +19,9 @@ Changed
 - Add options to calculate variance in abundance estimates in
   the workflow ``workflow-bbduk-salmon-qc``
 - Support geneset as input to process ``mutations-table``
+- Bump memory requirement to 64 GB and limit memory of
+  parallel SplitNCigarReads step in process
+  ``rnaseq-vc-preprocess``
 
 Fixed
 -----

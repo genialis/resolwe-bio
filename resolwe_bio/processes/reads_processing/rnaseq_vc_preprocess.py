@@ -97,11 +97,15 @@ def prepare_scattered_inputs(results_dir, pattern="*"):
 
 @delayed
 @wrap_non_picklable_objects
-def run_split_ncigar_reads(input_bam, interval_path, ref_seq_path, tmp, parent_dir):
+def run_split_ncigar_reads(
+    input_bam, interval_path, ref_seq_path, tmp, parent_dir, memory
+):
     """Run SplitNCigarReads on a specifed interval."""
     splitncigar_interval_bam = f"{parent_dir.name}/{interval_path.stem}.bam"
 
     apply_splitncigar_inputs = [
+        "--java-options",
+        f"-Xmx{memory}g",
         "-R",
         ref_seq_path,
         "-I",
@@ -132,7 +136,7 @@ class RNASeqVC_Preprocess(Process):
     name = "RNA-seq variant calling preprocess"
     category = "GATK"
     process_type = "data:alignment:bam:rnaseqvc"
-    version = "1.0.0"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -141,7 +145,7 @@ class RNASeqVC_Preprocess(Process):
         },
         "resources": {
             "cores": 4,
-            "memory": 32768,
+            "memory": 65536,
             "storage": 600,
         },
     }
@@ -290,6 +294,7 @@ class RNASeqVC_Preprocess(Process):
         output_bams.mkdir()
 
         intervals = [path for path in intervals_path.glob("*.interval_list")]
+        memory = int(self.requirements.resources.memory / n_jobs)
         return_codes = Parallel(n_jobs=n_jobs)(
             run_split_ncigar_reads(
                 input_bam=marked_dups,
@@ -297,6 +302,7 @@ class RNASeqVC_Preprocess(Process):
                 ref_seq_path=inputs.ref_seq.output.fasta.path,
                 tmp=TMPDIR,
                 parent_dir=output_bams,
+                memory=memory,
             )
             for interval_path in intervals
         )
