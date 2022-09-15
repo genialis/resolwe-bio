@@ -26,6 +26,8 @@ Changed
 
 Fixed
 -----
+- Revert ``workflow-rnaseq-variantcalling`` to previous version
+  with no preprocess
 
 
 ===================
