@@ -700,7 +700,9 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_paired_end, "source", "ENSEMBL")
         self.assertFileExists(salmon_paired_end, "variance")
 
-    @tag_process("workflow-rnaseq-variantcalling")
+    @tag_process(
+        "workflow-rnaseq-variantcalling", "workflow-rnaseq-variantcalling-beta"
+    )
     def test_rnaseq_variantcalling(self):
         input_folder = Path("rnaseq_variantcalling") / "input"
         output_folder = Path("rnaseq_variantcalling") / "output"
@@ -760,6 +762,24 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
         self.run_process(
             process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        variants = Data.objects.filter(
+            process__slug="gatk-select-variants-single"
+        ).last()
+        self.assertFile(
+            variants,
+            "vcf",
+            output_folder / "selected_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
+        self.run_process(
+            process_slug="workflow-rnaseq-variantcalling-beta", input_=input_workflow
         )
 
         for data in Data.objects.all():
