@@ -13,7 +13,21 @@ Unreleased
 
 Added
 -----
-- Add dictyExpress time series descriptor schema
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+47.2.0 - 2022-09-19
+===================
+
+Added
+-----
+- Add ``dicty-time-series`` time series descriptor schema
 
 Changed
 -------
@@ -23,11 +37,8 @@ Changed
 - Bump memory requirement to 64 GB and limit memory of
   parallel SplitNCigarReads step in process
   ``rnaseq-vc-preprocess``
-
-Fixed
------
-- Revert ``workflow-rnaseq-variantcalling`` to previous version
-  with no preprocess
+- Revert ``workflow-rnaseq-variantcalling`` to run individual data
+  preprocess steps
 
 
 ===================
