@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Flatten General descriptor schema
 
 Fixed
 -----
