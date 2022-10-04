@@ -1,9 +1,9 @@
 """Prepare MultiQC report."""
 import json
 import os
-from pathlib import Path
 
 import pandas as pd
+import yaml
 from plumbum import TEE
 
 from resolwe.process import (
@@ -23,6 +23,20 @@ from resolwe.process import (
 def create_symlink(src, dst):
     """Create a symbolic link."""
     return Cmd["ln"]("-s", "--backup=numbered", src, dst)
+
+
+def clean_name(sample_name, to_remove, error):
+    """Clean a sample name."""
+    for substr in to_remove:
+        sample_name = sample_name.replace(substr, "")
+
+    if not sample_name:
+        error(
+            "Sample name only contains elements which are removed during sample name cleanup."
+            f"Avoid naming samples with just {' ,'.join(to_remove)}."
+        )
+
+    return sample_name
 
 
 def create_summary_table(samples, species, build):
@@ -318,7 +332,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.15.0"
+    version = "1.16.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -395,12 +409,29 @@ class MultiQC(Process):
         rcc_lane_reports = []
         unsupported_data = []
 
+        config_file = "/opt/resolwebio/assets/multiqc_config.yml"
+        with open(config_file) as handle:
+            mqc_config = yaml.safe_load(handle)
+
         for d in inputs.data:
             try:
-                sample_dir = d.entity.name
+                # Here we have to remove some filename suffixes
+                # to avoid missing data in the final report. This
+                # workaround is used to avoid duplicated names caused by
+                # file name cleaning.
+                # For example, `some_sample.fastq.gz/stats_L001.txt`
+                # and `some_sample.fastq.gz/stats_L002.txt` would
+                # both be simplified to `some_sample` and only the first
+                # would be included in the report.
+                sample_name = clean_name(
+                    sample_name=d.entity.name,
+                    to_remove=mqc_config["extra_fn_clean_exts"],
+                    error=self.error,
+                )
+                sample_dir = sample_name
                 os.makedirs(sample_dir, exist_ok=True)
-                if d.entity.name and d.output.species and d.output.build:
-                    samples.append(d.entity.name)
+                if sample_name and d.output.species and d.output.build:
+                    samples.append(sample_name)
                     species.append(d.output.species)
                     build.append(d.output.build)
             except AttributeError:
@@ -449,7 +480,7 @@ class MultiQC(Process):
                         dup_report_path = d.output.duplicates_report.path
                         name = os.path.basename(dup_report_path)
                         create_symlink(dup_report_path, os.path.join(sample_dir, name))
-                        markdup_samples.append(d.entity.name)
+                        markdup_samples.append(sample_name)
                         markdup_reports.append(dup_report_path)
                         create_markdup_plot(markdup_samples, markdup_reports)
                 except AttributeError:
@@ -478,15 +509,15 @@ class MultiQC(Process):
                 create_symlink(
                     d.output.called_peaks.path, os.path.join(sample_dir, name)
                 )
-                chip_seq_samples.append(d.entity.name)
+                chip_seq_samples.append(sample_name)
                 chip_seq_prepeak_reports.append(d.output.case_prepeak_qc.path)
-                chip_seq_postpeak_samples.append(d.entity.name)
+                chip_seq_postpeak_samples.append(sample_name)
                 chip_seq_postpeak_reports.append(d.output.chip_qc.path)
                 # MACS2 analysis can be run without the background sample,
                 # thus the associated report might not exits
                 try:
                     if os.path.isfile(d.output.control_prepeak_qc.path):
-                        chip_seq_samples.append(f"Background of {d.entity.name}")
+                        chip_seq_samples.append(f"Background of {sample_name}")
                         chip_seq_prepeak_reports.append(
                             d.output.control_prepeak_qc.path
                         )
@@ -498,10 +529,8 @@ class MultiQC(Process):
                 create_symlink(d.output.report.path, os.path.join(sample_dir, name))
 
             elif d.process.type == "data:qorts:qc:":
-                qorts_path = os.path.join(sample_dir, "QoRTs")
-                os.mkdir(qorts_path)
                 name = os.path.basename(d.output.summary.path)
-                create_symlink(d.output.summary.path, os.path.join(qorts_path, name))
+                create_symlink(d.output.summary.path, os.path.join(sample_dir, name))
 
             elif d.process.type == "data:expression:salmon:":
                 create_symlink(d.output.salmon_output.path, sample_dir)
@@ -515,41 +544,29 @@ class MultiQC(Process):
             elif d.process.type == "data:wgbs:bsrate:":
                 name = os.path.basename(d.output.report.path)
                 create_symlink(d.output.report.path, os.path.join(sample_dir, name))
-                bsrate_samples.append(d.entity.name)
+                bsrate_samples.append(sample_name)
                 bsrate_reports.append(d.output.report.path)
                 create_bsrate_table(bsrate_samples, bsrate_reports)
 
             elif d.process.type == "data:chipqc:":
-                plot_paths = {
-                    "CC plot": d.output.ccplot.path,
-                    "Coverage histogram": d.output.coverage_histogram.path,
-                    "Peak profile": d.output.peak_profile.path,
-                    "Peaks barplot": d.output.peaks_barplot.path,
-                    "Peaks density plot": d.output.peaks_density_plot.path,
-                }
-
-                # Here we have to use the plot name for naming the
-                # folder and sample name as the plot name to avoid
-                # missing plots in the final report. This workaround is
-                # used to avoid duplicated names caused by file
-                # name cleaning when storing plots in the sample_dir.
-                # For example,`some_sample.fastq.gz/CC_plot_mqc.png`
-                # and `some_sample.fastq.gz/PeakProfile_mqc.png ` would
-                # both be simplified to `some_sample`.
-                name = f"{d.entity.name}_mqc.png"
-                for plot_name, path in plot_paths.items():
-                    new_dir = Path(plot_name)
-                    new_dir.mkdir(exist_ok=True)
-                    create_symlink(src=path, dst=new_dir / name)
+                plot_paths = [
+                    d.output.ccplot.path,
+                    d.output.coverage_histogram.path,
+                    d.output.peak_profile.path,
+                    d.output.peaks_barplot.path,
+                    d.output.peaks_density_plot.path,
+                ]
+                for path in plot_paths:
+                    name = os.path.basename(path)
+                    create_symlink(path, os.path.join(sample_dir, name))
 
                 # ChipQC may contain enrichment heatmap
                 try:
                     if os.path.isfile(d.output.enrichment_heatmap.path):
-                        new_dir = Path("Genomic Feature Enrichment").mkdir(
-                            exist_ok=True
-                        )
+                        name = os.path.basename(d.output.enrichment_heatmap.path)
                         create_symlink(
-                            src=d.output.enrichment_heatmap.path, dst=new_dir / name
+                            src=d.output.enrichment_heatmap.path,
+                            dst=os.path.join(sample_dir, name),
                         )
                 except AttributeError:
                     pass
@@ -608,7 +625,7 @@ class MultiQC(Process):
             args.append("-s")
 
         if inputs.advanced.config:
-            args.extend(["-c", "/opt/resolwebio/assets/multiqc_config.yml"])
+            args.extend(["-c", config_file])
 
         if inputs.advanced.cl_config:
             args.extend(["--cl-config", inputs.advanced.cl_config])

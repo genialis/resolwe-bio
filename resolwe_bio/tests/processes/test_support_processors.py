@@ -712,11 +712,15 @@ re-save-file duplicates_report "${NAME}".txt
                     "language": "bash",
                     "program": r"""
 re-import {{ src.file_temp|default(src.file) }} {{ src.file }} "png" "png" 0.1 extract
-re-save-file ccplot "${NAME}".png
-re-save-file coverage_histogram "${NAME}".png
+cp "${NAME}".png CCPlot_mqc.png
+cp "${NAME}".png CoverageHistogramPlot_mqc.png
+cp "${NAME}".png Rip_mqc.png
+cp "${NAME}".png Rap_mqc.png
+re-save-file ccplot CCPlot_mqc.png
+re-save-file coverage_histogram CoverageHistogramPlot_mqc.png
 re-save-file peak_profile "${NAME}".png
-re-save-file peaks_barplot "${NAME}".png
-re-save-file peaks_density_plot "${NAME}".png
+re-save-file peaks_barplot Rip_mqc.png
+re-save-file peaks_density_plot Rap_mqc.png
 """,
                 },
             )

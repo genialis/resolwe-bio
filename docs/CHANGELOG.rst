@@ -21,6 +21,8 @@ Changed
 Fixed
 -----
 - Bump version of ``rnaseq-vc-preprocess`` process
+- Fix sample naming in ``multiqc`` process to avoid leaving out data in
+  the MultiQC report
 
 
 ===================
