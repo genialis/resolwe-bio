@@ -132,7 +132,7 @@ class RNASeqVC_Preprocess(Process):
     name = "RNA-seq variant calling preprocess"
     category = "GATK"
     process_type = "data:alignment:bam:rnaseqvc"
-    version = "1.1.0"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",

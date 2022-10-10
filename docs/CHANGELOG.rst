@@ -20,6 +20,7 @@ Changed
 
 Fixed
 -----
+- Bump version of ``rnaseq-vc-preprocess`` process
 
 
 ===================
