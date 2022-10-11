@@ -1,6 +1,7 @@
 """Prepare MultiQC report."""
 import json
 import os
+from pathlib import Path
 
 import pandas as pd
 import yaml
@@ -332,7 +333,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.16.0"
+    version = "1.16.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -533,7 +534,10 @@ class MultiQC(Process):
                 create_symlink(d.output.summary.path, os.path.join(sample_dir, name))
 
             elif d.process.type == "data:expression:salmon:":
-                create_symlink(d.output.salmon_output.path, sample_dir)
+                # Symlink files/dirs without the parent directory to
+                # attach it to the same sample in the general summary.
+                for out_file in Path(d.output.salmon_output.path).iterdir():
+                    create_symlink(str(out_file), str(Path(sample_dir) / out_file.name))
                 # Strandedness report might not exist in legacy Salmon objects
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
 
