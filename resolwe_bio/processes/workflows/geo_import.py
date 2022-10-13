@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.4.0"
+    version = "2.5.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -279,8 +279,9 @@ class GeoImport(Process):
         sample_info = {}
         for name, gsm in gse.gsms.items():
             if "SRA" in gse.gsms[name].relations:
+                # Match NCBI's SRX and EBI's ERX sample accessions.
                 sample_found = re.findall(
-                    r"(SRX\d{6,8})", str(gse.gsms[name].relations["SRA"])
+                    r"([SE]RX\d{6,8})", str(gse.gsms[name].relations["SRA"])
                 )
             else:
                 sample_found = None

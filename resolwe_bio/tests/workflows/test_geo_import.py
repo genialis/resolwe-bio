@@ -227,3 +227,84 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         }
 
         self.assertEqual(sra.entity.descriptor, descriptor)
+
+    @with_resolwe_host
+    @tag_process("geo-import")
+    def test_geo_ena(self):
+        base = Path("geo_import")
+        outputs = base / "outputs"
+
+        collection = Collection.objects.create(
+            name="Test collection", contributor=self.contributor
+        )
+
+        dss_inputs = {
+            "gse_accession": "GSE24998",
+            "advanced": {"max_spot_id": 1, "prefetch": False},
+        }
+
+        self.run_process("geo-import", dss_inputs, collection=collection)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        metadata = Data.objects.filter(process__slug="upload-metadata-unique").last()
+        self.assertFile(
+            metadata,
+            "table",
+            str(outputs / "GSE24998_metadata.tsv"),
+        )
+
+        sra = Data.objects.filter(process__slug="import-sra-single").last()
+        self.assertFiles(
+            sra,
+            "fastq",
+            [str(outputs / "ERR019653.fastq.gz")],
+            compression="gzip",
+        )
+
+        del sra.output["fastqc_url"][0]["total_size"]  # Non-deterministic output.
+        self.assertFields(
+            sra,
+            "fastqc_url",
+            [
+                {
+                    "file": "fastqc/ERR019653_fastqc/fastqc_report.html",
+                    "refs": ["fastqc/ERR019653_fastqc"],
+                },
+            ],
+        )
+
+        sample_descriptor = {
+            "general": {
+                "annotator": "ArrayExpress EBI",
+                "description": "Provider: EMBL_Heidelberg",
+                "growth_protocol": "grow | The E. coli K-12 MG1655 bacterial strains used in this "
+                "work are the following: E. coli MG1655 (F- lambda- ilvG- rfb-50 rph-1). "
+                "Luria-Bertani (0.5% NaCl) broth and agar (15 g/liter) were used for routine "
+                "growth.",
+                "biosample_source": "E_coli_K12_MG1655_RNAseq_LB_Transition_to_stationary",
+            },
+            "experiment": {
+                "molecule": "total_rna",
+                "assay_type": "rna-seq",
+                "extract_protocol": "nucleic_acid_extraction | To prepare cells for RNA "
+                "extraction, 100 ml of fresh LB was inoculated 1:200 from an overnight culture "
+                "in a 250 ml flask and incubated with shaking at 180 r.p.m. in a New Brunswick "
+                "C76 waterbath at 37C. Two biological replicates were performed for each strain "
+                "and samples were taken at early-exponential, mid-exponential, "
+                "transition-to-stationary and stationary phase. The cells were pelleted by "
+                "centrifugation (10000 g, 10 min, 4¡C), washed in 1xPBS and pellets were "
+                "snap-frozen and stored at -80C until required. RNA was extracted using Trizol "
+                "Reagent (Invitrogen) according to the manufacturer's protocol until the "
+                "chloroform extraction step. The aqueous phase was then loaded onto mirVanaTM "
+                "miRNA Isolation kit (Ambion Inc.) columns and washed according to the "
+                "manufacturer's protocol. Total RNA was eluted in 50µl of RNAase free water. "
+                "The concentration was then determined using a Nanodrop ND-1000 machine (NanoDrop "
+                "Technologies), and RNA quality was tested by visualization on agarose gels and "
+                "by Agilent 2100 Bioanalyser (Agilent Technologies). sequencing | Standard "
+                "Illumina protocol for cDNA sequencing",
+            },
+        }
+
+        self.assertEqual(sra.entity.descriptor, sample_descriptor)

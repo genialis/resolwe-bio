@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+-  Support GEO series with EBI samples in ``geo-import`` process
 
 Fixed
 -----
