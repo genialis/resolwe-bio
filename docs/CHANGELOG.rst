@@ -16,7 +16,18 @@ Added
 
 Changed
 -------
-- **BACKWARD INCOMPATIBLE:** Flatten General descriptor schema
+
+Fixed
+-----
+
+
+===================
+47.3.0 - 2022-10-17
+===================
+
+Changed
+-------
+- Flatten General descriptor schema
 
 Fixed
 -----
