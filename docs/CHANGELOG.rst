@@ -22,6 +22,16 @@ Fixed
 
 
 ===================
+47.3.1 - 2022-10-18
+===================
+
+Fixed
+-----
+- Rename field ``general_information`` to ``general`` in ``general``
+  descriptor schema
+
+
+===================
 47.3.0 - 2022-10-17
 ===================
 
