@@ -21,7 +21,8 @@ Changed
 Fixed
 -----
 - Output all detected input variants in ``mutations-table`` process
-
+- Change ``__`` separators in field names to ``_`` in ``general``
+  descriptor schema
 
 ===================
 47.3.1 - 2022-10-18

@@ -1,7 +1,7 @@
 - slug: general
   name: General descriptor schema
   description: General descriptor schema.
-  version: 2.0.1
+  version: 2.0.2
   schema:
     - name: general
       label: General information
@@ -60,80 +60,80 @@
     - name: non_clinical_information
       label: Non-clinical information
       group:
-        - name: cell_line__cell_line_name
+        - name: cell_line_name
           label: Cell line/Cell line name
           type: basic:string
           description: Name of the cell line, e.g. MF331, DAOY, etc.
           required: false
-        - name: cell_line__cell_line_id
+        - name: cell_line_id
           label: Cell line/Cell line ID
           type: basic:string
           required: false
-        - name: cell_line__cell_line_bank
+        - name: cell_line_bank
           label: Cell line/Cell line Bank
           type: basic:string
           description: |
             Cell line Banks, e.g. ATCC, ECACC, etc.
           required: false
-        - name: cell_line__cell_line_bank_id
+        - name: cell_line_bank_id
           label: Cell line/Cell line Bank ID
           type: basic:string
           description: |
             Official cell line ID.
           required: false
-        - name: cell_line__cell_type
+        - name: cell_type
           label: Cell line/Cell type
           type: basic:string
           required: false
           description: |
             Type of cell, e.g. embryonic stem cell.
-        - name: cell_line__treatment_protocol
+        - name: cell_line_treatment_protocol
           label: Cell line/Treatment protocol
           type: basic:string
           description: |
             Describe how the sample was treated, at different timepoints, if using non-chemical
             treatments e.g. exercise, aging, etc.
           required: false
-        - name: response_and_predictions__ic50
+        - name: response_and_predictions_ic50
           label: Response and predictions/IC50
           type: basic:decimal
           required: false
-        - name: response_and_predictions__amax
+        - name: response_and_predictions_amax
           label: Response and predictions/Amax
           type: basic:decimal
           required: false
-        - name: response_and_predictions__sensitivity
+        - name: response_and_predictions_sensitivity
           label: Response and predictions/Sensitivity
           type: basic:string
           required: false
-        - name: response_and_predictions__overall_sensitivity
+        - name: response_and_predictions_overall_sensitivity
           label: Response and predictions/Overall sensitivity
           type: basic:string
           required: false
-        - name: response_and_predictions__description_of_response_and_predictions
+        - name: response_and_predictions_description
           label: Response and predictions/Description
           type: basic:string
           required: false
     - name: clinical_information
       label: Clinical information
       group:
-        - name: patient_information__sample_label
+        - name: patient_information_sample_label
           label: Patient information/Sample label
           type: basic:string
           required: false
-        - name: patient_information__patient_id
+        - name: patient_information_patient_id
           label: Patient information/Patient ID
           type: basic:string
           required: false
-        - name: patient_information__batch
+        - name: patient_information_batch
           label: Patient information/Batch
           type: basic:integer
           required: false
-        - name: patient_information__group
+        - name: patient_information_group
           label: Patient information/Group
           type: basic:string
           required: false
-        - name: patient_information__sex
+        - name: patient_information_sex
           label: Patient information/Sex
           type: basic:string
           required: false
@@ -142,7 +142,7 @@
               value: m
             - label: F
               value: f
-        - name: patient_information__race
+        - name: patient_information_race
           label: Patient information/Race
           type: basic:string
           required: false
@@ -159,7 +159,7 @@
               value: native hawaiian or pacific islander
             - label: None given
               value: none given
-        - name: patient_information__ethnicity
+        - name: patient_information_ethnicity
           label: Patient information/Ethnicity
           type: basic:string
           required: false
@@ -184,25 +184,25 @@
               value: african caribbean
             - label: None given
               value: none given
-        - name: patient_information__age
+        - name: patient_information_age
           label: Patient information/Age
           type: basic:integer
           description: |
             Age in years.
           required: false
-        - name: patient_information__height
+        - name: patient_information_height
           label: Patient information/Height
           type: basic:integer
           description: |
             Height in centimeters.
           required: false
-        - name: patient_information__weight
+        - name: patient_information_weight
           label: Patient information/Weight
           type: basic:decimal
           description: |
             Weight in kilograms.
           required: false
-        - name: patient_information__patient_status
+        - name: patient_status
           label: Patient information/Patient status
           type: basic:string
           required: false
@@ -213,35 +213,35 @@
               value: dead
             - label: Unknown
               value: unknown
-        - name: patient_information__reason_for_dc
+        - name: patient_information_reason_for_dc
           label: Patient information/Reason for D/C
           type: basic:string
           description: |
             Subject discharge due to e.g. progressive disease, death, etc.
           required: false
-        - name: patient_information__comments
+        - name: patient_information_comments
           label: Patient information/Comments
           type: basic:string
           required: false
-        - name: disease_information__disease_type
+        - name: disease_type
           label: Disease information/Disease type
           type: basic:string
           description: |
             General description of the disease.
           required: false
-        - name: disease_information__location
+        - name: disease_information_location
           label: Disease information/Location
           type: basic:string
           description: |
             General description of the disease location.
           required: false
-        - name: disease_information__organ_part
+        - name: disease_information_organ_part
           label: Disease information/Organ part
           type: basic:string
           description: |
             General description of which part of the organ was affected.
           required: false
-        - name: disease_information__sampling
+        - name: disease_information_sampling
           label: Disease information/Sampling
           type: basic:string
           description: |
@@ -252,7 +252,7 @@
               value: biopsy
             - label: Resection
               value: resection
-        - name: disease_information__sampling_type
+        - name: disease_information_sampling_type
           label: Disease information/Sampling type
           type: basic:string
           description: |
@@ -263,38 +263,38 @@
               value: primary
             - label: Secondary
               value: secondary
-        - name: disease_information__biopsy_site
+        - name: disease_information_biopsy_site
           label: Disease information/Biopsy site
           type: basic:string
           description: |
             General description of where the sample was derived from,
             e.g. stomach (primary site) or lymph nodes (secondary site), etc.
           required: false
-        - name: disease_information__grading
+        - name: disease_information_grading
           label: Disease information/Grading
           type: basic:string
           description: |
             General description of the disease stage.
           required: false
-        - name: disease_information__disease_status
+        - name: disease_status
           label: Disease information/Disease status
           type: basic:string
           description: |
             Define status of the disease, e.g. progressive disease.
           required: false
-        - name: disease_information__disease_signature
+        - name: disease_signature
           label: Disease information/Disease signature
           type: basic:string
           required: false
-        - name: disease_information__metastases_sites
+        - name: disease_information_metastases_sites
           label: Disease information/Metastases sites
           type: basic:string
           required: false
-        - name: disease_information__number_of_metastases
+        - name: disease_information_number_of_metastases
           label: Disease information/Number of metastases
           type: basic:integer
           required: false
-        - name: disease_information__mesenchymal
+        - name: disease_information_mesenchymal
           label: Disease information/Mesenchymal
           type: basic:string
           description: |
@@ -305,77 +305,77 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: disease_information__date_of_progression
+        - name: disease_information_date_of_progression
           label: Disease information/Date of progression
           type: basic:date
           required: false
-        - name: disease_information__secondary_site
+        - name: disease_information_secondary_site
           label: Disease information/Secondary site
           type: basic:string
           required: false
-        - name: disease_information__site_subtype_1
+        - name: disease_information_site_subtype_1
           label: Disease information/Site subtype - 1
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__site_subtype_2
+        - name: disease_information_site_subtype_2
           label: Disease information/Site subtype - 2
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__site_subtype_3
+        - name: disease_information_site_subtype_3
           label: Disease information/Site subtype - 3
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__histology
+        - name: disease_information_histology
           label: Disease information/Histology
           type: basic:string
           required: false
-        - name: disease_information__histology_subtype_1
+        - name: disease_information_histology_subtype_1
           label: Disease information/Histology subtype - 1
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__histology_subtype_2
+        - name: disease_information_histology_subtype_2
           label: Disease information/Histology subtype - 2
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__histology_subtype_3
+        - name: disease_information_histology_subtype_3
           label: Disease information/Histology subtype - 3
           type: basic:string
           description: |
             Define subtype.
           required: false
-        - name: disease_information__pathologist_comments
+        - name: disease_information_pathologist_comments
           label: Disease information/Pathologist comments
           type: basic:string
           required: false
-        - name: disease_information__pathologist_annotation
+        - name: disease_information_pathologist_annotation
           label: Disease information/Pathologist annotation
           type: basic:string
           required: false
-        - name: disease_information__description
+        - name: disease_information_description
           label: Disease information/Description
           type: basic:string
           required: false
-        - name: patient_sample_preparation_and_processing__sample_obtained_in_site
+        - name: patient_sample_preparation_and_processing_sample_obtained_in_site
           label: Sample preparation/Sample obtained in site
           type: basic:string
           required: false
-        - name: patient_sample_preparation_and_processing__sample_type
+        - name: patient_sample_preparation_and_processing_sample_type
           label: Sample preparation/Sample type
           type: basic:string
           description: |
             Source of biological material, e.g. fresh or FFPE.
           required: false
-        - name: patient_sample_preparation_and_processing__archival
+        - name: patient_sample_preparation_and_processing_archival
           label: Sample preparation/Archival
           type: basic:string
           required: false
@@ -384,7 +384,7 @@
               value: fresh
             - label: Archival
               value: archival
-        - name: patient_sample_preparation_and_processing__sampling_time
+        - name: patient_sample_preparation_and_processing_sampling_time
           label: Sample preparation/Sampling time
           type: basic:string
           required: false
@@ -393,7 +393,7 @@
               value: pretreatment
             - label: Posttreatment
               value: posttreatment
-        - name: patient_sample_preparation_and_processing__tumor
+        - name: patient_sample_preparation_and_processing_tumor
           label: Sample preparation/Tumor
           type: basic:string
           description: |
@@ -404,7 +404,7 @@
               value: rna
             - label: DNA
               value: dna
-        - name: patient_sample_preparation_and_processing__normal
+        - name: patient_sample_preparation_and_processing_normal
           label: Sample preparation/Normal
           type: basic:string
           description: |
@@ -415,49 +415,49 @@
               value: rna
             - label: DNA
               value: dna
-        - name: patient_sample_preparation_and_processing__date_of_preparation
+        - name: patient_sample_preparation_and_processing_date_of_preparation
           label: Sample preparation/Date of preparation
           type: basic:date
           required: false
-        - name: patient_sample_preparation_and_processing__date_of_shipping
+        - name: patient_sample_preparation_and_processing_date_of_shipping
           label: Sample preparation/Date of shipping
           type: basic:date
           required: false
-        - name: patient_sample_preparation_and_processing__date_received
+        - name: patient_sample_preparation_and_processing_date_received
           label: Sample preparation/Date received
           type: basic:date
           required: false
-        - name: patient_sample_preparation_and_processing__cro
+        - name: patient_sample_preparation_and_processing_cro
           label: Sample preparation/CRO
           type: basic:string
           description: |
             Name of the Contract Research Organisation that worked on the samples.
           required: false
-        - name: patient_sample_preparation_and_processing__description
+        - name: patient_sample_preparation_and_processing_description
           label: Sample preparation/Description
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__io_phase
+        - name: immuno_oncology_treatment_type_io_phase
           label: Immuno oncology treatment type/IO phase
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__dx_date
+        - name: immuno_oncology_treatment_type_dx_date
           label: Immuno oncology treatment type/Dx date
           type: basic:date
           description: |
             Diagnosis date.
           required: false
-        - name: immuno_oncology_treatment_type__io_drug
+        - name: immuno_oncology_treatment_type_io_drug
           label: Immuno oncology treatment type/IO drug
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__io_date
+        - name: immuno_oncology_treatment_type_io_date
           label: Immuno oncology treatment type/IO date
           type: basic:date
           description: |
             Official start of the immuno-oncology treatment.
           required: false
-        - name: immuno_oncology_treatment_type__io_treatment
+        - name: immuno_oncology_treatment_type_io_treatment
           label: Immuno oncology treatment type/IO treatment
           type: basic:string
           description: |
@@ -468,55 +468,55 @@
               value: single
             - label: Combo
               value: combo
-        - name: immuno_oncology_treatment_type__io_dose
+        - name: immuno_oncology_treatment_type_io_dose
           label: Immuno oncology treatment type/IO Dose
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__io_dose_escalation_date
+        - name: immuno_oncology_treatment_type_io_dose_escalation_date
           label: Immuno oncology treatment type/IO dose escalation date
           type: basic:date
           required: false
-        - name: immuno_oncology_treatment_type__io_escalation_dose
+        - name: immuno_oncology_treatment_type_io_escalation_dose
           label: Immuno oncology treatment type/IO escalation dose
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__subject_status
+        - name: immuno_oncology_treatment_type_subject_status
           label: Immuno oncology treatment type/Subject status
           type: basic:string
           description: |
             Describe what stage of treatment the subject is at.
           required: false
-        - name: immuno_oncology_treatment_type__current_or_last_cycle
+        - name: immuno_oncology_treatment_type_current_or_last_cycle
           label: Immuno oncology treatment type/Current or last cycle
           type: basic:string
           required: false
-        - name: immuno_oncology_treatment_type__cycle_number
+        - name: immuno_oncology_treatment_type_cycle_number
           label: Immuno oncology treatment type/Cycle number
           type: basic:integer
           required: false
-        - name: immuno_oncology_treatment_type__cycle_date
+        - name: immuno_oncology_treatment_type_cycle_date
           label: Immuno oncology treatment type/Cycle date
           type: basic:date
           required: false
-        - name: immuno_oncology_treatment_type__description_of_immuno_oncology_treatment_type
+        - name: immuno_oncology_treatment_type_description
           label: Immuno oncology treatment type/Description
           type: basic:string
           required: false
-        - name: treatment_type__phase
+        - name: treatment_type_phase
           label: Treatment type/Phase
           type: basic:string
           required: false
-        - name: treatment_type__dx_date
+        - name: treatment_type_dx_date
           label: Treatment type/Dx date
           type: basic:date
           description: |
             Diagnosis date.
           required: false
-        - name: treatment_type__drug
+        - name: treatment_type_drug
           label: Treatment type/Drug
           type: basic:string
           required: false
-        - name: treatment_type__treatment
+        - name: treatment_protocol
           label: Treatment type/Treatment
           type: basic:string
           required: false
@@ -525,19 +525,19 @@
               value: single
             - label: Combo
               value: combo
-        - name: treatment_type__dose
+        - name: treatment_type_dose
           label: Treatment type/Dose
           type: basic:string
           required: false
-        - name: treatment_type__dose_escalation_date
+        - name: treatment_type_dose_escalation_date
           label: Treatment type/Dose escalation date
           type: basic:date
           required: false
-        - name: treatment_type__escalation_dose
+        - name: treatment_type_escalation_dose
           label: Treatment type/Escalation dose
           type: basic:string
           required: false
-        - name: treatment_type__subject_status
+        - name: treatment_type_subject_status
           label: Treatment type/Subject status
           type: basic:string
           description: |
@@ -548,40 +548,40 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: treatment_type__current_or_last_cycle
+        - name: treatment_type_current_or_last_cycle
           label: Treatment type/Current or last cycle
           type: basic:string
           required: false
-        - name: treatment_type__cycle_number
+        - name: treatment_type_cycle_number
           label: Treatment type/Cycle number
           type: basic:integer
           required: false
-        - name: treatment_type__cycle_date
+        - name: treatment_type_cycle_date
           label: Treatment type/Cycle date
           type: basic:date
           required: false
-        - name: treatment_type__description_of_treatment_type
+        - name: treatment_type_description
           label: Treatment type/Description
           type: basic:string
           required: false
-        - name: first_prior_treatment__drug
-          label: 1st prior treatment/Drug
+        - name: prior_treatment_drug
+          label: Prior treatment/Drug
           type: basic:string
           required: false
-        - name: first_prior_treatment__dx
-          label: 1st prior treatment/Dx
+        - name: prior_treatment_dx
+          label: Prior treatment/Dx
           type: basic:date
           description: |
             Diagnosis date.
           required: false
-        - name: first_prior_treatment__date
-          label: 1st prior treatment/Date
+        - name: prior_treatment_date
+          label: Prior treatment/Date
           type: basic:date
           description: |
-            Official start of the 1st prior treatment.
+            Official start of the prior treatment.
           required: false
-        - name: first_prior_treatment__treatment
-          label: 1st prior treatment/Treatment
+        - name: prior_treatment_type
+          label: Prior treatment/Treatment type
           type: basic:string
           description: |
             Select treatment type.
@@ -591,121 +591,31 @@
               value: single
             - label: Combo
               value: combo
-        - name: first_prior_treatment__dose
-          label: 1st prior treatment/Dose
+        - name: prior_treatment_dose
+          label: Prior treatment/Dose
           type: basic:string
           description: |
             Dose concentration.
           required: false
-        - name: first_prior_treatment__dose_escalation_date
-          label: 1st prior treatment/Dose escalation date
+        - name: prior_treatment_dose_escalation_date
+          label: Prior treatment/Dose escalation date
           type: basic:date
           required: false
-        - name: first_prior_treatment__escalation_dose
-          label: 1st prior treatment/Escalation dose
+        - name: prior_treatment_escalation_dose
+          label: Prior treatment/Escalation dose
           type: basic:string
           description: |
             Dose concentration.
           required: false
-        - name: first_prior_treatment__cycle_number
-          label: 1st prior treatment/Cycle number
+        - name: prior_treatment_cycle_number
+          label: Prior treatment/Cycle number
           type: basic:integer
           required: false
-        - name: first_prior_treatment__description_of_first_prior_treatment
-          label: 1st prior treatment/Description
+        - name: prior_treatment_description
+          label: Prior treatment/Description
           type: basic:string
           required: false
-        - name: second_prior_treatment__drug
-          label: 2nd prior treatment/Drug
-          type: basic:string
-          required: false
-        - name: second_prior_treatment__date
-          label: 2nd prior treatment/Date
-          type: basic:date
-          description: |
-            Official start of the 2nd prior treatment.
-          required: false
-        - name: second_prior_treatment__treatment
-          label: 2nd prior treatment/Treatment
-          type: basic:string
-          description: |
-            Select treatment type.
-          required: false
-          choices:
-            - label: Single
-              value: single
-            - label: Combo
-              value: combo
-        - name: second_prior_treatment__dose
-          label: 2nd prior treatment/Dose
-          type: basic:string
-          description: |
-            Dose concentration.
-          required: false
-        - name: second_prior_treatment__dose_escalation_date
-          label: 2nd prior treatment/Dose escalation date
-          type: basic:date
-          required: false
-        - name: second_prior_treatment__escalation_dose
-          label: 2nd prior treatment/Escalation dose
-          type: basic:string
-          description: |
-            Dose concentration.
-          required: false
-        - name: second_prior_treatment__cycle_number
-          label: 2nd prior treatment/Cycle number
-          type: basic:integer
-          required: false
-        - name: second_prior_treatment__description_of_second_prior_treatment
-          label: 2nd prior treatment/Description
-          type: basic:string
-          required: false
-        - name: third_prior_treatment__drug
-          label: 3rd prior treatment/Drug
-          type: basic:string
-          required: false
-        - name: third_prior_treatment__date
-          label: 3rd prior treatment/Date
-          type: basic:date
-          description: |
-            Official start of the 3rd prior treatment.
-          required: false
-        - name: third_prior_treatment__treatment
-          label: 3rd prior treatment/Treatment
-          type: basic:string
-          description: |
-            Select treatment type.
-          required: false
-          choices:
-            - label: Single
-              value: single
-            - label: Combo
-              value: combo
-        - name: third_prior_treatment__dose
-          label: 3rd prior treatment/Dose
-          type: basic:string
-          description: |
-            Dose concentration.
-          required: false
-        - name: third_prior_treatment__dose_escalation_date
-          label: 3rd prior treatment/Dose escalation date
-          type: basic:date
-          required: false
-        - name: third_prior_treatment__escalation_dose
-          label: 3rd prior treatment/Escalation dose
-          type: basic:string
-          description: |
-            Dose concentration.
-          required: false
-        - name: third_prior_treatment__cycle_number
-          label: 3rd prior treatment/Cycle number
-          type: basic:integer
-          required: false
-        - name: third_prior_treatment__description_of_third_prior_treatment
-          label: 3rd prior treatment/Description
-          type: basic:string
-          required: false
-        - name: response_and_survival_analysis__clinical_benefit
+        - name: response_and_survival_analysis_clinical_benefit
           label: Response and survival analysis/Clinical benefit
           type: basic:string
           description: |
@@ -716,7 +626,7 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: response_and_survival_analysis__confirmed_bor
+        - name: response_and_survival_analysis_confirmed_bor
           label: Response and survival analysis/Confirmed BOR
           type: basic:string
           description: |
@@ -731,7 +641,7 @@
               value: sd
             - label: PD
               value: pd
-        - name: response_and_survival_analysis__unconfirmed_bor
+        - name: response_and_survival_analysis_unconfirmed_bor
           label: Response and survival analysis/Unconfirmed BOR
           type: basic:string
           description: |
@@ -746,20 +656,20 @@
               value: sd
             - label: PD
               value: pd
-        - name: response_and_survival_analysis__pfs_date
+        - name: response_and_survival_analysis_pfs_date
           label: Response and survival analysis/PFS date
           type: basic:date
           description: |
             Monitoring Progress Free Survival since.
           required: false
-        - name: response_and_survival_analysis__pfs
+        - name: response_and_survival_analysis_pfs
           label: Response and survival analysis/PFS
           type: basic:integer
           description: |
             Progress Free Survival in months. It is defined as the time from
             randomization until objective tumor progression or death.
           required: false
-        - name: response_and_survival_analysis__pfs_event
+        - name: response_and_survival_analysis_pfs_event
           label: Response and survival analysis/PFS event
           type: basic:string
           description: |
@@ -770,19 +680,19 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: response_and_survival_analysis__os_date
+        - name: response_and_survival_analysis_os_date
           label: Response and survival analysis/OS date
           type: basic:date
           description: |
             Monitoring Overall Survival since.
           required: false
-        - name: response_and_survival_analysis__os
+        - name: response_and_survival_analysis_os
           label: Response and survival analysis/OS
           type: basic:decimal
           description: |
             Overall Survival in months.
           required: false
-        - name: response_and_survival_analysis__os_event
+        - name: response_and_survival_analysis_os_event
           label: Response and survival analysis/OS event
           type: basic:string
           description: |
@@ -793,19 +703,19 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: response_and_survival_analysis__dfs_date
+        - name: response_and_survival_analysis_dfs_date
           label: Response and survival analysis/DFS date
           type: basic:date
           description: |
             Monitoring Disease Free Survival since.
           required: false
-        - name: response_and_survival_analysis__dfs
+        - name: response_and_survival_analysis_dfs
           label: Response and survival analysis/DFS
           type: basic:decimal
           description: |
             Disease Free Survival in months.
           required: false
-        - name: response_and_survival_analysis__dfs_event
+        - name: response_and_survival_analysis_dfs_event
           label: Response and survival analysis/DFS event
           type: basic:string
           description: |
@@ -816,42 +726,44 @@
               value: "yes"
             - label: "No"
               value: "no"
-        - name: response_and_survival_analysis__fu
+        - name: response_and_survival_analysis_fu
           label: Response and survival analysis/FU
           type: basic:string
           description: |
-            Select in case of Follow Up.
+            Select in case of Follow Up - the process by which information about
+            the health status of a subject is obtained after the subject is no
+            longer receiving study medication.
           required: false
           choices:
             - label: "Yes"
               value: "yes"
             - label: "No"
               value: "no"
-        - name: response_and_survival_analysis__fu_date
+        - name: response_and_survival_analysis_fu_date
           label: Response and survival analysis/FU date
           type: basic:date
           description: |
             Follow Up since.
           required: false
-        - name: response_and_survival_analysis__ttp
+        - name: response_and_survival_analysis_ttp
           label: Response and survival analysis/TTP
           type: basic:decimal
           description: |
             Subject Time to Progression in months. It is defined as the time from
             randomization until objective tumor progression and does not include deaths.
           required: false
-        - name: response_and_survival_analysis__description_of_response_and_survival
+        - name: response_and_survival_analysis_description
           label: Response and survival analysis/Description
           type: basic:string
           required: false
-        - name: recist_score__scan_type
+        - name: recist_score_scan_type
           label: RECIST score/Scan type
           type: basic:string
           description: |
             General description of imaging modalities used, e.g. CT scan, X-ray, etc.
           required: false
-        - name: recist_score__first_scan
-          label: RECIST score/1st scan
+        - name: recist_score_scan
+          label: RECIST score/Scan
           type: basic:string
           required: false
           choices:
@@ -863,166 +775,49 @@
               value: sd
             - label: PD
               value: pd
-        - name: recist_score__second_scan
-          label: RECIST score/2nd scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__third_scan
-          label: RECIST score/3rd scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__fourth_scan
-          label: RECIST score/4th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__fifth_scan
-          label: RECIST score/5th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__sixth_scan
-          label: RECIST score/6th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__seventh_scan
-          label: RECIST score/7th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__eighth_scan
-          label: RECIST score/8th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__ninth_scan
-          label: RECIST score/9th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__tenth_scan
-          label: RECIST score/10th scan
-          type: basic:string
-          required: false
-          choices:
-            - label: CR
-              value: cr
-            - label: PR
-              value: pr
-            - label: SD
-              value: sd
-            - label: PD
-              value: pd
-        - name: recist_score__description_of_recist_score
+        - name: recist_score_description
           label: RECIST score/Description
           type: basic:string
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__cmax
+        - name: pharmacokinetics_and_pharmacodynamics_cmax
           label: Pharmacokinetics and pharmacodynamics/Cmax
           type: basic:string
           description: |
             Maximum observed serum concentration.
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__tmax
+        - name: pharmacokinetics_and_pharmacodynamics_tmax
           label: Pharmacokinetics and pharmacodynamics/Tmax
           type: basic:string
           description: |
             Time of peak concentration.
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__auc
+        - name: pharmacokinetics_and_pharmacodynamics_auc
           label: Pharmacokinetics and pharmacodynamics/AUC
           type: basic:string
           description: |
             Area under curve in time of peak concentration.
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__cl
+        - name: pharmacokinetics_and_pharmacodynamics_cl
           label: Pharmacokinetics and pharmacodynamics/CL
           type: basic:string
           description: |
             Clearance.
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__t12
+        - name: pharmacokinetics_and_pharmacodynamics_t12
           label: Pharmacokinetics and pharmacodynamics/t1_2
           type: basic:string
           description: |
             Terminal elimination half-life.
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__markers
+        - name: pharmacokinetics_and_pharmacodynamics_markers
           label: Pharmacokinetics and pharmacodynamics/Markers
           type: basic:string
           required: false
-        - name: pharmacokinetics_and_pharmacodynamics__description_of_pharmacokinetics_and_pharmacodynamics
+        - name: pharmacokinetics_and_pharmacodynamics_description
           label: Pharmacokinetics and pharmacodynamics/Description
           type: basic:string
           required: false
-        - name: biomarkers__her2
+        - name: biomarkers_her2
           label: Biomarkers/HER2
           type: basic:string
           description: |
@@ -1033,7 +828,7 @@
               value: positive
             - label: Negative
               value: negative
-        - name: biomarkers__ebv
+        - name: biomarkers_ebv
           label: Biomarkers/EBV
           type: basic:string
           description: |
@@ -1044,7 +839,7 @@
               value: positive
             - label: Negative
               value: negative
-        - name: biomarkers__ebv_by_wes
+        - name: biomarkers_ebv_by_wes
           label: Biomarkers/EBV by WES
           type: basic:string
           description: |
@@ -1055,145 +850,145 @@
               value: positive
             - label: Negative
               value: negative
-        - name: biomarkers__msi
+        - name: biomarkers_msi
           label: Biomarkers/MSI
           type: basic:string
           description: |
             Microsatellite instability status.
           required: false
-        - name: biomarkers__msi_score
+        - name: biomarkers_msi_score
           label: Biomarkers/MSI score
           type: basic:decimal
           description: |
             Microsatellite instability score.
           required: false
-        - name: biomarkers__msi_by_wes
+        - name: biomarkers_msi_by_wes
           label: Biomarkers/MSI by WES
           type: basic:string
           description: |
             Microsatellite instability by WES status.
           required: false
-        - name: biomarkers__msi_by_wes_score
+        - name: biomarkers_msi_by_wes_score
           label: Biomarkers/MSI by WES score
           type: basic:decimal
           description: |
             Microsatellite instability by WES score.
           required: false
-        - name: biomarkers__nlr
+        - name: biomarkers_nlr
           label: Biomarkers/NLR
           type: basic:string
           description: |
             Neutrophil-lymphocyte ratio.
           required: false
-        - name: biomarkers__anc
+        - name: biomarkers_anc
           label: Biomarkers/ANC
           type: basic:string
           description: |
             Number of neutrophils in the blood.
           required: false
-        - name: biomarkers__alc
+        - name: biomarkers_alc
           label: Biomarkers/ALC
           type: basic:string
           description: |
             Number of lymphocytes in the blood.
           required: false
-        - name: biomarkers__pdl1_test_type
+        - name: biomarkers_pdl1_test_type
           label: Biomarkers/PDL1 test type
           type: basic:string
           description: |
             Methods and commercial kits used to detect programmed death-ligand 1.
           required: false
-        - name: biomarkers__pdl1_tumor_score
+        - name: biomarkers_pdl1_tumor_score
           label: Biomarkers/PDL1 tumor score
           type: basic:decimal
           description: |
             Programmed death-ligand 1 score.
           required: false
-        - name: biomarkers__pdl1_tumor_total_cell_count
+        - name: biomarkers_pdl1_tumor_total_cell_count
           label: Biomarkers/PDL1 tumor total cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 total tumor cell count.
           required: false
-        - name: biomarkers__pdl1_tumor_negative_cell_count
+        - name: biomarkers_pdl1_tumor_negative_cell_count
           label: Biomarkers/PDL1 tumor negative cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 negative tumor cell count.
           required: false
-        - name: biomarkers__pdl1_tumor_cell_count
+        - name: biomarkers_pdl1_tumor_cell_count
           label: Biomarkers/PDL1 tumor cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 positive tumor cell count.
           required: false
-        - name: biomarkers__pdl1_tme_total_cell_count
+        - name: biomarkers_pdl1_tme_total_cell_count
           label: Biomarkers/PDL1 TME total cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 total tumor microenvironment cell count.
           required: false
-        - name: biomarkers__pdl1_tme_negative_cell_count
+        - name: biomarkers_pdl1_tme_negative_cell_count
           label: Biomarkers/PDL1 TME negative cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 negative tumor microenvironment cell count.
           required: false
-        - name: biomarkers__pdl1_tme_cell_count
+        - name: biomarkers_pdl1_tme_cell_count
           label: Biomarkers/PDL1 TME cell count
           type: basic:integer
           description: |
             Programmed death-ligand 1 positive tumor microenvironment cell count.
           required: false
-        - name: biomarkers__pah_score
+        - name: biomarkers_pah_score
           label: Biomarkers/PAH score
           type: basic:decimal
           description: |
             Pulmonary Arterial Hypertension score.
           required: false
-        - name: biomarkers__p53_score
+        - name: biomarkers_p53_score
           label: Biomarkers/p53 score
           type: basic:decimal
           required: false
-        - name: biomarkers__proliferation_score
+        - name: biomarkers_proliferation_score
           label: Biomarkers/Proliferation score
           type: basic:decimal
           required: false
-        - name: biomarkers__vegf_ligand_score
+        - name: biomarkers_vegf_ligand_score
           label: Biomarkers/VEGF ligand score
           type: basic:decimal
           description: |
             Human vascular endothelial growth factor ligand e.g. VEGF-A, VEGF-B, VEGF-C, VEGF-D and VEGF-E.
           required: false
-        - name: biomarkers__vegf_receptor_score
+        - name: biomarkers_vegf_receptor_score
           label: Biomarkers/VEGF receptor score
           type: basic:decimal
           description: |
             Human vascular endothelial growth factor receptor e.g. VEGFR-1 (Flt-1) and VEGFR-2 (KDR/Flk-1).
           required: false
-        - name: biomarkers__itgb3
+        - name: biomarkers_itgb3
           label: Biomarkers/ITGB3
           type: basic:decimal
           required: false
-        - name: biomarkers__MLH1_loss_score
+        - name: biomarkers_MLH1_loss_score
           label: Biomarkers/MLH1 loss score
           type: basic:decimal
           required: false
-        - name: biomarkers__hrd_loh
+        - name: biomarkers_hrd_loh
           label: Biomarkers/HRD-LOH
           type: basic:decimal
           required: false
-        - name: biomarkers__ctdna
+        - name: biomarkers_ctdna
           label: Biomarkers/ctDNA
           type: basic:decimal
           required: false
-        - name: biomarkers__cps
+        - name: biomarkers_cps
           label: Biomarkers/CPS
           type: basic:decimal
           description: |
             Combined positive score.
           required: false
-        - name: biomarkers__tmb_score
+        - name: biomarkers_tmb_score
           label: Biomarkers/TMB
           type: basic:integer
           description: |
@@ -1201,7 +996,7 @@
             found in the cells of a cancer.
             See http://purl.obolibrary.org/obo/NCIT_C150128.
           required: false
-        - name: biomarkers__tmb_classification
+        - name: biomarkers_tmb_classification
           label: Biomarkers/TMB assessment
           type: basic:string
           choices:
@@ -1217,19 +1012,19 @@
             material from tumor cells, when compared to a reference sequence.
             See http://purl.obolibrary.org/obo/NCIT_C181335.
           required: false
-        - name: biomarkers__pdl1_cps
+        - name: biomarkers_pdl1_cps
           label: Biomarkers/PDL1 CPS
           type: basic:integer
           description: |
             PDL1 combined positive score (CPS).
           required: false
-        - name: biomarkers__pdl1_tps
+        - name: biomarkers_pdl1_tps
           label: Biomarkers/PDL1 TPS
           type: basic:integer
           description: |
             PDL1 tumor proportion score (TPS).
           required: false
-        - name: biomarkers__pdl1_tps_cat
+        - name: biomarkers_pdl1_tps_cat
           label: Biomarkers/PDL1 TPS category
           type: basic:string
           choices:
@@ -1242,7 +1037,7 @@
           description: |
             PDL1 tumor proportion score category.
           required: false
-        - name: biomarkers__chip
+        - name: biomarkers_chip
           label: Biomarkers/CHIP
           type: basic:string
           choices:
@@ -1254,11 +1049,11 @@
             Clonal hematopoiesis of indeterminate potential.
             See http://purl.obolibrary.org/obo/NCIT_C158547.
           required: false
-        - name: biomarkers__description_of_biomarkers
+        - name: biomarkers_description
           label: Biomarkers/Description
           type: basic:string
           required: false
-        - name: tme_panel_1__ann_call
+        - name: tme_panel_1_ann_call
           label: TME Panel-1/ANN Call
           type: basic:string
           choices:
@@ -1273,98 +1068,98 @@
           description: |
             Class type e.g. A for angio, IA for immune-angio, ID for immune-desert and IS for immune-suppressed.
           required: false
-        - name: tme_panel_1__ann_prob
+        - name: tme_panel_1_ann_prob
           label: TME Panel-1/ANN Prob
           type: basic:decimal
           description: |
             Probability score.
           required: false
-        - name: tme_panel_1__ann_angio
+        - name: tme_panel_1_ann_angio
           label: TME Panel-1/ANN Angio
           type: basic:decimal
           description: |
             Angio score.
           required: false
-        - name: tme_panel_1__ann_immune
+        - name: tme_panel_1_ann_immune
           label: TME Panel-1/ANN Immune
           type: basic:decimal
           description: |
             Immune score.
           required: false
-        - name: tme_panel_1__ann_prob_a
+        - name: tme_panel_1_ann_prob_a
           label: TME Panel-1/ANN Prob A
           type: basic:decimal
           description: |
             Probability angio.
           required: false
-        - name: tme_panel_1__ann_prob_ia
+        - name: tme_panel_1_ann_prob_ia
           label: TME Panel-1/ANN Prob IA
           type: basic:decimal
           description: |
             Probability immune-angio.
           required: false
-        - name: tme_panel_1__ann_prob_id
+        - name: tme_panel_1_ann_prob_id
           label: TME Panel-1/ANN Prob ID
           type: basic:decimal
           description: |
             Probability immune-desert.
           required: false
-        - name: tme_panel_1__ann_prob_is
+        - name: tme_panel_1_ann_prob_is
           label: TME Panel-1/ANN Prob IS
           type: basic:decimal
           description: |
             Probability immune-suppressed.
           required: false
-        - name: tme_panel_1__description_tme_panel_1
+        - name: tme_panel_1_description
           label: TME Panel-1/Description
           type: basic:string
           required: false
-        - name: signatures__immune_score
+        - name: signatures_immune_score
           label: Signatures/Immune score
           type: basic:decimal
           description: |
             Immune-classification of tumors by quantification of the density and location of immune-cells within the tumor.
           required: false
-        - name: signatures__stromal_score
+        - name: signatures_stromal_score
           label: Signatures/Stromal score
           type: basic:decimal
           description: |
             Stromal classification of tumors by quantification of stromal cells in TME.
           required: false
-        - name: signatures__emt_score
+        - name: signatures_emt_score
           label: Signatures/EMT score
           type: basic:decimal
           description: |
             Epithelial-mesenchymal transition score.
           required: false
-        - name: signatures__msi_associated_gene_expressions
+        - name: signatures_msi_associated_gene_expressions
           label: Signatures/MSI associated gene expressions
           type: basic:decimal
           required: false
-        - name: signatures__description_of_signatures
+        - name: signatures_description
           label: Signatures/Description
           type: basic:string
           required: false
-        - name: public_or_private_database_data__database_1
+        - name: public_or_private_database_data_database_1
           label: Public or private database data/Database 1
           type: basic:string
           required: false
-        - name: public_or_private_database_data__database_2
+        - name: public_or_private_database_data_database_2
           label: Public or private database data/Database 2
           type: basic:string
           required: false
-        - name: public_or_private_database_data__database_3
+        - name: public_or_private_database_data_database_3
           label: Public or private database data/Database 3
           type: basic:string
           required: false
-        - name: public_or_private_database_data__database_4
+        - name: public_or_private_database_data_database_4
           label: Public or private database data/Database 4
           type: basic:string
           required: false
     - name: misc
       label: Misc
       group:
-        - name: experiment__assay_type
+        - name: experiment_assay_type
           label: Experiment details/Assay type
           type: basic:string
           required: false
@@ -1387,13 +1182,13 @@
               value: edge-seq
             - label: Other
               value: other
-        - name: experiment__extract_protocol
+        - name: experiment_extract_protocol
           label: Experiment details/Extract protocol
           type: basic:string
           description: |
             Describe the protocols used to extract and prepare the material to be sequenced.
           required: false
-        - name: experiment__molecule
+        - name: experiment_molecule
           label: Experiment details/Molecule
           type: basic:string
           description: |
@@ -1414,7 +1209,7 @@
               value: protein
             - label: Other
               value: other
-        - name: experiment__library_depleted_in
+        - name: experiment_library_depleted_in
           label: Experiment details/Library depleted in
           type: basic:string
           description: |
@@ -1425,12 +1220,12 @@
               value: rrna
             - label: polyA mRNA
               value: polya_mrna
-        - name: experiment__library_treatment
+        - name: experiment_library_treatment
           label: Experiment details/Library treatment
           type: basic:string
           description: Describe how the library was treated.
           required: false
-        - name: experiment__replication_type
+        - name: experiment_replication_type
           label: Experiment details/Replication type
           type: basic:string
           description: |
@@ -1450,7 +1245,7 @@
               value: pseudoreplicate
             - label: Other
               value: other
-        - name: experiment__platform
+        - name: experiment_platform
           label: Experiment details/Platform
           type: basic:string
           description: Select the platform used to sequence the samples.
