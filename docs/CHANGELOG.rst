@@ -20,6 +20,7 @@ Changed
 
 Fixed
 -----
+- Output all detected input variants in ``mutations-table`` process
 
 
 ===================

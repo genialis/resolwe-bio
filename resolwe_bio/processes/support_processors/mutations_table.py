@@ -246,7 +246,8 @@ def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields, wa
             variants_table.groupby(
                 vcf_fields
                 + [field for field in ann_fields if field != "Feature_ID"]
-                + [col for col in variants_table.columns if col.endswith("GT")]
+                + [col for col in variants_table.columns if col.endswith("GT")],
+                dropna=False,
             )["Feature_ID"]
             .apply(",".join)
             .reset_index()
@@ -328,7 +329,7 @@ class MutationsTable(ProcessBio):
     }
     category = "Other"
     data_name = "{{ variants|name|default('?') }}"
-    version = "1.2.0"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
