@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add  ``REDIS_CONNECTION_STRING`` setting needed by the ``Resolwe``
+- Add process ``samtools-view``
 
 Changed
 -------

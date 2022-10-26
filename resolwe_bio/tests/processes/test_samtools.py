@@ -1,0 +1,82 @@
+from pathlib import Path
+
+from resolwe.flow.models import Data
+from resolwe.test import tag_process
+
+from resolwe_bio.utils.test import BioProcessTestCase
+
+
+class SamtoolsProcessorTestCase(BioProcessTestCase):
+    @tag_process("samtools-view")
+    def samtools_view(self):
+        input_folder = Path("samtools") / "inputs"
+        output_folder = Path("samtools") / "outputs"
+        with self.preparation_stage():
+
+            inputs_bam = {
+                "src": input_folder / "samtools_in.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam = self.run_process("upload-bam", inputs_bam)
+
+            inputs_bed = {
+                "src": input_folder / "regions_bed.bed",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bed = self.run_process("upload-bed", inputs_bed)
+
+        inputs = {
+            "bam": bam.id,
+            "region": "7:116755355-116755480",
+        }
+        samtools = self.run_process("samtools-view", inputs)
+        self.assertFile(samtools, "stats", output_folder / "regions.bam_stats.txt")
+
+        inputs = {
+            "bam": bam.id,
+            "bedfile": bed.id,
+            "advanced": {
+                "include_header": False,
+            },
+        }
+        samtools = self.run_process("samtools-view", inputs)
+        self.assertFile(samtools, "stats", output_folder / "bedfile.bam_stats.txt")
+        self.assertFile(samtools, "bam", output_folder / "samtools_bed.bam")
+
+        inputs = {
+            "bam": bam.id,
+            "bedfile": bed.id,
+            "advanced": {"subsample": 0.8, "subsample_seed": 60},
+        }
+        samtools = self.run_process("samtools-view", inputs)
+        self.assertFileExists(samtools, "stats")
+
+        inputs = {
+            "bam": bam.id,
+            "region": "2:50493-50634",
+            "advanced": {"only_header": True},
+        }
+        samtools = self.run_process("samtools-view", inputs)
+        self.assertFileExists(samtools, "bam")
+
+        inputs = {
+            "bam": bam.id,
+        }
+        samtools = self.run_process("samtools-view", inputs, Data.STATUS_ERROR)
+        error_msg = [("No region or BED file specified.")]
+        self.assertEqual(samtools.process_error, error_msg)
+
+        inputs = {
+            "bam": bam.id,
+            "region": "chr7:116755355-116755480",
+        }
+        samtools = self.run_process("samtools-view", inputs)
+        warning_msg = [
+            (
+                '[main_samview] region "chr7:116755355-116755480" '
+                "specifies an invalid region or unknown reference. Continue anyway.\n"
+            )
+        ]
+        self.assertEqual(samtools.process_warning, warning_msg)
