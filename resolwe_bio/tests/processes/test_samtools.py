@@ -80,3 +80,76 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             )
         ]
         self.assertEqual(samtools.process_warning, warning_msg)
+
+    @tag_process("samtools-coverage-single", "samtools-coverage-multi")
+    def samtools_coverage(self):
+        input_folder = Path("samtools") / "inputs"
+        output_folder = Path("samtools") / "outputs"
+        with self.preparation_stage():
+
+            inputs_bam = {
+                "src": input_folder / "samtools_in.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam1 = self.run_process("upload-bam", inputs_bam)
+
+            inputs_bam = {
+                "src": output_folder / "samtools_bed.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam2 = self.run_process("upload-bam", inputs_bam)
+
+            inputs_bam = {
+                "src": output_folder / "samtools_bed.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh37",
+            }
+            bam3 = self.run_process("upload-bam", inputs_bam)
+
+        inputs = {
+            "bam": [bam1.id, bam2.id],
+            "region": "7",
+            "advanced": {"min_read_length": 27, "depth": 0},
+        }
+        coverage = self.run_process("samtools-coverage-multi", inputs)
+        self.assertFile(coverage, "table", output_folder / "coverage_multi.tsv")
+
+        inputs = {
+            "bam": [bam1.id, bam2.id, bam3.id],
+            "region": "7",
+            "advanced": {"min_read_length": 27, "depth": 0},
+        }
+        coverage = self.run_process(
+            "samtools-coverage-multi", inputs, Data.STATUS_ERROR
+        )
+        error_msg = [
+            (
+                "Not all BAM files have the same genome build. "
+                "BAM file samtools_in.bam has build GRCh38, while file "
+                "samtools_bed.bam has build GRCh37."
+            )
+        ]
+        self.assertEqual(coverage.process_error, error_msg)
+
+        inputs = {
+            "bam": bam1.id,
+            "region": "7:116755355-116755480",
+            "advanced": {
+                "excl_flags": ["SECONDARY", "QCFAIL"],
+            },
+        }
+        coverage = self.run_process("samtools-coverage-single", inputs)
+        self.assertFile(coverage, "table", output_folder / "coverage_single.tsv")
+
+        inputs = {
+            "bam": bam1.id,
+            "region": "chr7:116755355-1167554804",
+            "advanced": {
+                "excl_flags": ["SECONDARY"],
+            },
+        }
+        coverage = self.run_process(
+            "samtools-coverage-single", inputs, Data.STATUS_ERROR
+        )
