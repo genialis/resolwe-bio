@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add  ``REDIS_CONNECTION_STRING`` setting needed by the ``Resolwe``
 
 Changed
 -------

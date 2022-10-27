@@ -96,7 +96,10 @@ REDIS_CONNECTION = {
     "host": "localhost",
     "port": int(os.environ.get("RESOLWE_REDIS_PORT", 56380)),
     "db": int(os.environ.get("RESOLWE_REDIS_DATABASE", 0)),
+    "protocol": (os.environ.get("RESOLWE_REDIS_PROTOCOL", "redis")),
 }
+REDIS_CONNECTION_STRING = "{protocol}://{host}:{port}/{db}".format(**REDIS_CONNECTION)
+
 LISTENER_CONNECTION = {
     # Keys in the hosts dictionary are workload connector names. Currently
     # supported are 'local', 'kubertenes', 'celery' and 'slurm'.
@@ -247,7 +250,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(REDIS_CONNECTION["host"], REDIS_CONNECTION["port"])],
+            "hosts": [REDIS_CONNECTION_STRING],
             "expiry": 3600,
         },
     },
