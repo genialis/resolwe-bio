@@ -144,6 +144,28 @@ def create_lib_strand_table(samples, reports):
         json.dump(lib_strand_json, out_file)
 
 
+def sum_featurecounts_columns(summary_file, out_file):
+    """Prepare input for featureCounts."""
+    exp = pd.read_csv(
+        summary_file,
+        sep="\t",
+        index_col="Status",
+        dtype={
+            "Status": str,
+        },
+    )
+    if len(exp.columns) > 1:
+        sum_column = exp.columns[0].split(":")[0]
+        exp[sum_column] = exp.sum(axis=1)
+
+        exp = exp.astype({sum_column: int})
+        return exp[[sum_column]].to_csv(
+            out_file,
+            index_label="Status",
+            sep="\t",
+        )
+
+
 def process_strand_report_file(data, lib_type_samples, lib_type_reports):
     """Process Strandedness report file if it exists as Data output file."""
     try:
@@ -333,7 +355,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.16.1"
+    version = "1.17.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -499,9 +521,14 @@ class MultiQC(Process):
 
             elif d.process.type == "data:expression:featurecounts:":
                 name = os.path.basename(d.output.counts_summary.path)
-                create_symlink(
-                    d.output.counts_summary.path, os.path.join(sample_dir, name)
+                sum_featurecounts_columns(
+                    summary_file=d.output.counts_summary.path,
+                    out_file=os.path.join(sample_dir, f"summed_{name}"),
                 )
+                if not os.path.exists(f"summed_{name}"):
+                    create_symlink(
+                        d.output.counts_summary.path, os.path.join(sample_dir, name)
+                    )
                 # Strandedness report exists only if auto detection was enabled
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
 

@@ -407,6 +407,179 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         }
         self.assertFields(filtered_reads, "fastqc_url2", [report2])
 
+    @tag_process("bbduk-single-beta", "bbduk-paired-beta")
+    def test_bbduk_beta(self):
+        input_folder = Path("bbduk") / "input"
+        output_folder = Path("bbduk") / "output"
+        with self.preparation_stage():
+            reads = self.prepare_reads(
+                [
+                    input_folder / "bbduk_test_reads.fastq.gz",
+                    input_folder / "rRNA_forw.fastq.gz",
+                    "fw reads.fastq.gz",
+                ]
+            )
+            reads_single = self.prepare_reads(
+                [input_folder / "bbduk_test_reads.fastq.gz"]
+            )
+            reads_paired = self.prepare_paired_reads(
+                [input_folder / "rRNA_forw.fastq.gz"],
+                [input_folder / "rRNA_rew.fastq.gz"],
+            )
+            ref_seq = self.prepare_ref_seq(
+                fn=input_folder / "bbduk_adapters.fasta",
+                species="Other",
+                build="Custom",
+            )
+            barcodes = self.prepare_ref_seq(
+                fn=input_folder / "barcodes.fasta",
+                species="Other",
+                build="Custom",
+            )
+            reads_paired_lanes = self.prepare_paired_reads(
+                mate1=["fw reads.fastq.gz", "fw reads_2.fastq.gz"],
+                mate2=["rw reads.fastq.gz", "rw reads_2.fastq.gz"],
+            )
+
+        inputs = {
+            "reads": reads.id,
+            "reference": {
+                "sequences": [ref_seq.id],
+            },
+            "header_parsing": {
+                "barcode_files": [barcodes.id],
+            },
+            "operations": {
+                "quality_trim": "l",
+            },
+        }
+        filtered_reads = self.run_process("bbduk-single-beta", inputs)
+
+        self.assertFiles(
+            filtered_reads,
+            "fastq",
+            [
+                output_folder / "bbduk_test_reads_preprocessed.fastq.gz",
+                output_folder / "rRNA_forw_preprocessed.fastq.gz",
+                output_folder / "fw_reads_preprocessed.fastq.gz",
+            ],
+            compression="gzip",
+        )
+        del filtered_reads.output["fastqc_url"][0][
+            "total_size"
+        ]  # Non-deterministic output.
+        del filtered_reads.output["fastqc_url"][1]["total_size"]
+        del filtered_reads.output["fastqc_url"][2]["total_size"]
+        report = [
+            {
+                "file": "fastqc/bbduk_test_reads_preprocessed_fastqc/fastqc_report.html",
+                "refs": [
+                    "fastqc/bbduk_test_reads_preprocessed_fastqc",
+                ],
+            },
+            {
+                "file": "fastqc/rRNA_forw_preprocessed_fastqc/fastqc_report.html",
+                "refs": ["fastqc/rRNA_forw_preprocessed_fastqc"],
+            },
+            {
+                "file": "fastqc/fw reads_preprocessed_fastqc/fastqc_report.html",
+                "refs": ["fastqc/fw reads_preprocessed_fastqc"],
+            },
+        ]
+        self.assertFields(filtered_reads, "fastqc_url", report)
+
+        inputs["reads"] = reads_single.id
+        filtered_reads = self.run_process("bbduk-single-beta", inputs)
+
+        inputs = {
+            "reads": reads_paired.id,
+        }
+
+        filtered_reads = self.run_process("bbduk-paired-beta", inputs)
+
+        self.assertFiles(
+            filtered_reads,
+            "fastq",
+            [output_folder / "bbduk_fw_reads.fastq.gz"],
+            compression="gzip",
+        )
+        self.assertFiles(
+            filtered_reads,
+            "fastq2",
+            [output_folder / "bbduk_rv_reads.fastq.gz"],
+            compression="gzip",
+        )
+        del filtered_reads.output["fastqc_url"][0][
+            "total_size"
+        ]  # Non-deterministic output.
+        report = {
+            "file": "fastqc/rRNA_forw_preprocessed_fastqc/fastqc_report.html",
+            "refs": [
+                "fastqc/rRNA_forw_preprocessed_fastqc",
+            ],
+        }
+        self.assertFields(filtered_reads, "fastqc_url", [report])
+        del filtered_reads.output["fastqc_url2"][0][
+            "total_size"
+        ]  # Non-deterministic output.
+        report2 = {
+            "file": "fastqc/rRNA_rew_preprocessed_fastqc/fastqc_report.html",
+            "refs": [
+                "fastqc/rRNA_rew_preprocessed_fastqc",
+            ],
+        }
+        self.assertFields(filtered_reads, "fastqc_url2", [report2])
+
+        inputs = {
+            "reads": reads_paired_lanes.id,
+        }
+
+        filtered_reads = self.run_process("bbduk-paired-beta", inputs)
+
+        del filtered_reads.output["fastqc_url"][0][
+            "total_size"
+        ]  # Non-deterministic output.
+        del filtered_reads.output["fastqc_url"][1][
+            "total_size"
+        ]  # Non-deterministic output.
+        report = [
+            {
+                "file": "fastqc/fw reads_preprocessed_fastqc/fastqc_report.html",
+                "refs": [
+                    "fastqc/fw reads_preprocessed_fastqc",
+                ],
+            },
+            {
+                "file": "fastqc/fw reads_2_preprocessed_fastqc/fastqc_report.html",
+                "refs": [
+                    "fastqc/fw reads_2_preprocessed_fastqc",
+                ],
+            },
+        ]
+        self.assertFields(filtered_reads, "fastqc_url", report)
+
+        del filtered_reads.output["fastqc_url2"][0][
+            "total_size"
+        ]  # Non-deterministic output.
+        del filtered_reads.output["fastqc_url2"][1][
+            "total_size"
+        ]  # Non-deterministic output.
+        report2 = [
+            {
+                "file": "fastqc/rw reads_preprocessed_fastqc/fastqc_report.html",
+                "refs": [
+                    "fastqc/rw reads_preprocessed_fastqc",
+                ],
+            },
+            {
+                "file": "fastqc/rw reads_2_preprocessed_fastqc/fastqc_report.html",
+                "refs": [
+                    "fastqc/rw reads_2_preprocessed_fastqc",
+                ],
+            },
+        ]
+        self.assertFields(filtered_reads, "fastqc_url2", report2)
+
     @tag_process("bamclipper")
     def test_bamclipper(self):
         species = "Homo sapiens"

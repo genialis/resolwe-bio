@@ -494,6 +494,197 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+    @with_resolwe_host
+    @tag_process("feature_counts-beta")
+    def test_feature_counts_beta(self):
+        base = Path("test_featurecounts")
+        inputs = base / "inputs"
+        outputs = base / "outputs"
+        input_folder = Path("test_star") / "input"
+        with self.preparation_stage():
+            annotation_gtf = self.run_process(
+                "upload-gtf",
+                {
+                    "src": inputs / "feature_counts hs.gtf.gz",
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+            annotation_gff3 = self.prepare_annotation_gff()
+
+            annotation = self.prepare_annotation(
+                fn=input_folder / "hs annotation.gtf.gz",
+                source="ENSEMBL",
+                species="Homo sapiens",
+                build="GRCh38_ens90",
+            )
+
+            bam_single = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "reads.bam",
+                    "species": "Dictyostelium discoideum",
+                    "build": "dd-05-2009",
+                },
+            )
+
+            single_lanes = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "single_lanes.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
+            bam_paired = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "feature_counts hs_paired.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
+            paired_lanes = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "paired_lanes.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
+            bam_ucsc = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "cuffquant_mapping.bam",
+                    "species": "Homo sapiens",
+                    "build": "hg19",
+                },
+            )
+
+            annotation_ucsc = self.prepare_annotation(
+                fn=inputs / "hg19_chr20_small_modified.gtf.gz",
+                source="UCSC",
+                species="Homo sapiens",
+                build="hg19",
+            )
+        # test using BAM file containing paired-end reads and a GTF input file
+        expression = self.run_process(
+            "feature_counts-beta",
+            {
+                "aligned_reads": bam_paired.id,
+                "annotation": annotation_gtf.id,
+            },
+        )
+        self.assertFile(
+            expression,
+            "rc",
+            outputs / "feature_counts_out_rc.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "cpm",
+            outputs / "feature_counts_out_cpm.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "feature_counts_out_tpm.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp_set",
+            outputs / "feature_counts_out_exp_set.txt.gz",
+            compression="gzip",
+        )
+        self.assertJSON(
+            expression,
+            expression.output["exp_set_json"],
+            "",
+            outputs / "feature_counts_exp_set.json.gz",
+        )
+        self.assertFields(expression, "species", "Homo sapiens")
+        self.assertFields(expression, "build", "GRCh38_ens90")
+        self.assertFields(expression, "feature_type", "gene")
+
+        # test using BAM file containing single-end reads and a GFF input file
+        expression = self.run_process(
+            "feature_counts-beta",
+            {
+                "aligned_reads": bam_single.id,
+                "annotation": annotation_gff3.id,
+                "id_attribute": "Parent",
+            },
+        )
+        self.assertFile(
+            expression,
+            "rc",
+            outputs / "feature_counts_out_gff3_rc.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "feature_counts_out_gff3_tpm.tab.gz",
+            compression="gzip",
+        )
+        self.assertFields(expression, "feature_type", "gene")
+
+        expression_lanes = self.run_process(
+            "feature_counts-beta",
+            {
+                "aligned_reads": single_lanes.id,
+                "annotation": annotation.id,
+            },
+        )
+        self.assertFile(
+            expression_lanes,
+            "rc",
+            outputs / "feature_counts_single_lanes_rc.tab.gz",
+            compression="gzip",
+        )
+
+        # test using UCSC-derived annotation
+        expression = self.run_process(
+            "feature_counts-beta",
+            {
+                "aligned_reads": bam_ucsc.id,
+                "annotation": annotation_ucsc.id,
+            },
+        )
+        self.assertFile(
+            expression,
+            "rc",
+            outputs / "feature_counts_out_ucsc_rc.tab.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "feature_counts_out_ucsc_tpm.tab.gz",
+            compression="gzip",
+        )
+
+        expression_lanes = self.run_process(
+            "feature_counts-beta",
+            {
+                "aligned_reads": paired_lanes.id,
+                "annotation": annotation.id,
+            },
+        )
+        self.assertFile(
+            expression_lanes,
+            "exp",
+            outputs / "feature_counts_paired_lanes_tpm.tab.gz",
+            compression="gzip",
+        )
+
     @tag_process("salmon-index")
     def test_salmon_index(self):
         with self.preparation_stage():
