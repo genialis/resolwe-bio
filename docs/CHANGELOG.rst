@@ -13,6 +13,10 @@ Unreleased
 
 Added
 -----
+- Add processes ``alignment-star-beta``, ``feature_counts-beta``,
+  ``bbduk-single-beta``, ``bbduk-paired-beta`` and
+  ``workflow-bbduk-star-featurecounts-qc-beta`` that support
+  per-lane sample QC
 
 Changed
 -------

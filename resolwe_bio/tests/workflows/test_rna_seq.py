@@ -440,6 +440,174 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
 
     @with_resolwe_host
+    @tag_process(
+        "workflow-bbduk-star-featurecounts-qc-beta",
+    )
+    def test_bbduk_star_featurecounts_workflow_beta(self):
+        input_folder = Path("test_star") / "input"
+        with self.preparation_stage():
+            reads = self.prepare_reads(["hs sim_reads_single.fastq.gz"])
+            paired_reads = self.prepare_paired_reads(
+                ["hs sim_reads1.fastq.gz"], ["hs sim_reads2.fastq.gz"]
+            )
+            paired_lanes = self.prepare_paired_reads(
+                mate1=[
+                    str(
+                        input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"
+                    ),
+                    str("hs sim_reads1.fastq.gz"),
+                ],
+                mate2=[
+                    str(
+                        input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"
+                    ),
+                    str("hs sim_reads2.fastq.gz"),
+                ],
+            )
+            annotation = self.prepare_annotation(
+                fn="hs annotation.gtf.gz",
+                source="ENSEMBL",
+                species="Homo sapiens",
+                build="ens90",
+            )
+            star_index_fasta = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "hs genome.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "ens90",
+                },
+            )
+            inputs = {
+                "annotation": annotation.id,
+                "ref_seq": star_index_fasta.id,
+            }
+            star_index = self.run_process("alignment-star-index", inputs)
+            adapters = self.prepare_ref_seq()
+
+            rrna_reference = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "Homo_sapiens_rRNA.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "rRNA",
+                },
+            )
+            rrna_star_index = self.run_process(
+                "alignment-star-index",
+                {
+                    "ref_seq": rrna_reference.id,
+                    "source": "NCBI",
+                    "advanced": {
+                        "genome_sa_string_len": 2,
+                    },
+                },
+            )
+
+            globin_reference = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "Homo_sapiens_globin_reference.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "globin",
+                },
+            )
+            globin_star_index = self.run_process(
+                "alignment-star-index",
+                {
+                    "ref_seq": globin_reference.id,
+                    "source": "NCBI",
+                    "advanced": {
+                        "genome_sa_string_len": 2,
+                    },
+                },
+            )
+
+        inputs = {
+            "reads": reads.id,
+            "genome": star_index.id,
+            "annotation": annotation.id,
+            "rrna_reference": rrna_star_index.id,
+            "globin_reference": globin_star_index.id,
+            "preprocessing": {
+                "adapters": [adapters.id],
+                "custom_adapter_sequences": ["ACTGACTGACTG", "AAACCCTTT"],
+            },
+        }
+
+        self.run_process("workflow-bbduk-star-featurecounts-qc-beta", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug="feature_counts-beta").last()
+        self.assertFile(
+            feature_counts, "rc", "feature_counts_rc_single.tab.gz", compression="gzip"
+        )
+        self.assertEqual(
+            feature_counts.name, "Quantified (hs sim_reads_single.fastq.gz)"
+        )
+
+        globin = Data.objects.filter(process__slug="alignment-star-beta").last()
+        self.assertFields(globin, "build", "globin")
+        self.assertEqual(globin.name, "Globin aligned (hs sim_reads_single.fastq.gz)")
+
+        multiqc = Data.objects.filter(process__slug="multiqc").last()
+        self.assertFileExists(multiqc, "report")
+
+        inputs["reads"] = paired_reads.id
+        self.run_process("workflow-bbduk-star-featurecounts-qc-beta", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug="feature_counts-beta").last()
+        self.assertFile(
+            feature_counts, "rc", "feature_counts_rc_paired.tab.gz", compression="gzip"
+        )
+        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
+
+        globin = Data.objects.filter(process__slug="alignment-star-beta").last()
+        self.assertFields(globin, "build", "globin")
+        self.assertEqual(globin.name, "Globin aligned (hs sim_reads1.fastq.gz)")
+
+        multiqc = Data.objects.filter(process__slug="multiqc").last()
+        self.assertFileExists(multiqc, "report")
+
+        # test the pipeline without the adapter sequences specified
+        del inputs["preprocessing"]["adapters"]
+        del inputs["preprocessing"]["custom_adapter_sequences"]
+        self.run_process("workflow-bbduk-star-featurecounts-qc-beta", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug="feature_counts-beta").last()
+        self.assertFile(
+            feature_counts,
+            "rc",
+            "feature_counts_rc_paired_wo_adapter_trim.tab.gz",
+            compression="gzip",
+        )
+        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
+
+        inputs = {
+            "reads": paired_lanes.id,
+            "genome": star_index.id,
+            "annotation": annotation.id,
+            "rrna_reference": rrna_star_index.id,
+            "globin_reference": globin_star_index.id,
+            "preprocessing": {
+                "adapters": [adapters.id],
+                "custom_adapter_sequences": ["ACTGACTGACTG", "AAACCCTTT"],
+            },
+        }
+        self.run_process("workflow-bbduk-star-featurecounts-qc-beta", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        feature_counts = Data.objects.filter(process__slug="feature_counts-beta").last()
+        self.assertFile(
+            feature_counts,
+            "exp_set",
+            "hs_paired_R1_workflow_bbduk_star_htseq_preprocessed_expressions.txt.gz",
+            compression="gzip",
+        )
+
+    @with_resolwe_host
     @tag_process("workflow-corall-single", "workflow-corall-paired")
     def test_corall(self):
         with self.preparation_stage():
