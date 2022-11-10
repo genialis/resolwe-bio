@@ -1,7 +1,7 @@
 - slug: general
   name: General descriptor schema
   description: General descriptor schema.
-  version: 2.0.2
+  version: 2.0.3
   schema:
     - name: general
       label: General information
@@ -1028,12 +1028,12 @@
           label: Biomarkers/PDL1 TPS category
           type: basic:string
           choices:
-            - label: <1%
-              value: less_than_1
-            - label: 1-49%
-              value: from_1_to_49
-            - label: 50%<
-              value: more_than_50
+            - label: '<1%'
+              value: '<1%'
+            - label: '1-50%'
+              value: '1-50%'
+            - label: '>50%'
+              value: '>50%'
           description: |
             PDL1 tumor proportion score category.
           required: false
