@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+47.4.0 - 2022-11-14
+===================
+
+Added
+-----
 - Add  ``REDIS_CONNECTION_STRING`` setting needed by the ``Resolwe``
 - Add process ``samtools-view``
 - Add process ``samtools-coverage``
@@ -28,6 +42,7 @@ Fixed
   descriptor schema
 - Change choice values of the field ``biomarkers_pdl1_tps_cat`` in
   ``general`` descriptor schema
+
 
 ===================
 47.3.1 - 2022-10-18
