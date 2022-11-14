@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+48.0.0 - 2022-11-14
+===================
+
+Added
+-----
 - Add  ``REDIS_CONNECTION_STRING`` setting needed by the ``Resolwe``
 - Add process ``samtools-view``
 - Add process ``samtools-coverage``
