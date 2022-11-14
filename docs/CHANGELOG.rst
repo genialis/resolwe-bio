@@ -19,6 +19,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 32.x
 -  Support GEO series with EBI samples in ``geo-import`` process
 
 Fixed
