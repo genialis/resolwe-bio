@@ -12,6 +12,8 @@ from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from resolwe.flow.filters import OrderingFilter
+
 from .backends import ResolweBioFilterBackend
 from .filters import FeatureFilter, MappingFilter
 from .models import Feature, Mapping
@@ -37,7 +39,7 @@ class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
-    filter_backends = [ResolweBioFilterBackend]
+    filter_backends = [ResolweBioFilterBackend, OrderingFilter]
     filter_class = FeatureFilter
     pagination_class = LimitOffsetPostPagination
 
@@ -86,7 +88,7 @@ class MappingSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     queryset = Mapping.objects.all()
     serializer_class = MappingSerializer
-    filter_backends = [ResolweBioFilterBackend]
+    filter_backends = [ResolweBioFilterBackend, OrderingFilter]
     filter_class = MappingFilter
     pagination_class = LimitOffsetPostPagination
 

@@ -25,6 +25,7 @@ Changed
 
 Fixed
 -----
+- Enable ordering on knowledge-base endpoints
 
 
 ===================
