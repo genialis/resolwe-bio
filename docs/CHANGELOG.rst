@@ -20,6 +20,8 @@ Added
 
 Changed
 -------
+- Remove group nesting for QC fields in ``general`` descriptor
+  schema
 
 Fixed
 -----

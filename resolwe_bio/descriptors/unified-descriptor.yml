@@ -1,7 +1,7 @@
 - slug: general
   name: General descriptor schema
   description: General descriptor schema.
-  version: 2.0.3
+  version: 2.1.0
   schema:
     - name: general
       label: General information
@@ -39,24 +39,21 @@
           label: Description
           type: basic:string
           required: false
-        - name: qc
-          label: Quality check
-          group:
-            - name: status
-              label: Status
-              type: basic:string
-              required: false
-              choices:
-                - label: Pass
-                  value: PASS
-                - label: Warning
-                  value: WARNING
-                - label: Fail
-                  value: FAIL
-            - name: message
-              label: Message
-              type: basic:string
-              required: false
+        - name: qc_status
+          label: QC/Status
+          type: basic:string
+          required: false
+          choices:
+            - label: Pass
+              value: PASS
+            - label: Warning
+              value: WARNING
+            - label: Fail
+              value: FAIL
+        - name: qc_message
+          label: QC/Message
+          type: basic:string
+          required: false
     - name: non_clinical_information
       label: Non-clinical information
       group:
