@@ -46,7 +46,7 @@ class SnpEff(Process):
     }
     category = "Other"
     data_name = "Annotated variants (SnpEff)"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -140,7 +140,7 @@ class SnpEff(Process):
         filtered_variants = "filtered_variants.vcf"
         extracted_variants = "extracted_variants.vcf"
 
-        if inputs.variants.output.build != inputs.database[:6]:
+        if not inputs.variants.output.build.startswith(inputs.database[:6]):
             self.error(
                 "Genome build for the input variants file and "
                 "SnpEff database should be the same. Input variants file is "
@@ -156,7 +156,7 @@ class SnpEff(Process):
 
         if inputs.dbsnp:
 
-            if inputs.dbsnp.output.build != inputs.database[:6]:
+            if not inputs.dbsnp.output.build.startswith(inputs.database[:6]):
                 self.error(
                     "Genome build for the DBSNP file and used database "
                     "should be the same. DBSNP file is based on "

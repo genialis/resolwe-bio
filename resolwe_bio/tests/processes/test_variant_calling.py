@@ -216,7 +216,7 @@ class VariantCallingTestCase(BioProcessTestCase):
                 {
                     "src": input_folder / "filtered_snpeff.vcf.gz",
                     "species": "Homo sapiens",
-                    "build": "GRCh38",
+                    "build": "GRCh38_ens100",
                 },
             )
             dbsnp_rna = self.run_process(
@@ -225,6 +225,14 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "src": input_folder / "dbsnp.vcf.gz",
                     "species": "Homo sapiens",
                     "build": "GRCh37",
+                },
+            )
+            dbsnp_rna_38 = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "dbsnp.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
                 },
             )
             genes = self.run_process(
@@ -252,6 +260,15 @@ class VariantCallingTestCase(BioProcessTestCase):
             "GRCh37, while snpEff database is based on "
             "GRCh38.",
         )
+        snpeff = self.run_process(
+            "snpeff",
+            {
+                "variants": variants_rna.id,
+                "database": "GRCh38.99",
+                "dbsnp": dbsnp_rna_38.id,
+            },
+        )
+        self.assertFields(snpeff, "build", "GRCh38_ens100")
 
         snpeff_filtering = self.run_process(
             "snpeff",

@@ -26,6 +26,7 @@ Changed
 Fixed
 -----
 - Enable ordering on knowledge-base endpoints
+- Fix the check for genome builds of inputs in process ``snpeff``
 
 
 ===================
