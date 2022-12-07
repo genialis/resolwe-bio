@@ -159,7 +159,7 @@ def sum_featurecounts_columns(summary_file, out_file):
         exp[sum_column] = exp.sum(axis=1)
 
         exp = exp.astype({sum_column: int})
-        return exp[[sum_column]].to_csv(
+        exp[[sum_column]].to_csv(
             out_file,
             index_label="Status",
             sep="\t",
@@ -355,7 +355,7 @@ class MultiQC(Process):
     }
     category = "Other"
     data_name = "MultiQC report"
-    version = "1.17.0"
+    version = "1.17.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -525,7 +525,7 @@ class MultiQC(Process):
                     summary_file=d.output.counts_summary.path,
                     out_file=os.path.join(sample_dir, f"summed_{name}"),
                 )
-                if not os.path.exists(f"summed_{name}"):
+                if not os.path.exists(os.path.join(sample_dir, f"summed_{name}")):
                     create_symlink(
                         d.output.counts_summary.path, os.path.join(sample_dir, name)
                     )

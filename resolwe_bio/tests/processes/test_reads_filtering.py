@@ -1,7 +1,9 @@
 from pathlib import Path
 
+from django.test import override_settings
+
 from resolwe.flow.models import Data
-from resolwe.test import tag_process
+from resolwe.test import tag_process, with_docker_executor
 
 from resolwe_bio.utils.test import BioProcessTestCase
 
@@ -407,6 +409,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         }
         self.assertFields(filtered_reads, "fastqc_url2", [report2])
 
+    @with_docker_executor
+    @override_settings(FLOW_PROCESS_MAX_CORES=4)
     @tag_process("bbduk-single-beta", "bbduk-paired-beta")
     def test_bbduk_beta(self):
         input_folder = Path("bbduk") / "input"

@@ -1,7 +1,9 @@
 from pathlib import Path
 
+from django.test import override_settings
+
 from resolwe.flow.models import Data
-from resolwe.test import tag_process, with_resolwe_host
+from resolwe.test import tag_process, with_docker_executor, with_resolwe_host
 
 from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import KBBioProcessTestCase
@@ -440,11 +442,14 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
 
     @with_resolwe_host
+    @with_docker_executor
+    @override_settings(FLOW_PROCESS_MAX_CORES=4)
     @tag_process(
         "workflow-bbduk-star-featurecounts-qc-beta",
     )
     def test_bbduk_star_featurecounts_workflow_beta(self):
         input_folder = Path("test_star") / "input"
+        output_folder = Path("test_featurecounts") / "outputs"
         with self.preparation_stage():
             reads = self.prepare_reads(["hs sim_reads_single.fastq.gz"])
             paired_reads = self.prepare_paired_reads(
@@ -600,6 +605,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             feature_counts,
             "exp_set",
             "hs_paired_R1_workflow_bbduk_star_htseq_preprocessed_expressions.txt.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            feature_counts,
+            "per_lane_rc",
+            output_folder / "feature_counts_per_lane_rc.txt.gz",
             compression="gzip",
         )
 

@@ -43,7 +43,7 @@ def get_gene_counts(infile, outfile, sample_name):
         per_lane_raw_counts = "per_lane_rc.txt"
 
         exp[filter_col] = exp[filter_col].astype(int)
-        exp.to_csv(
+        exp[filter_col].to_csv(
             per_lane_raw_counts,
             index_label="FEATURE_ID",
             sep="\t",
@@ -55,7 +55,7 @@ def get_gene_counts(infile, outfile, sample_name):
         return_columns = sample_name
 
     exp = exp.astype({return_columns: int})
-    return exp[[return_columns]].to_csv(
+    exp[[return_columns]].to_csv(
         outfile,
         index_label="FEATURE_ID",
         header=["EXPRESSION"],
@@ -78,7 +78,7 @@ def get_gene_lenghts(infile, outfile):
         },
         squeeze=True,
     )
-    return exp.to_csv(
+    exp.to_csv(
         outfile,
         index_label="FEATURE_ID",
         header=["GENE_LENGTHS"],
@@ -96,7 +96,7 @@ def rename_columns_and_compress(infile, outfile):
         squeeze=True,
         float_precision="round_trip",
     )
-    return exp.to_csv(
+    exp.to_csv(
         outfile, index_label="Gene", header=["Expression"], sep="\t", compression="gzip"
     )
 
@@ -223,7 +223,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "1.0.0"
+    version = "1.0.1"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -872,12 +872,11 @@ class FeatureCounts(ProcessBio):
                     if line.startswith("@RG"):
                         read_groups.append(line.split(sep="\t")[1].split(sep=":")[-1])
 
-                self.info(f"Read groups {', '.join(read_groups)} detected.")
-
             if len(read_groups) > 0:
                 args.append("--byReadGroup")
+                self.info(f"Read groups {', '.join(read_groups)} detected.")
             else:
-                self.warning(
+                self.info(
                     f"BAM file {bam_file} does not have any read groups assigned."
                 )
 

@@ -149,7 +149,7 @@ class BBDukSingle(Process):
     slug = "bbduk-single-beta"
     name = "BBDuk (single-end) (beta)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Trim"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -645,6 +645,11 @@ class BBDukSingle(Process):
             args.append(
                 f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
             )
+        else:
+            self.error(
+                f"There are more sequencing lanes ({num_of_lanes}) than there are "
+                f"available cores ({self.requirements.resources.cores}). "
+            )
 
         if inputs.reference.sequences:
             args.append(f"ref={input_references}")
@@ -745,7 +750,7 @@ class BBDukPaired(Process):
     slug = "bbduk-paired-beta"
     name = "BBDuk (paired-end) (beta)"
     process_type = "data:reads:fastq:paired:bbduk"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Trim"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -1279,6 +1284,11 @@ class BBDukPaired(Process):
         if self.requirements.resources.cores >= num_of_lanes:
             args.append(
                 f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
+            )
+        else:
+            self.error(
+                f"There are more sequencing lanes ({num_of_lanes}) than there are "
+                f"available cores ({self.requirements.resources.cores}). "
             )
 
         if inputs.reference.sequences:
