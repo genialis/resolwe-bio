@@ -64,125 +64,28 @@ AMINOACIDS = [
 ]
 
 
-def get_output_table(mutations, reference, variants_table, output_table, genes, error):
+def get_output_table(mutations, variants_table, output_table, warning):
     """Prepare output table."""
+
+    genes = []
 
     for gene in mutations:
         genes.append(gene)
         if len(mutations[gene]) > 0:
             for mutation in mutations[gene]:
-                # Mutations for specific codon can theoretically be at three
-                # different sites
-                positions = list(
-                    set(
-                        reference.loc[
-                            (reference["HGVS.p"].str.contains(mutation))
-                            & (reference["Gene_Name"] == gene),
-                            "POS",
-                        ].tolist()
-                    )
-                )
-                if len(positions) == 0:
-                    error(
-                        f"There are no known variants for gene {gene} at "
-                        f"amino acid {mutation}."
-                    )
-                if (
-                    variants_table.empty
-                    or (
-                        variants_table.loc[
-                            (variants_table["HGVS.p"].str.contains(mutation))
-                            & (variants_table["Gene_Name"] == gene)
-                        ]
-                    ).empty
-                ):
-                    for position in positions:
-                        # Using [0] here because because if reference table was processed with
-                        # the option 'split_alleles', there will be multiple rows for one position
-                        chrom = reference.loc[
-                            reference["POS"] == position, "CHROM"
-                        ].tolist()[0]
-                        id = reference.loc[reference["POS"] == position, "ID"].tolist()[
-                            0
-                        ]
-                        ref = reference.loc[
-                            reference["POS"] == position, "REF"
-                        ].tolist()[0]
-                        df = pd.DataFrame(
-                            {
-                                "CHROM": [chrom],
-                                "POS": [position],
-                                "ID": [id],
-                                "REF": [ref],
-                                "Gene_Name": [gene],
-                                "HGVS.p": [
-                                    f"no mutation at position {mutation} detected"
-                                ],
-                            },
-                        )
-                        output_table = pd.concat(
-                            [output_table, df], ignore_index=True, axis=0
-                        )
-                else:
-                    df = variants_table.loc[
-                        (variants_table["HGVS.p"].str.contains(mutation))
-                        & (variants_table["Gene_Name"] == gene)
-                    ]
-                    output_table = pd.concat(
-                        [output_table, df], ignore_index=True, axis=0
-                    )
-        else:
-            positions = list(
-                set(
-                    reference.loc[
-                        (reference["Gene_Name"] == gene),
-                        "POS",
-                    ].tolist()
-                )
-            )
-            if len(positions) == 0:
-                error(f"There are no known variants for gene {gene}.")
-            if (
-                variants_table.empty
-                or (variants_table.loc[(variants_table["Gene_Name"] == gene)]).empty
-            ):
-                for position in positions:
-                    chrom = reference.loc[
-                        reference["POS"] == position, "CHROM"
-                    ].tolist()[0]
-                    id = reference.loc[reference["POS"] == position, "ID"].tolist()[0]
-                    ref = reference.loc[reference["POS"] == position, "REF"].tolist()[0]
-                    df = pd.DataFrame(
-                        {
-                            "CHROM": [chrom],
-                            "POS": [position],
-                            "ID": [id],
-                            "REF": [ref],
-                            "Gene_Name": [gene],
-                        },
-                    )
-                    output_table = pd.concat(
-                        [output_table, df], ignore_index=True, axis=0
-                    )
-            else:
-                df = variants_table.loc[(variants_table["Gene_Name"] == gene)]
+                df = variants_table.loc[
+                    (variants_table["HGVS.p"].str.contains(mutation))
+                    & (variants_table["Gene_Name"] == gene)
+                ]
                 output_table = pd.concat([output_table, df], ignore_index=True, axis=0)
+        else:
+            df = variants_table.loc[(variants_table["Gene_Name"] == gene)]
+            output_table = pd.concat([output_table, df], ignore_index=True, axis=0)
+
+    if output_table.empty and not variants_table.empty:
+        warning("No variants present for the input set of mutations.")
 
     return output_table, genes
-
-
-def check_reference(reference, error):
-    """Check if reference contains all necessary VCF fields."""
-
-    if (
-        not pd.Series(["CHROM", "POS", "ID", "REF", "ANN"])
-        .isin(reference.columns)
-        .all()
-    ):
-        error(
-            "Reference variants table does not contain all necessary fields. "
-            "Necessary fields are CHROM, POS, ID, REF and ANN."
-        )
 
 
 def get_mutations(input_mutations, error):
@@ -231,10 +134,12 @@ def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields, wa
     )
     if variants_table.empty:
         warning("There are no variants in the input VCF file.")
+
         for ann in ann_fields:
             variants_table[ann] = None
+
+        variants_table.drop("ANN", axis=1, inplace=True)
     else:
-        vcf_fields.remove("ANN")
         variants_table = ann_field_to_df(
             variants_table=variants_table,
             ann_fields=ann_fields,
@@ -285,16 +190,21 @@ def get_depth(variants_table, bam):
 
     bases = ["Base_A", "Base_C", "Base_G", "Base_T"]
 
-    for i in range(len(bases)):
-        variants_table[bases[i]] = variants_table.apply(
-            lambda row: bam.count_coverage(
-                contig=row["CHROM"], start=row["POS"] - 1, stop=row["POS"]
-            )[i][0],
-            axis=1,
-        )
-    variants_table["Total_depth"] = variants_table[bases].sum(axis=1)
-    variants_table["POS"] = variants_table["POS"].astype(int)
-    variants_table.sort_values(by=["POS"], inplace=True)
+    if not variants_table.empty:
+        for i in range(len(bases)):
+            variants_table[bases[i]] = variants_table.apply(
+                lambda row: bam.count_coverage(
+                    contig=row["CHROM"], start=row["POS"] - 1, stop=row["POS"]
+                )[i][0],
+                axis=1,
+            )
+        variants_table["Total_depth"] = variants_table[bases].sum(axis=1)
+        variants_table["POS"] = variants_table["POS"].astype(int)
+        variants_table.sort_values(by=["POS"], inplace=True)
+
+    else:
+        for col in bases + ["Total_depth"]:
+            variants_table[col] = None
 
     return variants_table.to_csv("mutations.tsv", sep="\t")
 
@@ -329,7 +239,7 @@ class MutationsTable(ProcessBio):
     }
     category = "Other"
     data_name = "{{ variants|name|default('?') }}"
-    version = "1.3.0"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -382,6 +292,7 @@ class MutationsTable(ProcessBio):
                 "REF",
                 "ALT",
                 "DP",
+                "FILTER",
                 "ANN",
             ],
         )
@@ -403,16 +314,6 @@ class MutationsTable(ProcessBio):
                 "Feature_ID",
                 "HGVS.p",
             ],
-        )
-        reference = DataField(
-            data_type="variantstable",
-            label="Table of known annotated variants",
-            description="To get the appropriate input format, first reference file (dbSNP) "
-            "has to be annotated with SnpEff. Then annotated VCF file has to be processed "
-            "by the process GATK VariantsToTable. When triggering the process "
-            "VariantsToTable keep in mind that the process Mutations table needs fields "
-            "CHROM, POS, ID, REF and ANN in the input reference file. Output table of "
-            "the process GATK VariantsToTable can be used as an input for this field.",
         )
         bam = DataField(
             data_type="alignment:bam",
@@ -483,22 +384,6 @@ class MutationsTable(ProcessBio):
                 f"file has sample id {inputs.bam.entity.id}."
             )
 
-        if inputs.variants.output.species != inputs.reference.output.species:
-            self.error(
-                "Species for variants and reference file do not match. "
-                f"Variants are from {inputs.variants.output.species}, while reference is "
-                f"from {inputs.reference.output.species}."
-            )
-
-        if inputs.variants.output.build != inputs.reference.output.build:
-            self.error(
-                "Genome build for variants and reference file do not match. "
-                f"Variants have build {inputs.variants.output.build}, while reference has "
-                f"build {inputs.reference.output.build}."
-            )
-        reference = pd.read_csv(inputs.reference.output.tsv.path, sep="\t", header=0)
-        check_reference(reference=reference, error=self.error)
-
         TMPDIR = os.environ.get("TMPDIR")
         variants_table = "variants_table.tsv"
 
@@ -527,20 +412,15 @@ class MutationsTable(ProcessBio):
             print(stdout, stderr)
             self.error("GATK VariantsToTable failed.")
 
+        vcf_fields = inputs.vcf_fields
+        vcf_fields.remove("ANN")
+
         variants_table = prepare_variants_table(
             variants_table=variants_table,
-            vcf_fields=inputs.vcf_fields,
+            vcf_fields=vcf_fields,
             ann_fields=inputs.ann_fields,
             gt_fields=inputs.advanced.gf_fields,
             warning=self.warning,
-        )
-        reference = ann_field_to_df(
-            variants_table=reference,
-            ann_fields=[
-                "Gene_Name",
-                "HGVS.p",
-            ],
-            vcf_fields=["CHROM", "POS", "ID", "REF"],
         )
 
         if inputs.mutations:
@@ -569,21 +449,19 @@ class MutationsTable(ProcessBio):
         bam = pysam.AlignmentFile(inputs.bam.output.bam.path, "rb")
         # Set up the output dataframe
         output_table = pd.DataFrame()
-        for field in inputs.vcf_fields:
-            output_table[field] = []
+        for field in vcf_fields:
+            output_table[field] = None
 
-        genes = []
         output_table, genes = get_output_table(
             mutations=mutations,
-            reference=reference,
             variants_table=variants_table,
             output_table=output_table,
-            genes=genes,
-            error=self.error,
+            warning=self.warning,
         )
 
         get_depth(variants_table=output_table, bam=bam)
         output_table.reset_index(inplace=True, drop=True)
+
         output_table.to_csv("mutations.tsv", sep="\t", index=False)
 
         outputs.tsv = "mutations.tsv"

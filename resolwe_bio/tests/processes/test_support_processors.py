@@ -1486,36 +1486,6 @@ re-save-file lane_attributes "${NAME}".txt
         input_folder = Path("report_variants") / "input"
         output_folder = Path("report_variants") / "output"
         with self.preparation_stage():
-            reference_vcf = self.run_process(
-                "upload-variants-vcf",
-                {
-                    "src": input_folder / "KRAS_annotated.vcf.gz",
-                    "species": "Homo sapiens",
-                    "build": "GRCh38",
-                },
-            )
-            reference_vcf2 = self.run_process(
-                "upload-variants-vcf",
-                {
-                    "src": input_folder / "filtered_variants.vcf.gz",
-                    "species": "Homo sapiens",
-                    "build": "GRCh38",
-                },
-            )
-            table = self.run_process(
-                "variants-to-table",
-                {
-                    "vcf": reference_vcf.id,
-                    "vcf_fields": ["CHROM", "POS", "ID", "REF", "ALT", "ANN"],
-                },
-            )
-            table2 = self.run_process(
-                "variants-to-table",
-                {
-                    "vcf": reference_vcf2.id,
-                    "vcf_fields": ["CHROM", "POS", "ID", "REF", "ALT", "ANN"],
-                },
-            )
             variants_vcf = self.run_process(
                 "upload-variants-vcf",
                 {
@@ -1599,18 +1569,16 @@ re-save-file lane_attributes "${NAME}".txt
             "mutations-table",
             {
                 "variants": snpeff.id,
-                "reference": table.id,
                 "bam": bam.id,
                 "mutations": ["KRAS: Gly12, Gly13"],
             },
         )
-        self.assertFile(report, "tsv", output_folder / "KRAS_gly13.tsv")
+        self.assertFile(report, "tsv", output_folder / "mutations_KRAS.tsv")
 
         report = self.run_process(
             "mutations-table",
             {
                 "variants": snpeff_nomutation.id,
-                "reference": table2.id,
                 "bam": bam.id,
                 "mutations": ["KRAS"],
             },
@@ -1621,37 +1589,35 @@ re-save-file lane_attributes "${NAME}".txt
             "mutations-table",
             {
                 "variants": snpeff_noinput.id,
-                "reference": table.id,
                 "bam": bam.id,
                 "mutations": ["KRAS: Gly12, Gly13"],
             },
         )
-        self.assertFile(report, "tsv", output_folder / "empty_variants.tsv")
         self.assertEqual(
-            report.process_warning, ["There are no variants in the input VCF file."]
+            report.process_warning,
+            [
+                "There are no variants in the input VCF file.",
+            ],
         )
 
         report = self.run_process(
             "mutations-table",
             {
                 "variants": snpeff.id,
-                "reference": table.id,
                 "vcf_fields": ["CHROM", "POS", "ID", "QUAL", "REF", "ANN"],
                 "bam": bam.id,
                 "mutations": ["KRAS: Ala11"],
             },
-            Data.STATUS_ERROR,
         )
         self.assertEqual(
-            report.process_error,
-            ["There are no known variants for gene KRAS at amino acid Ala11."],
+            report.process_warning,
+            ["No variants present for the input set of mutations."],
         )
 
         report = self.run_process(
             "mutations-table",
             {
                 "variants": snpeff_nomutation.id,
-                "reference": table2.id,
                 "bam": bam.id,
                 "mutations": ["KRAS: Gly12,Gly13, Gln61, Ar3"],
             },
@@ -1669,7 +1635,6 @@ re-save-file lane_attributes "${NAME}".txt
             "mutations-table",
             {
                 "variants": snpeff_clinvar.id,
-                "reference": table.id,
                 "bam": bam.id,
                 "geneset": geneset.id,
                 "vcf_fields": [

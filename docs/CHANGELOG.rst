@@ -22,6 +22,8 @@ Changed
 -------
 - Remove group nesting for QC fields in ``general`` descriptor
   schema
+- **BACKWARD INCOMPATIBLE:** Remove comparison to reference in
+  process ``mutations-table``
 
 Fixed
 -----
