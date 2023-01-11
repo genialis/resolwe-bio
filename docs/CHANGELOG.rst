@@ -17,6 +17,7 @@ Added
   ``bbduk-single-beta``, ``bbduk-paired-beta`` and
   ``workflow-bbduk-star-featurecounts-qc-beta`` that support
   per-lane sample QC
+- Add option of interval padding to process ``vc-gatk4-hc``
 
 Changed
 -------

@@ -35,7 +35,7 @@ class GatkHaplotypeCaller(Process):
     name = "GATK4 (HaplotypeCaller)"
     category = "GATK"
     process_type = "data:variants:vcf:gatk:hc"
-    version = "1.4.0"
+    version = "1.5.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -74,7 +74,6 @@ class GatkHaplotypeCaller(Process):
             description="The minimum phred-scaled confidence threshold at which "
             "variants should be called.",
         )
-
         mbq = IntegerField(
             label="Min Base Quality",
             default=20,
@@ -90,6 +89,13 @@ class GatkHaplotypeCaller(Process):
         class Advanced:
             """Advanced options."""
 
+            interval_padding = IntegerField(
+                label="Interval padding",
+                required=False,
+                description="Amount of padding (in bp) to add to each interval "
+                "you are including. The recommended value is 100.",
+                hidden="!intervals_bed",
+            )
             soft_clipped = BooleanField(
                 label="Do not analyze soft clipped bases in the reads",
                 default=False,
@@ -157,6 +163,9 @@ class GatkHaplotypeCaller(Process):
 
         if inputs.intervals_bed:
             args.extend(["-L", inputs.intervals_bed.output.bed.path])
+
+            if inputs.advanced.interval_padding:
+                args.extend(["--interval-padding", inputs.advanced.interval_padding])
 
         return_code, stdout, stderr = Cmd["gatk"]["HaplotypeCaller"][args] & TEE(
             retcode=None
