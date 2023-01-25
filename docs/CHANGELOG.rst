@@ -18,6 +18,7 @@ Added
   ``workflow-bbduk-star-featurecounts-qc-beta`` that support
   per-lane sample QC
 - Add option of interval padding to process ``vc-gatk4-hc``
+- Add process ``snpeff-single``
 
 Changed
 -------

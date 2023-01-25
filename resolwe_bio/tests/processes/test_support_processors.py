@@ -1519,13 +1519,13 @@ re-save-file lane_attributes "${NAME}".txt
                 },
             )
             snpeff = self.run_process(
-                "snpeff",
+                "snpeff-single",
                 {
                     "variants": variants_vcf.id,
                 },
             )
             snpeff_clinvar = self.run_process(
-                "snpeff", {"variants": variants_clinvar.id}
+                "snpeff-single", {"variants": variants_clinvar.id}
             )
             geneset = self.run_process(
                 "create-geneset",
@@ -1536,13 +1536,13 @@ re-save-file lane_attributes "${NAME}".txt
                 },
             )
             snpeff_nomutation = self.run_process(
-                "snpeff",
+                "snpeff-single",
                 {
                     "variants": no_mutation.id,
                 },
             )
             snpeff_noinput = self.run_process(
-                "snpeff",
+                "snpeff-single",
                 {
                     "variants": no_input.id,
                 },

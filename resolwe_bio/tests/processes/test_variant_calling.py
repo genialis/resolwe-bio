@@ -206,11 +206,12 @@ class VariantCallingTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
-    @tag_process("snpeff")
+    @tag_process("snpeff", "snpeff-single")
     def test_snpeff(self):
         with self.preparation_stage():
             input_folder = Path("snpeff") / "input"
             output_folder = Path("snpeff") / "output"
+            multi = Path("wgs") / "input"
             variants_rna = self.run_process(
                 "upload-variants-vcf",
                 {
@@ -243,9 +244,17 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "species": "Homo sapiens",
                 },
             )
+            vcf_multi = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": multi / "vcf_1.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
 
         snpeff = self.run_process(
-            "snpeff",
+            "snpeff-single",
             {
                 "variants": variants_rna.id,
                 "database": "GRCh38.99",
@@ -260,8 +269,37 @@ class VariantCallingTestCase(BioProcessTestCase):
             "GRCh37, while snpEff database is based on "
             "GRCh38.",
         )
+
+        snpeff = self.run_process(
+            "snpeff-single",
+            {
+                "variants": vcf_multi.id,
+                "database": "GRCh38.99",
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            snpeff.process_error[0],
+            "The input VCF should contain data for a single sample. "
+            "The input contains data for 2 sample(s).",
+        )
+
         snpeff = self.run_process(
             "snpeff",
+            {
+                "variants": variants_rna.id,
+                "database": "GRCh38.99",
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            snpeff.process_error[0],
+            "The input VCF file should contain data for multiple samples. "
+            "The input contains data for 1 sample(s).",
+        )
+
+        snpeff = self.run_process(
+            "snpeff-single",
             {
                 "variants": variants_rna.id,
                 "database": "GRCh38.99",
@@ -271,7 +309,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(snpeff, "build", "GRCh38_ens100")
 
         snpeff_filtering = self.run_process(
-            "snpeff",
+            "snpeff-single",
             {
                 "variants": variants_rna.id,
                 "database": "GRCh38.99",
@@ -303,7 +341,7 @@ class VariantCallingTestCase(BioProcessTestCase):
         )
 
         snpeff_filtering = self.run_process(
-            "snpeff",
+            "snpeff-single",
             {
                 "variants": variants_rna.id,
                 "database": "GRCh38.99",
@@ -325,6 +363,21 @@ class VariantCallingTestCase(BioProcessTestCase):
             snpeff_filtering,
             "vcf_extracted",
             output_folder / "variants_set.vcf.gz",
+            compression="gzip",
+            file_filter=filter_vcf_variable,
+        )
+
+        snpeff = self.run_process(
+            "snpeff",
+            {
+                "variants": vcf_multi.id,
+                "database": "GRCh38.99",
+            },
+        )
+        self.assertFile(
+            snpeff,
+            "vcf",
+            output_folder / "multi_variants.vcf.gz",
             compression="gzip",
             file_filter=filter_vcf_variable,
         )
