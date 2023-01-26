@@ -25,6 +25,7 @@ Changed
   schema
 - **BACKWARD INCOMPATIBLE:** Remove comparison to reference in
   process ``mutations-table``
+- Add ``mutation_status`` fields to ``general`` Sample descriptor schema
 
 Fixed
 -----

@@ -1,7 +1,7 @@
 - slug: general
   name: General descriptor schema
   description: General descriptor schema.
-  version: 2.1.0
+  version: 2.2.0
   schema:
     - name: general
       label: General information
@@ -814,6 +814,326 @@
           label: Pharmacokinetics and pharmacodynamics/Description
           type: basic:string
           required: false
+        - name: mutation_status_kras
+          label: Mutation status/KRAS
+          type: basic:string
+          required: false
+          choices:
+            - label: KRAS G12D
+              value: kras_g12d
+            - label: KRAS G12V
+              value: kras_g12v
+            - label: KRAS G12C
+              value: kras_g12c
+            - label: KRAS G13D
+              value: kras_g13d
+            - label: KRAS Q61H
+              value: kras_q61h
+            - label: KRAS G12R
+              value: kras_g12r
+            - label: KRAS G12a
+              value: kras_g12a
+            - label: KRAS G12s
+              value: kras_g12s
+            - label: KRAS A146T
+              value: kras_a146t
+            - label: KRAS Q61L
+              value: kras_q61l
+            - label: KRAS
+              value: kras
+        - name: mutation_status_nras
+          label: Mutation status/NRAS
+          type: basic:string
+          required: false
+          choices:
+            - label: NRAS Q61R
+              value: nras_q61r
+            - label: NRAS Q61K
+              value: nras_q61k
+            - label: NRAS G13R
+              value: nras_g13r
+            - label: NRAS G12D
+              value: nras_g12d
+            - label: NRAS Q61L
+              value: nras_q61l
+            - label: NRAS
+              value: nras
+        - name: mutation_status_atm
+          label: Mutation status/ATM
+          type: basic:string
+          required: false
+          choices:
+            - label: ATM R337C
+              value: atm_r337c
+            - label: 'ATM K2811Sfs*46'
+              value: 'atm_k2811sfs*46'
+            - label: 'ATM R250*'
+              value: 'atm_r250*'
+            - label: ATM
+              value: atm
+        - name: mutation_status_egfr
+          label: Mutation status/EGFR
+          type: basic:string
+          required: false
+          choices:
+            - label: EGFR L858R
+              value: egfr_l858r
+            - label: EGFR E746_A750del
+              value: egfr_e746_a750del
+            - label: EGFR G598V
+              value: egfr_g598v
+            - label: EGFR A289V
+              value: egfr_a289v
+            - label: EGFR
+              value: egfr
+        - name: mutation_status_braf
+          label: Mutation status/BRAF
+          type: basic:string
+          required: false
+          choices:
+            - label: BRAF V640E
+              value: braf_v640e
+            - label: BRAF V640M
+              value: braf_v640m
+            - label: BRAF
+              value: braf
+        - name: mutation_status_alk
+          label: Mutation status/ALK
+          type: basic:string
+          required: false
+          choices:
+            - label: ALK R1275Q
+              value: alk_r1275q
+            - label: ALK F1174L
+              value: alk_f1174l
+            - label: ALK
+              value: alk
+        - name: mutation_status_met
+          label: Mutation status/MET
+          type: basic:string
+          required: false
+          choices:
+            - label: MET
+              value: met
+        - name: mutation_status_ros1
+          label: Mutation status/ROS1
+          type: basic:string
+          required: false
+          choices:
+            - label: ROS1
+              value: ros1
+        - name: mutation_status_cdkn2a
+          label: Mutation status/CDKN2A
+          type: basic:string
+          required: false
+          choices:
+            - label: 'CDKN2A R80*'
+              value: 'cdkn2a_r80*'
+            - label: 'CDKN2A R58*'
+              value: 'cdkn2a_r58*'
+            - label: CDKN2A H83Y
+              value: cdkn2a_h83y
+            - label: CDKN2A
+              value: cdkn2a
+        - name: mutation_status_rbm10
+          label: Mutation status/RBM10
+          type: basic:string
+          required: false
+          choices:
+            - label: 'RBM10 F913='
+              value: 'rbm10_f913='
+            - label: 'RBM10 R745*'
+              value: 'rbm10_r745*'
+            - label: RBM10 S846L
+              value: rbm10_s846L
+            - label: 'RBM10 R97*'
+              value: 'rbm10_r97*'
+            - label: RBM10 Q481L
+              value: 'rbm10_q481l'
+            - label: 'RBM10 R295*'
+              value: 'rbm10_r295*'
+            - label: 'RBM10 E732*'
+              value: 'rbm10_e732*'
+            - label: RBM10
+              value: rbm10
+        - name: mutation_status_ptprd
+          label: Mutation status/PTPRD
+          type: basic:string
+          required: false
+          choices:
+            - label: PTPRD S431L
+              value: ptprd_s431l
+            - label: PTPRD
+              value: ptprd
+        - name: mutation_status_u2af1
+          label: Mutation status/U2AF1
+          type: basic:string
+          required: false
+          choices:
+            - label: U2AF1
+              value: u2af1
+        - name: mutation_status_ntrk3
+          label: Mutation status/NTRK3
+          type: basic:string
+          required: false
+          choices:
+            - label: 'NTRK3 F450='
+              value: 'ntrk3_f450='
+            - label: NTRK3 R760H
+              value: ntrk3_r760h
+            - label: NTRK3
+              value: ntrk3
+        - name: mutation_status_smad4
+          label: Mutation status/SMAD4
+          type: basic:string
+          required: false
+          choices:
+            - label: SMAD4 R361H
+              value: smad4_r361h
+            - label: SMAD4 R361C
+              value: smad4_rR361c
+            - label: SMAD4
+              value: smad4
+        - name: mutation_status_pole
+          label: Mutation status/POLE
+          type: basic:string
+          required: false
+          choices:
+            - label: POLE P286R
+              value: pole_p286r
+            - label: POLE V411L
+              value: pole_v411l
+            - label: POLE
+              value: pole
+        - name: mutation_status_lrp1b
+          label: Mutation status/LRP1B
+          type: basic:string
+          required: false
+          choices:
+            - label: 'LRP1B F1613='
+              value: 'lrp1b_f1613='
+            - label: LRP1B R295Q
+              value: lrp1b_r295q
+            - label: LRP1B R2443C
+              value: lrp1b_r2443c
+            - label: LRP1B
+              value: lrp1b
+        - name: mutation_status_her2
+          label: Mutation status/HER2
+          type: basic:string
+          required: false
+          choices:
+            - label: HER2 S310F
+              value: her2_s310f
+            - label: HER2 V842I
+              value: her2_v842i
+            - label: HER2 L755S
+              value: her2_l755s
+            - label: HER2
+              value: her2
+        - name: mutation_status_her3
+          label: Mutation status/HER3
+          type: basic:string
+          required: false
+          choices:
+            - label: HER3 V104M
+              value: her3_v104m
+            - label: HER3
+              value: her3
+        - name: mutation_status_pik3ca
+          label: Mutation status/PIK3CA
+          type: basic:string
+          required: false
+          choices:
+            - label: PIK3CA E545K
+              value: pik3ca_e545k
+            - label: PIK3CA H1047R
+              value: pik3ca_h1047r
+            - label: PIK3CA E542K
+              value: pik3ca_e542k
+            - label: PIK3CA R88Q
+              value: pik3ca_r88q
+            - label: PIK3CA H1047L
+              value: pik3ca_h1047l
+            - label: PIK3CA N345K
+              value: pik3ca_n345k
+            - label: PIK3CA E726K
+              value: pik3ca_e726k
+            - label: PIK3CA G118D
+              value: pik3ca_g118d
+            - label: PIK3CA C420R
+              value: pik3ca_c420r
+            - label: PIK3CA Q546R
+              value: pik3ca_q546r
+            - label: PIK3CA
+              value: pik3ca
+        - name: mutation_status_tp53
+          label: Mutation status/TP53
+          type: basic:string
+          required: false
+          choices:
+            - label: TP53 R175H
+              value: tp53_r175h
+            - label: TP53 R248Q
+              value: tp53_r248q
+            - label: TP53 R273C
+              value: tp53_r273c
+            - label: TP53 R273H
+              value: tp53_r273h
+            - label: TP53 R248W
+              value: tp53_r248w
+            - label: TP53 R282W
+              value: tp53_r282w
+            - label: 'TP53 R213*'
+              value: 'tp53_r213*'
+            - label: TP53 Y220C
+              value: tp53_y220c
+            - label: 'TP53 R196*'
+              value: 'tp53_r196*'
+            - label: TP53 G245S
+              value: tp53_g245s
+            - label: TP53 H179R
+              value: tp53_h179r
+            - label: 'TP53 R342*'
+              value: 'tp53_r342*'
+            - label: 'TP53 R306*'
+              value: 'tp53_r306*'
+            - label: TP53 H193R
+              value: tp53_h193r
+            - label: TP53 V157F
+              value: tp53_v157f
+            - label: 'TP53 T125='
+              value: 'tp53_t125='
+            - label: TP53
+              value: tp53
+        - name: mutation_status_stk11
+          label: Mutation status/STK11
+          type: basic:string
+          required: false
+          choices:
+            - label: 'STK11 D53Tfs*11'
+              value: 'stk11_d53tfs*11'
+            - label: 'STK11 L282Afs*3'
+              value: 'stk11_l282afs*3'
+            - label: 'STK11 Q220*'
+              value: 'stk11_q220*'
+            - label: STK11
+              value: STK11
+        - name: mutation_status_keap1
+          label: Mutation status/KEAP1
+          type: basic:string
+          required: false
+          choices:
+            - label: KEAP1 R470C
+              value: keap1_r470c
+            - label: KEAP1 V271L
+              value: keap1_v271l
+            - label: KEAP1 G480W
+              value: keap1_g480w
+            - label: KEAP1 R554Q
+              value: keap1_r554q
+            - label: KEAP1
+              value: keap1
         - name: biomarkers_her2
           label: Biomarkers/HER2
           type: basic:string
