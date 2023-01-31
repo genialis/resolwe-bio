@@ -21,10 +21,12 @@ Added
 
 Changed
 -------
-- Remove group nesting for QC fields in ``general`` descriptor
-  schema
 - **BACKWARD INCOMPATIBLE:** Remove comparison to reference in
   process ``mutations-table``
+- Remove group nesting for QC fields in ``general`` descriptor
+  schema
+- Add memory limit to parallel GATK SplitNCigarReads step in
+  process ``rnaseq-vc-preprocess``
 
 Fixed
 -----
