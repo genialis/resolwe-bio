@@ -13,10 +13,9 @@ Unreleased
 
 Added
 -----
-- Add processes ``alignment-star-beta``, ``feature_counts-beta``,
-  ``bbduk-single-beta``, ``bbduk-paired-beta`` and
-  ``workflow-bbduk-star-featurecounts-qc-beta`` that support
-  per-lane sample QC
+- Add per-lane processing for processes ``alignment-star``,
+  ``feature_counts``, ``bbduk-single``, ``bbduk-paired`` and
+  workflow ``workflow-bbduk-star-featurecounts-qc``
 - Add option of interval padding to process ``vc-gatk4-hc``
 - Add process ``snpeff-single``
 

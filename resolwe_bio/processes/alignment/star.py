@@ -1,6 +1,4 @@
 """Align reads with STAR aligner."""
-import gzip
-import shutil
 from pathlib import Path
 
 from plumbum import TEE
@@ -40,17 +38,6 @@ def get_fastq_name(fastq_path):
     return fastq_file[:-9]
 
 
-def concatenate_files(filenames, out_fname):
-    """Concatenate and decompress files."""
-    with open(out_fname, "w") as outfile:
-        for fname in filenames:
-            assert Path(fname).suffix == ".gz"
-            with gzip.open(fname, "rt") as infile:
-                # Speed up file copy by increasing the buffersize [length].
-                # https://blogs.blumetech.com/blumetechs-tech-blog/2011/05/faster-python-file-copy.html
-                shutil.copyfileobj(fsrc=infile, fdst=outfile, length=10485760)
-
-
 class AlignmentStar(Process):
     """Align reads with STAR aligner.
 
@@ -68,7 +55,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "3.2.1"
+    version = "4.0.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -440,25 +427,9 @@ class AlignmentStar(Process):
         mate1_name = get_fastq_name(Path(inputs.reads.output.fastq[0].path))
         mate_1 = [fastq.path for fastq in inputs.reads.output.fastq]
 
-        concatenated_r1 = "mate_1.fastq"
-        try:
-            concatenate_files(filenames=mate_1, out_fname=concatenated_r1)
-        except Exception as error:
-            self.error(
-                f"Failed to concatenate FASTQ files (mate 1). The error was: {error}"
-            )
-
         if inputs.reads.type.startswith("data:reads:fastq:paired:"):
             mate2_name = get_fastq_name(Path(inputs.reads.output.fastq2[0].path))
             mate_2 = [fastq.path for fastq in inputs.reads.output.fastq2]
-
-            concatenated_r2 = "mate_2.fastq"
-            try:
-                concatenate_files(filenames=mate_2, out_fname=concatenated_r2)
-            except Exception as error:
-                self.error(
-                    f"Failed to concatenate FASTQ files (mate 2). The error was: {error}"
-                )
 
         self.progress(0.05)
 
@@ -487,9 +458,21 @@ class AlignmentStar(Process):
         ]
 
         if inputs.reads.type.startswith("data:reads:fastq:single:"):
-            star_params.extend(["--readFilesIn", concatenated_r1])
+            star_params.extend(
+                ["--readFilesIn", ",".join(mate_1), "--readFilesCommand", "zcat"]
+            )
+        elif inputs.reads.type.startswith("data:reads:fastq:paired:"):
+            star_params.extend(
+                [
+                    "--readFilesIn",
+                    ",".join(mate_1),
+                    ",".join(mate_2),
+                    "--readFilesCommand",
+                    "zcat",
+                ]
+            )
         else:
-            star_params.extend(["--readFilesIn", concatenated_r1, concatenated_r2])
+            self.error("Wrong reads input type.")
 
         if inputs.annotation:
             star_params.extend(
@@ -603,6 +586,12 @@ class AlignmentStar(Process):
             star_params.extend(
                 ["--outSAMattrRGline", inputs.output_options.out_rg_line]
             )
+        elif len(mate_1) > 1:
+            read_groups = [
+                f"ID:{Path(file_path).name[:-9].replace(' ', '_')} SM:sample1"
+                for file_path in mate_1
+            ]
+            star_params.append("--outSAMattrRGline " + " , ".join(read_groups))
 
         self.progress(0.1)
 

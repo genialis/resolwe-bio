@@ -195,130 +195,6 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             reads = self.prepare_reads(
                 [str(input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz")]
             )
-            paired_reads = self.prepare_paired_reads(
-                mate1=[
-                    str(
-                        input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"
-                    )
-                ],
-                mate2=[
-                    str(
-                        input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"
-                    )
-                ],
-            )
-            annotation = self.prepare_annotation(
-                fn=str(input_folder / "hs annotation.gtf.gz"),
-                source="ENSEMBL",
-                species="Homo sapiens",
-                build="GRCh38_ens90",
-            )
-
-            inputs = {
-                "src": str(input_folder / "hs genome.fasta.gz"),
-                "species": "Homo sapiens",
-                "build": "GRCh38_ens90",
-            }
-            star_index_fasta = self.run_process("upload-fasta-nucl", inputs)
-
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        # prepare genome indices
-        star_index = self.run_process(
-            "alignment-star-index",
-            {"annotation": annotation.id, "ref_seq": star_index_fasta.id},
-        )
-
-        star_index_wo_annot = self.run_process(
-            "alignment-star-index",
-            {
-                "ref_seq": star_index_fasta.id,
-                "source": "ENSEMBL",
-            },
-        )
-
-        def filter_star_report(line):
-            """Filter variable lines from the STAR stats file."""
-            variable_lines = [
-                b"Started job on",
-                b"Started mapping on",
-                b"Finished on",
-                b"Mapping speed, Million of reads per hour",
-            ]
-            if any(variable_substring in line for variable_substring in variable_lines):
-                return True
-
-        # test STAR alignment
-        inputs = {
-            "genome": star_index.id,
-            "reads": reads.id,
-            "t_coordinates": {
-                "quant_mode": True,
-            },
-            "two_pass_mapping": {
-                "two_pass_mode": True,
-            },
-            "detect_chimeric": {
-                "chimeric": True,
-            },
-        }
-        aligned_reads = self.run_process("alignment-star", inputs)
-        self.assertFields(aligned_reads, "species", "Homo sapiens")
-        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-        self.assertFile(
-            aligned_reads,
-            "stats",
-            str(output_folder / "hs_single_stats.txt"),
-            file_filter=filter_star_report,
-        )
-        sample = Sample.objects.get(data=aligned_reads)
-        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
-
-        inputs["genome"] = star_index_wo_annot.id
-        inputs["annotation"] = annotation.id
-        aligned_reads = self.run_process("alignment-star", inputs)
-
-        self.assertFields(aligned_reads, "species", "Homo sapiens")
-        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-        self.assertFile(
-            aligned_reads,
-            "stats",
-            str(output_folder / "hs_single_stats.txt"),
-            file_filter=filter_star_report,
-        )
-        aligned_reads = self.run_process("alignment-star", inputs)
-
-        self.assertFields(aligned_reads, "species", "Homo sapiens")
-        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
-
-        inputs = {
-            "genome": star_index.id,
-            "reads": paired_reads.id,
-            "t_coordinates": {
-                "quant_mode": True,
-            },
-            "two_pass_mapping": {
-                "two_pass_mode": True,
-            },
-        }
-        aligned_reads = self.run_process("alignment-star", inputs)
-        self.assertFile(
-            aligned_reads,
-            "stats",
-            str(output_folder / "hs_paired_stats.txt"),
-            file_filter=filter_star_report,
-        )
-
-    @with_resolwe_host
-    @tag_process("alignment-star-index", "alignment-star-beta")
-    def test_star_beta(self):
-        input_folder = Path("test_star") / "input"
-        output_folder = Path("test_star") / "output"
-        with self.preparation_stage():
-            reads = self.prepare_reads(
-                [str(input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz")]
-            )
             single_lanes = self.prepare_reads(
                 [
                     input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz",
@@ -399,7 +275,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "chimeric": True,
             },
         }
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
         self.assertFile(
@@ -413,7 +289,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
 
         inputs["genome"] = star_index_wo_annot.id
         inputs["annotation"] = annotation.id
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
 
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
@@ -423,7 +299,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             output_folder / "hs_single_stats.txt",
             file_filter=filter_star_report,
         )
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
 
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
@@ -438,7 +314,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "chimeric": True,
             },
         }
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
         self.assertFields(aligned_reads, "species", "Homo sapiens")
         self.assertFields(aligned_reads, "build", "GRCh38_ens90")
         self.assertFile(
@@ -458,7 +334,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
                 "two_pass_mode": True,
             },
         }
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
         self.assertFile(
             aligned_reads,
             "stats",
@@ -467,7 +343,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
 
         inputs = {"genome": star_index.id, "reads": paired_lanes.id}
-        aligned_reads = self.run_process("alignment-star-beta", inputs)
+        aligned_reads = self.run_process("alignment-star", inputs)
         self.assertFile(
             aligned_reads,
             "stats",

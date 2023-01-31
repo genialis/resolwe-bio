@@ -46,7 +46,7 @@ class WorkflowBBDukStarFcQC(Process):
     entity = {
         "type": "sample",
     }
-    version = "5.1.0"
+    version = "6.0.0"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -441,6 +441,11 @@ class WorkflowBBDukStarFcQC(Process):
                 "this is often 'ID', and 'transcript_id' is frequently a valid "
                 "choice for both annotation formats.",
             )
+            by_read_group = BooleanField(
+                label="Assign reads by read group",
+                description="RG tag is required to be present in the input BAM files.",
+                default=True,
+            )
 
         class Downsampling:
             """Downsampling (Seqtk)."""
@@ -656,6 +661,9 @@ class WorkflowBBDukStarFcQC(Process):
             "feature_class": inputs.quantification.feature_class,
             "feature_type": inputs.quantification.feature_type,
             "id_attribute": inputs.quantification.id_attribute,
+            "general": {
+                "by_read_group": inputs.quantification.by_read_group,
+            },
         }
 
         if inputs.cdna_index:

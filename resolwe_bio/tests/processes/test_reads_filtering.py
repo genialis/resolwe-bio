@@ -307,112 +307,10 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
-    @tag_process("bbduk-single")
-    def test_bbduk_single(self):
-        input_folder = Path("bbduk") / "input"
-        output_folder = Path("bbduk") / "output"
-        with self.preparation_stage():
-            reads = self.prepare_reads(
-                [
-                    input_folder / "bbduk_test_reads.fastq.gz",
-                    input_folder / "rRNA_forw.fastq.gz",
-                ]
-            )
-            ref_seq = self.prepare_ref_seq(
-                fn=input_folder / "bbduk_adapters.fasta",
-                species="Other",
-                build="Custom",
-            )
-            barcodes = self.prepare_ref_seq(
-                fn=input_folder / "barcodes.fasta",
-                species="Other",
-                build="Custom",
-            )
-
-        inputs = {
-            "reads": reads.id,
-            "reference": {
-                "sequences": [ref_seq.id],
-            },
-            "header_parsing": {
-                "barcode_files": [barcodes.id],
-            },
-            "operations": {
-                "quality_trim": "l",
-            },
-        }
-        filtered_reads = self.run_process("bbduk-single", inputs)
-
-        self.assertFiles(
-            filtered_reads,
-            "fastq",
-            [output_folder / "bbduk_test_reads_preprocessed.fastq.gz"],
-            compression="gzip",
-        )
-        del filtered_reads.output["fastqc_url"][0][
-            "total_size"
-        ]  # Non-deterministic output.
-        report = {
-            "file": "fastqc/bbduk_test_reads_preprocessed_fastqc/fastqc_report.html",
-            "refs": [
-                "fastqc/bbduk_test_reads_preprocessed_fastqc",
-            ],
-        }
-        self.assertFields(filtered_reads, "fastqc_url", [report])
-
-    @tag_process("bbduk-paired")
-    def test_bbduk_paired(self):
-        input_folder = Path("bbduk") / "input"
-        output_folder = Path("bbduk") / "output"
-        with self.preparation_stage():
-            reads_paired = self.prepare_paired_reads(
-                [input_folder / "rRNA_forw.fastq.gz"],
-                [input_folder / "rRNA_rew.fastq.gz"],
-            )
-
-        inputs = {
-            "reads": reads_paired.id,
-        }
-
-        filtered_reads = self.run_process("bbduk-paired", inputs)
-
-        self.assertFiles(
-            filtered_reads,
-            "fastq",
-            [output_folder / "bbduk_fw_reads.fastq.gz"],
-            compression="gzip",
-        )
-        self.assertFiles(
-            filtered_reads,
-            "fastq2",
-            [output_folder / "bbduk_rv_reads.fastq.gz"],
-            compression="gzip",
-        )
-        del filtered_reads.output["fastqc_url"][0][
-            "total_size"
-        ]  # Non-deterministic output.
-        report = {
-            "file": "fastqc/rRNA_forw_preprocessed_fastqc/fastqc_report.html",
-            "refs": [
-                "fastqc/rRNA_forw_preprocessed_fastqc",
-            ],
-        }
-        self.assertFields(filtered_reads, "fastqc_url", [report])
-        del filtered_reads.output["fastqc_url2"][0][
-            "total_size"
-        ]  # Non-deterministic output.
-        report2 = {
-            "file": "fastqc/rRNA_rew_preprocessed_fastqc/fastqc_report.html",
-            "refs": [
-                "fastqc/rRNA_rew_preprocessed_fastqc",
-            ],
-        }
-        self.assertFields(filtered_reads, "fastqc_url2", [report2])
-
     @with_docker_executor
     @override_settings(FLOW_PROCESS_MAX_CORES=4)
-    @tag_process("bbduk-single-beta", "bbduk-paired-beta")
-    def test_bbduk_beta(self):
+    @tag_process("bbduk-single", "bbduk-paired")
+    def test_bbduk(self):
         input_folder = Path("bbduk") / "input"
         output_folder = Path("bbduk") / "output"
         with self.preparation_stage():
@@ -457,7 +355,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "quality_trim": "l",
             },
         }
-        filtered_reads = self.run_process("bbduk-single-beta", inputs)
+        filtered_reads = self.run_process("bbduk-single", inputs)
 
         self.assertFiles(
             filtered_reads,
@@ -493,13 +391,13 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(filtered_reads, "fastqc_url", report)
 
         inputs["reads"] = reads_single.id
-        filtered_reads = self.run_process("bbduk-single-beta", inputs)
+        filtered_reads = self.run_process("bbduk-single", inputs)
 
         inputs = {
             "reads": reads_paired.id,
         }
 
-        filtered_reads = self.run_process("bbduk-paired-beta", inputs)
+        filtered_reads = self.run_process("bbduk-paired", inputs)
 
         self.assertFiles(
             filtered_reads,
@@ -538,7 +436,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             "reads": reads_paired_lanes.id,
         }
 
-        filtered_reads = self.run_process("bbduk-paired-beta", inputs)
+        filtered_reads = self.run_process("bbduk-paired", inputs)
 
         del filtered_reads.output["fastqc_url"][0][
             "total_size"

@@ -3,6 +3,7 @@ import gzip
 import shutil
 from pathlib import Path
 
+from joblib import Parallel, delayed, wrap_non_picklable_objects
 from plumbum import TEE
 
 from resolwe.process import (
@@ -22,6 +23,115 @@ from resolwe.process import (
 )
 
 
+def prepare_inputs(mate1, mate2=None):
+    """Prepare list with input, output and stats files."""
+    input_reads = []
+
+    if mate2:
+        for fastq, fastq2 in zip(mate1, mate2):
+            name, new_path, reads_basename = rename_input_files(fastq=fastq)
+            name_mate2, new_path_mate2, reads_mate2_basename = rename_input_files(
+                fastq=fastq2
+            )
+
+            lane_files = {
+                "input_fastq": new_path,
+                "input_fastq2": new_path_mate2,
+                "output_fastq": f"{name}_preprocessed.fastq.gz",
+                "output_fastq2": f"{name_mate2}_preprocessed.fastq.gz",
+                "stats": f"{name}_statistics.txt",
+                "original_name": f"{reads_basename}_preprocessed.fastq.gz",
+                "original_name2": f"{reads_mate2_basename}_preprocessed.fastq.gz",
+            }
+            input_reads.append(lane_files)
+
+    else:
+        for fastq in mate1:
+            name, new_path, reads_basename = rename_input_files(fastq=fastq)
+
+            lane_files = {
+                "input_fastq": new_path,
+                "output_fastq": f"{name}_preprocessed.fastq.gz",
+                "stats": f"{name}_statistics.txt",
+                "original_name": f"{reads_basename}_preprocessed.fastq.gz",
+            }
+            input_reads.append(lane_files)
+
+    return input_reads
+
+
+def rename_input_files(fastq):
+    """Rename input files."""
+    reads_basename = Path(fastq.path)
+    shutil.copy(reads_basename, Path.cwd())
+
+    new_path = Path(reads_basename.name.replace(" ", "_"))
+    Path(reads_basename.name).rename(new_path)
+    assert new_path.name.endswith(".fastq.gz")
+    name = new_path.name[:-9]
+
+    return name, new_path, reads_basename.name[:-9]
+
+
+def rename_preprocessed_files(input_files, paired_end=None):
+    """Rename preprocessed files back to the original name."""
+    for lane in input_files:
+        Path(lane["output_fastq"]).rename(lane["original_name"])
+
+        if paired_end:
+            Path(lane["output_fastq2"]).rename(lane["original_name2"])
+
+
+def prepare_fastqc(fastqgz, error):
+    """Prepare FastQC data for output."""
+    fastqc = []
+    fastqc_url = []
+    for fq in fastqgz:
+        reads_name = Path(fq).name.replace(".fastq.gz", "")
+        report_dir = Path("fastqc") / Path(f"{reads_name}_fastqc")
+
+        fastqc_zip = Path(f"{reads_name}_fastqc.zip")
+        if not fastqc_zip.is_file():
+            error(f"FastQC failed to produce {fastqc_zip} file.")
+        fastqc.append(str(fastqc_zip))
+
+        fastqc_url.append(
+            {
+                "file": str(report_dir / "fastqc_report.html"),
+                "refs": [str(report_dir)],
+            }
+        )
+    return fastqc, fastqc_url
+
+
+@delayed
+@wrap_non_picklable_objects
+def run_bbduk(input_reads, bbduk_inputs, paired_end=False):
+    """Run BBDuk on seperate lanes."""
+
+    if paired_end:
+        input_file = [
+            f"in='{input_reads['input_fastq']}'",
+            f"in2='{input_reads['input_fastq2']}'",
+            f"out='{input_reads['output_fastq']}'",
+            f"out2='{input_reads['output_fastq2']}'",
+            f"stats='{input_reads['stats']}'",
+        ]
+    else:
+        input_file = [
+            f"in='{input_reads['input_fastq']}'",
+            f"out='{input_reads['output_fastq']}'",
+            f"stats='{input_reads['stats']}'",
+        ]
+
+    bbduk_inputs = input_file + bbduk_inputs
+
+    return_code, stdout, stderr = Cmd["bbduk.sh"][bbduk_inputs] & TEE(retcode=None)
+    if return_code:
+        print(stderr, stdout)
+    return return_code, stderr
+
+
 class BBDukSingle(Process):
     """Run BBDuk on single-end reads.
 
@@ -39,7 +149,7 @@ class BBDukSingle(Process):
     slug = "bbduk-single"
     name = "BBDuk (single-end)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "2.8.0"
+    version = "3.0.0"
     category = "Trim"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -453,22 +563,13 @@ class BBDukSingle(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        reads_basename = Path(inputs.reads.output.fastq[0].path).name
-        assert reads_basename.endswith(".fastq.gz")
-        name = reads_basename[:-9]
 
-        output_reads = "output_reads.fastq"
-        output_statistics = "output_statistics.txt"
-        input_reads = "input_reads.fastq.gz"
         input_references = "input_references.fasta.gz"
         input_barcodes = "input_barcodes.fasta.gz"
-        final_reads = name + "_preprocessed.fastq"
-        final_statistics = name + "_statistics.txt"
 
-        (
-            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
-            > input_reads
-        )()
+        num_of_lanes = len(inputs.reads.output.fastq)
+        input_reads = prepare_inputs(mate1=inputs.reads.output.fastq)
+
         if inputs.reference.sequences:
             with gzip.open(input_references, "wb") as outfile:
                 for sequences in inputs.reference.sequences:
@@ -487,9 +588,6 @@ class BBDukSingle(Process):
         self.progress(0.1)
 
         args = [
-            f"in={input_reads}",
-            f"out={output_reads}",
-            f"stats={output_statistics}",
             "statscolumns=5",
             f"k={inputs.processing.kmer_length}",
             f"rcomp={inputs.processing.check_reverse_complements}",
@@ -540,9 +638,18 @@ class BBDukSingle(Process):
             f"entropyk={inputs.complexity.entropy_k}",
             f"minbasefrequency={inputs.complexity.min_base_frequency}",
             f"entropymask={inputs.complexity.entropy_mask}",
-            f"threads={self.requirements.resources.cores}",
-            f"-Xmx{int(0.85*self.requirements.resources.memory)}m",
+            f"-Xmx{int(0.85*(self.requirements.resources.memory/num_of_lanes))}m",
         ]
+
+        if self.requirements.resources.cores >= num_of_lanes:
+            args.append(
+                f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
+            )
+        else:
+            self.error(
+                f"There are more sequencing lanes ({num_of_lanes}) than there are "
+                f"available cores ({self.requirements.resources.cores}). "
+            )
 
         if inputs.reference.sequences:
             args.append(f"ref={input_references}")
@@ -570,37 +677,43 @@ class BBDukSingle(Process):
             barcodes = ",".join(barcodes)
             args.append(f"barcodes={barcodes}")
 
-        return_code, stdout, stderr = Cmd["bbduk.sh"][args] & TEE(retcode=None)
-        if return_code:
-            print(stdout, stderr)
-            self.error(f"Error occured with BBDuk:{stdout}\n{stderr}")
+        process_outputs = Parallel(n_jobs=num_of_lanes)(
+            run_bbduk(input_reads=input_set, bbduk_inputs=args)
+            for input_set in input_reads
+        )
+
+        for output in process_outputs:
+            if output[0]:
+                self.error("BBDuk failed.", output[1])
 
         self.progress(0.7)
 
-        output_reads = Path(output_reads)
-        output_statistics = Path(output_statistics)
-        output_reads.rename(final_reads)
-        output_statistics.rename(final_statistics)
+        statistics = []
+        for stats in input_reads:
+            with open(stats["stats"], "rb") as orig_file:
+                with gzip.open(f"{stats['stats']}.gz", "wb") as zipped_file:
+                    zipped_file.writelines(orig_file)
+            statistics.append(f"{stats['stats']}.gz")
 
-        Cmd["pigz"][final_reads]()
-        Cmd["pigz"][final_statistics]()
+        output_path = Path("./fastqc")
+        output_path.mkdir(exist_ok=True)
 
-        self.progress(0.75)
+        rename_preprocessed_files(input_files=input_reads)
 
-        args_fastqc = [
-            f"{final_reads}.gz",
-            "fastqc",
-            "fastqc_archive",
-            "fastqc_url",
-        ]
+        fastqgz = [fastq["original_name"] for fastq in input_reads]
+        fastqc_inputs = fastqgz + ["--extract", f"--outdir={str(output_path)}"]
 
         if inputs.fastqc.nogroup:
-            args_fastqc.append("--nogroup")
+            fastqc_inputs.append("--no-group")
 
-        return_code, stdout, stderr = Cmd["fastqc.sh"][args_fastqc] & TEE(retcode=None)
+        return_code, _, stderr = Cmd["fastqc"][fastqc_inputs] & TEE(retcode=None)
         if return_code:
-            print(stdout, stderr)
-            self.error(f"Error while preparing FASTQC report:{stdout}\n{stderr}")
+            self.error("FastQC failed. ", stderr)
+
+        for fastqc_zip in output_path.glob("*_fastqc.zip"):
+            shutil.move(str(fastqc_zip), ".")
+
+        fastqc, fastqc_url = prepare_fastqc(fastqgz=fastqgz, error=self.error)
 
         if (
             inputs.operations.k_trim == "f"
@@ -614,8 +727,10 @@ class BBDukSingle(Process):
                 "unspecified. Only filtering of reads by length is applied."
             )
 
-        outputs.fastq = [f"{final_reads}.gz"]
-        outputs.statistics = [f"{final_statistics}.gz"]
+        outputs.fastq = fastqgz
+        outputs.statistics = statistics
+        outputs.fastqc_url = fastqc_url
+        outputs.fastqc_archive = fastqc
 
 
 class BBDukPaired(Process):
@@ -635,7 +750,7 @@ class BBDukPaired(Process):
     slug = "bbduk-paired"
     name = "BBDuk (paired-end)"
     process_type = "data:reads:fastq:paired:bbduk"
-    version = "2.8.0"
+    version = "3.0.0"
     category = "Trim"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -655,7 +770,7 @@ class BBDukPaired(Process):
     }
 
     class Input:
-        """Input fields to process BBDukSingle."""
+        """Input fields to process BBDukPaired."""
 
         reads = DataField("reads:fastq:paired", label="Reads")
         min_length = IntegerField(
@@ -1082,32 +1197,15 @@ class BBDukPaired(Process):
 
     def run(self, inputs, outputs):
         """Run analysis."""
-        reads_mate1_basename = Path(inputs.reads.output.fastq[0].path).name
-        assert reads_mate1_basename.endswith(".fastq.gz")
-        name_mate1 = reads_mate1_basename[:-9]
-        reads_mate2_basename = Path(inputs.reads.output.fastq2[0].path).name
-        assert reads_mate2_basename.endswith(".fastq.gz")
-        name_mate2 = reads_mate2_basename[:-9]
 
-        input_mate1_reads = "input_mate1_reads.fastq.gz"
-        input_mate2_reads = "input_mate2_reads.fastq.gz"
         input_references = "input_references.fasta.gz"
         input_barcodes = "input_barcodes.fasta.gz"
-        output_mate1_reads = "output_mate1_reads.fastq"
-        output_mate2_reads = "output_mate2_reads.fastq"
-        output_statistics = "output_statistics.txt"
-        final_mate1_reads = name_mate1 + "_preprocessed.fastq"
-        final_mate2_reads = name_mate2 + "_preprocessed.fastq"
-        final_statistics = name_mate1 + "_statistics.txt"
 
-        (
-            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq]]
-            > input_mate1_reads
-        )()
-        (
-            Cmd["cat"][[reads.path for reads in inputs.reads.output.fastq2]]
-            > input_mate2_reads
-        )()
+        num_of_lanes = len(inputs.reads.output.fastq)
+        input_reads = prepare_inputs(
+            mate1=inputs.reads.output.fastq, mate2=inputs.reads.output.fastq2
+        )
+
         if inputs.reference.sequences:
             with gzip.open(input_references, "wb") as outfile:
                 for sequences in inputs.reference.sequences:
@@ -1126,11 +1224,6 @@ class BBDukPaired(Process):
         self.progress(0.1)
 
         args = [
-            f"in={input_mate1_reads}",
-            f"in2={input_mate2_reads}",
-            f"out={output_mate1_reads}",
-            f"out2={output_mate2_reads}",
-            f"stats={output_statistics}",
             "statscolumns=5",
             f"k={inputs.processing.kmer_length}",
             f"rcomp={inputs.processing.check_reverse_complements}",
@@ -1185,9 +1278,18 @@ class BBDukPaired(Process):
             f"entropyk={inputs.complexity.entropy_k}",
             f"minbasefrequency={inputs.complexity.min_base_frequency}",
             f"entropymask={inputs.complexity.entropy_mask}",
-            f"threads={self.requirements.resources.cores}",
-            f"-Xmx{int(0.85*self.requirements.resources.memory)}m",
+            f"-Xmx{int(0.85*(self.requirements.resources.memory/num_of_lanes))}m",
         ]
+
+        if self.requirements.resources.cores >= num_of_lanes:
+            args.append(
+                f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
+            )
+        else:
+            self.error(
+                f"There are more sequencing lanes ({num_of_lanes}) than there are "
+                f"available cores ({self.requirements.resources.cores}). "
+            )
 
         if inputs.reference.sequences:
             args.append(f"ref={input_references}")
@@ -1215,48 +1317,57 @@ class BBDukPaired(Process):
             barcodes = ",".join(barcodes)
             args.append(f"barcodes={barcodes}")
 
-        return_code, stdout, stderr = Cmd["bbduk.sh"][args] & TEE(retcode=None)
-        if return_code:
-            print(stdout, stderr)
-            self.error(f"Error occured with BBDuk:{stdout}\n{stderr}")
+        process_outputs = Parallel(n_jobs=num_of_lanes)(
+            run_bbduk(input_reads=input_set, bbduk_inputs=args, paired_end=True)
+            for input_set in input_reads
+        )
+
+        for output in process_outputs:
+            if output[0]:
+                self.error("BBDuk failed.", output[1])
 
         self.progress(0.7)
 
-        output_mate1_reads = Path(output_mate1_reads)
-        output_mate2_reads = Path(output_mate2_reads)
-        output_statistics = Path(output_statistics)
-        output_mate1_reads.rename(final_mate1_reads)
-        output_mate2_reads.rename(final_mate2_reads)
-        output_statistics.rename(final_statistics)
+        statistics = []
+        for stats in input_reads:
+            with open(stats["stats"], "rb") as orig_file:
+                with gzip.open(f"{stats['stats']}.gz", "wb") as zipped_file:
+                    zipped_file.writelines(orig_file)
+            statistics.append(f"{stats['stats']}.gz")
 
-        Cmd["pigz"][final_mate1_reads]()
-        Cmd["pigz"][final_mate2_reads]()
-        Cmd["pigz"][final_statistics]()
+        output_path = Path("./fastqc")
+        output_path.mkdir(exist_ok=True)
 
-        self.progress(0.75)
+        rename_preprocessed_files(input_files=input_reads, paired_end=True)
 
-        args_fastqc1 = [
-            f"{final_mate1_reads}.gz",
-            "fastqc",
-            "fastqc_archive",
-            "fastqc_url",
-        ]
+        fastqgz = [fastq["original_name"] for fastq in input_reads]
+        fastqgz2 = [fastq["original_name2"] for fastq in input_reads]
+        fastqc_inputs = fastqgz + ["--extract", f"--outdir={str(output_path)}"]
+        fastqc2_inputs = fastqgz2 + ["--extract", f"--outdir={str(output_path)}"]
 
-        args_fastqc2 = [
-            f"{final_mate2_reads}.gz",
-            "fastqc",
-            "fastqc_archive2",
-            "fastqc_url2",
-        ]
+        if inputs.fastqc.nogroup:
+            fastqc_inputs.append("--no-group")
+            fastqc2_inputs.append("--no-group")
 
-        for args in [args_fastqc1, args_fastqc2]:
-            if inputs.fastqc.nogroup:
-                args.append("--nogroup")
+        return_code, _, stderr = Cmd["fastqc"][fastqc_inputs] & TEE(retcode=None)
+        if return_code:
+            self.error("FastQC failed. ", stderr)
+        return_code, _, stderr = Cmd["fastqc"][fastqc2_inputs] & TEE(retcode=None)
+        if return_code:
+            self.error("FastQC failed. ", stderr)
 
-            return_code, stdout, stderr = Cmd["fastqc.sh"][args] & TEE(retcode=None)
-            if return_code:
-                print(stdout, stderr)
-                self.error(f"Error while preparing FASTQC report:{stdout}\n{stderr}")
+        for fastqc_zip in output_path.glob("*_fastqc.zip"):
+            shutil.move(str(fastqc_zip), ".")
+
+        mate1_fastqc, mate1_fastqc_url = prepare_fastqc(
+            fastqgz=fastqgz,
+            error=self.error,
+        )
+
+        mate2_fastqc, mate2_fastqc_url = prepare_fastqc(
+            fastqgz=fastqgz2,
+            error=self.error,
+        )
 
         if (
             inputs.operations.k_trim == "f"
@@ -1270,6 +1381,10 @@ class BBDukPaired(Process):
                 "unspecified. Only filtering of reads by length is applied."
             )
 
-        outputs.fastq = [f"{final_mate1_reads}.gz"]
-        outputs.fastq2 = [f"{final_mate2_reads}.gz"]
-        outputs.statistics = [f"{final_statistics}.gz"]
+        outputs.fastq = fastqgz
+        outputs.fastq2 = fastqgz2
+        outputs.fastqc_url = mate1_fastqc_url
+        outputs.fastqc_url2 = mate2_fastqc_url
+        outputs.fastqc_archive = mate1_fastqc
+        outputs.fastqc_archive2 = mate2_fastqc
+        outputs.statistics = statistics

@@ -31,15 +31,31 @@ def get_gene_counts(infile, outfile, sample_name):
         sep="\t",
         skip_blank_lines=True,
         header=1,
-        usecols=["Geneid", sample_name],
         index_col="Geneid",
         dtype={
             "Geneid": str,
-            sample_name: int,
         },
         squeeze=True,
     )
-    return exp.to_csv(
+    filter_col = [col for col in exp if col.startswith(sample_name)]
+
+    if len(filter_col) > 1:
+        per_lane_raw_counts = "per_lane_rc.txt"
+
+        exp[filter_col] = exp[filter_col].astype(int)
+        exp[filter_col].to_csv(
+            per_lane_raw_counts,
+            index_label="FEATURE_ID",
+            sep="\t",
+        )
+
+        return_columns = "sum_count"
+        exp[return_columns] = exp[filter_col].sum(axis=1)
+    else:
+        return_columns = sample_name
+
+    exp = exp.astype({return_columns: int})
+    exp[[return_columns]].to_csv(
         outfile,
         index_label="FEATURE_ID",
         header=["EXPRESSION"],
@@ -62,7 +78,7 @@ def get_gene_lenghts(infile, outfile):
         },
         squeeze=True,
     )
-    return exp.to_csv(
+    exp.to_csv(
         outfile,
         index_label="FEATURE_ID",
         header=["GENE_LENGTHS"],
@@ -80,9 +96,16 @@ def rename_columns_and_compress(infile, outfile):
         squeeze=True,
         float_precision="round_trip",
     )
-    return exp.to_csv(
+    exp.to_csv(
         outfile, index_label="Gene", header=["Expression"], sep="\t", compression="gzip"
     )
+
+
+def compress_outputs(input_file, output_file):
+    """Compress outputs."""
+    with open(file=input_file, mode="rb") as f_in:
+        with gzip.open(filename=output_file, mode="wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
 
 
 def exp_to_df(exp_file, exp_type):
@@ -200,7 +223,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "5.3.0"
+    version = "6.0.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -323,7 +346,7 @@ class FeatureCounts(ProcessBio):
             by_read_group = BooleanField(
                 label="Assign reads by read group",
                 description="RG tag is required to be present in the input BAM files.",
-                default=False,
+                default=True,
             )
 
             count_long_reads = BooleanField(
@@ -566,6 +589,7 @@ class FeatureCounts(ProcessBio):
         """Output fields."""
 
         rc = FileField(label="Read counts")
+        per_lane_rc = FileField(label="Per lane read counts", required=False)
         tpm = FileField(label="TPM")
         cpm = FileField(label="CPM")
         exp = FileField(label="Normalized expression")
@@ -835,7 +859,26 @@ class FeatureCounts(ProcessBio):
             args.extend(["-G", inputs.exon_exon_junctions.genome.path])
 
         if inputs.general.by_read_group:
-            args.append("--byReadGroup")
+            # Check if @RG is in header of the BAM file
+            return_code, _, stderr = Cmd["samtools"]["view", "-Ho", "read_groups.txt"][
+                bam_file
+            ] & TEE(retcode=None)
+            if return_code:
+                self.error("An error occurred with Samtools view. ", stderr)
+
+            read_groups = []
+            with open("read_groups.txt") as file_in:
+                for line in file_in:
+                    if line.startswith("@RG"):
+                        read_groups.append(line.split(sep="\t")[1].split(sep=":")[-1])
+
+            if len(read_groups) > 0:
+                args.append("--byReadGroup")
+                self.info(f"Read groups {', '.join(read_groups)} detected.")
+            else:
+                self.info(
+                    f"BAM file {bam_file} does not have any read groups assigned."
+                )
 
         if inputs.general.count_long_reads:
             args.append("-L")
@@ -880,7 +923,11 @@ class FeatureCounts(ProcessBio):
         cpm = "cpm.txt"
 
         # parse featureCounts output
-        get_gene_counts(infile=fc_output, outfile=raw_counts, sample_name=bam_file)
+        get_gene_counts(
+            infile=fc_output,
+            outfile=raw_counts,
+            sample_name=bam_file,
+        )
         get_gene_lenghts(infile=fc_output, outfile="gene_lengths.txt")
 
         # Normalize counts
@@ -930,11 +977,15 @@ class FeatureCounts(ProcessBio):
         rename_columns_and_compress(cpm, f"{name}_cpm.tab.gz")
 
         # Compress the featureCounts output file
-        with open(file="featureCounts_rc.txt", mode="rb") as f_in:
-            with gzip.open(
-                filename=f"{name}_featureCounts_rc.txt.gz", mode="wb"
-            ) as f_out:
-                shutil.copyfileobj(f_in, f_out)
+        compress_outputs(
+            input_file="featureCounts_rc.txt",
+            output_file=f"{name}_featureCounts_rc.txt.gz",
+        )
+        if Path("per_lane_rc.txt").exists():
+            compress_outputs(
+                input_file="per_lane_rc.txt", output_file="per_lane_rc.txt.gz"
+            )
+            outputs.per_lane_rc = "per_lane_rc.txt.gz"
 
         # Save the abundance estimates to JSON storage
         json_output = "json.txt"
