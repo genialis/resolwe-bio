@@ -27,6 +27,7 @@ Changed
   schema
 - Add memory limit to parallel GATK SplitNCigarReads step in
   process ``rnaseq-vc-preprocess``
+- Update process categories
 
 Fixed
 -----

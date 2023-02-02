@@ -23,9 +23,9 @@ class WaltIndex(Process):
             "memory": 16384,
         },
     }
-    category = "Genome index"
+    category = "WGBS"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.2.0"
+    version = "1.2.1"
 
     class Input:
         """Input fields for WaltIndex."""

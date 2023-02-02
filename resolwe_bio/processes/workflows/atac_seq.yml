@@ -5,9 +5,9 @@
     type: sample
   requirements:
     expression-engine: jinja
-  version: 3.1.0
+  version: 3.1.1
   type: data:workflow:atacseq
-  category: Pipeline
+  category: ATAC-seq
   description: |
     This ATAC-seq pipeline closely follows the official ENCODE DCC pipeline. It is comprised of
     three steps; alignment, pre-peakcall QC, and calling peaks (with post-peakcall QC).

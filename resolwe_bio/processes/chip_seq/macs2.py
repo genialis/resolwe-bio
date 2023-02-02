@@ -649,8 +649,8 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.8.0"
-    category = "ChIP-Seq:Call Peaks"
+    version = "4.8.1"
+    category = "ChIP-seq"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED

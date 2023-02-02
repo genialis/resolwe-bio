@@ -4,9 +4,9 @@
 
 - slug: abstract-expression
   name: Abstract expression process
-  version: 1.0.0
+  version: 1.0.1
   type: data:expression
-  category: abstract
+  category: Test
   output:
     - name: exp
       label: Normalized expression

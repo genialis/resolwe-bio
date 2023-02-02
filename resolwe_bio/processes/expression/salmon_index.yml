@@ -9,7 +9,8 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: 'Salmon index, k-mer size: {{ kmerlen }} ({{ nucl.fasta.file|basename|default("?") }})'
-  version: 2.2.0
+  version: 2.2.1
+  category: Quantify
   type: data:index:salmon
   persistence: CACHED
   description: |

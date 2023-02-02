@@ -23,8 +23,8 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.5.0"
-    category = "Clipping"
+    version = "1.5.1"
+    category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
   data_name: Expression matrix
-  version: 1.4.0
+  version: 1.4.1
   type: data:expressionset
-  category: Other
+  category: Quantify
   persistence: CACHED
   description: |
     Merge expression data to create an expression matrix where each column

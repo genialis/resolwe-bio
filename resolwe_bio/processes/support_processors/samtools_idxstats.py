@@ -20,9 +20,9 @@ class SamtoolsIdxstats(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.4.0"
+    version = "1.4.1"
     process_type = "data:samtools:idxstats"
-    category = "Other"
+    category = "Samtools"
     entity = {
         "type": "sample",
         "input": "alignment",

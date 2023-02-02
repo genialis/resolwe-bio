@@ -28,8 +28,8 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.5.0"
-    category = "BAM processing"
+    version = "2.5.1"
+    category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

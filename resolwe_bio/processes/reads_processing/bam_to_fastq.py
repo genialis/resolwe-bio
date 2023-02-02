@@ -19,9 +19,9 @@ class BamToFastqPaired(Process):
 
     slug = "bamtofastq-paired"
     name = "Samtools fastq (paired-end)"
-    category = "BAM processing"
+    category = "Samtools"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.3.0"
+    version = "1.3.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",

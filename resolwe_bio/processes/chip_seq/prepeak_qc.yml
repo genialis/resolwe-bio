@@ -14,9 +14,9 @@
       memory: 16384
       cores: 10
   data_name: "{{ alignment|name|default('?') }}"
-  version: 0.5.0
+  version: 0.5.1
   type: data:prepeakqc
-  category: ChIP-Seq:QC report
+  category: ChIP-seq
   flow_collection: sample
   persistence: CACHED
   description: |

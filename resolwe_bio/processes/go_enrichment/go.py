@@ -25,8 +25,8 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.6.1"
-    category = "Other"
+    version = "3.6.2"
+    category = "Enrichment and Clustering"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP

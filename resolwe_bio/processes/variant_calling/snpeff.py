@@ -61,9 +61,9 @@ class SnpEff(Process):
             "memory": 16384,
         },
     }
-    category = "Other"
+    category = "WGS"
     data_name = "Annotated variants (SnpEff)"
-    version = "1.1.0"
+    version = "1.1.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -298,9 +298,9 @@ class SnpEffSingleSample(Process):
     entity = {
         "type": "sample",
     }
-    category = "Other"
+    category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 

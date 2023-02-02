@@ -22,8 +22,8 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.4.0"
-    category = "Other"
+    version = "1.4.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

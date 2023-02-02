@@ -11,8 +11,9 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021
   data_name: "Test"
-  version: 1.2.2
+  version: 1.2.3
   type: data:test:fields
+  category: Test
   persistence: CACHED
   description: |
     Test with all basic input fields whose values are printed by the processor and returned unmodified as output fields.

@@ -9,9 +9,9 @@
       cores: 10
       memory: 16384
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.5.0
+  version: 2.5.1
   type: data:reads:fastq:single:cutadapt
-  category: Trim
+  category: FASTQ processing
   flow_collection: sample
   persistence: CACHED
   description: |
@@ -233,9 +233,9 @@
       cores: 10
       memory: 16384
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.7.0
+  version: 2.7.1
   type: data:reads:fastq:paired:cutadapt
-  category: Trim
+  category: FASTQ processing
   flow_collection: sample
   persistence: CACHED
   description: |

@@ -4,9 +4,9 @@
 
 - slug: abstract-alignment
   name: Abstract alignment process
-  version: 1.0.0
+  version: 1.0.1
   type: data:alignment
-  category: abstract
+  category: Test
   output:
     - name: bam
       label: Alignment file

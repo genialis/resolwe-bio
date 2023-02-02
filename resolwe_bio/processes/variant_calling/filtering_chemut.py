@@ -52,9 +52,9 @@ class FilteringCheMut(Process):
 
     slug = "filtering-chemut"
     name = "Variant filtering (CheMut)"
-    category = "Other"
+    category = "WGS"
     process_type = "data:variants:vcf:filtering"
-    version = "1.8.1"
+    version = "1.8.2"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {

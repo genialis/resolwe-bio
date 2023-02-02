@@ -215,8 +215,8 @@ class HierarchicalClusteringSamples(ProcessBio):
     slug = "clustering-hierarchical-samples"
     name = "Hierarchical clustering of samples"
     process_type = "data:clustering:hierarchical:sample"
-    version = "3.4.0"
-    category = "Other"
+    version = "3.5.0"
+    category = "Enrichment and Clustering"
     data_name = "Hierarchical clustering of samples"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
@@ -235,10 +235,6 @@ class HierarchicalClusteringSamples(ProcessBio):
             DataField("expression"),
             label="Expressions",
             description="Select at least two data objects.",
-        )
-        advanced = BooleanField(
-            label="Show advanced options",
-            default=False,
         )
 
         class Preprocessing:
@@ -311,13 +307,9 @@ class HierarchicalClusteringSamples(ProcessBio):
                 default=True,
             )
 
-        preprocessing = GroupField(
-            Preprocessing, label="Preprocessing", hidden="!advanced"
-        )
-        processing = GroupField(Processing, label="Processing", hidden="!advanced")
-        postprocessing = GroupField(
-            Postprocessing, label="Postprocessing", hidden="!advanced"
-        )
+        preprocessing = GroupField(Preprocessing, label="Preprocessing")
+        processing = GroupField(Processing, label="Processing")
+        postprocessing = GroupField(Postprocessing, label="Postprocessing")
 
     class Output:
         """Output fields to process HierarchicalClusteringSamples."""
@@ -508,8 +500,8 @@ class HierarchicalClusteringGenes(ProcessBio):
     slug = "clustering-hierarchical-genes"
     name = "Hierarchical clustering of genes"
     process_type = "data:clustering:hierarchical:gene"
-    version = "3.4.0"
-    category = "Other"
+    version = "3.5.0"
+    category = "Enrichment and Clustering"
     data_name = "Hierarchical clustering of genes"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
@@ -528,10 +520,6 @@ class HierarchicalClusteringGenes(ProcessBio):
             DataField("expression"),
             label="Expressions",
             description="Select at least two data objects.",
-        )
-        advanced = BooleanField(
-            label="Show advanced options",
-            default=False,
         )
 
         class Preprocessing:
@@ -604,13 +592,9 @@ class HierarchicalClusteringGenes(ProcessBio):
                 default=True,
             )
 
-        preprocessing = GroupField(
-            Preprocessing, label="Preprocessing", hidden="!advanced"
-        )
-        processing = GroupField(Processing, label="Processing", hidden="!advanced")
-        postprocessing = GroupField(
-            Postprocessing, label="Postprocessing", hidden="!advanced"
-        )
+        preprocessing = GroupField(Preprocessing, label="Preprocessing")
+        processing = GroupField(Processing, label="Processing")
+        postprocessing = GroupField(Postprocessing, label="Postprocessing")
 
     class Output:
         """Output fields to process HierarchicalClusteringGenes."""

@@ -26,7 +26,7 @@ class BsConversionRate(Process):
     slug = "bs-conversion-rate"
     name = "Bisulfite conversion rate"
     process_type = "data:wgbs:bsrate"
-    version = "1.3.0"
+    version = "1.3.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -40,6 +40,7 @@ class BsConversionRate(Process):
         },
     }
     data_name = "{{ mr|name|default('?') }}"
+    category = "WGBS"
 
     class Input:
         """Input fields for BsConversionRate."""

@@ -25,9 +25,9 @@ class CheMut(Process):
 
     slug = "vc-chemut"
     name = "Variant calling (CheMut)"
-    category = "Other"
+    category = "WGS"
     process_type = "data:variants:vcf:chemut"
-    version = "3.0.0"
+    version = "3.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {

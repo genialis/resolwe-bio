@@ -42,9 +42,9 @@ class QortsQC(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.7.0"
+    version = "1.7.1"
     process_type = "data:qorts:qc"
-    category = "Other"
+    category = "QC"
     entity = {
         "type": "sample",
         "input": "alignment",

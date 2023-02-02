@@ -11,12 +11,12 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/chipseq:6.0.0
   data_name: "{{ treatment|name|default('?') }}"
-  version: 3.5.0
+  version: 3.5.1
   type: data:chipseq:callpeak:macs14
   entity:
     type: sample
     input: treatment
-  category: ChIP-Seq:Call Peaks
+  category: ChIP-seq
   persistence: CACHED
   description: |
     Model-based Analysis of ChIP-Seq (MACS 1.4) empirically models the length

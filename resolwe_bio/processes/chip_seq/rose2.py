@@ -33,8 +33,8 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.2.0"
-    category = "ChIP-Seq:Post Process"
+    version = "5.2.1"
+    category = "ChIP-seq"
     entity = {
         "type": "sample",
         "input": "input_macs",

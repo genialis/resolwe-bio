@@ -32,9 +32,9 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.5.0"
+    version = "1.5.1"
     process_type = "data:alignment:bam:umitools:dedup"
-    category = "Other"
+    category = "FASTQ processing"
     entity = {
         "type": "sample",
         "input": "alignment",

@@ -8,9 +8,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "Spike-ins QC ({% for s in samples %}{{ s | name }}{{ ', ' if not loop.last }}{% endfor %})"
-  version: 1.4.0
+  version: 1.4.1
   type: data:spikeins
-  category: Other
+  category: QC
   persistence: CACHED
   description: |
     Plot spike-ins measured abundances for samples quality control. The process will output

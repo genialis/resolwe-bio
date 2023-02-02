@@ -149,8 +149,8 @@ class BBDukSingle(Process):
     slug = "bbduk-single"
     name = "BBDuk (single-end)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "3.0.0"
-    category = "Trim"
+    version = "3.1.0"
+    category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -176,10 +176,6 @@ class BBDukSingle(Process):
             label="Minimum length",
             default=10,
             description="Reads shorter than the minimum length will be discarded after trimming.",
-        )
-        show_advanced = BooleanField(
-            label="Show advanced parameters",
-            default=False,
         )
 
         class Reference:
@@ -531,27 +527,19 @@ class BBDukSingle(Process):
                 "will cause fastqc to crash and burn if you use it on really long reads.",
             )
 
-        reference = GroupField(Reference, label="Reference", hidden="!show_advanced")
+        reference = GroupField(Reference, label="Reference")
 
-        processing = GroupField(
-            Processing, label="Processing parameters", hidden="!show_advanced"
-        )
+        processing = GroupField(Processing, label="Processing parameters")
 
         operations = GroupField(
-            Operations,
-            label="Trimming, filtering and masking parameters.",
-            hidden="!show_advanced",
+            Operations, label="Trimming, filtering and masking parameters."
         )
 
-        header_parsing = GroupField(
-            HeaderParsing, label="Header-parsing parameters", hidden="!show_advanced"
-        )
+        header_parsing = GroupField(HeaderParsing, label="Header-parsing parameters")
 
-        complexity = GroupField(
-            Complexity, label="Complexity parameters", hidden="!show_advanced"
-        )
+        complexity = GroupField(Complexity, label="Complexity parameters")
 
-        fastqc = GroupField(Fastqc, label="FastQC parameters", hidden="!show_advanced")
+        fastqc = GroupField(Fastqc, label="FastQC parameters")
 
     class Output:
         """Output fields."""
@@ -750,8 +738,8 @@ class BBDukPaired(Process):
     slug = "bbduk-paired"
     name = "BBDuk (paired-end)"
     process_type = "data:reads:fastq:paired:bbduk"
-    version = "3.0.0"
-    category = "Trim"
+    version = "3.1.0"
+    category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -777,10 +765,6 @@ class BBDukPaired(Process):
             label="Minimum length",
             default=10,
             description="Reads shorter than the minimum length will be discarded after trimming.",
-        )
-        show_advanced = BooleanField(
-            label="Show advanced parameters",
-            default=False,
         )
 
         class Reference:
@@ -1154,27 +1138,19 @@ class BBDukPaired(Process):
                 "will cause fastqc to crash and burn if you use it on really long reads.",
             )
 
-        reference = GroupField(Reference, label="Reference", hidden="!show_advanced")
+        reference = GroupField(Reference, label="Reference")
 
-        processing = GroupField(
-            Processing, label="Processing parameters", hidden="!show_advanced"
-        )
+        processing = GroupField(Processing, label="Processing parameters")
 
         operations = GroupField(
-            Operations,
-            label="Trimming, filtering and masking parameters.",
-            hidden="!show_advanced",
+            Operations, label="Trimming, filtering and masking parameters."
         )
 
-        header_parsing = GroupField(
-            HeaderParsing, label="Header-parsing parameters", hidden="!show_advanced"
-        )
+        header_parsing = GroupField(HeaderParsing, label="Header-parsing parameters")
 
-        complexity = GroupField(
-            Complexity, label="Complexity parameters", hidden="!show_advanced"
-        )
+        complexity = GroupField(Complexity, label="Complexity parameters")
 
-        fastqc = GroupField(Fastqc, label="FastQC parameters", hidden="!show_advanced")
+        fastqc = GroupField(Fastqc, label="FastQC parameters")
 
     class Output:
         """Output fields."""

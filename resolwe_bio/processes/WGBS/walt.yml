@@ -15,9 +15,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/wgbs:3.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 3.7.0
+  version: 3.7.1
   type: data:alignment:bam:walt
-  category: Align
+  category: WGBS
   flow_collection: sample
   persistence: CACHED
   description: |

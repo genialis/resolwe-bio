@@ -29,8 +29,8 @@ class CellRangerMkref(Process):
     slug = "cellranger-mkref"
     name = "Cell Ranger Mkref"
     process_type = "data:genomeindex:10x"
-    version = "2.1.1"
-    category = "scRNA-Seq"
+    version = "2.1.2"
+    category = "scRNA-seq"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -117,8 +117,8 @@ class CellRangerCount(Process):
     slug = "cellranger-count"
     name = "Cell Ranger Count"
     process_type = "data:scexpression:10x"
-    version = "1.2.0"
-    category = "scRNA-Seq"
+    version = "1.2.1"
+    category = "scRNA-seq"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

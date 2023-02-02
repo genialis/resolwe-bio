@@ -17,9 +17,9 @@
           - case
         required: True
   data_name: ChIP-Seq Call Peaks Batch
-  version: 1.4.2
+  version: 1.5.0
   type: data:chipseq:batch:macs2
-  category: ChIP-Seq:Call Peaks
+  category: ChIP-seq
   persistence: CACHED
   description: |
     This process runs MACS2 in batch mode. MACS2 analysis is triggered
@@ -55,24 +55,16 @@
       description: |
         BED file containing promoter regions (TSS+-1000 bp for example). Needed to get the number
         of peaks and reads mapped to promoter regions.
-    - name: advanced
-      label: Show advanced options
-      type: basic:boolean
-      default: false
-      description: |
-        Inspect and modify parameters.
     - name: tagalign
       label: Use tagAlign files
       type: basic:boolean
       default: true
-      hidden: "!advanced"
       description: |
          Use filtered tagAlign files as case (treatment) and control
          (background) samples. If extsize parameter is not set, run MACS
          using input's estimated fragment length.
     - name: prepeakqc_settings
       label: Pre-peak QC settings
-      hidden: "!advanced"
       group:
         - name: q_threshold
           label: Quality filtering threshold
@@ -98,7 +90,6 @@
             as fragment length.
     - name: settings
       label: MACS2 settings
-      hidden: "!advanced"
       group:
         - name: duplicates
           label: Number of duplicates
@@ -334,7 +325,6 @@
             set, this is a p-value cutoff, otherwise, it's a q-value cutoff. DEFAULT = 0.1
     - name: chipqc_settings
       label: ChipQC settings
-      hidden: "!advanced"
       group:
         - name: blacklist
           label: Blacklist regions

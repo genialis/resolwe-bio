@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/biox:2.0.0
   data_name: "{{ alignment.bam.file|basename|default('?') }}"
-  version: 1.4.1
+  version: 1.4.2
   type: data:expression:polya
-  category: Other
+  category: Quantify
   flow_collection: sample
   persistence: CACHED
   description: |

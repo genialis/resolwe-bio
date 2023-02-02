@@ -9,7 +9,8 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 0.6.0
+  version: 0.6.1
+  category: Quantify
   type: data:strandedness
   persistence: CACHED
   description: |

@@ -45,8 +45,8 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.3.0"
-    category = "Trim"
+    version = "1.3.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

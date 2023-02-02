@@ -34,7 +34,8 @@ class ReverseComplementSingle(Process):
         "type": "sample",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.3.0"
+    version = "1.3.1"
+    category = "FASTQ processing"
 
     class Input:
         """Input fields to process ReverseComplementSingle."""
@@ -96,7 +97,8 @@ class ReverseComplementPaired(Process):
         "type": "sample",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.2.0"
+    version = "1.2.1"
+    category = "FASTQ processing"
 
     class Input:
         """Input fields to process ReverseComplementPaired."""

@@ -353,9 +353,9 @@ class MultiQC(Process):
     entity = {
         "type": "sample",
     }
-    category = "Other"
+    category = "QC"
     data_name = "MultiQC report"
-    version = "1.17.1"
+    version = "1.17.2"
 
     class Input:
         """Input fields to process MultiQC."""

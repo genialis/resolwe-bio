@@ -25,8 +25,8 @@ class CutadaptCorallSingle(Process):
     slug = "cutadapt-corall-single"
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.4.0"
-    category = "Other"
+    version = "1.4.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -198,8 +198,8 @@ class CutadaptCorallPaired(Process):
     slug = "cutadapt-corall-paired"
     name = "Cutadapt (Corall RNA-Seq, paired-end)"
     process_type = "data:reads:fastq:paired:cutadapt:"
-    version = "1.3.0"
-    category = "Other"
+    version = "1.3.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {

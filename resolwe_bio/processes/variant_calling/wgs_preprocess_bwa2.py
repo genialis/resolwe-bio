@@ -7,7 +7,6 @@ from joblib import Parallel, delayed, wrap_non_picklable_objects
 from plumbum import TEE
 
 from resolwe.process import (
-    BooleanField,
     Cmd,
     DataField,
     FileField,
@@ -130,8 +129,8 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.3.0"
-    category = "GATK"
+    version = "1.4.0"
+    category = "WGS"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -164,12 +163,6 @@ class WgsPreprocess_BWA2(Process):
             DataField("variants:vcf"), label="Known sites of variation (VCF)"
         )
 
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
-
         class AdvancedOptions:
             """Advanced options."""
 
@@ -189,9 +182,7 @@ class WgsPreprocess_BWA2(Process):
                 required=False,
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields to process WgsPreprocess_BWA2."""

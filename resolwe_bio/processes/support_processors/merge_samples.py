@@ -59,8 +59,8 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:mergereads:single"
-    version = "2.2.0"
-    category = "Other"
+    version = "2.2.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -134,8 +134,8 @@ class MergeFastqPaired(Process):
     slug = "merge-fastq-paired"
     name = "Merge FASTQ (paired-end)"
     process_type = "data:mergereads:paired"
-    version = "2.2.0"
-    category = "Other"
+    version = "2.2.1"
+    category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",

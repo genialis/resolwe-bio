@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: 'PCA'
-  version: 2.4.0
+  version: 2.4.1
   type: data:pca
-  category: Other
+  category: Enrichment and Clustering
   persistence: TEMP
   scheduling_class: interactive
   description: |

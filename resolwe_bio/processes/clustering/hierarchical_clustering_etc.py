@@ -107,7 +107,7 @@ class ClusterTimeCourse(Process):
     slug = "clustering-hierarchical-etc"
     name = "Hierarchical clustering of time courses"
     process_type = "data:clustering:hierarchical:etc"
-    version = "1.2.1"
+    version = "1.2.2"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
     requirements = {
@@ -119,6 +119,7 @@ class ClusterTimeCourse(Process):
         "relations": [{"type": "series"}],
     }
     data_name = "Hierarchical clustering of time courses"
+    category = "Enrichment and Clustering"
 
     class Input:
         """Input fields to process ClusterTimeCourse."""

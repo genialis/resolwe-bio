@@ -32,9 +32,9 @@ class BamToBedpe(Process):
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.3.0"
+    version = "1.3.1"
     process_type = "data:bedpe"
-    category = "Other"
+    category = "BAM processing"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
@@ -96,9 +96,9 @@ class CalculateBigWig(Process):
         "resources": {"cores": 1, "memory": 16384},
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "2.0.0"
+    version = "2.0.1"
     process_type = "data:coverage:bigwig"
-    category = "Other"
+    category = "BAM processing"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 

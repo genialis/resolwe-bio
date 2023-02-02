@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/bamliquidator:2.2.0
   data_name: "bamplot"
-  version: 1.4.2
+  version: 1.4.3
   type: data:bam:plot:bamplot
-  category: Plot
+  category: BAM processing
   persistence: CACHED
   description: |
     Plot a single locus from a bam.

@@ -14,9 +14,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.5.0
+  version: 2.5.1
   type: data:reads:fastq:single:trimmomatic
-  category: Trim
+  category: FASTQ processing
   flow_collection: sample
   persistence: CACHED
   description: |
@@ -268,9 +268,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.5.0
+  version: 2.5.1
   type: data:reads:fastq:paired:trimmomatic
-  category: Trim
+  category: FASTQ processing
   flow_collection: sample
   persistence: CACHED
   description: |

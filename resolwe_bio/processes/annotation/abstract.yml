@@ -4,9 +4,9 @@
 
 - slug: abstract-annotation
   name: Abstract annotation process
-  version: 1.0.0
+  version: 1.0.1
   type: data:annotation
-  category: abstract
+  category: Test
   output:
     - name: annot
       label: Uploaded file

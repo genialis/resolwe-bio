@@ -99,7 +99,7 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.2.1"
+    version = "1.2.2"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
     requirements = {
@@ -111,6 +111,7 @@ class FindSimilar(Process):
         "relations": [{"type": "series"}],
     }
     data_name = "Genes similar to {{gene}}"
+    category = "Enrichment and Clustering"
 
     class Input:
         """Input fields to process FindSimilar."""

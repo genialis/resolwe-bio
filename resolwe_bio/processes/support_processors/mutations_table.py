@@ -237,9 +237,9 @@ class MutationsTable(ProcessBio):
     entity = {
         "type": "sample",
     }
-    category = "Other"
+    category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.0.0"
+    version = "2.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 

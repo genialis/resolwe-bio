@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/biox:2.0.0
   data_name: "Expression time course"
-  version: 1.2.1
+  version: 1.2.2
   type: data:etc
-  category: Other
+  category: Quantify
   persistence: CACHED
   description: |
     Select gene expression data and form a time course.
