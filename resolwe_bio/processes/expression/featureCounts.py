@@ -223,7 +223,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "6.0.0"
+    version = "6.1.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -326,12 +326,6 @@ class FeatureCounts(ProcessBio):
             "strandedness. Increase the number of reads make automatic "
             "detection more reliable. Decrease the number of reads to "
             "make automatic detection run faster.",
-        )
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
         )
 
         class General:
@@ -559,31 +553,19 @@ class FeatureCounts(ProcessBio):
                 "chromosome / contig names.",
             )
 
-        general = GroupField(General, label="General options", hidden="!advanced")
+        general = GroupField(General, label="General options")
 
-        overlap = GroupField(
-            Overlap, label="Overlap between reads and features", hidden="!advanced"
-        )
+        overlap = GroupField(Overlap, label="Overlap between reads and features")
 
-        read_filtering = GroupField(
-            ReadFiltering, label="Read filtering", hidden="!advanced"
-        )
+        read_filtering = GroupField(ReadFiltering, label="Read filtering")
 
-        exon_exon_junctions = GroupField(
-            ExonExonJunctions, label="Exon-exon junctions", hidden="!advanced"
-        )
+        exon_exon_junctions = GroupField(ExonExonJunctions, label="Exon-exon junctions")
 
         paired_end = GroupField(
-            PairedEnd,
-            label="Parameters specific to paired-end reads",
-            hidden="!advanced",
+            PairedEnd, label="Parameters specific to paired-end reads"
         )
 
-        miscellaneous = GroupField(
-            Miscellaneous,
-            label="Miscellaneous",
-            hidden="!advanced",
-        )
+        miscellaneous = GroupField(Miscellaneous, label="Miscellaneous")
 
     class Output:
         """Output fields."""

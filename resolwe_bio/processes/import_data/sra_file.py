@@ -52,7 +52,7 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.4.2"
+    version = "1.5.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
@@ -73,7 +73,6 @@ class ImportSra(Process):
         """Input fields to process ImportSra."""
 
         sra_accession = ListField(StringField(), label="SRA accession(s)")
-        show_advanced = BooleanField(label="Show advanced options", default=False)
 
         class Advanced:
             """Advanced options."""
@@ -93,9 +92,7 @@ class ImportSra(Process):
                 label="Dump only unaligned sequences", default=False
             )
 
-        advanced = GroupField(
-            Advanced, label="Advanced options", hidden="!show_advanced"
-        )
+        advanced = GroupField(Advanced, label="Advanced options")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
@@ -149,7 +146,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.5.0"
+    version = "1.6.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -174,7 +171,6 @@ class ImportSraSingle(Process):
         """Input fields to process ImportSraSingle."""
 
         sra_accession = ListField(StringField(), label="SRA accession(s)")
-        show_advanced = BooleanField(label="Show advanced options", default=False)
 
         class Advanced:
             """Advanced options."""
@@ -194,9 +190,7 @@ class ImportSraSingle(Process):
                 label="Dump only unaligned sequences", default=False
             )
 
-        advanced = GroupField(
-            Advanced, label="Advanced options", hidden="!show_advanced"
-        )
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields to process ImportSraSingle."""
@@ -324,7 +318,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.5.0"
+    version = "1.6.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -349,7 +343,6 @@ class ImportSraPaired(Process):
         """Input fields to process ImportSraPaired."""
 
         sra_accession = ListField(StringField(), label="SRA accession(s)")
-        show_advanced = BooleanField(label="Show advanced options", default=False)
 
         class Advanced:
             """Advanced options."""
@@ -369,9 +362,7 @@ class ImportSraPaired(Process):
                 label="Dump only unaligned sequences", default=False
             )
 
-        advanced = GroupField(
-            Advanced, label="Advanced options", hidden="!show_advanced"
-        )
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields to process ImportSraSingle."""

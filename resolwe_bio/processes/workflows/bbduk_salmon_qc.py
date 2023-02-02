@@ -42,7 +42,7 @@ class WorkflowBbdukSalmonQc(Process):
     entity = {
         "type": "sample",
     }
-    version = "4.2.0"
+    version = "4.2.1"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 
@@ -276,7 +276,6 @@ class WorkflowBbdukSalmonQc(Process):
         """Run the workflow."""
 
         input_bbduk = {
-            "show_advanced": True,
             "reads": inputs.reads,
             "min_length": inputs.preprocessing.min_length,
             "reference": {

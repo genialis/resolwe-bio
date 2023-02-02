@@ -48,7 +48,7 @@ class InsertSizeMetrics(Process):
     name = "Picard WGS Metrics"
     category = "Picard"
     process_type = "data:picard:wgsmetrics"
-    version = "2.3.0"
+    version = "2.4.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -69,12 +69,6 @@ class InsertSizeMetrics(Process):
 
         create_histogram = BooleanField(
             label="Include data for base quality histogram in the metrics file",
-            default=False,
-        )
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
             default=False,
         )
 
@@ -133,7 +127,7 @@ class InsertSizeMetrics(Process):
                 default="STRICT",
             )
 
-        options = GroupField(Options, label="Options", hidden="!advanced")
+        options = GroupField(Options, label="Options")
 
     class Output:
         """Output fields for CollectWgsMetrics."""

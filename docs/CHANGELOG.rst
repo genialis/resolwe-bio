@@ -28,6 +28,8 @@ Changed
 - Add memory limit to parallel GATK SplitNCigarReads step in
   process ``rnaseq-vc-preprocess``
 - Update process categories
+- Remove ``Show advanced options`` checkbox from all
+  processes and workflows
 
 Fixed
 -----

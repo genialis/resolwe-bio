@@ -152,7 +152,7 @@ class SalmonQuant(ProcessBio):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.6.0"
+    version = "2.7.0"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {
@@ -166,12 +166,6 @@ class SalmonQuant(ProcessBio):
         reads = DataField("reads:fastq", label="Input sample(s)")
         salmon_index = DataField("index:salmon", label="Salmon index")
         annotation = DataField("annotation:gtf", label="GTF annotation")
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
 
         class Options:
             """Options."""
@@ -325,7 +319,7 @@ class SalmonQuant(ProcessBio):
                 required=False,
             )
 
-        options = GroupField(Options, label="Options", hidden="!advanced")
+        options = GroupField(Options, label="Options")
 
     class Output:
         """Output fields."""

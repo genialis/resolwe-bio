@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.5.0"
+    version = "2.6.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -200,7 +200,6 @@ class GeoImport(Process):
         gse_accession = StringField(
             label="GEO accession", description="Enter a GEO series accession number."
         )
-        show_advanced = BooleanField(label="Show advanced options", default=False)
 
         class Advanced:
             """Advanced options."""
@@ -245,9 +244,7 @@ class GeoImport(Process):
                 required=False,
             )
 
-        advanced = GroupField(
-            Advanced, label="Advanced options", hidden="!show_advanced"
-        )
+        advanced = GroupField(Advanced, label="Advanced options")
 
     def upload_rna_gse(self, inputs, gse):
         """Upload RNA samples from GEO series.

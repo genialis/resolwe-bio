@@ -6,7 +6,6 @@ from joblib import Parallel, delayed, wrap_non_picklable_objects
 from plumbum import TEE
 
 from resolwe.process import (
-    BooleanField,
     Cmd,
     DataField,
     FileField,
@@ -67,7 +66,7 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "2.2.1"
+    version = "2.3.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -90,12 +89,6 @@ class GatkGenotypeGVCFs(Process):
 
         dbsnp = DataField("variants:vcf", label="dbSNP file")
 
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
-
         class AdvancedOptions:
             """Advanced options."""
 
@@ -112,9 +105,7 @@ class GatkGenotypeGVCFs(Process):
                 description="Set the maximum Java heap size.",
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for GatkGenotypeGVCFs."""

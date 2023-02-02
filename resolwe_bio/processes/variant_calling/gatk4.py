@@ -5,7 +5,6 @@ from pathlib import Path
 from plumbum import TEE
 
 from resolwe.process import (
-    BooleanField,
     Cmd,
     DataField,
     FileField,
@@ -24,7 +23,7 @@ class GatkHaplotypeCallerGvcf(Process):
     name = "GATK HaplotypeCaller (GVCF)"
     category = "GATK"
     process_type = "data:variants:gvcf"
-    version = "1.2.0"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -45,12 +44,6 @@ class GatkHaplotypeCallerGvcf(Process):
         bam = DataField("alignment:bam", label="Analysis ready BAM file")
         ref_seq = DataField("seq:nucleotide", label="Reference sequence")
 
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
-
         class Options:
             """Options."""
 
@@ -66,7 +59,7 @@ class GatkHaplotypeCallerGvcf(Process):
                 description="Fraction of contamination in sequencing data (for all samples) to aggressively remove.",
             )
 
-        options = GroupField(Options, label="Options", hidden="!advanced")
+        options = GroupField(Options, label="Options")
 
     class Output:
         """Output fields for GatkHaplotypeCallerGvcf."""

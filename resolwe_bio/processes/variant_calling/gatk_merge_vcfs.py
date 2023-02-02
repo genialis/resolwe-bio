@@ -4,7 +4,6 @@ import os
 from plumbum import TEE
 
 from resolwe.process import (
-    BooleanField,
     Cmd,
     DataField,
     FileField,
@@ -24,7 +23,7 @@ class GatkMergeVcfs(Process):
     name = "GATK MergeVcfs"
     category = "GATK"
     process_type = "data:variants:vcf:mergevcfs"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -43,12 +42,6 @@ class GatkMergeVcfs(Process):
         """Input fields for GatkMergeVcfs."""
 
         vcfs = ListField(DataField("variants:vcf"), label="Input data (VCFs)")
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
 
         class AdvancedOptions:
             """Advanced options."""
@@ -73,9 +66,7 @@ class GatkMergeVcfs(Process):
                 description="Set the maximum Java heap size (in GB).",
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for GatkMergeVcfs."""

@@ -25,7 +25,7 @@ class VariantFiltrationVqsr(Process):
     name = "GATK filter variants (VQSR)"
     category = "GATK"
     process_type = "data:variants:vcf:vqsr"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -78,12 +78,6 @@ class VariantFiltrationVqsr(Process):
                 label="1000G high confidence SNPs",
                 required=False,
             )
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
 
         class AdvancedOptions:
             """Advanced options."""
@@ -158,9 +152,7 @@ class VariantFiltrationVqsr(Process):
             label="Resource files",
         )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for VariantFiltrationVqsr."""

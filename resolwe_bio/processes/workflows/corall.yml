@@ -5,7 +5,7 @@
     type: sample
   requirements:
     expression-engine: jinja
-  version: 5.1.0
+  version: 5.2.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -46,13 +46,8 @@
       type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
-    - name: show_advanced
-      label: Show advanced parameters
-      type: basic:boolean
-      default: false
     - name: cutadapt
       label: Cutadapt filtering
-      hidden: '!show_advanced'
       group:
         - name: quality_cutoff
           label: Reads quality cutoff
@@ -68,7 +63,6 @@
             bases.
     - name: downsampling
       label: Downsampling (Seqtk)
-      hidden: '!show_advanced'
       group:
         - name: n_reads
           label: Number of reads
@@ -96,7 +90,6 @@
             as slow but with much reduced memory.
     - name: quantification
       label: Quantification (featureCounts)
-      hidden: '!show_advanced'
       group:
         - name: feature_class
           label: Feature class
@@ -210,7 +203,7 @@
     type: sample
   requirements:
     expression-engine: jinja
-  version: 5.1.0
+  version: 5.2.0
   type: data:workflow:rnaseq:corall
   category: Pipeline
   description: |
@@ -251,13 +244,8 @@
       type: data:index:star
       description: |
         Reference sequence index prepared by STAR aligner indexing tool.
-    - name: show_advanced
-      label: Show advanced parameters
-      type: basic:boolean
-      default: false
     - name: cutadapt
       label: Cutadapt filtering
-      hidden: '!show_advanced'
       group:
         - name: quality_cutoff
           label: Reads quality cutoff
@@ -273,7 +261,6 @@
             bases.
     - name: downsampling
       label: Downsampling (Seqtk)
-      hidden: '!show_advanced'
       group:
         - name: n_reads
           label: Number of reads
@@ -301,7 +288,6 @@
             as slow but with much reduced memory.
     - name: quantification
       label: Quantification (featureCounts)
-      hidden: '!show_advanced'
       group:
         - name: feature_class
           label: Feature class

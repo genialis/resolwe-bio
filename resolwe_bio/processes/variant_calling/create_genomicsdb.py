@@ -27,7 +27,7 @@ class GenomicsDBImport(Process):
     name = "GATK GenomicsDBImport"
     category = "GATK"
     process_type = "data:genomicsdb"
-    version = "1.2.0"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -70,12 +70,6 @@ class GenomicsDBImport(Process):
             "added to this database and a new GenomicsDB object is created.",
             required=False,
             hidden="!use_existing",
-        )
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
         )
 
         class AdvancedOptions:
@@ -122,9 +116,7 @@ class GenomicsDBImport(Process):
                 "collector threads for garbage collection.",
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for GenomicsDBImport."""

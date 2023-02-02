@@ -163,7 +163,7 @@ class BaseSpaceImport(Process):
     slug = "basespace-file-import"
     name = "BaseSpace file"
     process_type = "data:file"
-    version = "1.4.0"
+    version = "1.5.0"
     category = "Import"
     data_name = 'BaseSpace ({{ file_id|default("?") }})'
     persistence = Persistence.TEMP
@@ -187,10 +187,6 @@ class BaseSpaceImport(Process):
         access_token_secret = SecretField(
             label="BaseSpace access token",
             description="BaseSpace access token secret handle needed to download the file.",
-        )
-        show_advanced = BooleanField(
-            label="Show advanced options",
-            default=False,
         )
 
         class Advanced:
@@ -218,9 +214,7 @@ class BaseSpaceImport(Process):
                 "when error occurs. Output argument had no effect on this argument.",
             )
 
-        advanced = GroupField(
-            Advanced, label="Advanced options", hidden="!show_advanced"
-        )
+        advanced = GroupField(Advanced, label="Advanced options")
 
     class Output:
         """Output fields to process BaseSpaceImport."""

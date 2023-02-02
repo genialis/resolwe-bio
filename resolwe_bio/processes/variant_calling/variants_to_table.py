@@ -29,7 +29,7 @@ class GatkVariantsToTable(Process):
     name = "GATK VariantsToTable"
     category = "GATK"
     process_type = "data:variantstable"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -64,11 +64,6 @@ class GatkVariantsToTable(Process):
                 "ALT",
             ],
         )
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
-        )
 
         class AdvancedOptions:
             """Advanced options."""
@@ -92,9 +87,7 @@ class GatkVariantsToTable(Process):
                 default=True,
             )
 
-        advanced_options = GroupField(
-            AdvancedOptions, label="Advanced options", hidden="!advanced"
-        )
+        advanced_options = GroupField(AdvancedOptions, label="Advanced options")
 
     class Output:
         """Output fields for GATK VariantsToTable."""

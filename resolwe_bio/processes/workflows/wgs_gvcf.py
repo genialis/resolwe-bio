@@ -38,7 +38,7 @@ class WorkflowWgsGvcf(Process):
         },
     }
     data_name = "WGS GVCF analysis ({{ reads|name|default('?') if reads else aligned_reads|name|default('?') }})"
-    version = "2.2.0"
+    version = "2.3.0"
     process_type = "data:workflow:wgs:gvcf"
     category = "Pipeline"
     entity = {
@@ -68,12 +68,6 @@ class WorkflowWgsGvcf(Process):
         bwa_index = DataField("index:bwamem2", label="BWA genome index")
         known_sites = ListField(
             DataField("variants:vcf"), label="Known sites of variation (VCF)"
-        )
-
-        advanced = BooleanField(
-            label="Show advanced options",
-            description="Inspect and modify parameters.",
-            default=False,
         )
 
         class Trimming:
@@ -271,24 +265,18 @@ class WorkflowWgsGvcf(Process):
                 "distribution.",
             )
 
-        trimming_options = GroupField(
-            Trimming, label="Trimming options", hidden="!advanced"
-        )
+        trimming_options = GroupField(Trimming, label="Trimming options")
 
-        gatk_options = GroupField(GatkOptions, label="GATK options", hidden="!advanced")
+        gatk_options = GroupField(GatkOptions, label="GATK options")
 
         alignment_summary = GroupField(
-            AlignmentSummary, label="Alignment summary options", hidden="!advanced"
+            AlignmentSummary, label="Alignment summary options"
         )
 
-        wgs_metrics = GroupField(
-            PicardWGSMetrics, label="Picard WGS metrics options", hidden="!advanced"
-        )
+        wgs_metrics = GroupField(PicardWGSMetrics, label="Picard WGS metrics options")
 
         insert_size = GroupField(
-            InsertSizeMetrics,
-            label="Picard InsertSizeMetrics options",
-            hidden="!advanced",
+            InsertSizeMetrics, label="Picard InsertSizeMetrics options"
         )
 
     class Output:
