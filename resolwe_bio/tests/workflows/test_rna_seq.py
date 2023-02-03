@@ -5,7 +5,6 @@ from django.test import override_settings
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_docker_executor, with_resolwe_host
 
-from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -744,9 +743,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_paired_end, "source", "ENSEMBL")
         self.assertFileExists(salmon_paired_end, "variance")
 
-    @tag_process(
-        "workflow-rnaseq-variantcalling", "workflow-rnaseq-variantcalling-beta"
-    )
+    @tag_process("workflow-rnaseq-variantcalling")
     def test_rnaseq_variantcalling(self):
         input_folder = Path("rnaseq_variantcalling") / "input"
         output_folder = Path("rnaseq_variantcalling") / "output"
@@ -760,7 +757,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "src": input_folder / "chr1_19000.fasta.gz",
                     "species": "Homo sapiens",
-                    "build": "custom_build",
+                    "build": "GRCh38",
                 },
             )
             adapters = self.prepare_ref_seq()
@@ -777,7 +774,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "src": input_folder / "dbsnp-hg38.vcf.gz",
                     "species": "Homo sapiens",
-                    "build": "custom_build",
+                    "build": "GRCh38",
                 },
             )
 
@@ -786,7 +783,16 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                 {
                     "src": input_folder / "hg38.intervals.bed",
                     "species": "Homo sapiens",
-                    "build": "custom_build",
+                    "build": "GRCh38",
+                },
+            )
+
+            geneset = self.run_process(
+                "create-geneset",
+                {
+                    "genes": ["ENSG00000223972"],
+                    "species": "Homo sapiens",
+                    "source": "ENSEMBL",
                 },
             )
 
@@ -798,10 +804,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             "ref_seq": ref_seq.id,
             "genome": star_index.id,
             "dbsnp": dbsnp.id,
-            "exclude_filtered": True,
-            "select_variants": {
-                "select_type": ["SNP", "INDEL"],
-            },
+            "mutations": ["DDX11L1"],
         }
 
         self.run_process(
@@ -811,51 +814,26 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        variants = Data.objects.filter(
-            process__slug="gatk-select-variants-single"
-        ).last()
-        self.assertFile(
-            variants,
-            "vcf",
-            output_folder / "selected_variants.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
-
-        self.run_process(
-            process_slug="workflow-rnaseq-variantcalling-beta", input_=input_workflow
-        )
-
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        variants = Data.objects.filter(
-            process__slug="gatk-select-variants-single"
-        ).last()
-        self.assertFile(
-            variants,
-            "vcf",
-            output_folder / "selected_variants.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
+        mutations = Data.objects.filter(process__slug="mutations-table").last()
+        self.assertFile(mutations, "tsv", output_folder / "mutations.tsv")
 
         # Test for workflow without reads preprocessing
-        input_workflow["preprocessing"] = False
-        input_workflow["intervals"] = intervals.id
+        input_workflow = {
+            "reads": reads.id,
+            "preprocessing": False,
+            "ref_seq": ref_seq.id,
+            "genome": star_index.id,
+            "dbsnp": dbsnp.id,
+            "intervals": intervals.id,
+            "geneset": geneset.id,
+            "clinvar": dbsnp.id,
+            "haplotype_caller": {"interval_padding": 0},
+        }
         self.run_process(
             process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
         )
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        variants = Data.objects.filter(
-            process__slug="gatk-select-variants-single"
-        ).last()
-        self.assertFile(
-            variants,
-            "vcf",
-            output_folder / "selected_variants_interval.vcf.gz",
-            file_filter=filter_vcf_variable,
-            compression="gzip",
-        )
+        mutations = Data.objects.filter(process__slug="mutations-table").last()
+        self.assertFile(mutations, "tsv", output_folder / "mutations_geneset.tsv")

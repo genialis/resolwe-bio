@@ -23,6 +23,13 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Remove comparison to reference in
   process ``mutations-table``
+- **BACKWARD INCOMPATIBLE:** Update workflow
+  ``workflow-rnaseq-variantcalling``:
+
+  - merge with functionality from deprecated workflow
+    ``workflow-rnaseq-variantcalling-beta``
+  - add processes ``snpeff-single`` and ``mutations-table``
+  - remove process ``gatk-select-variants-single``
 - Remove group nesting for QC fields in ``general`` descriptor
   schema
 - Add memory limit to parallel GATK SplitNCigarReads step in
