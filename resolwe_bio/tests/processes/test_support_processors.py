@@ -1518,6 +1518,20 @@ re-save-file lane_attributes "${NAME}".txt
                     "build": "GRCh38",
                 },
             )
+            ensembl = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_folder / "ensembl.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+            snpeff_ensembl = self.run_process(
+                "snpeff-single",
+                {
+                    "variants": ensembl.id,
+                },
+            )
             snpeff = self.run_process(
                 "snpeff-single",
                 {
@@ -1555,11 +1569,22 @@ re-save-file lane_attributes "${NAME}".txt
                     "build": "GRCh38",
                 },
             )
+            ensembl_bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": input_folder / "ensembl.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
 
         snpeff.entity = bam.entity
         snpeff_nomutation.entity = bam.entity
         snpeff_noinput.entity = bam.entity
         snpeff_clinvar.entity = bam.entity
+        snpeff_ensembl.entity = ensembl_bam.entity
+        snpeff_ensembl.save()
+
         snpeff.save()
         snpeff_nomutation.save()
         snpeff_noinput.save()
@@ -1655,4 +1680,18 @@ re-save-file lane_attributes "${NAME}".txt
             report,
             "tsv",
             output_folder / "mutations_clinvar.tsv",
+        )
+
+        ensembl_mutations = self.run_process(
+            "mutations-table",
+            {
+                "variants": snpeff_ensembl.id,
+                "bam": ensembl_bam.id,
+                "mutations": ["PTPRD"],
+            },
+        )
+        self.assertFile(
+            ensembl_mutations,
+            "tsv",
+            output_folder / "ensembl_variants.tsv",
         )

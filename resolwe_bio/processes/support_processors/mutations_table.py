@@ -194,7 +194,7 @@ def get_depth(variants_table, bam):
         for i in range(len(bases)):
             variants_table[bases[i]] = variants_table.apply(
                 lambda row: bam.count_coverage(
-                    contig=row["CHROM"], start=row["POS"] - 1, stop=row["POS"]
+                    contig=str(row["CHROM"]), start=row["POS"] - 1, stop=row["POS"]
                 )[i][0],
                 axis=1,
             )
@@ -239,7 +239,7 @@ class MutationsTable(ProcessBio):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.0.1"
+    version = "2.0.2"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
