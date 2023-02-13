@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+49.0.0 - 2023-02-13
+===================
+
+Added
+-----
 - Add per-lane processing for processes ``alignment-star``,
   ``feature_counts``, ``bbduk-single``, ``bbduk-paired`` and
   workflow ``workflow-bbduk-star-featurecounts-qc``
