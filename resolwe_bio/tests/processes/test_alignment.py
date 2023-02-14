@@ -342,13 +342,23 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             file_filter=filter_star_report,
         )
 
-        inputs = {"genome": star_index.id, "reads": paired_lanes.id}
+        inputs = {
+            "genome": star_index.id,
+            "reads": paired_lanes.id,
+            "gene_counts": True,
+        }
         aligned_reads = self.run_process("alignment-star", inputs)
         self.assertFile(
             aligned_reads,
             "stats",
             output_folder / "paired_lanes_stats.txt",
             file_filter=filter_star_report,
+        )
+        self.assertFile(
+            aligned_reads,
+            "gene_counts",
+            output_folder / "ReadsPerGene.out.tab.gz",
+            compression="gzip",
         )
 
     @tag_process(

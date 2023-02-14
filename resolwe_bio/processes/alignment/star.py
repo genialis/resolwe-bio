@@ -1,4 +1,6 @@
 """Align reads with STAR aligner."""
+import gzip
+import shutil
 from pathlib import Path
 
 from plumbum import TEE
@@ -55,7 +57,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "4.0.0"
+    version = "4.1.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -111,6 +113,15 @@ class AlignmentStar(Process):
             "runs using --outFilterIntronMotifs RemoveNoncanonical.",
         )
 
+        gene_counts = BooleanField(
+            label="Gene count [--quantMode GeneCounts]",
+            description="With this option set to True STAR will count the number of reads per gene "
+            "while mapping. A read is counted if it overlaps (1nt or more) one and only one "
+            "gene. Both ends of the paired-end read are checked for overlaps. The counts coincide "
+            "with those produced by htseq-count with default parameters.",
+            default=False,
+        )
+
         class AnnotationOptions:
             """Annotation file options."""
 
@@ -161,7 +172,7 @@ class AlignmentStar(Process):
             """Transcript coordinate output options."""
 
             quant_mode = BooleanField(
-                label="Output in transcript coordinates [--quantMode]",
+                label="Output in transcript coordinates [--quantMode TranscriptomeSAM]",
                 default=False,
                 description="With --quantMode TranscriptomeSAM option STAR will output alignments "
                 "translated into transcript coordinates in the Aligned.toTranscriptome.out.bam "
@@ -399,6 +410,7 @@ class AlignmentStar(Process):
         alignment_transcriptome = FileField(
             label="Alignment (transcriptome coordinates)", required=False
         )
+        gene_counts = FileField(label="Gene counts", required=False)
         stats = FileField(label="Statistics")
         species = StringField(label="Species")
         build = StringField(label="Build")
@@ -505,16 +517,29 @@ class AlignmentStar(Process):
                 ]
             )
 
+        gene_segments = Path(inputs.genome.output.index.path) / "geneInfo.tab"
         if inputs.t_coordinates.quant_mode:
-            gene_segments = Path(inputs.genome.output.index.path) / "geneInfo.tab"
             if not gene_segments.is_file() and not inputs.annotation:
                 self.error(
                     "Output in transcript coordinates requires genome annotation file."
                 )
 
-            star_params.extend(["--quantMode", "TranscriptomeSAM"])
+            if inputs.gene_counts:
+                star_params.extend(["--quantMode", "TranscriptomeSAM", "GeneCounts"])
+            else:
+                star_params.extend(["--quantMode", "TranscriptomeSAM"])
+
             if inputs.t_coordinates.single_end:
                 star_params.extend(["--quantTranscriptomeBan", "Singleend"])
+
+        elif inputs.gene_counts:
+            if not gene_segments.is_file() and not inputs.annotation:
+                self.error(
+                    "Counting the number of reads per gene requires a genome "
+                    "annotation file."
+                )
+
+            star_params.extend(["--quantMode", "GeneCounts"])
 
         if inputs.filtering.out_multimap_max:
             star_params.extend(
@@ -667,6 +692,14 @@ class AlignmentStar(Process):
             out_transcriptome = f"{mate1_name}_aligned.toTranscriptome.out.bam"
             Path("Aligned.toTranscriptome.out.bam").rename(out_transcriptome)
             outputs.alignment_transcriptome = out_transcriptome
+
+        if inputs.gene_counts:
+            with open(file="ReadsPerGene.out.tab", mode="rb") as f_in:
+                with gzip.open(
+                    filename=f"{mate1_name}_ReadsPerGene.out.tab.gz", mode="wb"
+                ) as f_out:
+                    shutil.copyfileobj(f_in, f_out)
+            outputs.gene_counts = f"{mate1_name}_ReadsPerGene.out.tab.gz"
 
         out_stats = f"{mate1_name}_stats.txt"
         Path("Log.final.out").rename(out_stats)

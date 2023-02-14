@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add option to compute gene counts in ``alignment-star`` process
 
 Changed
 -------
