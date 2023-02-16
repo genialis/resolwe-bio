@@ -14,6 +14,9 @@ Unreleased
 Added
 -----
 - Add option to compute gene counts in ``alignment-star`` process
+- Add processes ``alignment-star-new`` and
+  ``alignment-star-index-new`` that use STAR version
+  2.7.10b
 
 Changed
 -------

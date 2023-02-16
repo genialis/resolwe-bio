@@ -361,6 +361,181 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+    @with_resolwe_host
+    @tag_process("alignment-star-index-new", "alignment-star-new")
+    def test_star_new(self):
+        input_folder = Path("test_star") / "input"
+        output_folder = Path("test_star") / "output"
+        with self.preparation_stage():
+            reads = self.prepare_reads(
+                [str(input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz")]
+            )
+            single_lanes = self.prepare_reads(
+                [
+                    input_folder / "hs_single bbduk_star_htseq_reads_single.fastq.gz",
+                    "hs sim_reads_single.fastq.gz",
+                ]
+            )
+            paired_reads = self.prepare_paired_reads(
+                mate1=[
+                    input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"
+                ],
+                mate2=[
+                    input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"
+                ],
+            )
+            paired_lanes = self.prepare_paired_reads(
+                mate1=[
+                    input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz",
+                    "hs sim_reads1.fastq.gz",
+                ],
+                mate2=[
+                    input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz",
+                    "hs sim_reads2.fastq.gz",
+                ],
+            )
+            annotation = self.prepare_annotation(
+                fn=input_folder / "hs annotation.gtf.gz",
+                source="ENSEMBL",
+                species="Homo sapiens",
+                build="GRCh38_ens90",
+            )
+
+            inputs = {
+                "src": input_folder / "hs genome.fasta.gz",
+                "species": "Homo sapiens",
+                "build": "GRCh38_ens90",
+            }
+            star_index_fasta = self.run_process("upload-fasta-nucl", inputs)
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        # prepare genome indices
+        star_index = self.run_process(
+            "alignment-star-index-new",
+            {"annotation": annotation.id, "ref_seq": star_index_fasta.id},
+        )
+
+        star_index_wo_annot = self.run_process(
+            "alignment-star-index-new",
+            {
+                "ref_seq": star_index_fasta.id,
+                "source": "ENSEMBL",
+            },
+        )
+
+        def filter_star_report(line):
+            """Filter variable lines from the STAR stats file."""
+            variable_lines = [
+                b"Started job on",
+                b"Started mapping on",
+                b"Finished on",
+                b"Mapping speed, Million of reads per hour",
+            ]
+            if any(variable_substring in line for variable_substring in variable_lines):
+                return True
+
+        # test STAR alignment
+        inputs = {
+            "genome": star_index.id,
+            "reads": reads.id,
+            "t_coordinates": {
+                "quant_mode": True,
+            },
+            "two_pass_mapping": {
+                "two_pass_mode": True,
+            },
+            "detect_chimeric": {
+                "chimeric": True,
+            },
+        }
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+        self.assertFields(aligned_reads, "species", "Homo sapiens")
+        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            output_folder / "hs_single_stats_beta.txt",
+            file_filter=filter_star_report,
+        )
+        sample = Sample.objects.get(data=aligned_reads)
+        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
+
+        inputs["genome"] = star_index_wo_annot.id
+        inputs["annotation"] = annotation.id
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+
+        self.assertFields(aligned_reads, "species", "Homo sapiens")
+        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            output_folder / "hs_single_stats_beta.txt",
+            file_filter=filter_star_report,
+        )
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+
+        self.assertFields(aligned_reads, "species", "Homo sapiens")
+        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+
+        inputs = {
+            "genome": star_index.id,
+            "reads": single_lanes.id,
+            "two_pass_mapping": {
+                "two_pass_mode": True,
+            },
+            "detect_chimeric": {
+                "chimeric": True,
+            },
+        }
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+        self.assertFields(aligned_reads, "species", "Homo sapiens")
+        self.assertFields(aligned_reads, "build", "GRCh38_ens90")
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            output_folder / "single_lanes_stats_beta.txt",
+            file_filter=filter_star_report,
+        )
+
+        inputs = {
+            "genome": star_index.id,
+            "reads": paired_reads.id,
+            "t_coordinates": {
+                "quant_mode": True,
+            },
+            "two_pass_mapping": {
+                "two_pass_mode": True,
+            },
+        }
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            output_folder / "hs_paired_stats_beta.txt",
+            file_filter=filter_star_report,
+        )
+
+        inputs = {
+            "genome": star_index.id,
+            "reads": paired_lanes.id,
+            "gene_counts": True,
+        }
+        aligned_reads = self.run_process("alignment-star-new", inputs)
+        self.assertFile(
+            aligned_reads,
+            "stats",
+            output_folder / "paired_lanes_stats_beta.txt",
+            file_filter=filter_star_report,
+        )
+        self.assertFile(
+            aligned_reads,
+            "gene_counts",
+            output_folder / "ReadsPerGene.out.tab.gz",
+            compression="gzip",
+        )
+
     @tag_process(
         "bwa-index", "alignment-bwa-aln", "alignment-bwa-sw", "alignment-bwa-mem"
     )
