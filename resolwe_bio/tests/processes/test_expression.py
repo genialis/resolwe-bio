@@ -798,3 +798,137 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             pf_out + "SM18_ss_mapped_species.txt.gz",
             compression="gzip",
         )
+
+    @with_resolwe_host
+    @tag_process("star-quantification")
+    def test_star_quantification(self):
+        inputs = Path("test_star") / "input"
+        outputs = Path("test_star") / "output"
+        with self.preparation_stage():
+            paired_lanes = self.prepare_paired_reads(
+                mate1=[
+                    inputs / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz",
+                    "hs sim_reads1.fastq.gz",
+                ],
+                mate2=[
+                    inputs / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz",
+                    "hs sim_reads2.fastq.gz",
+                ],
+            )
+            single_lanes = self.prepare_reads(
+                [
+                    inputs / "hs_single bbduk_star_htseq_reads_single.fastq.gz",
+                    "hs sim_reads_single.fastq.gz",
+                ]
+            )
+            annotation = self.prepare_annotation(
+                fn=inputs / "hs annotation.gtf.gz",
+                source="ENSEMBL",
+                species="Homo sapiens",
+                build="GRCh38_ens90",
+            )
+            inputs = {
+                "src": inputs / "hs genome.fasta.gz",
+                "species": "Homo sapiens",
+                "build": "GRCh38_ens90",
+            }
+            star_index_fasta = self.run_process("upload-fasta-nucl", inputs)
+
+            star_index = self.run_process(
+                "alignment-star-index",
+                {"annotation": annotation.id, "ref_seq": star_index_fasta.id},
+            )
+
+            salmon_index = self.run_process(
+                "salmon-index",
+                {
+                    "nucl": star_index_fasta.id,
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
+            inputs = {
+                "genome": star_index.id,
+                "reads": paired_lanes.id,
+                "gene_counts": True,
+            }
+            aligned_reads = self.run_process("alignment-star", inputs)
+
+            inputs = {
+                "genome": star_index.id,
+                "reads": single_lanes.id,
+                "gene_counts": True,
+            }
+            aligned_reads_single = self.run_process("alignment-star", inputs)
+
+            inputs = {
+                "genome": star_index.id,
+                "reads": single_lanes.id,
+            }
+            aligned_reads_error = self.run_process("alignment-star", inputs)
+
+        # test using BAM file containing paired-end reads and a GTF input file
+        expression = self.run_process(
+            "star-quantification",
+            {
+                "aligned_reads": aligned_reads.id,
+                "annotation": annotation.id,
+            },
+        )
+        self.assertFields(expression, "species", "Homo sapiens")
+        self.assertFields(expression, "build", "GRCh38_ens90")
+        self.assertFile(
+            expression,
+            "exp",
+            outputs / "star_tpm.tab.gz",
+            compression="gzip",
+        )
+
+        expression = self.run_process(
+            "star-quantification",
+            {
+                "aligned_reads": aligned_reads_single.id,
+                "annotation": annotation.id,
+            },
+        )
+        self.assertFields(expression, "species", "Homo sapiens")
+        self.assertFields(expression, "build", "GRCh38_ens90")
+        self.assertFile(
+            expression,
+            "exp_set",
+            outputs / "star_single_expressions.txt.gz",
+            compression="gzip",
+        )
+
+        expression = self.run_process(
+            "star-quantification",
+            {
+                "aligned_reads": aligned_reads_single.id,
+                "annotation": annotation.id,
+                "assay_type": "auto",
+                "cdna_index": salmon_index.id,
+            },
+        )
+        self.assertFields(expression, "species", "Homo sapiens")
+        self.assertFields(expression, "build", "GRCh38_ens90")
+        self.assertFile(
+            expression,
+            "counts_summary",
+            outputs / "exp_summary.txt",
+        )
+        expression = self.run_process(
+            "star-quantification",
+            {
+                "aligned_reads": aligned_reads_error.id,
+                "annotation": annotation.id,
+                "assay_type": "auto",
+                "cdna_index": salmon_index.id,
+            },
+            Data.STATUS_ERROR,
+        )
+        self.assertEqual(
+            expression.process_error,
+            ["Aligned reads should contain gene count information, but do not."],
+        )

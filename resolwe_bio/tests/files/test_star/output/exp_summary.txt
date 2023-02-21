@@ -1,0 +1,5 @@
+Status	Read count
+N_unmapped	18
+N_multimapping	5
+N_noFeature	315
+N_ambiguous	0
