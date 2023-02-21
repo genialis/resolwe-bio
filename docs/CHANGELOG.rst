@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Drop support for ``Python <= 3.9``
 
 Fixed
 -----
