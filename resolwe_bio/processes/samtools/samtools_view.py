@@ -153,7 +153,6 @@ class SamtoolsView(Process):
                 )
 
         if inputs.advanced.only_header:
-
             return_code, stdout, stderr = Cmd["samtools"]["view"][
                 "-Hbo", bam_name, inputs.bam.output.bam.path
             ] & TEE(retcode=None)
@@ -169,7 +168,6 @@ class SamtoolsView(Process):
             self.warning("Only header is present in the output BAM file.")
 
         else:
-
             input_options = [
                 "-b",
                 "--threads",

@@ -24,7 +24,6 @@ def load_relation_types(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     operations = [

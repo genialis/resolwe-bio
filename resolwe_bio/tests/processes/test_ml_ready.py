@@ -50,7 +50,6 @@ class MLReadyTestCase(KBBioProcessTestCase):
         inputs = base / "input"
         outputs = base / "output"
         with self.preparation_stage():
-
             collection, sample_1 = self.prepare_collection_with_one_sample()
 
             self.prepare_exp_matrix(
@@ -90,7 +89,6 @@ class MLReadyTestCase(KBBioProcessTestCase):
         inputs = base / "input"
 
         with self.preparation_stage():
-
             collection, sample_1 = self.prepare_collection_with_one_sample()
 
             self.prepare_exp_matrix(

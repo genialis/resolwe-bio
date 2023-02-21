@@ -25,7 +25,6 @@ def delete_triggers(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     replaces = [
         ("resolwe_bio_kb", "0001_initial"),
         ("resolwe_bio_kb", "0002_alter_field_max_length"),

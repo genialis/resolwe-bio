@@ -13,7 +13,6 @@ def update_index(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resolwe_bio_kb", "0011_feature_type_index"),
     ]

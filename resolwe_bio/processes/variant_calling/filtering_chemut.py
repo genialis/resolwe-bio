@@ -223,7 +223,6 @@ class FilteringCheMut(Process):
         outputs.build = inputs.variants.output.build
 
         if (output_dir / "variants.vcf").exists():
-
             variants_gz = str(output_dir / "variants.vcf.gz")
             (Cmd["bgzip"]["-c", str(output_dir / "variants.vcf")] > variants_gz)()
 

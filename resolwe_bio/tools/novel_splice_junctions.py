@@ -18,7 +18,6 @@ parser.add_argument(
 )
 
 if __name__ == "__main__":
-
     args = parser.parse_args()
     bed_file = args.bed_file
 

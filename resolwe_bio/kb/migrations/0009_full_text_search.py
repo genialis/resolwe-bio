@@ -19,7 +19,6 @@ def load_triggers(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resolwe_bio_kb", "0008_callable_defaults"),
         ("flow", "0001_squashed_0043_full_text_search"),

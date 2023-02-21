@@ -17,7 +17,6 @@ def load_sql(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resolwe_bio", "0002_metadata_table_type"),
     ]

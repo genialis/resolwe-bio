@@ -457,7 +457,6 @@ class WorkflowRnaseqVariantCalling(Process):
             )
 
         if inputs.preprocessing:
-
             # BBDuk options used are the same as the default options
             # in workflow-bbduk-star-featurecounts-qc
             input_preprocessing = {

@@ -10,7 +10,6 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class ExpressionProcessorTestCase(KBBioProcessTestCase):
-
     fixtures = ["relationtypes.yaml"]
 
     @tag_process("cufflinks", "cuffmerge")

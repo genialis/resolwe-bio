@@ -44,7 +44,7 @@ if __name__ == "__main__":
     if args.exp_types:
         data = {}
 
-        for (exp_file, build, species, exp_type, sample_name) in zip(
+        for exp_file, build, species, exp_type, sample_name in zip(
             args.file_paths,
             args.builds,
             args.species,
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         for (build, species, exp_type), data_values in data.items():
             df = pd.DataFrame(np.nan, index=[], columns=[])
             header = []
-            for (exp_file, sample_name) in data_values:
+            for exp_file, sample_name in data_values:
                 header.append(sample_name)
                 reader = pd.read_csv(
                     exp_file, index_col="Gene", delimiter="\t", dtype=str
@@ -83,7 +83,7 @@ if __name__ == "__main__":
         expressions = multiprocessing.Pool().map(read_csv, args.file_paths)
 
         items = []
-        for (species, build, expression) in zip(args.species, args.builds, expressions):
+        for species, build, expression in zip(args.species, args.builds, expressions):
             for column_label in expression.columns:
                 if column_label in multi_index:
                     continue

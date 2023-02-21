@@ -5,7 +5,6 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resolwe_bio_kb", "0003_add_map_index"),
     ]

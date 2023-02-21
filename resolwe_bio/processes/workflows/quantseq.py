@@ -195,7 +195,6 @@ class WorkflowQuantSeq(Process):
             )
 
         if inputs.trimming_tool == "bbduk":
-
             input_preprocessing = {
                 "reads": inputs.reads,
                 "min_length": 20,
@@ -358,7 +357,6 @@ class WorkflowQuantSeq(Process):
         ]
 
         if inputs.rrna_reference and inputs.globin_reference:
-
             alignment_qc_rrna = Data.create(
                 process=BioProcess.get_latest(slug="alignment-star"),
                 input={

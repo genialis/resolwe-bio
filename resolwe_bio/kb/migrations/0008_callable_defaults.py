@@ -5,7 +5,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("resolwe_bio_kb", "0007_feature_fullname_350"),
     ]

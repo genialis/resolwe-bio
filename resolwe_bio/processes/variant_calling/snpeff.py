@@ -183,7 +183,6 @@ class SnpEff(Process):
         (Cmd["snpEff"][args_snpeff] > output_variants)()
 
         if inputs.dbsnp:
-
             if not inputs.dbsnp.output.build.startswith(inputs.database[:6]):
                 self.error(
                     "Genome build for the DBSNP file and used database "
@@ -420,7 +419,6 @@ class SnpEffSingleSample(Process):
         (Cmd["snpEff"][args_snpeff] > output_variants)()
 
         if inputs.dbsnp:
-
             if not inputs.dbsnp.output.build.startswith(inputs.database[:6]):
                 self.error(
                     "Genome build for the DBSNP file and used database "

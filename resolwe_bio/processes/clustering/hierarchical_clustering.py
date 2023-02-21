@@ -331,7 +331,6 @@ class HierarchicalClusteringSamples(ProcessBio):
             gene_labels = []
 
         for exp in inputs.exps:
-
             check_compatibility(
                 exp_source=exp.output.source,
                 target_source=inputs.exps[0].output.source,
@@ -615,7 +614,6 @@ class HierarchicalClusteringGenes(ProcessBio):
             gene_labels = []
 
         for exp in inputs.exps:
-
             check_compatibility(
                 exp_source=exp.output.source,
                 target_source=inputs.exps[0].output.source,

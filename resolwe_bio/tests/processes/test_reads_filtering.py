@@ -980,7 +980,6 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         input_folder = Path("rnaseq_variantcalling") / "input"
         output_folder = Path("rnaseq_variantcalling") / "output"
         with self.preparation_stage():
-
             reads = self.run_process(
                 "upload-fastq-single",
                 {"src": [input_folder / "chr1_19000_R1.fastq.gz"]},

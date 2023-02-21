@@ -761,7 +761,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("upload-fasta-nucl")
     def test_upload_nucl_seq(self):
-
         self.run_process(
             "upload-fasta-nucl",
             {

@@ -12,7 +12,6 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
 class SupportProcessorTestCase(KBBioProcessTestCase):
-
     fixtures = ["relationtypes.yaml"]
 
     @tag_process("bam-split")
@@ -404,7 +403,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
 
     @tag_process("multiqc")
     def test_multiqc(self):
-
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",

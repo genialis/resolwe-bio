@@ -12,7 +12,6 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
-
             inputs_bam = {
                 "src": input_folder / "samtools_in.bam",
                 "species": "Homo sapiens",
@@ -86,7 +85,6 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
-
             inputs_bam = {
                 "src": input_folder / "samtools_in.bam",
                 "species": "Homo sapiens",

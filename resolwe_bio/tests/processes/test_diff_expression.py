@@ -181,7 +181,6 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         inputs = base / "inputs"
         outputs = base / "outputs"
         with self.preparation_stage():
-
             expression = Process.objects.create(
                 name="Upload nanostring expression data mock process",
                 requirements={
@@ -290,7 +289,6 @@ re-save feature_type "gene"
     @tag_process("differentialexpression-deseq2", "differentialexpression-edger")
     def test_de_microarray(self):
         with self.preparation_stage():
-
             expression = Process.objects.create(
                 name="Upload microarray expression data mock process",
                 requirements={

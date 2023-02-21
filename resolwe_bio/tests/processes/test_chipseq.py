@@ -11,7 +11,6 @@ from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
 class ChipSeqProcessorTestCase(BioProcessTestCase):
-
     fixtures = ["relationtypes.yaml"]
 
     @tag_process("chipseq-peakscore", "chipseq-genescore")

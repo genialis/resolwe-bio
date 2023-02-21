@@ -250,7 +250,6 @@ def main():
     min_one_has_spikeins = False  # At least one sample has spikeins = False
     warnings = []
     for sample_name, sample_exp in zip(args.sample_names, args.sample_exps):
-
         measured_zero = get_measured(sample_exp, sample_name, exp_type, only_zero=True)
         measured_nonzero = get_measured(
             sample_exp, sample_name, exp_type, only_nonzero=True, log2=True
