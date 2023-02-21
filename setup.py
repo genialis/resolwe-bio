@@ -59,6 +59,7 @@ setuptools.setup(
             "black",
             "flake8>=4.0.1",
             "isort>=5.10.1",
+            "colorama",
             "pydocstyle~=6.1.1",
             "tblib>=1.7.0",
             "check-manifest",

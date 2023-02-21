@@ -102,10 +102,10 @@ throttle(["resolwe_bio"]) {
                                 withEnv([
                                     "RESOLWE_TEST_ONLY_CHANGES_TO=origin/${env.CHANGE_TARGET}"
                                 ]) {
-                                    sh "tox -e py36-partial ${tox_extra_args}"
+                                    sh "tox -e py310-partial ${tox_extra_args}"
                                 }
                             } else {
-                                sh "tox -e py36 ${tox_extra_args}"
+                                sh "tox -e py310 ${tox_extra_args}"
                             }
                         }
                     }
