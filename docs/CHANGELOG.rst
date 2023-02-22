@@ -18,6 +18,8 @@ Added
   ``alignment-star-index-new`` that use STAR version
   2.7.10b
 - Add process ``star-quantification``
+- Add workflows ``workflow-bbduk-star-qc`` and
+  ``workflow-bbduk-star-qc-new``
 
 Changed
 -------
