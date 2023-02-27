@@ -26,6 +26,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Drop support for ``Python <= 3.9``
 - **BACKWARD INCOMPATIBLE:** Remove default ordering from Feature API
   endpoint
+- Update ordering weights for full-text search on Feature API endpoint
 
 Fixed
 -----
