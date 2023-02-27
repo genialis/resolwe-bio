@@ -24,6 +24,8 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Drop support for ``Python <= 3.9``
+- **BACKWARD INCOMPATIBLE:** Remove default ordering from Feature API
+  endpoint
 
 Fixed
 -----

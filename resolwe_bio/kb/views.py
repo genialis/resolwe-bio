@@ -44,7 +44,6 @@ class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     pagination_class = LimitOffsetPostPagination
 
     ordering_fields = ("name",)
-    ordering = "name"
 
     def list_with_post(self, request):
         """Endpoint handler."""
