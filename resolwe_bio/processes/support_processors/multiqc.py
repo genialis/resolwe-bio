@@ -1,6 +1,8 @@
 """Prepare MultiQC report."""
+import gzip
 import json
 import os
+import shutil
 from pathlib import Path
 
 import pandas as pd
@@ -355,7 +357,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.17.2"
+    version = "1.18.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -496,6 +498,12 @@ class MultiQC(Process):
                     create_symlink(
                         d.output.stats.path, os.path.join(sample_dir, report)
                     )
+                    if d.output.gene_counts:
+                        with gzip.open(d.output.gene_counts.path, "rb") as f_in:
+                            with open(
+                                os.path.join(sample_dir, "ReadsPerGene.out.tab"), "wb"
+                            ) as f_out:
+                                shutil.copyfileobj(f_in, f_out)
 
             elif d.process.type == "data:alignment:bam:walt:":
                 try:
