@@ -23,6 +23,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 33.x
 - **BACKWARD INCOMPATIBLE:** Drop support for ``Python <= 3.9``
 - **BACKWARD INCOMPATIBLE:** Remove default ordering from Feature API
   endpoint
