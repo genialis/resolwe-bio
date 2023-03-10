@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.0.0"
+    version = "1.0.1"
     entity = {
         "type": "sample",
     }
@@ -690,6 +690,8 @@ class WorkflowSTAR(Process):
                 "stranded": inputs.assay_type,
             },
         }
+        if inputs.cdna_index:
+            input_qorts["options"]["cdna_index"] = inputs.cdna_index
 
         qorts = Data.create(
             process=BioProcess.get_latest(slug="qorts-qc"),

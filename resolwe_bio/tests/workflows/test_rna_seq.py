@@ -872,6 +872,23 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "build": "ens90",
                 },
             )
+            cdna = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "salmon_workflow/input/hs cdna.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "ens92",
+                },
+            )
+            salmon_index = self.run_process(
+                "salmon-index",
+                {
+                    "nucl": cdna.id,
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "ens92",
+                },
+            )
             inputs = {
                 "annotation": annotation.id,
                 "ref_seq": star_index_fasta.id,
@@ -1012,6 +1029,21 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+        inputs["assay_type"] = "auto"
+        inputs["cdna_index"] = salmon_index.id
+        self.run_process("workflow-bbduk-star-qc", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        star_quant = Data.objects.filter(process__slug="star-quantification").last()
+        self.assertFile(
+            star_quant,
+            "exp_set",
+            output_folder / "workflow_expressions.txt.gz",
+            compression="gzip",
+        )
+        multiqc = Data.objects.filter(process__slug="multiqc").last()
+        self.assertFileExists(multiqc, "report")
+
         # _________________________________
         # New STAR version
         inputs = {
@@ -1087,3 +1119,18 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             output_folder / "workflow_expressions.txt.gz",
             compression="gzip",
         )
+
+        inputs["assay_type"] = "auto"
+        inputs["cdna_index"] = salmon_index.id
+        self.run_process("workflow-bbduk-star-qc-new", inputs)
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+        star_quant = Data.objects.filter(process__slug="star-quantification").last()
+        self.assertFile(
+            star_quant,
+            "exp_set",
+            output_folder / "workflow_expressions.txt.gz",
+            compression="gzip",
+        )
+        multiqc = Data.objects.filter(process__slug="multiqc").last()
+        self.assertFileExists(multiqc, "report")
