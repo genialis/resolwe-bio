@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+50.0.0 - 2023-03-13
+===================
+
+Added
+-----
 - Add option to compute gene counts in ``alignment-star`` process
 - Add processes ``alignment-star-new`` and
   ``alignment-star-index-new`` that use STAR version
@@ -28,9 +42,6 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove default ordering from Feature API
   endpoint
 - Update ordering weights for full-text search on Feature API endpoint
-
-Fixed
------
 
 
 ===================
