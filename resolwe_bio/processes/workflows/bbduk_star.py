@@ -24,8 +24,8 @@ class WorkflowSTAR(Process):
     aligner. At the time of implementation, STAR is considered a
     state-of-the-art tool that consistently produces accurate results from
     diverse sets of reads, and performs well even with default settings. STAR aligner
-    counts and reports the number of aligned reads per gene while mapping. For more
-    information see
+    counts and reports the number of aligned reads per gene while mapping.
+    STAR version used is 2.7.10b. For more information see
     [this comparison of RNA-seq aligners](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5792058/).
 
     rRNA contamination rate in the sample is determined using the STAR aligner.
@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.0.1"
+    version = "1.0.2"
     entity = {
         "type": "sample",
     }

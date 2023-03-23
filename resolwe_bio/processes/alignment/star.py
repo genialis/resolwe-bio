@@ -13,6 +13,7 @@ from resolwe.process import (
     FloatField,
     GroupField,
     IntegerField,
+    ListField,
     Process,
     SchedulingClass,
     StringField,
@@ -52,23 +53,24 @@ class AlignmentStar(Process):
     mapping full-length RNA sequences. More information can be found in
     the [STAR manual](https://github.com/alexdobin/STAR/blob/master/doc/STARmanual.pdf)
     and in the [original paper](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3530905/).
+    The current version of STAR is 2.7.10b.
     """
 
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "4.1.0"
+    version = "5.0.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.2.0"}
         },
         "resources": {
             "cores": 10,
-            "memory": 36864,
+            "memory": 32768,
         },
     }
     data_name = "{{ reads|name|default('?') }}"
@@ -107,7 +109,7 @@ class AlignmentStar(Process):
         )
 
         noncannonical = BooleanField(
-            label="Remove non-cannonical junctions (Cufflinks compatibility)",
+            label="Remove non-canonical junctions (Cufflinks compatibility)",
             default=False,
             description="It is recommended to remove the non-canonical junctions for Cufflinks "
             "runs using --outFilterIntronMotifs RemoveNoncanonical.",
@@ -350,10 +352,12 @@ class AlignmentStar(Process):
         class Limits:
             """Limits."""
 
-            limit_buffer_size = IntegerField(
+            limit_buffer_size = ListField(
+                IntegerField(),
                 label="Buffer size [--limitIObufferSize]",
-                default=150000000,
-                description="Maximum available buffers size (bytes) for input/output, per thread.",
+                default=[30000000, 50000000],
+                description="Maximum available buffers size (bytes) for input/output, per thread. "
+                "Parameter requires two numbers - separate sizes for input and output buffers.",
             )
 
             limit_sam_records = IntegerField(
@@ -453,7 +457,8 @@ class AlignmentStar(Process):
             "--outReadsUnmapped",
             "Fastx",
             "--limitIObufferSize",
-            inputs.limits.limit_buffer_size,
+            inputs.limits.limit_buffer_size[0],
+            inputs.limits.limit_buffer_size[1],
             "--limitOutSAMoneReadBytes",
             inputs.limits.limit_sam_records,
             "--limitOutSJoneRead",
@@ -694,12 +699,11 @@ class AlignmentStar(Process):
             outputs.alignment_transcriptome = out_transcriptome
 
         if inputs.gene_counts:
+            out_counts = f"{mate1_name}_ReadsPerGene.out.tab.gz"
             with open(file="ReadsPerGene.out.tab", mode="rb") as f_in:
-                with gzip.open(
-                    filename=f"{mate1_name}_ReadsPerGene.out.tab.gz", mode="wb"
-                ) as f_out:
+                with gzip.open(filename=out_counts, mode="wb") as f_out:
                     shutil.copyfileobj(f_in, f_out)
-            outputs.gene_counts = f"{mate1_name}_ReadsPerGene.out.tab.gz"
+            outputs.gene_counts = out_counts
 
         out_stats = f"{mate1_name}_stats.txt"
         Path("Log.final.out").rename(out_stats)

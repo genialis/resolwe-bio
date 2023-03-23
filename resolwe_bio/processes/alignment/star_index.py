@@ -20,18 +20,18 @@ class StarIndex(Process):
     """Generate STAR genome index.
 
     Generate genome indices files from the supplied reference genome
-    sequence and GTF files.
+    sequence and GTF files. The current version of STAR is 2.7.10b.
     """
 
     slug = "alignment-star-index"
     name = "STAR genome index"
     process_type = "data:index:star"
-    version = "3.1.0"
+    version = "4.0.0"
     category = "Genome index"
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.2.0"}
         },
         "resources": {
             "cores": 1,

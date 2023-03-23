@@ -16,6 +16,11 @@ Added
 
 Changed
 -------
+- Replace processes ``alignment-star``, ``alignment-star-index``
+  and ``workflow-bbduk-star-qc`` with ``alignment-star-new``,
+  ``alignment-star-index-new`` and ``workflow-bbduk-star-qc-new``
+- Deprecate previous versions of processes ``alignment-star`` and
+  ``alignment-star-index``
 
 Fixed
 -----

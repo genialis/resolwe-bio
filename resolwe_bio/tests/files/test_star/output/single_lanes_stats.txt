@@ -1,7 +1,7 @@
-                                 Started job on |	Nov 03 16:45:22
-                             Started mapping on |	Nov 03 16:46:28
-                                    Finished on |	Nov 03 16:46:28
-       Mapping speed, Million of reads per hour |	inf
+                                 Started job on |	Feb 16 10:37:21
+                             Started mapping on |	Feb 16 10:37:40
+                                    Finished on |	Feb 16 10:37:41
+       Mapping speed, Million of reads per hour |	1.34
 
                           Number of input reads |	372
                       Average input read length |	100
@@ -26,8 +26,11 @@
         Number of reads mapped to too many loci |	0
              % of reads mapped to too many loci |	0.00%
                                   UNMAPPED READS:
+  Number of reads unmapped: too many mismatches |	0
        % of reads unmapped: too many mismatches |	0.00%
+            Number of reads unmapped: too short |	15
                  % of reads unmapped: too short |	4.03%
+                Number of reads unmapped: other |	3
                      % of reads unmapped: other |	0.81%
                                   CHIMERIC READS:
                        Number of chimeric reads |	0
