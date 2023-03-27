@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add option to filter by genotype fields in processes
+  ``gatk-variant-filtration`` and ``gatk-variant-filtration-single``
 
 Changed
 -------

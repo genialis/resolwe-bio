@@ -566,6 +566,25 @@ class VariantCallingTestCase(BioProcessTestCase):
             file_filter=filter_vcf_variable,
             compression="gzip",
         )
+        filtering_single_sample = self.run_process(
+            "gatk-variant-filtration-single",
+            {
+                "vcf": vcf.id,
+                "ref_seq": ref_seq.id,
+                "genotype_filter_expressions": [
+                    "DP < 8.0",
+                    "vc.getGenotype('20').getAD().1 < 3.0",
+                ],
+                "genotype_filter_name": ["DP", "AD"],
+            },
+        )
+        self.assertFile(
+            filtering_single_sample,
+            "vcf",
+            output_folder / "genotype_filtered_variants.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
 
         filtering_error = {
             "vcf": vcf.id,
@@ -600,6 +619,23 @@ class VariantCallingTestCase(BioProcessTestCase):
             filtering_multi_sample,
             "vcf",
             output_folder / "filtered_variants_multi_sample.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
+        filtering_multi_sample = self.run_process(
+            "gatk-variant-filtration",
+            {
+                "vcf": vcf_multi_sample.id,
+                "ref_seq": ref_seq.id,
+                "genotype_filter_expressions": ["AD.1 < 5"],
+                "genotype_filter_name": ["AD"],
+            },
+        )
+        self.assertFile(
+            filtering_multi_sample,
+            "vcf",
+            output_folder / "genotype_filtered_variants_multi.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
         )

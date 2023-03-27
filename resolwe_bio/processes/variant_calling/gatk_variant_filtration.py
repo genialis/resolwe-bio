@@ -39,7 +39,7 @@ class GatkVariantFiltration(Process):
     slug = "gatk-variant-filtration"
     process_type = "data:variants:vcf:variantfiltration"
     name = "GATK VariantFiltration (multi-sample)"
-    version = "1.1.0"
+    version = "1.2.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -81,6 +81,29 @@ class GatkVariantFiltration(Process):
             "Warning: filter names should be in the same order as filter expressions. "
             "Example: you specified filter expressions 'FS > 30' and 'DP > 10', now "
             "specify filter names 'FS' and 'DP'.",
+            required=False,
+        )
+        genotype_filter_expressions = ListField(
+            StringField(),
+            label="Expressions used with FORMAT field to filter",
+            description="Similar to the INFO field based expressions, but used on the FORMAT "
+            "(genotype) fields instead. VariantFiltration will add the sample-level FT tag to "
+            "the FORMAT field of filtered samples (this does not affect the record's FILTER tag). "
+            "One can filter normally based on most fields (e.g. 'GQ < 5.0'), but the GT "
+            "(genotype) field is an exception. We have put in convenience methods so that "
+            "one can now filter out hets ('isHet == 1'), refs ('isHomRef == 1'), or homs "
+            "('isHomVar == 1'). Also available are expressions isCalled, isNoCall, isMixed, "
+            "and isAvailable, in accordance with the methods of the Genotype object. "
+            "To filter by alternative allele depth, use the expression: 'AD.1 < 5'. This "
+            "filter expression will filter all the samples in the multi-sample VCF file.",
+            required=False,
+        )
+        genotype_filter_name = ListField(
+            StringField(),
+            label="Names to use for the list of genotype filters",
+            description="Similar to the INFO field based expressions, but used on the FORMAT "
+            "(genotype) fields instead. Warning: filter names should be in the same order as "
+            "filter expressions.",
             required=False,
         )
 
@@ -141,11 +164,6 @@ class GatkVariantFiltration(Process):
                 f"The input contains data for {sample_count} sample(s)."
             )
 
-        if len(inputs.filter_expressions) != len(inputs.filter_name):
-            self.error(
-                "The number of filter expressions and filter names is not the same."
-            )
-
         gc_threads = min(
             self.requirements.resources.cores, inputs.advanced.java_gc_threads
         )
@@ -167,8 +185,33 @@ class GatkVariantFiltration(Process):
             TMPDIR,
         ]
 
-        for name, exp in zip(inputs.filter_name, inputs.filter_expressions):
-            args.extend(["--filter-name", name, "--filter-expression", exp])
+        if inputs.filter_expressions:
+            if len(inputs.filter_expressions) != len(inputs.filter_name):
+                self.error(
+                    "The number of filter expressions and filter names is not the same."
+                )
+            for name, exp in zip(inputs.filter_name, inputs.filter_expressions):
+                args.extend(["--filter-name", name, "--filter-expression", exp])
+
+        if inputs.genotype_filter_expressions:
+            if len(inputs.genotype_filter_expressions) != len(
+                inputs.genotype_filter_name
+            ):
+                self.error(
+                    "The number of genotype filter expressions and filter names is not the same."
+                )
+
+            for name, exp in zip(
+                inputs.genotype_filter_name, inputs.genotype_filter_expressions
+            ):
+                args.extend(
+                    [
+                        "--genotype-filter-name",
+                        name,
+                        "--genotype-filter-expression",
+                        exp,
+                    ]
+                )
 
         return_code, stdout, stderr = Cmd["gatk"]["VariantFiltration"][args] & TEE(
             retcode=None
@@ -199,7 +242,7 @@ class GatkVariantFiltrationSingle(Process):
     slug = "gatk-variant-filtration-single"
     process_type = "data:variants:vcf:variantfiltration:single"
     name = "GATK VariantFiltration (single-sample)"
-    version = "1.1.0"
+    version = "1.2.0"
     entity = {
         "type": "sample",
     }
@@ -244,6 +287,28 @@ class GatkVariantFiltrationSingle(Process):
             "Warning: filter names should be in the same order as filter expressions. "
             "Example: you specified filter expressions 'FS > 30' and 'DP > 10', now "
             "specify filter names 'FS' and 'DP'.",
+            required=False,
+        )
+        genotype_filter_expressions = ListField(
+            StringField(),
+            label="Expressions used with FORMAT field to filter",
+            description="Similar to the INFO field based expressions, but used on the FORMAT "
+            "(genotype) fields instead. VariantFiltration will add the sample-level FT tag to "
+            "the FORMAT field of filtered samples (this does not affect the record's FILTER tag). "
+            "One can filter normally based on most fields (e.g. 'GQ < 5.0'), but the GT "
+            "(genotype) field is an exception. We have put in convenience methods so that "
+            "one can now filter out hets ('isHet == 1'), refs ('isHomRef == 1'), or homs "
+            "('isHomVar == 1'). Also available are expressions isCalled, isNoCall, isMixed, "
+            "and isAvailable, in accordance with the methods of the Genotype object. "
+            "To filter by alternative allele depth, use the expression: 'AD.1 < 5'.",
+            required=False,
+        )
+        genotype_filter_name = ListField(
+            StringField(),
+            label="Names to use for the list of genotype filters",
+            description="Similar to the INFO field based expressions, but used on the FORMAT "
+            "(genotype) fields instead. Warning: filter names should be in the same order as "
+            "filter expressions.",
             required=False,
         )
 
@@ -304,11 +369,6 @@ class GatkVariantFiltrationSingle(Process):
                 f"The input contains data for {sample_count} sample(s)."
             )
 
-        if len(inputs.filter_expressions) != len(inputs.filter_name):
-            self.error(
-                "The number of filter expressions and filter names is not the same."
-            )
-
         gc_threads = min(
             self.requirements.resources.cores, inputs.advanced.java_gc_threads
         )
@@ -330,8 +390,33 @@ class GatkVariantFiltrationSingle(Process):
             TMPDIR,
         ]
 
-        for name, exp in zip(inputs.filter_name, inputs.filter_expressions):
-            args.extend(["--filter-name", name, "--filter-expression", exp])
+        if inputs.filter_expressions:
+            if len(inputs.filter_expressions) != len(inputs.filter_name):
+                self.error(
+                    "The number of filter expressions and filter names is not the same."
+                )
+            for name, exp in zip(inputs.filter_name, inputs.filter_expressions):
+                args.extend(["--filter-name", name, "--filter-expression", exp])
+
+        if inputs.genotype_filter_expressions:
+            if len(inputs.genotype_filter_expressions) != len(
+                inputs.genotype_filter_name
+            ):
+                self.error(
+                    "The number of genotype filter expressions and filter names is not the same."
+                )
+
+            for name, exp in zip(
+                inputs.genotype_filter_name, inputs.genotype_filter_expressions
+            ):
+                args.extend(
+                    [
+                        "--genotype-filter-name",
+                        name,
+                        "--genotype-filter-expression",
+                        exp,
+                    ]
+                )
 
         return_code, stdout, stderr = Cmd["gatk"]["VariantFiltration"][args] & TEE(
             retcode=None
