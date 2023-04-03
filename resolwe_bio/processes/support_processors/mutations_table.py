@@ -3,6 +3,7 @@ import gzip
 import os
 from collections import defaultdict
 
+import numpy as np
 import pandas as pd
 import pysam
 from plumbum import TEE
@@ -151,12 +152,41 @@ def prepare_variants_table(variants_table, vcf_fields, ann_fields, gt_fields, wa
             variants_table.groupby(
                 vcf_fields
                 + [field for field in ann_fields if field != "Feature_ID"]
-                + [col for col in variants_table.columns if col.endswith("GT")],
+                + [
+                    col
+                    for col in variants_table.columns
+                    if col.startswith("SAMPLENAME1")
+                ],
                 dropna=False,
             )["Feature_ID"]
             .apply(",".join)
             .reset_index()
         )
+    # Migrate sample-level filter value to the general FILTER field
+    if "FT" in gt_fields:
+        variants_table["FILTER"] = np.where(
+            (
+                ~variants_table["SAMPLENAME1.FT"].isna()
+                & ~variants_table["FILTER"].str.contains("PASS")
+            ),
+            variants_table["FILTER"] + ";" + variants_table["SAMPLENAME1.FT"],
+            variants_table["FILTER"],
+        )
+        variants_table["FILTER"] = np.where(
+            (
+                ~variants_table["SAMPLENAME1.FT"].isna()
+                & variants_table["FILTER"].str.contains("PASS")
+            ),
+            variants_table["SAMPLENAME1.FT"],
+            variants_table["FILTER"],
+        )
+        variants_table.drop(["SAMPLENAME1.FT"], axis=1, inplace=True)
+
+    if "DP" in gt_fields:
+        if "DP" in vcf_fields:
+            variants_table.drop(["DP"], axis=1, inplace=True)
+
+        variants_table.rename(columns={"SAMPLENAME1.DP": "DP"}, inplace=True)
 
     return variants_table
 
@@ -239,7 +269,7 @@ class MutationsTable(ProcessBio):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.0.2"
+    version = "2.1.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -343,7 +373,8 @@ class MutationsTable(ProcessBio):
             )
             gf_fields = ListField(
                 StringField(),
-                label="Include FORMAT/sample-level fields",
+                label="Include FORMAT/sample-level fields. Note: If you specify DP "
+                "from genotype field, it will overwrite the original DP field.",
                 default=[
                     "GT",
                 ],
@@ -449,8 +480,6 @@ class MutationsTable(ProcessBio):
         bam = pysam.AlignmentFile(inputs.bam.output.bam.path, "rb")
         # Set up the output dataframe
         output_table = pd.DataFrame()
-        for field in vcf_fields:
-            output_table[field] = None
 
         output_table, genes = get_output_table(
             mutations=mutations,

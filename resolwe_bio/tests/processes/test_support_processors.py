@@ -1594,6 +1594,7 @@ re-save-file lane_attributes "${NAME}".txt
                 "variants": snpeff.id,
                 "bam": bam.id,
                 "mutations": ["KRAS: Gly12, Gly13"],
+                "advanced": {"gf_fields": ["DP"]},
             },
         )
         self.assertFile(report, "tsv", output_folder / "mutations_KRAS.tsv")
@@ -1604,6 +1605,17 @@ re-save-file lane_attributes "${NAME}".txt
                 "variants": snpeff_nomutation.id,
                 "bam": bam.id,
                 "mutations": ["KRAS"],
+                "vcf_fields": [
+                    "CHROM",
+                    "POS",
+                    "ID",
+                    "QUAL",
+                    "REF",
+                    "ALT",
+                    "FILTER",
+                    "ANN",
+                ],
+                "advanced": {"gf_fields": ["GT", "AD", "DP"]},
             },
         )
         self.assertFile(report, "tsv", output_folder / "no_mutations.tsv")

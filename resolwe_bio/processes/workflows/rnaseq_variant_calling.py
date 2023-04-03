@@ -38,7 +38,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
-    version = "2.0.0"
+    version = "2.1.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -249,7 +249,7 @@ class WorkflowRnaseqVariantCalling(Process):
                 "filter criteria, to a single compound expression that specifies multiple "
                 "filter criteria. Input expressions one by one and press ENTER after each "
                 "expression. Examples of filter expression: 'FS > 30', 'DP > 10'.",
-                default=["FS > 30.0", "QD < 2.0", "DP < 10.0"],
+                default=["FS > 30.0", "QD < 2.0"],
             )
             filter_name = ListField(
                 StringField(),
@@ -260,7 +260,30 @@ class WorkflowRnaseqVariantCalling(Process):
                 "Warning: filter names should be in the same order as filter expressions. "
                 "Example: you specified filter expressions 'FS > 30' and 'DP > 10', now "
                 "specify filter names 'FS' and 'DP'.",
-                default=["FS", "QD", "DP"],
+                default=["FS", "QD"],
+            )
+            genotype_filter_expressions = ListField(
+                StringField(),
+                label="Expressions used with FORMAT field to filter",
+                description="Similar to the INFO field based expressions, but used on the FORMAT "
+                "(genotype) fields instead. VariantFiltration will add the sample-level FT tag to "
+                "the FORMAT field of filtered samples (this does not affect the record's FILTER tag). "
+                "One can filter normally based on most fields (e.g. 'GQ < 5.0'), but the GT "
+                "(genotype) field is an exception. We have put in convenience methods so that "
+                "one can now filter out hets ('isHet == 1'), refs ('isHomRef == 1'), or homs "
+                "('isHomVar == 1'). Also available are expressions isCalled, isNoCall, isMixed, "
+                "and isAvailable, in accordance with the methods of the Genotype object. "
+                "To filter by alternative allele depth, use the expression: 'AD.1 < 5'. This "
+                "filter expression will filter all the samples in the multi-sample VCF file.",
+                default=["AD.1 < 5.0"],
+            )
+            genotype_filter_name = ListField(
+                StringField(),
+                label="Names to use for the list of genotype filters",
+                description="Similar to the INFO field based expressions, but used on the FORMAT "
+                "(genotype) fields instead. Warning: filter names should be in the same order as "
+                "filter expressions.",
+                default=["AD"],
             )
 
         class SnpEff:
@@ -297,7 +320,6 @@ class WorkflowRnaseqVariantCalling(Process):
                     "QUAL",
                     "REF",
                     "ALT",
-                    "DP",
                     "FILTER",
                     "ANN",
                     "CLNDN",
@@ -341,10 +363,11 @@ class WorkflowRnaseqVariantCalling(Process):
             )
             gf_fields = ListField(
                 StringField(),
-                label="Include FORMAT/sample-level fields",
-                default=[
-                    "GT",
-                ],
+                label="Include FORMAT/sample-level fields. Note: If you specify DP "
+                "from genotype field, it will overwrite the original DP field. "
+                "By default fields GT (genotype), AD (allele depth), DP (depth at "
+                "the sample level), FT (sample-level filter) are included in the analysis.",
+                default=["GT", "AD", "DP", "FT"],
             )
 
         class Advanced:
@@ -565,6 +588,8 @@ class WorkflowRnaseqVariantCalling(Process):
             "ref_seq": inputs.ref_seq,
             "filter_expressions": inputs.variant_filtration.filter_expressions,
             "filter_name": inputs.variant_filtration.filter_name,
+            "genotype_filter_expressions": inputs.variant_filtration.genotype_filter_expressions,
+            "genotype_filter_name": inputs.variant_filtration.genotype_filter_name,
             "advanced": {
                 "cluster": 3,
                 "window": 35,

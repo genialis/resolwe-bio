@@ -23,6 +23,9 @@ Changed
   ``alignment-star-index-new`` and ``workflow-bbduk-star-qc-new``
 - Deprecate previous versions of processes ``alignment-star`` and
   ``alignment-star-index``
+- Support filtering by genotype fields in the process
+  ``mutations-table`` and change the default options for variant
+  filtration in the workflow ``workflow-rnaseq-variantcalling``
 
 Fixed
 -----
