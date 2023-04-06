@@ -54,7 +54,7 @@ class UploadGeneset(Process):
     slug = "upload-geneset"
     name = "Gene set"
     process_type = "data:geneset"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -68,6 +68,7 @@ class UploadGeneset(Process):
         "resources": {
             "cores": 1,
             "memory": 1024,
+            "storage": 10,
         },
     }
     data_name = '{{ src.file|default("?") }}'
@@ -139,7 +140,7 @@ class CreateGeneset(Process):
     slug = "create-geneset"
     name = "Gene set (create)"
     process_type = "data:geneset"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -153,6 +154,7 @@ class CreateGeneset(Process):
         "resources": {
             "cores": 1,
             "memory": 1024,
+            "storage": 10,
         },
     }
     data_name = "Gene set"
@@ -226,7 +228,7 @@ class CreateGenesetVenn(Process):
     slug = "create-geneset-venn"
     name = "Gene set (create from Venn diagram)"
     process_type = "data:geneset:venn"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -240,6 +242,7 @@ class CreateGenesetVenn(Process):
         "resources": {
             "cores": 1,
             "memory": 1024,
+            "storage": 10,
         },
     }
     data_name = "Gene set (Venn)"

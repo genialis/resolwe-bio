@@ -10,8 +10,12 @@
     executor:
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
+    resources:
+      cores: 1
+      memory: 4096
+      storage: 10
   data_name: 'PCA'
-  version: 2.4.1
+  version: 2.4.2
   type: data:pca
   category: Enrichment and Clustering
   persistence: TEMP

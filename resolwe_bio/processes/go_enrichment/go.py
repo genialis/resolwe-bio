@@ -25,7 +25,7 @@ class GOEnrichmentAnalysis(ProcessBio):
     slug = "goenrichment"
     name = "GO Enrichment analysis"
     process_type = "data:goea"
-    version = "3.6.2"
+    version = "3.6.3"
     category = "Enrichment and Clustering"
     data_name = 'GO Enrichment analysis for {{genes|join(", ")|default("?")}}'
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -35,7 +35,7 @@ class GOEnrichmentAnalysis(ProcessBio):
         "executor": {
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
-        "resources": {"cores": 1, "memory": 16384, "storage": 50},
+        "resources": {"cores": 1, "memory": 4096, "storage": 10},
     }
 
     class Input:

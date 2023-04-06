@@ -7,8 +7,10 @@
       docker:
         image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
     resources:
-      cores: 10
-  version: 0.5.0
+      cores: 1
+      memory: 8192
+      storage: 150
+  version: 0.5.1
   type: data:archive:samples
   category: Other
   persistence: TEMP

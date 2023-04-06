@@ -107,7 +107,7 @@ class ClusterTimeCourse(Process):
     slug = "clustering-hierarchical-etc"
     name = "Hierarchical clustering of time courses"
     process_type = "data:clustering:hierarchical:etc"
-    version = "1.2.2"
+    version = "1.2.3"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
     requirements = {
@@ -115,7 +115,7 @@ class ClusterTimeCourse(Process):
         "executor": {
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
-        "resources": {"cores": 1, "memory": 8192},
+        "resources": {"cores": 1, "memory": 4096, "storage": 10},
         "relations": [{"type": "series"}],
     }
     data_name = "Hierarchical clustering of time courses"
