@@ -15,6 +15,7 @@ Added
 -----
 - Add option to filter by genotype fields in processes
   ``gatk-variant-filtration`` and ``gatk-variant-filtration-single``
+- Add option for 2-pass mode to workflow ``workflow-bbduk-star-qc``
 
 Changed
 -------

@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.0.2"
+    version = "1.1.0"
     entity = {
         "type": "sample",
     }
@@ -342,12 +342,23 @@ class WorkflowSTAR(Process):
                     default="Local",
                 )
 
+            class TwoPassOptions:
+                """Two-pass mapping options."""
+
+                two_pass_mode = BooleanField(
+                    label="Use two pass mode [--twopassMode]",
+                    default=True,
+                    description="Use two-pass maping instead of first-pass only. In two-pass mode we "
+                    "first perform first-pass mapping, extract junctions, insert them into genome "
+                    "index, and re-map all reads in the second mapping pass.",
+                )
+
             class OutputOptions:
                 """Output options."""
 
                 out_unmapped = BooleanField(
                     label="Output unmapped reads (SAM) [--outSAMunmapped Within]",
-                    default=False,
+                    default=True,
                     description="Output of unmapped reads in the SAM format.",
                 )
                 out_sam_attributes = StringField(
@@ -389,6 +400,7 @@ class WorkflowSTAR(Process):
                 AlignmentOptions,
                 label="Alignment options",
             )
+            two_pass_mapping = GroupField(TwoPassOptions, label="Two-pass mapping")
             output_options = GroupField(
                 OutputOptions,
                 label="Output options",
@@ -546,6 +558,9 @@ class WorkflowSTAR(Process):
             },
             "alignment": {
                 "align_end_alignment": inputs.alignment.alignment_options.align_end_alignment
+            },
+            "two_pass_mapping": {
+                "two_pass_mode": inputs.alignment.two_pass_mapping.two_pass_mode
             },
             "output_options": {
                 "out_unmapped": inputs.alignment.output_options.out_unmapped,

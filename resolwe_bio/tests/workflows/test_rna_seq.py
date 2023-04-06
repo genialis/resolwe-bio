@@ -838,6 +838,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         mutations = Data.objects.filter(process__slug="mutations-table").last()
         self.assertFile(mutations, "tsv", output_folder / "mutations_geneset.tsv")
 
+
+class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @with_docker_executor
     @override_settings(FLOW_PROCESS_MAX_CORES=4)
@@ -1010,6 +1012,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
 
         inputs["assay_type"] = "auto"
         inputs["cdna_index"] = salmon_index.id
+        inputs.update({"alignment": {"two_pass_mapping": {"two_pass_mode": False}}})
         self.run_process("workflow-bbduk-star-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
