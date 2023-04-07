@@ -18,6 +18,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 34.x
 - Replace processes ``alignment-star``, ``alignment-star-index``
   and ``workflow-bbduk-star-qc`` with ``alignment-star-new``,
   ``alignment-star-index-new`` and ``workflow-bbduk-star-qc-new``
