@@ -17,6 +17,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 36.x
+- **BACKWARD INCOMPATIBLE:** Require Django 4.2
 - Rename ``filter_sense_rate`` to ``filter_rnaseqc_metrics`` in ``filter.py``
   and add additional fields for filtering
 - Changed the ordering of exons in ``format_ucsc`` function of ``rnaseq-qc`` process
