@@ -39,7 +39,7 @@ setuptools.setup(
             "tools/*.sh",
         ]
     },
-    python_requires=">=3.10, <3.11",
+    python_requires=">=3.10, <3.12",
     install_requires=(
         "Django~=3.2.12",
         "djangorestframework~=3.13.1",
@@ -81,6 +81,7 @@ setuptools.setup(
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
     ],
     keywords="bioinformatics resolwe bio pipelines dataflow django",
 )
