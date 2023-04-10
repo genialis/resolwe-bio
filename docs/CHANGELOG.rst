@@ -24,6 +24,7 @@ Changed
 - Changed the ordering of exons in ``format_ucsc`` function of ``rnaseq-qc`` process
   and add collapse_only option for stranded protocols
 - Change test files and modify test function for ``rnaseqc-qc`` process
+- Bump ``postgresql`` and ``redis`` containers version
 
 Fixed
 -----
