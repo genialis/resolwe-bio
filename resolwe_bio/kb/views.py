@@ -40,7 +40,7 @@ class FeatureViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Feature.objects.all()
     serializer_class = FeatureSerializer
     filter_backends = [ResolweBioFilterBackend, OrderingFilter]
-    filter_class = FeatureFilter
+    filterset_class = FeatureFilter
     pagination_class = LimitOffsetPostPagination
 
     ordering_fields = ("name",)
@@ -88,7 +88,7 @@ class MappingSearchViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = Mapping.objects.all()
     serializer_class = MappingSerializer
     filter_backends = [ResolweBioFilterBackend, OrderingFilter]
-    filter_class = MappingFilter
+    filterset_class = MappingFilter
     pagination_class = LimitOffsetPostPagination
 
     ordering_fields = ("source_id",)

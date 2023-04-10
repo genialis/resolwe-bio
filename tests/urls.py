@@ -12,7 +12,7 @@ from resolwe_bio.kb.views import (
 from .routers import SearchRouter
 
 
-EntityViewSet.filter_class = BioEntityFilter
+EntityViewSet.filterset_class = BioEntityFilter
 
 api_router = routers.DefaultRouter(trailing_slash=False)
 api_router.register(r'sample', EntityViewSet)

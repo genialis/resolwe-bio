@@ -25,7 +25,7 @@ class BioCollectionFilter(CollectionFilter):
 
             .. code:: python
 
-                CollectionViewSet.filter_class = BioCollectionFilter
+                CollectionViewSet.filterset_class = BioCollectionFilter
 
     """
 
@@ -46,7 +46,7 @@ class BioEntityFilter(EntityFilter):
 
             .. code:: python
 
-                EntityViewSet.filter_class = BioEntityFilter
+                EntityViewSet.filterset_class = BioEntityFilter
 
     """
 
@@ -125,7 +125,7 @@ class BioDataFilter(DataFilter):
 
             .. code:: python
 
-                DataViewSet.filter_class = BioDataFilter
+                DataViewSet.filterset_class = BioDataFilter
 
     """
 
