@@ -189,7 +189,7 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "1.0.0"
+    version = "1.1.0"
     process_type = "data:expression:star"
     category = "Quantify"
     entity = {
@@ -281,6 +281,7 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         source = StringField(label="Gene ID source")
         species = StringField(label="Species")
         build = StringField(label="Build")
+        feature_type = StringField(label="Feature type")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
@@ -507,3 +508,4 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         outputs.source = inputs.annotation.output.source
         outputs.species = inputs.aligned_reads.output.species
         outputs.build = inputs.aligned_reads.output.build
+        outputs.feature_type = "gene"

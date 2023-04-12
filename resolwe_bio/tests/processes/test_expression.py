@@ -918,6 +918,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             "counts_summary",
             outputs / "exp_summary.txt",
         )
+        self.assertFields(expression, "feature_type", "gene")
         expression = self.run_process(
             "star-quantification",
             {

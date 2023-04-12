@@ -28,11 +28,13 @@ Changed
 - Support filtering by genotype fields in the process
   ``mutations-table`` and change the default options for variant
   filtration in the workflow ``workflow-rnaseq-variantcalling``
-- Optimize resource usage for ``SchedulingClass.INTERACTIVE`` 
+- Optimize resource usage for ``SchedulingClass.INTERACTIVE``
   processes
 
 Fixed
 -----
+- Add output field ``feature_type`` to the process
+  ``star-quantification``
 
 
 ===================
