@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+51.0.0 - 2023-04-15
+===================
+
+Added
+-----
 - Add option to filter by genotype fields in processes
   ``gatk-variant-filtration`` and ``gatk-variant-filtration-single``
 - Add option for 2-pass mode to workflow ``workflow-bbduk-star-qc``
@@ -20,11 +34,10 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 34.x
-- Replace processes ``alignment-star``, ``alignment-star-index``
-  and ``workflow-bbduk-star-qc`` with ``alignment-star-new``,
-  ``alignment-star-index-new`` and ``workflow-bbduk-star-qc-new``
-- Deprecate previous versions of processes ``alignment-star`` and
-  ``alignment-star-index``
+- Bump the STAR version in processes ``alignment-star`` and 
+  ``alignment-star-index``. Deprecate test processes
+  ``alignment-star-new``, ``alignment-star-index-new`` and 
+  ``workflow-bbduk-star-qc-new``
 - Support filtering by genotype fields in the process
   ``mutations-table`` and change the default options for variant
   filtration in the workflow ``workflow-rnaseq-variantcalling``
