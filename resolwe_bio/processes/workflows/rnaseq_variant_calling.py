@@ -25,6 +25,10 @@ class WorkflowRnaseqVariantCalling(Process):
     (VariantFiltration) and variant annotation (SnpEff). The last step of the
     pipeline is process Mutations table which prepares variants for ReSDK
     VariantTables.
+
+    There is also possibility to run the pipeline directly from BAM file.
+    In this case, it is recommended that you use two-pass mode in STAR
+    alignment as well as turn the option '--outSAMunmapped Within' on.
     """
 
     slug = "workflow-rnaseq-variantcalling"
@@ -38,7 +42,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
-    version = "2.1.0"
+    version = "2.2.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -48,15 +52,28 @@ class WorkflowRnaseqVariantCalling(Process):
     class Input:
         """Input fields."""
 
+        bam = DataField(
+            data_type="alignment:bam:star",
+            label="Input BAM file",
+            description="Input BAM file that was computed with STAR aligner. "
+            "It is highly recommended that two-pass mode was used for the "
+            "alignment as well as '--outSAMunmapped Within' option if you want "
+            "to use BAM file as an input.",
+            disabled="reads",
+            required=False,
+        )
         reads = DataField(
             data_type="reads:fastq",
             label="Input sample (FASTQ)",
             description="Input data in FASTQ format.",
+            disabled="bam",
+            required=False,
         )
         preprocessing = BooleanField(
             label="Perform reads processing with BBDuk",
             default=True,
             description="If your reads have not been processed, set this to True.",
+            disabled="bam",
         )
         ref_seq = DataField(
             data_type="seq:nucleotide", label="Reference FASTA sequence"
@@ -65,6 +82,8 @@ class WorkflowRnaseqVariantCalling(Process):
             data_type="index:star",
             label="Indexed reference genome",
             description="Genome index prepared by STAR aligner indexing tool.",
+            disabled="bam",
+            required=False,
         )
         dbsnp = DataField(
             data_type="variants:vcf",
@@ -385,13 +404,8 @@ class WorkflowRnaseqVariantCalling(Process):
                 description="Set the maximum Java heap size (in GB).",
             )
 
-        bbduk = GroupField(
-            Bbduk, label="Preprocessing with BBDuk", hidden="!preprocessing"
-        )
-        alignment = GroupField(
-            Alignment,
-            label="Alignment with STAR",
-        )
+        bbduk = GroupField(Bbduk, label="Preprocessing with BBDuk", hidden="bam")
+        alignment = GroupField(Alignment, label="Alignment with STAR", hidden="bam")
         bam_processing = GroupField(BAMProcessing, label="Processing of BAM file")
         haplotype_caller = GroupField(
             HaplotypeCaller, label="Options for HaplotypeCaller"
@@ -413,56 +427,63 @@ class WorkflowRnaseqVariantCalling(Process):
     def run(self, inputs, outputs):
         """Run the workflow."""
 
-        if (
-            inputs.ref_seq.output.species != inputs.genome.output.species
-            or inputs.dbsnp.output.species != inputs.genome.output.species
-        ):
-            self.error(
-                "All input files must be from the same species. "
-                f"FASTA reference sequence is from {inputs.ref_seq.output.species}, "
-                f"STAR index is from {inputs.genome.output.species} and "
-                f"DBSNP file is from {inputs.dbsnp.output.species}"
-            )
+        if not inputs.bam and not inputs.reads:
+            self.error("Please select input BAM or FASTQ file.")
 
-        if (
-            inputs.ref_seq.output.build != inputs.genome.output.build
-            or inputs.dbsnp.output.build != inputs.genome.output.build
-        ):
-            self.error(
-                "All input files must have the same build. "
-                f"FASTA reference sequence is based on {inputs.ref_seq.output.build}, "
-                f"STAR index is based on {inputs.genome.output.build} and "
-                f"DBSNP file is based on {inputs.dbsnp.output.build}. "
-            )
+        if inputs.reads and not inputs.genome:
+            self.error("Please select STAR index for the alignment.")
 
-        if inputs.intervals:
-            if inputs.intervals.output.species != inputs.genome.output.species:
+        if inputs.genome:
+            if (
+                inputs.ref_seq.output.species != inputs.genome.output.species
+                or inputs.dbsnp.output.species != inputs.genome.output.species
+            ):
                 self.error(
                     "All input files must be from the same species. "
-                    f"Intervals BED file is from {inputs.intervals.output.species}, "
-                    f"while STAR index is from {inputs.genome.output.species}."
-                )
-            if inputs.intervals.output.build != inputs.genome.output.build:
-                self.error(
-                    "All input files must have the same build. "
-                    f"Intervals BED file is based on {inputs.intervals.output.build}, "
-                    f"while STAR index is based on {inputs.genome.output.build}."
+                    f"FASTA reference sequence is from {inputs.ref_seq.output.species}, "
+                    f"STAR index is from {inputs.genome.output.species} and "
+                    f"DBSNP file is from {inputs.dbsnp.output.species}"
                 )
 
-        if inputs.indels:
-            for indel in inputs.indels:
-                if indel.output.species != inputs.genome.output.species:
+            if (
+                inputs.ref_seq.output.build != inputs.genome.output.build
+                or inputs.dbsnp.output.build != inputs.genome.output.build
+            ):
+                self.error(
+                    "All input files must have the same build. "
+                    f"FASTA reference sequence is based on {inputs.ref_seq.output.build}, "
+                    f"STAR index is based on {inputs.genome.output.build} and "
+                    f"DBSNP file is based on {inputs.dbsnp.output.build}. "
+                )
+
+            if inputs.intervals:
+                if inputs.intervals.output.species != inputs.genome.output.species:
                     self.error(
                         "All input files must be from the same species. "
-                        f"File with INDELs is from {indel.output.species}, "
+                        f"Intervals BED file is from {inputs.intervals.output.species}, "
                         f"while STAR index is from {inputs.genome.output.species}."
                     )
-                if indel.output.build != inputs.genome.output.build:
+                if inputs.intervals.output.build != inputs.genome.output.build:
                     self.error(
-                        "All input file must have the same build. "
-                        f"File with INDELs is based on {indel.output.build}, "
+                        "All input files must have the same build. "
+                        f"Intervals BED file is based on {inputs.intervals.output.build}, "
                         f"while STAR index is based on {inputs.genome.output.build}."
                     )
+
+            if inputs.indels:
+                for indel in inputs.indels:
+                    if indel.output.species != inputs.genome.output.species:
+                        self.error(
+                            "All input files must be from the same species. "
+                            f"File with INDELs is from {indel.output.species}, "
+                            f"while STAR index is from {inputs.genome.output.species}."
+                        )
+                    if indel.output.build != inputs.genome.output.build:
+                        self.error(
+                            "All input file must have the same build. "
+                            f"File with INDELs is based on {indel.output.build}, "
+                            f"while STAR index is based on {inputs.genome.output.build}."
+                        )
 
         if not inputs.mutations and not inputs.geneset:
             self.error(
@@ -479,7 +500,25 @@ class WorkflowRnaseqVariantCalling(Process):
                 "Required fields are CHROM, POS, ID, REF and ANN."
             )
 
-        if inputs.preprocessing:
+        if inputs.bam:
+            if inputs.bam.input.two_pass_mapping.two_pass_mode != True:
+                self.warning(
+                    "Two-pass mode was not used in alignment with STAR. It is "
+                    "highly recommended that you use two-pass mode for RNA-seq "
+                    "variant calling."
+                )
+            if inputs.bam.input.output_options.out_unmapped != True:
+                self.warning(
+                    "It is recommended that you use parameter '--outSAMunmapped Within' "
+                    "in STAR alignment."
+                )
+
+        if inputs.reads:
+            name = inputs.reads.name
+        elif inputs.bam:
+            name = inputs.bam.name
+
+        if inputs.reads and inputs.preprocessing:
             # BBDuk options used are the same as the default options
             # in workflow-bbduk-star-featurecounts-qc
             input_preprocessing = {
@@ -525,22 +564,26 @@ class WorkflowRnaseqVariantCalling(Process):
                 name=f"Trimmed ({inputs.reads.name})",
             )
 
-        input_star = {
-            "reads": preprocessing if inputs.preprocessing else inputs.reads,
-            "genome": inputs.genome,
-            "two_pass_mapping": {
-                "two_pass_mode": inputs.alignment.two_pass_mode,
-            },
-            "output_options": {
-                "out_unmapped": inputs.alignment.out_unmapped,
-            },
-        }
+        if inputs.reads:
+            input_star = {
+                "reads": preprocessing if inputs.preprocessing else inputs.reads,
+                "genome": inputs.genome,
+                "two_pass_mapping": {
+                    "two_pass_mode": inputs.alignment.two_pass_mode,
+                },
+                "output_options": {
+                    "out_unmapped": inputs.alignment.out_unmapped,
+                },
+            }
 
-        alignment = Data.create(
-            process=BioProcess.get_latest(slug="alignment-star"),
-            input=input_star,
-            name=f"Aligned ({inputs.reads.name})",
-        )
+            alignment = Data.create(
+                process=BioProcess.get_latest(slug="alignment-star"),
+                input=input_star,
+                name=f"Aligned ({name})",
+            )
+
+        elif inputs.bam:
+            alignment = inputs.bam
 
         input_preprocess = {
             "bam": alignment,
@@ -555,7 +598,7 @@ class WorkflowRnaseqVariantCalling(Process):
         preprocess = Data.create(
             process=BioProcess.get_latest(slug="rnaseq-vc-preprocess"),
             input=input_preprocess,
-            name=f"Preprocessed ({inputs.reads.name})",
+            name=f"Preprocessed ({name})",
         )
 
         input_hc = {
@@ -580,7 +623,7 @@ class WorkflowRnaseqVariantCalling(Process):
         hc = Data.create(
             process=BioProcess.get_latest(slug="vc-gatk4-hc"),
             input=input_hc,
-            name=f"Genotypes ({inputs.reads.name})",
+            name=f"Genotypes ({name})",
         )
 
         input_filtration = {
@@ -601,7 +644,7 @@ class WorkflowRnaseqVariantCalling(Process):
         filtration = Data.create(
             process=BioProcess.get_latest(slug="gatk-variant-filtration-single"),
             input=input_filtration,
-            name=f"Filtered genotypes ({inputs.reads.name})",
+            name=f"Filtered genotypes ({name})",
         )
 
         snpeff_inputs = {
@@ -622,7 +665,7 @@ class WorkflowRnaseqVariantCalling(Process):
         snpeff = Data.create(
             process=BioProcess.get_latest(slug="snpeff-single"),
             input=snpeff_inputs,
-            name=f"Annotated genotypes ({inputs.reads.name})",
+            name=f"Annotated genotypes ({name})",
         )
 
         mutations_inputs = {
@@ -645,13 +688,15 @@ class WorkflowRnaseqVariantCalling(Process):
         Data.create(
             process=BioProcess.get_latest(slug="mutations-table"),
             input=mutations_inputs,
-            name=f"Mutations table ({inputs.reads.name})",
+            name=f"Mutations table ({name})",
         )
 
-        multiqc_tools = [inputs.reads, alignment]
+        multiqc_tools = [alignment]
 
-        if inputs.preprocessing:
-            multiqc_tools.append(preprocessing)
+        if inputs.reads:
+            multiqc_tools.append(inputs.reads)
+            if inputs.preprocessing:
+                multiqc_tools.append(preprocessing)
 
         input_multiqc = {"data": multiqc_tools}
 

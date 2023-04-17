@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Support the use of BAM file as an input in the workflow
+  ``workflow-rnaseq-variantcalling``
 
 Fixed
 -----
@@ -34,9 +36,9 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 34.x
-- Bump the STAR version in processes ``alignment-star`` and 
+- Bump the STAR version in processes ``alignment-star`` and
   ``alignment-star-index``. Deprecate test processes
-  ``alignment-star-new``, ``alignment-star-index-new`` and 
+  ``alignment-star-new``, ``alignment-star-index-new`` and
   ``workflow-bbduk-star-qc-new``
 - Support filtering by genotype fields in the process
   ``mutations-table`` and change the default options for variant

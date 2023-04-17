@@ -743,6 +743,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_paired_end, "source", "ENSEMBL")
         self.assertFileExists(salmon_paired_end, "variance")
 
+
+class RNASeqVCWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-rnaseq-variantcalling")
     def test_rnaseq_variantcalling(self):
         input_folder = Path("rnaseq_variantcalling") / "input"
@@ -768,7 +770,22 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "source": "ENSEMBL",
                 },
             )
-
+            alignment = self.run_process(
+                "alignment-star",
+                {
+                    "reads": reads.id,
+                    "genome": star_index.id,
+                    "two_pass_mapping": {"two_pass_mode": True},
+                    "output_options": {"out_unmapped": True},
+                },
+            )
+            alignment_onepass = self.run_process(
+                "alignment-star",
+                {
+                    "reads": reads.id,
+                    "genome": star_index.id,
+                },
+            )
             dbsnp = self.run_process(
                 "upload-variants-vcf",
                 {
@@ -795,6 +812,43 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
                     "source": "ENSEMBL",
                 },
             )
+
+        input_workflow = {
+            "bam": alignment.id,
+            "ref_seq": ref_seq.id,
+            "dbsnp": dbsnp.id,
+            "mutations": ["DDX11L1"],
+        }
+
+        self.run_process(
+            process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
+        )
+
+        for data in Data.objects.all():
+            self.assertStatus(data, Data.STATUS_DONE)
+
+        mutations = Data.objects.filter(process__slug="mutations-table").last()
+        self.assertFile(mutations, "tsv", output_folder / "mutations_bam.tsv")
+
+        input_workflow = {
+            "bam": alignment_onepass.id,
+            "ref_seq": ref_seq.id,
+            "dbsnp": dbsnp.id,
+            "mutations": ["DDX11L1"],
+        }
+
+        warning_onepass = self.run_process(
+            process_slug="workflow-rnaseq-variantcalling", input_=input_workflow
+        )
+
+        warning_msg = [
+            "Two-pass mode was not used in alignment with STAR. It is "
+            "highly recommended that you use two-pass mode for RNA-seq "
+            "variant calling.",
+            "It is recommended that you use parameter '--outSAMunmapped Within' "
+            "in STAR alignment.",
+        ]
+        self.assertEqual(warning_onepass.process_warning, warning_msg)
 
         input_workflow = {
             "reads": reads.id,
