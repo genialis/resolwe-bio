@@ -21,6 +21,8 @@ Changed
 
 Fixed
 -----
+- Fix ``min_read_len`` parameter to pass zero values in
+  ``import-sra-single``, ``import-sra-paired``, ``import-sra``
 
 
 ===================

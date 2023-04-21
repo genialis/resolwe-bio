@@ -52,7 +52,7 @@ class ImportSra(Process):
     slug = "import-sra"
     name = "SRA data"
     process_type = "data:sra"
-    version = "1.5.0"
+    version = "1.5.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.TEMP
@@ -126,9 +126,7 @@ class ImportSra(Process):
             process_inputs["advanced"]["min_spot_id"] = inputs.advanced.min_spot_id
         if inputs.advanced.max_spot_id:
             process_inputs["advanced"]["max_spot_id"] = inputs.advanced.max_spot_id
-        if inputs.advanced.min_read_len:
-            process_inputs["advanced"]["min_read_len"] = inputs.advanced.min_read_len
-        if inputs.advanced.min_read_len:
+        if inputs.advanced.min_read_len is not None:
             process_inputs["advanced"]["min_read_len"] = inputs.advanced.min_read_len
 
         self.run_process(process_slug, process_inputs)
@@ -146,7 +144,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.6.0"
+    version = "1.6.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -220,7 +218,7 @@ class ImportSraSingle(Process):
                 cmd = cmd["--minSpotId"][inputs.advanced.min_spot_id]
             if inputs.advanced.max_spot_id:
                 cmd = cmd["--maxSpotId"][inputs.advanced.max_spot_id]
-            if inputs.advanced.min_read_len:
+            if inputs.advanced.min_read_len is not None:
                 cmd = cmd["--minReadLen"][inputs.advanced.min_read_len]
             if inputs.advanced.clip:
                 cmd = cmd["--clip"]
@@ -318,7 +316,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.6.0"
+    version = "1.6.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -408,7 +406,7 @@ class ImportSraPaired(Process):
                 cmd = cmd["--minSpotId"][inputs.advanced.min_spot_id]
             if inputs.advanced.max_spot_id:
                 cmd = cmd["--maxSpotId"][inputs.advanced.max_spot_id]
-            if inputs.advanced.min_read_len:
+            if inputs.advanced.min_read_len is not None:
                 cmd = cmd["--minReadLen"][inputs.advanced.min_read_len]
             if inputs.advanced.clip:
                 cmd = cmd["--clip"]
