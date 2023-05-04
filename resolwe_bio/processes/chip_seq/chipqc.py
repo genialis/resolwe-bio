@@ -31,7 +31,7 @@ class ChipQC(Process):
     slug = "chipqc"
     name = "ChipQC"
     process_type = "data:chipqc"
-    version = "1.4.1"
+    version = "1.4.2"
     category = "ChIP-seq"
     data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -45,7 +45,7 @@ class ChipQC(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/chipseq:6.1.0"}
         },
         "resources": {
-            "cores": 8,
+            "cores": 4,
             "memory": 16384,
         },
     }

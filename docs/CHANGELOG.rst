@@ -18,6 +18,7 @@ Changed
 -------
 - Support the use of BAM file as an input in the workflow
   ``workflow-rnaseq-variantcalling``
+- Adjust assigned CPU core count requirements for processes
 
 Fixed
 -----

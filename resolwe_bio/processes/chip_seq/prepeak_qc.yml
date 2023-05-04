@@ -12,9 +12,9 @@
         image: public.ecr.aws/genialis/resolwebio/chipseq:6.0.0
     resources:
       memory: 16384
-      cores: 10
+      cores: 4
   data_name: "{{ alignment|name|default('?') }}"
-  version: 0.5.1
+  version: 0.5.2
   type: data:prepeakqc
   category: ChIP-seq
   flow_collection: sample

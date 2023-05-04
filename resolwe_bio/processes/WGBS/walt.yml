@@ -9,13 +9,13 @@
     expression-engine: jinja
     resources:
       memory: 32768
-      cores: 10
+      cores: 8
       storage: 600
     executor:
       docker:
         image: public.ecr.aws/genialis/resolwebio/wgbs:3.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 3.7.1
+  version: 3.7.2
   type: data:alignment:bam:walt
   category: WGBS
   flow_collection: sample

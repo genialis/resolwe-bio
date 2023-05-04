@@ -9,12 +9,12 @@
     expression-engine: jinja
     resources:
       memory: 32768
-      cores: 10
+      cores: 4
     executor:
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.6.0
+  version: 2.6.1
   type: data:alignment:bam:hisat2
   category: Align
   flow_collection: sample

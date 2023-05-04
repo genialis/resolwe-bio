@@ -3,13 +3,13 @@
   requirements:
     expression-engine: jinja
     resources:
-      cores: 8
+      cores: 4
       memory: 32768
     executor:
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
   data_name: "{{ reads|name|default('?') }}"
-  version: 0.6.1
+  version: 0.6.2
   category: Quantify
   type: data:strandedness
   persistence: CACHED

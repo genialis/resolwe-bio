@@ -146,13 +146,13 @@ class SalmonQuant(ProcessBio):
             },
         },
         "resources": {
-            "cores": 8,
+            "cores": 4,
             "memory": 32768,
             "network": True,
         },
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.7.0"
+    version = "2.7.1"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

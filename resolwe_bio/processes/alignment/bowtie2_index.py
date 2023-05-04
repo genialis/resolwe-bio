@@ -19,13 +19,13 @@ class Bowtie2Index(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
-            "cores": 10,
+            "cores": 4,
             "memory": 16384,
         },
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.2.0"
+    version = "1.2.1"
 
     class Input:
         """Input fields for Bowtie2Index."""

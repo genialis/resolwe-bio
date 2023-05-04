@@ -27,7 +27,7 @@ class AlignmentSieve(Process):
     slug = "alignmentsieve"
     name = "alignmentSieve"
     process_type = "data:alignment:bam:sieve"
-    version = "1.5.1"
+    version = "1.5.2"
     category = "BAM processing"
     data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -41,7 +41,7 @@ class AlignmentSieve(Process):
             "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
         },
         "resources": {
-            "cores": 10,
+            "cores": 4,
             "memory": 16384,
         },
     }

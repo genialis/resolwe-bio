@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
-      cores: 10
+      cores: 4
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.5.0
+  version: 2.5.1
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -304,9 +304,9 @@
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
       memory: 16384
-      cores: 20
+      cores: 4
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.8.0
+  version: 2.8.1
   type: data:alignment:bam:bowtie2
   category: Align
   flow_collection: sample

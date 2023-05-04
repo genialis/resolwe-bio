@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.0.0"
+    version = "5.0.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -69,7 +69,7 @@ class AlignmentStar(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.2.0"}
         },
         "resources": {
-            "cores": 10,
+            "cores": 4,
             "memory": 32768,
         },
     }

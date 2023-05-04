@@ -22,7 +22,7 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.4.1"
+    version = "1.4.2"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -32,7 +32,7 @@ class Cutadapt3Prime(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
-            "cores": 10,
+            "cores": 4,
             "memory": 16384,
         },
     }

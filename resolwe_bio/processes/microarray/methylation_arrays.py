@@ -37,7 +37,7 @@ class MethylationArraySesame(ProcessBio):
     slug = "methylation-array-sesame"
     name = "Methylation analysis (SeSAMe)"
     process_type = "data:methylation:sesame"
-    version = "1.4.0"
+    version = "1.4.1"
     category = "Methylation arrays"
     data_name = 'SeSAMe array ({{ idat_file.red_channel.file|default("?") }})'
     scheduling_class = SchedulingClass.BATCH
@@ -51,7 +51,7 @@ class MethylationArraySesame(ProcessBio):
             }
         },
         "resources": {
-            "cores": 8,
+            "cores": 4,
             "memory": 16384,
         },
     }

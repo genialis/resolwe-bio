@@ -11,9 +11,9 @@
       docker:
         image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
     resources:
-      cores: 10
+      cores: 4
   data_name: "{{ alignment|name|default('?') }}"
-  version: 2.3.0
+  version: 2.3.1
   type: data:cufflinks:cuffquant
   category: Quantify
   flow_collection: sample

@@ -45,7 +45,7 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.3.1"
+    version = "1.3.2"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -55,7 +55,7 @@ class TrimGalorePaired(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
         },
         "resources": {
-            "cores": 10,
+            "cores": 4,
             "memory": 16384,
         },
     }

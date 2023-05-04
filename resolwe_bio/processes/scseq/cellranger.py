@@ -29,7 +29,7 @@ class CellRangerMkref(Process):
     slug = "cellranger-mkref"
     name = "Cell Ranger Mkref"
     process_type = "data:genomeindex:10x"
-    version = "2.1.2"
+    version = "2.1.3"
     category = "scRNA-seq"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -39,7 +39,7 @@ class CellRangerMkref(Process):
         },
         "resources": {
             "memory": 32768,
-            "cores": 10,
+            "cores": 4,
         },
     }
     data_name = '{{ genome.output.fasta.file|default("?") }}'
@@ -117,7 +117,7 @@ class CellRangerCount(Process):
     slug = "cellranger-count"
     name = "Cell Ranger Count"
     process_type = "data:scexpression:10x"
-    version = "1.2.1"
+    version = "1.2.2"
     category = "scRNA-seq"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -128,7 +128,7 @@ class CellRangerCount(Process):
         },
         "resources": {
             "memory": 32768,
-            "cores": 10,
+            "cores": 4,
         },
     }
     data_name = "{{ reads|name|default('?') }}"
