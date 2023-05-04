@@ -149,7 +149,7 @@ class BBDukSingle(Process):
     slug = "bbduk-single"
     name = "BBDuk (single-end)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "3.1.0"
+    version = "3.1.1"
     category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -633,11 +633,16 @@ class BBDukSingle(Process):
             args.append(
                 f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
             )
+            n_jobs = num_of_lanes
         else:
-            self.error(
+            self.warning(
                 f"There are more sequencing lanes ({num_of_lanes}) than there are "
-                f"available cores ({self.requirements.resources.cores}). "
+                f"available cores ({self.requirements.resources.cores}). For the "
+                "most optimal performance, use at least the same number of lanes "
+                "and cores."
             )
+            args.append("threads=1")
+            n_jobs = self.requirements.resources.cores
 
         if inputs.reference.sequences:
             args.append(f"ref={input_references}")
@@ -665,7 +670,7 @@ class BBDukSingle(Process):
             barcodes = ",".join(barcodes)
             args.append(f"barcodes={barcodes}")
 
-        process_outputs = Parallel(n_jobs=num_of_lanes)(
+        process_outputs = Parallel(n_jobs=n_jobs)(
             run_bbduk(input_reads=input_set, bbduk_inputs=args)
             for input_set in input_reads
         )
@@ -738,7 +743,7 @@ class BBDukPaired(Process):
     slug = "bbduk-paired"
     name = "BBDuk (paired-end)"
     process_type = "data:reads:fastq:paired:bbduk"
-    version = "3.1.0"
+    version = "3.1.1"
     category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -1261,11 +1266,16 @@ class BBDukPaired(Process):
             args.append(
                 f"threads={int(self.requirements.resources.cores//num_of_lanes)}"
             )
+            n_jobs = num_of_lanes
         else:
-            self.error(
+            self.warning(
                 f"There are more sequencing lanes ({num_of_lanes}) than there are "
-                f"available cores ({self.requirements.resources.cores}). "
+                f"available cores ({self.requirements.resources.cores}). For the "
+                "most optimal performance, use at least the same number of lanes "
+                "and cores."
             )
+            args.append("threads=1")
+            n_jobs = self.requirements.resources.cores
 
         if inputs.reference.sequences:
             args.append(f"ref={input_references}")
@@ -1293,7 +1303,7 @@ class BBDukPaired(Process):
             barcodes = ",".join(barcodes)
             args.append(f"barcodes={barcodes}")
 
-        process_outputs = Parallel(n_jobs=num_of_lanes)(
+        process_outputs = Parallel(n_jobs=n_jobs)(
             run_bbduk(input_reads=input_set, bbduk_inputs=args, paired_end=True)
             for input_set in input_reads
         )

@@ -23,6 +23,8 @@ Fixed
 -----
 - Fix ``min_read_len`` parameter to pass zero values in
   ``import-sra-single``, ``import-sra-paired``, ``import-sra``
+- Prevent ``bbduk-single`` and ``bbduk-paired`` processes from stopping
+  when the number of lanes exceeds the number of available cores
 
 
 ===================
