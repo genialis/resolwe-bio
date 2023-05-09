@@ -92,7 +92,8 @@ throttle(["resolwe_bio"]) {
                             // the Jenkins server.
                             "RESOLWE_POSTGRESQL_PORT=55433",
                             "RESOLWE_ES_PORT=59201",
-                            "RESOLWE_REDIS_PORT=56380"
+                            "RESOLWE_REDIS_PORT=56380",
+                            "RESOLWE_DOCKER_DISABLE_SECCOMP=1"
                         ]) {
                             sh "tox -e migrations ${tox_extra_args}"
 
