@@ -26,6 +26,7 @@ Fixed
   ``import-sra-single``, ``import-sra-paired``, ``import-sra``
 - Prevent ``bbduk-single`` and ``bbduk-paired`` processes from stopping
   when the number of lanes exceeds the number of available cores
+- Fix BBDuk settings in the workflow ``workflow-rnaseq-variantcalling``
 
 
 ===================

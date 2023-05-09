@@ -42,7 +42,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
-    version = "2.2.0"
+    version = "2.2.1"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -213,6 +213,21 @@ class WorkflowRnaseqVariantCalling(Process):
                 label="Output unmapped reads (SAM) [--outSAMunmapped Within]",
                 default=True,
                 description="Output of unmapped reads in the SAM format.",
+            )
+            align_end_alignment = StringField(
+                label="Read ends alignment [--alignEndsType]",
+                choices=[
+                    ("Local", "Local"),
+                    ("EndToEnd", "EndToEnd"),
+                    ("Extend5pOfRead1", "Extend5pOfRead1"),
+                    ("Extend5pOfReads12", "Extend5pOfReads12"),
+                ],
+                description="Type of read ends alignment (default: Local). Local: standard local "
+                "alignment with soft-clipping allowed. EndToEnd: force end-to-end read alignment, "
+                "do not soft-clip. Extend5pOfRead1: fully extend only the 5p of the read1, all "
+                "other ends: local alignment. Extend5pOfReads12: fully extend only the 5' of the "
+                "both read1 and read2, all other ends use local alignment.",
+                default="Local",
             )
 
         class BAMProcessing:
@@ -537,7 +552,7 @@ class WorkflowRnaseqVariantCalling(Process):
                     "trim_quality": inputs.bbduk.trim_quality,
                     "quality_encoding_offset": inputs.bbduk.quality_encoding_offset,
                     "ignore_bad_quality": inputs.bbduk.ignore_bad_quality,
-                    "maxns": 1,
+                    "maxns": inputs.bbduk.maxns,
                 },
             }
 
@@ -554,6 +569,8 @@ class WorkflowRnaseqVariantCalling(Process):
             if inputs.reads.type.startswith("data:reads:fastq:single:"):
                 slug_bbduk = "bbduk-single"
             elif inputs.reads.type.startswith("data:reads:fastq:paired:"):
+                input_preprocessing["operations"]["trim_pairs_evenly"] = True
+                input_preprocessing["operations"]["trim_by_overlap"] = True
                 slug_bbduk = "bbduk-paired"
             else:
                 self.error("Wrong reads input type.")
@@ -573,6 +590,9 @@ class WorkflowRnaseqVariantCalling(Process):
                 },
                 "output_options": {
                     "out_unmapped": inputs.alignment.out_unmapped,
+                },
+                "alignment": {
+                    "align_end_alignment": inputs.alignment.align_end_alignment
                 },
             }
 
