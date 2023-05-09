@@ -649,7 +649,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.8.1"
+    version = "4.8.2"
     category = "ChIP-seq"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -663,6 +663,7 @@ class Macs2(Process):
         "resources": {
             "cores": 4,
             "memory": 32768,
+            "network": True,
         },
     }
 
