@@ -63,6 +63,41 @@ def create_summary_table(samples, species, build):
         json.dump(sample_summary_json, out_file)
 
 
+def parse_rnaseqc_report(report):
+    """Parse RNA-SeQC QC report file."""
+    df = pd.read_csv(report, sep="\t")
+    return dict(df.values)
+
+
+def create_coverage_table(sample_name, report):
+    """Prepare coverage metrics table."""
+    report_data = parse_rnaseqc_report(report)
+    coverage_stats = [
+        "Genes used in 3' bias",
+        "Mean 3' bias",
+        "Median 3' bias",
+        "3' bias Std",
+        "3' bias MAD_Std",
+        "3' Bias, 25th Percentile",
+        "3' Bias, 75th Percentile",
+    ]
+
+    coverage_qc_json = {
+        "id": "coverage_qc",
+        "section_name": "RNA-SeQC Coverage Stats",
+        "plot_type": "table",
+        "file_format": "json",
+        "data": {},
+    }
+
+    coverage_qc_json["data"][sample_name] = {
+        k: report_data[k] for k in coverage_stats if k in report_data
+    }
+
+    with open("rnaseqc_coverage_mqc.json", "w") as out_file:
+        json.dump(coverage_qc_json, out_file)
+
+
 def parse_chip_qc_report(report):
     """Parse ChiP-seq QC report file."""
     df = pd.read_csv(report, sep="\t")
@@ -357,7 +392,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.18.0"
+    version = "1.19.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -567,6 +602,15 @@ class MultiQC(Process):
             elif d.process.type == "data:qorts:qc:":
                 name = os.path.basename(d.output.summary.path)
                 create_symlink(d.output.summary.path, os.path.join(sample_dir, name))
+
+            elif d.process.type == "data:rnaseqc:qc:":
+                name = os.path.basename(d.output.metrics.path)
+                create_symlink(
+                    src=d.output.metrics.path, dst=os.path.join(sample_dir, name)
+                )
+                create_coverage_table(
+                    sample_name=sample_name, report=d.output.metrics.path
+                )
 
             elif d.process.type == "data:expression:salmon:":
                 # Symlink files/dirs without the parent directory to

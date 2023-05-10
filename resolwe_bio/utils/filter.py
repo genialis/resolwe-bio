@@ -33,3 +33,11 @@ def filter_html(line):
         return True
     elif line.startswith(b"      var"):
         return True
+
+
+def filter_sense_rate(line):
+    """Filter variable lines from the tsv file."""
+    if line.startswith(b"End 1 Sense Rate"):
+        return True
+    if line.startswith(b"End 2 Sense Rate"):
+        return True

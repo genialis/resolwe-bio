@@ -7,7 +7,7 @@ from resolwe.permissions.models import Permission
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.models import Sample
-from resolwe_bio.utils.filter import filter_comment_lines
+from resolwe_bio.utils.filter import filter_comment_lines, filter_sense_rate
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -406,12 +406,12 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",
-                {"src": ["hs_single bbduk_star_htseq_reads_single.fastq.gz"]},
+                {"src": ["chr1 single.fastq.gz"]},
             )
 
             paired_reads = self.prepare_paired_reads(
-                ["hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz"],
-                ["hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz"],
+                ["chr1 paired_R1.fastq.gz"],
+                ["chr1 paired_R2.fastq.gz"],
             )
 
             filtered_reads = self.run_process(
@@ -433,7 +433,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             annotation = self.run_process(
                 "upload-gtf",
                 {
-                    "src": "hs annotation.gtf.gz",
+                    "src": "chr1_region.gtf.gz",
                     "source": "ENSEMBL",
                     "species": "Homo sapiens",
                     "build": "ens_90",
@@ -443,7 +443,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             genome_fasta = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "hs genome.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens_90",
                 },
@@ -482,6 +482,14 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
+            rnaseqc_report = self.run_process(
+                "rnaseqc-qc",
+                {
+                    "alignment": star_alignment.id,
+                    "annotation": annotation.id,
+                },
+            )
+
             # BED file is not part of a sample entity. Test if MultiQC process
             # correctly skips this input data object
             bed = self.run_process(
@@ -500,6 +508,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     star_alignment.id,
                     samtools_idxstats.id,
                     qorts_report.id,
+                    rnaseqc_report.id,
                     bed.id,
                 ],
                 "advanced": {
@@ -1014,6 +1023,88 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFileExists(sirv_set3, "report")
 
         self.assertFileExists(sirv_set3, "report_zip")
+
+    @tag_process("rnaseqc-qc")
+    def test_rnaseqc_qc(self):
+        base = Path("rnaseqc")
+        outputs = base / "output"
+        with self.preparation_stage():
+            alignment = self.run_process(
+                "upload-bam",
+                {
+                    "src": "chr1_region.bam",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+
+            cds = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "chr1_region.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+            inputs_salmon_index = {
+                "nucl": cds.id,
+                "source": "ENSEMBL",
+                "species": "Homo sapiens",
+                "build": "ens_90",
+            }
+            salmon_index = self.run_process("salmon-index", inputs_salmon_index)
+
+            annotation_ensembl = self.run_process(
+                "upload-gtf",
+                {
+                    "src": "chr1_region.gtf.gz",
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+
+            annotation_ucsc = self.run_process(
+                "upload-gtf",
+                {
+                    "src": "chr1_region_UCSC.gtf.gz",
+                    "source": "UCSC",
+                    "species": "Homo sapiens",
+                    "build": "hg_19",
+                },
+            )
+
+        inputs_ensembl = {
+            "annotation": annotation_ensembl.id,
+            "alignment": alignment.id,
+            "strand_detection_options": {
+                "stranded": "auto",
+                "cdna_index": salmon_index.id,
+            },
+        }
+
+        rnaseqc_report = self.run_process("rnaseqc-qc", inputs_ensembl)
+
+        self.assertFile(
+            rnaseqc_report, "metrics", outputs / "chr1_region.bam.metrics_ENSEMBL.tsv"
+        )
+
+        inputs_ucsc = {
+            "annotation": annotation_ucsc.id,
+            "alignment": alignment.id,
+            "rnaseqc_options": {"detection_threshold": 2},
+        }
+
+        rnaseqc_report = self.run_process("rnaseqc-qc", inputs_ucsc)
+
+        self.assertFile(
+            rnaseqc_report,
+            "metrics",
+            outputs / "chr1_region.bam.metrics_UCSC.tsv",
+            # Because testing on Mac and Linux yields nan and -nan, respectively,
+            # we are, for now, omitting this parameter from tests.
+            file_filter=filter_sense_rate,
+        )
 
     @tag_process("qorts-qc")
     def test_qorts_qc(self):
