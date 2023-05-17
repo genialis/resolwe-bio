@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add command ``filter_features`` to the listener that caches the returned
+  ``Feature`` objects to speed up the queries
 
 Changed
 -------
