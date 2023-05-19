@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.6.0"
+    version = "2.6.1"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -263,15 +263,11 @@ class GeoImport(Process):
                 "clip": inputs.advanced.clip,
                 "aligned": inputs.advanced.aligned,
                 "unaligned": inputs.advanced.unaligned,
+                "min_spot_id": inputs.advanced.min_spot_id,
+                "max_spot_id": inputs.advanced.max_spot_id,
+                "min_read_len": inputs.advanced.min_read_len,
             },
         }
-
-        if inputs.advanced.min_spot_id:
-            process_inputs["advanced"]["min_spot_id"] = inputs.advanced.min_spot_id
-        if inputs.advanced.max_spot_id:
-            process_inputs["advanced"]["max_spot_id"] = inputs.advanced.max_spot_id
-        if inputs.advanced.min_read_len:
-            process_inputs["advanced"]["min_read_len"] = inputs.advanced.min_read_len
 
         sample_info = {}
         for name, gsm in gse.gsms.items():

@@ -19,6 +19,7 @@ Changed
 
 Fixed
 -----
+- Fix SRA parameters to pass zero values in ``geo-import`` workflow
 
 
 ===================
