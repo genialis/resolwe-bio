@@ -15,7 +15,7 @@ Added
 -----
 - Add command ``filter_features`` to the listener that caches the returned
   ``Feature`` objects to speed up the queries
-- Add command ``get_features`` to the ``Feature`` class 
+- Modify ``filter`` command on the ``Feature`` class to use cache
   
 
 Changed
