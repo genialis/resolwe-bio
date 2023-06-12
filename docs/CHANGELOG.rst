@@ -15,13 +15,13 @@ Added
 -----
 - Add command ``filter_features`` to the listener that caches the returned
   ``Feature`` objects to speed up the queries
-- Modify ``filter`` command on the ``Feature`` class to use cache
 - Add ``rnaseqc-qc`` process including a function for parsing UCSC annotations 
   and modify ``multiqc`` to accomodate its results
 
 Changed
 -------
 - Change test files for ``multiqc``
+- Modify ``filter`` command on the ``Feature`` class to use cache
 
 Fixed
 -----
