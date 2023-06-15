@@ -22,6 +22,8 @@ Changed
 -------
 - Change test files for ``multiqc``
 - Modify ``filter`` command on the ``Feature`` class to use cache
+- Explicitly set process resources in processes ``alignment-bowtie`` and
+  ``alignment-bowtie2``
 
 Fixed
 -----
