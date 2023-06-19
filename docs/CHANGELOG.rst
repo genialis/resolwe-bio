@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+52.1.0 - 2023-06-19
+===================
+
+Added
+-----
 - Add command ``filter_features`` to the listener that caches the returned
   ``Feature`` objects to speed up the queries
 - Add ``rnaseqc-qc`` process including a function for parsing UCSC annotations 
