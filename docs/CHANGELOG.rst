@@ -16,10 +16,14 @@ Added
 
 Changed
 -------
+- Rename ``filter_sense_rate`` to ``filter_rnaseqc_metrics`` in ``filter.py``
+  and add additional fields for filtering
+- Changed the ordering of exons in ``format_ucsc`` function of ``rnaseq-qc`` process
+  and add collapse_only option for stranded protocols
+- Change test files and modify test function for ``rnaseqc-qc`` process
 
 Fixed
 -----
-
 
 ===================
 52.1.0 - 2023-06-19

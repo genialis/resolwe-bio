@@ -7,7 +7,7 @@ from resolwe.permissions.models import Permission
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.models import Sample
-from resolwe_bio.utils.filter import filter_comment_lines, filter_sense_rate
+from resolwe_bio.utils.filter import filter_comment_lines, filter_rnaseqc_metrics
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -1029,12 +1029,20 @@ re-save-file lane_attributes "${NAME}".txt
         base = Path("rnaseqc")
         outputs = base / "output"
         with self.preparation_stage():
-            alignment = self.run_process(
+            alignment_ensembl = self.run_process(
                 "upload-bam",
                 {
                     "src": "chr1_region.bam",
                     "species": "Homo sapiens",
                     "build": "ens_90",
+                },
+            )
+            alignment_ucsc = self.run_process(
+                "upload-bam",
+                {
+                    "src": "chr1_region_ucsc.bam",
+                    "species": "Homo sapiens",
+                    "build": "hg_19",
                 },
             )
 
@@ -1076,34 +1084,36 @@ re-save-file lane_attributes "${NAME}".txt
 
         inputs_ensembl = {
             "annotation": annotation_ensembl.id,
-            "alignment": alignment.id,
+            "alignment": alignment_ensembl.id,
             "strand_detection_options": {
                 "stranded": "auto",
                 "cdna_index": salmon_index.id,
             },
         }
 
-        rnaseqc_report = self.run_process("rnaseqc-qc", inputs_ensembl)
+        rnaseqc_report_ensembl = self.run_process("rnaseqc-qc", inputs_ensembl)
 
         self.assertFile(
-            rnaseqc_report, "metrics", outputs / "chr1_region.bam.metrics_ENSEMBL.tsv"
+            rnaseqc_report_ensembl,
+            "metrics",
+            outputs / "chr1_region.bam.metrics_ENSEMBL.tsv",
         )
 
         inputs_ucsc = {
             "annotation": annotation_ucsc.id,
-            "alignment": alignment.id,
+            "alignment": alignment_ucsc.id,
             "rnaseqc_options": {"detection_threshold": 2},
         }
 
-        rnaseqc_report = self.run_process("rnaseqc-qc", inputs_ucsc)
+        rnaseqc_report_ucsc = self.run_process("rnaseqc-qc", inputs_ucsc)
 
         self.assertFile(
-            rnaseqc_report,
+            rnaseqc_report_ucsc,
             "metrics",
-            outputs / "chr1_region.bam.metrics_UCSC.tsv",
+            outputs / "chr1_region_ucsc.bam.metrics_UCSC.tsv",
             # Because testing on Mac and Linux yields nan and -nan, respectively,
             # we are, for now, omitting this parameter from tests.
-            file_filter=filter_sense_rate,
+            file_filter=filter_rnaseqc_metrics,
         )
 
     @tag_process("qorts-qc")

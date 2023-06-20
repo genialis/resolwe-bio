@@ -35,9 +35,17 @@ def filter_html(line):
         return True
 
 
-def filter_sense_rate(line):
+def filter_rnaseqc_metrics(line):
     """Filter variable lines from the tsv file."""
     if line.startswith(b"End 1 Sense Rate"):
         return True
     if line.startswith(b"End 2 Sense Rate"):
+        return True
+    if line.startswith(b"End 1 Mismatch Rate"):
+        return True
+    if line.startswith(b"End 2 Mismatch Rate"):
+        return True
+    if line.startswith(b"Median Exon CV"):
+        return True
+    if line.startswith(b"Exon CV MAD"):
         return True

@@ -73,7 +73,7 @@ def format_ucsc(annotation_path):
 
     df = pd.DataFrame(
         {
-            "chromosome": df[0].str.lstrip("chr"),
+            "chromosome": df[0],
             "feature_type": df[2],
             "start": df[3],
             "end": df[4],
@@ -83,6 +83,7 @@ def format_ucsc(annotation_path):
     )
 
     df.replace("", np.nan, inplace=True)
+    df = df[df["feature_type"] == "exon"]
 
     columns = {
         "chromosome": "first",
@@ -102,13 +103,23 @@ def format_ucsc(annotation_path):
         + df["gene_id"].astype(str)
     )
 
+    chromosome_order = df["chromosome"].unique().tolist()
+    hierarchy_order = ["gene", "transcript"]
+
     genes_df = df.groupby(["gene_id"]).agg(columns).assign(feature_type="gene")
     transcripts_df = (
         df.groupby(["gene_id"]).agg(columns).assign(feature_type="transcript")
     )
     df = pd.concat([genes_df, transcripts_df, df], ignore_index=True)
-
     df["attributes"] = df.apply(lambda x: add_attributes(x), axis=1)
+    df["chromosome_order"] = df["chromosome"].map(lambda x: chromosome_order.index(x))
+    df["hierarchy_order"] = df["feature_type"].map(
+        lambda x: hierarchy_order.index(x) if x in hierarchy_order else float("inf")
+    )
+
+    df = df.sort_values(
+        by=["chromosome_order", "gene_id", "hierarchy_order"], ascending=True
+    )
 
     out_df = pd.DataFrame(
         {
@@ -123,8 +134,6 @@ def format_ucsc(annotation_path):
             "attributes": df["attributes"],
         },
     )
-
-    out_df.sort_values(by=["chromosome", "start"], ascending=[True, True], inplace=True)
 
     out_filename = "ucsc_formatted_annotation.gtf"
 
@@ -155,7 +164,7 @@ class QcRnaseqc(Process):
     slug = "rnaseqc-qc"
     name = "RNA-SeQC"
     process_type = "data:rnaseqc:qc"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "QC"
     data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -177,7 +186,7 @@ class QcRnaseqc(Process):
     class Input:
         """Input fields."""
 
-        alignment = DataField("alignment:bam", label="Input reads (BAM file)")
+        alignment = DataField("alignment:bam", label="Input aligned reads (BAM file)")
 
         annotation = DataField(
             "annotation:gtf",
@@ -350,8 +359,10 @@ class QcRnaseqc(Process):
             collapse_args = [
                 inputs.annotation.output.annot.path,
                 "collapsed_annotation.gtf",
-                "--stranded",
             ]
+
+        if "--stranded" in args:
+            collapse_args.append("--collapse_only")
 
         # Collapsing the annotation with collapse_annotation.py script (included in the qc docker image)
         return_code, _, _ = Cmd["collapse_annotation.py"][collapse_args] & TEE(
