@@ -76,7 +76,6 @@ throttle(["resolwe_bio"]) {
                             // NOTE: These ports are set to telnet's port (23) to ensure the
                             // following Tox environments don't require access to these services.
                             "RESOLWE_POSTGRESQL_PORT=23",
-                            "RESOLWE_ES_PORT=23",
                             "RESOLWE_REDIS_PORT=23"
                         ]) {
                             sh "tox -e docs ${tox_extra_args}"
@@ -91,7 +90,6 @@ throttle(["resolwe_bio"]) {
                             // NOTE: These ports must correspond to project's services running on
                             // the Jenkins server.
                             "RESOLWE_POSTGRESQL_PORT=55433",
-                            "RESOLWE_ES_PORT=59201",
                             "RESOLWE_REDIS_PORT=56380"
                         ]) {
                             sh "tox -e migrations ${tox_extra_args}"
