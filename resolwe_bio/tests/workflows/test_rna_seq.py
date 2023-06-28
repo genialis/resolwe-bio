@@ -827,7 +827,7 @@ class RNASeqVCWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
-        mutations = Data.objects.filter(process__slug="mutations-table").last()
+        mutations = Data.objects.last()
         self.assertFile(mutations, "tsv", output_folder / "mutations_bam.tsv")
 
         input_workflow = {
@@ -835,6 +835,7 @@ class RNASeqVCWorkflowTestCase(KBBioProcessTestCase):
             "ref_seq": ref_seq.id,
             "dbsnp": dbsnp.id,
             "mutations": ["DDX11L1"],
+            "advanced": {"multiqc": True},
         }
 
         warning_onepass = self.run_process(
@@ -849,6 +850,9 @@ class RNASeqVCWorkflowTestCase(KBBioProcessTestCase):
             "in STAR alignment.",
         ]
         self.assertEqual(warning_onepass.process_warning, warning_msg)
+
+        multiqc = Data.objects.filter(process__slug="multiqc").last()
+        self.assertFileExists(multiqc, "report")
 
         input_workflow = {
             "reads": reads.id,
