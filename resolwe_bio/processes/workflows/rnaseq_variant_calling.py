@@ -32,7 +32,7 @@ class WorkflowRnaseqVariantCalling(Process):
     """
 
     slug = "workflow-rnaseq-variantcalling"
-    name = "RNA-seq Variant Calling"
+    name = "RNA-seq Variant Calling Workflow"
     requirements = {
         "expression-engine": "jinja",
         "executor": {
@@ -41,8 +41,8 @@ class WorkflowRnaseqVariantCalling(Process):
             },
         },
     }
-    data_name = "RNA-seq Variants ({{ reads|name|default('?') }})"
-    version = "2.2.1"
+    data_name = "RNA-seq Variants ({{ reads|name|default('?') if reads else bam|name|default('?') }})"
+    version = "2.3.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -407,6 +407,16 @@ class WorkflowRnaseqVariantCalling(Process):
         class Advanced:
             """Advanced options."""
 
+            multiqc = BooleanField(
+                label="Trigger MultiQC",
+                default=False,
+                hidden="!bam",
+                description="If the input for the pipeline is BAM file "
+                "that has been computed by the RNA-seq gene expression pipeline, than "
+                "MultiQC object already exists for this sample, so there is no need "
+                "for an additional MultiQC process. If the input for this pipeline is "
+                "FASTQ, than MultiQC cannot be disabled.",
+            )
             java_gc_threads = IntegerField(
                 label="Java ParallelGCThreads",
                 default=2,
@@ -718,9 +728,17 @@ class WorkflowRnaseqVariantCalling(Process):
             if inputs.preprocessing:
                 multiqc_tools.append(preprocessing)
 
-        input_multiqc = {"data": multiqc_tools}
+            input_multiqc = {"data": multiqc_tools}
 
-        Data.create(
-            process=BioProcess.get_latest(slug="multiqc"),
-            input=input_multiqc,
-        )
+            Data.create(
+                process=BioProcess.get_latest(slug="multiqc"),
+                input=input_multiqc,
+            )
+
+        elif inputs.bam and inputs.advanced.multiqc:
+            input_multiqc = {"data": multiqc_tools}
+
+            Data.create(
+                process=BioProcess.get_latest(slug="multiqc"),
+                input=input_multiqc,
+            )

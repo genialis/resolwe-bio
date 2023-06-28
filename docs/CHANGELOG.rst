@@ -25,6 +25,9 @@ Changed
   and add collapse_only option for stranded protocols
 - Change test files and modify test function for ``rnaseqc-qc`` process
 - Bump ``postgresql`` and ``redis`` containers version
+- Rename ``workflow-rnaseq-variantcalling`` from ``RNA-seq Variant Calling``
+  to ``RNA-seq Variant Calling Workflow``
+- Support optional triggering of MultiQC in ``workflow-rnaseq-variantcalling``
 
 Fixed
 -----
