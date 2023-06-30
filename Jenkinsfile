@@ -14,6 +14,8 @@ throttle(["resolwe_bio"]) {
             // branch, we allow installing pre-releases with the pip command.
             tox_extra_args += "--pre"
         }
+        // Do not skip missing interpreters on Jenkins.
+        tox_extra_args += " --skip-missing-interpreters false"
 
         // NOTE: Tests could hang unexpectedly and never release the Jenkins executor. Thus we set
         // a general timeout for tests' execution.
