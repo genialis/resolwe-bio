@@ -189,7 +189,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.6.1"
+    version = "2.6.2"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -440,6 +440,12 @@ class GeoImport(Process):
             series_type = series.get_type()
             if series_type == "Expression profiling by high throughput sequencing":
                 run_info = self.upload_rna_gse(inputs, series)
+                if run_info.empty:
+                    self.warning(
+                        f"No samples with SRA files were found for GEO series {series.name}."
+                    )
+                    continue
+
                 metadata_tables[series.name] = create_metadata(series, run_info)
             elif series_type == "Expression profiling by array":
                 run_info = self.upload_ma_gse(inputs, series)
@@ -449,12 +455,22 @@ class GeoImport(Process):
                 == "Genome binding/occupancy profiling by high throughput sequencing"
             ):
                 run_info = self.upload_rna_gse(inputs, series)
+                if run_info.empty:
+                    self.warning(
+                        f"No samples with SRA files were found for GEO series {series.name}."
+                    )
+                    continue
+
                 metadata_tables[series.name] = create_metadata(series, run_info)
             else:
                 self.warning(
                     f"The upload of {series_type} is currently not supported. Samples from {series.name} will be "
                     "skipped."
                 )
+
+        if len(metadata_tables) == 0:
+            self.error("No supported data found.")
+
         meta_file = f"{inputs.gse_accession}_metadata.tsv"
         metadata = pd.concat(metadata_tables.values(), join="outer", ignore_index=False)
         metadata.to_csv(meta_file, sep="\t", index=False)

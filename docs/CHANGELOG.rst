@@ -37,7 +37,7 @@ Added
 -----
 - Add command ``filter_features`` to the listener that caches the returned
   ``Feature`` objects to speed up the queries
-- Add ``rnaseqc-qc`` process including a function for parsing UCSC annotations 
+- Add ``rnaseqc-qc`` process including a function for parsing UCSC annotations
   and modify ``multiqc`` to accomodate its results
 
 Changed
@@ -46,6 +46,7 @@ Changed
 - Modify ``filter`` command on the ``Feature`` class to use cache
 - Explicitly set process resources in processes ``alignment-bowtie`` and
   ``alignment-bowtie2``
+- Improve warnings in ``geo-import`` process for series without raw data
 
 Fixed
 -----
