@@ -518,6 +518,7 @@ class VariantCallingTestCase(BioProcessTestCase):
     def test_variant_filtration(self):
         input_folder = Path("variant_filtration") / "input"
         output_folder = Path("variant_filtration") / "output"
+        input_dbsnp = Path("rnaseq_variantcalling") / "input"
         with self.preparation_stage():
             ref_seq = self.run_process(
                 "upload-fasta-nucl",
@@ -545,6 +546,15 @@ class VariantCallingTestCase(BioProcessTestCase):
                 },
             )
 
+            dbsnp = self.run_process(
+                "upload-variants-vcf",
+                {
+                    "src": input_dbsnp / "dbsnp-hg38.vcf.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+
         filtering_single_sample = self.run_process(
             "gatk-variant-filtration-single",
             {
@@ -566,6 +576,31 @@ class VariantCallingTestCase(BioProcessTestCase):
             file_filter=filter_vcf_variable,
             compression="gzip",
         )
+
+        filtering_mask = self.run_process(
+            "gatk-variant-filtration-single",
+            {
+                "vcf": vcf.id,
+                "ref_seq": ref_seq.id,
+                "filter_expressions": ["FS > 30.0", "QD < 2.0", "DP > 20"],
+                "filter_name": ["FS", "QD", "DP"],
+                "mask": dbsnp.id,
+                "mask_name": "DB",
+                "advanced": {
+                    "window": 35,
+                    "java_gc_threads": 3,
+                    "max_heap_size": 8,
+                },
+            },
+        )
+        self.assertFile(
+            filtering_mask,
+            "vcf",
+            output_folder / "filtered_variants_mask.vcf.gz",
+            file_filter=filter_vcf_variable,
+            compression="gzip",
+        )
+
         filtering_single_sample = self.run_process(
             "gatk-variant-filtration-single",
             {

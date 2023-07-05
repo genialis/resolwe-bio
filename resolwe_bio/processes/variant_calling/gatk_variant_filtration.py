@@ -39,7 +39,7 @@ class GatkVariantFiltration(Process):
     slug = "gatk-variant-filtration"
     process_type = "data:variants:vcf:variantfiltration"
     name = "GATK VariantFiltration (multi-sample)"
-    version = "1.2.0"
+    version = "1.3.0"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -105,6 +105,20 @@ class GatkVariantFiltration(Process):
             "(genotype) fields instead. Warning: filter names should be in the same order as "
             "filter expressions.",
             required=False,
+        )
+        mask = DataField(
+            data_type="variants:vcf",
+            label="Input mask",
+            description="Any variant which overlaps entries from the provided "
+            "mask file will be filtered.",
+            required=False,
+        )
+        mask_name = StringField(
+            label="The text to put in the FILTER field if a 'mask' is provided",
+            description="When using the mask file, the mask name will be annotated in "
+            "the variant record.",
+            required=False,
+            disabled="!mask",
         )
 
         class Advanced:
@@ -213,6 +227,16 @@ class GatkVariantFiltration(Process):
                     ]
                 )
 
+        if inputs.mask:
+            if not inputs.mask_name:
+                self.error(
+                    "If you specify a mask file, please specify 'mask name' - the text to "
+                    "put in the FILTER field"
+                )
+            args.extend(
+                ["--mask", inputs.mask.output.vcf.path, "--mask-name", inputs.mask_name]
+            )
+
         return_code, stdout, stderr = Cmd["gatk"]["VariantFiltration"][args] & TEE(
             retcode=None
         )
@@ -242,7 +266,7 @@ class GatkVariantFiltrationSingle(Process):
     slug = "gatk-variant-filtration-single"
     process_type = "data:variants:vcf:variantfiltration:single"
     name = "GATK VariantFiltration (single-sample)"
-    version = "1.2.0"
+    version = "1.3.0"
     entity = {
         "type": "sample",
     }
@@ -310,6 +334,20 @@ class GatkVariantFiltrationSingle(Process):
             "(genotype) fields instead. Warning: filter names should be in the same order as "
             "filter expressions.",
             required=False,
+        )
+        mask = DataField(
+            data_type="variants:vcf",
+            label="Input mask",
+            description="Any variant which overlaps entries from the provided "
+            "mask file will be filtered.",
+            required=False,
+        )
+        mask_name = StringField(
+            label="The text to put in the FILTER field if a 'mask' is provided",
+            description="When using the mask file, the mask name will be annotated in "
+            "the variant record.",
+            required=False,
+            disabled="!mask",
         )
 
         class Advanced:
@@ -417,6 +455,16 @@ class GatkVariantFiltrationSingle(Process):
                         exp,
                     ]
                 )
+
+        if inputs.mask:
+            if not inputs.mask_name:
+                self.error(
+                    "If you specify a mask file, please specify 'mask name' - the text to "
+                    "put in the FILTER field"
+                )
+            args.extend(
+                ["--mask", inputs.mask.output.vcf.path, "--mask-name", inputs.mask_name]
+            )
 
         return_code, stdout, stderr = Cmd["gatk"]["VariantFiltration"][args] & TEE(
             retcode=None

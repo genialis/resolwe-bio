@@ -28,6 +28,9 @@ Changed
 - Rename ``workflow-rnaseq-variantcalling`` from ``RNA-seq Variant Calling``
   to ``RNA-seq Variant Calling Workflow``
 - Support optional triggering of MultiQC in ``workflow-rnaseq-variantcalling``
+- Add ``mask`` option to processes ``gatk-variant-filtration`` and
+  ``gatk-variant-filtration-single`` and enable this option in
+  ``workflow-rnaseq-variantcalling``
 
 Fixed
 -----

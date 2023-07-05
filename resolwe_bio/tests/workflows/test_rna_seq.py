@@ -818,6 +818,7 @@ class RNASeqVCWorkflowTestCase(KBBioProcessTestCase):
             "ref_seq": ref_seq.id,
             "dbsnp": dbsnp.id,
             "mutations": ["DDX11L1"],
+            "variant_filtration": {"mask": dbsnp.id, "mask_name": "DB"},
         }
 
         self.run_process(

@@ -42,7 +42,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') if reads else bam|name|default('?') }})"
-    version = "2.3.0"
+    version = "2.4.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -318,6 +318,20 @@ class WorkflowRnaseqVariantCalling(Process):
                 "(genotype) fields instead. Warning: filter names should be in the same order as "
                 "filter expressions.",
                 default=["AD"],
+            )
+            mask = DataField(
+                data_type="variants:vcf",
+                label="Input mask",
+                description="Any variant which overlaps entries from the provided "
+                "mask file will be filtered.",
+                required=False,
+            )
+            mask_name = StringField(
+                label="The text to put in the FILTER field if a 'mask' is provided",
+                description="When using the mask file, the mask name will be annotated in "
+                "the variant record.",
+                required=False,
+                disabled="!variant_filtration.mask",
             )
 
         class SnpEff:
@@ -670,6 +684,15 @@ class WorkflowRnaseqVariantCalling(Process):
                 "max_heap_size": inputs.advanced.max_heap_size,
             },
         }
+        if inputs.variant_filtration.mask:
+            if not inputs.variant_filtration.mask_name:
+                self.error(
+                    "If you specify a mask file, please specify 'mask name' - the text to "
+                    "put in the FILTER field"
+                )
+
+            input_filtration["mask"] = inputs.variant_filtration.mask
+            input_filtration["mask_name"] = inputs.variant_filtration.mask_name
 
         filtration = Data.create(
             process=BioProcess.get_latest(slug="gatk-variant-filtration-single"),
