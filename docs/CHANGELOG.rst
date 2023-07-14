@@ -13,6 +13,19 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+===================
+53.0.0 - 2023-07-14
+===================
+
+Added
+-----
 - Add support for ``Python 3.11``
 
 Changed
@@ -32,8 +45,6 @@ Changed
   ``gatk-variant-filtration-single`` and enable this option in
   ``workflow-rnaseq-variantcalling``
 
-Fixed
------
 
 ===================
 52.1.0 - 2023-06-19
