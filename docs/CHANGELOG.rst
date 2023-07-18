@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add Euclidean distance metric in ``find-similar`` and
+  ``clustering-hierarchical-etc`` processes
 
 Changed
 -------

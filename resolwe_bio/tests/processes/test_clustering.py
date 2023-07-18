@@ -1307,8 +1307,16 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
                 exp_3.pk,
                 exp_4.pk,
             ],
+            "distance": "euclidean",
         }
         clustering = self.run_process("clustering-hierarchical-etc", inputs)
+
+        self.assertJSON(
+            clustering,
+            clustering.output["cluster"],
+            "",
+            outputs / "clustering_euclidean.json.gz",
+        )
 
     @with_resolwe_host
     @tag_process("find-similar")
@@ -1417,6 +1425,26 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             similar.output["similar_genes"],
             "",
             outputs / "similar_genes_pearson.json.gz",
+        )
+
+        inputs = {
+            "expressions": [
+                exp_1.pk,
+                exp_2.pk,
+                exp_3.pk,
+                exp_4.pk,
+                exp_5.pk,
+                exp_6.pk,
+            ],
+            "gene": "DDB_G0283907",
+            "distance": "euclidean",
+        }
+        similar = self.run_process("find-similar", inputs)
+        self.assertJSON(
+            similar,
+            similar.output["similar_genes"],
+            "",
+            outputs / "similar_genes_euclidean.json.gz",
         )
 
         inputs = {

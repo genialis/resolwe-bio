@@ -4,6 +4,7 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
+from scipy.spatial.distance import euclidean
 from scipy.stats import pearsonr, spearmanr
 
 from resolwe.process import (
@@ -74,6 +75,11 @@ def calculate_pearson(x, y):
     return 1.0 - pearsonr(x, y)[0]
 
 
+def calculate_euclidean(x, y):
+    """Calculate Euclidean distance between x and y."""
+    return euclidean(x, y)
+
+
 def is_const(values):
     """Return True, if all values are approximately equal, otherwise return False."""
     mn = np.min(values)
@@ -99,7 +105,7 @@ class FindSimilar(Process):
     slug = "find-similar"
     name = "Find similar genes"
     process_type = "data:similarexpression"
-    version = "1.2.3"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
     requirements = {
@@ -129,6 +135,7 @@ class FindSimilar(Process):
         distance = StringField(
             label="Distance metric",
             choices=[
+                ("euclidean", "Euclidean"),
                 ("spearman", "Spearman"),
                 ("pearson", "Pearson"),
             ],
@@ -243,7 +250,11 @@ class FindSimilar(Process):
                     "computed."
                 )
 
-        distance_map = {"pearson": calculate_pearson, "spearman": calculate_spearman}
+        distance_map = {
+            "pearson": calculate_pearson,
+            "spearman": calculate_spearman,
+            "euclidean": calculate_euclidean,
+        }
         distance_func = distance_map[inputs.distance]
         selected_etc = expressions.loc[inputs.gene].tolist()
         expressions = expressions.drop(inputs.gene)

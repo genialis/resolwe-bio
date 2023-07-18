@@ -107,7 +107,7 @@ class ClusterTimeCourse(Process):
     slug = "clustering-hierarchical-etc"
     name = "Hierarchical clustering of time courses"
     process_type = "data:clustering:hierarchical:etc"
-    version = "1.2.3"
+    version = "1.3.0"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.TEMP
     requirements = {
@@ -160,6 +160,7 @@ class ClusterTimeCourse(Process):
         distance = StringField(
             label="Distance metric",
             choices=[
+                ("euclidean", "Euclidean"),
                 ("spearman", "Spearman"),
                 ("pearson", "Pearson"),
             ],
