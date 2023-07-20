@@ -45,13 +45,20 @@ def prepare_gene_counts(infile, outfile, summary, strandedness):
         dtype={"Geneid": str, 0: int, 1: int, 2: int},
     )
     # Raw counts for genes
-    exp.iloc[4:][[strandedness]].to_csv(
+    gene_rc_df = exp.iloc[4:][[strandedness]]
+    gene_rc_df.to_csv(
         outfile,
         index_label="FEATURE_ID",
         header=["EXPRESSION"],
         sep="\t",
     )
-    exp.iloc[:4][[strandedness]].to_csv(
+
+    assigned_reads = gene_rc_df.sum()
+    assigned_reads = int(assigned_reads.values)
+    summary_df = exp.iloc[:4][[strandedness]]
+    summary_df.loc["N_assigned"] = assigned_reads
+
+    summary_df.to_csv(
         summary,
         index_label="Status",
         header=["Read count"],
@@ -189,7 +196,7 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "1.1.0"
+    version = "1.2.0"
     process_type = "data:expression:star"
     category = "Quantify"
     entity = {

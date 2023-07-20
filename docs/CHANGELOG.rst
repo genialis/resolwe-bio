@@ -16,6 +16,10 @@ Added
 
 Changed
 -------
+- Change ``star-quantification`` process to include number of assigned reads
+  in the summary report
+- Change ``MultiQC`` report to include assigned reads from ``star-quantification``
+  process
 
 Fixed
 -----

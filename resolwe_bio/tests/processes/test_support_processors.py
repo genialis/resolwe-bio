@@ -461,6 +461,15 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 {
                     "genome": star_index.id,
                     "reads": paired_reads.id,
+                    "gene_counts": True,
+                },
+            )
+
+            star_quantification = self.run_process(
+                "star-quantification",
+                {
+                    "aligned_reads": star_alignment.id,
+                    "annotation": annotation.id,
                 },
             )
 
@@ -506,6 +515,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     filtered_reads.id,
                     bam_samtools.id,
                     star_alignment.id,
+                    star_quantification.id,
                     samtools_idxstats.id,
                     qorts_report.id,
                     rnaseqc_report.id,

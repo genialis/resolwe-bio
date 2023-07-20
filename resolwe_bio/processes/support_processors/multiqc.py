@@ -366,6 +366,48 @@ def create_lane_table(sample_names, reports):
         json.dump(lane_json, out_file)
 
 
+def parse_counts_summary(report):
+    """Parse STAR quantification summary report file."""
+    df = pd.read_csv(
+        report,
+        sep="\t",
+        index_col=0,
+    )
+    assigned_reads = int(df.loc[df.index == "N_assigned", "Read count"].values)
+    mapped_reads_sum = df.loc[
+        ["N_multimapping", "N_noFeature", "N_ambiguous", "N_assigned"], "Read count"
+    ].sum()
+    mapped_reads_sum = float(mapped_reads_sum)
+    percent_assigned = assigned_reads / mapped_reads_sum * 100
+
+    out_dict = {
+        "Assigned reads": assigned_reads,
+        "% of assigned reads": percent_assigned,
+    }
+
+    return out_dict
+
+
+def update_generalstats_table(sample_name, report):
+    """Update general statistics table with new information."""
+    sample_name += f" | {sample_name}"
+    report_data = parse_counts_summary(report)
+    counts_stats = list(report_data)
+    counts_json = {
+        "section_name": "STAR quantification",
+        "plot_type": "generalstats",
+        "file_format": "json",
+        "data": {},
+    }
+
+    counts_json["data"][sample_name] = {
+        k: report_data[k] for k in counts_stats if k in report_data
+    }
+
+    with open("STAR quantification_mqc.json", "w") as out_file:
+        json.dump(counts_json, out_file)
+
+
 class MultiQC(Process):
     """Aggregate results from bioinformatics analyses across many samples into a single report.
 
@@ -392,7 +434,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.19.0"
+    version = "1.20.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -574,6 +616,13 @@ class MultiQC(Process):
                     )
                 # Strandedness report exists only if auto detection was enabled
                 process_strand_report_file(d, lib_type_samples, lib_type_reports)
+
+            elif d.process.type == "data:expression:star:":
+                name = os.path.basename(d.output.counts_summary.path)
+                create_symlink(d.output.counts_summary, os.path.join(sample_dir, name))
+                update_generalstats_table(
+                    sample_name=sample_name, report=d.output.counts_summary.path
+                )
 
             elif d.process.type == "data:chipseq:callpeak:macs2:":
                 name = os.path.basename(d.output.called_peaks.path)
