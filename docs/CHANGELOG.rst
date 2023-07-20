@@ -20,6 +20,8 @@ Changed
   in the summary report
 - Change ``MultiQC`` report to include assigned reads from ``star-quantification``
   process
+- Change ``workflow-bbduk-star-qc`` workflow to include assigned reads
+  by ``star-quantification`` in ``MultiQC`` report
 
 Fixed
 -----

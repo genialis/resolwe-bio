@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.1.0"
+    version = "1.2.0"
     entity = {
         "type": "sample",
     }
@@ -638,7 +638,7 @@ class WorkflowSTAR(Process):
         if inputs.cdna_index:
             input_quant["cdna_index"] = inputs.cdna_index
 
-        Data.create(
+        counts = Data.create(
             process=BioProcess.get_latest(slug="star-quantification"),
             input=input_quant,
             name=f"Quantified ({inputs.reads.name})",
@@ -719,6 +719,7 @@ class WorkflowSTAR(Process):
                 inputs.reads,
                 preprocessing,
                 alignment,
+                counts,
                 downsampling,
                 alignment_qc_rrna,
                 alignment_qc_globin,
