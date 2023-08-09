@@ -24,6 +24,8 @@ Changed
   process
 - Change ``workflow-bbduk-star-qc`` workflow to include assigned reads
   by ``star-quantification`` in ``MultiQC`` report
+- Bump storage requirements in processes ``alignment-bwa-sw`` and
+  ``alignment-bwa-aln``
 
 Fixed
 -----
