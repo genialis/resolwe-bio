@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+53.1.0 - 2023-08-15
+===================
+
+Added
+-----
 - Add Euclidean distance metric in ``find-similar`` and
   ``clustering-hierarchical-etc`` processes
 
@@ -27,8 +41,6 @@ Changed
 - Bump storage requirements in processes ``alignment-bwa-sw`` and
   ``alignment-bwa-aln``
 
-Fixed
------
 
 ===================
 53.0.0 - 2023-07-14
