@@ -438,7 +438,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.20.1"
+    version = "1.21.0"
 
     class Input:
         """Input fields to process MultiQC."""
