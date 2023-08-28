@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Report gene body coverage by ``rnaseqc-qc`` and assigned reads
+  by ``star-quantification`` for all samples in MultiQC
 
 
 ===================

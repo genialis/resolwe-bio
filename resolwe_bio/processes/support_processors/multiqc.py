@@ -69,9 +69,8 @@ def parse_rnaseqc_report(report):
     return dict(df.values)
 
 
-def create_coverage_table(sample_name, report):
+def create_coverage_table(sample_names, reports):
     """Prepare coverage metrics table."""
-    report_data = parse_rnaseqc_report(report)
     coverage_stats = [
         "Genes used in 3' bias",
         "Mean 3' bias",
@@ -90,9 +89,12 @@ def create_coverage_table(sample_name, report):
         "data": {},
     }
 
-    coverage_qc_json["data"][sample_name] = {
-        k: report_data[k] for k in coverage_stats if k in report_data
-    }
+    for sample_name, report in zip(sample_names, reports):
+        report_data = parse_rnaseqc_report(report)
+
+        coverage_qc_json["data"][sample_name] = {
+            k: report_data[k] for k in coverage_stats if k in report_data
+        }
 
     with open("rnaseqc_coverage_mqc.json", "w") as out_file:
         json.dump(coverage_qc_json, out_file)
@@ -388,11 +390,8 @@ def parse_counts_summary(report):
     return out_dict
 
 
-def update_generalstats_table(sample_name, report):
+def update_generalstats_table(sample_names, reports):
     """Update general statistics table with new information."""
-    sample_name += f" | {sample_name}"
-    report_data = parse_counts_summary(report)
-    counts_stats = list(report_data)
     counts_json = {
         "section_name": "STAR quantification",
         "plot_type": "generalstats",
@@ -400,9 +399,14 @@ def update_generalstats_table(sample_name, report):
         "data": {},
     }
 
-    counts_json["data"][sample_name] = {
-        k: report_data[k] for k in counts_stats if k in report_data
-    }
+    for sample_name, report in zip(sample_names, reports):
+        sample_name += f" | {sample_name}"
+        report_data = parse_counts_summary(report)
+        counts_stats = list(report_data)
+
+        counts_json["data"][sample_name] = {
+            k: report_data[k] for k in counts_stats if k in report_data
+        }
 
     with open("STAR quantification_mqc.json", "w") as out_file:
         json.dump(counts_json, out_file)
@@ -434,7 +438,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.20.0"
+    version = "1.20.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -510,6 +514,10 @@ class MultiQC(Process):
         rcc_reports = []
         rcc_lane_reports = []
         unsupported_data = []
+        star_quantification_samples = []
+        star_quantification_reports = []
+        rnaseqc_samples = []
+        rnaseqc_reports = []
 
         config_file = "/opt/resolwebio/assets/multiqc_config.yml"
         with open(config_file) as handle:
@@ -620,8 +628,11 @@ class MultiQC(Process):
             elif d.process.type == "data:expression:star:":
                 name = os.path.basename(d.output.counts_summary.path)
                 create_symlink(d.output.counts_summary, os.path.join(sample_dir, name))
+                star_quantification_samples.append(sample_name)
+                star_quantification_reports.append(d.output.counts_summary.path)
                 update_generalstats_table(
-                    sample_name=sample_name, report=d.output.counts_summary.path
+                    sample_names=star_quantification_samples,
+                    reports=star_quantification_reports,
                 )
 
             elif d.process.type == "data:chipseq:callpeak:macs2:":
@@ -654,11 +665,13 @@ class MultiQC(Process):
 
             elif d.process.type == "data:rnaseqc:qc:":
                 name = os.path.basename(d.output.metrics.path)
+                rnaseqc_samples.append(sample_name)
+                rnaseqc_reports.append(d.output.metrics.path)
                 create_symlink(
                     src=d.output.metrics.path, dst=os.path.join(sample_dir, name)
                 )
                 create_coverage_table(
-                    sample_name=sample_name, report=d.output.metrics.path
+                    sample_names=rnaseqc_samples, reports=rnaseqc_reports
                 )
 
             elif d.process.type == "data:expression:salmon:":
