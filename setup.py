@@ -52,7 +52,7 @@ setuptools.setup(
         "docs": [
             "daphne",
             "Sphinx~=6.1.3",
-            "sphinx_rtd_theme",
+            "sphinx-rtd-theme==1.3.0",
             "pyasn1>=0.4.8",
         ],
         "package": ["twine", "wheel"],
