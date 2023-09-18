@@ -16,11 +16,19 @@ Added
 
 Changed
 -------
-- Report gene body coverage by ``rnaseqc-qc`` and assigned reads
-  by ``star-quantification`` for all samples in MultiQC
 
 Fixed
 -----
+
+
+===================
+53.2.0 - 2023-09-18
+===================
+
+Fixed
+-----
+- Report gene body coverage by ``rnaseqc-qc`` and assigned reads
+  by ``star-quantification`` for all samples in MultiQC
 
 
 ===================
