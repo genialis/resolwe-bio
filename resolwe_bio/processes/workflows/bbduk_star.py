@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.2.0"
+    version = "1.3.0"
     entity = {
         "type": "sample",
     }
@@ -698,6 +698,7 @@ class WorkflowSTAR(Process):
             },
             name=f"Aligned subset ({inputs.reads.name})",
         )
+
         input_qorts = {
             "alignment": alignment_qorts,
             "annotation": inputs.annotation,
@@ -705,6 +706,7 @@ class WorkflowSTAR(Process):
                 "stranded": inputs.assay_type,
             },
         }
+
         if inputs.cdna_index:
             input_qorts["options"]["cdna_index"] = inputs.cdna_index
 
@@ -728,5 +730,25 @@ class WorkflowSTAR(Process):
             ],
             "advanced": {"dirs": True, "config": True},
         }
+
+        # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
+        if inputs.annotation.output.source == "ENSEMBL":
+            input_rnaseqc = {
+                "alignment": alignment,
+                "annotation": inputs.annotation,
+                "strand_detection_options": {"stranded": inputs.assay_type},
+            }
+
+            if inputs.cdna_index:
+                input_rnaseqc["strand_detection_options"][
+                    "cdna_index"
+                ] = inputs.cdna_index
+
+            rnaseqc = Data.create(
+                process=BioProcess.get_latest(slug="rnaseqc-qc"),
+                input=input_rnaseqc,
+                name=f"RNA-SeQCs QC report ({inputs.reads.name})",
+            )
+            input_multiqc["data"].append(rnaseqc)
 
         Data.create(process=BioProcess.get_latest(slug="multiqc"), input=input_multiqc)

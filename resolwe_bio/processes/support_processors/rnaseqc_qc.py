@@ -164,7 +164,7 @@ class QcRnaseqc(Process):
     slug = "rnaseqc-qc"
     name = "RNA-SeQC"
     process_type = "data:rnaseqc:qc"
-    version = "1.1.0"
+    version = "2.0.0"
     category = "QC"
     data_name = "{{ alignment|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -259,8 +259,8 @@ class QcRnaseqc(Process):
                 default="non_specific",
                 choices=[
                     ("non_specific", "Strand non-specific"),
-                    ("RF", "Strand-specific forward then reverse"),
-                    ("FR", "Strand-specific forward then reverse"),
+                    ("reverse", "Strand-specific reverse then forward"),
+                    ("forward", "Strand-specific forward then reverse"),
                     ("auto", "Detect automatically"),
                 ],
             )
@@ -338,12 +338,12 @@ class QcRnaseqc(Process):
                     )
 
             if (
-                inputs.strand_detection_options.stranded == "FR"
+                inputs.strand_detection_options.stranded == "forward"
                 or lib_strand == "forward"
             ):
                 args.extend(["--stranded", "FR"])
             elif (
-                inputs.strand_detection_options.stranded == "RF"
+                inputs.strand_detection_options.stranded == "reverse"
                 or lib_strand == "reverse"
             ):
                 args.extend(["--stranded", "RF"])

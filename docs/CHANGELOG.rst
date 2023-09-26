@@ -32,12 +32,15 @@ Changed
   path and returns its value
 - Update field paths for sample annotation in ``geo-import`` process
 - Update species annotation in ``alignment-star`` process
+- Add ``rnaseqc-qc`` to ``workflow-bbduk-star-featurecounts-qc``,
+  ``workflow-bbduk-star-qc`` and ``workflow-bbduk-salmon-qc``
+- Add ``qorts-qc`` to ``workflow-bbduk-star-featurecounts-qc``
 
 Fixed
 -----
 - Fix Cut&Run workflow to scale the correct input BAM file using the
   spike-in scaling factor
-
+- Fixed stranded input options in ``rnaseqc-qc`` process
 
 ===================
 53.2.0 - 2023-09-18

@@ -319,22 +319,22 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         input_folder = Path("test_star") / "input"
         output_folder = Path("test_featurecounts") / "outputs"
         with self.preparation_stage():
-            reads = self.prepare_reads(["hs sim_reads_single.fastq.gz"])
+            reads = self.prepare_reads(["chr1_single.fastq.gz"])
             paired_reads = self.prepare_paired_reads(
-                ["hs sim_reads1.fastq.gz"], ["hs sim_reads2.fastq.gz"]
+                ["chr1_paired_R1.fastq.gz"], ["chr1_paired_R2.fastq.gz"]
             )
             paired_lanes = self.prepare_paired_reads(
                 mate1=[
-                    input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz",
-                    "hs sim_reads1.fastq.gz",
+                    input_folder / "chr1_paired_R1_mate1.fastq.gz",
+                    input_folder / "chr1_paired_R1_mate2.fastq.gz",
                 ],
                 mate2=[
-                    input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz",
-                    "hs sim_reads2.fastq.gz",
+                    input_folder / "chr1_paired_R2_mate1.fastq.gz",
+                    input_folder / "chr1_paired_R2_mate2.fastq.gz",
                 ],
             )
             annotation = self.prepare_annotation(
-                fn="hs annotation.gtf.gz",
+                fn="chr1_region.gtf.gz",
                 source="ENSEMBL",
                 species="Homo sapiens",
                 build="ens90",
@@ -342,7 +342,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             star_index_fasta = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "hs genome.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens90",
                 },
@@ -411,13 +411,11 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts, "rc", "feature_counts_rc_single.tab.gz", compression="gzip"
         )
-        self.assertEqual(
-            feature_counts.name, "Quantified (hs sim_reads_single.fastq.gz)"
-        )
+        self.assertEqual(feature_counts.name, "Quantified (chr1_single.fastq.gz)")
 
-        globin = Data.objects.filter(process__slug="alignment-star").last()
-        self.assertFields(globin, "build", "globin")
-        self.assertEqual(globin.name, "Globin aligned (hs sim_reads_single.fastq.gz)")
+        downsampled = Data.objects.filter(process__slug="alignment-star").last()
+        self.assertFields(downsampled, "build", "ens90")
+        self.assertEqual(downsampled.name, "Aligned subset (chr1_single.fastq.gz)")
 
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
@@ -428,13 +426,16 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             self.assertStatus(data, Data.STATUS_DONE)
         feature_counts = Data.objects.filter(process__slug="feature_counts").last()
         self.assertFile(
-            feature_counts, "rc", "feature_counts_rc_paired.tab.gz", compression="gzip"
+            feature_counts,
+            "rc",
+            "feature_counts_rc_paired_2.tab.gz",
+            compression="gzip",
         )
-        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
+        self.assertEqual(feature_counts.name, "Quantified (chr1_paired_R1.fastq.gz)")
 
-        globin = Data.objects.filter(process__slug="alignment-star").last()
-        self.assertFields(globin, "build", "globin")
-        self.assertEqual(globin.name, "Globin aligned (hs sim_reads1.fastq.gz)")
+        downsampled = Data.objects.filter(process__slug="alignment-star").last()
+        self.assertFields(downsampled, "build", "ens90")
+        self.assertEqual(downsampled.name, "Aligned subset (chr1_paired_R1.fastq.gz)")
 
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
@@ -449,10 +450,10 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts,
             "rc",
-            "feature_counts_rc_paired_wo_adapter_trim.tab.gz",
+            "feature_counts_rc_paired_wo_adapter_trim_2.tab.gz",
             compression="gzip",
         )
-        self.assertEqual(feature_counts.name, "Quantified (hs sim_reads1.fastq.gz)")
+        self.assertEqual(feature_counts.name, "Quantified (chr1_paired_R1.fastq.gz)")
 
         inputs = {
             "reads": paired_lanes.id,
@@ -472,13 +473,13 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             feature_counts,
             "exp_set",
-            "hs_paired_R1_workflow_bbduk_star_htseq_preprocessed_expressions.txt.gz",
+            "chr1_paired_R1_workflow_bbduk_star_htseq_preprocessed_expressions.txt.gz",
             compression="gzip",
         )
         self.assertFile(
             feature_counts,
             "per_lane_rc",
-            output_folder / "feature_counts_per_lane_rc.txt.gz",
+            output_folder / "per_lane_rc.txt.gz",
             compression="gzip",
         )
 
@@ -614,15 +615,12 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-bbduk-salmon-qc")
     def test_salmon_workflow(self):
         with self.preparation_stage():
-            reads = self.prepare_reads(
-                ["salmon_workflow/input/hs sim_reads_single.fastq.gz"]
-            )
+            reads = self.prepare_reads(["chr1_single.fastq.gz"])
             paired_reads = self.prepare_paired_reads(
-                ["salmon_workflow/input/hs sim_reads1.fastq.gz"],
-                ["salmon_workflow/input/hs sim_reads2.fastq.gz"],
+                ["chr1_paired_R1.fastq.gz"], ["chr1_paired_R2.fastq.gz"]
             )
             annotation = self.prepare_annotation(
-                fn="salmon_workflow/input/hs annotation.gtf.gz",
+                fn="chr1_region_salmon.gtf.gz",
                 source="ENSEMBL",
                 species="Homo sapiens",
                 build="ens92",
@@ -630,7 +628,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             star_index_fasta = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "salmon_workflow/input/hs genome.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens92",
                 },
@@ -645,7 +643,7 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             cdna = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "salmon_workflow/input/hs cdna.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens92",
                 },
@@ -904,23 +902,25 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
     @override_settings(FLOW_PROCESS_MAX_CORES=4)
     @tag_process("workflow-bbduk-star-qc")
     def test_bbduk_star_workflow(self):
-        input_folder = Path("test_star") / "input"
         output_folder = Path("test_star") / "output"
+        input_folder = Path("test_star") / "input"
         with self.preparation_stage():
-            reads = self.prepare_reads(["hs sim_reads_single.fastq.gz"])
+            reads = self.prepare_reads(["chr1_single.fastq.gz"])
             paired_reads = self.prepare_paired_reads(
-                ["hs sim_reads1.fastq.gz"], ["hs sim_reads2.fastq.gz"]
+                ["chr1_paired_R1.fastq.gz"], ["chr1_paired_R2.fastq.gz"]
             )
             paired_lanes = self.prepare_paired_reads(
                 mate1=[
-                    input_folder / "hs_paired_R1 workflow_bbduk_star_htseq.fastq.gz",
+                    input_folder / "chr1_paired_R1_mate1.fastq.gz",
+                    input_folder / "chr1_paired_R1_mate2.fastq.gz",
                 ],
                 mate2=[
-                    input_folder / "hs_paired_R2 workflow_bbduk_star_htseq.fastq.gz",
+                    input_folder / "chr1_paired_R2_mate1.fastq.gz",
+                    input_folder / "chr1_paired_R2_mate2.fastq.gz",
                 ],
             )
             annotation = self.prepare_annotation(
-                fn="hs annotation.gtf.gz",
+                fn="chr1_region.gtf.gz",
                 source="ENSEMBL",
                 species="Homo sapiens",
                 build="ens90",
@@ -928,7 +928,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
             star_index_fasta = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "hs genome.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens90",
                 },
@@ -936,7 +936,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
             cdna = self.run_process(
                 "upload-fasta-nucl",
                 {
-                    "src": "salmon_workflow/input/hs cdna.fasta.gz",
+                    "src": "chr1_region.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "ens92",
                 },
@@ -1014,7 +1014,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             star_quant, "rc", "feature_counts_rc_single.tab.gz", compression="gzip"
         )
-        self.assertEqual(star_quant.name, "Quantified (hs sim_reads_single.fastq.gz)")
+        self.assertEqual(star_quant.name, "Quantified (chr1_single.fastq.gz)")
 
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
@@ -1027,7 +1027,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             star_quant, "rc", "feature_counts_rc_paired.tab.gz", compression="gzip"
         )
-        self.assertEqual(star_quant.name, "Quantified (hs sim_reads1.fastq.gz)")
+        self.assertEqual(star_quant.name, "Quantified (chr1_paired_R1.fastq.gz)")
 
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
@@ -1045,7 +1045,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
             "feature_counts_rc_paired_wo_adapter_trim.tab.gz",
             compression="gzip",
         )
-        self.assertEqual(star_quant.name, "Quantified (hs sim_reads1.fastq.gz)")
+        self.assertEqual(star_quant.name, "Quantified (chr1_paired_R1.fastq.gz)")
 
         inputs = {
             "reads": paired_lanes.id,
@@ -1069,7 +1069,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
-        inputs["assay_type"] = "auto"
+        inputs["assay_type"] = "non_specific"
         inputs["cdna_index"] = salmon_index.id
         inputs.update({"alignment": {"two_pass_mapping": {"two_pass_mode": False}}})
         self.run_process("workflow-bbduk-star-qc", inputs)
@@ -1079,7 +1079,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFile(
             star_quant,
             "exp_set",
-            output_folder / "workflow_expressions.txt.gz",
+            output_folder / "workflow_expressions_2.txt.gz",
             compression="gzip",
         )
         multiqc = Data.objects.filter(process__slug="multiqc").last()

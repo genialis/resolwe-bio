@@ -406,12 +406,12 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         with self.preparation_stage():
             reads = self.run_processor(
                 "upload-fastq-single",
-                {"src": ["chr1 single.fastq.gz"]},
+                {"src": ["chr1_single.fastq.gz"]},
             )
 
             paired_reads = self.prepare_paired_reads(
-                ["chr1 paired_R1.fastq.gz"],
-                ["chr1 paired_R2.fastq.gz"],
+                ["chr1_paired_R1.fastq.gz"],
+                ["chr1_paired_R2.fastq.gz"],
             )
 
             filtered_reads = self.run_process(

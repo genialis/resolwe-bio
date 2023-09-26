@@ -46,7 +46,7 @@ class WorkflowBBDukStarFcQC(Process):
     entity = {
         "type": "sample",
     }
-    version = "6.0.0"
+    version = "6.1.0"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -723,6 +723,32 @@ class WorkflowBBDukStarFcQC(Process):
             name=f"Alignment summary ({inputs.reads.name})",
         )
 
+        alignment_qorts = Data.create(
+            process=BioProcess.get_latest(slug="alignment-star"),
+            input={
+                "reads": downsampling,
+                "genome": inputs.genome,
+            },
+            name=f"Aligned subset ({inputs.reads.name})",
+        )
+
+        input_qorts = {
+            "alignment": alignment_qorts,
+            "annotation": inputs.annotation,
+            "options": {
+                "stranded": inputs.assay_type,
+            },
+        }
+
+        if inputs.cdna_index:
+            input_qorts["options"]["cdna_index"] = inputs.cdna_index
+
+        qorts = Data.create(
+            process=BioProcess.get_latest(slug="qorts-qc"),
+            input=input_qorts,
+            name=f"QoRTs QC report ({inputs.reads.name})",
+        )
+
         input_multiqc = {
             "data": [
                 inputs.reads,
@@ -733,8 +759,29 @@ class WorkflowBBDukStarFcQC(Process):
                 alignment_qc_rrna,
                 alignment_qc_globin,
                 idxstats,
+                qorts,
             ],
             "advanced": {"dirs": True, "config": True},
         }
+
+        # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
+        if inputs.annotation.output.source == "ENSEMBL":
+            input_rnaseqc = {
+                "alignment": alignment,
+                "annotation": inputs.annotation,
+                "strand_detection_options": {"stranded": inputs.assay_type},
+            }
+
+            if inputs.cdna_index:
+                input_rnaseqc["strand_detection_options"][
+                    "cdna_index"
+                ] = inputs.cdna_index
+
+            rnaseqc = Data.create(
+                process=BioProcess.get_latest(slug="rnaseqc-qc"),
+                input=input_rnaseqc,
+                name=f"RNA-SeQCs QC report ({inputs.reads.name})",
+            )
+            input_multiqc["data"].append(rnaseqc)
 
         Data.create(process=BioProcess.get_latest(slug="multiqc"), input=input_multiqc)
