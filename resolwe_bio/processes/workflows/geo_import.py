@@ -45,11 +45,11 @@ def create_metadata(gse, run_info):
     return metadata.set_index(["Sample name"], drop=False)
 
 
-def construct_descriptor(metadata, sample_name):
-    """Construct a descriptor from sample metadata.
+def construct_annotation(metadata, sample_name):
+    """Construct sample annotations from metadata.
 
-    Dictionary with GEO metadata that matches the sample descriptor
-    schema is created. Atributes under general that have no
+    Dictionary with GEO metadata that matches the sample annotation
+    schema is created. Attributes under general that have no
     predetermined choices are matched with our naming if they
     exist in the metadata. Other fields with choices and the
     experimental section are filled separately.
@@ -57,9 +57,8 @@ def construct_descriptor(metadata, sample_name):
 
     sample_metadata = metadata.loc[sample_name]
     sample_metadata = sample_metadata.fillna("")
-    descriptor = {"general": {}, "experiment": {}}
-    # TODO Replace fixed values with calls to descriptor schema once available.
-    # Also organ / tissue should be added then.
+    annotation = {}
+
     species = [
         "Caenorhabditis elegans",
         "Cricetulus griseus",
@@ -82,58 +81,92 @@ def construct_descriptor(metadata, sample_name):
         "protein",
         "other",
     ]
+
     assay_types = [
         "rna-seq",
         "chip-seq",
         "atac-seq",
+        "chipmentation",
+        "dna-seq",
+        "nanostring",
+        "microarray",
+        "edge-seq",
         "other",
     ]
+
     platform_types = [
         "nextseq_500",
+        "nextseq_550",
+        "nextseq_550_dx",
+        "nextseq_1000",
+        "nextseq_2000",
         "hiseq_2500",
         "hiseq_2000",
         "novaseq_6000",
+        "novaseq_6000_dx",
+        "novaseq_x",
+        "iseq_100",
+        "miniseq",
+        "miseq",
+        "miseq_dx",
         "other",
     ]
-    general_attributes = {
-        "description": "description",
-        "cell type": "cell_type",
-        "source_name_ch1": "biosample_source",
-        "growth_protocol_ch1": "growth_protocol",
-        "treatment_protocol_ch1": "treatment_protocol",
-    }
+
     if (
         "organism_ch1" in metadata.columns
         and sample_metadata["organism_ch1"] in species
     ):
-        descriptor["general"]["species"] = sample_metadata["organism_ch1"]
+        annotation["general.species"] = sample_metadata["organism_ch1"]
 
-    if "cell line" in metadata.columns:
-        descriptor["general"]["biosample_type"] = "cell_line"
-        descriptor["general"]["cell_line"] = sample_metadata["cell line"]
-    elif "tissue" in metadata.columns:
-        descriptor["general"]["biosample_type"] = "tissue"
     if "contact_name" in metadata.columns:
-        descriptor["general"]["annotator"] = sample_metadata["contact_name"].replace(
+        annotation["general.annotator"] = sample_metadata["contact_name"].replace(
             ",,", " "
         )
 
-    for geo_attribute, attribute in general_attributes.items():
-        if geo_attribute in metadata.columns:
-            descriptor["general"][attribute] = sample_metadata[geo_attribute]
+    if "description" in metadata.columns:
+        annotation["general.description"] = sample_metadata["description"]
+
+    if "cell line" in metadata.columns:
+        annotation["biospecimen_information.biosample_type"] = "cell_line"
+        annotation["cell_line_information.cell_line_name"] = sample_metadata[
+            "cell line"
+        ]
+    elif "tissue" in metadata.columns:
+        annotation["biospecimen_information.biosample_type"] = "tissue"
+
+    if "source_name_ch1" in metadata.columns:
+        annotation["biospecimen_information.source"] = sample_metadata[
+            "source_name_ch1"
+        ]
+
+    if "cell type" in metadata.columns:
+        annotation["cell_line_information.cell_type"] = sample_metadata["cell type"]
+
+    if "treatment_protocol_ch1" in metadata.columns:
+        annotation["cell_line_information.treatment_protocol"] = sample_metadata[
+            "treatment_protocol_ch1"
+        ]
 
     if "library_strategy" in metadata.columns:
         formated_assay = sample_metadata["library_strategy"].lower().replace(" ", "-")
         if formated_assay in assay_types:
-            descriptor["experiment"]["assay_type"] = formated_assay
+            annotation["sample_details.assay_type"] = formated_assay
+
     if "extract_protocol_ch1" in metadata.columns:
-        descriptor["experiment"]["extract_protocol"] = sample_metadata[
+        annotation["sample_details.extract_protocol"] = sample_metadata[
             "extract_protocol_ch1"
         ]
+
+    if "growth_protocol_ch1" in metadata.columns:
+        annotation["sample_details.growth_protocol"] = sample_metadata[
+            "growth_protocol_ch1"
+        ]
+
     if "molecule_ch1" in metadata.columns:
         formated_molecule = sample_metadata["molecule_ch1"].lower().replace(" ", "_")
         if formated_molecule in molecule_choices:
-            descriptor["experiment"]["molecule"] = formated_molecule
+            annotation["sample_details.library_type"] = formated_molecule
+
     if "instrument_model" in metadata.columns:
         formated_platform = (
             sample_metadata["instrument_model"]
@@ -142,8 +175,9 @@ def construct_descriptor(metadata, sample_name):
             .replace(" ", "_")
         )
         if formated_platform in platform_types:
-            descriptor["experiment"]["platform"] = formated_platform
-    return descriptor
+            annotation["sample_details.platform"] = formated_platform
+
+    return annotation
 
 
 class GeoImport(Process):
@@ -189,7 +223,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.6.2"
+    version = "2.7.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -480,8 +514,8 @@ class GeoImport(Process):
             objects = Data.filter(entity__name=entity_name)
             if len(objects) > 1:
                 self.warning(
-                    f"Multiple samples with entity name {entity_name} are present, descriptor will be added only "
+                    f"Multiple samples with entity name {entity_name} are present, annotation will be added only "
                     "to the last one"
                 )
             obj = objects[-1]
-            obj.entity.descriptor = construct_descriptor(metadata, obj.entity_name)
+            obj.entity.annotations = construct_annotation(metadata, obj.entity_name)

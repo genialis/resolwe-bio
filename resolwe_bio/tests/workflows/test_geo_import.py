@@ -3,12 +3,119 @@ from pathlib import Path
 from django.test import LiveServerTestCase
 
 from resolwe.flow.models import Collection, Data
+from resolwe.flow.models.annotations import (
+    AnnotationField,
+    AnnotationGroup,
+    AnnotationType,
+)
 from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
+    def setUp(self):
+        """Initialize annotation groups and fields."""
+        super().setUp()
+
+        general_group = AnnotationGroup.objects.get(name="general")
+
+        AnnotationField.objects.create(
+            name="annotator",
+            sort_order=1,
+            group=general_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="description",
+            sort_order=1,
+            group=general_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        biospecimen_group = AnnotationGroup.objects.create(
+            name="biospecimen_information", sort_order=1
+        )
+
+        AnnotationField.objects.create(
+            name="biosample_type",
+            sort_order=1,
+            group=biospecimen_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="source",
+            sort_order=1,
+            group=biospecimen_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        cell_line_group = AnnotationGroup.objects.create(
+            name="cell_line_information", sort_order=1
+        )
+
+        AnnotationField.objects.create(
+            name="cell_line_name",
+            sort_order=1,
+            group=cell_line_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="cell_type",
+            sort_order=1,
+            group=cell_line_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="treatment_protocol",
+            sort_order=1,
+            group=cell_line_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        sample_details_group = AnnotationGroup.objects.create(
+            name="sample_details", sort_order=1
+        )
+
+        AnnotationField.objects.create(
+            name="assay_type",
+            sort_order=1,
+            group=sample_details_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="extract_protocol",
+            sort_order=1,
+            group=sample_details_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="growth_protocol",
+            sort_order=1,
+            group=sample_details_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="library_type",
+            sort_order=1,
+            group=sample_details_group,
+            type=AnnotationType.STRING.value,
+        )
+
+        AnnotationField.objects.create(
+            name="platform",
+            sort_order=1,
+            group=sample_details_group,
+            type=AnnotationType.STRING.value,
+        )
+
     @with_resolwe_host
     @tag_process("geo-import")
     def test_dss_geo(self):
@@ -54,32 +161,42 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             ],
         )
         sra = Data.objects.filter(process__slug="import-sra-single").last()
-        descriptor = {
-            "general": {
-                "species": "Homo sapiens",
-                "biosample_type": "cell_line",
-                "cell_line": "HepG2",
-                "annotator": "Lin He",
-                "description": "ING5 knockdown",
-                "biosample_source": "HepG2 cells",
-                "growth_protocol": "HepG2 cells were maintained according to the ATCC’s recommendation.",
-                "treatment_protocol": (
-                    "HepG2 cells were transfected with vector or FLAG-JFK or treated with control siRNA or ING5 siRNA."
-                ),
-            },
-            "experiment": {
-                "assay_type": "rna-seq",
-                "extract_protocol": (
-                    "Total mRNAs were isolated with Trizol reagents (Invitrogen) for cDNA synthesis, library "
-                    "construction, and sequencing using HiSeq 2500. RNA libraries were prepared for sequencing using "
-                    "standard Illumina protocols."
-                ),
-                "molecule": "total_rna",
-                "platform": "hiseq_2000",
-            },
-        }
+        sample = sra.entity
 
-        self.assertEqual(sra.entity.descriptor, descriptor)
+        self.assertEqual(sample.annotations.count(), 12)
+
+        self.assertAnnotation(sample, "general.species", "Homo sapiens")
+
+        self.assertAnnotation(sample, "general.annotator", "Lin He")
+        self.assertAnnotation(sample, "general.description", "ING5 knockdown")
+
+        self.assertAnnotation(
+            sample, "biospecimen_information.biosample_type", "cell_line"
+        )
+        self.assertAnnotation(sample, "biospecimen_information.source", "HepG2 cells")
+
+        self.assertAnnotation(sample, "cell_line_information.cell_line_name", "HepG2")
+        self.assertAnnotation(
+            sample,
+            "cell_line_information.treatment_protocol",
+            (
+                "HepG2 cells were transfected with vector or FLAG-JFK or treated with control "
+                "siRNA or ING5 siRNA."
+            ),
+        )
+
+        self.assertAnnotation(sample, "sample_details.assay_type", "rna-seq")
+        self.assertAnnotation(
+            sample,
+            "sample_details.extract_protocol",
+            (
+                "Total mRNAs were isolated with Trizol reagents (Invitrogen) for cDNA synthesis, "
+                "library construction, and sequencing using HiSeq 2500. RNA libraries were "
+                "prepared for sequencing using standard Illumina protocols."
+            ),
+        )
+        self.assertAnnotation(sample, "sample_details.library_type", "total_rna")
+        self.assertAnnotation(sample, "sample_details.platform", "hiseq_2000")
 
         # Non-existant GSE series.
         wrong = self.run_process(
@@ -205,28 +322,51 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
                 },
             ],
         )
-        descriptor = {
-            "general": {
-                "species": "Homo sapiens",
-                "annotator": "Matthew,T,Weirauch",
-                "cell_line": "GM12878 (B-Lymphocyte) LCL",
-                "description": "ChIP_EBNA2_GM12878_rep2-E00457",
-                "biosample_type": "cell_line",
-                "growth_protocol": "Cells were cultured in 10% FBS supplemented RPMI 1640 medium for 2 weeks.",
-                "biosample_source": "GM12878 (B-Lymphocyte) LCL",
-                "treatment_protocol": "",
-            },
-            "experiment": {
-                "molecule": "genomic_dna",
-                "assay_type": "chip-seq",
-                "extract_protocol": (
-                    "Cells were crosslinked and nuclei were sonicated as described previously (Lu et al. 2015). "
-                    "Libraries were prepared via ChIPmentation (Schmidl et al. 2015)."
-                ),
-            },
-        }
 
-        self.assertEqual(sra.entity.descriptor, descriptor)
+        sample = sra.entity
+
+        self.assertEqual(sample.annotations.count(), 11)
+
+        # general
+        self.assertAnnotation(sample, "general.species", "Homo sapiens")
+        self.assertAnnotation(sample, "general.annotator", "Matthew,T,Weirauch")
+        self.assertAnnotation(
+            sample, "general.description", "ChIP_EBNA2_GM12878_rep2-E00457"
+        )
+
+        # biospecimen_information
+        self.assertAnnotation(
+            sample, "biospecimen_information.biosample_type", "cell_line"
+        )
+        self.assertAnnotation(
+            sample, "biospecimen_information.source", "GM12878 (B-Lymphocyte) LCL"
+        )
+
+        # cell_line_information
+        self.assertAnnotation(
+            sample, "cell_line_information.cell_line_name", "GM12878 (B-Lymphocyte) LCL"
+        )
+        self.assertAnnotation(sample, "cell_line_information.treatment_protocol", "")
+
+        # sample_details
+        self.assertAnnotation(sample, "sample_details.assay_type", "chip-seq")
+        self.assertAnnotation(
+            sample,
+            "sample_details.extract_protocol",
+            (
+                "Cells were crosslinked and nuclei were sonicated as described previously "
+                "(Lu et al. 2015). Libraries were prepared via ChIPmentation (Schmidl et al. "
+                "2015)."
+            ),
+        )
+        self.assertAnnotation(
+            sample,
+            "sample_details.growth_protocol",
+            (
+                "Cells were cultured in 10% FBS supplemented RPMI 1640 medium for 2 weeks."
+            ),
+        )
+        self.assertAnnotation(sample, "sample_details.library_type", "genomic_dna")
 
     @with_resolwe_host
     @tag_process("geo-import")
@@ -275,20 +415,31 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
             ],
         )
 
-        sample_descriptor = {
-            "general": {
-                "annotator": "ArrayExpress EBI",
-                "description": "Provider: EMBL_Heidelberg",
-                "growth_protocol": "grow | The E. coli K-12 MG1655 bacterial strains used in this "
-                "work are the following: E. coli MG1655 (F- lambda- ilvG- rfb-50 rph-1). "
-                "Luria-Bertani (0.5% NaCl) broth and agar (15 g/liter) were used for routine "
-                "growth.",
-                "biosample_source": "E_coli_K12_MG1655_RNAseq_LB_Transition_to_stationary",
-            },
-            "experiment": {
-                "molecule": "total_rna",
-                "assay_type": "rna-seq",
-                "extract_protocol": "nucleic_acid_extraction | To prepare cells for RNA "
+        sample = sra.entity
+
+        self.assertEqual(sample.annotations.count(), 7)
+
+        # general
+        self.assertAnnotation(sample, "general.annotator", "ArrayExpress EBI")
+        self.assertAnnotation(
+            sample, "general.description", "Provider: EMBL_Heidelberg"
+        )
+
+        # biospecimen_information
+        self.assertAnnotation(
+            sample,
+            "biospecimen_information.source",
+            "E_coli_K12_MG1655_RNAseq_LB_Transition_to_stationary",
+        )
+
+        # sample_details
+        self.assertAnnotation(sample, "sample_details.assay_type", "rna-seq")
+
+        self.assertAnnotation(
+            sample,
+            "sample_details.extract_protocol",
+            (
+                "nucleic_acid_extraction | To prepare cells for RNA "
                 "extraction, 100 ml of fresh LB was inoculated 1:200 from an overnight culture "
                 "in a 250 ml flask and incubated with shaking at 180 r.p.m. in a New Brunswick "
                 "C76 waterbath at 37C. Two biological replicates were performed for each strain "
@@ -303,8 +454,17 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
                 "The concentration was then determined using a Nanodrop ND-1000 machine (NanoDrop "
                 "Technologies), and RNA quality was tested by visualization on agarose gels and "
                 "by Agilent 2100 Bioanalyser (Agilent Technologies). sequencing | Standard "
-                "Illumina protocol for cDNA sequencing",
-            },
-        }
-
-        self.assertEqual(sra.entity.descriptor, sample_descriptor)
+                "Illumina protocol for cDNA sequencing"
+            ),
+        )
+        self.assertAnnotation(
+            sample,
+            "sample_details.growth_protocol",
+            (
+                "grow | The E. coli K-12 MG1655 bacterial strains used in this "
+                "work are the following: E. coli MG1655 (F- lambda- ilvG- rfb-50 rph-1). "
+                "Luria-Bertani (0.5% NaCl) broth and agar (15 g/liter) were used for routine "
+                "growth."
+            ),
+        )
+        self.assertAnnotation(sample, "sample_details.library_type", "total_rna")
