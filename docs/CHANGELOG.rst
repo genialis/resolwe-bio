@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Add ``sample_annotation`` Jinja expressions filter that accepts an annotation
+  path and returns its value
 
 Fixed
 -----

@@ -1,10 +1,17 @@
 from jinja2 import Environment, FunctionLoader
 
 from resolwe.flow.models import Collection, Data, DescriptorSchema, Process, Relation
+from resolwe.flow.models.annotations import (
+    AnnotationField,
+    AnnotationGroup,
+    AnnotationType,
+    AnnotationValue,
+)
 from resolwe.flow.models.entity import RelationPartition, RelationType
 from resolwe.test import TestCase
 
 from resolwe_bio.expression_filters.relation import background_pairs, replicate_groups
+from resolwe_bio.expression_filters.sample import sample_annotation
 
 
 class TestReplicateGroupFilter(TestCase):
@@ -133,6 +140,55 @@ class TestReplicateGroupFilter(TestCase):
 
         with self.assertRaises(ValueError):
             replicate_groups([{"__id": d.id}])
+
+
+class TestSampleAnnotationsFilter(TestCase):
+    def test_sample_annotation(self):
+        proc = Process.objects.create(
+            type="data:test:process:",
+            slug="test-process",
+            contributor=self.contributor,
+            entity_type="sample",
+            entity_descriptor_schema="sample",
+        )
+        DescriptorSchema.objects.create(
+            slug="sample", version="1.0.0", contributor=self.contributor
+        )
+
+        d = Data.objects.create(
+            name="Data",
+            contributor=self.contributor,
+            process=proc,
+            status=Data.STATUS_DONE,
+        )
+
+        entity = d.entity
+        group = AnnotationGroup.objects.create(name="group", sort_order=2)
+        field = AnnotationField.objects.create(
+            name="field", sort_order=2, group=group, type=AnnotationType.STRING.value
+        )
+        AnnotationValue.objects.create(entity=entity, field=field, value="value")
+
+        def load_templates(template_name):
+            if template_name == "sample_annotation":
+                return "{{ some_data|sample_annotation('group.field')}}"
+
+        env = Environment(loader=FunctionLoader(load_templates))
+        env.filters["sample_annotation"] = sample_annotation
+        sample_annotation_template = env.get_template("sample_annotation")
+
+        result = sample_annotation_template.render(
+            some_data={"__id": d.id, "__type": d.process.type}
+        )
+        self.assertEqual(result, "value")
+
+        # Query for non-existing annotation must return None.
+        group.name = "new_group"
+        group.save()
+        result = sample_annotation_template.render(
+            some_data={"__id": d.id, "__type": d.process.type}
+        )
+        self.assertEqual(result, "None")
 
 
 class TestBackgroundPairsFilter(TestCase):
