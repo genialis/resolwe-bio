@@ -284,8 +284,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             output_folder / "hs_single_stats.txt",
             file_filter=filter_star_report,
         )
+
         sample = Sample.objects.get(data=aligned_reads)
-        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
+        self.assertAnnotation(sample, "general.species", "Homo sapiens")
 
         inputs["genome"] = star_index_wo_annot.id
         inputs["annotation"] = annotation.id

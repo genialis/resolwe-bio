@@ -28,9 +28,8 @@ SPECIES = [
     "Homo sapiens",
     "Macaca mulatta",
     "Mus musculus",
-    "Odocoileus virginianus texanus",
     "Rattus norvegicus",
-    "Solanum tuberosum",
+    "other",
 ]
 
 
@@ -59,7 +58,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.0.1"
+    version = "5.1.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -422,23 +421,18 @@ class AlignmentStar(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
-        try:
-            if (
-                inputs.reads.entity.descriptor["general"]["species"]
-                != inputs.genome.output.species
-            ):
-                self.warning(
-                    f"Species of reads ({inputs.reads.entity.descriptor['general']['species']}) "
-                    f"and genome ({inputs.genome.output.species}) do not match."
-                )
-        except KeyError:
-            if inputs.genome.output.species in SPECIES:
-                self.update_entity_descriptor(
-                    {"general.species": inputs.genome.output.species}
-                )
-                self.info(
-                    "Sample species was automatically annotated to match the genome."
-                )
+        reads_species = inputs.reads.entity.annotations["general.species"]
+        if reads_species is not None and reads_species != inputs.genome.output.species:
+            self.warning(
+                f"Species of reads ({inputs.reads.entity.annotations['general.species']}) "
+                f"and genome ({inputs.genome.output.species}) do not match."
+            )
+
+        elif inputs.genome.output.species in SPECIES and reads_species is None:
+            inputs.reads.entity.annotations[
+                "general.species"
+            ] = inputs.genome.output.species
+            self.info("Sample species was automatically annotated to match the genome.")
 
         mate1_name = get_fastq_name(Path(inputs.reads.output.fastq[0].path))
         mate_1 = [fastq.path for fastq in inputs.reads.output.fastq]
