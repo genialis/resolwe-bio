@@ -7,6 +7,11 @@ from django.core.management import call_command
 from django.test import LiveServerTestCase
 
 from resolwe.flow.models import Collection
+from resolwe.flow.models.annotations import (
+    AnnotationField,
+    AnnotationGroup,
+    AnnotationType,
+)
 from resolwe.test import ProcessTestCase
 
 from resolwe_bio.models import Sample
@@ -63,9 +68,29 @@ class BioProcessTestCase(ProcessTestCase):
     """
 
     def setUp(self):
-        """Initialize test files path."""
+        """Initialize test files path and species annotation."""
         super(BioProcessTestCase, self).setUp()
         self.files_path = TEST_FILES_DIR
+
+        general_group = AnnotationGroup.objects.create(name="general", sort_order=1)
+        AnnotationField.objects.create(
+            name="species",
+            sort_order=1,
+            group=general_group,
+            type=AnnotationType.STRING.value,
+            vocabulary={
+                "Caenorhabditis elegans": "Caenorhabditis elegans",
+                "Cricetulus griseus": "Cricetulus griseus",
+                "Dictyostelium discoideum": "Dictyostelium discoideum",
+                "Dictyostelium purpureum": "Dictyostelium purpureum",
+                "Drosophila melanogaster": "Drosophila melanogaster",
+                "Homo sapiens": "Homo sapiens",
+                "Macaca mulatta": "Macaca mulatta",
+                "Mus musculus": "Mus musculus",
+                "Rattus norvegicus": "Rattus norvegicus",
+                "other": "Other",
+            },
+        )
 
     def prepare_reads(self, fn=["reads.fastq.gz"]):
         """Prepare NGS reads FASTQ."""
