@@ -76,9 +76,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
         sample = Sample.objects.get(data=alignment_paired)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
         alignment_use_se = self.run_process(
             "alignment-bowtie",
@@ -154,9 +152,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             paired_end, "stats", output_folder / "bowtie2_paired_end_report.txt"
         )
         sample = Sample.objects.get(data=paired_end)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
         inputs["PE_options"] = {"use_se": True}
         paired_end_se_mode = self.run_process("alignment-bowtie2", inputs)
@@ -405,10 +401,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_aln, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_aln, "build", "dd-05-2009")
+
         sample = Sample.objects.get(data=paired_end_aln)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
         single_end_sw = self.run_process(
             "alignment-bwa-sw", {"genome": bwa_index.id, "reads": reads.id}
@@ -429,10 +424,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_sw, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_sw, "build", "dd-05-2009")
+
         sample = Sample.objects.get(data=paired_end_sw)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
         single_end_mem = self.run_process(
             "alignment-bwa-mem", {"genome": bwa_index.id, "reads": reads.id}
@@ -456,10 +450,9 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_mem, "build", "dd-05-2009")
+
         sample = Sample.objects.get(data=paired_end_mem)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
     @tag_process("bwamem2-index", "alignment-bwa-mem2")
     def test_bwa2(self):
@@ -510,9 +503,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_mem, "build", "dd-05-2009")
         sample = Sample.objects.get(data=paired_end_mem)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
     @tag_process("upload-bwamem2-index", "alignment-bwa-mem2")
     def test_bwa2_upload(self):
@@ -566,9 +557,7 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(paired_end_mem, "species", "Dictyostelium discoideum")
         self.assertFields(paired_end_mem, "build", "dd-05-2009")
         sample = Sample.objects.get(data=paired_end_mem)
-        self.assertEqual(
-            sample.descriptor["general"]["species"], "Dictyostelium discoideum"
-        )
+        self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
     @tag_process("hisat2-index", "alignment-hisat2")
     def test_hisat2(self):
@@ -642,4 +631,4 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(paired_end, "build", "GRCh38.p12")
 
         sample = Sample.objects.get(data=paired_end)
-        self.assertEqual(sample.descriptor["general"]["species"], "Homo sapiens")
+        self.assertAnnotation(sample, "general.species", "Homo sapiens")
