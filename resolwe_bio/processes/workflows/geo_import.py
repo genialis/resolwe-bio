@@ -127,12 +127,12 @@ def construct_annotation(metadata, sample_name):
         annotation["general.description"] = sample_metadata["description"]
 
     if "cell line" in metadata.columns:
-        annotation["biospecimen_information.biosample_type"] = "cell_line"
+        annotation["biospecimen_information.experimental_model"] = "cell_line"
         annotation["cell_line_information.cell_line_name"] = sample_metadata[
             "cell line"
         ]
     elif "tissue" in metadata.columns:
-        annotation["biospecimen_information.biosample_type"] = "tissue"
+        annotation["biospecimen_information.experimental_model"] = "tissue"
 
     if "source_name_ch1" in metadata.columns:
         annotation["biospecimen_information.source"] = sample_metadata[
@@ -223,7 +223,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.7.0"
+    version = "2.7.1"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH

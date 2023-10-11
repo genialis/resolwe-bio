@@ -39,7 +39,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         )
 
         AnnotationField.objects.create(
-            name="biosample_type",
+            name="experimental_model",
             sort_order=1,
             group=biospecimen_group,
             type=AnnotationType.STRING.value,
@@ -171,7 +171,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
         self.assertAnnotation(sample, "general.description", "ING5 knockdown")
 
         self.assertAnnotation(
-            sample, "biospecimen_information.biosample_type", "cell_line"
+            sample, "biospecimen_information.experimental_model", "cell_line"
         )
         self.assertAnnotation(sample, "biospecimen_information.source", "HepG2 cells")
 
@@ -336,7 +336,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
 
         # biospecimen_information
         self.assertAnnotation(
-            sample, "biospecimen_information.biosample_type", "cell_line"
+            sample, "biospecimen_information.experimental_model", "cell_line"
         )
         self.assertAnnotation(
             sample, "biospecimen_information.source", "GM12878 (B-Lymphocyte) LCL"
