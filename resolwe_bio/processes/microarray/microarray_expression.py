@@ -64,8 +64,8 @@ def rename_cols(infile, outfile):
             "Gene": str,
             "Expression": float,
         },
-        squeeze=True,
     )
+    exp.squeeze()
     return exp.to_csv(
         outfile,
         index_label="FEATURE_ID",
@@ -113,7 +113,7 @@ class ImportMicroarrayExpression(Process):
     slug = "upload-microarray-expression"
     name = "Upload microarray expression (unmapped)"
     process_type = "data:microarray:normalized"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -121,7 +121,7 @@ class ImportMicroarrayExpression(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,
@@ -200,7 +200,7 @@ class MicroarrayExpression(ProcessBio):
     slug = "mapped-microarray-expression"
     name = "Mapped microarray expression"
     process_type = "data:expression:microarray"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -208,7 +208,7 @@ class MicroarrayExpression(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,

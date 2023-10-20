@@ -23,7 +23,7 @@ class ReverseComplementSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class ReverseComplementSingle(Process):
         "type": "sample",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.3.1"
+    version = "1.3.2"
     category = "FASTQ processing"
 
     class Input:
@@ -86,7 +86,7 @@ class ReverseComplementPaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"},
         },
         "resources": {
             "cores": 1,
@@ -97,7 +97,7 @@ class ReverseComplementPaired(Process):
         "type": "sample",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.2.1"
+    version = "1.2.2"
     category = "FASTQ processing"
 
     class Input:

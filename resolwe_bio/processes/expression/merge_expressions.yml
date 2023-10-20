@@ -9,9 +9,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:4.1.1
   data_name: Expression matrix
-  version: 1.4.1
+  version: 1.4.2
   type: data:expressionset
   category: Quantify
   persistence: CACHED

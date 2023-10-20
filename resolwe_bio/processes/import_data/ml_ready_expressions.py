@@ -13,13 +13,13 @@ class UploadMLExpression(Process):
     slug = "upload-ml-expression"
     name = "ML-ready expression"
     process_type = "data:ml:table:expressions"
-    version = "1.0.1"
+    version = "1.0.2"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:3.0.1"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,

@@ -30,7 +30,7 @@ class SeqtkSampleSingle(Process):
     slug = "seqtk-sample-single"
     name = "Subsample FASTQ (single-end)"
     process_type = "data:reads:fastq:single:seqtk"
-    version = "1.5.1"
+    version = "1.5.2"
     category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -41,7 +41,7 @@ class SeqtkSampleSingle(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,
@@ -164,7 +164,7 @@ class SeqtkSamplePaired(Process):
     slug = "seqtk-sample-paired"
     name = "Subsample FASTQ (paired-end)"
     process_type = "data:reads:fastq:paired:seqtk"
-    version = "1.5.1"
+    version = "1.5.2"
     category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -175,7 +175,7 @@ class SeqtkSamplePaired(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,

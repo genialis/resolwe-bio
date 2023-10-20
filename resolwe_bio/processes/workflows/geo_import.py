@@ -213,7 +213,7 @@ class GeoImport(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0",
+                "image": "public.ecr.aws/genialis/resolwebio/common:4.1.1",
             },
         },
         "resources": {
@@ -223,7 +223,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.7.1"
+    version = "2.7.2"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH

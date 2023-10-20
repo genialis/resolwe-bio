@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:4.1.1
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.4.0
+  version: 1.4.1
   type: data:multiplexed:qseq:single
   category: Import
   persistence: RAW
@@ -90,11 +90,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:4.1.1
     resources:
       network: true
   data_name: '{{ reads.file|default("?") }}'
-  version: 1.4.0
+  version: 1.4.1
   type: data:multiplexed:qseq:paired
   category: Import
   persistence: RAW

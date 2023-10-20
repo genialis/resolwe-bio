@@ -9,11 +9,11 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:4.1.1
     resources:
       network: true
   data_name: 'Differential expression ({{ src.file }})'
-  version: 1.5.0
+  version: 1.5.1
   type: data:differentialexpression:upload
   category: Import
   persistence: RAW

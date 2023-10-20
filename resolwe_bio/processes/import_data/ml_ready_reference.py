@@ -24,13 +24,13 @@ class ReferenceSpace(ProcessBio):
     slug = "reference-space"
     name = "Reference space"
     process_type = "data:ml:space"
-    version = "1.0.1"
+    version = "1.0.2"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:3.0.1"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {
             "cores": 1,

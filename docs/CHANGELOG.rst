@@ -19,6 +19,8 @@ Changed
 -------
 - Use downsampled alignment for ``rnaseqc-qc`` process in ``workflow-bbduk-star-featurecounts-qc``
   and ``workflow-bbduk-star`` workflows
+- Unify the use of ``resolwebio/common:4.1.1`` Docker
+  image version across processes
 
 Fixed
 -----

@@ -215,7 +215,7 @@ class HierarchicalClusteringSamples(ProcessBio):
     slug = "clustering-hierarchical-samples"
     name = "Hierarchical clustering of samples"
     process_type = "data:clustering:hierarchical:sample"
-    version = "3.5.1"
+    version = "3.5.2"
     category = "Enrichment and Clustering"
     data_name = "Hierarchical clustering of samples"
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -223,7 +223,7 @@ class HierarchicalClusteringSamples(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {"cores": 1, "memory": 4096, "storage": 10},
     }
@@ -499,7 +499,7 @@ class HierarchicalClusteringGenes(ProcessBio):
     slug = "clustering-hierarchical-genes"
     name = "Hierarchical clustering of genes"
     process_type = "data:clustering:hierarchical:gene"
-    version = "3.5.1"
+    version = "3.5.2"
     category = "Enrichment and Clustering"
     data_name = "Hierarchical clustering of genes"
     scheduling_class = SchedulingClass.INTERACTIVE
@@ -507,7 +507,7 @@ class HierarchicalClusteringGenes(ProcessBio):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/s4q6j6e8/resolwebio/common:3.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
         },
         "resources": {"cores": 1, "memory": 4096, "storage": 10},
     }
