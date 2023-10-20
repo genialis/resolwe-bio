@@ -5,7 +5,7 @@
     type: sample
   requirements:
     expression-engine: jinja
-  version: 1.5.0
+  version: 1.6.0
   type: data:workflow:cutnrun
   category: Pipeline
   description: |
@@ -15,7 +15,7 @@
     trimming the reads with trimgalore, aligning them using bowtie2 to target species
     genome as well as a spike-in genome. Aligned reads are processed to produce
     bigwig files to be viewed in a genome browser. Peaks are called using MACS2.
-    Fragmenting of reads is performed using alignmentSieve from
+    Lenght-selection of reads is performed using alignmentSieve tool from the
     deeptools package.
   input:
     - name: reads
@@ -633,6 +633,6 @@
       - id: spikein_normalizebw
         run: calculate-bigwig
         input:
-          alignment: "{{steps.spikein_rmdup}}"
+          alignment: "{{steps.species_rmdup_frag}}"
           bedpe: "{{steps.spikein_normfactor}}"
           scale: "{{input.options_scale.scale}}"

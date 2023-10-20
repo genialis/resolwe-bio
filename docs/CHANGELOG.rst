@@ -24,6 +24,8 @@ Changed
 
 Fixed
 -----
+- Fix Cut&Run workflow to scale the correct input BAM file using the
+  spike-in scaling factor
 
 
 ===================
