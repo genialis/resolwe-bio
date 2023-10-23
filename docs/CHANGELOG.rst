@@ -16,6 +16,17 @@ Added
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+54.0.0 - 2023-10-23
+===================
+
+Changed
+-------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 37.x
 - Add ``sample_annotation`` Jinja expressions filter that accepts an annotation
   path and returns its value
