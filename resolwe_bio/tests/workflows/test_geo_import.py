@@ -329,7 +329,7 @@ class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
 
         # general
         self.assertAnnotation(sample, "general.species", "Homo sapiens")
-        self.assertAnnotation(sample, "general.annotator", "Matthew,T,Weirauch")
+        self.assertAnnotation(sample, "general.annotator", "Matthew Weirauch")
         self.assertAnnotation(
             sample, "general.description", "ChIP_EBNA2_GM12878_rep2-E00457"
         )

@@ -41,6 +41,8 @@ Fixed
 - Fix Cut&Run workflow to scale the correct input BAM file using the
   spike-in scaling factor
 - Fixed stranded input options in ``rnaseqc-qc`` process
+- Change GEO metadata test file for ``geo-import`` process
+  and fix corresponding test function
 
 ===================
 53.2.0 - 2023-09-18
