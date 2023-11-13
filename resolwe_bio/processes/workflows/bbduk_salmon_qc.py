@@ -42,7 +42,7 @@ class WorkflowBbdukSalmonQc(Process):
     entity = {
         "type": "sample",
     }
-    version = "4.3.0"
+    version = "4.3.1"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 
@@ -463,7 +463,7 @@ class WorkflowBbdukSalmonQc(Process):
             rnaseqc = Data.create(
                 process=BioProcess.get_latest(slug="rnaseqc-qc"),
                 input=input_rnaseqc,
-                name=f"RNA-SeQCs QC report ({inputs.reads.name})",
+                name=f"RNA-SeQC QC report ({inputs.reads.name})",
             )
             input_multiqc["data"].append(rnaseqc)
 

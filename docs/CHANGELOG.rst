@@ -17,6 +17,8 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 38.x
+- Change ``rnaseqc-qc`` data object label in ``workflow-bbduk-star-featurecounts-qc``,
+  ``workflow-bbduk-star-qc`` and ``workflow-bbduk-salmon-qc`` workflows
 
 Fixed
 -----

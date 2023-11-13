@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.3.0"
+    version = "1.3.1"
     entity = {
         "type": "sample",
     }
@@ -747,7 +747,7 @@ class WorkflowSTAR(Process):
             rnaseqc = Data.create(
                 process=BioProcess.get_latest(slug="rnaseqc-qc"),
                 input=input_rnaseqc,
-                name=f"RNA-SeQCs QC report ({inputs.reads.name})",
+                name=f"RNA-SeQC QC report ({inputs.reads.name})",
             )
             input_multiqc["data"].append(rnaseqc)
 
