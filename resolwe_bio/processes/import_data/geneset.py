@@ -54,7 +54,7 @@ class UploadGeneset(Process):
     slug = "upload-geneset"
     name = "Gene set"
     process_type = "data:geneset"
-    version = "1.3.1"
+    version = "1.3.2"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -62,7 +62,7 @@ class UploadGeneset(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021"
+                "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023"
             }
         },
         "resources": {
@@ -140,7 +140,7 @@ class CreateGeneset(Process):
     slug = "create-geneset"
     name = "Gene set (create)"
     process_type = "data:geneset"
-    version = "1.3.1"
+    version = "1.3.2"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -148,7 +148,7 @@ class CreateGeneset(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021"
+                "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023"
             }
         },
         "resources": {
@@ -228,7 +228,7 @@ class CreateGenesetVenn(Process):
     slug = "create-geneset-venn"
     name = "Gene set (create from Venn diagram)"
     process_type = "data:geneset:venn"
-    version = "1.3.1"
+    version = "1.3.2"
     category = "Import"
     scheduling_class = SchedulingClass.INTERACTIVE
     persistence = Persistence.RAW
@@ -236,7 +236,7 @@ class CreateGenesetVenn(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021"
+                "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023"
             }
         },
         "resources": {

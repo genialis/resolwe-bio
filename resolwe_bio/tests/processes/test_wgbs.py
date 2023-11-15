@@ -91,7 +91,7 @@ class WgbsProcessorTestCase(BioProcessTestCase):
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -157,7 +157,7 @@ re-save build 'hg19'
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -232,7 +232,7 @@ re-save build 'hg19'
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },

@@ -21,6 +21,8 @@ Changed
   and ``workflow-bbduk-star`` workflows
 - Unify the use of ``resolwebio/common:4.1.1`` Docker
   image version across processes
+- Unify the use of ``resolwebio/base:ubuntu-22.04-14112023`` Docker 
+  image across processes
 
 Fixed
 -----

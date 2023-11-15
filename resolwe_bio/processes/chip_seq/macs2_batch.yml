@@ -9,7 +9,7 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021
+        image: public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023
     relations:
       - type: background
         labels:
@@ -17,7 +17,7 @@
           - case
         required: True
   data_name: ChIP-Seq Call Peaks Batch
-  version: 1.5.0
+  version: 1.5.1
   type: data:chipseq:batch:macs2
   category: ChIP-seq
   persistence: CACHED

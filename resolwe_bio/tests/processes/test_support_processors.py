@@ -549,7 +549,7 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -621,7 +621,7 @@ re-save-file report "${NAME}".txt
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -689,7 +689,7 @@ re-save-file duplicates_report "${NAME}".txt
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -751,7 +751,7 @@ re-save-file peaks_density_plot Rap_mqc.png
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
@@ -838,7 +838,7 @@ re-save-file case_prepeak_qc "${NAME}".txt
                     },
                     "executor": {
                         "docker": {
-                            "image": "public.ecr.aws/s4q6j6e8/resolwebio/base:ubuntu-20.04-03042021",
+                            "image": "public.ecr.aws/genialis/resolwebio/base:ubuntu-22.04-14112023",
                         },
                     },
                 },
