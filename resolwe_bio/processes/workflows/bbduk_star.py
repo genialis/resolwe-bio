@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.3.1"
+    version = "1.4.0"
     entity = {
         "type": "sample",
     }
@@ -690,7 +690,7 @@ class WorkflowSTAR(Process):
             },
             name=f"Alignment summary ({inputs.reads.name})",
         )
-        alignment_qorts = Data.create(
+        alignment_downsampled = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
             input={
                 "reads": downsampling,
@@ -700,7 +700,7 @@ class WorkflowSTAR(Process):
         )
 
         input_qorts = {
-            "alignment": alignment_qorts,
+            "alignment": alignment_downsampled,
             "annotation": inputs.annotation,
             "options": {
                 "stranded": inputs.assay_type,
@@ -734,7 +734,7 @@ class WorkflowSTAR(Process):
         # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
         if inputs.annotation.output.source == "ENSEMBL":
             input_rnaseqc = {
-                "alignment": alignment,
+                "alignment": alignment_downsampled,
                 "annotation": inputs.annotation,
                 "strand_detection_options": {"stranded": inputs.assay_type},
             }

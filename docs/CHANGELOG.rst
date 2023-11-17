@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Use downsampled alignment for ``rnaseqc-qc`` process in ``workflow-bbduk-star-featurecounts-qc``
+  and ``workflow-bbduk-star`` workflows
 
 Fixed
 -----

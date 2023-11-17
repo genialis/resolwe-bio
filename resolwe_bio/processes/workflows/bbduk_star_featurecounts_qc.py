@@ -46,7 +46,7 @@ class WorkflowBBDukStarFcQC(Process):
     entity = {
         "type": "sample",
     }
-    version = "6.1.1"
+    version = "6.2.0"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -723,7 +723,7 @@ class WorkflowBBDukStarFcQC(Process):
             name=f"Alignment summary ({inputs.reads.name})",
         )
 
-        alignment_qorts = Data.create(
+        alignment_downsampled = Data.create(
             process=BioProcess.get_latest(slug="alignment-star"),
             input={
                 "reads": downsampling,
@@ -733,7 +733,7 @@ class WorkflowBBDukStarFcQC(Process):
         )
 
         input_qorts = {
-            "alignment": alignment_qorts,
+            "alignment": alignment_downsampled,
             "annotation": inputs.annotation,
             "options": {
                 "stranded": inputs.assay_type,
@@ -767,7 +767,7 @@ class WorkflowBBDukStarFcQC(Process):
         # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
         if inputs.annotation.output.source == "ENSEMBL":
             input_rnaseqc = {
-                "alignment": alignment,
+                "alignment": alignment_downsampled,
                 "annotation": inputs.annotation,
                 "strand_detection_options": {"stranded": inputs.assay_type},
             }
