@@ -151,3 +151,40 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         coverage = self.run_process(
             "samtools-coverage-single", inputs, Data.STATUS_ERROR
         )
+
+    @tag_process("samtools-bedcov")
+    def samtools_bedcov(self):
+        input_folder = Path("samtools") / "inputs"
+        output_folder = Path("samtools") / "outputs"
+        with self.preparation_stage():
+            inputs_bam = {
+                "src": input_folder / "samtools_in.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam = self.run_process("upload-bam", inputs_bam)
+
+            inputs_bed = {
+                "src": input_folder / "regions_bed.bed",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bed = self.run_process("upload-bed", inputs_bed)
+
+        inputs = {"bam": bam.id, "bedfile": bed.id}
+        samtools = self.run_process("samtools-bedcov", inputs)
+        self.assertFile(
+            samtools, "coverage_report", output_folder / "regions_bed_coverage.txt"
+        )
+        inputs = {
+            "bam": bam.id,
+            "bedfile": bed.id,
+            "advanced": {
+                "output_option": "mean",
+                "min_read_qual": 5,
+            },
+        }
+        samtools = self.run_process("samtools-bedcov", inputs)
+        self.assertFile(
+            samtools, "coverage_report", output_folder / "regions_bed_coverage_mean.txt"
+        )

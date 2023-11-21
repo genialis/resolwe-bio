@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``samtools-bedcov`` process
 
 Changed
 -------
