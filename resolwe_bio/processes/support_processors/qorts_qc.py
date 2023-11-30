@@ -1,5 +1,6 @@
 """QoRTs QC."""
 import json
+from pathlib import Path
 
 from resolwe.process import (
     Cmd,
@@ -42,7 +43,7 @@ class QortsQC(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.7.1"
+    version = "1.8.0"
     process_type = "data:qorts:qc"
     category = "QC"
     entity = {
@@ -100,12 +101,28 @@ class QortsQC(Process):
     class Output:
         """Output fields."""
 
-        plot = FileField(label="QC multiplot")
+        plot = FileField(label="QC multiplot", required=False)
         summary = FileField(label="QC summary")
         qorts_data = FileField(label="QoRTs report data")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
+        annotation_file = inputs.annotation.output.annot.path
+        if (
+            inputs.annotation.output.source == "UCSC"
+            and inputs.annotation.type.startswith("data:annotation:gtf")
+        ):
+            with open(annotation_file, "r") as infile:
+                filedata = infile.read()
+
+            # Replace the missing gene_ids
+            annot_data = filedata.replace('gene_id "";', 'gene_id "unknown";')
+
+            # Write the output file
+            annotation_file = "annotation_modified.gtf"
+            with open(annotation_file, "w") as outfile:
+                outfile.write(annot_data)
+
         lib_strand = ""
         if inputs.options.stranded == "auto":
             detect_strandedness_inputs = [
@@ -134,7 +151,7 @@ class QortsQC(Process):
             42,
             "--generatePlots",
             inputs.alignment.output.bam.path,
-            inputs.annotation.output.annot.path,
+            annotation_file,
             "qorts_output",
         ]
 
@@ -171,6 +188,14 @@ class QortsQC(Process):
         # Compress QoRTs output folder
         Cmd["zip"](["-r", "qorts_report.zip", "qorts_output"])
 
-        outputs.plot = "qorts_output/QC.multiPlot.pdf"
-        outputs.summary = "qorts_output/QC.summary.txt"
+        if not Path("qorts_output", "QC.summary.txt").exists():
+            self.error("QoRTs QC analysis failed.")
+        else:
+            outputs.summary = "qorts_output/QC.summary.txt"
+
+        if not Path("qorts_output", "QC.multiPlot.pdf").exists():
+            self.warning("QoRTs QC multiplot not generated.")
+        else:
+            outputs.plot = "qorts_output/QC.multiPlot.pdf"
+
         outputs.qorts_data = "qorts_report.zip"
