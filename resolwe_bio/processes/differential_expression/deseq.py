@@ -35,7 +35,7 @@ class Deseq(Process):
     slug = "differentialexpression-deseq2"
     name = "DESeq2"
     process_type = "data:differentialexpression:deseq2"
-    version = "3.5.0"
+    version = "3.6.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
@@ -148,6 +148,9 @@ class Deseq(Process):
         de_json = JsonField(label="Results table (JSON)")
         de_file = FileField(label="Results table (file)")
         count_matrix = FileField(label="Count matrix")
+        count_matrix_normalized = FileField(
+            label="Normalized count matrix (median of ratios)"
+        )
         source = StringField(label="Gene ID database")
         species = StringField(label="Species")
         build = StringField(label="Build")
@@ -269,11 +272,13 @@ class Deseq(Process):
 
         (Cmd["gzip"][deseq_output])()
         (Cmd["gzip"]["count_matrix.tab"])()
+        (Cmd["gzip"]["count_matrix_normalized.tab"])()
 
         outputs.raw = f"{deseq_output}.gz"
         outputs.de_json = "de_data.json"
         outputs.de_file = "de_file.tab.gz"
         outputs.count_matrix = "count_matrix.tab.gz"
+        outputs.count_matrix_normalized = "count_matrix_normalized.tab.gz"
         outputs.source = expressions[0].output.source
         outputs.species = expressions[0].output.species
         outputs.build = expressions[0].output.build

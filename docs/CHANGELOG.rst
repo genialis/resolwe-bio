@@ -23,6 +23,7 @@ Changed
   image version across processes
 - Unify the use of ``resolwebio/base:ubuntu-22.04-14112023`` Docker 
   image across processes
+- Add normalized count matrix output to ``differentialexpression-deseq2`` process
 
 Fixed
 -----

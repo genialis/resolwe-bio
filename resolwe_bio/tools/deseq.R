@@ -72,3 +72,4 @@ write.table(result, file='diffexp_deseq2.tab', sep='\t', quote=FALSE, col.names=
 # Use file names for the column headers in the count matrix output file
 colnames(dds) <- file_names
 write.table(counts(dds), file='count_matrix.tab', sep='\t', quote=FALSE, col.names=NA)
+write.table(counts(dds, normalized = TRUE), file = 'count_matrix_normalized.tab', sep ='\t', quote = FALSE, col.names = NA)

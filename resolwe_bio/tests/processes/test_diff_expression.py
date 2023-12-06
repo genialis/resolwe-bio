@@ -89,6 +89,12 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(
             diff_exp, "count_matrix", "deseq2_count_matrix.tab.gz", compression="gzip"
         )
+        self.assertFile(
+            diff_exp,
+            "count_matrix_normalized",
+            "deseq2_count_matrix_normalized.tab.gz",
+            compression="gzip",
+        )
         self.assertJSON(diff_exp, diff_exp.output["de_json"], "", "deseq2.json.gz")
         self.assertFields(diff_exp, "source", "DICTYBASE")
         self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
