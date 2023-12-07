@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add ``samtools-bedcov`` process
+- Add ``workflow-cutnrun-beta`` workflow
 
 Changed
 -------
