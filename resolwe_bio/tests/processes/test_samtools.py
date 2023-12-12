@@ -174,7 +174,10 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         inputs = {"bam": bam.id, "bedfile": bed.id}
         samtools = self.run_process("samtools-bedcov", inputs)
         self.assertFile(
-            samtools, "coverage_report", output_folder / "regions_bed_coverage.txt"
+            samtools,
+            "coverage_report",
+            output_folder / "regions_bed_coverage.txt.gz",
+            compression="gzip",
         )
         inputs = {
             "bam": bam.id,
@@ -186,5 +189,8 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         }
         samtools = self.run_process("samtools-bedcov", inputs)
         self.assertFile(
-            samtools, "coverage_report", output_folder / "regions_bed_coverage_mean.txt"
+            samtools,
+            "coverage_report",
+            output_folder / "regions_bed_coverage_mean.txt.gz",
+            compression="gzip",
         )

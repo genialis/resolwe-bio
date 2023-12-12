@@ -25,19 +25,15 @@ def normalize_bedcov_output(output: str) -> pd.DataFrame:
     Samtools bedcov returns sum of read coverages across all bases in bed file regions.
     This function normalizes the values with the length of individual regions.
 
-    Input columns : [chr, start, stop, coverage sum]
-    Output columns : [chr, start, stop, coverage mean]
+    Input columns : [chr, start, end, ... , coverage sum]
+    Output columns : [chr, start, end, ... , coverage mean]
     """
-    coverage_df = pd.read_csv(
-        StringIO(output),
-        sep="\t",
-        names=["chrom", "start", "end", "coverage"],
-    )
+    coverage_df = pd.read_csv(StringIO(output), sep="\t", header=None)
 
-    coverage_df["coverage"] = coverage_df["coverage"] / (
-        coverage_df["end"] - coverage_df["start"]
+    coverage_df.iloc[:, -1] = coverage_df.iloc[:, -1] / (
+        coverage_df.iloc[:, 2] - coverage_df.iloc[:, 1]
     )
-    coverage_df["coverage"] = coverage_df["coverage"].round(2)
+    coverage_df.iloc[:, -1] = coverage_df.iloc[:, -1].round(2)
 
     return coverage_df
 
@@ -48,10 +44,11 @@ class SamtoolsBedcov(Process):
     Reports the total read base count (i.e. the sum of per base read depths)
     for each genomic region specified in the supplied BED file.
     The regions are output as they appear in the BED file and are 0-based.
-    The output is tab-delimited with the first three columns being the chromosome,
-    start and end positions of the region, and the remaining column
-    being the sum read base counts or normalized sum read base counts by the length of
-    individual regions (mean coverage).
+    The output is formatted as tab-delimited data, where the initial three
+    columns indicate the chromosome, start, and end positions of the region.
+    The subsequent column provides either the cumulative read base counts or
+    the normalized sum of read base counts based on the length of each
+    individual region (mean coverage).
 
     For more information about samtools bedcov, click
     [here](https://www.htslib.org/doc/samtools-bedcov.html).
@@ -73,7 +70,7 @@ class SamtoolsBedcov(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.0.1"
+    version = "1.1.0"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
@@ -91,24 +88,26 @@ class SamtoolsBedcov(Process):
             """Advanced options."""
 
             min_read_qual = IntegerField(
-                label="Only count reads with mapping quality greater than or equal to [-Q]",
+                label="Minimum read mapping quality",
+                description="Only count reads with mapping quality greater than or equal to [-Q]",
                 required=False,
             )
             rm_del_ref_skips = BooleanField(
-                label="Do not include deletions (D) and ref skips (N) in bedcov computation. [-j]",
+                label="Skip deletions and ref skips",
+                description="Do not include deletions (D) and ref skips (N) in bedcov computation. [-j]",
                 default=False,
             )
             output_option = StringField(
-                label="Metric by which to output coverage.",
+                label="Metric by which to output coverage",
                 default="sum",
                 choices=[
                     ("sum", "Sum (default)"),
                     ("mean", "Mean"),
                 ],
                 required=False,
-                description="Choose to output the sum of reads per base of specified regions,"
-                "or these values normalized by their length."
-                "This method is not part of the bedcov command, but is a custom option added to the process.",
+                description="Opt for either displaying the cumulative read base counts or "
+                "the normalized read base counts based on the length of each region. "
+                "The latter approach is not part of samtools but implemented within the resolwe-bio process.",
             )
 
         advanced = GroupField(AdvancedOptions, label="Advanced options")
@@ -122,7 +121,7 @@ class SamtoolsBedcov(Process):
         """Run the analysis."""
 
         name = f"{Path(inputs.bedfile.output.bed.path).stem}"
-        coverage_report = f"{name}_coverage.txt"
+        coverage_fn = f"{name}_coverage.txt"
 
         if inputs.bedfile.output.species != inputs.bam.output.species:
             self.error(
@@ -156,13 +155,15 @@ class SamtoolsBedcov(Process):
         if inputs.advanced.output_option == "mean":
             coverage_df = normalize_bedcov_output(stdout)
             coverage_df.to_csv(
-                coverage_report,
+                coverage_fn,
                 sep="\t",
                 index=False,
                 header=False,
             )
         else:
-            with open(coverage_report, "w") as f:
+            with open(coverage_fn, "w") as f:
                 f.writelines(stdout)
 
-        outputs.coverage_report = coverage_report
+        (Cmd["gzip"][coverage_fn])()
+
+        outputs.coverage_report = f"{coverage_fn}.gz"
