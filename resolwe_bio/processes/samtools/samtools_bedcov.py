@@ -56,7 +56,7 @@ class SamtoolsBedcov(Process):
     """
 
     slug = "samtools-bedcov"
-    process_type = "data:alignment:bam:samtools"
+    process_type = "data:bedcov"
     name = "Samtools bedcov"
     requirements = {
         "expression-engine": "jinja",
@@ -70,7 +70,7 @@ class SamtoolsBedcov(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.1.0"
+    version = "1.2.0"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
