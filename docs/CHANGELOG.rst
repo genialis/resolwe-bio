@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+55.1.0 - 2023-12-18
+===================
+
+Added
+-----
 - Add ``samtools-bedcov`` process
 - Add ``workflow-cutnrun-beta`` workflow
 
@@ -30,6 +44,7 @@ Fixed
 -----
 - Fix ``qorts-qc`` process so it can be used with hg19 annotation
   and improve error handling when files are missing
+
 
 ===================
 55.0.0 - 2023-11-13
