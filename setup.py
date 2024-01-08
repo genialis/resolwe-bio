@@ -58,6 +58,9 @@ setuptools.setup(
         "package": ["twine", "wheel"],
         "test": [
             "black==24.1.0",
+            "django-stubs>=4.2.4",
+            "django-filter-stubs>=0.1.3",
+            "djangorestframework-stubs[compatible-mypy]>=3.14.0",
             "daphne",
             "flake8>=6.0.0",
             "isort>=5.12.0",
