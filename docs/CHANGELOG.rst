@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Make changes to input fields in ``workflow-cutnrun-beta``
 
 Fixed
 -----

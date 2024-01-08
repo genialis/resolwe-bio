@@ -18,7 +18,7 @@ class WorkflowCUTnRUN(Process):
     """Beta Cut & Run workflow.
 
     Analysis of samples processed for high resolution mapping of DNA binding sites using
-    targeted nuclease strategy. The process is named CUT&RUN which stands for
+    targeted nuclease strategy. The process is named CUT&RUN, which stands for
     Cleavage Under Target and Release Using Nuclease. Workflow includes steps of
     trimming the reads with trimgalore, aligning them using bowtie2 to target species
     genome as well as a spike-in genome (optional). Aligned reads are processed to produce
@@ -32,7 +32,7 @@ class WorkflowCUTnRUN(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.0.0"
+    version = "2.0.0"
     entity = {
         "type": "sample",
     }
@@ -53,7 +53,7 @@ class WorkflowCUTnRUN(Process):
 
             quality = IntegerField(
                 label="Quality cutoff",
-                description="Trim low-quality ends from reads based on phred score. "
+                description="Trim low-quality ends from reads based on Phred score. "
                 "Default: 20.",
                 default=20,
             )
@@ -72,11 +72,9 @@ class WorkflowCUTnRUN(Process):
                 description="Discard reads that became shorter than "
                 "selected length because of either quality or adapter "
                 "trimming. Both reads of a read-pair need to be longer "
-                "than specified length to be printed out to validated "
-                "paired-end files. If only one read became too short "
-                "there is the possibility of keeping such unpaired "
-                "single-end reads with Retain unpaired. A value of 0 "
-                "disables filtering based on length. Default: 20.",
+                "than the specified length to be printed out to validated "
+                "paired-end files. A value of 0 disables filtering "
+                "based on length. Default: 20.",
                 default=20,
             )
 
@@ -88,8 +86,8 @@ class WorkflowCUTnRUN(Process):
                     label="Read 1 adapter sequence",
                     description="Adapter sequences to be trimmed. "
                     "Also see universal adapters field for predefined "
-                    "adapters. This is mutually exclusive with read 1 "
-                    "adapters file and universal adapters.",
+                    "adapters. This is mutually exclusive with Read 1 "
+                    "adapters file and Universal adapters.",
                     required=False,
                     default=[],
                 )
@@ -98,7 +96,7 @@ class WorkflowCUTnRUN(Process):
                     label="Read 2 adapter sequence",
                     description="Optional adapter sequence to be trimmed "
                     "off read 2 of paired-end files. This is mutually "
-                    "exclusive with read 2 adapters file and universal "
+                    "exclusive with Read 2 adapters file and Universal "
                     "adapters.",
                     required=False,
                     default=[],
@@ -106,15 +104,15 @@ class WorkflowCUTnRUN(Process):
                 adapter_file_1 = DataField(
                     "seq:nucleotide",
                     label="Read 1 adapters file",
-                    description="This is mutually exclusive with read 1 "
-                    "adapters and universal adapters.",
+                    description="This is mutually exclusive with Read 1 "
+                    "adapters and Universal adapters.",
                     required=False,
                 )
                 adapter_file_2 = DataField(
                     "seq:nucleotide",
                     label="Read 2 adapters file",
-                    description="This is mutually exclusive with read 2 "
-                    "adapters and universal adapters.",
+                    description="This is mutually exclusive with Read 2 "
+                    "adapters and Universal adapters.",
                     required=False,
                 )
                 universal_adapter = StringField(
@@ -124,7 +122,7 @@ class WorkflowCUTnRUN(Process):
                     "12bp of the Nextera adapter or 12bp of the Illumina "
                     "Small RNA 3' Adapter. Selecting to trim smallRNA "
                     "adapters will also lower the min length value to 18bp. "
-                    "If the smallRNA libraries are paired-end then read 2 "
+                    "If smallRNA libraries are paired-end, then Read 2 "
                     "adapter will be set to the Illumina small RNA 5' "
                     "adapter automatically (GATCGTCGGACT) unless defined "
                     "explicitly. This is mutually exclusive with manually "
@@ -137,11 +135,10 @@ class WorkflowCUTnRUN(Process):
                     required=False,
                 )
                 stringency = IntegerField(
-                    label="Overlap with adapter sequence required to trim ",
+                    label="Overlap with adapter sequence required to trim",
                     description="Defaults to a very stringent setting of "
                     "1, i.e. even a single base pair of overlapping "
-                    "sequence will be trimmed of the 3' end of any read. "
-                    "Default: 1.",
+                    "sequence will be trimmed of the 3' end of any read.",
                     default=1,
                 )
                 error_rate = FloatField(
@@ -162,11 +159,11 @@ class WorkflowCUTnRUN(Process):
                 data_type="index:bowtie2",
                 label="Species genome",
             )
-            spike_in_genome = DataField(
+            spikein_genome = DataField(
                 data_type="index:bowtie2",
                 label="Spike-in genome",
                 required=False,
-                disabled="normalization_options.skip_norm == True",
+                disabled="normalization_options.skip_norm == true",
             )
             alignment_mode = StringField(
                 label="Alignment mode",
@@ -189,18 +186,8 @@ class WorkflowCUTnRUN(Process):
                     ("--very-sensitive", "Very sensitive"),
                 ],
                 default="--very-sensitive",
-                description="A quick setting for aligning fast or accurately."
-                "This option is a shortcut for parameters as follows:"
-                "For End-to-end:"
-                "Very fast                   -D 5 -R 1 -N 0 -L 22 -i S,0,2.50"
-                "Fast                        -D 10 -R 2 -N 0 -L 22 -i S,0,2.50"
-                "Sensitive                   -D 15 -R 2 -N 0 -L 22 -i S,1,1.15"
-                "Very sensitive (default)    -D 20 -R 3 -N 0 -L 20 -i S,1,0.50"
-                "For Local:"
-                "Very fast                   -D 5 -R 1 -N 0 -L 25 -i S,1,2.00"
-                "Fast                        -D 10 -R 2 -N 0 -L 22 -i S,1,1.75"
-                "Sensitive                   -D 15 -R 2 -N 0 -L 20 -i S,1,0.75"
-                "Very sensitive              -D 20 -R 3 -N 0 -L 20 -i S,1,0.50",
+                description="Setting for aligning fast or accurately. "
+                "Default: Very sensitive.",
             )
 
             class PEOptions:
@@ -209,15 +196,15 @@ class WorkflowCUTnRUN(Process):
                 dovetail = BooleanField(
                     label="Dovetail",
                     default=True,
-                    description="If the mates “dovetail”, that is if one mate "
-                    "alignment extends past the beginning of the other such that "
-                    "the wrong mate begins upstream. Consider "
-                    "that to be concordant. Default: True.",
+                    description="If the mates dovetail, it implies that if the alignment "
+                    "of one mate extends beyond the starting point of the other, it results "
+                    "in the incorrect mate initiating upstream. This condition is considered "
+                    "concordant. Default: True.",
                 )
                 rep_se = BooleanField(
                     label="Report single ended",
                     default=False,
-                    description="If paired alignment can not be found Bowtie2 tries "
+                    description="If paired alignment cannot be found, Bowtie2 tries "
                     "to find alignments for the individual mates. Default: False.",
                 )
                 minins = IntegerField(
@@ -236,8 +223,8 @@ class WorkflowCUTnRUN(Process):
                     label="Report discordantly matched read",
                     default=False,
                     description="If both mates have unique alignments, but the alignments do "
-                    "not match paired-end expectations (orientation and relative distance) then "
-                    "alignment will be reported. Useful for detecting structural variations. "
+                    "not match paired-end expectations (orientation and relative distance), alignment "
+                    "will still be reported. Useful for detecting structural variations. "
                     "Default: False.",
                 )
 
@@ -268,11 +255,11 @@ class WorkflowCUTnRUN(Process):
                 description="Magnitude of the scale factor. The scaling factor is calculated by "
                 "dividing the scale with the number of features in BEDPE (scale/(number of features)). "
                 "Default: 10000.",
-                disabled="normalization_options.skip_norm == True",
+                disabled="normalization_options.skip_norm == true",
             )
 
-        class SubsampleOptions:
-            """Subsampling options."""
+        class DownsamplingOptions:
+            """Downsampling options."""
 
             downsample_reads = BooleanField(
                 label="Downsample reads",
@@ -281,10 +268,10 @@ class WorkflowCUTnRUN(Process):
             )
 
             n_reads = IntegerField(
-                label="Number of reads to subsample",
+                label="Number of reads to downsample",
                 default=10000000,
-                description="Number of reads to subsample from the input FASTQ file. Default: 10M.",
-                disabled="subsample_options.downsample_reads == False",
+                description="Number of reads to downsample from the input FASTQ file. Default: 10M.",
+                disabled="downsampling_options.downsample_reads == false",
             )
 
         class DeduplicationOptions:
@@ -306,7 +293,9 @@ class WorkflowCUTnRUN(Process):
         normalization_options = GroupField(
             NormalizationOptions, label="Spike-in normalization options"
         )
-        subsample_options = GroupField(SubsampleOptions, label="Subsample options")
+        downsampling_options = GroupField(
+            DownsamplingOptions, label="Downsampling options"
+        )
         deduplication_options = GroupField(
             DeduplicationOptions, label="Deduplication options"
         )
@@ -319,12 +308,12 @@ class WorkflowCUTnRUN(Process):
     def run(self, inputs, outputs):
         """Run the workflow."""
 
-        if inputs.subsample_options.downsample_reads:
+        if inputs.downsampling_options.downsample_reads:
             downsampled_reads = Data.create(
                 process=BioProcess.get_latest(slug="seqtk-sample-paired"),
                 input={
                     "reads": inputs.reads,
-                    "n_reads": inputs.subsample_options.n_reads,
+                    "n_reads": inputs.downsampling_options.n_reads,
                 },
                 name=f"Subset ({inputs.reads.name})",
             )
@@ -413,9 +402,12 @@ class WorkflowCUTnRUN(Process):
             name=f"Deduplicated alignment species ({inputs.reads.name})",
         )
 
-        if not inputs.normalization_options.skip_norm:
+        if (
+            not inputs.normalization_options.skip_norm
+            and inputs.alignment_options.spikein_genome
+        ):
             input_alignment_spikein = {
-                "genome": inputs.alignment_options.spike_in_genome,
+                "genome": inputs.alignment_options.spikein_genome,
                 "reads": reads,
                 "mode": inputs.alignment_options.alignment_mode,
                 "speed": inputs.alignment_options.speed,

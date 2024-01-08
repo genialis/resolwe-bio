@@ -82,7 +82,7 @@ class CutAndRunTestCase(BioProcessTestCase):
             "reads": reads.id,
             "alignment_options": {
                 "genome": bowtie2_index.id,
-                "spike_in_genome": bowtie2_index.id,
+                "spikein_genome": bowtie2_index.id,
             },
         }
 
