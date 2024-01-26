@@ -57,7 +57,7 @@ setuptools.setup(
         ],
         "package": ["twine", "wheel"],
         "test": [
-            "black==23.12.0",
+            "black==24.1.0",
             "daphne",
             "flake8>=6.0.0",
             "isort>=5.12.0",
