@@ -1,10 +1,10 @@
-# =====================
-# ChIP-Seq - Prepeak QC
-# =====================
+# ==========
+# Prepeak QC
+# ==========
 ---
 
 - slug: qc-prepeak
-  name: Pre-peakcall QC
+  name: Pre-peak call QC
   requirements:
     expression-engine: jinja
     executor:
@@ -14,13 +14,13 @@
       memory: 16384
       cores: 4
   data_name: "{{ alignment|name|default('?') }}"
-  version: 0.5.2
+  version: 0.5.3
   type: data:prepeakqc
   category: ChIP-seq
   flow_collection: sample
   persistence: CACHED
   description: |
-    ChIP-Seq and ATAC-Seq QC metrics. Process returns a QC metrics report, fragment length
+    ChIP-Seq/CUT & RUN and ATAC-Seq QC metrics. Process returns a QC metrics report, fragment length
     estimation, and a deduplicated tagAlign file. Both fragment length estimation and the tagAlign
     file can be used as inputs in MACS 2.0. QC report contains ENCODE 3 proposed QC metrics --
     [NRF, PBC bottlenecking coefficients](https://www.encodeproject.org/data-standards/terms/),
@@ -30,7 +30,7 @@
       label: Aligned reads
       type: data:alignment:bam
     - name: q_treshold
-      label: Quality filtering treshold
+      label: Quality filtering threshold
       type: basic:integer
       default: 30
     - name: n_sub

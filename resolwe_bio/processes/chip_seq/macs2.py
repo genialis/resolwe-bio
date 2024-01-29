@@ -1,4 +1,4 @@
-"""Call ChIP-Seq peaks with MACS 2.0."""
+"""Call peaks with MACS 2.0."""
 
 import os
 import re
@@ -628,17 +628,17 @@ def get_frag_len(estimates):
 
 
 class Macs2(Process):
-    """Call ChIP-Seq peaks with MACS 2.0.
+    """Call peaks with MACS 2.0.
 
-    Model-based Analysis of ChIP-Seq (MACS 2.0), is used to identify transcript
-    factor binding sites. MACS 2.0 captures the influence of genome complexity
-    to evaluate the significance of enriched ChIP regions, and MACS improves
-    the spatial resolution of binding sites through combining the information
-    of both sequencing tag position and orientation. It has also an option to
-    link nearby peaks together in order to call broad peaks. See
-    [here](https://github.com/taoliu/MACS/) for more information.
+    Model-based Analysis of ChIP-Seq (MACS 2.0) is used to identify transcript
+    factor binding sites using ChIP-Seq and related methods. MACS 2.0 captures
+    the influence of genome complexity to evaluate the significance of enriched
+    regions, and MACS improves the spatial resolution of binding sites through
+    combining the information of both sequencing tag position and orientation.
+    It has also an option to link nearby peaks together in order to call broad
+    peaks. See [here](https://github.com/taoliu/MACS/) for more information.
 
-    In addition to peak-calling, this process computes ChIP-Seq and
+    In addition to peak-calling, this process computes ChIP-Seq/CUT & RUN and
     ATAC-Seq QC metrics. Process returns a QC metrics report, fragment
     length estimation, and a deduplicated tagAlign file. QC report
     contains ENCODE 3 proposed QC metrics --
@@ -649,7 +649,7 @@ class Macs2(Process):
     slug = "macs2-callpeak"
     name = "MACS 2.0"
     process_type = "data:chipseq:callpeak:macs2"
-    version = "4.8.1"
+    version = "4.8.2"
     category = "ChIP-seq"
     data_name = "{{ case|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH

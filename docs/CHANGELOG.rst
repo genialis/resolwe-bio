@@ -17,6 +17,8 @@ Added
 Changed
 -------
 - Make changes to input fields in ``workflow-cutnrun-beta``
+- Reword documentation of ``macs2-callpeak``, ``macs2-batch`` and
+  ``qc-prepeak``
 
 Fixed
 -----
