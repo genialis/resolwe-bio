@@ -1,4 +1,5 @@
 """Cluster gene expression time courses."""
+
 import json
 from collections import defaultdict
 

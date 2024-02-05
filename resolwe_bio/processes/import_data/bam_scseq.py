@@ -1,4 +1,5 @@
 """Upload single cell BAM."""
+
 from resolwe.process import (
     Cmd,
     DataField,

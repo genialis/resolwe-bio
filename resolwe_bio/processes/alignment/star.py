@@ -1,4 +1,5 @@
 """Align reads with STAR aligner."""
+
 import gzip
 import shutil
 from pathlib import Path
@@ -58,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.1.0"
+    version = "5.1.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -429,9 +430,9 @@ class AlignmentStar(Process):
             )
 
         elif inputs.genome.output.species in SPECIES and reads_species is None:
-            inputs.reads.entity.annotations[
-                "general.species"
-            ] = inputs.genome.output.species
+            inputs.reads.entity.annotations["general.species"] = (
+                inputs.genome.output.species
+            )
             self.info("Sample species was automatically annotated to match the genome.")
 
         mate1_name = get_fastq_name(Path(inputs.reads.output.fastq[0].path))

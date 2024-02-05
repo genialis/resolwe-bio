@@ -1,4 +1,5 @@
 """Filtering and annotation of Variant Calling (CheMut)."""
+
 import os
 from pathlib import Path
 

@@ -1,4 +1,5 @@
 """Upload index files for BWA-MEM2 aligner."""
+
 import shutil
 from pathlib import Path
 

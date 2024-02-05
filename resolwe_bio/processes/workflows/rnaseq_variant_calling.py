@@ -1,4 +1,5 @@
 """RNA-seq Variant Calling Workflow."""
+
 from resolwe.process import (
     BooleanField,
     Data,

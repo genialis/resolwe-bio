@@ -5,6 +5,7 @@ Serializers
 ===========
 
 """
+
 from rest_framework import serializers
 
 from resolwe.rest.serializers import SelectiveFieldMixin

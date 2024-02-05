@@ -1,4 +1,5 @@
 """Merge FASTQs."""
+
 from pathlib import Path
 
 from resolwe.process import Data, DataField, ListField, Process, SchedulingClass

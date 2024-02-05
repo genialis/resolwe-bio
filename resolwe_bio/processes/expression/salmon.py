@@ -1,4 +1,5 @@
 """Salmon Quant."""
+
 import gzip
 import io
 import json

@@ -1,4 +1,5 @@
 """Register knowledgebase tables in listener."""
+
 from typing import Tuple
 
 from django.contrib.auth import get_user_model

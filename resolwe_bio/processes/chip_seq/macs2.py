@@ -1426,9 +1426,11 @@ class Macs2(Process):
             callpeak_params.extend(
                 [
                     "-c",
-                    control_tagalign
-                    if inputs.tagalign
-                    else inputs.control.output.bam.path,
+                    (
+                        control_tagalign
+                        if inputs.tagalign
+                        else inputs.control.output.bam.path
+                    ),
                 ]
             )
 

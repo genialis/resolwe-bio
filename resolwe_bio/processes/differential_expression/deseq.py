@@ -1,4 +1,5 @@
 """Run DESeq analysis."""
+
 from pathlib import Path
 
 from plumbum import TEE

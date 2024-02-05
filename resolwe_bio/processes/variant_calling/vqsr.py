@@ -1,4 +1,5 @@
 """Run variant filtration using VQSR tool."""
+
 import os
 
 from plumbum import TEE

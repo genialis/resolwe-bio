@@ -1,4 +1,5 @@
 """Remove duplicates using GATK's MarkDuplicates."""
+
 import os
 import shutil
 

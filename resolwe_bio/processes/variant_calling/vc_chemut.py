@@ -1,4 +1,5 @@
 """GATK joint sample analysis."""
+
 import os
 from pathlib import Path
 

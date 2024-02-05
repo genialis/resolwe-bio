@@ -5,6 +5,7 @@ Resolwe Bio Filters
 ===================
 
 """
+
 import django_filters as filters
 from rest_framework import exceptions
 

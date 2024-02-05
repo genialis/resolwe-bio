@@ -1,4 +1,5 @@
 """Filter BAM files using alignmentSieve from deeptools."""
+
 import os
 from pathlib import Path
 

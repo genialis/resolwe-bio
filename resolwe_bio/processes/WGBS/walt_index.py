@@ -1,4 +1,5 @@
 """Create genome index for WALT aligner."""
+
 import shutil
 from pathlib import Path
 

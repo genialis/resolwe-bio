@@ -1,4 +1,5 @@
 """Run GATK MergeVcfs."""
+
 import os
 
 from plumbum import TEE

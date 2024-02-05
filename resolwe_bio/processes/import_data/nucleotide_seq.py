@@ -1,4 +1,5 @@
 """Import Nucleotide Sequence (FASTA)."""
+
 from pathlib import Path
 
 import dnaio

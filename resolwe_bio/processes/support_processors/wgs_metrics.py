@@ -1,4 +1,5 @@
 """Collect metrics about coverage of whole genome sequencing."""
+
 import os
 
 from plumbum import TEE

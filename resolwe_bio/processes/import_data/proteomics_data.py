@@ -1,4 +1,5 @@
 """Upload proteomics data."""
+
 import re
 from pathlib import Path
 

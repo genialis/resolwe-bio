@@ -1,4 +1,5 @@
 """Base quality score recalibration."""
+
 import os
 import shutil
 

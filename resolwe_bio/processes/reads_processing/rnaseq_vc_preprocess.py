@@ -1,4 +1,5 @@
 """Preprocess BAM file for RNA-seq variant calling."""
+
 import os
 from pathlib import Path
 

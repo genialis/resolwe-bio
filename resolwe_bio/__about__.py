@@ -1,4 +1,5 @@
 """Central place for package metadata."""
+
 from pkg_resources import DistributionNotFound, get_distribution
 
 # NOTE: We use __title__ instead of simply __name__ since the latter would

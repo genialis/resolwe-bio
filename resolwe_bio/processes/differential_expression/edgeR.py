@@ -1,4 +1,5 @@
 """Run EdgeR analysis."""
+
 from pathlib import Path
 
 from plumbum import TEE

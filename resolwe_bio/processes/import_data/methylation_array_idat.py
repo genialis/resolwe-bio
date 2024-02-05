@@ -1,4 +1,5 @@
 """Upload methylation array data (IDAT)."""
+
 from resolwe.process import FileField, Process, SchedulingClass, StringField
 
 

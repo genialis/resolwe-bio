@@ -5,6 +5,7 @@ Knowledge Base App Configuration
 ================================
 
 """
+
 from django.apps import AppConfig
 
 

@@ -1,4 +1,5 @@
 """Run GATK VariantFiltration."""
+
 import os
 
 from plumbum import TEE

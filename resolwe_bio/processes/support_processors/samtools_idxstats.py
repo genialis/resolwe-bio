@@ -1,4 +1,5 @@
 """Samtools idxstats."""
+
 from resolwe.process import Cmd, DataField, FileField, Process, SchedulingClass
 
 

@@ -1,4 +1,5 @@
 """Library of utility functions for writing tools."""
+
 import gzip
 import io
 

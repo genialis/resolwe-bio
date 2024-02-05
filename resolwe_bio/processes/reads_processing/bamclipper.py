@@ -1,4 +1,5 @@
 """Remove primer sequences from BAM alignments by soft-clipping."""
+
 import os
 from shutil import copy2
 

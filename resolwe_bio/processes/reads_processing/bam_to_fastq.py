@@ -1,4 +1,5 @@
 """Convert aligned reads from BAM to FASTQ format."""
+
 from pathlib import Path
 
 from plumbum import TEE

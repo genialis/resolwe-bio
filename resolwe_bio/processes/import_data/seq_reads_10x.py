@@ -1,4 +1,5 @@
 """Import ScRNA-Seq reads."""
+
 from plumbum import TEE
 
 from resolwe.process import (

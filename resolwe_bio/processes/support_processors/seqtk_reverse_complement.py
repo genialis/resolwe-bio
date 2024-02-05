@@ -1,4 +1,5 @@
 """Reverse complement reads with Seqtk."""
+
 import os
 
 from plumbum import TEE

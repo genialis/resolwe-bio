@@ -1,4 +1,5 @@
 """Calculate conversion rate for bisulfite sequencing."""
+
 import os
 
 from plumbum import TEE

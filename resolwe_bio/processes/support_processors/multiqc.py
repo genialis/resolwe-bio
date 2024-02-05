@@ -1,4 +1,5 @@
 """Prepare MultiQC report."""
+
 import gzip
 import json
 import os

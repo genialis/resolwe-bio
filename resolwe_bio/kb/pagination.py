@@ -1,4 +1,5 @@
 """Django rest framework pagination classes."""
+
 from rest_framework.pagination import LimitOffsetPagination, _positive_int
 
 

@@ -1,4 +1,5 @@
 """Run GATK SelectVariants."""
+
 import os
 
 from plumbum import TEE

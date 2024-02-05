@@ -1,4 +1,5 @@
 """Additional models used by ProcessBio."""
+
 from typing import Any, Dict, List
 
 from resolwe.process.communicator import communicator

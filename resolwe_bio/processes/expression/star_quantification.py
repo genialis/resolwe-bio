@@ -1,4 +1,5 @@
 """Normalization of STAR quantification results."""
+
 import gzip
 import io
 import json

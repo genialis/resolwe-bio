@@ -1,4 +1,5 @@
 """Resolwe Bioinformatics configuration."""
+
 from django.apps import AppConfig
 
 

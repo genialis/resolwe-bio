@@ -1,4 +1,5 @@
 """Import reads (FASTQ)."""
+
 import collections
 import glob
 import gzip

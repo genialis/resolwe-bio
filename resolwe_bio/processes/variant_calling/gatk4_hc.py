@@ -1,4 +1,5 @@
 """Run GATK HaplotypeCaller."""
+
 import os
 from pathlib import Path
 

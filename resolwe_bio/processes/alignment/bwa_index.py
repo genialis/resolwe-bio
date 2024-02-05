@@ -1,4 +1,5 @@
 """Create genome index for BWA aligner."""
+
 import shutil
 from pathlib import Path
 

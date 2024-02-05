@@ -1,4 +1,5 @@
 """Run GATK SplitNCigarReads."""
+
 import os
 from pathlib import Path
 

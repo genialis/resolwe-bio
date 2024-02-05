@@ -1,4 +1,5 @@
 """Subsample reads from FASTQ files with Seqtk."""
+
 from pathlib import Path
 
 from plumbum import TEE

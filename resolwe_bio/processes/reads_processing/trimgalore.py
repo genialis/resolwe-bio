@@ -1,4 +1,5 @@
 """Run Trim Galore tool on paired-end sequencing data."""
+
 import os
 
 from plumbum import TEE

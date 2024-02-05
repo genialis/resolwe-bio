@@ -1,4 +1,5 @@
 """Run Cuffdiff 2.2."""
+
 import os
 from pathlib import Path
 

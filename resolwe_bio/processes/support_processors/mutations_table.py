@@ -1,4 +1,5 @@
 """Report mutations from RNA-seq Variant Calling Pipeline."""
+
 import gzip
 import os
 from collections import defaultdict

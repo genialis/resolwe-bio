@@ -1,4 +1,5 @@
 """Generate STAR genome index."""
+
 import shutil
 from pathlib import Path
 

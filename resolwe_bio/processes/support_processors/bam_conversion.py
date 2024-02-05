@@ -1,4 +1,5 @@
 """Converting BAM to BEDPE and normalized BigWig files."""
+
 import os
 from pathlib import Path
 

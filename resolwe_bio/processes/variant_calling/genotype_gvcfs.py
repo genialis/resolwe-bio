@@ -1,4 +1,5 @@
 """Run GATK GenotypeGVCFs tool."""
+
 import os
 from pathlib import Path
 

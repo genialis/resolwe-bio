@@ -5,6 +5,7 @@ Insert Knowledge Base Mappings
 ==============================
 
 """
+
 import csv
 import json
 import logging

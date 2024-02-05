@@ -32,7 +32,7 @@ class WorkflowCUTnRUN(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.0.0"
+    version = "2.0.1"
     entity = {
         "type": "sample",
     }
@@ -389,9 +389,11 @@ class WorkflowCUTnRUN(Process):
 
         input_deduplicate = {
             "bam": species_alignment,
-            "remove_duplicates": True
-            if inputs.deduplication_options.remove_duplicates == True
-            else False,
+            "remove_duplicates": (
+                True
+                if inputs.deduplication_options.remove_duplicates == True
+                else False
+            ),
         }
 
         deduplicate_alignment = Data.create(

@@ -1,4 +1,5 @@
 """UMI-tools dedup."""
+
 import os
 from glob import glob
 

@@ -1,4 +1,5 @@
 """Run GATK GenomicsDBImport tool."""
+
 import os
 import shutil
 from pathlib import Path

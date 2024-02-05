@@ -5,6 +5,7 @@ Sample Template Tags
 ====================
 
 """
+
 from resolwe.flow.models.annotations import AnnotationField
 
 from resolwe_bio.models import Sample

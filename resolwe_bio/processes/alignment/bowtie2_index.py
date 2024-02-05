@@ -1,4 +1,5 @@
 """Create genome index for Bowtie2 aligner."""
+
 import shutil
 from pathlib import Path
 

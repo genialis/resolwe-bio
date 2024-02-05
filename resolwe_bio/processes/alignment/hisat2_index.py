@@ -1,4 +1,5 @@
 """Create genome index for HISAT2 aligner."""
+
 import shutil
 from pathlib import Path
 

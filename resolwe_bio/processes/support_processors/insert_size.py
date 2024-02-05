@@ -1,4 +1,5 @@
 """Collect metrics about the insert size of a paired-end library."""
+
 import os
 
 from plumbum import TEE

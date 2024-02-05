@@ -1,4 +1,5 @@
 """Produce a summary of alignment metrics."""
+
 import gzip
 import os
 

@@ -1,4 +1,5 @@
 """WGS primary analysis (GVCF)."""
+
 from resolwe.process import (
     BooleanField,
     Data,

@@ -1,4 +1,5 @@
 """Run GATK HaplotypeCaller in GVCF mode."""
+
 import os
 from pathlib import Path
 

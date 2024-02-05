@@ -1,4 +1,5 @@
 """Gene Ontology Enrichment Analysis."""
+
 import csv
 import tempfile
 from collections import defaultdict

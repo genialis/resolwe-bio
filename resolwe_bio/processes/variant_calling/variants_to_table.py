@@ -1,4 +1,5 @@
 """Run GATK VariantsToTable."""
+
 import os
 
 from plumbum import TEE

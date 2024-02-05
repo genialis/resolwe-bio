@@ -1,4 +1,5 @@
 """Preprocess data for WGS analysis using GATK best practices procedure."""
+
 import os
 from pathlib import Path
 
