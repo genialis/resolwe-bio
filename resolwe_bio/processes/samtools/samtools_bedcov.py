@@ -13,6 +13,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    ListField,
     Process,
     SchedulingClass,
     StringField,
@@ -70,7 +71,7 @@ class SamtoolsBedcov(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.2.0"
+    version = "1.3.0"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
@@ -96,6 +97,13 @@ class SamtoolsBedcov(Process):
                 label="Skip deletions and ref skips",
                 description="Do not include deletions (D) and ref skips (N) in bedcov computation. [-j]",
                 default=False,
+            )
+            excl_flags = ListField(
+                StringField(),
+                label="Filter flags",
+                default=["UNMAP", "SECONDARY", "QCFAIL", "DUP"],
+                description="Filter flags: skip reads with mask bits set. "
+                "Press ENTER after each flag. [-G]",
             )
             output_option = StringField(
                 label="Metric by which to output coverage",
@@ -143,6 +151,9 @@ class SamtoolsBedcov(Process):
             input_options.extend(["-Q", inputs.advanced.min_read_qual])
         if inputs.advanced.rm_del_ref_skips:
             input_options.append("-j")
+        if inputs.advanced.excl_flags:
+            flags = ",".join(inputs.advanced.excl_flags)
+            input_options.extend(["-G", flags])
 
         cmd = Cmd["samtools"]["bedcov"][input_options][
             inputs.bedfile.output.bed.path,
