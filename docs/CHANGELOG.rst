@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add support for ``Python 3.12``
+- Add ``samtools-depth-single`` process
 
 Changed
 -------

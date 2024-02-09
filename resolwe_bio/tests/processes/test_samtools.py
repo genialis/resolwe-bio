@@ -194,3 +194,31 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             output_folder / "regions_bed_coverage_mean.txt.gz",
             compression="gzip",
         )
+
+    @tag_process("samtools-depth-single")
+    def samtools_depth_single(self):
+        input_folder = Path("samtools") / "inputs"
+        output_folder = Path("samtools") / "outputs"
+        with self.preparation_stage():
+            inputs_bam = {
+                "src": input_folder / "samtools_in.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam = self.run_process("upload-bam", inputs_bam)
+
+            inputs_bed = {
+                "src": input_folder / "regions_bed.bed",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bed = self.run_process("upload-bed", inputs_bed)
+
+        inputs = {"bam": bam.id, "bedfile": bed.id}
+        samtools = self.run_process("samtools-depth-single", inputs)
+        self.assertFile(
+            obj=samtools,
+            field_path="depth_report",
+            fn=output_folder / "samtools_in_depth.txt.gz",
+            compression="gzip",
+        )
