@@ -16,13 +16,21 @@ Added
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+55.2.0 - 2024-02-19
+===================
+
+Changed
+-------
 - Make changes to input fields in ``workflow-cutnrun-beta``
 - Reword documentation of ``macs2-callpeak``, ``macs2-batch`` and
   ``qc-prepeak``
 - Add input option to exclude flags in ``samtools-bedcov`` process
-
-Fixed
------
 
 
 ===================
