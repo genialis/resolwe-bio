@@ -439,7 +439,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.22.0"
+    version = "1.22.1"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -643,8 +643,14 @@ class MultiQC(Process):
                 )
                 chip_seq_samples.append(sample_name)
                 chip_seq_prepeak_reports.append(d.output.case_prepeak_qc.path)
-                chip_seq_postpeak_samples.append(sample_name)
-                chip_seq_postpeak_reports.append(d.output.chip_qc.path)
+                # When MACS2 analysis is run in broad peak mode (--broad), the postpeak
+                # reports are not generated
+                try:
+                    if os.path.isfile(d.output.chip_qc.path):
+                        chip_seq_postpeak_samples.append(sample_name)
+                        chip_seq_postpeak_reports.append(d.output.chip_qc.path)
+                except AttributeError:
+                    pass
                 # MACS2 analysis can be run without the background sample,
                 # thus the associated report might not exits
                 try:
