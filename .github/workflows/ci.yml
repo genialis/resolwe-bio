@@ -19,7 +19,6 @@ jobs:
 
     env:
       TOX_COMMAND: "tox --skip-missing-interpreters false"
-      RESOLWE_POSTGRESQL_USER: postgres
       RESOLWE_POSTGRESQL_PORT: 55433
       RESOLWE_REDIS_PORT: 56380
     strategy:
@@ -32,7 +31,8 @@ jobs:
         ports:
           - 55433:5432
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: resolwe
+          POSTGRES_DB: resolwe-bio
           POSTGRES_HOST_AUTH_METHOD: trust
         options: >-
           --health-cmd pg_isready
