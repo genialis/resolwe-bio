@@ -23,6 +23,8 @@ Fixed
 -----
 - Fix handling of missing post-peak QC reports in MultiQC
   when MACS2 is run in broad peak mode
+- Fix handling STAR alignment reports for downsampled inputs
+  in MultiQC 
 
 
 ===================

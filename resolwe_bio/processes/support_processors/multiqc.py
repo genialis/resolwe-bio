@@ -439,7 +439,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.22.1"
+    version = "1.22.2"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -579,17 +579,32 @@ class MultiQC(Process):
                     create_symlink(
                         d.output.stats.path, os.path.join(sample_dir, globin_report)
                     )
-                else:
-                    report = f"{bam_name}.Log.final.out"
+                elif "_downsampled" in bam_name:
+                    count_report = "downsampled_ReadsPerGene.out.tab.gz"
+                    report = f"{bam_name}.downsampled.Log.final.out"
                     create_symlink(
                         d.output.stats.path, os.path.join(sample_dir, report)
                     )
-                    if d.output.gene_counts:
+                else:
+                    count_report = "ReadsPerGene.out.tab.gz"
+                    report = f"{bam_name}.Log.final.out"
+                    dst = os.path.join(sample_dir, report)
+                    if not os.path.islink(dst):
+                        create_symlink(d.output.stats.path, dst)
+                    else:
+                        self.warning(
+                            f"STAR alignment report for sample {sample_dir} already exists. Skipping."
+                        )
+                if d.output.gene_counts:
+                    outfile = os.path.join(sample_dir, count_report)
+                    if not os.path.isfile(outfile):
                         with gzip.open(d.output.gene_counts.path, "rb") as f_in:
                             with open(
                                 os.path.join(sample_dir, "ReadsPerGene.out.tab"), "wb"
                             ) as f_out:
                                 shutil.copyfileobj(f_in, f_out)
+                    else:
+                        self.warning(f"File {outfile} already exists. Skipping.")
 
             elif d.process.type == "data:alignment:bam:walt:":
                 try:
