@@ -17,6 +17,7 @@ Added
 - Add ``samtools-depth-single`` process
 - Add gene body coverage plot from ``qorts-qc`` process to MultiQC
   report
+- Add retry for reads prefetch in ``import-sra-single`` and ``import-sra-paired``
 
 Changed
 -------

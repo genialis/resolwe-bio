@@ -41,6 +41,20 @@ def run_fastqc(fastqs, output_dir):
     return stderr
 
 
+def prefetch_reads(self, max_size_prefetch, srr, retry_counts=3):
+    """Prefetch reads from SRA. Retry if prefetch fails."""
+    for _ in range(retry_counts):
+        return_code, _, _ = Cmd["prefetch"][
+            "-p", "--max-size", max_size_prefetch, srr
+        ] & TEE(retcode=None)
+        if return_code == 0:
+            return
+        else:
+            self.warning(f"Prefetch of {srr} reads failed. Retrying...")
+
+    self.error(f"Prefetch of {srr} reads failed {retry_counts} times.")
+
+
 class ImportSra(Process):
     """Import reads from SRA.
 
@@ -145,7 +159,7 @@ class ImportSraSingle(Process):
     slug = "import-sra-single"
     name = "SRA data (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.6.1"
+    version = "1.7.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -207,12 +221,12 @@ class ImportSraSingle(Process):
         for srr in inputs.sra_accession:
             if inputs.advanced.prefetch:
                 # prefetch the SRR bundle
-                return_code, _, _ = Cmd["prefetch"][
-                    "-p", "--max-size", inputs.advanced.max_size_prefetch, srr
-                ] & TEE(retcode=None)
-                if return_code:
-                    self.error(f"Prefetch of {srr} reads failed.")
-
+                prefetch_reads(
+                    self=self,
+                    max_size_prefetch=inputs.advanced.max_size_prefetch,
+                    srr=srr,
+                    retry_counts=3,
+                )
             # Convert the SRR bundle to FASTQ format
             cmd = Cmd["fastq-dump"]["--gzip"]
             if inputs.advanced.min_spot_id:
@@ -317,7 +331,7 @@ class ImportSraPaired(Process):
     slug = "import-sra-paired"
     name = "SRA data (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.6.1"
+    version = "1.7.0"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.RAW
@@ -395,12 +409,12 @@ class ImportSraPaired(Process):
         for srr in inputs.sra_accession:
             if inputs.advanced.prefetch:
                 # prefetch the SRR bundle
-                return_code, _, _ = Cmd["prefetch"][
-                    "-p", "--max-size", inputs.advanced.max_size_prefetch, srr
-                ] & TEE(retcode=None)
-                if return_code:
-                    self.error(f"Prefetch of {srr} reads failed.")
-
+                prefetch_reads(
+                    self=self,
+                    max_size_prefetch=inputs.advanced.max_size_prefetch,
+                    srr=srr,
+                    retry_counts=3,
+                )
             # Convert the SRR bundle to FASTQ format
             cmd = Cmd["fastq-dump"]["--gzip"]["--split-files"]
             if inputs.advanced.min_spot_id:
