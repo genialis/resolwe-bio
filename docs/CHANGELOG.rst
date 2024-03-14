@@ -20,6 +20,7 @@ Added
 
 Changed
 -------
+- Remove ``rnaseqc-qc`` 3' bias statistics from MultiQC report
 
 Fixed
 -----

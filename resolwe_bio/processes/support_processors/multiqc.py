@@ -65,49 +65,12 @@ def create_summary_table(samples, species, build):
         json.dump(sample_summary_json, out_file)
 
 
-def parse_rnaseqc_report(report):
-    """Parse RNA-SeQC QC report file."""
-    df = pd.read_csv(report, sep="\t")
-    return dict(df.values)
-
-
 def parse_genebody_report(report):
     """Parse QoRTs gene body coverage metrics report file."""
     df = pd.read_csv(report, sep="\t", compression="gzip")
     df["QUANTILE"] *= 100
     dict = {k: v for k, v in zip(df["QUANTILE"], df["TOTAL"])}
     return dict
-
-
-def create_coverage_table(sample_names, reports):
-    """Prepare coverage metrics table."""
-    coverage_stats = [
-        "Genes used in 3' bias",
-        "Mean 3' bias",
-        "Median 3' bias",
-        "3' bias Std",
-        "3' bias MAD_Std",
-        "3' Bias, 25th Percentile",
-        "3' Bias, 75th Percentile",
-    ]
-
-    coverage_qc_json = {
-        "id": "coverage_qc",
-        "section_name": "RNA-SeQC Coverage Stats",
-        "plot_type": "table",
-        "file_format": "json",
-        "data": {},
-    }
-
-    for sample_name, report in zip(sample_names, reports):
-        report_data = parse_rnaseqc_report(report)
-
-        coverage_qc_json["data"][sample_name] = {
-            k: report_data[k] for k in coverage_stats if k in report_data
-        }
-
-    with open("rnaseqc_coverage_mqc.json", "w") as out_file:
-        json.dump(coverage_qc_json, out_file)
 
 
 def create_coverage_plot(sample_names, reports):
@@ -474,7 +437,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.23.0"
+    version = "1.24.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -552,8 +515,6 @@ class MultiQC(Process):
         unsupported_data = []
         star_quantification_samples = []
         star_quantification_reports = []
-        rnaseqc_samples = []
-        rnaseqc_reports = []
         qorts_samples = []
         qorts_reports = []
 
@@ -733,13 +694,8 @@ class MultiQC(Process):
 
             elif d.process.type == "data:rnaseqc:qc:":
                 name = os.path.basename(d.output.metrics.path)
-                rnaseqc_samples.append(sample_name)
-                rnaseqc_reports.append(d.output.metrics.path)
                 create_symlink(
                     src=d.output.metrics.path, dst=os.path.join(sample_dir, name)
-                )
-                create_coverage_table(
-                    sample_names=rnaseqc_samples, reports=rnaseqc_reports
                 )
 
             elif d.process.type == "data:expression:salmon:":

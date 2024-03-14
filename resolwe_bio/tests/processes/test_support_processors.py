@@ -491,14 +491,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
-            rnaseqc_report = self.run_process(
-                "rnaseqc-qc",
-                {
-                    "alignment": star_alignment.id,
-                    "annotation": annotation.id,
-                },
-            )
-
             # BED file is not part of a sample entity. Test if MultiQC process
             # correctly skips this input data object
             bed = self.run_process(
@@ -518,7 +510,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     star_quantification.id,
                     samtools_idxstats.id,
                     qorts_report.id,
-                    rnaseqc_report.id,
                     bed.id,
                 ],
                 "advanced": {
