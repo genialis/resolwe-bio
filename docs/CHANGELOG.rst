@@ -13,6 +13,10 @@ Unreleased
 
 Added
 -----
+- Add support for ``Python 3.12``
+- Add ``samtools-depth-single`` process
+- Add gene body coverage plot from ``qorts-qc`` process to MultiQC
+  report
 
 Changed
 -------

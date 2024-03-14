@@ -4,6 +4,7 @@ import gzip
 import json
 import os
 import shutil
+import zipfile
 from pathlib import Path
 
 import pandas as pd
@@ -70,6 +71,14 @@ def parse_rnaseqc_report(report):
     return dict(df.values)
 
 
+def parse_genebody_report(report):
+    """Parse QoRTs gene body coverage metrics report file."""
+    df = pd.read_csv(report, sep="\t", compression="gzip")
+    df["QUANTILE"] *= 100
+    dict = {k: v for k, v in zip(df["QUANTILE"], df["TOTAL"])}
+    return dict
+
+
 def create_coverage_table(sample_names, reports):
     """Prepare coverage metrics table."""
     coverage_stats = [
@@ -99,6 +108,32 @@ def create_coverage_table(sample_names, reports):
 
     with open("rnaseqc_coverage_mqc.json", "w") as out_file:
         json.dump(coverage_qc_json, out_file)
+
+
+def create_coverage_plot(sample_names, reports):
+    """Prepare QoRTs gene body coverage plot."""
+    genebody_qc_json = {
+        "id": "genebody_qc",
+        "section_name": "QoRTs QC - gene body coverage information",
+        "plot_type": "linegraph",
+        "file_format": "json",
+        "pconfig": {
+            "ylab": "Proportion of Read-Pairs",
+            "xlab": "Percentile of Gene Body (5' -> 3')",
+        },
+        "data": {},
+    }
+    source_fn = "qorts_output/QC.geneBodyCoverage.byExpr.avgPct.txt.gz"
+
+    for sample_name, report in zip(sample_names, reports):
+        with zipfile.ZipFile(report, "r") as archive:
+            archive.extract(source_fn)
+
+        report_data = parse_genebody_report(source_fn)
+        genebody_qc_json["data"][sample_name] = report_data
+
+    with open("qorts_genebody_mqc.json", "w") as out_file:
+        json.dump(genebody_qc_json, out_file)
 
 
 def parse_chip_qc_report(report):
@@ -439,7 +474,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.22.2"
+    version = "1.23.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -519,6 +554,8 @@ class MultiQC(Process):
         star_quantification_reports = []
         rnaseqc_samples = []
         rnaseqc_reports = []
+        qorts_samples = []
+        qorts_reports = []
 
         config_file = "/opt/resolwebio/assets/multiqc_config.yml"
         with open(config_file) as handle:
@@ -682,8 +719,17 @@ class MultiQC(Process):
                 create_symlink(d.output.report.path, os.path.join(sample_dir, name))
 
             elif d.process.type == "data:qorts:qc:":
-                name = os.path.basename(d.output.summary.path)
-                create_symlink(d.output.summary.path, os.path.join(sample_dir, name))
+                summary_name = os.path.basename(d.output.summary.path)
+                create_symlink(
+                    d.output.summary.path, os.path.join(sample_dir, summary_name)
+                )
+
+                report_path = d.output.qorts_data.path
+                qorts_samples.append(sample_name)
+                qorts_reports.append(report_path)
+                create_symlink(
+                    report_path, os.path.join(sample_dir, os.path.basename(report_path))
+                )
 
             elif d.process.type == "data:rnaseqc:qc:":
                 name = os.path.basename(d.output.metrics.path)
@@ -770,6 +816,9 @@ class MultiQC(Process):
             )
 
         create_summary_table(samples, species, build)
+
+        if qorts_samples and qorts_reports:
+            create_coverage_plot(sample_names=qorts_samples, reports=qorts_reports)
 
         if lib_type_samples and lib_type_reports:
             create_lib_strand_table(lib_type_samples, lib_type_reports)
