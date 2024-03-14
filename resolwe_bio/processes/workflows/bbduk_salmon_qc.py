@@ -42,7 +42,7 @@ class WorkflowBbdukSalmonQc(Process):
     entity = {
         "type": "sample",
     }
-    version = "4.3.1"
+    version = "4.4.0"
     process_type = "data:workflow:rnaseq:salmon"
     category = "Pipeline"
 
@@ -448,23 +448,5 @@ class WorkflowBbdukSalmonQc(Process):
                 qorts,
             ]
         }
-
-        # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
-        if inputs.annotation.output.source == "ENSEMBL":
-            input_rnaseqc = {
-                "alignment": alignment_qc,
-                "annotation": inputs.annotation,
-                "strand_detection_options": {
-                    "stranded": "auto",
-                    "cdna_index": inputs.salmon_index,
-                    "n_reads": 5000000,
-                },
-            }
-            rnaseqc = Data.create(
-                process=BioProcess.get_latest(slug="rnaseqc-qc"),
-                input=input_rnaseqc,
-                name=f"RNA-SeQC QC report ({inputs.reads.name})",
-            )
-            input_multiqc["data"].append(rnaseqc)
 
         Data.create(process=BioProcess.get_latest(slug="multiqc"), input=input_multiqc)

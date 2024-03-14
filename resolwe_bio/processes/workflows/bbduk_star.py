@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.4.0"
+    version = "1.5.0"
     entity = {
         "type": "sample",
     }
@@ -730,25 +730,5 @@ class WorkflowSTAR(Process):
             ],
             "advanced": {"dirs": True, "config": True},
         }
-
-        # RNA-SeQC tool is initiated only if annotation source is ENSEMBL
-        if inputs.annotation.output.source == "ENSEMBL":
-            input_rnaseqc = {
-                "alignment": alignment_downsampled,
-                "annotation": inputs.annotation,
-                "strand_detection_options": {"stranded": inputs.assay_type},
-            }
-
-            if inputs.cdna_index:
-                input_rnaseqc["strand_detection_options"][
-                    "cdna_index"
-                ] = inputs.cdna_index
-
-            rnaseqc = Data.create(
-                process=BioProcess.get_latest(slug="rnaseqc-qc"),
-                input=input_rnaseqc,
-                name=f"RNA-SeQC QC report ({inputs.reads.name})",
-            )
-            input_multiqc["data"].append(rnaseqc)
 
         Data.create(process=BioProcess.get_latest(slug="multiqc"), input=input_multiqc)
