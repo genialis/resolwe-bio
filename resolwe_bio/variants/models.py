@@ -49,7 +49,6 @@ class Variant(models.Model):
     position = models.PositiveBigIntegerField()
     reference = models.CharField(max_length=REFERENCE_MAX_LENGTH)
     alternative = models.CharField(max_length=ALTERNATIVE_MAX_LENGTH)
-    type = models.CharField(max_length=TYPE_MAX_LENGTH, blank=True, null=True)
 
     class Meta:
         """Add constraint for composite key."""
@@ -72,9 +71,10 @@ class Variant(models.Model):
 class VariantAnnotation(models.Model):
     """Describes an annotation of a variant."""
 
-    variant = models.ForeignKey(
-        Variant, on_delete=models.CASCADE, related_name="annotations"
+    variant = models.OneToOneField(
+        Variant, on_delete=models.CASCADE, related_name="annotation"
     )
+    type = models.CharField(max_length=TYPE_MAX_LENGTH, blank=True, null=True)
     annotation = models.CharField(max_length=ANNOTATION_MAX_LENGTH)
     annotation_impact = models.CharField(max_length=ANNOTATION_IMPACT_MAX_LENGTH)
     gene = models.CharField(max_length=GENE_MAX_LENGTH)

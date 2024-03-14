@@ -50,45 +50,38 @@ class BasicCommands(ListenerPlugin):
         metadata, variants_data = message.message_data
         species, genome_assembly = metadata["species"], metadata["genome_assembly"]
 
-        variants = []
-        variant_calls = []
+        variant_calls = list()
+        variant_cache = dict()
 
+        # Bulk create variants. The consequesce of ignore_conflicts flag is that the
+        # database does not returt the ids of the created objects. So first create all
+        # the variants and then create the variant calls.
         for variant_data in variants_data:
-            chromosome = variant_data["chromosome"]
-            position = variant_data["position"]
-            reference = variant_data["reference"]
-            alternative = variant_data["alternative"]
-            Variant.objects.exists(
-                species=species,
-                genome_assembly=genome_assembly,
-                chromosome=chromosome,
-                position=position,
-                reference=reference,
-                alternative=alternative,
-            )
-            variants.append(
-                Variant(
-                    species=species,
-                    genome_assembly=genome_assembly,
-                    chromosome=chromosome,
-                    position=position,
-                    reference=reference,
-                    alternative=alternative,
-                    type=variant_data.get("type", None),
-                )
-            )
-            quality = variant_data["quality"]
-            depth = variant_data["depth"]
-            genotype = variant_data["genotype"]
-            filter = variant_data["filter"]
+            key = {
+                "species": species,
+                "genome_assembly": genome_assembly,
+                "chromosome": variant_data["chromosome"],
+                "position": variant_data["position"],
+                "reference": variant_data["reference"],
+                "alternative": variant_data["alternative"],
+            }
+            # To reduce the hits to the database use cache for variants.
+            key_tuple = tuple(key.values())
+            if key_tuple not in variant_cache:
+                variant_cache[key_tuple] = Variant.objects.get_or_create(**key)[0]
+            variant = variant_cache[key_tuple]
+
             variant_calls.append(
                 VariantCall(
+                    variant=variant,
                     data=data,
                     sample=sample,
-                    quality=quality,
-                    depth=depth,
-                    genotype=genotype,
-                    filter=filter,
+                    quality=variant_data["quality"],
+                    depth=variant_data["depth"],
+                    genotype=variant_data["genotype"],
+                    filter=variant_data["filter"],
+                    variant=variant,
                 )
             )
-        Variant.objects.bulk_create(variants)
+
+        VariantCall.objects.bulk_create(variant_calls)
