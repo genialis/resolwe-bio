@@ -1,10 +1,9 @@
 """Samtools depth."""
 
 import gzip
-from io import StringIO
+import os
 from pathlib import Path
 
-import pandas as pd
 from plumbum import TEE
 
 from resolwe.process import (
@@ -19,13 +18,6 @@ from resolwe.process import (
     SchedulingClass,
     StringField,
 )
-
-
-def prune_zero_depth(stdout):
-    """Prune zero depth entries from the samtools depth output."""
-    df = pd.read_csv(StringIO(stdout), sep="\t", names=["chrom", "pos", "depth"])
-    df = df[df["depth"] > 0]
-    return df
 
 
 class SamtoolsDepthSingle(Process):
@@ -53,7 +45,7 @@ class SamtoolsDepthSingle(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.0.0"
+    version = "1.1.0"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
@@ -64,7 +56,7 @@ class SamtoolsDepthSingle(Process):
         bedfile = DataField(
             data_type="bed",
             label="BED file",
-            description="Target BED file with regions to extract. If not selected the whole genome will be used.",
+            description="Target BED file with regions to extract. If not selected, the whole genome will be used.",
             required=False,
         )
 
@@ -73,7 +65,7 @@ class SamtoolsDepthSingle(Process):
 
             output_zero_depth = BooleanField(
                 label="Output all positions (including those with zero depth)",
-                description="Output all positions including those with zero depth). [-a]",
+                description="Output all positions including those with zero depth. [-a]",
                 default=False,
                 disabled="advanced.output_all_positions == true",
             )
@@ -137,7 +129,7 @@ class SamtoolsDepthSingle(Process):
         """Run the analysis."""
 
         name = Path(inputs.bam.output.bam.path).stem
-        output_fn = f"{name}_depth.txt.gz"
+        result_fn = f"{name}_depth.txt"
 
         input_options = []
 
@@ -174,20 +166,30 @@ class SamtoolsDepthSingle(Process):
                 )
             input_options.extend(["-b", inputs.bedfile.output.bed.path])
 
-        cmd = Cmd["samtools"]["depth"][input_options][inputs.bam.output.bam.path]
-        return_code, stdout, stderr = cmd & TEE(retcode=None)
+        return_code, stdout, stderr = Cmd["samtools"]["depth"][input_options][
+            inputs.bam.output.bam.path
+        ]["-o", result_fn] & TEE(retcode=None)
         if return_code:
             self.error(f"Samtools depth failed. {stdout}, {stderr}")
 
-        if inputs.advanced.prune_zero_depth:
-            df = prune_zero_depth(stdout)
-            df.to_csv(
-                output_fn, sep="\t", index=False, header=False, compression="gzip"
-            )
-        else:
-            with gzip.open(output_fn, mode="wb") as f:
-                f.write(str.encode(stdout))
+        result_fn_zipped = result_fn + ".gz"
 
-        outputs.depth_report = output_fn
+        if inputs.advanced.prune_zero_depth:
+            with open(result_fn, "r") as infile, gzip.open(
+                result_fn_zipped, "w"
+            ) as outfile:
+                for line in infile:
+                    columns = line.strip().split("\t")
+                    if columns[2] != "0":
+                        outfile.write(line.encode())
+
+            os.remove(result_fn)
+
+        else:
+            return_code, _, _ = Cmd["gzip"][result_fn] & TEE(retcode=None)
+            if return_code:
+                self.error("Compression of file failed.")
+
+        outputs.depth_report = result_fn_zipped
         outputs.species = inputs.bam.output.species
         outputs.build = inputs.bam.output.build

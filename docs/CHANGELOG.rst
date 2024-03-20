@@ -25,6 +25,7 @@ Fixed
   when MACS2 is run in broad peak mode
 - Fix handling STAR alignment reports for downsampled inputs
   in MultiQC 
+- Fix handling of large files in ``samtools-depth`` process
 
 
 ===================
