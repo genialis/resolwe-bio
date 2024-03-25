@@ -13,19 +13,29 @@ Unreleased
 
 Added
 -----
-- Add support for ``Python 3.12``
-- Add ``samtools-depth-single`` process
 
 Changed
 -------
 
 Fixed
 -----
+
+
+===================
+55.3.0 - 2024-03-25
+===================
+
+Added
+-----
+- Add support for ``Python 3.12``
+- Add ``samtools-depth-single`` process
+
+Fixed
+-----
 - Fix handling of missing post-peak QC reports in MultiQC
   when MACS2 is run in broad peak mode
 - Fix handling STAR alignment reports for downsampled inputs
-  in MultiQC 
-- Fix handling of large files in ``samtools-depth`` process
+  in MultiQC
 
 
 ===================
