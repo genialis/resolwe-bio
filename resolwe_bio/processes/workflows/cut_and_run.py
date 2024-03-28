@@ -1,4 +1,4 @@
-"""Beta Cut & Run workflow."""
+"""Cut & Run workflow."""
 
 from resolwe.process import (
     BooleanField,
@@ -15,7 +15,7 @@ from resolwe.process.models import Process as BioProcess
 
 
 class WorkflowCUTnRUN(Process):
-    """Beta Cut & Run workflow.
+    """Cut & Run workflow.
 
     Analysis of samples processed for high resolution mapping of DNA binding sites using
     targeted nuclease strategy. The process is named CUT&RUN, which stands for
@@ -26,13 +26,13 @@ class WorkflowCUTnRUN(Process):
 
     """
 
-    slug = "workflow-cutnrun-beta"
-    name = "Beta Cut & Run workflow"
+    slug = "workflow-cutnrun"
+    name = "Cut & Run workflow"
     requirements = {
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.0.1"
+    version = "2.1.0"
     entity = {
         "type": "sample",
     }

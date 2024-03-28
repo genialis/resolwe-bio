@@ -23,6 +23,8 @@ Changed
 -------
 - Remove ``rnaseqc-qc`` 3' bias statistics from MultiQC report
 - Remove ``rnaseqc-qc`` from RNA-seq workflows
+- Remove ``cut_and_run.yml``
+- Rename ``workflow-cutnrun-beta`` to ``workflow-cutnrun``
 
 Fixed
 -----
