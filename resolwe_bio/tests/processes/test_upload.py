@@ -939,35 +939,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(upload_gtf, "species", "Homo Sapiens")
         self.assertFields(upload_gtf, "build", "hg19")
 
-    @tag_process("upload-sc-10x")
-    def test_upload_sc_reads(self):
-        inputs = {
-            "barcodes": ["10x_S1_L001_R1_001.fastq.gz", "10x_S1_L002_R1_001.fastq.gz"],
-            "reads": ["10x_S1_L001_R2_001.fastq.gz"],
-        }
-        wrong_mates = self.run_process("upload-sc-10x", inputs, Data.STATUS_ERROR)
-        error_msg = ["The number of reads and barcodes fastqs must be the same."]
-        self.assertEqual(wrong_mates.process_error, error_msg)
-
-        inputs = {
-            "barcodes": ["10x_S1_L001_R1_001.fastq.gz", "10x_S1_L002_R1_001.fastq.gz"],
-            "reads": ["10x_S1_L001_R2_001.fastq.gz", "10x_S1_L002_R2_001.fastq.gz"],
-        }
-        reads = self.run_process("upload-sc-10x", inputs)
-
-        self.assertFiles(
-            reads,
-            "barcodes",
-            ["10x_S1_L001_R1_001.fastq.gz", "10x_S1_L002_R1_001.fastq.gz"],
-            compression="gzip",
-        )
-        self.assertFiles(
-            reads,
-            "reads",
-            ["10x_S1_L001_R2_001.fastq.gz", "10x_S1_L002_R2_001.fastq.gz"],
-            compression="gzip",
-        )
-
     @tag_process("upload-bedpe")
     def test_upload_bedpe(self):
         species = "Homo sapiens"

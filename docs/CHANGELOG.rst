@@ -25,6 +25,8 @@ Changed
 - Remove ``rnaseqc-qc`` from RNA-seq workflows
 - Remove ``cut_and_run.yml``
 - Rename ``workflow-cutnrun-beta`` to ``workflow-cutnrun``
+- Remove ``upload-sc-10x``, ``cellranger-count`` and ``cellranger-mkref`` 
+  processes
 
 Fixed
 -----
