@@ -53,36 +53,3 @@ CREATE OR REPLACE FUNCTION data_biut()
         RETURN NEW;
     END;
     $$;
-
--- Add resolwe-bio specific fields to Entity search.
-CREATE OR REPLACE FUNCTION generate_resolwe_bio_entity_search(entity flow_entity)
-    RETURNS tsvector
-    LANGUAGE plpgsql
-    AS $$
-    DECLARE
-        search tsvector;
-    BEGIN
-        SELECT
-            -- Species.
-            setweight(to_tsvector('simple', COALESCE(entity.descriptor->'general'->>'species', '')), 'A')
-        INTO search;
-
-        RETURN search;
-    END;
-    $$;
-
-CREATE OR REPLACE FUNCTION entity_biut()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-    AS $$
-    BEGIN
-        SELECT generate_resolwe_entity_search(NEW) || generate_resolwe_bio_entity_search(NEW)
-        INTO NEW.search;
-
-        IF NEW.search IS NULL THEN
-            RAISE WARNING 'Search index for entity (id: %) is NULL.', NEW.id;
-        END IF;
-
-        RETURN NEW;
-    END;
-    $$;
