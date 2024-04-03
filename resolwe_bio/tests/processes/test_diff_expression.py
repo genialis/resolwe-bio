@@ -203,7 +203,6 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
                 contributor=self.contributor,
                 type="data:expression:nanostring:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 data_name="{{ src.file }}",
                 input_schema=[
                     {
@@ -311,7 +310,6 @@ re-save feature_type "gene"
                 contributor=self.contributor,
                 type="data:expression:microarray:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 data_name="{{ name }}",
                 input_schema=[
                     {

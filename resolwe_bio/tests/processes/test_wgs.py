@@ -183,7 +183,6 @@ class WgsProcessorTestCase(BioProcessTestCase):
                 contributor=self.contributor,
                 type="data:variants:gvcf:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 data_name="{{ gvcf.file }}",
                 input_schema=[
                     {
@@ -310,7 +309,6 @@ re-save build "custom_build"
                 contributor=self.contributor,
                 type="data:variants:gvcf:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 data_name="{{ gvcf.file }}",
                 input_schema=[
                     {

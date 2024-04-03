@@ -1,10 +1,9 @@
-from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIRequestFactory, force_authenticate
 
-from resolwe.flow.models import Collection, Data, DescriptorSchema, Entity, Process
-from resolwe.flow.views import CollectionViewSet, DataViewSet, EntityViewSet
-from resolwe.test import ProcessTestCase, TestCase
+from resolwe.flow.models import Data, Process
+from resolwe.flow.views import DataViewSet
+from resolwe.test import TestCase
 
 factory = APIRequestFactory()
 
@@ -47,7 +46,6 @@ class TestDataViewSetFilters(BaseViewSetFiltersTest):
             version="1.0.0",
             contributor=self.contributor,
             entity_type="test-schema",
-            entity_descriptor_schema="test-schema",
             input_schema=[
                 {"name": "input_data", "type": "data:test:", "required": False}
             ],
@@ -57,12 +55,6 @@ class TestDataViewSetFilters(BaseViewSetFiltersTest):
                 {"name": "build", "type": "basic:string:"},
                 {"name": "feature_type", "type": "basic:string:"},
             ],
-        )
-
-        self.descriptor_schema = DescriptorSchema.objects.create(
-            slug="test-schema",
-            version="1.0.0",
-            contributor=self.contributor,
         )
 
         self.data = []

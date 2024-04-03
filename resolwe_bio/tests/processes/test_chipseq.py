@@ -625,7 +625,6 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs2:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 input_schema=[
                     {
                         "name": "src",
@@ -679,7 +678,6 @@ re-save build "hg19"
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs14:",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 input_schema=[
                     {
                         "name": "src",

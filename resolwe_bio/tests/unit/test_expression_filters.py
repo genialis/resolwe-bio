@@ -1,6 +1,6 @@
 from jinja2 import Environment, FunctionLoader
 
-from resolwe.flow.models import Collection, Data, DescriptorSchema, Process, Relation
+from resolwe.flow.models import Collection, Data, Process, Relation
 from resolwe.flow.models.annotations import (
     AnnotationField,
     AnnotationGroup,
@@ -21,11 +21,6 @@ class TestReplicateGroupFilter(TestCase):
             slug="test-process",
             contributor=self.contributor,
             entity_type="sample",
-            entity_descriptor_schema="sample",
-        )
-
-        DescriptorSchema.objects.create(
-            slug="sample", version="1.0.0", contributor=self.contributor
         )
 
         collection = Collection.objects.create(
@@ -149,10 +144,6 @@ class TestSampleAnnotationsFilter(TestCase):
             slug="test-process",
             contributor=self.contributor,
             entity_type="sample",
-            entity_descriptor_schema="sample",
-        )
-        DescriptorSchema.objects.create(
-            slug="sample", version="1.0.0", contributor=self.contributor
         )
 
         d = Data.objects.create(
@@ -198,7 +189,6 @@ class TestBackgroundPairsFilter(TestCase):
             slug="test-process",
             contributor=self.contributor,
             entity_type="sample",
-            entity_descriptor_schema="sample",
         )
 
         proc2 = Process.objects.create(
@@ -206,12 +196,7 @@ class TestBackgroundPairsFilter(TestCase):
             slug="test-process2",
             contributor=self.contributor,
             entity_type="sample",
-            entity_descriptor_schema="sample",
             input_schema=[{"name": "src", "type": "data:test:process:"}],
-        )
-
-        DescriptorSchema.objects.create(
-            slug="sample", version="1.0.0", contributor=self.contributor
         )
 
         collection = Collection.objects.create(

@@ -185,7 +185,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 requirements={"expression-engine": "jinja"},
                 data_name="Upload expression into exp output field",
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 input_schema=[
                     {
                         "name": "exp",
@@ -545,7 +544,6 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                     },
                 },
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:wgbs:bsrate:",
                 input_schema=[
@@ -617,7 +615,6 @@ re-save-file report "${NAME}".txt
                     },
                 },
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:alignment:bam:walt:",
                 input_schema=[
@@ -685,7 +682,6 @@ re-save-file duplicates_report "${NAME}".txt
                     },
                 },
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:chipqc:",
                 input_schema=[
@@ -747,7 +743,6 @@ re-save-file peaks_density_plot Rap_mqc.png
                     },
                 },
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:chipseq:callpeak:macs2:",
                 input_schema=[
@@ -834,7 +829,6 @@ re-save-file case_prepeak_qc "${NAME}".txt
                     },
                 },
                 entity_type="sample",
-                entity_descriptor_schema="sample",
                 contributor=self.contributor,
                 type="data:nanostring:rcc:",
                 input_schema=[
