@@ -15,8 +15,6 @@ from resolwe.flow.models.annotations import (
 )
 from resolwe.test import ProcessTestCase
 
-from resolwe_bio.models import Sample
-
 TEST_FILES_DIR = os.path.abspath(
     os.path.join(os.path.dirname(__file__), "..", "tests", "files")
 )
@@ -93,6 +91,16 @@ class BioProcessTestCase(ProcessTestCase):
             },
         )
 
+        biospecimen_group = AnnotationGroup.objects.create(
+            name="biospecimen_information", sort_order=2
+        )
+        AnnotationField.objects.create(
+            name="organ",
+            sort_order=1,
+            group=biospecimen_group,
+            type=AnnotationType.STRING.value,
+        )
+
     def prepare_reads(self, fn=["reads.fastq.gz"]):
         """Prepare NGS reads FASTQ."""
         inputs = {"src": fn}
@@ -154,7 +162,6 @@ class BioProcessTestCase(ProcessTestCase):
         f_type="TPM",
         name="Expression",
         source="DICTYBASE",
-        descriptor=None,
         feature_type="gene",
         species="Dictyostelium discoideum",
         build="dd-05-2009",
@@ -171,10 +178,6 @@ class BioProcessTestCase(ProcessTestCase):
             "feature_type": feature_type,
         }
         expression = self.run_process("upload-expression", inputs)
-        if descriptor:
-            sample = Sample.objects.get(data=expression)
-            sample.descriptor = descriptor
-            sample.save()
         return expression
 
 

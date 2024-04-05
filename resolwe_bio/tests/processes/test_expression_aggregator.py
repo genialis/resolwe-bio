@@ -1,6 +1,12 @@
 from resolwe.flow.models import Data
+from resolwe.flow.models.annotations import (
+    AnnotationField,
+    AnnotationGroup,
+    AnnotationValue,
+)
 from resolwe.test import tag_process, with_resolwe_host
 
+from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -9,48 +15,60 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
     @tag_process("expression-aggregator")
     def test_expression_aggregator(self):
         with self.preparation_stage():
-            descriptor_artery = {"general": {"organ": "artery"}}
+            ann_group = AnnotationGroup.objects.get(name="biospecimen_information")
+            ann_field = AnnotationField.objects.get(group=ann_group, name="organ")
             expression1 = self.prepare_expression(
                 f_rc="exp_1_rc.tab.gz",
                 f_exp="exp_1_tpm.tab.gz",
                 f_type="TPM",
-                descriptor=descriptor_artery,
                 species="Homo sapiens",
                 build="ens_90",
             )
+            entity = Sample.objects.get(data=expression1)
+            AnnotationValue.objects.create(
+                entity=entity, field=ann_field, value="artery"
+            )
 
-            descriptor_blood = {"general": {"organ": "blood"}}
             expression2 = self.prepare_expression(
                 f_rc="exp_2_rc.tab.gz",
                 f_exp="exp_2_tpm.tab.gz",
                 f_type="TPM",
-                descriptor=descriptor_blood,
                 species="Homo sapiens",
                 build="ens_90",
+            )
+            entity = Sample.objects.get(data=expression2)
+            AnnotationValue.objects.create(
+                entity=entity, field=ann_field, value="blood"
             )
 
             expression3 = self.prepare_expression(
                 f_rc="exp_1_rc.tab.gz",
                 f_exp="exp_1_tpm.tab.gz",
                 f_type="TPM",
-                descriptor=descriptor_artery,
                 species="Mus musculus",
                 build="ens_90",
+            )
+            entity = Sample.objects.get(data=expression3)
+            AnnotationValue.objects.create(
+                entity=entity, field=ann_field, value="artery"
             )
 
             expression4 = self.prepare_expression(
                 f_rc="exp_2_rc.tab.gz",
                 f_exp="exp_2_tpm.tab.gz",
                 f_type="TPM",
-                descriptor=descriptor_blood,
                 species="Mus musculus",
                 build="ens_90",
+            )
+            entity = Sample.objects.get(data=expression4)
+            AnnotationValue.objects.create(
+                entity=entity, field=ann_field, value="blood"
             )
 
         # Expect the process to fail if expression data from multiple species is used
         inputs = {
             "exps": [expression1.id, expression2.id, expression3.id],
-            "group_by": "general.organ",
+            "group_by": "biospecimen_information.organ",
         }
         expression_aggregator = self.run_process(
             "expression-aggregator", inputs, Data.STATUS_ERROR

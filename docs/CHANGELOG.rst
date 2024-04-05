@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Rewrite ``expression-aggregator`` process to Python and make it
+  compatible with the new annotation model
 
 Fixed
 -----
