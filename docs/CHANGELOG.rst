@@ -19,6 +19,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 39.x
 - Rewrite ``expression-aggregator`` process to Python and make it
   compatible with the new annotation model
+- Use GRCh38.109 genome annotation version in snpEff processes
 
 Fixed
 -----

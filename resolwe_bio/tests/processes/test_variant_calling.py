@@ -257,7 +257,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff-single",
             {
                 "variants": variants_rna.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
                 "dbsnp": dbsnp_rna.id,
             },
             Data.STATUS_ERROR,
@@ -274,7 +274,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff-single",
             {
                 "variants": vcf_multi.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
             },
             Data.STATUS_ERROR,
         )
@@ -288,7 +288,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff",
             {
                 "variants": variants_rna.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
             },
             Data.STATUS_ERROR,
         )
@@ -302,7 +302,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff-single",
             {
                 "variants": variants_rna.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
                 "dbsnp": dbsnp_rna_38.id,
             },
         )
@@ -312,7 +312,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff-single",
             {
                 "variants": variants_rna.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
                 "filtering_options": "( REF = 'A' )",
                 "extract_fields": [
                     "CHROM",
@@ -344,7 +344,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff-single",
             {
                 "variants": variants_rna.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
                 "filtering_options": "ANN[*].EFFECT has 'missense_variant'",
                 "sets": [genes.id],
                 "extract_fields": [
@@ -371,7 +371,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "snpeff",
             {
                 "variants": vcf_multi.id,
-                "database": "GRCh38.99",
+                "database": "GRCh38.109",
             },
         )
         self.assertFile(

@@ -43,7 +43,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') if reads else bam|name|default('?') }})"
-    version = "2.4.0"
+    version = "2.5.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -708,7 +708,7 @@ class WorkflowRnaseqVariantCalling(Process):
         if "GRCh37" in inputs.ref_seq.output.build:
             snpeff_inputs["database"] = "GRCh37.75"
         elif "GRCh38" in inputs.ref_seq.output.build:
-            snpeff_inputs["database"] = "GRCh38.99"
+            snpeff_inputs["database"] = "GRCh38.109"
 
         if inputs.snpeff.filtering_options:
             snpeff_inputs["filtering_options"] = inputs.snpeff.filtering_options

@@ -54,7 +54,7 @@ class SnpEff(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/snpeff:2.1.1"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/snpeff:3.0.0"},
         },
         "resources": {
             "cores": 2,
@@ -63,7 +63,7 @@ class SnpEff(Process):
     }
     category = "WGS"
     data_name = "Annotated variants (SnpEff)"
-    version = "1.1.1"
+    version = "1.2.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -76,8 +76,12 @@ class SnpEff(Process):
         )
         database = StringField(
             label="snpEff database",
-            default="GRCh38.99",
-            choices=[("GRCh37.75", "GRCh37.75"), ("GRCh38.99", "GRCh38.99")],
+            default="GRCh38.109",
+            choices=[
+                ("GRCh37.75", "GRCh37.75"),
+                ("GRCh38.99", "GRCh38.99"),
+                ("GRCh38.109", "GRCh38.109"),
+            ],
         )
         dbsnp = DataField(
             data_type="variants:vcf",
@@ -287,7 +291,7 @@ class SnpEffSingleSample(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/snpeff:2.1.1"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/snpeff:3.0.0"},
         },
         "resources": {
             "cores": 2,
@@ -299,7 +303,7 @@ class SnpEffSingleSample(Process):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "1.0.1"
+    version = "1.1.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -312,8 +316,12 @@ class SnpEffSingleSample(Process):
         )
         database = StringField(
             label="snpEff database",
-            default="GRCh38.99",
-            choices=[("GRCh37.75", "GRCh37.75"), ("GRCh38.99", "GRCh38.99")],
+            default="GRCh38.109",
+            choices=[
+                ("GRCh37.75", "GRCh37.75"),
+                ("GRCh38.99", "GRCh38.99"),
+                ("GRCh38.109", "GRCh38.109"),
+            ],
         )
         dbsnp = DataField(
             data_type="variants:vcf",
