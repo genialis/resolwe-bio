@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+55.4.0 - 2024-04-15
+===================
+
+Added
+-----
 - Add support for ``Python 3.12``
 - Add ``samtools-depth-single`` process
 - Add gene body coverage plot from ``qorts-qc`` process to MultiQC
@@ -27,9 +41,6 @@ Changed
 - Rename ``workflow-cutnrun-beta`` to ``workflow-cutnrun``
 - Remove ``upload-sc-10x``, ``cellranger-count`` and ``cellranger-mkref`` 
   processes
-
-Fixed
------
 
 
 ===================
