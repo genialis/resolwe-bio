@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 39.x
 - Rewrite ``expression-aggregator`` process to Python and make it
   compatible with the new annotation model
 
