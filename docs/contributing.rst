@@ -5,14 +5,14 @@ Contributing
 Installing prerequisites
 ========================
 
-Make sure you have Python_ 3.6 installed on your system. If you don't have it
+Make sure you have Python_ 3.10+ installed on your system. If you don't have it
 yet, follow `these instructions
 <https://docs.python.org/3/using/index.html>`__.
 
-Resolwe Bioinformatics requires PostgreSQL_ (9.4+). Many Linux distributions
-already include the required version of PostgreSQL (e.g. Fedora 22+, Debian 8+,
-Ubuntu 15.04+) and you can simply install it via distribution's package
-manager. Otherwise, follow `these instructions
+Resolwe Bioinformatics requires PostgreSQL_ (14+). Many Linux distributions
+already include the required version of PostgreSQL (e.g. Fedora 28+,
+Debian 12+, Ubuntu 22.04+) and you can simply install it via distribution's
+package manager. Otherwise, follow `these instructions
 <https://wiki.postgresql.org/wiki/Detailed_installation_guides>`__.
 
 .. _Python: https://www.python.org/
@@ -86,7 +86,7 @@ Change directory to the ``tests`` Django project::
 
 Run docker::
 
-    docker-compose up
+    docker compose up
 
 .. note::
     On Mac or Windows, Docker might complain about non-mounted volumes.
@@ -163,7 +163,7 @@ to run partial tests based on what files have been changed between HEAD and a
 specific commit (e.g. master). The Tox environments that run partial tests have
 the ``-partial`` suffix, e.g.::
 
-    tox -e py35-partial
+    tox -e py312-partial
 
 To configure the commit against which the changes are compared you should set
 the ``RESOLWE_TEST_ONLY_CHANGES_TO`` environmental variable (it is set to master
@@ -230,33 +230,7 @@ Preparing release
 =================
 
 Follow `Resolwe's documentation on preparing a release`_. Resolwe
-code is automatically released to PyPI when tagged, but this is not
-supported in Resolwe Bioinformatics yet. After you have completed the
-first part, follow the steps below to release the code on PyPI.
+Bioinformatics code is automatically released to the PyPI when tagged.
 
 .. _Resolwe's documentation on preparing a release:
   http://resolwe.readthedocs.io/en/latest/contributing.html#preparing-release
-
-Clean ``build`` directory::
-
-    python setup.py clean -a
-
-Remove previous distributions in ``dist`` directory::
-
-    rm dist/*
-
-Remove previous ``egg-info`` directory::
-
-    rm -r *.egg-info
-
-Create source distribution::
-
-    python setup.py sdist
-
-Build wheel::
-
-    python setup.py bdist_wheel
-
-Upload distribution to PyPI_::
-
-    twine upload dist/*
