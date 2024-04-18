@@ -69,6 +69,7 @@ setuptools.setup(
             "twine",
             "six==1.16",
             "build==0.10.0",
+            "coverage>=7.2.3",
         ],
     },
     classifiers=[
