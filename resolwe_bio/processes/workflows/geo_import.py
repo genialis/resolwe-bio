@@ -46,141 +46,6 @@ def create_metadata(gse, run_info):
     return metadata.set_index(["Sample name"], drop=False)
 
 
-def construct_annotation(metadata, sample_name):
-    """Construct sample annotations from metadata.
-
-    Dictionary with GEO metadata that matches the sample annotation
-    schema is created. Attributes under general that have no
-    predetermined choices are matched with our naming if they
-    exist in the metadata. Other fields with choices and the
-    experimental section are filled separately.
-    """
-
-    sample_metadata = metadata.loc[sample_name]
-    sample_metadata = sample_metadata.fillna("")
-    annotation = {}
-
-    species = [
-        "Caenorhabditis elegans",
-        "Cricetulus griseus",
-        "Dictyostelium discoideum",
-        "Dictyostelium purpureum",
-        "Drosophila melanogaster",
-        "Homo sapiens",
-        "Macaca mulatta",
-        "Mus musculus",
-        "Odocoileus virginianus texanus",
-        "Rattus norvegicus",
-        "Solanum tuberosum",
-    ]
-    molecule_choices = [
-        "total_rna",
-        "polya_rna",
-        "cytoplasmic_rna",
-        "nuclear_rna",
-        "genomic_dna",
-        "protein",
-        "other",
-    ]
-
-    assay_types = [
-        "rna-seq",
-        "chip-seq",
-        "atac-seq",
-        "chipmentation",
-        "dna-seq",
-        "nanostring",
-        "microarray",
-        "edge-seq",
-        "other",
-    ]
-
-    platform_types = [
-        "nextseq_500",
-        "nextseq_550",
-        "nextseq_550_dx",
-        "nextseq_1000",
-        "nextseq_2000",
-        "hiseq_2500",
-        "hiseq_2000",
-        "novaseq_6000",
-        "novaseq_6000_dx",
-        "novaseq_x",
-        "iseq_100",
-        "miniseq",
-        "miseq",
-        "miseq_dx",
-        "other",
-    ]
-
-    if (
-        "organism_ch1" in metadata.columns
-        and sample_metadata["organism_ch1"] in species
-    ):
-        annotation["general.species"] = sample_metadata["organism_ch1"]
-
-    if "contact_name" in metadata.columns:
-        annotation["general.annotator"] = sample_metadata["contact_name"].replace(
-            ",,", " "
-        )
-
-    if "description" in metadata.columns:
-        annotation["general.description"] = sample_metadata["description"]
-
-    if "cell line" in metadata.columns:
-        annotation["biospecimen_information.experimental_model"] = "cell_line"
-        annotation["cell_line_information.cell_line_name"] = sample_metadata[
-            "cell line"
-        ]
-    elif "tissue" in metadata.columns:
-        annotation["biospecimen_information.experimental_model"] = "tissue"
-
-    if "source_name_ch1" in metadata.columns:
-        annotation["biospecimen_information.source"] = sample_metadata[
-            "source_name_ch1"
-        ]
-
-    if "cell type" in metadata.columns:
-        annotation["cell_line_information.cell_type"] = sample_metadata["cell type"]
-
-    if "treatment_protocol_ch1" in metadata.columns:
-        annotation["cell_line_information.treatment_protocol"] = sample_metadata[
-            "treatment_protocol_ch1"
-        ]
-
-    if "library_strategy" in metadata.columns:
-        formated_assay = sample_metadata["library_strategy"].lower().replace(" ", "-")
-        if formated_assay in assay_types:
-            annotation["sample_details.assay_type"] = formated_assay
-
-    if "extract_protocol_ch1" in metadata.columns:
-        annotation["sample_details.extract_protocol"] = sample_metadata[
-            "extract_protocol_ch1"
-        ]
-
-    if "growth_protocol_ch1" in metadata.columns:
-        annotation["sample_details.growth_protocol"] = sample_metadata[
-            "growth_protocol_ch1"
-        ]
-
-    if "molecule_ch1" in metadata.columns:
-        formated_molecule = sample_metadata["molecule_ch1"].lower().replace(" ", "_")
-        if formated_molecule in molecule_choices:
-            annotation["sample_details.library_type"] = formated_molecule
-
-    if "instrument_model" in metadata.columns:
-        formated_platform = (
-            sample_metadata["instrument_model"]
-            .replace("Illumina ", "")
-            .lower()
-            .replace(" ", "_")
-        )
-        if formated_platform in platform_types:
-            annotation["sample_details.platform"] = formated_platform
-
-    return annotation
-
-
 class GeoImport(Process):
     """Import all runs from a GEO Series.
 
@@ -224,7 +89,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.7.2"
+    version = "2.8.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -510,13 +375,3 @@ class GeoImport(Process):
         metadata = pd.concat(metadata_tables.values(), join="outer", ignore_index=False)
         metadata.to_csv(meta_file, sep="\t", index=False)
         self.run_process("upload-metadata-unique", {"src": meta_file})
-
-        for entity_name in metadata["Sample name"].values:
-            objects = Data.filter(entity__name=entity_name)
-            if len(objects) > 1:
-                self.warning(
-                    f"Multiple samples with entity name {entity_name} are present, annotation will be added only "
-                    "to the last one"
-                )
-            obj = objects[-1]
-            obj.entity.annotations = construct_annotation(metadata, obj.entity_name)
