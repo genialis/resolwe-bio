@@ -1,0 +1,36 @@
+name: Type checking
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  type_check:
+    name: Type check
+    runs-on: arc-runner
+
+    env:
+      TOX_COMMAND: "tox --skip-missing-interpreters false"
+
+    strategy:
+      matrix:
+        toxenv: ["py310", "py311", "py312"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Mypy
+        run: |
+          ${{ env.TOX_COMMAND }} -e mypy
