@@ -43,6 +43,7 @@ INSTALLED_APPS = (
     "resolwe.test_helpers",
     "resolwe_bio",
     "resolwe_bio.kb",
+    "resolwe_bio.variants",
 )
 
 ROOT_URLCONF = "tests.urls"

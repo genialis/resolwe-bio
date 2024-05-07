@@ -1,5 +1,8 @@
 """Resolwe-bio process with KnowledgeBase extensions."""
 
+from typing import Any, Dict, List
+
+from resolwe.process.communicator import communicator
 from resolwe.process.models import Data
 from resolwe.process.runtime import Process
 
@@ -17,3 +20,11 @@ class ProcessBio(Process):
         super().__init__(data)
         self.feature = Feature
         self.mapping = Mapping
+
+    def add_variants(self, variants: List[Dict[str, Any]]):
+        """Add variants to the database."""
+        return communicator.add_variants(variants)
+
+    def add_variants_annotations(self, variants: List[Dict[str, Any]]):
+        """Add variants annotations to the database."""
+        return communicator.add_variants_asnnotations(variants)

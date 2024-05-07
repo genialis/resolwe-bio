@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Added ``variants`` application
 
 Changed
 -------
