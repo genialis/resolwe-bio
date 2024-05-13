@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+56.0.0 - 2024-05-13
+===================
+
+Added
+-----
 - The (pre)release is built and pushed to the ``PyPI``
   automatically when tag is pushed to the repository
 
@@ -23,9 +37,6 @@ Changed
   compatible with the new annotation model
 - Use GRCh38.109 genome annotation version in snpEff processes
 - Remove sample annotation functionality from ``geo-import`` process
-
-Fixed
------
 
 
 ===================
