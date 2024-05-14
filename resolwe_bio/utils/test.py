@@ -168,7 +168,6 @@ class BioProcessTestCase(ProcessTestCase):
     ):
         """Prepare expression."""
         inputs = {
-            "rc": f_rc,
             "exp": f_exp,
             "exp_type": f_type,
             "exp_name": name,
@@ -177,6 +176,8 @@ class BioProcessTestCase(ProcessTestCase):
             "build": build,
             "feature_type": feature_type,
         }
+        if f_rc:
+            inputs["rc"] = f_rc
         expression = self.run_process("upload-expression", inputs)
         return expression
 
