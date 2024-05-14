@@ -56,6 +56,7 @@ Added
 -----
 - The (pre)release is built and pushed to the ``PyPI``
   automatically when tag is pushed to the repository
+- Add ``pca-beta`` process
 
 Changed
 -------
