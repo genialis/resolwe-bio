@@ -17,6 +17,8 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 40.x
+- **BACKWARD INCOMPATIBLE:** Use the updated xengsort version 
+  in processes ``xengsort-index`` and ``xengsort-classify``
 
 Fixed
 -----

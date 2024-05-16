@@ -824,7 +824,15 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             """Filter variable lines."""
             if line.startswith(b"#"):
                 return True
-            elif line.startswith(b"time"):
+            elif b"time" in line:
+                return True
+            elif b"Time" in line:
+                return True
+            elif b"Computing weak k-mers" in line:
+                return True
+            elif b"hash files" in line:
+                return True
+            elif b"Done." in line:
                 return True
 
         input_folder = Path("xengsort") / "input"
@@ -871,10 +879,7 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             file_filter=filter_variable_lines,
         )
 
-        # File contents are the same but the HDF5 file format storage
-        # specification allows for several timestamps in the data object
-        # headers. This prevents us from assesing contents of the index.
-        self.assertFileExists(index, "index")
+        self.assertDir(index, "index", output_folder / "xgensort_index.tar.gz")
 
         classify = self.run_process(
             process_slug="xengsort-classify",

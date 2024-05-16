@@ -12,6 +12,7 @@ from resolwe.process import (
     BooleanField,
     Cmd,
     DataField,
+    DirField,
     FileField,
     FloatField,
     GroupField,
@@ -23,7 +24,6 @@ from resolwe.process import (
     StringField,
 )
 
-HASH_FUNCTION = "linear945:linear9123641:linear349341847"
 READ_TYPES = ["host", "graft", "both", "neither", "ambiguous"]
 
 
@@ -38,19 +38,10 @@ def concatenate_files(filenames, out_fname, decompress=False):
                 )
 
 
-def create_filename(basename, suffix):
-    """Create a secure version of a filename."""
-    # Keep only alphanumeric characters and underscores.
-    basename = re.sub(pattern=r"[\W]", repl="_", string=basename)
-    # Replace consecutive underscores with a single one.
-    basename = re.sub(pattern=r"(_)\1+", repl=r"\1", string=basename)
-    return f"{basename}.{suffix}"
-
-
 def concatenate_reads(filenames, out_fasta, error):
     """Concatenate reads in FASTQ files."""
     try:
-        concatenate_files(filenames=filenames, out_fname=out_fasta, decompress=True)
+        concatenate_files(filenames=filenames, out_fname=out_fasta, decompress=False)
     except Exception as e:
         error(
             f"Failed to concatenate FASTQ files for {out_fasta.name}. The error was: {repr(e)}"
@@ -72,7 +63,7 @@ class XengsortIndex(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/xengsort:1.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/xengsort:2.0.0"},
         },
         "resources": {
             "cores": 4,
@@ -81,7 +72,7 @@ class XengsortIndex(Process):
     }
     category = "Xenograft processing"
     data_name = "Xengsort index"
-    version = "1.0.1"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -130,14 +121,20 @@ class XengsortIndex(Process):
                 default=True,
                 description="Hash function used to store the key-value pairs is defined by "
                 "--hashfunction parameter. With this option selected a fixed hash function "
-                "(linear945:linear9123641:linear349341847) is used. When this is not selected a "
-                "different random functions are chosen each time. It is recommended to have them "
-                "chosen randomly unless you need strictly reproducible behavior.",
+                "(linear1006721:linear62591:linear42953:linear48271) is used. When this is not "
+                "selected, a different random functions are chosen each time. It is recommended "
+                "to have them chosen randomly unless you need strictly reproducible behavior.",
             )
 
-            page_size = IntegerField(
-                label="Number of elements stored in one bucket (or page) [--pagesize]",
+            bucket_size = IntegerField(
+                label="Number of elements stored in one bucket [--bucketsize]",
                 default=4,
+            )
+
+            subtables = IntegerField(
+                label="Number of subtables [--subtables]",
+                default=9,
+                description="Number of subtables used; subtables+1 threads are used.",
             )
 
             fill = FloatField(
@@ -156,7 +153,7 @@ class XengsortIndex(Process):
     class Output:
         """Output fields to process XengsortIndex."""
 
-        index = FileField(label="Xengsort index")
+        index = DirField(label="Xengsort index")
         stats = FileField(label="Xengsort statistics")
         graft_species = StringField(label="Graft species")
         graft_build = StringField(label="Graft build")
@@ -236,13 +233,12 @@ class XengsortIndex(Process):
             # the number of distinct k-mers by 2 percent.
             n_kmer = ceil(n_kmer * 1.02)
 
-        index_file = create_filename(
-            basename="_".join([graft_species, graft_build, host_species, host_build]),
-            suffix="h5",
-        )
+        index_dir = Path("index_dir")
+        index_dir.mkdir()
 
         index_params = [
-            index_file,
+            "--index",
+            index_dir / "xengsort_index.zarr",
             "--host",
             host_fasta,
             "--graft",
@@ -253,18 +249,22 @@ class XengsortIndex(Process):
             0,
             "--nobjects",
             n_kmer,
-            "--type",
-            "3FCVbb",
-            "--aligned" if inputs.advanced.aligned_cache else "--unaligned",
             "--hashfunctions",
-            HASH_FUNCTION if inputs.advanced.fixed_hashing else "random",
-            "--pagesize",
-            inputs.advanced.page_size,
+            "default" if inputs.advanced.fixed_hashing else "random",
+            "--bucketsize",
+            inputs.advanced.bucket_size,
+            "--subtables",
+            inputs.advanced.subtables,
             "--fill",
             inputs.advanced.fill,
-            "--threads",
-            self.requirements.resources.cores,
+            "--threads-read",
+            max(int(self.requirements.resources.cores) / 2, 1),
+            "--threads-split",
+            max(int(self.requirements.resources.cores) / 2, 1),
         ]
+
+        if inputs.advanced.aligned_cache:
+            index_params.append("--aligned")
 
         return_code, stdout, stderr = Cmd["xengsort"]["index"][index_params] & TEE(
             retcode=None
@@ -278,7 +278,7 @@ class XengsortIndex(Process):
         with open(stats_file, "w") as stats_handle:
             stats_handle.writelines(stdout)
 
-        outputs.index = index_file
+        outputs.index = index_dir.name
         outputs.stats = stats_file
 
 
@@ -310,7 +310,7 @@ class XengsortClassify(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/xengsort:1.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/xengsort:2.0.0"},
         },
         "resources": {
             "cores": 4,
@@ -322,7 +322,7 @@ class XengsortClassify(Process):
     }
     category = "Xenograft processing"
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.0.0"
+    version = "2.0.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -391,7 +391,7 @@ class XengsortClassify(Process):
     def run(self, inputs, outputs):
         """Run analysis."""
 
-        concatenated_r1 = "mate_1.fastq"
+        concatenated_r1 = "mate_1.fastq.gz"
         concatenate_reads(
             filenames=[fastq.path for fastq in inputs.reads.output.fastq],
             out_fasta=concatenated_r1,
@@ -400,7 +400,7 @@ class XengsortClassify(Process):
 
         is_paired = inputs.reads.type.startswith("data:reads:fastq:paired:")
         if is_paired:
-            concatenated_r2 = "mate_2.fastq"
+            concatenated_r2 = "mate_2.fastq.gz"
             concatenate_reads(
                 filenames=[fastq.path for fastq in inputs.reads.output.fastq2],
                 out_fasta=concatenated_r2,
@@ -419,11 +419,13 @@ class XengsortClassify(Process):
         classify_params.extend(
             [
                 "--index",
-                inputs.index.output.index.path,
+                Path(inputs.index.output.index.path) / "xengsort_index.zarr",
                 "--threads",
                 self.requirements.resources.cores,
                 "--prefix",
                 name,
+                "--compression",
+                "gz",
                 "--prefetchlevel",
                 0,
                 "--chunksize",
@@ -450,17 +452,12 @@ class XengsortClassify(Process):
             mates = [1, 2] if is_paired else [1]
             for mate in mates:
                 if is_paired:
-                    output_file = Path(f"{name}-{read_type}.{mate}.fq")
+                    output_file = Path(f"{name}-{read_type}.{mate}.fq.gz")
                 else:
-                    output_file = Path(f"{name}-{read_type}.fq")
+                    output_file = Path(f"{name}-{read_type}.fq.gz")
 
-                if output_file.is_file():
-                    output_file = output_file.rename(output_file.with_suffix(".fastq"))
-                    return_code, _, _ = Cmd["pigz"][output_file] & TEE(retcode=None)
-                    if return_code:
-                        self.error(f"Compression of {read_type} reads failed.")
-
-                    output_files[f"{read_type}{mate}"] = f"{output_file}.gz"
+                output_file = output_file.rename(f"{output_file.name[:-6]}.fastq.gz")
+                output_files[f"{read_type}{mate}"] = output_file.name
 
         for output_key, output_file in output_files.items():
             setattr(outputs, output_key, output_file)
