@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        toxenv: ["py310", "py311", "py312"]
+        toxenv: ["py311", "py312"]
 
     steps:
       - name: Checkout

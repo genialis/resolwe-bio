@@ -20,6 +20,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 40.x
 - **BACKWARD INCOMPATIBLE:** Use the updated xengsort version 
   in processes ``xengsort-index`` and ``xengsort-classify``
+- **BACKWARD INCOMPATIBLE:** Remove support for ``Python 3.10``
 
 Fixed
 -----
