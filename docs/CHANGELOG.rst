@@ -21,6 +21,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Use the updated xengsort version 
   in processes ``xengsort-index`` and ``xengsort-classify``
 - **BACKWARD INCOMPATIBLE:** Remove support for ``Python 3.10``
+- Extend the ``mutations-table`` process with the support for writing
+  the variant information to the ``variants`` application
 
 Fixed
 -----

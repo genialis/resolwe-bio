@@ -2,6 +2,7 @@
 
 import gzip
 import os
+import re
 from collections import defaultdict
 
 import numpy as np
@@ -240,6 +241,32 @@ def get_depth(variants_table, bam):
     return variants_table.to_csv("mutations.tsv", sep="\t")
 
 
+def encode_variant_genotype(row):
+    """Encode variant to genotype notation.
+
+    Variants are given as <allele1>/<allele2>, e.g. T/T or C/T
+
+    Encode these variants as:
+        - 0/1 for heterozygous variants
+        - 1/1 for homozygous variants
+    """
+    try:
+        allele_line = row.get("genotype", np.nan)
+        allele_re = r"^([ATGC*]+)/([ATGC*]+)$"
+        allele1, allele2 = re.match(allele_re, allele_line).group(1, 2)
+    except AttributeError:
+        # AttributeError is raised when there is no match, e.g.
+        # there is a string value for column "genotype" but
+        # the above regex can't parse it
+        print(f'Cannot encode variant from value "{allele_line}".')
+        return np.nan
+
+    if allele1 == allele2 == row["alternative"]:
+        return "1/1"
+    else:
+        return "0/1"
+
+
 class MutationsTable(ProcessBio):
     """Report mutations in a table from RNA-seq Variant Calling Pipeline.
 
@@ -270,7 +297,7 @@ class MutationsTable(ProcessBio):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.1.0"
+    version = "2.2.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -312,7 +339,7 @@ class MutationsTable(ProcessBio):
             "INFO field to include in the output table. "
             "The field can be any standard VCF column (e.g. CHROM, ID, QUAL) "
             "or any annotation name in the INFO field (e.g. AC, AF). "
-            "Required fields are CHROM, POS, ID, REF and ANN. If your variants "
+            "Required fields are CHROM, POS, ID, REF, ALT and ANN. If your variants "
             "file was annotated with clinvar information then fields CLNDN, "
             "CLNSIG and CLNSIGCONF might be of your interest.",
             default=[
@@ -323,6 +350,7 @@ class MutationsTable(ProcessBio):
                 "REF",
                 "ALT",
                 "DP",
+                "QD",
                 "FILTER",
                 "ANN",
             ],
@@ -378,7 +406,14 @@ class MutationsTable(ProcessBio):
                 "from genotype field, it will overwrite the original DP field.",
                 default=[
                     "GT",
+                    "GQ",
+                    "AD",
                 ],
+            )
+            data_source = StringField(
+                label="Data source",
+                description="Data source of the reported variants.",
+                default="RNA-Seq Variant Calling Pipeline",
             )
 
         advanced = GroupField(Advanced, label="Advanced options")
@@ -402,11 +437,12 @@ class MutationsTable(ProcessBio):
                 "mutations or select your geneset of interest."
             )
         if not all(
-            field in inputs.vcf_fields for field in ["CHROM", "POS", "ID", "REF", "ANN"]
+            field in inputs.vcf_fields
+            for field in ["CHROM", "POS", "ID", "REF", "ALT", "ANN"]
         ):
             self.error(
                 "Input VCF fields do not contain all required values. "
-                "Required fields are CHROM, POS, ID, REF and ANN."
+                "Required fields are CHROM, POS, ID, REF, ALT and ANN."
             )
 
         if inputs.variants.entity.id != inputs.bam.entity.id:
@@ -498,3 +534,55 @@ class MutationsTable(ProcessBio):
         outputs.genes = genes
         outputs.species = inputs.variants.output.species
         outputs.build = inputs.variants.output.build
+
+        # Store the reported variants in the Variant Database
+        output_table["species"] = inputs.variants.output.species
+        output_table["genome_assembly"] = (
+            "GRCh38"
+            if "GRCh38" in inputs.variants.output.build
+            else inputs.variants.output.build
+        )
+
+        columns_map = {
+            "species": "species",
+            "genome_assembly": "genome_assembly",
+            "CHROM": "chromosome",
+            "POS": "position",
+            "REF": "reference",
+            "ALT": "alternative",
+        }
+
+        optional_mapping = {
+            "QUAL": "quality",
+            "DP": "depth",
+            "FILTER": "filter",
+            "QD": "depth_norm_quality",
+            "SAMPLENAME1.AD": "unfiltered_allele_depth",
+            "SAMPLENAME1.GT": "genotype",
+            "SAMPLENAME1.GQ": "genotype_quality",
+        }
+
+        gf_fields = [f"SAMPLENAME1.{field}" for field in inputs.advanced.gf_fields]
+        requested_fields = inputs.vcf_fields + gf_fields
+
+        for key, value in optional_mapping.items():
+            if key in requested_fields:
+                columns_map[key] = value
+
+        output_table = output_table.rename(columns=columns_map)
+
+        if "genotype" in output_table.columns:
+            output_table["genotype"] = output_table.apply(
+                encode_variant_genotype, axis=1, result_type="reduce"
+            )
+
+        if "unfiltered_allele_depth" in output_table.columns:
+            output_table["unfiltered_allele_depth"] = (
+                output_table["unfiltered_allele_depth"]
+                .str.split(",")
+                .str[1]
+                .astype(int)
+            )
+
+        output_table = output_table[columns_map.values()].to_dict(orient="records")
+        self.add_variants(inputs.advanced.data_source, output_table)

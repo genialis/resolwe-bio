@@ -9,6 +9,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.models import Sample
 from resolwe_bio.utils.filter import filter_comment_lines, filter_rnaseqc_metrics
 from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.variants.models import Variant, VariantCall, VariantExperiment
 
 
 class SupportProcessorTestCase(KBBioProcessTestCase):
@@ -1695,6 +1696,31 @@ re-save-file lane_attributes "${NAME}".txt
         )
         self.assertFile(report, "tsv", output_folder / "mutations_KRAS.tsv")
 
+        experiment = VariantExperiment.objects.filter().last()
+        self.assertEqual(
+            experiment.variant_data_source, "RNA-Seq Variant Calling Pipeline"
+        )
+
+        variant = Variant.objects.get(
+            species="Homo sapiens",
+            genome_assembly="GRCh38",
+            chromosome="chr12",
+            position=25245347,
+            reference="C",
+            alternative="T",
+        )
+
+        variant_call = VariantCall.objects.filter(variant=variant)[0]
+        self.assertEqual(variant_call.sample_id, report.entity.id)
+        self.assertEqual(variant_call.data_id, report.id)
+        self.assertEqual(variant_call.quality, 974.64)
+        self.assertEqual(variant_call.depth, 41)
+        self.assertEqual(variant_call.depth_norm_quality, 23.77)
+        self.assertEqual(variant_call.filter, "PASS")
+        self.assertEqual(variant_call.unfiltered_allele_depth, None)
+        self.assertEqual(variant_call.genotype, None)
+        self.assertEqual(variant_call.genotype_quality, None)
+
         report = self.run_process(
             "mutations-table",
             {
@@ -1735,7 +1761,7 @@ re-save-file lane_attributes "${NAME}".txt
             "mutations-table",
             {
                 "variants": snpeff.id,
-                "vcf_fields": ["CHROM", "POS", "ID", "QUAL", "REF", "ANN"],
+                "vcf_fields": ["CHROM", "POS", "ID", "QUAL", "REF", "ALT", "ANN"],
                 "bam": bam.id,
                 "mutations": ["KRAS: Ala11"],
             },
@@ -1801,3 +1827,13 @@ re-save-file lane_attributes "${NAME}".txt
             "tsv",
             output_folder / "ensembl_variants.tsv",
         )
+
+        variant_calls = VariantCall.objects.filter(
+            sample_id=ensembl_mutations.entity.id
+        )
+        self.assertEqual(len(variant_calls), 3)
+
+        variant_call_1 = variant_calls[0]
+        self.assertEqual(variant_call_1.genotype, "1/1")
+        self.assertEqual(variant_call_1.genotype_quality, 6)
+        self.assertEqual(variant_call_1.unfiltered_allele_depth, 2)
