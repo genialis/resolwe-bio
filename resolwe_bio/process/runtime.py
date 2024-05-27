@@ -21,10 +21,10 @@ class ProcessBio(Process):
         self.feature = Feature
         self.mapping = Mapping
 
-    def add_variants(self, variants: List[Dict[str, Any]]):
+    def add_variants(self, data_source: str, variants: List[Dict[str, Any]]):
         """Add variants to the database."""
-        return communicator.add_variants(variants)
+        return communicator.add_variants((data_source, variants))
 
     def add_variants_annotations(self, variants: List[Dict[str, Any]]):
         """Add variants annotations to the database."""
-        return communicator.add_variants_asnnotations(variants)
+        return communicator.add_variants_annotations(variants)

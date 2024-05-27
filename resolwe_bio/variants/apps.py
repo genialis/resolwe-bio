@@ -15,3 +15,8 @@ class VariantsConfig(AppConfig):
     name = "resolwe_bio.variants"
     label = "resolwe_bio_variants"
     verbose_name = "Resolwe Bioinformatics Variants Base"
+
+    def ready(self):
+        """Application initialization."""
+        # Register listener plugin.
+        from .listener_plugin import VariantCommands  # noqa: F401

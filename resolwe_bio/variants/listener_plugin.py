@@ -83,7 +83,7 @@ class VariantCommands(ListenerPlugin):
 
     plugin_manager = listener_plugin_manager
 
-    def add_variants(
+    def handle_add_variants(
         self,
         data_id: int,
         message: Message[tuple[str, list[VariantData]]],
@@ -143,7 +143,7 @@ class VariantCommands(ListenerPlugin):
         VariantCall.objects.bulk_create(variant_calls)
         return message.respond(experiment.id)
 
-    def add_variants_annotations(
+    def handle_add_variants_annotations(
         self,
         data_id: int,
         message: Message[list[VariantAnnotationData]],

@@ -212,7 +212,7 @@ class ListenerPluginTest(TestCase):
             MessageType.COMMAND, "variants_test", [data_source, variants_data]
         )
         manager_mock = Mock(data=Mock(return_value=self.data))
-        VariantCommands().add_variants(
+        VariantCommands().handle_add_variants(
             data_id=self.data.pk,
             message=message,
             manager=manager_mock,
@@ -355,7 +355,7 @@ class ListenerPluginTest(TestCase):
         ]
         message = Message(MessageType.COMMAND, "variants_test", annotations)
         manager_mock = Mock(data=Mock(return_value=self.data))
-        VariantCommands().add_variants_annotations(
+        VariantCommands().handle_add_variants_annotations(
             data_id=self.data.pk,
             message=message,
             manager=manager_mock,
