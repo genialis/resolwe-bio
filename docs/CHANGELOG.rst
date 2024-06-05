@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Bump requirements versions
 
 Fixed
 -----
