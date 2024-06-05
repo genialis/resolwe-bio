@@ -250,7 +250,7 @@ class MapMicroarrayProbes(Process):
                 "description"
             ].to_string()
             # Typical display name would be Human genes (GRCh38.p13)
-            build = re.search("\((.+?)\)", display_name).group(1)
+            build = re.search(r"\((.+?)\)", display_name).group(1)
             source = "ENSEMBL"
 
         mapping = mapping.drop_duplicates(subset=["probe"], keep=False)
