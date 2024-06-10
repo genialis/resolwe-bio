@@ -262,6 +262,10 @@ log_file_path = os.environ.get(
     "RESOLWEBIO_LOG_FILE", os.devnull
 )  # pylint: disable=invalid-name
 
+
+CONSOLE_LEVEL = "DEBUG"
+log_file_path = "/home/runner/debug.log"
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -273,7 +277,7 @@ LOGGING = {
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "level": "WARNING",
+            "level": "DEBUG",
             "formatter": "standard",
         },
         "file": {
@@ -281,11 +285,12 @@ LOGGING = {
             "filename": log_file_path,
             "formatter": "standard",
             "maxBytes": 1024 * 1024 * 10,  # 10 MB
+            "level": "DEBUG"
         },
     },
     "loggers": {
         "": {
-            "handlers": ["file"],
+            "handlers": ["file", "console"],
             "level": "DEBUG",
         },
     },
