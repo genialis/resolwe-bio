@@ -32,7 +32,7 @@ class FullTextFilter(filters.BaseCSVFilter):
         if not values:
             return queryset
 
-        values = [SearchQuery(v, config="simple") for v in values]
+        values = [SearchQuery(v, config="simple_unaccent") for v in values]
 
         step = 100
         result_qs = queryset.none()

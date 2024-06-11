@@ -23,6 +23,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Remove support for ``Python 3.10``
 - Extend the ``mutations-table`` process with the support for writing
   the variant information to the ``variants`` application
+- Use ``simple_unaccent`` configuration when generating search vectors
 
 Fixed
 -----
