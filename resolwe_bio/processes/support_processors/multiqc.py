@@ -437,7 +437,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.24.0"
+    version = "1.25.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -462,9 +462,9 @@ class MultiQC(Process):
 
             dirs_depth = IntegerField(
                 label="--dirs-depth",
-                default=-1,
+                default=-5,
                 description="Prepend a specified number of directories to sample names. Enter a "
-                "negative number (default) to take from start of path.",
+                "negative number to take from start of path.",
             )
 
             fullnames = BooleanField(
@@ -577,28 +577,30 @@ class MultiQC(Process):
                     create_symlink(
                         d.output.stats.path, os.path.join(sample_dir, globin_report)
                     )
-                elif "_downsampled" in bam_name:
-                    count_report = "downsampled_ReadsPerGene.out.tab.gz"
-                    report = f"{bam_name}.downsampled.Log.final.out"
-                    create_symlink(
-                        d.output.stats.path, os.path.join(sample_dir, report)
-                    )
                 else:
                     count_report = "ReadsPerGene.out.tab.gz"
                     report = f"{bam_name}.Log.final.out"
-                    dst = os.path.join(sample_dir, report)
-                    if not os.path.islink(dst):
-                        create_symlink(d.output.stats.path, dst)
+                    alignment_count = 1
+                    alignment_dir = os.path.join(sample_dir, f"STAR_{alignment_count}")
+                    if not os.path.isdir(alignment_dir):
+                        os.makedirs(alignment_dir)
                     else:
-                        self.warning(
-                            f"STAR alignment report for sample {sample_dir} already exists. Skipping."
-                        )
+                        while os.path.isdir(alignment_dir):
+                            alignment_count += 1
+                            alignment_dir = os.path.join(
+                                sample_dir, f"STAR_{alignment_count}"
+                            )
+                    os.makedirs(alignment_dir, exist_ok=True)
+                    dst = os.path.join(alignment_dir, report)
+                    create_symlink(d.output.stats.path, dst)
+
                 if d.output.gene_counts:
-                    outfile = os.path.join(sample_dir, count_report)
+                    outfile = os.path.join(alignment_dir, count_report)
                     if not os.path.isfile(outfile):
                         with gzip.open(d.output.gene_counts.path, "rb") as f_in:
                             with open(
-                                os.path.join(sample_dir, "ReadsPerGene.out.tab"), "wb"
+                                os.path.join(alignment_dir, "ReadsPerGene.out.tab"),
+                                "wb",
                             ) as f_out:
                                 shutil.copyfileobj(f_in, f_out)
                     else:

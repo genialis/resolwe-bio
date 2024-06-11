@@ -402,6 +402,75 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(lib_strandedness_paired, "fragment_ratio", 1.0)
 
     @tag_process("multiqc")
+    def test_multiqc_duplicate_inputs(self):
+        with self.preparation_stage():
+            reads = self.run_processor(
+                "upload-fastq-single",
+                {"src": ["chr1_single.fastq.gz"]},
+            )
+
+            annotation = self.run_process(
+                "upload-gtf",
+                {
+                    "src": "chr1_region.gtf.gz",
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+
+            genome_fasta = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": "chr1_region.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "ens_90",
+                },
+            )
+            star_index = self.run_process(
+                "alignment-star-index",
+                {
+                    "annotation": annotation.id,
+                    "ref_seq": genome_fasta.id,
+                },
+            )
+
+            star_alignment_1 = self.run_process(
+                "alignment-star",
+                {
+                    "genome": star_index.id,
+                    "reads": reads.id,
+                    "gene_counts": True,
+                },
+            )
+
+            star_alignment_2 = self.run_process(
+                "alignment-star",
+                {
+                    "genome": star_index.id,
+                    "reads": reads.id,
+                    "gene_counts": True,
+                },
+            )
+
+            multiqc = self.run_process(
+                "multiqc",
+                {
+                    "data": [
+                        reads.id,
+                        star_alignment_1.id,
+                        star_alignment_2.id,
+                    ],
+                    "advanced": {
+                        "dirs": True,
+                        "config": True,
+                        "cl_config": "fn_ignore_dirs: [tmp]",
+                    },
+                },
+            )
+        self.assertFileExists(multiqc, "report")
+
+    @tag_process("multiqc")
     def test_multiqc(self):
         with self.preparation_stage():
             reads = self.run_processor(

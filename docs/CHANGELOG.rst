@@ -27,6 +27,8 @@ Changed
 
 Fixed
 -----
+- Fix handling of multiple instances of STAR aligner input in the 
+  ``multiqc`` process
 
 
 ===================
