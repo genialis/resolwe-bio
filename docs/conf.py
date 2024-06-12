@@ -20,6 +20,8 @@ settings.configure(
         "resolwe.storage",
         "resolwe_bio",
     ),
+    # Debug must be true or listener encryption keys must be set.
+    DEBUG=True,
 )
 django.setup()
 
