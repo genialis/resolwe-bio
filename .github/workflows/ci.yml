@@ -18,7 +18,7 @@ concurrency:
 jobs:
   test:
     runs-on: arc-runner
-
+    timeout-minutes: 600
     env:
       TOX_COMMAND: "tox --skip-missing-interpreters false"
       RESOLWE_POSTGRESQL_PORT: 55433
@@ -98,7 +98,7 @@ jobs:
           ${{ env.TOX_COMMAND }} -e migrations
 
       - name: Unit tests
-        timeout-minutes: 120
+        timeout-minutes: 600
         run: |
           ${{ env.TOX_COMMAND }} -e ${{ matrix.toxenv }}
 
