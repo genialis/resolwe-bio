@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+57.0.0 - 2024-06-17
+===================
+
+Added
+-----
 - Added ``variants`` application
 
 Changed
