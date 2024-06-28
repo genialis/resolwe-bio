@@ -72,7 +72,7 @@ setuptools.setup(
             "setuptools_scm",
             "six==1.16",
             "tblib>=3.0.0",
-            "twine==5.1.0",
+            "twine==5.1.1",
         ],
     },
     classifiers=[
