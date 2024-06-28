@@ -22,7 +22,8 @@ class WorkflowCUTnRUN(Process):
     Cleavage Under Target and Release Using Nuclease. Workflow includes steps of
     trimming the reads with trimgalore, aligning them using bowtie2 to target species
     genome as well as a spike-in genome (optional). Aligned reads are processed to produce
-    bigwig files to be viewed in a genome browser.
+    bigwig files to be viewed in a genome browser. Optionally, MACS2 peaks can be called using
+    the aligned reads. Quality control metrics are calculated using ChipQC and MultiQC.
 
     """
 
@@ -32,7 +33,7 @@ class WorkflowCUTnRUN(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.1.0"
+    version = "3.0.0"
     entity = {
         "type": "sample",
     }
@@ -47,6 +48,52 @@ class WorkflowCUTnRUN(Process):
             label="Input Reads (FASTQ)",
             description="Paired-end reads in FASTQ file.",
         )
+
+        peak_calling = BooleanField(
+            label="Peak calling",
+            default=True,
+            description="Call peaks using MACS2.",
+        )
+
+        class PeakCallingOptions:
+            """Peak calling options."""
+
+            promoter = DataField(
+                data_type="bed",
+                label="Promoter regions BED file",
+                required=False,
+                description="BED file containing promoter regions (TSS+-1000bp "
+                "for example). Needed to get the number of peaks and reads mapped "
+                "to promoter regions.",
+            )
+
+            shift = IntegerField(
+                label="User-defined cross-correlation peak strandshift",
+                required=False,
+                description="If defined, SPP tool will not try to estimate "
+                "fragment length but will use the given value as "
+                "fragment length.",
+            )
+
+            broad = BooleanField(
+                label="Composite broad regions [--broad]",
+                default=False,
+                description="When this flag is on, MACS will try to composite "
+                "broad regions in BED12 (a gene-model-like format) by "
+                "putting nearby highly enriched regions into a broad region "
+                "with loose cutoff. The broad region is controlled by another "
+                "cutoff through --broad-cutoff. The maximum length of broad "
+                "region length is 4 times of d from MACS.",
+            )
+
+            broad_cutoff = FloatField(
+                label="Broad cutoff",
+                required=False,
+                default=0.1,
+                disabled="peak_calling_options.broad !== true",
+                description="Cutoff for broad region. This option is not "
+                "available unless --broad is set.",
+            )
 
         class TrimmingOptions:
             """Trimming options."""
@@ -288,6 +335,9 @@ class WorkflowCUTnRUN(Process):
                 "Default: False.",
             )
 
+        peak_calling_options = GroupField(
+            PeakCallingOptions, label="Peak calling options"
+        )
         trimming_options = GroupField(TrimmingOptions, label="Trimming options")
         alignment_options = GroupField(AlignmentOptions, label="Alignment options")
         normalization_options = GroupField(
@@ -463,3 +513,54 @@ class WorkflowCUTnRUN(Process):
             ),
             input=input_normalization,
         )
+
+        if inputs.peak_calling:
+            input_peak_calling = {
+                "case": deduplicate_alignment,
+                "tagalign": True,
+            }
+
+            if (
+                inputs.peak_calling_options.shift
+                or inputs.peak_calling_options.shift == 0
+            ):
+                input_peak_calling["prepeakqc_settings"] = {
+                    "shift": inputs.peak_calling_options.shift
+                }
+
+            if inputs.peak_calling_options.promoter:
+                input_peak_calling["promoter"] = inputs.peak_calling_options.promoter
+
+            if inputs.peak_calling_options.broad:
+                input_peak_calling["settings"] = {
+                    "broad": inputs.peak_calling_options.broad,
+                    "broad_cutoff": inputs.peak_calling_options.broad_cutoff,
+                }
+
+            peaks = Data.create(
+                process=BioProcess.get_latest(
+                    slug="macs2-callpeak",
+                ),
+                input=input_peak_calling,
+            )
+
+            input_chipqc = {
+                "alignment": deduplicate_alignment,
+                "peaks": peaks,
+            }
+
+            chipqc = Data.create(
+                process=BioProcess.get_latest(
+                    slug="chipqc",
+                ),
+                input=input_chipqc,
+            )
+
+            input_multiqc = {
+                "data": [reads, preprocessed_reads, species_alignment, peaks, chipqc],
+            }
+
+            Data.create(
+                process=BioProcess.get_latest(slug="multiqc"),
+                input=input_multiqc,
+            )
