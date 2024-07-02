@@ -5,6 +5,125 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 
 class PcaProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
+    @tag_process("pca-beta")
+    def test_beta_pca(self):
+        with self.preparation_stage():
+            expression_1 = self.prepare_expression(
+                f_rc="exp_1_rc.tab.gz",
+                f_exp="exp_1_tpm.tab.gz",
+                f_type="TPM",
+                source="DICTYBASE",
+                species="Dictyostelium discoideum",
+            )
+            expression_2 = self.prepare_expression(
+                f_rc="exp_2_rc.tab.gz",
+                f_exp="exp_2_tpm.tab.gz",
+                f_type="TPM",
+                source="DICTYBASE",
+                species="Dictyostelium discoideum",
+            )
+            expression_3 = self.prepare_expression(
+                f_exp="exp_1_tpm.tab.gz",
+                f_rc=None,
+                f_type="TPM",
+                source="DICTYBASE",
+                species="Dictyostelium discoideum",
+            )
+            expression_4 = self.prepare_expression(
+                f_exp="exp_2_tpm.tab.gz",
+                f_rc=None,
+                f_type="TPM",
+                source="DICTYBASE",
+                species="Dictyostelium discoideum",
+            )
+
+        inputs = {
+            "exps": [expression_1.pk, expression_2.pk],
+            "source": "DICTYBASE",
+            "species": "Dictyostelium discoideum",
+        }
+        pca = self.run_process("pca-beta", inputs)
+        saved_json, test_json = self.get_json(
+            "pca_plot_beta.json.gz", pca.output["pca"]
+        )
+        self.assertAlmostEqual(
+            test_json["flot"]["data"], saved_json["flot"]["data"], places=3
+        )
+        self.assertAlmostEqual(
+            test_json["explained_variance_ratios"],
+            saved_json["explained_variance_ratios"],
+            places=3,
+        )
+        self.assertAlmostEqual(
+            test_json["components"], saved_json["components"], places=3
+        )
+        self.assertEqual(len(pca.process_warning), 0)
+
+        inputs["genes"] = [
+            "DPU_G0067096",
+            "DPU_G0067106",
+            "DPU_G0067102",
+            "DPU_G0067112",
+        ]  # all non-zero
+        pca = self.run_process("pca-beta", inputs)
+        saved_json, test_json = self.get_json(
+            "pca_plot_beta_2.json.gz", pca.output["pca"]
+        )
+        self.assertAlmostEqual(
+            test_json["flot"]["data"], saved_json["flot"]["data"], places=3
+        )
+        self.assertAlmostEqual(
+            test_json["explained_variance_ratios"],
+            saved_json["explained_variance_ratios"],
+            places=3,
+        )
+        self.assertAlmostEqual(
+            test_json["components"], saved_json["components"], places=3
+        )
+        self.assertEqual(len(pca.process_warning), 0)
+
+        inputs["low_expression_filter"] = False
+        inputs["standard_scaler"] = False
+        pca = self.run_process("pca-beta", inputs)
+        saved_json, test_json = self.get_json(
+            "pca_plot_beta_3.json.gz", pca.output["pca"]
+        )
+        self.assertAlmostEqual(
+            test_json["flot"]["data"], saved_json["flot"]["data"], places=3
+        )
+        self.assertAlmostEqual(
+            test_json["explained_variance_ratios"],
+            saved_json["explained_variance_ratios"],
+            places=3,
+        )
+        self.assertAlmostEqual(
+            test_json["components"], saved_json["components"], places=3
+        )
+        self.assertEqual(len(pca.process_warning), 0)
+
+        inputs = {
+            "exps": [expression_3.pk, expression_4.pk],
+            "source": "DICTYBASE",
+            "species": "Dictyostelium discoideum",
+        }
+        pca = self.run_process("pca-beta", inputs)
+        saved_json, test_json = self.get_json(
+            "pca_plot_beta_4.json.gz", pca.output["pca"]
+        )
+        self.assertAlmostEqual(
+            test_json["flot"]["data"], saved_json["flot"]["data"], places=3
+        )
+        self.assertAlmostEqual(
+            test_json["explained_variance_ratios"],
+            saved_json["explained_variance_ratios"],
+            places=3,
+        )
+        self.assertAlmostEqual(
+            test_json["components"], saved_json["components"], places=3
+        )
+        self.assertEqual(len(pca.process_warning), 1)
+
+    @with_resolwe_host
     @tag_process("pca")
     def test_pca(self):
         with self.preparation_stage():
