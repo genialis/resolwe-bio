@@ -22,6 +22,7 @@ Changed
 
 Fixed
 -----
+- Extend the selection of supported fields in VariantCall serializer
 
 
 ===================
