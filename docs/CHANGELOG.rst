@@ -19,6 +19,8 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Implement peak calling step and
   add QC reporting to the Cut & Run workflow
 - Bump requirements versions
+- Report additional QC information in the variant table output 
+  of RNA-seq variant calling pipeline
 
 Fixed
 -----

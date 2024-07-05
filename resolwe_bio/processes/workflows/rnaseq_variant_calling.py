@@ -43,7 +43,7 @@ class WorkflowRnaseqVariantCalling(Process):
         },
     }
     data_name = "RNA-seq Variants ({{ reads|name|default('?') if reads else bam|name|default('?') }})"
-    version = "2.5.0"
+    version = "2.6.0"
     process_type = "data:workflow:rnaseq:variants"
     category = "Pipeline"
     entity = {
@@ -373,6 +373,7 @@ class WorkflowRnaseqVariantCalling(Process):
                     "ANN",
                     "CLNDN",
                     "CLNSIG",
+                    "QD",
                 ],
             )
             ann_fields = ListField(
@@ -414,9 +415,10 @@ class WorkflowRnaseqVariantCalling(Process):
                 StringField(),
                 label="Include FORMAT/sample-level fields. Note: If you specify DP "
                 "from genotype field, it will overwrite the original DP field. "
-                "By default fields GT (genotype), AD (allele depth), DP (depth at "
-                "the sample level), FT (sample-level filter) are included in the analysis.",
-                default=["GT", "AD", "DP", "FT"],
+                "By default fields GT (genotype), GQ (genotype quality) AD (allele depth), "
+                "DP (depth at the sample level), FT (sample-level filter) "
+                "are included in the analysis.",
+                default=["GT", "GQ", "AD", "DP", "FT"],
             )
 
         class Advanced:
