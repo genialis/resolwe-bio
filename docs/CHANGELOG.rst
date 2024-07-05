@@ -23,6 +23,9 @@ Changed
 Fixed
 -----
 - Extend the selection of supported fields in VariantCall serializer
+- Fix the ``mutations-table`` process so that only a single variant instance
+  is reported for each variant in ``variants`` application. The process now
+  also correcly handles the ``depth`` field reporting.
 
 
 ===================

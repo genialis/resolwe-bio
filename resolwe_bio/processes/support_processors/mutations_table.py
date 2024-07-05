@@ -297,7 +297,7 @@ class MutationsTable(ProcessBio):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.2.0"
+    version = "2.3.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -565,6 +565,9 @@ class MutationsTable(ProcessBio):
         gf_fields = [f"SAMPLENAME1.{field}" for field in inputs.advanced.gf_fields]
         requested_fields = inputs.vcf_fields + gf_fields
 
+        if "DP" in inputs.advanced.gf_fields:
+            requested_fields.append("DP")
+
         for key, value in optional_mapping.items():
             if key in requested_fields:
                 columns_map[key] = value
@@ -584,5 +587,11 @@ class MutationsTable(ProcessBio):
                 .astype(int)
             )
 
+        # before reporting sample variants, drop columns containing variant
+        # annotation data, e.g "HGVS.p". This allows duplicate variant rows
+        # to be dropped.
+        retain_fields = list(columns_map.values())
+        output_table = output_table[retain_fields]
+        output_table = output_table.drop_duplicates()
         output_table = output_table[columns_map.values()].to_dict(orient="records")
         self.add_variants(inputs.advanced.data_source, output_table)

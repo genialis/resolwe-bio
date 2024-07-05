@@ -1889,6 +1889,20 @@ re-save-file lane_attributes "${NAME}".txt
                 "variants": snpeff_ensembl.id,
                 "bam": ensembl_bam.id,
                 "mutations": ["PTPRD"],
+                "vcf_fields": [
+                    "CHROM",
+                    "POS",
+                    "ID",
+                    "QUAL",
+                    "REF",
+                    "ALT",
+                    "FILTER",
+                    "ANN",
+                    "CLNDN",
+                    "CLNSIG",
+                    "QD",
+                ],
+                "advanced": {"gf_fields": ["GT", "GQ", "AD", "DP", "FT"]},
             },
         )
         self.assertFile(
@@ -1903,6 +1917,10 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertEqual(len(variant_calls), 3)
 
         variant_call_1 = variant_calls[0]
+        self.assertEqual(variant_call_1.depth, 2)
+        self.assertEqual(variant_call_1.quality, 47.32)
         self.assertEqual(variant_call_1.genotype, "1/1")
         self.assertEqual(variant_call_1.genotype_quality, 6)
         self.assertEqual(variant_call_1.unfiltered_allele_depth, 2)
+        self.assertEqual(variant_call_1.depth_norm_quality, 23.66)
+        self.assertEqual(variant_call_1.filter, "DP")
