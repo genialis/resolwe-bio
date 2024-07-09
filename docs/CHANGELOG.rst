@@ -28,6 +28,8 @@ Fixed
 - Fix the ``mutations-table`` process so that only a single variant instance
   is reported for each variant in ``variants`` application. The process now
   also correcly handles the ``depth`` field reporting.
+- Fix that the number of used threads is correctly coerced to integer in 
+  ``xengsort-index``
 
 
 ===================

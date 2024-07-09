@@ -72,7 +72,7 @@ class XengsortIndex(Process):
     }
     category = "Xenograft processing"
     data_name = "Xengsort index"
-    version = "2.0.0"
+    version = "2.0.1"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -258,9 +258,9 @@ class XengsortIndex(Process):
             "--fill",
             inputs.advanced.fill,
             "--threads-read",
-            max(int(self.requirements.resources.cores) / 2, 1),
+            max(int(self.requirements.resources.cores / 2), 1),
             "--threads-split",
-            max(int(self.requirements.resources.cores) / 2, 1),
+            max(int(self.requirements.resources.cores / 2), 1),
         ]
 
         if inputs.advanced.aligned_cache:
