@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Fix that the number of used threads is correctly coerced to integer in 
+  ``xengsort-index``
 
 
 ===================
