@@ -16,6 +16,17 @@ Added
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+58.0.0 - 2024-07-10
+===================
+
+Changed
+-------
 - **BACKWARD INCOMPATIBLE:** Implement peak calling step and
   add QC reporting to the Cut & Run workflow
 - Bump requirements versions
