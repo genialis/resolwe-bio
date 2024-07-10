@@ -30,6 +30,7 @@ Fixed
   also correcly handles the ``depth`` field reporting.
 - Fix that the number of used threads is correctly coerced to integer in 
   ``xengsort-index``
+- Fixed data object naming in ``pca-beta`` process
 
 
 ===================

@@ -196,8 +196,8 @@ class PrinicipalComponentAnalysis(Process):
             "storage": 10,
         },
     }
-    data_name = "{{ alignment|name|default('?') }}"
-    version = "0.1.0"
+    data_name = "PCA"
+    version = "0.1.1"
     process_type = "data:pca"
     category = "Enrichment and Clustering"
     scheduling_class = SchedulingClass.INTERACTIVE
