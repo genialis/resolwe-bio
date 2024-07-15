@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add filter by sample to variant objects
 
 Changed
 -------
