@@ -26,6 +26,7 @@ Changed
   ``prepare-geo-rnaseq``, ``seqtk-rev-complement-single``,
   ``seqtk-rev-complement-paired``, ``differentialexpression-shrna``,
   ``shrna-quant`` and ``workflow-trim-align-quant``.
+- Use default value ``False`` for ``skip_missing_interpreters`` in tox.ini file
 
 Fixed
 -----
