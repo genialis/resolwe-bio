@@ -47,6 +47,8 @@ class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
             "annotation__clinical_significance": TEXT_LOOKUPS,
             "variant_calls__quality": NUMBER_LOOKUPS,
             "variant_calls__depth": NUMBER_LOOKUPS,
+            "variant_calls__sample__slug": TEXT_LOOKUPS,
+            "variant_calls__sample": NUMBER_LOOKUPS,
         }
 
 

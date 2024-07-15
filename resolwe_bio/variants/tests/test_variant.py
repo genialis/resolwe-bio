@@ -58,7 +58,7 @@ class PrepareDataMixin:
         cls.contributor = User.objects.get_or_create(
             username="contributor", email="contributor@genialis.com"
         )[0]
-        sample = Sample.objects.create(contributor=cls.contributor)
+        cls.sample = Sample.objects.create(contributor=cls.contributor)
         cls.variants = Variant.objects.bulk_create(
             [
                 Variant(
@@ -120,7 +120,7 @@ class PrepareDataMixin:
         cls.calls = VariantCall.objects.bulk_create(
             [
                 VariantCall(
-                    sample=sample,
+                    sample=cls.sample,
                     variant=cls.variants[0],
                     quality=0.7,
                     depth_norm_quality=0.7,
@@ -132,7 +132,7 @@ class PrepareDataMixin:
                     experiment=cls.experiments[0],
                 ),
                 VariantCall(
-                    sample=sample,
+                    sample=cls.sample,
                     variant=cls.variants[1],
                     quality=0.2,
                     depth_norm_quality=0.2,
@@ -768,6 +768,59 @@ class VariantTest(PrepareDataMixin, TestCase):
         request = APIRequestFactory().get("/variant", {"variant_calls__depth__gt": 10})
         expected = VariantSerializer(self.variants[:1], many=True).data
         response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        # Filter by sample slug.
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__sample__slug": "non_existing"}
+        )
+        expected = []
+        response = self.view(request)
+        self.assertContains(response, expected, status_code=status.HTTP_200_OK)
+
+        # Filter by sample slug.
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__sample__slug": self.sample.slug}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants, many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        # Filter by sample id.
+        request = APIRequestFactory().get("/variant", {"variant_calls__sample": -1})
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "Select a valid choice. That choice is not one of the available choices.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__sample__gte": self.sample.pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants, many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        sample = Sample.objects.create(contributor=self.contributor)
+        self.calls[0].sample = sample
+        self.calls[0].save()
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__sample": self.sample.pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[1:], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__sample": sample.pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[:1], many=True).data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.data, expected)
 

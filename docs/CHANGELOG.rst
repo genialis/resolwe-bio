@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add ``gtf-to-bed`` process
+- Add filter by sample to variant objects
 
 Changed
 -------
