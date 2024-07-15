@@ -71,7 +71,7 @@ class VariantData(TypedDict):
 
     quality: NotRequired[float]
     depth_norm_quality: NotRequired[float]
-    unfiltered_allele_depth: NotRequired[int]
+    alternative_allele_depth: NotRequired[int]
     depth: NotRequired[int]
     genotype: NotRequired[str]
     genotype_quality: NotRequired[int]
@@ -131,7 +131,9 @@ class VariantCommands(ListenerPlugin):
                     sample=sample,
                     quality=variant_data.get("quality"),
                     depth_norm_quality=variant_data.get("depth_norm_quality"),
-                    unfiltered_allele_depth=variant_data.get("unfiltered_allele_depth"),
+                    alternative_allele_depth=variant_data.get(
+                        "alternative_allele_depth"
+                    ),
                     depth=variant_data.get("depth"),
                     genotype=variant_data.get("genotype"),
                     genotype_quality=variant_data.get("genotype_quality"),

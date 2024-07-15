@@ -213,8 +213,8 @@ class VariantCall(AuditModel, PermissionInterface):
     #: depth_norm_quality
     depth_norm_quality = models.FloatField(blank=True, null=True)
 
-    #: unfiltered_allele_depth
-    unfiltered_allele_depth = models.PositiveIntegerField(blank=True, null=True)
+    #: alternative_allele_depth
+    alternative_allele_depth = models.PositiveIntegerField(blank=True, null=True)
 
     #: depth
     depth = models.PositiveIntegerField(blank=True, null=True)

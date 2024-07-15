@@ -297,7 +297,7 @@ class MutationsTable(ProcessBio):
     }
     category = "WGS"
     data_name = "{{ variants|name|default('?') }}"
-    version = "2.3.0"
+    version = "2.4.0"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -557,7 +557,7 @@ class MutationsTable(ProcessBio):
             "DP": "depth",
             "FILTER": "filter",
             "QD": "depth_norm_quality",
-            "SAMPLENAME1.AD": "unfiltered_allele_depth",
+            "SAMPLENAME1.AD": "alternative_allele_depth",
             "SAMPLENAME1.GT": "genotype",
             "SAMPLENAME1.GQ": "genotype_quality",
         }
@@ -579,9 +579,9 @@ class MutationsTable(ProcessBio):
                 encode_variant_genotype, axis=1, result_type="reduce"
             )
 
-        if "unfiltered_allele_depth" in output_table.columns:
-            output_table["unfiltered_allele_depth"] = (
-                output_table["unfiltered_allele_depth"]
+        if "alternative_allele_depth" in output_table.columns:
+            output_table["alternative_allele_depth"] = (
+                output_table["alternative_allele_depth"]
                 .str.split(",")
                 .str[1]
                 .astype(int)

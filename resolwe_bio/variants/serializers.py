@@ -101,7 +101,7 @@ class VariantCallSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
             "genotype_quality",
             "depth",
             "depth_norm_quality",
-            "unfiltered_allele_depth",
+            "alternative_allele_depth",
             "filter",
             "genotype",
             "data_id",
