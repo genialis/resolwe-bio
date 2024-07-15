@@ -55,7 +55,7 @@ setuptools.setup(
             "sphinx-rtd-theme==2.0.0",
             "pyasn1>=0.6.0",
         ],
-        "package": ["twine", "wheel"],
+        "package": ["twine", "wheel", "check-manifest", "setuptools_scm"],
         "test": [
             "build==1.2.1",
             "black==24.4.2",
