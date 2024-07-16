@@ -24,7 +24,7 @@ jobs:
       RESOLWE_REDIS_PORT: 56380
     strategy:
       matrix:
-        toxenv: ["py311", "py312"]
+        toxenv: ["py312"]
 
     services:
       postgres:
