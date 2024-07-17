@@ -22,6 +22,7 @@ jobs:
     env:
       RESOLWE_POSTGRESQL_PORT: 55433
       RESOLWE_REDIS_PORT: 56380
+      RESOLWE_TEST_ONLY_CHANGES_TO: "origin/master"
     strategy:
       matrix:
         toxenv: ["py312"]
@@ -95,11 +96,18 @@ jobs:
       - name: Migrations
         run: |
           tox -e migrations
-
-      - name: Unit tests
+      
+      - name: Run entire test suite
+        if: github.event_name != 'pull_request'
         timeout-minutes: 120
         run: |
           tox -e ${{ matrix.toxenv }}
+
+      - name: Unit partial test suite on pull request
+        if: github.event_name == 'pull_request'
+        timeout-minutes: 120
+        run: |
+          tox -e ${{ matrix.toxenv }}-partial
 
   build:
     runs-on: arc-runner
