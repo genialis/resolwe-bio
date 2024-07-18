@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Improve the robustness of ``geo-import`` process by
+  repeatedly trying to fetch the metadata from the SRA
 
 
 ===================

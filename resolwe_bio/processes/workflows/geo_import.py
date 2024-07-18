@@ -1,11 +1,13 @@
 """GEO import pipeline."""
 
 import re
+import time
 from pathlib import Path
 
 import GEOparse
 import pandas as pd
 import requests
+from requests.exceptions import RequestException
 
 from resolwe.process import (
     BooleanField,
@@ -89,7 +91,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.8.0"
+    version = "2.9.0"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -109,6 +111,11 @@ class GeoImport(Process):
                 label="Maximum file size to download in KB",
                 default="20G",
                 description="A unit prefix can be used instead of a value in KB (e.g. 1024M or 1G).",
+            )
+            sra_retry_limit = IntegerField(
+                label="Number of retries for SRA download",
+                default=10,
+                description="Number of retries to download SRA files.",
             )
             min_spot_id = IntegerField(label="Minimum spot ID", required=False)
             max_spot_id = IntegerField(label="Maximum spot ID", required=False)
@@ -183,29 +190,42 @@ class GeoImport(Process):
                 for srx_id in sample_found:
                     sample_info[srx_id] = name
                     info_file = f"{gse.name}.csv"
-                    run_info = requests.get(
-                        url="https://eutils.ncbi.nlm.nih.gov/Traces/sra/sra.cgi",
-                        params={
-                            "save": "efetch",
-                            "db": "sra",
-                            "rettype": "runinfo",
-                            "term": srx_id,
-                        },
-                    )
+                    retry_count = 0
+                    while retry_count < inputs.advanced.sra_retry_limit:
+                        try:
+                            run_info = requests.get(
+                                url="https://eutils.ncbi.nlm.nih.gov/Traces/sra/sra.cgi",
+                                params={
+                                    "save": "efetch",
+                                    "db": "sra",
+                                    "rettype": "runinfo",
+                                    "term": srx_id,
+                                },
+                            )
 
-                    if run_info.status_code != 200:
-                        self.error(
-                            f"Failed to fetch SRA runs for project {srx_id} belonging to {gse.name}."
-                        )
+                            if run_info.text.isspace():
+                                self.error(
+                                    f"Got an empty response from SRA for SRX ID {srx_id} belonging to {gse.name}."
+                                )
 
-                    elif run_info.text.isspace():
-                        self.error(
-                            f"Got an empty response from SRA for SRX ID {srx_id} belonging to {gse.name}."
-                        )
+                            run_info.raise_for_status()
 
-                    else:
-                        with open(info_file, "wb") as handle:
-                            handle.write(run_info.content)
+                            with open(info_file, "wb") as handle:
+                                handle.write(run_info.content)
+
+                            break
+
+                        except RequestException:
+                            retry_count += 1
+                            if retry_count == inputs.advanced.sra_retry_limit:
+                                self.error(
+                                    f"Failed to fetch SRA runs for project {srx_id} belonging to {gse.name} after {retry_count} tries."
+                                )
+                            else:
+                                time.sleep(0.5)
+                                self.warning(
+                                    f"Retrying request for SRX ID {srx_id} belonging to {gse.name}."
+                                )
 
                     run_info = pd.read_csv(
                         info_file, usecols=["Run", "SampleName", "LibraryLayout"]
