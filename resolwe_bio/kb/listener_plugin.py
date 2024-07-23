@@ -23,6 +23,7 @@ class ExposeFeature(ExposeObjectPlugin):
     """Expose the Feature knowledge base model in listener."""
 
     full_model_name = "resolwe_bio_kb.Feature"
+    iterate_chunk_size = 10000
 
     def filter_objects(self, user: UserClass, queryset: QuerySet, data) -> QuerySet:
         """Filter the objects for the given user."""
@@ -33,6 +34,7 @@ class ExposeMapping(ExposeObjectPlugin):
     """Expose the Mapping knowledge base model in listener."""
 
     full_model_name = "resolwe_bio_kb.Mapping"
+    iterate_chunk_size = 10000
 
     def filter_objects(self, user: UserClass, queryset: QuerySet, data) -> QuerySet:
         """Filter the objects for the given user."""
