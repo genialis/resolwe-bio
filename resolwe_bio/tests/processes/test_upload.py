@@ -704,23 +704,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(geneset_2.process_warning[0], "Removed duplicated genes.")
         self.assertEqual(geneset_2.descriptor_schema.slug, "geneset")
 
-    @tag_process("create-geneset-venn")
-    def test_create_venn(self):
-        inputs = {
-            "genes": ["ABC", "GHI", "DEF"],
-            "source": "UCSC",
-            "venn": "venn.json.gz",
-            "species": "Homo sapiens",
-        }
-        venn = self.run_process("create-geneset-venn", inputs)
-
-        self.assertFile(venn, "geneset", "geneset_venn.tab.gz", compression="gzip")
-        self.assertJSON(venn, venn.output["geneset_json"], "", "geneset_venn.json.gz")
-        self.assertJSON(venn, venn.output["venn"], "", "venn.json.gz")
-        self.assertFields(venn, "source", "UCSC")
-        self.assertFields(venn, "species", "Homo sapiens")
-        self.assertEqual(venn.descriptor_schema.slug, "geneset")
-
     @tag_process("upload-fastq-single")
     def test_upload_reformating_single(self):
         inputs = {"src": ["old_encoding.fastq.gz"]}
@@ -751,13 +734,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             ],
             compression="gzip",
         )
-
-    @tag_process("upload-etc")
-    def test_upload_etc(self):
-        inputs = {"src": "etc_upload_input.xls"}
-        etc = self.run_process("upload-etc", inputs)
-
-        self.assertFile(etc, "etcfile", "test_etc.json.gz")
 
     @tag_process("upload-fasta-nucl")
     def test_upload_nucl_seq(self):
@@ -952,47 +928,6 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(bedpe, "bedpe", in_file)
         self.assertFields(bedpe, "species", species)
         self.assertFields(bedpe, "build", build)
-
-    @tag_process("upload-proteomics-sample")
-    def test_upload_proteomics_sample(self):
-        base = Path("proteomics")
-        inputs = base / "input"
-        outputs = base / "output"
-
-        prot_data = self.run_process(
-            "upload-proteomics-sample",
-            {
-                "src": str(inputs / "single_sample.txt"),
-                "species": "Homo sapiens",
-            },
-        )
-        self.assertFile(prot_data, "table", str(outputs / "single_sample.txt"))
-        self.assertFields(prot_data, "species", "Homo sapiens")
-        self.assertFields(prot_data, "source", "UniProtKB")
-
-    @tag_process("upload-proteomics-sample-set")
-    def test_upload_proteomics_sample_set(self):
-        base = Path("proteomics")
-        inputs = base / "input"
-        outputs = base / "output"
-
-        prot_data = self.run_process(
-            "upload-proteomics-sample-set",
-            {
-                "src": str(inputs / "sample_set.txt"),
-                "species": "Homo sapiens",
-            },
-        )
-        self.assertFile(prot_data, "table", str(outputs / "sample_set.txt"))
-        self.assertFields(prot_data, "species", "Homo sapiens")
-        self.assertFields(prot_data, "source", "UniProtKB")
-
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-        self.assertEqual(
-            Data.objects.filter(process__slug="upload-proteomics-sample").count(), 2
-        )
 
     @skipUnlessLargeFiles(
         "6042316072_R03C01_Red.idat.gz", "6042316072_R03C01_Grn.idat.gz"

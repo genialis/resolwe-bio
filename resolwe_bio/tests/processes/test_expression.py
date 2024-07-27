@@ -12,7 +12,7 @@ from resolwe_bio.utils.test import KBBioProcessTestCase
 class ExpressionProcessorTestCase(KBBioProcessTestCase):
     fixtures = ["relationtypes.yaml"]
 
-    @tag_process("cufflinks", "cuffmerge")
+    @tag_process("cufflinks")
     def test_cufflinks(self):
         with self.preparation_stage():
             ref_seq = self.prepare_ref_seq(
@@ -23,7 +23,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
             reads = self.prepare_reads()
             annotation_gtf = self.prepare_annotation("annotation dicty.gff.gz")
-            annotation_gff3 = self.prepare_annotation_gff()
 
             aligned_reads = self.run_process(
                 "alignment-hisat2",
@@ -43,31 +42,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(cuff_exp, "transcripts", "cufflinks_transcripts.gtf", sort=True)
         self.assertFields(cuff_exp, "species", "Dictyostelium discoideum")
         self.assertFields(cuff_exp, "build", "dd-05-2009")
-        self.assertFields(cuff_exp, "source", "DICTYBASE")
-
-        inputs = {
-            "alignment": aligned_reads.pk,
-            "annotation": annotation_gtf.pk,
-            "genome": ref_seq.pk,
-        }
-        cuff_exp2 = self.run_process("cufflinks", inputs)
-
-        inputs = {
-            "expressions": [cuff_exp.pk, cuff_exp2.pk],
-            "gff": annotation_gff3.pk,
-            "genome": ref_seq.pk,
-        }
-        cuff_merge_gff3 = self.run_process("cuffmerge", inputs)
-        self.assertFile(cuff_merge_gff3, "annot", "cuffmerge_transcripts.gtf")
-        self.assertFields(cuff_merge_gff3, "species", "Dictyostelium discoideum")
-        self.assertFields(cuff_merge_gff3, "build", "dd-05-2009")
-        self.assertFields(cuff_exp, "source", "DICTYBASE")
-
-        inputs["gff"] = annotation_gtf.pk
-        cuff_merge_gtf = self.run_process("cuffmerge", inputs)
-        self.assertFile(cuff_merge_gtf, "annot", "cuffmerge_transcripts.gtf")
-        self.assertFields(cuff_merge_gtf, "species", "Dictyostelium discoideum")
-        self.assertFields(cuff_merge_gtf, "build", "dd-05-2009")
         self.assertFields(cuff_exp, "source", "DICTYBASE")
 
     @tag_process("cuffquant")
@@ -242,7 +216,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         self.assertFileExists(mappability, "mappability")
 
-    @tag_process("expression-dicty", "etc-bcm")
+    @tag_process("expression-dicty")
     def test_expression_dicty(self):
         with self.preparation_stage():
             ref_seq = self.prepare_ref_seq(
@@ -276,10 +250,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "build", "dd-05-2009")
         self.assertFields(expression, "feature_type", "gene")
 
-        inputs = {"expressions": [expression.pk, expression.pk]}
-        etc = self.run_process("etc-bcm", inputs)
-        self.assertJSON(etc, etc.output["etc"], "", "etc.json.gz")
-
     @with_resolwe_host
     @tag_process("mergeexpressions")
     def test_mergeexpression(self):
@@ -312,49 +282,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             "genes": ["DPU_G0067096", "DPU_G0067098", "DPU_G0067102"],
         }
         self.run_process("mergeexpressions", inputs, Data.STATUS_ERROR)
-
-    @tag_process("mergeetc")
-    def test_etcmerge(self):
-        with self.preparation_stage():
-            ref_seq = self.prepare_ref_seq(
-                fn="genome.fasta.gz",
-                species="Dictyostelium discoideum",
-                build="dd-05-2009",
-            )
-            hisat2_index = self.run_process("hisat2-index", {"ref_seq": ref_seq.id})
-            reads = self.prepare_reads()
-            annotation = self.prepare_annotation_gff()
-
-            aligned_reads = self.run_process(
-                "alignment-hisat2",
-                {
-                    "genome": hisat2_index.pk,
-                    "reads": reads.pk,
-                },
-            )
-
-            mappa = self.run_process(
-                "upload-mappability", {"src": "purpureum_mappability_50.tab.gz"}
-            )
-
-            inputs = {
-                "alignment": aligned_reads.pk,
-                "gff": annotation.pk,
-                "mappable": mappa.pk,
-            }
-
-            expression = self.run_process("expression-dicty", inputs)
-
-            inputs = {"expressions": [expression.pk, expression.pk]}
-            etc = self.run_process("etc-bcm", inputs)
-
-        inputs = {
-            "exps": [etc.pk],
-            "genes": ["DPU_G0067110", "DPU_G0067098", "DPU_G0067102"],
-        }
-
-        etcmerge = self.run_process("mergeetc", inputs)
-        self.assertFile(etcmerge, "expset", "merged_etc.tab.gz", compression="gzip")
 
     @with_resolwe_host
     @tag_process("feature_counts")
@@ -757,45 +684,6 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             expression_single,
             "exp",
             outputs / "auto_detect_strand_tpm.tab.gz",
-            compression="gzip",
-        )
-
-    @tag_process("shrna-quant")
-    def test_shrna_quant(self):
-        with self.preparation_stage():
-            pf_in = "./shrna_diffexp/input/"
-            pf_out = "./shrna_diffexp/output/"
-
-            species = "Homo sapiens"
-            build = "custom-from-file"
-            bam_single_inputs = {
-                "src": pf_in + "SM18_ss.bam",
-                "species": species,
-                "build": build,
-            }
-            bam = self.run_process("upload-bam", bam_single_inputs)
-
-        inputs = {"alignment": bam.id, "readlengths": 26, "alignscores": -6}
-
-        quant = self.run_process("shrna-quant", inputs)
-        self.assertFile(
-            quant, "rc", pf_out + "SM18_ss_count_matrix.txt.gz", compression="gzip"
-        )
-        self.assertFile(
-            quant, "exp", pf_out + "SM18_ss_count_matrix.txt.gz", compression="gzip"
-        )
-        self.assertFields(quant, "exp_type", "RC")
-        self.assertJSON(
-            quant, quant.output["exp_json"], "", pf_out + "SM18_ss_json.txt.gz"
-        )
-        self.assertFields(quant, "source", "shRNA-gene-sequences")
-        self.assertFields(quant, "species", species)
-        self.assertFields(quant, "build", build)
-        self.assertFields(quant, "feature_type", "shRNA")
-        self.assertFile(
-            quant,
-            "mapped_species",
-            pf_out + "SM18_ss_mapped_species.txt.gz",
             compression="gzip",
         )
 

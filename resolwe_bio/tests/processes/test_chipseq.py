@@ -13,51 +13,6 @@ from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 class ChipSeqProcessorTestCase(BioProcessTestCase):
     fixtures = ["relationtypes.yaml"]
 
-    @tag_process("chipseq-peakscore", "chipseq-genescore")
-    def test_chipseq(self):
-        with self.preparation_stage():
-            inputs = {
-                "src": "chip_seq_control.bam",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            control_bam = self.run_process("upload-bam", inputs)
-
-            inputs = {
-                "src": "chip_seq_case.bam",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            case_bam = self.run_process("upload-bam", inputs)
-
-            inputs = {
-                "src": "chip_seq.bed",
-                "species": "Dictyostelium discoideum",
-                "build": "dd-05-2009",
-            }
-            bed = self.run_process("upload-bed", inputs)
-
-            inputs = {
-                "case": case_bam.pk,
-                "control": control_bam.pk,
-                "settings": {
-                    "nomodel": True,
-                    "pvalue": 0.001,
-                    "slocal": 2000,
-                    "extsize": 100,
-                    "call_summits": True,
-                },
-            }
-            macs2 = self.run_process("macs2-callpeak", inputs)
-
-        inputs = {"peaks": macs2.pk, "bed": bed.pk}
-        peak_score = self.run_process("chipseq-peakscore", inputs)
-        self.assertFile(peak_score, "peak_score", "chip_seq_peakscore_genomicContext")
-
-        inputs = {"peakscore": peak_score.id}
-        gene_score = self.run_process("chipseq-genescore", inputs)
-        self.assertFile(gene_score, "genescore", "chip_seq_geneScore.xls")
-
     @tag_process("macs14")
     def test_macs14(self):
         with self.preparation_stage():

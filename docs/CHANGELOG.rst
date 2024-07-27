@@ -16,6 +16,16 @@ Added
 
 Changed
 -------
+- Remove obsolete processes and releated scripts: ``cuffmerge``,
+  ``chipseq-peakscore``, ``chipseq-genescore``, ``etc-bcm``,
+  ``mergeetc``, ``upload-etc``, ``upload-bam-secondary``, 
+  ``upload-bam-scseq-indexed``, ``create-geneset-venn``,
+  ``upload-proteomics-sample``, ``upload-proteomics-sample-set``,
+  ``upload-header-sam``, ``upload-multiplexed-single``,
+  ``upload-multiplexed-paired``, ``bam-split``, ``prepare-geo-chipseq``,
+  ``prepare-geo-rnaseq``, ``seqtk-rev-complement-single``,
+  ``seqtk-rev-complement-paired``, ``differentialexpression-shrna``,
+  ``shrna-quant`` and ``workflow-trim-align-quant``.
 
 Fixed
 -----
