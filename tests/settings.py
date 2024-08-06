@@ -137,7 +137,7 @@ FLOW_EXECUTOR = {
 # key in the map then the matching part in the docker image name is replaced
 # with the corresponding value.
 FLOW_CONTAINER_IMAGE_MAP = config(
-    "FLOW_CONTAINER_IMAGE_MAP", default="{}", cast=json.loads
+    "RESOLWE_CONTAINER_IMAGE_MAP", default="{}", cast=json.loads
 )
 
 # Set custom executor command if set via environment variable

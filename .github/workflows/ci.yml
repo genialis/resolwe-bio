@@ -15,6 +15,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
+env:
+  RESOLWE_CONTAINER_IMAGE_MAP: '{"public.ecr.aws/s4q6j6e8": "396487289173.dkr.ecr.eu-west-1.amazonaws.com/public.ecr.aws/genialis", "public.ecr.aws/genialis": "396487289173.dkr.ecr.eu-west-1.amazonaws.com/public.ecr.aws/genialis"}'
+
 jobs:
   test:
     runs-on: arc-runner
