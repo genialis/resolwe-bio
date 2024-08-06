@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Allow overriding docker image prefix via environment variable
 
 Changed
 -------

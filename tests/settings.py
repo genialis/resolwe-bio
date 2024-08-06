@@ -3,10 +3,13 @@ Django settings for running tests for Resolwe package.
 
 """
 
+import json
 import os
 import re
 import sys
 from distutils.util import strtobool  # pylint: disable=import-error,no-name-in-module
+
+from decouple import config
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
 
@@ -129,6 +132,14 @@ FLOW_EXECUTOR = {
     "REDIS_CONNECTION": REDIS_CONNECTION,
     "LISTENER_CONNECTION": LISTENER_CONNECTION,
 }
+
+# Set the mapping for docker images. When docker image name starts with the
+# key in the map then the matching part in the docker image name is replaced
+# with the corresponding value.
+FLOW_CONTAINER_IMAGE_MAP = config(
+    "RESOLWE_CONTAINER_IMAGE_MAP", default="{}", cast=json.loads
+)
+
 # Set custom executor command if set via environment variable
 if "RESOLWE_DOCKER_COMMAND" in os.environ:
     FLOW_DOCKER_COMMAND = os.environ["RESOLWE_DOCKER_COMMAND"]
