@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.1.1"
+    version = "5.2.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -150,23 +150,106 @@ class AlignmentStar(Process):
             """Chimeric reads options."""
 
             chimeric = BooleanField(
-                label="Detect chimeric and circular alignments [--chimOutType SeparateSAMold]",
+                label="Detect chimeric and circular alignments",
                 default=False,
-                description="To switch on detection of chimeric (fusion) alignments (in addition "
-                "to normal mapping), --chimSegmentMin should be set to a positive value. Each "
-                "chimeric alignment consists of two segments.Each segment is non-chimeric on "
+                description="Detect chimeric and circular alignments. If set to True and "
+                "-chimSegmentMin set to a positive value, default STAR parameters will be used"
+                "for the detection of chimeric (fusion) alignments (in addition to normal mapping). "
+                "Output is either written to a .bam or separate (default) .sam file.",
+            )
+
+            chim_out_type = StringField(
+                label="Chimeric output type [--chimOutType]",
+                default="SeparateSAMold",
+                choices=[
+                    ("WithinBam", "WithinBam"),
+                    ("SeparateSAMold", "SeparateSAMold"),
+                ],
+                description="Type of chimeric output produced by STAR.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_segment_min = IntegerField(
+                label="Minimum length of chimeric segment [--chimSegmentMin]",
+                default=0,
+                description="Minimum length of chimeric segment to be reported. "
+                "Each chimeric alignment consists of two segments. Each segment is non-chimeric on "
                 "its own, but the segments are chimeric to each other (i.e. the segments belong "
                 "to different chromosomes, or different strands, or are far from each other). "
                 "Both segments may contain splice junctions, and one of the segments may contain "
                 "portions of both mates. --chimSegmentMin parameter controls the minimum mapped "
                 "length of the two segments that is allowed. For example, if you have 2x75 reads "
                 "and used --chimSegmentMin 20, a chimeric alignment with 130b on one chromosome "
-                "and 20b on the other will be output, while 135 + 15 won't be.",
+                "and 20b on the other will be output, while 135 + 15 won't be. Additionally, "
+                "filtering_options.out_multimap_max is set to 50 if detect_chimeric is set to True.",
+                disabled="!detect_chimeric.chimeric",
             )
 
-            chim_segment_min = IntegerField(
-                label="Minimum length of chimeric segment [--chimSegmentMin]",
+            chim_junction_overhang_min = IntegerField(
+                label="Minimum overhang for chimeric junctions [--chimJunctionOverhangMin]",
                 default=20,
+                description="Minimum overhang for chimeric junctions.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_score_drop_max = IntegerField(
+                label="Maximum drop in chimeric score [--chimScoreDropMax]",
+                default=20,
+                description="Maximum drop in chimeric score for chimeric alignments "
+                "relative to the read length.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_score_junction_non_gtag = IntegerField(
+                label="Score for non-GTAG chimeric junctions [--chimScoreJunctionNonGTAG]",
+                default=-1,
+                description="Penalty for chimeric junctions if they are non-GTAG.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_score_separation = IntegerField(
+                label="Minimum score separation between chimeric alignments [--chimScoreSeparation]",
+                default=10,
+                description="Minimum score separation between the best chimeric alignment "
+                "and the next best.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_segment_read_gap_max = IntegerField(
+                label="Maximum read gap for chimeric segments [--chimSegmentReadGapMax]",
+                default=0,
+                description="Maximum gap in the read sequence between chimeric segments.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            chim_multimap_nmax = IntegerField(
+                label="Maximum number of chimeric multi-mapping segments [--chimMultimapNmax]",
+                default=10,
+                description="Maximum number of chimeric alignments reported for multimapped reads.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            pe_overlap_n_bases_min = IntegerField(
+                label="Minimum number of overlapping bases in PE [--peOverlapNbasesMin]",
+                default=1,
+                description="Minimum number of overlapping bases to trigger merging mate pair.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            align_spliced_mate_map_lmin_over_lmate = FloatField(
+                label="Minimum mapped length of spliced mates over mate "
+                "length [--alignSplicedMateMapLminOverLmate]",
+                default=0.66,
+                description="Minimum mapped length of the spliced mate, divided by the mate length.",
+                disabled="!detect_chimeric.chimeric",
+            )
+
+            align_sj_stitch_mismatch_n_max = ListField(
+                IntegerField(),
+                label="Maximum number of mismatches for stitching SJ [--alignSJstitchMismatchNmax]",
+                default=[0, -1, 0, 0],
+                description="Maximum number of mismatches that are allowed in the seed region for "
+                "stitching splice junctions. Enter four integers.",
                 disabled="!detect_chimeric.chimeric",
             )
 
@@ -212,6 +295,7 @@ class AlignmentStar(Process):
             out_multimap_max = IntegerField(
                 label="Maximum number of loci [--outFilterMultimapNmax]",
                 required=False,
+                default=10,
                 description="Maximum number of loci the read is allowed to map to. Alignments "
                 "(all of them) will be output only if the read maps to no more loci than this "
                 "value. Otherwise no alignments will be output, and the read will be counted as "
@@ -511,9 +595,27 @@ class AlignmentStar(Process):
             star_params.extend(
                 [
                     "--chimOutType",
-                    "SeparateSAMold",
+                    inputs.detect_chimeric.chim_out_type,
                     "--chimSegmentMin",
                     inputs.detect_chimeric.chim_segment_min,
+                    "--chimJunctionOverhangMin",
+                    inputs.detect_chimeric.chim_junction_overhang_min,
+                    "--chimScoreDropMax",
+                    inputs.detect_chimeric.chim_score_drop_max,
+                    "--chimScoreJunctionNonGTAG",
+                    inputs.detect_chimeric.chim_score_junction_non_gtag,
+                    "--chimScoreSeparation",
+                    inputs.detect_chimeric.chim_score_separation,
+                    "--chimSegmentReadGapMax",
+                    inputs.detect_chimeric.chim_segment_read_gap_max,
+                    "--chimMultimapNmax",
+                    inputs.detect_chimeric.chim_multimap_nmax,
+                    "--peOverlapNbasesMin",
+                    inputs.detect_chimeric.pe_overlap_n_bases_min,
+                    "--alignSplicedMateMapLminOverLmate",
+                    inputs.detect_chimeric.align_spliced_mate_map_lmin_over_lmate,
+                    "--alignSJstitchMismatchNmax",
+                    inputs.detect_chimeric.align_sj_stitch_mismatch_n_max,
                 ]
             )
 
@@ -683,7 +785,7 @@ class AlignmentStar(Process):
 
         self.progress(0.9)
 
-        if inputs.detect_chimeric.chimeric:
+        if inputs.detect_chimeric.chimeric == "SeparateSAMold":
             out_chimeric = f"{mate1_name}_chimeric.out.sam"
             Path("Chimeric.out.sam").rename(out_chimeric)
             outputs.chimeric = out_chimeric

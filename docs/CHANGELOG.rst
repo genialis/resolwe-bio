@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add additional parameters for chimeric alignments to ``star.py``
+  and ``bbduk_star.py``
 
 Changed
 -------
