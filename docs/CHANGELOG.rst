@@ -15,6 +15,7 @@ Added
 -----
 - Add additional parameters for chimeric alignments to ``star.py``
   and ``bbduk_star.py``
+- Expose ``Variant`` and ``VariantCall`` models in python processes
 
 Changed
 -------

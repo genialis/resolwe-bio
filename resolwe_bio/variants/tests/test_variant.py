@@ -1,3 +1,4 @@
+import os
 from typing import TYPE_CHECKING
 from unittest.mock import Mock
 
@@ -11,6 +12,7 @@ from resolwe.flow.models import Data
 from resolwe.flow.models import Entity as Sample
 from resolwe.flow.models import Process
 from resolwe.permissions.models import Permission
+from resolwe.test import ProcessTestCase, tag_process
 
 from resolwe_bio.variants.listener_plugin import (
     VariantAnnotationData,
@@ -143,6 +145,116 @@ class PrepareDataMixin:
                 ),
             ]
         )
+
+
+class VariantProcessTest(ProcessTestCase):
+    """Test Variant model can be accesed inside Python process."""
+
+    def setUp(self):
+        """Register the processes and prepare necessary objects."""
+        super().setUp()
+        self._register_schemas(processes_paths=[os.path.dirname(__file__)])
+        self.contributor = User.objects.get_or_create(
+            username="contributor_variants", email="contributor_variants@genialis.com"
+        )[0]
+
+        self.sample1 = Sample.objects.create(contributor=self.contributor)
+        self.sample2 = Sample.objects.create(contributor=self.contributor)
+
+        variants = Variant.objects.bulk_create(
+            [
+                Variant(
+                    species="Homo Sapiens",
+                    genome_assembly="assembly 1",
+                    chromosome="CHR1",
+                    position=1234,
+                    reference="ref1",
+                    alternative="alt1",
+                ),
+                Variant(
+                    species="Mus Musculus",
+                    genome_assembly="assembly 2",
+                    chromosome="CHR2",
+                    position=67891234,
+                    reference="ref2",
+                    alternative="alt2",
+                ),
+            ]
+        )
+
+        VariantCall.objects.bulk_create(
+            [
+                VariantCall(
+                    sample=self.sample1,
+                    variant=variants[0],
+                    quality=0.7,
+                    depth_norm_quality=0.7,
+                    alternative_allele_depth=1,
+                    depth=15,
+                    filter="filter 1",
+                    genotype="1",
+                    genotype_quality=1,
+                ),
+                VariantCall(
+                    sample=self.sample2,
+                    variant=variants[1],
+                    quality=0.2,
+                    depth_norm_quality=0.2,
+                    alternative_allele_depth=2,
+                    depth=5,
+                    filter="filter 2",
+                    genotype="2",
+                    genotype_quality=2,
+                ),
+            ]
+        )
+
+    @tag_process("test-variants-simple-get")
+    def test_get_variants(self):
+        """Test retrieving the Variant model in Python process."""
+        data = self.run_process("test-variants-simple-get")
+        self.assertCountEqual(
+            data.output["variant_species"], ["Mus Musculus", "Homo Sapiens"]
+        )
+
+    @tag_process("test-variants-simple-filter")
+    def test_filter_variants(self):
+        """Test filtering Variant model in Python process."""
+        data = self.run_process(
+            "test-variants-simple-filter", {"species_filter": "Homo Sapiens"}
+        )
+        self.assertCountEqual(data.output["variant_species"], ["Homo Sapiens"])
+
+    @tag_process("test-variant-position-get")
+    def test_get_variant_position(self):
+        """Test retrieving Variant position in Python process."""
+        variant = Variant.objects.last()
+        data = self.run_process("test-variant-position-get", {"variant_id": variant.pk})
+        self.assertEqual(data.output["position"], variant.position)
+
+    @tag_process("test-variantcalls-simple-get")
+    def test_get_variant_calls(self):
+        """Test retrieving the VariantCall models in Python process."""
+
+        Process.objects.get(slug="test-variantcalls-simple-get").set_permission(
+            Permission.VIEW, self.contributor
+        )
+        data = self.run_process(
+            "test-variantcalls-simple-get", contributor=self.contributor
+        )
+        self.assertCountEqual(data.output["filters"], [])
+
+        self.sample1.set_permission(Permission.VIEW, self.contributor)
+        data = self.run_process(
+            "test-variantcalls-simple-get", contributor=self.contributor
+        )
+        self.assertCountEqual(data.output["filters"], ["filter 1"])
+
+        self.sample2.set_permission(Permission.VIEW, self.contributor)
+        data = self.run_process(
+            "test-variantcalls-simple-get", contributor=self.contributor
+        )
+        self.assertCountEqual(data.output["filters"], ["filter 1", "filter 2"])
 
 
 class ListenerPluginTest(TestCase):
