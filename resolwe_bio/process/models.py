@@ -70,3 +70,17 @@ class Mapping(Model):
         "target_id",
         "target_species",
     ]
+
+
+class Variant(Model):
+    """Expose Variant model in Python Processes."""
+
+    _app_name = "resolwe_bio_variants"
+    _model_name = "Variant"
+
+
+class VariantCall(Model):
+    """Expose VariantCall model in Python Processes."""
+
+    _app_name = "resolwe_bio_variants"
+    _model_name = "VariantCall"
