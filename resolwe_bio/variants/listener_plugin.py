@@ -3,7 +3,10 @@
 import logging
 from typing import TYPE_CHECKING, NotRequired, TypedDict
 
+from django.db.models import QuerySet
+
 from resolwe.flow.executors.socket_utils import Message, Response
+from resolwe.flow.managers.listener.permission_plugin import ExposeObjectPlugin
 from resolwe.flow.managers.listener.plugin import (
     ListenerPlugin,
     listener_plugin_manager,
@@ -76,6 +79,24 @@ class VariantData(TypedDict):
     genotype: NotRequired[str]
     genotype_quality: NotRequired[int]
     filter: NotRequired[str]
+
+
+class ExposeVariant(ExposeObjectPlugin):
+    """Expose the Variant base model in listener."""
+
+    full_model_name = "resolwe_bio_variants.Variant"
+    iterate_chunk_size = 10000
+
+    def filter_objects(self, user, queryset: QuerySet, data) -> QuerySet:
+        """Filter the objects for the given user."""
+        return queryset
+
+
+class ExposeVariantCall(ExposeObjectPlugin):
+    """Expose the VariantCall base model in listener."""
+
+    full_model_name = "resolwe_bio_variants.VariantCall"
+    iterate_chunk_size = 10000
 
 
 class VariantCommands(ListenerPlugin):

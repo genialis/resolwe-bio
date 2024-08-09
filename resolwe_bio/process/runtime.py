@@ -6,7 +6,7 @@ from resolwe.process.communicator import communicator
 from resolwe.process.models import Data
 from resolwe.process.runtime import Process
 
-from resolwe_bio.process.models import Feature, Mapping
+from resolwe_bio.process.models import Feature, Mapping, Variant, VariantCall
 
 
 class ProcessBio(Process):
@@ -20,6 +20,8 @@ class ProcessBio(Process):
         super().__init__(data)
         self.feature = Feature
         self.mapping = Mapping
+        self.variant = Variant
+        self.variant_call = VariantCall
 
     def add_variants(self, data_source: str, variants: List[Dict[str, Any]]):
         """Add variants to the database."""
