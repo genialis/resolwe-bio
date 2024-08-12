@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.5.0"
+    version = "1.6.0"
     entity = {
         "type": "sample",
     }
