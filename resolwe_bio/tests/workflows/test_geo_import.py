@@ -1,4 +1,5 @@
 from pathlib import Path
+from unittest import skip
 
 from django.test import LiveServerTestCase
 
@@ -8,6 +9,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
+@skip("Temporarily skipping test due to web resource being unavailable")
 class GeoImportTestCase(BioProcessTestCase, LiveServerTestCase):
     @with_resolwe_host
     @tag_process("geo-import")
