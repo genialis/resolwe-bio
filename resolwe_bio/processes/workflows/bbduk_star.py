@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.6.0"
+    version = "1.7.0"
     entity = {
         "type": "sample",
     }
@@ -210,10 +210,13 @@ class WorkflowSTAR(Process):
                     label="Chimeric output type [--chimOutType]",
                     default="SeparateSAMold",
                     choices=[
-                        ("WithinBam", "WithinBam"),
+                        ("WithinBAM", "WithinBAM"),
+                        ("WithinBAM HardClip", "WithinBAM HardClip"),
+                        ("WithinBAM SoftClip", "WithinBAM SoftClip"),
                         ("SeparateSAMold", "SeparateSAMold"),
                     ],
-                    description="Type of chimeric output produced by STAR.",
+                    description="Type of chimeric output produced by STAR. If WithinBAM is "
+                    "selected, 'WithinBAM HardClip' in the CIGAR is used.",
                     disabled="!alignment.chimeric_reads.chimeric",
                 )
 

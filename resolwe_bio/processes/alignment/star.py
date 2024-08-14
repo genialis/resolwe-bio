@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.2.0"
+    version = "5.3.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -162,10 +162,13 @@ class AlignmentStar(Process):
                 label="Chimeric output type [--chimOutType]",
                 default="SeparateSAMold",
                 choices=[
-                    ("WithinBam", "WithinBam"),
+                    ("WithinBAM", "WithinBAM"),
+                    ("WithinBAM HardClip", "WithinBAM HardClip"),
+                    ("WithinBAM SoftClip", "WithinBAM SoftClip"),
                     ("SeparateSAMold", "SeparateSAMold"),
                 ],
-                description="Type of chimeric output produced by STAR.",
+                description="Type of chimeric output produced by STAR. If WithinBAM is "
+                "selected, 'WithinBAM HardClip' in the CIGAR is used.",
                 disabled="!detect_chimeric.chimeric",
             )
 
