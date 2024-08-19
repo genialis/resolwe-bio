@@ -19,8 +19,8 @@ Added
 
 Changed
 -------
-- Remove obsolete processes and releated scripts: ``cuffmerge``,
-  ``chipseq-peakscore``, ``chipseq-genescore``, ``etc-bcm``,
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and releated scripts: 
+  ``cuffmerge``, ``chipseq-peakscore``, ``chipseq-genescore``, ``etc-bcm``,
   ``mergeetc``, ``upload-etc``, ``upload-bam-secondary``, 
   ``upload-bam-scseq-indexed``, ``create-geneset-venn``,
   ``upload-proteomics-sample``, ``upload-proteomics-sample-set``,
