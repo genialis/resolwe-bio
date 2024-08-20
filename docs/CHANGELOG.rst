@@ -20,6 +20,7 @@ Added
 - Add ``arriba`` process
 - Change the default value of the ``--ChimOutType`` parameter in the
   ``alignment-star`` and ``workflow-bbduk-star-qc`` to ``WithinBAM HardClip``
+- Add ``gene-fusion-calling-arriba`` workflow
 
 Changed
 -------
