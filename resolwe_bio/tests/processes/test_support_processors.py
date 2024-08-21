@@ -1727,3 +1727,66 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertEqual(variant_call_1.alternative_allele_depth, 2)
         self.assertEqual(variant_call_1.depth_norm_quality, 23.66)
         self.assertEqual(variant_call_1.filter, "DP")
+
+    @tag_process("gtf-to-bed")
+    def test_gtf_to_bed(self):
+        with self.preparation_stage():
+            gtf = self.run_process(
+                "upload-gtf",
+                {
+                    "src": Path("salmon_workflow", "input", "hs annotation.gtf"),
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens109",
+                },
+            )
+            geneset = self.run_process(
+                "create-geneset",
+                {
+                    "genes": ["ENSG00000279493"],
+                    "species": "Homo sapiens",
+                    "source": "ENSEMBL",
+                },
+            )
+
+        bed = self.run_process(
+            "gtf-to-bed",
+            {
+                "annotation": gtf.id,
+                "geneset": geneset.id,
+                "annotation_field": "exon_id",
+                "feature_type": "exon",
+            },
+        )
+        self.assertFile(bed, "bed", "chr21_sorted_exons.bed")
+
+        bed = self.run_process(
+            "gtf-to-bed",
+            {
+                "annotation": gtf.id,
+                "geneset": geneset.id,
+                "output_strand": True,
+                "annotation_field": "exon_id",
+                "feature_type": "exon",
+            },
+        )
+        self.assertFile(bed, "bed", "chr21_sorted_exons_strand.bed")
+
+        bed = self.run_process(
+            "gtf-to-bed",
+            {
+                "annotation": gtf.id,
+                "annotation_field": "gene_name",
+            },
+        )
+        self.assertFile(bed, "bed", "chr21_sorted_genes.bed")
+
+        bed = self.run_process(
+            "gtf-to-bed",
+            {
+                "annotation": gtf.id,
+                "annotation_field": "gene_id_feature_id",
+                "feature_type": "exon",
+            },
+        )
+        self.assertFile(bed, "bed", "chr21_sorted_gene_id_exon_id.bed")

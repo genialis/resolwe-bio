@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``gtf-to-bed`` process
 
 Changed
 -------
