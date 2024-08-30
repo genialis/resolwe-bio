@@ -222,3 +222,55 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             fn=output_folder / "samtools_in_depth.txt.gz",
             compression="gzip",
         )
+
+    @tag_process("samtools-mpileup-single")
+    def samtools_mpileup_single(self):
+        input_folder = Path("samtools") / "inputs"
+        output_folder = Path("samtools") / "outputs"
+        with self.preparation_stage():
+            inputs_bam = {
+                "src": input_folder / "samtools_in.bam",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bam = self.run_process("upload-bam", inputs_bam)
+            inputs_bed = {
+                "src": input_folder / "regions_bed.bed",
+                "species": "Homo sapiens",
+                "build": "GRCh38",
+            }
+            bed = self.run_process("upload-bed", inputs_bed)
+            positions = self.run_process(
+                "upload-file", {"src": input_folder / "regions.txt"}
+            )
+
+        inputs = {
+            "bam": bam.id,
+            "bedfile": bed.id,
+            "advanced": {"output_base_counts": True},
+        }
+        samtools = self.run_process("samtools-mpileup-single", inputs)
+        self.assertFile(
+            obj=samtools,
+            field_path="pileup_report",
+            fn=output_folder / "samtools_in_mpileup.txt.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            obj=samtools,
+            field_path="base_counts",
+            fn=output_folder / "samtools_in_counts.txt.gz",
+            compression="gzip",
+        )
+        inputs = {
+            "bam": bam.id,
+            "positions": positions.id,
+            "advanced": {"region": "7"},
+        }
+        samtools = self.run_process("samtools-mpileup-single", inputs)
+        self.assertFile(
+            obj=samtools,
+            field_path="pileup_report",
+            fn=output_folder / "samtools_in_mpileup_2.txt.gz",
+            compression="gzip",
+        )
