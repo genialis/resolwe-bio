@@ -35,7 +35,7 @@ class VariantAnnotationTranscriptData(TypedDict):
     annotation_impact: str
     gene: str
     protein_impact: str
-    transcript_ids: list[str]
+    transcript_id: str
     canonical: NotRequired[bool]
 
 
@@ -174,7 +174,6 @@ class VariantCommands(ListenerPlugin):
     ) -> Response[int]:
         """Add variants annotations."""
         data = manager.data(data_id)
-
         typed_data: list[VariantAnnotationData] = message.message_data
         # Create the variants.
         variant_cache: dict[tuple, Variant] = dict()
@@ -197,9 +196,7 @@ class VariantCommands(ListenerPlugin):
                 "data": data,
             }
 
-            if VariantAnnotation.objects.filter(**annotation_key).exists():
-                VariantAnnotation.objects.get(**annotation_key).delete()
-
+            VariantAnnotation.objects.filter(variant_id=variant.id).delete()
             annotation = VariantAnnotation.objects.create(**annotation_key)
             VariantAnnotationTranscript.objects.bulk_create(
                 VariantAnnotationTranscript(
@@ -208,7 +205,7 @@ class VariantCommands(ListenerPlugin):
                     annotation_impact=transcript_data["annotation_impact"],
                     gene=transcript_data["gene"],
                     protein_impact=transcript_data["protein_impact"],
-                    transcript_ids=transcript_data["transcript_ids"],
+                    transcript_id=transcript_data["transcript_id"],
                     canonical=transcript_data.get("canonical", False),
                 )
                 for transcript_data in annotation_data["transcripts"]
