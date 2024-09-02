@@ -53,7 +53,7 @@ class VariantTranscriptSerializer(SelectiveFieldMixin, serializers.ModelSerializ
             "annotation_impact",
             "gene",
             "protein_impact",
-            "transcript_ids",
+            "transcript_id",
             "canonical",
         ]
 

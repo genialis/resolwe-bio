@@ -100,7 +100,7 @@ class PrepareDataMixin:
                     annotation_impact="impact 1",
                     gene="gene 1",
                     protein_impact="protein impact 1",
-                    transcript_ids=["f1", "f2"],
+                    transcript_id="f1",
                 )
             ]
         )
@@ -434,7 +434,7 @@ class ListenerPluginTest(TestCase):
                         "annotation_impact": "annotation impact 1",
                         "gene": "gene 1",
                         "protein_impact": "protein impact 1",
-                        "transcript_ids": ["t 1", "tt 1"],
+                        "transcript_id": "t 1",
                         "canonical": False,
                     }
                 ],
@@ -459,7 +459,7 @@ class ListenerPluginTest(TestCase):
                         "annotation_impact": "annotation impact 2",
                         "gene": "gene 2",
                         "protein_impact": "protein impact 2",
-                        "transcript_ids": ["t 2", "tt 2"],
+                        "transcript_id": "t 2",
                         "canonical": True,
                     }
                 ],
@@ -522,7 +522,7 @@ class ListenerPluginTest(TestCase):
                     "annotation_impact": "annotation impact 1",
                     "gene": "gene 1",
                     "protein_impact": "protein impact 1",
-                    "transcript_ids": ["t 1", "tt 1"],
+                    "transcript_id": "t 1",
                     "canonical": False,
                 }
             ],
@@ -543,7 +543,7 @@ class ListenerPluginTest(TestCase):
                     "annotation_impact": "annotation impact 2",
                     "gene": "gene 2",
                     "protein_impact": "protein impact 2",
-                    "transcript_ids": ["t 2", "tt 2"],
+                    "transcript_id": "t 2",
                     "canonical": True,
                 }
             ],
@@ -894,7 +894,7 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
             annotation_impact="impact 2",
             gene="gene 2",
             protein_impact="protein impact 2",
-            transcript_ids=["f1", "f2"],
+            transcript_id="f1",
         )
         return super().setUp()
 

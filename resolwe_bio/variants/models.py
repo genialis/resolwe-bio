@@ -7,7 +7,6 @@ Models
 """
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from resolwe.auditlog.models import AuditModel
@@ -154,10 +153,8 @@ class VariantAnnotationTranscript(AuditModel):
     #: protein impact
     protein_impact = models.CharField(max_length=PROTEIN_IMPACT_MAX_LENGTH)
 
-    #: list of transcript ids
-    transcript_ids = ArrayField(
-        models.CharField(max_length=FEATURE_ID_MAX_LENGTH), default=list
-    )
+    #: transcript_id
+    transcript_id = models.CharField(max_length=FEATURE_ID_MAX_LENGTH)
 
     #: is this transcript canonical
     canonical = models.BooleanField(default=False)
