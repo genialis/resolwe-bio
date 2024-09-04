@@ -15,6 +15,7 @@ Added
 -----
 - Add ``gtf-to-bed`` process
 - Add filter by sample to variant objects
+- Add additional parameters for ``calculate-bigwig`` process
 
 Changed
 -------

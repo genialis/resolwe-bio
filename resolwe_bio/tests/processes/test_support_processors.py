@@ -1401,7 +1401,7 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFields(bigwig, "species", species)
         self.assertFields(bigwig, "build", build)
 
-        scaled_bigwig = self.run_process(
+        bigwig = self.run_process(
             "calculate-bigwig",
             {
                 "alignment": bam.id,
@@ -1410,9 +1410,22 @@ re-save-file lane_attributes "${NAME}".txt
             },
         )
 
-        self.assertFile(scaled_bigwig, "bigwig", outputs / "reads.SInorm.bigwig")
-        self.assertFields(scaled_bigwig, "species", species)
-        self.assertFields(scaled_bigwig, "build", build)
+        self.assertFile(bigwig, "bigwig", outputs / "reads.SInorm.bigwig")
+        self.assertFields(bigwig, "species", species)
+        self.assertFields(bigwig, "build", build)
+
+        bigwig = self.run_process(
+            "calculate-bigwig",
+            {
+                "alignment": bam.id,
+                "scale": 1,
+                "advanced": {"exclude_flag": 3840, "skip_non_covered": True},
+            },
+        )
+
+        self.assertFile(bigwig, "bigwig", outputs / "reads_2.bigwig")
+        self.assertFields(bigwig, "species", species)
+        self.assertFields(bigwig, "build", build)
 
     @tag_process("bamtofastq-paired")
     def test_bamtofastq_paired(self):

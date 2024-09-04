@@ -6,10 +6,12 @@ from pathlib import Path
 from plumbum import TEE
 
 from resolwe.process import (
+    BooleanField,
     Cmd,
     DataField,
     FileField,
     FloatField,
+    GroupField,
     IntegerField,
     Process,
     SchedulingClass,
@@ -94,10 +96,10 @@ class CalculateBigWig(Process):
         "executor": {
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
-        "resources": {"cores": 1, "memory": 16384},
+        "resources": {"cores": 16, "memory": 16384},
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "2.0.1"
+    version = "2.1.0"
     process_type = "data:coverage:bigwig"
     category = "BAM processing"
     entity = {"type": "sample"}
@@ -107,6 +109,14 @@ class CalculateBigWig(Process):
         """Input fields."""
 
         alignment = DataField("alignment:bam", label="Alignment BAM file")
+        bed = DataField(
+            "bed",
+            label="BED file",
+            description="BED file used to subset the input alignment file prior to calling bamCoverage. "
+            "Used when you want to output depth of coverage for a specific set of regions.",
+            required=False,
+            disabled="bedpe",
+        )
         bedpe = DataField(
             "bedpe",
             label="BEDPE Normalization factor",
@@ -131,6 +141,23 @@ class CalculateBigWig(Process):
             default=50,
         )
 
+        class Advanced:
+            """Advanced options."""
+
+            exclude_flag = IntegerField(
+                description="Exclude reads based on the SAM flag [--samFlagExclude].",
+                label="Exclude reads based on the SAM flag",
+                required=False,
+            )
+
+            skip_non_covered = BooleanField(
+                description="This parameter determines if non-covered regions (regions without overlapping reads) in a BAM file should be skipped [--skipNonCoveredRegions].",
+                label="Skip non-covered regions",
+                default=False,
+            )
+
+        advanced = GroupField(Advanced, label="Advanced options")
+
     class Output:
         """Output fields."""
 
@@ -143,6 +170,21 @@ class CalculateBigWig(Process):
         bam_path = Path(inputs.alignment.output.bam.path)
         assert bam_path.name.endswith(".bam")
         name = bam_path.stem
+
+        if inputs.bed:
+            subset_bam = f"subset_{name}.bam"
+            return_code, _, _ = (
+                Cmd["samtools"]["view"][
+                    "-b", "-L", inputs.bed.output.bed.path, "-o", subset_bam, bam_path
+                ]
+            ) & TEE(retcode=None)
+
+            if return_code:
+                self.error("Subsetting BAM file with samtools view failed.")
+
+            return_code, _, _ = Cmd["samtools"]["index"][subset_bam] & TEE(retcode=None)
+            if return_code:
+                self.error("Samtools index command failed.")
 
         if inputs.bedpe:
             with open(inputs.bedpe.output.bedpe.path, "rb") as f:
@@ -161,7 +203,7 @@ class CalculateBigWig(Process):
 
         bam_coverage_param = [
             "--bam",
-            bam_path,
+            bam_path if not inputs.bed else subset_bam,
             "--scaleFactor",
             scale_factor,
             "--outFileName",
@@ -173,6 +215,14 @@ class CalculateBigWig(Process):
             "--binSize",
             inputs.bin_size,
         ]
+
+        if inputs.advanced.exclude_flag:
+            bam_coverage_param.extend(
+                ["--samFlagExclude", inputs.advanced.exclude_flag]
+            )
+
+        if inputs.advanced.skip_non_covered:
+            bam_coverage_param.append("--skipNonCoveredRegions")
 
         return_code, _, stderr = Cmd["bamCoverage"][bam_coverage_param] & TEE(
             retcode=None
