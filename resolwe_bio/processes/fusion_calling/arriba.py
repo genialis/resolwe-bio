@@ -10,15 +10,18 @@ from resolwe.process import Cmd, DataField, FileField, Process, SchedulingClass
 
 
 def get_contig_names(gtf_file):
-    """Get unique contig names.
+    """Get sorted unique contig names.
 
     List of contig (chromosome) names is required by arriba (parameter -i).
     This function covers possible edge cases where contig names are not common.
     """
 
-    gtf = pd.read_csv(gtf_file, sep="\t", header=None, usecols=[0])
-    contigs = set(gtf[0])
-    out = " ".join(list(contigs))
+    gtf = pd.read_csv(
+        gtf_file, sep="\t", header=None, usecols=[0], dtype={0: str}, comment="#"
+    )
+
+    contigs = sorted(set(gtf[0]))
+    out = " ".join(contigs)
     return out
 
 
@@ -37,7 +40,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.0.0"
+    version = "1.0.1"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
