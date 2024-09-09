@@ -99,7 +99,7 @@ class CalculateBigWig(Process):
         "resources": {"cores": 16, "memory": 16384},
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "2.1.0"
+    version = "2.1.1"
     process_type = "data:coverage:bigwig"
     category = "BAM processing"
     entity = {"type": "sample"}
@@ -209,7 +209,7 @@ class CalculateBigWig(Process):
             "--outFileName",
             out_file,
             "--numberOfProcessors",
-            self.requirements.resources.cores,
+            int(self.requirements.resources.cores),
             "--outFileFormat",
             "bigwig",
             "--binSize",

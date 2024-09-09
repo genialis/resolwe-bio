@@ -24,7 +24,7 @@ Changed
 
 Fixed
 -----
-
+- Fix ``--numberOfProcessors`` input in ``calculate-bigwig`` process
 
 ===================
 59.0.0 - 2024-08-19
