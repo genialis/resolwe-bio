@@ -80,7 +80,27 @@ class AnnotationTestCase(BioProcessTestCase):
         error_msg = ["No variants found in the database for the selected inputs."]
         self.assertEqual(variant_annotation.process_error, error_msg)
 
-        variant = Variant.objects.get_or_create(
+        variant_T_A = Variant.objects.get_or_create(
+            species="Homo sapiens",
+            genome_assembly="GRCh38",
+            chromosome="13",
+            position=48307307,
+            reference="T",
+            alternative="A",
+        )
+        VariantCall.objects.get_or_create(
+            sample=self.sample,
+            variant=variant_T_A[0],
+            quality=70,
+            depth_norm_quality=0.7,
+            alternative_allele_depth=11,
+            depth=30,
+            filter="PASS",
+            genotype="0/1",
+            genotype_quality=99,
+        )
+
+        variant_A_T = Variant.objects.get_or_create(
             species="Homo sapiens",
             genome_assembly="GRCh38",
             chromosome="12",
@@ -90,7 +110,7 @@ class AnnotationTestCase(BioProcessTestCase):
         )
         VariantCall.objects.get_or_create(
             sample=self.sample,
-            variant=variant[0],
+            variant=variant_A_T[0],
             quality=70,
             depth_norm_quality=0.7,
             alternative_allele_depth=11,
@@ -113,8 +133,8 @@ class AnnotationTestCase(BioProcessTestCase):
         )
 
         expected_transcript = {
-            "id": variant[0].annotation.transcripts.first().id,
-            "variant_annotation_id": variant[0].annotation.pk,
+            "id": variant_A_T[0].annotation.transcripts.first().id,
+            "variant_annotation_id": variant_A_T[0].annotation.pk,
             "annotation": "3_prime_UTR_variant",
             "annotation_impact": "MODIFIER",
             "gene": "KRAS",
@@ -124,8 +144,8 @@ class AnnotationTestCase(BioProcessTestCase):
         }
 
         expected_annotation = {
-            "id": variant[0].annotation.id,
-            "variant_id": variant[0].id,
+            "id": variant_A_T[0].annotation.id,
+            "variant_id": variant_A_T[0].id,
             "type": "SNP",
             "clinical_diagnosis": "Noonan_syndrome",
             "clinical_significance": "Likely_benign",
@@ -133,7 +153,9 @@ class AnnotationTestCase(BioProcessTestCase):
             "clinvar_id": "308075",
         }
 
-        serialized_annotation = VariantAnnotationSerializer(variant[0].annotation).data
+        serialized_annotation = VariantAnnotationSerializer(
+            variant_A_T[0].annotation
+        ).data
         self.assertDictEqual(
             serialized_annotation["transcripts"][0],
             expected_transcript,
@@ -163,9 +185,11 @@ class AnnotationTestCase(BioProcessTestCase):
             },
         )
 
-        variant[0].refresh_from_db()
+        variant_A_T[0].refresh_from_db()
 
-        serialized_annotation = VariantAnnotationSerializer(variant[0].annotation).data
+        serialized_annotation = VariantAnnotationSerializer(
+            variant_A_T[0].annotation
+        ).data
 
         expected_annotation["id"] = serialized_annotation["id"]
         expected_annotation["dbsnp_id"] = ""

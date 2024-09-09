@@ -228,7 +228,7 @@ class VariantAnnotation(ProcessBio):
         },
     }
     data_name = "Variant annotation"
-    version = "1.0.0"
+    version = "1.0.1"
     process_type = "data:annotation"
     category = "Annotation"
     scheduling_class = SchedulingClass.BATCH
@@ -337,6 +337,7 @@ class VariantAnnotation(ProcessBio):
         ]
 
         vcf_df = pd.DataFrame(vcf_data)
+        vcf_df = vcf_df.sort_values(["CHROM", "POS"], ascending=[True, True])
         vcf_fn = "variants.vcf"
         vcf_df.to_csv("variants.vcf", sep="\t", index=False, header=False)
         header = "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tSAMPLENAME1"
