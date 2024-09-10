@@ -15,16 +15,17 @@ class ArribaProcessorTestCase(KBBioProcessTestCase):
 
         with self.preparation_stage():
             bam = self.run_process(
-                "upload-bam",
-                {
+                process_slug="upload-bam",
+                input_={
                     "src": input_folder / "aligned_samples.bam",
                     "species": "Homo sapiens",
                     "build": "GRCh38",
                 },
             )
+
             bam_error = self.run_process(
-                "upload-bam",
-                {
+                process_slug="upload-bam",
+                input_={
                     "src": input_folder / "aligned_samples_error.bam",
                     "species": "Homo sapiens",
                     "build": "GRCh38",
@@ -32,8 +33,8 @@ class ArribaProcessorTestCase(KBBioProcessTestCase):
             )
 
             gtf_file = self.run_process(
-                "upload-gtf",
-                {
+                process_slug="upload-gtf",
+                input_={
                     "src": input_folder / "minigenome.gtf.gz",
                     "source": "ENSEMBL",
                     "species": "Homo sapiens",
@@ -42,8 +43,8 @@ class ArribaProcessorTestCase(KBBioProcessTestCase):
             )
 
             genome_file = self.run_process(
-                "upload-fasta-nucl",
-                {
+                process_slug="upload-fasta-nucl",
+                input_={
                     "src": input_folder / "minigenome.fasta.gz",
                     "species": "Homo sapiens",
                     "build": "GRCh38",

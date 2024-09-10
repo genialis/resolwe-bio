@@ -40,7 +40,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.0.1"
+    version = "1.0.2"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -60,19 +60,22 @@ class Arriba(Process):
         """Input fields for Arriba process."""
 
         bam = DataField(
-            "alignment:bam",
+            data_type="alignment:bam",
             label="Input BAM file from STAR ran with parameters suggested by Arriba",
         )
+
         gtf = DataField(
             data_type="annotation:gtf",
             label="GTF file",
             description="Annotation file in GTF format.",
         )
+
         genome = DataField(
             data_type="seq:nucleotide",
             label="Genome file",
             description="Genome file in FASTA format.",
         )
+
         blacklist_file = DataField(
             data_type="file",
             label="Blacklist file",
@@ -98,6 +101,7 @@ class Arriba(Process):
         return_code, stdout, stderr = Cmd["samtools"]["head", bam_file] & TEE(
             retcode=None
         )
+
         if return_code:
             print(stdout, stderr)
             self.error("Samtools head command failed. Check BAM file integrity.")
@@ -111,6 +115,7 @@ class Arriba(Process):
         co_line = next(
             (line for line in stdout.splitlines() if line.startswith("@CO")), None
         )
+
         if co_line:
             segment_match = re.search(r"--chimSegmentMin (\d+)", co_line)
             if not segment_match or not int(segment_match.group(1)) > 0:
