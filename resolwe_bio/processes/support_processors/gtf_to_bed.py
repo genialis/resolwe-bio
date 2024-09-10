@@ -15,12 +15,15 @@ from resolwe.process import (
 
 
 class GTFtoBED(Process):
-    """GTF to BED conversion."""
+    """GTF to BED conversion.
+
+    Note that this process only works with ENSEMBL annotations.
+    """
 
     slug = "gtf-to-bed"
     name = "GTF to BED"
     process_type = "data:bed"
-    version = "1.0.0"
+    version = "1.1.0"
     category = "Other"
     data_name = "Converted GTF to BED file"
     scheduling_class = SchedulingClass.BATCH
@@ -40,7 +43,7 @@ class GTFtoBED(Process):
         annotation = DataField(
             "annotation:gtf",
             label="Annotation file (GTF)",
-            description="The input GTF file to convert to BED file. This process only works with ENSEMBL annotations.",
+            description="The input GTF file to convert to BED file.",
         )
 
         feature_type = StringField(
@@ -116,7 +119,9 @@ class GTFtoBED(Process):
     class Output:
         """Output fields."""
 
-        bed = FileField(label="BED file", description="Converted BED file.")
+        bed = FileField(label="BED file")
+        species = StringField(label="Species")
+        build = StringField(label="Build")
 
     def run(self, inputs, outputs):
         """Run the analysis."""
@@ -241,3 +246,5 @@ class GTFtoBED(Process):
         sorted_bed.to_csv(bed_fn, sep="\t", header=False, index=False)
 
         outputs.bed = bed_fn
+        outputs.species = inputs.annotation.output.species
+        outputs.build = inputs.annotation.output.build
