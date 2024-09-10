@@ -18,6 +18,8 @@ Added
 - Add additional parameters for ``calculate-bigwig`` process
 - Add ``samtools-mpileup-single`` process
 - Add ``arriba`` process
+- Change the default value of the ``--ChimOutType`` parameter in the
+  ``alignment-star`` and ``workflow-bbduk-star-qc`` to ``WithinBAM HardClip``
 
 Changed
 -------

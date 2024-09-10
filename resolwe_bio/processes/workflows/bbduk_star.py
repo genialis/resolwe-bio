@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.7.0"
+    version = "1.7.1"
     entity = {
         "type": "sample",
     }
@@ -208,7 +208,7 @@ class WorkflowSTAR(Process):
 
                 chim_out_type = StringField(
                     label="Chimeric output type [--chimOutType]",
-                    default="SeparateSAMold",
+                    default="WithinBAM HardClip",
                     choices=[
                         ("WithinBAM", "WithinBAM"),
                         ("WithinBAM HardClip", "WithinBAM HardClip"),

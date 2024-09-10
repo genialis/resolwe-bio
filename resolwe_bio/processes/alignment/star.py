@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.3.0"
+    version = "5.3.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -160,7 +160,7 @@ class AlignmentStar(Process):
 
             chim_out_type = StringField(
                 label="Chimeric output type [--chimOutType]",
-                default="SeparateSAMold",
+                default="WithinBAM HardClip",
                 choices=[
                     ("WithinBAM", "WithinBAM"),
                     ("WithinBAM HardClip", "WithinBAM HardClip"),
