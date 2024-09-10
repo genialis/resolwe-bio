@@ -65,14 +65,18 @@ ANN_COLUMNS = [
 
 def extract_ids(id_column):
     """Extract SNP and ClinVar IDs from ID column."""
-    id_column = id_column.replace(".", "")
+    id_column = id_column.str.replace(".", "", regex=False)
     ids_expanded = id_column.str.split(";", expand=True)
-    snpids = ids_expanded.apply(
-        lambda x: ",".join(x[x.str.lower().str.startswith("rs")].dropna()), axis=1
-    )
-    clinvarids = ids_expanded.apply(
-        lambda x: ",".join(x[~x.str.lower().str.startswith("rs")].dropna()), axis=1
-    )
+
+    def extract_snp_ids(x):
+        return ",".join(x[x.str.startswith("rs", na=False)].dropna())
+
+    def extract_clinvar_ids(x):
+        return ",".join(x[~x.str.startswith("rs", na=False)].dropna())
+
+    snpids = ids_expanded.apply(extract_snp_ids, axis=1)
+    clinvarids = ids_expanded.apply(extract_clinvar_ids, axis=1)
+
     return pd.DataFrame({"SNPID": snpids, "CLINVARID": clinvarids})
 
 
@@ -228,7 +232,7 @@ class VariantAnnotation(ProcessBio):
         },
     }
     data_name = "Variant annotation"
-    version = "1.0.1"
+    version = "1.0.2"
     process_type = "data:annotation"
     category = "Annotation"
     scheduling_class = SchedulingClass.BATCH
