@@ -92,8 +92,6 @@ def prepare_char_counts(pileup_output, column_names, self, remove_read_ends):
 class SamtoolsMpileupSingle(Process):
     """Samtools mpileup for a single BAM file.
 
-    Generate text pileup output for one BAM file.
-
     For more information about samtools mpileup, click
     [here](https://www.htslib.org/doc/samtools-mpileup.html).
 
@@ -114,7 +112,7 @@ class SamtoolsMpileupSingle(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.0.0"
+    version = "2.0.0"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
 
@@ -126,7 +124,7 @@ class SamtoolsMpileupSingle(Process):
             data_type="bed",
             label="BED file",
             description="BED file containing a list of regions or sites where pileup should be generated. "
-            "BED files contain at least 3 columns (chromosome, start and end position) and are 0-based half-open [-l].",
+            "BED files contain at least 3 columns (chromosome, start and end position) and are 0-based half-open. [-l]",
             required=False,
             disabled="positions",
         )
@@ -134,7 +132,7 @@ class SamtoolsMpileupSingle(Process):
             data_type="file",
             label="List of positions",
             description="File containing a list of regions or sites where pileup should be generated. "
-            "Position list files contain two columns (chromosome and position) and start counting from 1 [-l].",
+            "Position list files contain two columns (chromosome and position) and start counting from 1. [-l]",
             required=False,
             disabled="bedfile",
         )
@@ -142,7 +140,7 @@ class SamtoolsMpileupSingle(Process):
             data_type="seq:nucleotide",
             label="Reference genome sequence",
             description="Reference genome sequence in FASTA format. "
-            "It is used to display the reference base in the pileup output and do base alignment quality (BAQ) computation [-f].",
+            "It is used to display the reference base in the pileup output and do base alignment quality (BAQ) computation. [-f]",
             required=False,
         )
 
@@ -152,22 +150,15 @@ class SamtoolsMpileupSingle(Process):
             disable_baq = BooleanField(
                 label="Disable BAQ computation",
                 description="BAQ is turned on when a reference file is supplied. "
-                "This option disables BAQ computation. [-B].",
+                "This option disables BAQ computation. [-B]",
                 default=False,
             )
             ignore_overlap_removal = BooleanField(
                 label="Ignore overlap removal",
-                description="Ignore the removal of overlaps [-x]. "
+                description="Ignore the removal of overlaps."
                 "When enabled, where the ends of a read-pair overlap the overlapping region will have one base selected "
                 "and the duplicate base nullified by setting its phred score to zero. "
-                "It will then be discarded by the --min-BQ option unless this is zero.",
-                default=False,
-            )
-            count_orphans = BooleanField(
-                label="Do not skip anomalous read pairs in variant calling",
-                description="Do not skip anomalous read pairs in variant calling. "
-                "Anomalous read pairs are those marked in the FLAG field as paired in sequencing "
-                "but without the properly-paired flag set [-A].",
+                "It will then be discarded by the --min-BQ option unless this is zero. [-x]",
                 default=False,
             )
             region = StringField(
@@ -227,7 +218,7 @@ class SamtoolsMpileupSingle(Process):
             )
             excl_output_ends = BooleanField(
                 label="Exclude output ends in sequence column",
-                description="Removes the “^” (with mapping quality) and “$” markup from the sequence column [--no-output-ends].",
+                description="Removes the “^” (with mapping quality) and “$” markup from the sequence column. [--no-output-ends]",
                 default=False,
             )
             output_base_counts = BooleanField(
@@ -315,8 +306,6 @@ class SamtoolsMpileupSingle(Process):
             input_options.extend(["-l", inputs.positions.output.file.path])
 
         input_options.extend(["-d", inputs.advanced.max_depth])
-        if inputs.advanced.count_orphans:
-            input_options.append("-A")
         if inputs.advanced.output_zero_depth:
             input_options.append("-a")
         if inputs.advanced.output_all_positions:
