@@ -168,6 +168,7 @@ def create_annotation_list(variants_table, canonical_transcripts, genome_assembl
     variants_table = variants_table.astype(str)
     column_names = {name: name.replace(".", "_") for name in variants_table.columns}
     variants_table.columns = [column_names[col] for col in variants_table.columns]
+    variants_table = variants_table.fillna("")
 
     variant_group = variants_table.groupby(
         ["CHROM", "POS", "REF", "ALT", "TYPE", "CLNDN", "CLNSIG", "SNPID", "CLINVARID"]
@@ -232,7 +233,7 @@ class VariantAnnotation(ProcessBio):
         },
     }
     data_name = "Variant annotation"
-    version = "1.0.2"
+    version = "1.0.3"
     process_type = "data:annotation"
     category = "Annotation"
     scheduling_class = SchedulingClass.BATCH
