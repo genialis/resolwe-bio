@@ -23,6 +23,7 @@ Added
 
 Changed
 -------
+- Change annotation and clinical diagnosis fields max lenghth to 500
 
 Fixed
 -----
