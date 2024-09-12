@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.3.1"
+    version = "5.3.2"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -598,7 +598,7 @@ class AlignmentStar(Process):
             star_params.extend(
                 [
                     "--chimOutType",
-                    inputs.detect_chimeric.chim_out_type,
+                    inputs.detect_chimeric.chim_out_type.split(" "),
                     "--chimSegmentMin",
                     inputs.detect_chimeric.chim_segment_min,
                     "--chimJunctionOverhangMin",

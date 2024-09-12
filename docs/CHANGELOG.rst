@@ -28,6 +28,8 @@ Changed
 Fixed
 -----
 - Fix ``--numberOfProcessors`` input in ``calculate-bigwig`` process
+- Fix ``alignment-star`` process to correctly handle the ``--chimOutType``
+  parameter
 
 ===================
 59.0.0 - 2024-08-19
