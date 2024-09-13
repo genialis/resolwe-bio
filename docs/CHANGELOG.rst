@@ -24,7 +24,8 @@ Added
 
 Changed
 -------
-- Change annotation and clinical diagnosis fields max lenghth to 500
+- Change variant model annotation field max length to 500 and
+  clinical diagnosis field max lenght to 1000
 
 Fixed
 -----
