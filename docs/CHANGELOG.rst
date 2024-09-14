@@ -25,7 +25,8 @@ Added
 Changed
 -------
 - Change variant model annotation field max length to 500 and
-  clinical diagnosis field max lenght to 1000
+  clinical diagnosis field max lenght to 1000. Set dbsnp and
+  clinvar fields to max lenght of 150
 
 Fixed
 -----
