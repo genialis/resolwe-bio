@@ -13,26 +13,39 @@ Unreleased
 
 Added
 -----
-- Add ``gtf-to-bed`` process
-- Add filter by sample to variant objects
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+59.1.0 - 2024-09-16
+===================
+
+Added
+-----
+- Add processes ``gtf-to-bed``, ``samtools-mpileup-single``
+  ``arriba``, ``gene-fusion-calling-arriba``
 - Add additional parameters for ``calculate-bigwig`` process
-- Add ``samtools-mpileup-single`` process
-- Add ``arriba`` process
-- Change the default value of the ``--ChimOutType`` parameter in the
-  ``alignment-star`` and ``workflow-bbduk-star-qc`` to ``WithinBAM HardClip``
-- Add ``gene-fusion-calling-arriba`` workflow
+- Add filter by sample to variant objects
 
 Changed
 -------
 - Change variant model annotation field max length to 500 and
   clinical diagnosis field max lenght to 1000. Set dbsnp and
   clinvar fields to max lenght of 150
+- Change the default value of the ``--ChimOutType`` parameter in the
+  ``alignment-star`` and ``workflow-bbduk-star-qc`` to ``WithinBAM HardClip``
 
 Fixed
 -----
 - Fix ``--numberOfProcessors`` input in ``calculate-bigwig`` process
 - Fix ``alignment-star`` process to correctly handle the ``--chimOutType``
   parameter
+
 
 ===================
 59.0.0 - 2024-08-19
