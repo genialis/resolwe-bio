@@ -24,10 +24,8 @@ ALTERNATIVE_MAX_LENGTH = 100
 # Metadata
 VARIANT_DATA_SOURCE_MAX_LENGTH = 100
 VARIANT_ANNOTATION_SOURCE_MAX_LENGTH = 100
-ANNOTATION_MAX_LENGTH = 500
 GENOTYPE_MAX_LENGTH = 3
 TYPE_MAX_LENGTH = 100
-CLINICAL_DIAGNOSIS_MAX_LENGTH = 1000
 CLINICAL_SIGNIFICANCE_MAX_LENGTH = 100
 DBSNP_ID_MAX_LENGTH = 150
 CLINICAL_VAR_ID_MAX_LENGTH = 150
@@ -106,9 +104,7 @@ class VariantAnnotation(AuditModel):
     )
 
     #: clinical diagnosis
-    clinical_diagnosis = models.CharField(
-        max_length=CLINICAL_DIAGNOSIS_MAX_LENGTH, blank=True, null=True
-    )
+    clinical_diagnosis = models.TextField(blank=True, null=True)
 
     #: clinical significance
     clinical_significance = models.CharField(
@@ -142,7 +138,7 @@ class VariantAnnotationTranscript(AuditModel):
     )
 
     #: annotation
-    annotation = models.CharField(max_length=ANNOTATION_MAX_LENGTH)
+    annotation = models.TextField()
 
     #: impact
     annotation_impact = models.CharField(max_length=ANNOTATION_IMPACT_MAX_LENGTH)
