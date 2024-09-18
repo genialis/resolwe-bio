@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Allow filtering ``Sample`` by ``Variant``
+- Allow filtering variant annotations by variant id
 
 Changed
 -------
