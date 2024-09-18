@@ -11,6 +11,7 @@ import django_filters as filters
 from resolwe.flow.filters import (
     DATETIME_LOOKUPS,
     NUMBER_LOOKUPS,
+    RELATED_LOOKUPS,
     TEXT_LOOKUPS,
     CheckQueryParamsMixin,
 )
@@ -61,6 +62,7 @@ class VariantAnnotationFilter(CheckQueryParamsMixin, filters.FilterSet):
         model = VariantAnnotation
         fields = {
             "id": NUMBER_LOOKUPS,
+            "variant": RELATED_LOOKUPS,
             "type": TEXT_LOOKUPS,
             "transcripts__annotation": TEXT_LOOKUPS,
             "transcripts__annotation_impact": TEXT_LOOKUPS,
@@ -86,7 +88,7 @@ class VariantCallFilter(CheckQueryParamsMixin, filters.FilterSet):
             "sample__id": NUMBER_LOOKUPS,
             "data__slug": TEXT_LOOKUPS,
             "data__id": NUMBER_LOOKUPS,
-            "variant__id": NUMBER_LOOKUPS,
+            "variant": RELATED_LOOKUPS,
             "variant__species": TEXT_LOOKUPS,
             "variant__genome_assembly": TEXT_LOOKUPS,
             "variant__chromosome": TEXT_LOOKUPS,
