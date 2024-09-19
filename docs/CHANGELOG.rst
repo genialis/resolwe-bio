@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Allow filtering ``Sample`` by ``Variant``
 
 Changed
 -------

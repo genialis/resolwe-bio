@@ -9,7 +9,12 @@ Resolwe Bio Filters
 import django_filters as filters
 from rest_framework import exceptions
 
-from resolwe.flow.filters import CollectionFilter, DataFilter, EntityFilter
+from resolwe.flow.filters import (
+    RELATED_LOOKUPS,
+    CollectionFilter,
+    DataFilter,
+    EntityFilter,
+)
 
 from resolwe_bio.models import Sample
 
@@ -112,6 +117,11 @@ class BioEntityFilter(EntityFilter):
             raise exceptions.ParseError(f"Value of attribute {name} must be a number.")
 
         return queryset.filter(**{name: value})
+
+    class Meta(EntityFilter.Meta):
+        """The filter meta class."""
+
+        fields = {**EntityFilter.Meta.fields, "variant_calls__variant": RELATED_LOOKUPS}
 
 
 class BioDataFilter(DataFilter):

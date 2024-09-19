@@ -4,13 +4,15 @@ from unittest.mock import Mock
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIRequestFactory, force_authenticate
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from resolwe.flow.executors.socket_utils import Message, MessageType
 from resolwe.flow.models import Data
 from resolwe.flow.models import Entity as Sample
 from resolwe.flow.models import Process
+from resolwe.flow.serializers.entity import EntitySerializer
 from resolwe.permissions.models import Permission
 from resolwe.test import ProcessTestCase, tag_process
 
@@ -824,6 +826,34 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.data, expected)
 
+    def test_filter_sample_by_variant(self):
+        client = APIClient()
+        path = reverse("resolwebio-api:entity-list")
+
+        # Anonymous user, no perms.
+        response = response = client.get(
+            path, {"variant_calls__variant": self.calls[0].pk}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+        # Contributor, no perms.
+        client.force_authenticate(user=self.contributor)
+        response = response = client.get(
+            path, {"variant_calls__variant": self.calls[0].pk}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+        # Permission granted.
+        self.sample.set_permission(Permission.VIEW, self.contributor)
+        response = response = client.get(
+            path, {"variant_calls__variant": self.calls[0].pk}
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response.data[0].pop("current_user_permissions")
+        self.assertEqual(response.data, [EntitySerializer(self.sample).data])
+
     def test_ordering(self):
         """Test the Variant ordering."""
         # Order by species.
@@ -1120,7 +1150,7 @@ class VariantCallTest(PrepareDataMixin, TestCase):
 
         # Filter by variant id.
         request = APIRequestFactory().get(
-            "/variantcall", {"variant__id": self.variants[0].id}
+            "/variantcall", {"variant": self.variants[0].id}
         )
         force_authenticate(request, self.contributor)
         expected = VariantCallSerializer(self.calls[:1], many=True).data
