@@ -150,7 +150,7 @@ class BBDukSingle(Process):
     slug = "bbduk-single"
     name = "BBDuk (single-end)"
     process_type = "data:reads:fastq:single:bbduk"
-    version = "3.1.2"
+    version = "3.2.0"
     category = "FASTQ processing"
     data_name = "{{ reads|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
@@ -164,8 +164,8 @@ class BBDukSingle(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
-            "cores": 4,
-            "memory": 8192,
+            "cores": 8,
+            "memory": 4096,
         },
     }
 
@@ -695,7 +695,12 @@ class BBDukSingle(Process):
         rename_preprocessed_files(input_files=input_reads)
 
         fastqgz = [fastq["original_name"] for fastq in input_reads]
-        fastqc_inputs = fastqgz + ["--extract", f"--outdir={str(output_path)}"]
+        fastqc_inputs = fastqgz + [
+            "--extract",
+            f"--outdir={str(output_path)}",
+            "-t",
+            min(self.requirements.resources.cores, num_of_lanes),
+        ]
 
         if inputs.fastqc.nogroup:
             fastqc_inputs.append("--no-group")
@@ -758,8 +763,8 @@ class BBDukPaired(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
-            "cores": 4,
-            "memory": 8192,
+            "cores": 8,
+            "memory": 4096,
         },
     }
 
@@ -1329,8 +1334,18 @@ class BBDukPaired(Process):
 
         fastqgz = [fastq["original_name"] for fastq in input_reads]
         fastqgz2 = [fastq["original_name2"] for fastq in input_reads]
-        fastqc_inputs = fastqgz + ["--extract", f"--outdir={str(output_path)}"]
-        fastqc2_inputs = fastqgz2 + ["--extract", f"--outdir={str(output_path)}"]
+        fastqc_inputs = fastqgz + [
+            "--extract",
+            f"--outdir={str(output_path)}",
+            "-t",
+            min(self.requirements.resources.cores, num_of_lanes),
+        ]
+        fastqc2_inputs = fastqgz2 + [
+            "--extract",
+            f"--outdir={str(output_path)}",
+            "-t",
+            min(self.requirements.resources.cores, num_of_lanes),
+        ]
 
         if inputs.fastqc.nogroup:
             fastqc_inputs.append("--no-group")

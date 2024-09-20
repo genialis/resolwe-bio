@@ -25,6 +25,9 @@ Changed
   to skip downstream/upstream and intergenic variants
 - Change clinical diagnosis and annotation fields type to text
 - When filtering variants do not return duplicated objects
+- Optimize resource usage in processes ``bbduk-single``, ``bbduk-paired``,
+  ``upload-fastq-single``, ``upload-fastq-paired``, 
+  ``files-to-fastq-single`` and ``files-to-fastq-paired``
 
 Fixed
 -----

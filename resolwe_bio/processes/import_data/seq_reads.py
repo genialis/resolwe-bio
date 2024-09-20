@@ -129,7 +129,7 @@ def validate_fastq(fq, fq2=None):
                 return message
 
 
-def run_fastqc(fastqs, output_dir):
+def run_fastqc(fastqs, output_dir, cores):
     """Run fastQC on given FASTQs.
 
     :param list fastqs: List of fastqs
@@ -144,6 +144,7 @@ def run_fastqc(fastqs, output_dir):
         cmd = cmd[fastq]
     cmd = cmd["--extract"]
     cmd = cmd[f"--outdir={str(output_path)}"]
+    cmd = cmd["-t", cores]
     _, _, stderr = cmd & TEE
 
     return stderr
@@ -182,7 +183,7 @@ class UploadFastqSingle(Process):
     slug = "upload-fastq-single"
     name = "FASTQ file (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "2.6.0"
+    version = "2.7.0"
     category = "Import"
     data_name = '{{ src.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -196,7 +197,8 @@ class UploadFastqSingle(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
-            "cores": 1,
+            "cores": 2,
+            "memory": 2048,
             "network": True,
         },
     }
@@ -251,7 +253,11 @@ class UploadFastqSingle(Process):
                         shutil.copyfileobj(infile, outfile)
             fastqgz = [fastqz]
 
-        stderr = run_fastqc([fastqgz], "./fastqc")
+        stderr = run_fastqc(
+            fastqs=[fastqgz],
+            output_dir="./fastqc",
+            cores=self.requirements.resources.cores,
+        )
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
 
@@ -316,7 +322,7 @@ class UploadFastqPaired(Process):
     slug = "upload-fastq-paired"
     name = "FASTQ file (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "2.6.0"
+    version = "2.7.0"
     category = "Import"
     data_name = '{{ src1.0.file|default("?") }}'
     scheduling_class = SchedulingClass.BATCH
@@ -330,7 +336,8 @@ class UploadFastqPaired(Process):
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
         },
         "resources": {
-            "cores": 1,
+            "cores": 2,
+            "memory": 2048,
             "network": True,
         },
     }
@@ -468,7 +475,11 @@ class UploadFastqPaired(Process):
                 }
             ]
 
-        stderr = run_fastqc(mate1_fastqgz + mate2_fastqgz, "./fastqc")
+        stderr = run_fastqc(
+            fastqs=mate1_fastqgz + mate2_fastqgz,
+            output_dir="./fastqc",
+            cores=self.requirements.resources.cores,
+        )
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
 
@@ -517,7 +528,7 @@ class FilesToFastqSingle(Process):
     slug = "files-to-fastq-single"
     name = "Convert files to reads (single-end)"
     process_type = "data:reads:fastq:single"
-    version = "1.6.0"
+    version = "1.7.0"
     category = "Import"
     data_name = "Files to FASTQ single-end ({{ (src|first).file.file }})"
     scheduling_class = SchedulingClass.BATCH
@@ -529,6 +540,10 @@ class FilesToFastqSingle(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
+        },
+        "resources": {
+            "cores": 2,
+            "memory": 2048,
         },
     }
 
@@ -588,7 +603,11 @@ class FilesToFastqSingle(Process):
                         shutil.copyfileobj(infile, outfile)
             fastqgz = [fastqz]
 
-        stderr = run_fastqc([fastqgz], "./fastqc")
+        stderr = run_fastqc(
+            fastqs=[fastqgz],
+            output_dir="./fastqc",
+            cores=self.requirements.resources.cores,
+        )
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
 
@@ -649,7 +668,7 @@ class FilesToFastqPaired(Process):
     slug = "files-to-fastq-paired"
     name = "Convert files to reads (paired-end)"
     process_type = "data:reads:fastq:paired"
-    version = "1.6.0"
+    version = "1.7.0"
     category = "Import"
     data_name = "Files to FASTQ paired-end ({{ (src1|first).file.file }}, {{(src2|first).file.file}})"
     scheduling_class = SchedulingClass.BATCH
@@ -661,6 +680,10 @@ class FilesToFastqPaired(Process):
         "expression-engine": "jinja",
         "executor": {
             "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
+        },
+        "resources": {
+            "cores": 2,
+            "memory": 2048,
         },
     }
 
@@ -807,7 +830,11 @@ class FilesToFastqPaired(Process):
                 }
             ]
 
-        stderr = run_fastqc(mate1_fastqgz + mate2_fastqgz, "./fastqc")
+        stderr = run_fastqc(
+            fastqs=mate1_fastqgz + mate2_fastqgz,
+            output_dir="./fastqc",
+            cores=self.requirements.resources.cores,
+        )
         if "Failed to process" in stderr or "Skipping" in stderr:
             self.error("Failed while processing with FastQC.")
 
