@@ -233,7 +233,7 @@ class VariantAnnotation(ProcessBio):
         },
     }
     data_name = "Variant annotation"
-    version = "1.0.4"
+    version = "1.1.0"
     process_type = "data:annotation"
     category = "Annotation"
     scheduling_class = SchedulingClass.BATCH
@@ -356,6 +356,9 @@ class VariantAnnotation(ProcessBio):
         args_snpeff = [
             inputs.database,
             vcf_fn,
+            "-no-downstream",
+            "-no-upstream",
+            "-no-intergenic",
         ]
         (Cmd["snpEff"][args_snpeff] > snpeff_variants)()
 

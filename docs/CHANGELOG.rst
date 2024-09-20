@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- Change ``variant-annotation`` process
+  to skip downstream/upstream and intergenic variants
 
 Fixed
 -----
