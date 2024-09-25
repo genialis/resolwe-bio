@@ -21,6 +21,8 @@ Changed
 
 Fixed
 -----
+- Change max char length of REF and ALT fields
+  for variant model to 150
 
 
 ===================
