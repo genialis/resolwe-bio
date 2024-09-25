@@ -34,7 +34,7 @@ class WorkflowGeneFusionCallingArriba(Process):
 
     slug = "gene-fusion-calling-arriba"
     name = "Gene Fusion Calling with Arriba"
-    version = "1.0.0"
+    version = "1.1.0"
     process_type = "data:workflow:genefusions:arriba"
     category = "Pipeline"
     entity = {"type": "sample"}
@@ -86,6 +86,13 @@ class WorkflowGeneFusionCallingArriba(Process):
             data_type="file",
             label="Blacklist file",
             description="Arriba blacklist file.",
+            required=False,
+        )
+
+        known_fusions_file = DataField(
+            data_type="file",
+            label="Known fusions file",
+            description="Arriba known fusions file.",
             required=False,
         )
 
@@ -245,6 +252,9 @@ class WorkflowGeneFusionCallingArriba(Process):
 
         if inputs.blacklist_file:
             arriba_input["blacklist_file"] = inputs.blacklist_file.id
+
+        if inputs.known_fusions_file:
+            arriba_input["known_fusions_file"] = inputs.known_fusions_file.id
 
         fusion_name = (
             f"Fusions ({inputs.bam.name})"

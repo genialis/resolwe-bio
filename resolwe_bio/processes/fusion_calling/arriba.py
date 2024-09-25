@@ -40,7 +40,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.0.2"
+    version = "1.1.0"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -80,6 +80,13 @@ class Arriba(Process):
             data_type="file",
             label="Blacklist file",
             description="Arriba blacklist file.",
+            required=False,
+        )
+
+        known_fusions_file = DataField(
+            data_type="file",
+            label="Known fusions file",
+            description="Arriba known fusions file.",
             required=False,
         )
 
@@ -147,6 +154,9 @@ class Arriba(Process):
             args.extend(["-b", inputs.blacklist_file.output.file.path])
         else:
             args.extend(["-f", "blacklist"])
+
+        if inputs.known_fusions_file:
+            args.extend(["-k", inputs.known_fusions_file.output.file.path])
 
         return_code, stdout, stderr = Cmd["arriba"][args] & TEE(retcode=None)
 

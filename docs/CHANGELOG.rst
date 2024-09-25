@@ -16,6 +16,8 @@ Added
 - Allow filtering ``Sample`` by ``Variant``
 - Allow filtering variant annotations by variant id
 - Add filters to ``Variant`` and ``VariantCall`` objects
+- Add ``known_fusions`` file input to ``arriba`` process and 
+  ``gene-fusion-calling-arriba`` workflow
 
 Changed
 -------

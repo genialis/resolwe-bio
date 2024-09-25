@@ -42,10 +42,18 @@ class GeneFusionWorkflowTestCase(KBBioProcessTestCase):
                 },
             )
 
+            known_fusions_file = self.run_process(
+                process_slug="upload-file",
+                input_={
+                    "src": input_folder / "known_fusions.tsv.gz",
+                },
+            )
+
         workflow_inputs = {
             "bam": bam.id,
             "gtf": gtf_file.id,
             "genome": genome_file.id,
+            "known_fusions_file": known_fusions_file.id,
         }
 
         self.run_process("gene-fusion-calling-arriba", workflow_inputs)
@@ -101,11 +109,19 @@ class GeneFusionWorkflowTestCase(KBBioProcessTestCase):
                 input_={"ref_seq": genome_file.id, "annotation": gtf_file.id},
             )
 
+            known_fusions_file = self.run_process(
+                process_slug="upload-file",
+                input_={
+                    "src": input_folder / "known_fusions.tsv.gz",
+                },
+            )
+
         workflow_inputs = {
             "reads": reads.id,
             "gtf": gtf_file.id,
             "genome": genome_file.id,
             "star_index": star_index.id,
+            "known_fusions_file": known_fusions_file.id,
         }
 
         self.run_process("gene-fusion-calling-arriba", workflow_inputs)

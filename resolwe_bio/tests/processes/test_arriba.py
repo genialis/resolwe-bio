@@ -51,10 +51,18 @@ class ArribaProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
+            known_fusions_file = self.run_process(
+                process_slug="upload-file",
+                input_={
+                    "src": input_folder / "known_fusions.tsv.gz",
+                },
+            )
+
         arriba_inputs = {
             "bam": bam.id,
             "gtf": gtf_file.id,
             "genome": genome_file.id,
+            "known_fusions_file": known_fusions_file.id,
         }
 
         arriba = self.run_process("arriba", arriba_inputs)
