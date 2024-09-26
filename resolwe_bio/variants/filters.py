@@ -51,6 +51,12 @@ class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
             "variant_calls__sample__slug": TEXT_LOOKUPS,
             "variant_calls__sample": NUMBER_LOOKUPS,
         }
+    
+    @property
+    def qs(self):
+        """Always return distinct queryset."""
+        parent = super().qs
+        return parent.distinct()
 
 
 class VariantAnnotationFilter(CheckQueryParamsMixin, filters.FilterSet):

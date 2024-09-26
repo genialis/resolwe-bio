@@ -21,6 +21,7 @@ Changed
 - Change ``variant-annotation`` process
   to skip downstream/upstream and intergenic variants
 - Change clinical diagnosis and annotation fields type to text
+- When filtering variants do not return duplicated objects
 
 Fixed
 -----
