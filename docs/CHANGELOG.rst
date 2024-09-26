@@ -15,6 +15,7 @@ Added
 -----
 - Allow filtering ``Sample`` by ``Variant``
 - Allow filtering variant annotations by variant id
+- Add filters to ``Variant`` and ``VariantCall`` objects
 
 Changed
 -------

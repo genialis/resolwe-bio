@@ -40,18 +40,29 @@ class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
             "reference": TEXT_LOOKUPS,
             "alternative": TEXT_LOOKUPS,
             "annotation__type": TEXT_LOOKUPS,
+            "annotation__transcripts": RELATED_LOOKUPS,
             "annotation__transcripts__annotation": TEXT_LOOKUPS,
             "annotation__transcripts__annotation_impact": TEXT_LOOKUPS,
             "annotation__transcripts__gene": TEXT_LOOKUPS,
             "annotation__transcripts__protein_impact": TEXT_LOOKUPS,
+            "annotation__transcripts__canonical": ["exact"],
+            "annotation__type": TEXT_LOOKUPS,
             "annotation__clinical_diagnosis": TEXT_LOOKUPS,
             "annotation__clinical_significance": TEXT_LOOKUPS,
+            "annotation__dbsnp_id": TEXT_LOOKUPS,
+            "annotation__clinvar_id": TEXT_LOOKUPS,
+            "annotation__data": RELATED_LOOKUPS,
             "variant_calls__quality": NUMBER_LOOKUPS,
             "variant_calls__depth": NUMBER_LOOKUPS,
             "variant_calls__sample__slug": TEXT_LOOKUPS,
-            "variant_calls__sample": NUMBER_LOOKUPS,
+            "variant_calls__sample": RELATED_LOOKUPS,
+            "variant_calls__filter": TEXT_LOOKUPS,
+            "variant_calls__genotype": TEXT_LOOKUPS,
+            "variant_calls__genotype_quality": NUMBER_LOOKUPS,
+            "variant_calls__alternative_allele_depth": NUMBER_LOOKUPS,
+            "variant_calls__depth_norm_quality": NUMBER_LOOKUPS,
         }
-    
+
     @property
     def qs(self):
         """Always return distinct queryset."""
@@ -91,9 +102,9 @@ class VariantCallFilter(CheckQueryParamsMixin, filters.FilterSet):
         fields = {
             "id": NUMBER_LOOKUPS,
             "sample__slug": TEXT_LOOKUPS,
-            "sample__id": NUMBER_LOOKUPS,
+            "sample": RELATED_LOOKUPS,
             "data__slug": TEXT_LOOKUPS,
-            "data__id": NUMBER_LOOKUPS,
+            "data": RELATED_LOOKUPS,
             "variant": RELATED_LOOKUPS,
             "variant__species": TEXT_LOOKUPS,
             "variant__genome_assembly": TEXT_LOOKUPS,
@@ -104,6 +115,11 @@ class VariantCallFilter(CheckQueryParamsMixin, filters.FilterSet):
             "experiment__id": NUMBER_LOOKUPS,
             "quality": NUMBER_LOOKUPS,
             "depth": NUMBER_LOOKUPS,
+            "filter": TEXT_LOOKUPS,
+            "genotype": TEXT_LOOKUPS,
+            "genotype_quality": NUMBER_LOOKUPS,
+            "alternative_allele_depth": NUMBER_LOOKUPS,
+            "depth_norm_quality": NUMBER_LOOKUPS,
         }
 
 

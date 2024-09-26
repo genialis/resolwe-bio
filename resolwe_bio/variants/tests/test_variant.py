@@ -800,7 +800,7 @@ class VariantTest(PrepareDataMixin, TestCase):
         )
 
         request = APIRequestFactory().get(
-            "/variant", {"variant_calls__sample__gte": self.sample.pk}
+            "/variant", {"variant_calls__sample__in": [self.sample.pk]}
         )
         response = self.view(request)
         expected = VariantSerializer(self.variants, many=True).data
