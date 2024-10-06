@@ -181,8 +181,8 @@ def run_pca(
 class PrinicipalComponentAnalysis(Process):
     """Principal component analysis process (beta)."""
 
-    slug = "pca-beta"
-    name = "Principal component analysis (beta)"
+    slug = "pca"
+    name = "Principal component analysis (PCA)"
     requirements = {
         "expression-engine": "jinja",
         "executor": {
@@ -197,7 +197,7 @@ class PrinicipalComponentAnalysis(Process):
         },
     }
     data_name = "PCA"
-    version = "0.1.1"
+    version = "3.0.0"
     process_type = "data:pca"
     category = "Enrichment and Clustering"
     scheduling_class = SchedulingClass.INTERACTIVE

@@ -28,6 +28,8 @@ Changed
 - Optimize resource usage in processes ``bbduk-single``, ``bbduk-paired``,
   ``upload-fastq-single``, ``upload-fastq-paired``, 
   ``files-to-fastq-single`` and ``files-to-fastq-paired``
+- Update the ``pca`` process with the functionality from the 
+  deprecated ``pca-beta`` process
 
 Fixed
 -----
