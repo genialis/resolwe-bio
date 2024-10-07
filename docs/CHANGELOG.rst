@@ -16,7 +16,7 @@ Added
 - Allow filtering ``Sample`` by ``Variant``
 - Allow filtering variant annotations by variant id
 - Add filters to ``Variant`` and ``VariantCall`` objects
-- Add ``known_fusions`` file input to ``arriba`` process and 
+- Add ``known_fusions`` file input to ``arriba`` process and
   ``gene-fusion-calling-arriba`` workflow
 
 Changed
@@ -26,15 +26,17 @@ Changed
 - Change clinical diagnosis and annotation fields type to text
 - When filtering variants do not return duplicated objects
 - Optimize resource usage in processes ``bbduk-single``, ``bbduk-paired``,
-  ``upload-fastq-single``, ``upload-fastq-paired``, 
+  ``upload-fastq-single``, ``upload-fastq-paired``,
   ``files-to-fastq-single`` and ``files-to-fastq-paired``
-- Update the ``pca`` process with the functionality from the 
+- Update the ``pca`` process with the functionality from the
   deprecated ``pca-beta`` process
 
 Fixed
 -----
 - Change max char length of REF and ALT fields
   for variant model to 150
+- Fix failing requests in the ``geo-import`` process by using eutils for
+  fetching data from SRA
 
 
 ===================
@@ -75,9 +77,9 @@ Added
 
 Changed
 -------
-- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and releated scripts: 
+- **BACKWARD INCOMPATIBLE:** Remove obsolete processes and releated scripts:
   ``cuffmerge``, ``chipseq-peakscore``, ``chipseq-genescore``, ``etc-bcm``,
-  ``mergeetc``, ``upload-etc``, ``upload-bam-secondary``, 
+  ``mergeetc``, ``upload-etc``, ``upload-bam-secondary``,
   ``upload-bam-scseq-indexed``, ``create-geneset-venn``,
   ``upload-proteomics-sample``, ``upload-proteomics-sample-set``,
   ``upload-header-sam``, ``upload-multiplexed-single``,
@@ -102,7 +104,7 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Implement peak calling step and
   add QC reporting to the Cut & Run workflow
 - Bump requirements versions
-- Report additional QC information in the variant table output 
+- Report additional QC information in the variant table output
   of RNA-seq variant calling pipeline
 
 Fixed
@@ -111,7 +113,7 @@ Fixed
 - Fix the ``mutations-table`` process so that only a single variant instance
   is reported for each variant in ``variants`` application. The process now
   also correcly handles the ``depth`` field reporting.
-- Fix that the number of used threads is correctly coerced to integer in 
+- Fix that the number of used threads is correctly coerced to integer in
   ``xengsort-index``
 - Fixed data object naming in ``pca-beta`` process
 
@@ -127,7 +129,7 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 40.x
-- **BACKWARD INCOMPATIBLE:** Use the updated xengsort version 
+- **BACKWARD INCOMPATIBLE:** Use the updated xengsort version
   in processes ``xengsort-index`` and ``xengsort-classify``
 - **BACKWARD INCOMPATIBLE:** Remove support for ``Python 3.10``
 - Extend the ``mutations-table`` process with the support for writing
@@ -136,7 +138,7 @@ Changed
 
 Fixed
 -----
-- Fix handling of multiple instances of STAR aligner input in the 
+- Fix handling of multiple instances of STAR aligner input in the
   ``multiqc`` process
 
 
@@ -177,7 +179,7 @@ Changed
 - Remove ``rnaseqc-qc`` from RNA-seq workflows
 - Remove ``cut_and_run.yml``
 - Rename ``workflow-cutnrun-beta`` to ``workflow-cutnrun``
-- Remove ``upload-sc-10x``, ``cellranger-count`` and ``cellranger-mkref`` 
+- Remove ``upload-sc-10x``, ``cellranger-count`` and ``cellranger-mkref``
   processes
 
 
@@ -225,7 +227,7 @@ Changed
   and ``workflow-bbduk-star`` workflows
 - Unify the use of ``resolwebio/common:4.1.1`` Docker
   image version across processes
-- Unify the use of ``resolwebio/base:ubuntu-22.04-14112023`` Docker 
+- Unify the use of ``resolwebio/base:ubuntu-22.04-14112023`` Docker
   image across processes
 - Add normalized count matrix output to ``differentialexpression-deseq2`` process
 

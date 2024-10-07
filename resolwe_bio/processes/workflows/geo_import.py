@@ -2,12 +2,13 @@
 
 import re
 import time
+from io import StringIO
 from pathlib import Path
 
 import GEOparse
 import pandas as pd
 import requests
-from requests.exceptions import RequestException
+from requests.exceptions import HTTPError
 
 from resolwe.process import (
     BooleanField,
@@ -19,6 +20,66 @@ from resolwe.process import (
     StringField,
 )
 from resolwe.process.models import Data
+
+
+def _handle_sra_http_error(httperr, default_wait_time=0.5):
+    """Handle HTTP errors from SRA eutils."""
+    # Too many requests.
+    if httperr.response.status_code == 429:
+        try:
+            wait_time = int(httperr.headers["Retry-After"])
+        except (ValueError, TypeError):
+            wait_time = default_wait_time
+    else:
+        wait_time = default_wait_time
+
+    time.sleep(wait_time)
+
+
+def sra_esearch(term, n_retries, warning):
+    """Search SRA for SRX IDs."""
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi"
+    params = {
+        "db": "sra",
+        "term": term,
+        "usehistory": "y",
+        "retmode": "json",
+    }
+
+    for _ in range(n_retries):
+        try:
+            response = requests.get(url=url, params=params)
+            response.raise_for_status()
+            return response.json()
+
+        except HTTPError as httperr:
+            _handle_sra_http_error(httperr=httperr)
+            warning(f"Retrying search request for {term} experiment.")
+
+
+def sra_efetch(webenv, query_key, term, n_retries, warning):
+    """Fetch SRA run info."""
+    url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    params = {
+        "db": "sra",
+        "retmode": "xml",
+        "rettype": "runinfo",
+        "query_key": query_key,
+        "WebEnv": webenv,
+    }
+
+    for _ in range(n_retries):
+        try:
+            response = requests.get(url=url, params=params)
+            response.raise_for_status()
+            return pd.read_xml(StringIO(response.text))
+
+        except HTTPError as httperr:
+            error = str(httperr)
+            _handle_sra_http_error(httperr=httperr)
+            warning(f"Retrying fetch request for {term} experiment.")
+
+        warning(f"Retry limit reached. {str(error)}")
 
 
 def parse_sample(gse, db_accession, gse_name):
@@ -91,7 +152,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.9.0"
+    version = "2.9.1"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -189,47 +250,33 @@ class GeoImport(Process):
             if sample_found:
                 for srx_id in sample_found:
                     sample_info[srx_id] = name
-                    info_file = f"{gse.name}.csv"
-                    retry_count = 0
-                    while retry_count < inputs.advanced.sra_retry_limit:
-                        try:
-                            run_info = requests.get(
-                                url="https://eutils.ncbi.nlm.nih.gov/Traces/sra/sra.cgi",
-                                params={
-                                    "save": "efetch",
-                                    "db": "sra",
-                                    "rettype": "runinfo",
-                                    "term": srx_id,
-                                },
-                            )
 
-                            if run_info.text.isspace():
-                                self.error(
-                                    f"Got an empty response from SRA for SRX ID {srx_id} belonging to {gse.name}."
-                                )
-
-                            run_info.raise_for_status()
-
-                            with open(info_file, "wb") as handle:
-                                handle.write(run_info.content)
-
-                            break
-
-                        except RequestException:
-                            retry_count += 1
-                            if retry_count == inputs.advanced.sra_retry_limit:
-                                self.error(
-                                    f"Failed to fetch SRA runs for project {srx_id} belonging to {gse.name} after {retry_count} tries."
-                                )
-                            else:
-                                time.sleep(0.5)
-                                self.warning(
-                                    f"Retrying request for SRX ID {srx_id} belonging to {gse.name}."
-                                )
-
-                    run_info = pd.read_csv(
-                        info_file, usecols=["Run", "SampleName", "LibraryLayout"]
+                    search_result = sra_esearch(
+                        term=srx_id,
+                        n_retries=inputs.advanced.sra_retry_limit,
+                        warning=self.warning,
                     )
+
+                    if search_result is None:
+                        self.error(
+                            f"Failed to find {srx_id} experiment belonging to "
+                            f"{gse.name} after {inputs.advanced.sra_retry_limit} tries."
+                        )
+
+                    run_info = sra_efetch(
+                        webenv=search_result["esearchresult"]["webenv"],
+                        query_key=search_result["esearchresult"]["querykey"],
+                        term=srx_id,
+                        n_retries=inputs.advanced.sra_retry_limit,
+                        warning=self.warning,
+                    )
+
+                    if run_info is None:
+                        self.error(
+                            f"Failed to fetch SRA runs for {srx_id} belonging to "
+                            f"{gse.name} after {inputs.advanced.sra_retry_limit} tries."
+                        )
+
                     run_info = run_info.set_index("Run", drop=False)
 
                     process_inputs["sra_accession"] = run_info.index.values.tolist()
