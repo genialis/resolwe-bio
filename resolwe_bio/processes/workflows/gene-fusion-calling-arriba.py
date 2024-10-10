@@ -34,7 +34,7 @@ class WorkflowGeneFusionCallingArriba(Process):
 
     slug = "gene-fusion-calling-arriba"
     name = "Gene Fusion Calling with Arriba"
-    version = "1.1.0"
+    version = "1.1.1"
     process_type = "data:workflow:genefusions:arriba"
     category = "Pipeline"
     entity = {"type": "sample"}
@@ -79,7 +79,7 @@ class WorkflowGeneFusionCallingArriba(Process):
             label="Indexed reference genome",
             description="Genome index prepared by STAR aligner indexing tool.",
             required=False,
-            hidden="!input.reads",
+            hidden="!reads",
         )
 
         blacklist_file = DataField(

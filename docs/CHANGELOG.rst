@@ -37,6 +37,8 @@ Fixed
   for variant model to 150
 - Fix failing requests in the ``geo-import`` process by using eutils for
   fetching data from SRA
+- Fix rendering of ``star_index`` input field in
+  ``gene-fusion-calling-arriba`` workflow
 
 
 ===================
