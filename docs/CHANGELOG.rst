@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+59.2.0 - 2024-10-14
+===================
+
+Added
+-----
 - Allow filtering ``Sample`` by ``Variant``
 - Allow filtering variant annotations by variant id
 - Add filters to ``Variant`` and ``VariantCall`` objects
