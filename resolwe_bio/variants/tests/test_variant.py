@@ -799,6 +799,7 @@ class VariantTest(PrepareDataMixin, TestCase):
             status_code=status.HTTP_400_BAD_REQUEST,
         )
 
+        # Filter by sample.
         request = APIRequestFactory().get(
             "/variant", {"variant_calls__sample__in": [self.sample.pk]}
         )
@@ -826,13 +827,31 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.data, expected)
 
+        # Filter by variant call
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls": self.calls[0].pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[:1], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        # Filter by experiment
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__experiment": self.experiments[0].pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[:1], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
     def test_filter_sample_by_variant(self):
         client = APIClient()
         path = reverse("resolwebio-api:entity-list")
 
         # Anonymous user, no perms.
         response = response = client.get(
-            path, {"variant_calls__variant": self.calls[0].pk}
+            path, {"variant_calls__variant": self.variants[0].pk}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
@@ -840,7 +859,7 @@ class VariantTest(PrepareDataMixin, TestCase):
         # Contributor, no perms.
         client.force_authenticate(user=self.contributor)
         response = response = client.get(
-            path, {"variant_calls__variant": self.calls[0].pk}
+            path, {"variant_calls__variant": self.variants[0].pk}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
@@ -848,7 +867,7 @@ class VariantTest(PrepareDataMixin, TestCase):
         # Permission granted.
         self.sample.set_permission(Permission.VIEW, self.contributor)
         response = response = client.get(
-            path, {"variant_calls__variant": self.calls[0].pk}
+            path, {"variant_calls__variant": self.variants[0].pk}
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response.data[0].pop("current_user_permissions")
@@ -1225,7 +1244,7 @@ class VariantCallTest(PrepareDataMixin, TestCase):
 
         # Filter by experiment id.
         request = APIRequestFactory().get(
-            "/variantcall", {"experiment__id": self.experiments[0].id}
+            "/variantcall", {"experiment": self.experiments[0].id}
         )
         force_authenticate(request, self.contributor)
         expected = VariantCallSerializer(self.calls[:1], many=True).data

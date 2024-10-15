@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 
 Changed
 -------
