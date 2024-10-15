@@ -826,6 +826,24 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertCountEqual(response.data, expected)
 
+        # Filter by variant call
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls": self.calls[0].pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[:1], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
+        # Filter by experiment
+        request = APIRequestFactory().get(
+            "/variant", {"variant_calls__experiment": self.experiments[0].pk}
+        )
+        response = self.view(request)
+        expected = VariantSerializer(self.variants[:1], many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
     def test_filter_sample_by_variant(self):
         client = APIClient()
         path = reverse("resolwebio-api:entity-list")
