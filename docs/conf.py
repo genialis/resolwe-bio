@@ -14,9 +14,9 @@ settings.configure(
     INSTALLED_APPS=(
         "django.contrib.auth",
         "django.contrib.contenttypes",
-        "resolwe.observers",
         "resolwe.permissions",
         "resolwe.flow",
+        "resolwe.observers",
         "resolwe.storage",
         "resolwe_bio",
     ),
