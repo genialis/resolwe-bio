@@ -158,7 +158,9 @@ class TestSampleAnnotationsFilter(TestCase):
         field = AnnotationField.objects.create(
             name="field", sort_order=2, group=group, type=AnnotationType.STRING.value
         )
-        AnnotationValue.objects.create(entity=entity, field=field, value="value")
+        AnnotationValue.objects.create(
+            entity=entity, field=field, value="value", contributor=self.contributor
+        )
 
         def load_templates(template_name):
             if template_name == "sample_annotation":

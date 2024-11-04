@@ -26,7 +26,10 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
             )
             entity = Sample.objects.get(data=expression1)
             AnnotationValue.objects.create(
-                entity=entity, field=ann_field, value="artery"
+                entity=entity,
+                field=ann_field,
+                value="artery",
+                contributor=self.contributor,
             )
 
             expression2 = self.prepare_expression(
@@ -38,7 +41,10 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
             )
             entity = Sample.objects.get(data=expression2)
             AnnotationValue.objects.create(
-                entity=entity, field=ann_field, value="blood"
+                entity=entity,
+                field=ann_field,
+                value="blood",
+                contributor=self.contributor,
             )
 
             expression3 = self.prepare_expression(
@@ -50,7 +56,10 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
             )
             entity = Sample.objects.get(data=expression3)
             AnnotationValue.objects.create(
-                entity=entity, field=ann_field, value="artery"
+                entity=entity,
+                field=ann_field,
+                value="artery",
+                contributor=self.contributor,
             )
 
             expression4 = self.prepare_expression(
@@ -62,7 +71,10 @@ class ExpressionAggregatorTestCase(KBBioProcessTestCase):
             )
             entity = Sample.objects.get(data=expression4)
             AnnotationValue.objects.create(
-                entity=entity, field=ann_field, value="blood"
+                entity=entity,
+                field=ann_field,
+                value="blood",
+                contributor=self.contributor,
             )
 
         # Expect the process to fail if expression data from multiple species is used
