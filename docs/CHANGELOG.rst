@@ -17,6 +17,7 @@ Added
 
 Changed
 -------
+- Change ``reference`` and ``alternative`` field types in ``Variant`` model
 
 Fixed
 -----

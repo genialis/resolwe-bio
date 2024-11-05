@@ -18,8 +18,6 @@ from resolwe.permissions.models import PermissionInterface
 SPECIES_MAX_LENGTH = 50
 GENOME_ASSEMBLY_MAX_LENGTH = 20
 CHROMOSOME_MAX_LENGTH = 20
-REFERENCE_MAX_LENGTH = 150
-ALTERNATIVE_MAX_LENGTH = 150
 
 # Metadata
 VARIANT_DATA_SOURCE_MAX_LENGTH = 100
@@ -66,10 +64,10 @@ class Variant(AuditModel):
     position = models.PositiveBigIntegerField()
 
     #: reference
-    reference = models.CharField(max_length=REFERENCE_MAX_LENGTH)
+    reference = models.TextField()
 
     #: alternative
-    alternative = models.CharField(max_length=ALTERNATIVE_MAX_LENGTH)
+    alternative = models.TextField()
 
     class Meta:
         """Add constraint for composite key."""
