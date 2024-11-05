@@ -17,6 +17,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 41.x
 - Change ``reference`` and ``alternative`` field types in ``Variant`` model
 
 Fixed
