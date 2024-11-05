@@ -40,7 +40,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -51,7 +51,7 @@ class Arriba(Process):
         },
         "resources": {
             "cores": 1,
-            "memory": 12288,
+            "memory": 16384,
         },
     }
     data_name = '{{ bam|name|default("?") }}'

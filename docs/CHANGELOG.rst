@@ -45,6 +45,7 @@ Changed
   ``files-to-fastq-single`` and ``files-to-fastq-paired``
 - Update the ``pca`` process with the functionality from the
   deprecated ``pca-beta`` process
+- Bump resources requirements for ``arriba`` process
 
 Fixed
 -----
