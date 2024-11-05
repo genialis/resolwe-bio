@@ -17,6 +17,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 41.x
 
 Fixed
 -----
