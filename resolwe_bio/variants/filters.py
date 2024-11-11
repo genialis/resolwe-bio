@@ -6,14 +6,14 @@ Variant Filters
 
 """
 
-import django_filters as filters
-
 from resolwe.flow.filters import (
     DATETIME_LOOKUPS,
     NUMBER_LOOKUPS,
     RELATED_LOOKUPS,
     TEXT_LOOKUPS,
-    CheckQueryParamsMixin,
+    BaseResolweFilter,
+    DataFilter,
+    FilterRelatedWithPermissions,
 )
 
 from resolwe_bio.variants.models import (
@@ -24,8 +24,41 @@ from resolwe_bio.variants.models import (
 )
 
 
-class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
+class VariantCallFilter(BaseResolweFilter):
+    """Filter the VariantCall objects endpoint."""
+
+    data = FilterRelatedWithPermissions(DataFilter)
+
+    class Meta:
+        """Filter configuration."""
+
+        model = VariantCall
+        fields = {
+            "id": NUMBER_LOOKUPS,
+            "sample__slug": TEXT_LOOKUPS,
+            "sample": RELATED_LOOKUPS,
+            "variant": RELATED_LOOKUPS,
+            "variant__species": TEXT_LOOKUPS,
+            "variant__genome_assembly": TEXT_LOOKUPS,
+            "variant__chromosome": TEXT_LOOKUPS,
+            "variant__position": NUMBER_LOOKUPS,
+            "variant__reference": TEXT_LOOKUPS,
+            "variant__alternative": TEXT_LOOKUPS,
+            "experiment": RELATED_LOOKUPS,
+            "quality": NUMBER_LOOKUPS,
+            "depth": NUMBER_LOOKUPS,
+            "filter": TEXT_LOOKUPS,
+            "genotype": TEXT_LOOKUPS,
+            "genotype_quality": NUMBER_LOOKUPS,
+            "alternative_allele_depth": NUMBER_LOOKUPS,
+            "depth_norm_quality": NUMBER_LOOKUPS,
+        }
+
+
+class VariantFilter(BaseResolweFilter):
     """Filter the Variant objects endpoint."""
+
+    variant_calls = FilterRelatedWithPermissions(VariantCallFilter)
 
     class Meta:
         """Filter configuration."""
@@ -51,18 +84,6 @@ class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
             "annotation__clinical_significance": TEXT_LOOKUPS,
             "annotation__dbsnp_id": TEXT_LOOKUPS,
             "annotation__clinvar_id": TEXT_LOOKUPS,
-            "annotation__data": RELATED_LOOKUPS,
-            "variant_calls": RELATED_LOOKUPS,
-            "variant_calls__quality": NUMBER_LOOKUPS,
-            "variant_calls__depth": NUMBER_LOOKUPS,
-            "variant_calls__sample__slug": TEXT_LOOKUPS,
-            "variant_calls__sample": RELATED_LOOKUPS,
-            "variant_calls__experiment": RELATED_LOOKUPS,
-            "variant_calls__filter": TEXT_LOOKUPS,
-            "variant_calls__genotype": TEXT_LOOKUPS,
-            "variant_calls__genotype_quality": NUMBER_LOOKUPS,
-            "variant_calls__alternative_allele_depth": NUMBER_LOOKUPS,
-            "variant_calls__depth_norm_quality": NUMBER_LOOKUPS,
         }
 
     @property
@@ -72,7 +93,7 @@ class VariantFilter(CheckQueryParamsMixin, filters.FilterSet):
         return parent.distinct()
 
 
-class VariantAnnotationFilter(CheckQueryParamsMixin, filters.FilterSet):
+class VariantAnnotationFilter(BaseResolweFilter):
     """Filter the VariantAnnotation objects endpoint."""
 
     class Meta:
@@ -94,39 +115,10 @@ class VariantAnnotationFilter(CheckQueryParamsMixin, filters.FilterSet):
         }
 
 
-class VariantCallFilter(CheckQueryParamsMixin, filters.FilterSet):
-    """Filter the VariantCall objects endpoint."""
-
-    class Meta:
-        """Filter configuration."""
-
-        model = VariantCall
-        fields = {
-            "id": NUMBER_LOOKUPS,
-            "sample__slug": TEXT_LOOKUPS,
-            "sample": RELATED_LOOKUPS,
-            "data__slug": TEXT_LOOKUPS,
-            "data": RELATED_LOOKUPS,
-            "variant": RELATED_LOOKUPS,
-            "variant__species": TEXT_LOOKUPS,
-            "variant__genome_assembly": TEXT_LOOKUPS,
-            "variant__chromosome": TEXT_LOOKUPS,
-            "variant__position": NUMBER_LOOKUPS,
-            "variant__reference": TEXT_LOOKUPS,
-            "variant__alternative": TEXT_LOOKUPS,
-            "experiment": RELATED_LOOKUPS,
-            "quality": NUMBER_LOOKUPS,
-            "depth": NUMBER_LOOKUPS,
-            "filter": TEXT_LOOKUPS,
-            "genotype": TEXT_LOOKUPS,
-            "genotype_quality": NUMBER_LOOKUPS,
-            "alternative_allele_depth": NUMBER_LOOKUPS,
-            "depth_norm_quality": NUMBER_LOOKUPS,
-        }
-
-
-class VariantExperimentFilter(CheckQueryParamsMixin, filters.FilterSet):
+class VariantExperimentFilter(BaseResolweFilter):
     """Filter the VariantExperiment objects endpoint."""
+
+    variant_calls = FilterRelatedWithPermissions(VariantCallFilter)
 
     class Meta:
         """Filter configuration."""

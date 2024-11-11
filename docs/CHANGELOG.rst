@@ -7,6 +7,16 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
+==========
+Unreleased
+==========
+
+Added
+-----
+- Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
+- Use generic permission filters when filtering variants by related models
+
+
 ===================
 61.0.0 - 2024-11-21
 ===================
@@ -19,10 +29,6 @@ Changed
 ===================
 60.0.0 - 2024-11-19
 ===================
-
-Added
------
-- Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 
 Changed
 -------
