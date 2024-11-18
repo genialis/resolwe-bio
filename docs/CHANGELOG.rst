@@ -13,15 +13,26 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+60.0.0 - 2024-11-19
+===================
+
+Added
+-----
 - Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 41.x
 - Change ``reference`` and ``alternative`` field types in ``Variant`` model
-
-Fixed
------
 
 
 ===================
