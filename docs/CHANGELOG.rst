@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Normalize project name from `resolwe-bio` to `resolwe_bio` in about file
+  to ensure setup.py is compliant with PEP 625 standard
 
 
 ===================

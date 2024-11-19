@@ -4,7 +4,7 @@ from pkg_resources import DistributionNotFound, get_distribution
 
 # NOTE: We use __title__ instead of simply __name__ since the latter would
 #       interfere with a global variable __name__ denoting object's name.
-__title__ = "resolwe-bio"
+__title__ = "resolwe_bio"
 __summary__ = "Bioinformatics pipelines for the Resolwe platform"
 __url__ = "https://github.com/genialis/resolwe-bio"
 
