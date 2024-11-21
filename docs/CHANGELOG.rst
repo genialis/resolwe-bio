@@ -7,19 +7,13 @@ All notable changes to this project are documented in this file.
 This project adheres to `Semantic Versioning <http://semver.org/>`_.
 
 
-==========
-Unreleased
-==========
-
-Added
------
+===================
+61.0.0 - 2024-11-21
+===================
 
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 42.x
-
-Fixed
------
 
 
 ===================
