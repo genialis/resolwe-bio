@@ -18,7 +18,7 @@ from resolwe.process.models import DescriptorSchema
 
 def parse_geneset_file(geneset_file, warning):
     """Parse geneset file."""
-    with open(geneset_file, "rU") as handle:
+    with open(geneset_file, "r") as handle:
         # skip empty lines
         genes = [str(line.strip()) for line in handle if line.strip()]
         geneset = sorted(set(genes))
