@@ -142,7 +142,8 @@ class GatkHaplotypeCaller(Process):
 
         vcf = FileField(label="VCF file")
         tbi = FileField(label="Tabix index")
-        bam = FileField(label="BAM file", required=False)
+        bam = FileField(label="Alignment file", required=False)
+        bai = FileField(label="BAM file index", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
@@ -216,4 +217,8 @@ class GatkHaplotypeCaller(Process):
         outputs.species = inputs.alignment.output.species
         outputs.build = inputs.alignment.output.build
         if inputs.advanced.bam_out:
+            output_bai = Path(name + ".gatkHC.bai")
+            renamed_bai = output_bai.with_suffix(".bam.bai")
+            output_bai.rename(renamed_bai)
             outputs.bam = output_bam
+            outputs.bai = str(renamed_bai)

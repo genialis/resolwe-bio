@@ -15,7 +15,7 @@ Added
 -----
 - Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 - Use generic permission filters when filtering variants by related models
-- Add BAM output option to ``vc-gatk4-hc`` 
+- Add ``--bam-output`` input argument to ``vc-gatk4-hc``
 
 
 ===================

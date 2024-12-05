@@ -210,6 +210,9 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFile(
             gatk_rnaseq, "bam", output_folder / "56GSID_10k.rna-seq.gatkHC.bam"
         )
+        self.assertFile(
+            gatk_rnaseq, "bai", output_folder / "56GSID_10k.rna-seq.gatkHC.bam.bai"
+        )
 
     @tag_process("snpeff", "snpeff-single")
     def test_snpeff(self):
