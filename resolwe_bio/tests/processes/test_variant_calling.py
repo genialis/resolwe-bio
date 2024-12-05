@@ -193,6 +193,8 @@ class VariantCallingTestCase(BioProcessTestCase):
                     "soft_clipped": True,
                     "java_gc_threads": 3,
                     "max_heap_size": 7,
+                    "bam_out": True,
+                    "bam_writer_type": "CALLED_HAPLOTYPES",
                 },
             },
         )
@@ -204,6 +206,12 @@ class VariantCallingTestCase(BioProcessTestCase):
             output_folder / "56GSID_10k.rna-seq.gatkHC.vcf.gz",
             file_filter=filter_vcf_variable,
             compression="gzip",
+        )
+        self.assertFile(
+            gatk_rnaseq, "bam", output_folder / "56GSID_10k.rna-seq.gatkHC.bam"
+        )
+        self.assertFile(
+            gatk_rnaseq, "bai", output_folder / "56GSID_10k.rna-seq.gatkHC.bam.bai"
         )
 
     @tag_process("snpeff", "snpeff-single")

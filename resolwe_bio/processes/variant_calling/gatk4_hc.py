@@ -36,7 +36,7 @@ class GatkHaplotypeCaller(Process):
     name = "GATK4 (HaplotypeCaller)"
     category = "GATK"
     process_type = "data:variants:vcf:gatk:hc"
-    version = "1.5.0"
+    version = "1.6.0"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -113,6 +113,27 @@ class GatkHaplotypeCaller(Process):
                 default=12,
                 description="Set the maximum Java heap size (in GB).",
             )
+            bam_out = BooleanField(
+                label="Output a BAM containing assembled haplotypes.",
+                default=False,
+                description="Output a BAM containing assembled haplotypes. "
+                "Really for debugging purposes only. "
+                "Note that the output here does not include uninformative reads so that not every input read is emitted to the bam. "
+                "Turning on this mode may result in serious performance cost for the caller.",
+            )
+            bam_writer_type = StringField(
+                label="BAM writer type",
+                default="CALLED_HAPLOTYPES",
+                description="The type of BAM output. "
+                "This determines whether HC will write out all of the haplotypes it considered (top 128 max) "
+                "or just the ones that were selected as alleles and assigned to samples.",
+                choices=[
+                    ("CALLED_HAPLOTYPES", "Assigned haplotypes"),
+                    ("ALL_POSSIBLE_HAPLOTYPES", "All considered haplotypes"),
+                    ("NO_HAPLOTYPES", "Do not output haplotypes"),
+                ],
+                disabled="!bam_out",
+            )
 
         advanced = GroupField(Advanced, label="Advanced options")
 
@@ -121,6 +142,8 @@ class GatkHaplotypeCaller(Process):
 
         vcf = FileField(label="VCF file")
         tbi = FileField(label="Tabix index")
+        bam = FileField(label="Alignment file", required=False)
+        bai = FileField(label="BAM file index", required=False)
         species = StringField(label="Species")
         build = StringField(label="Build")
 
@@ -168,6 +191,11 @@ class GatkHaplotypeCaller(Process):
             if inputs.advanced.interval_padding:
                 args.extend(["--interval-padding", inputs.advanced.interval_padding])
 
+        if inputs.advanced.bam_out:
+            output_bam = name + ".gatkHC.bam"
+            args.extend(["--bam-output", output_bam])
+            args.extend(["--bam-writer-type", inputs.advanced.bam_writer_type])
+
         return_code, stdout, stderr = Cmd["gatk"]["HaplotypeCaller"][args] & TEE(
             retcode=None
         )
@@ -188,3 +216,9 @@ class GatkHaplotypeCaller(Process):
         outputs.tbi = variants_index
         outputs.species = inputs.alignment.output.species
         outputs.build = inputs.alignment.output.build
+        if inputs.advanced.bam_out:
+            output_bai = Path(name + ".gatkHC.bai")
+            renamed_bai = output_bai.with_suffix(".bam.bai")
+            output_bai.rename(renamed_bai)
+            outputs.bam = output_bam
+            outputs.bai = str(renamed_bai)
