@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
+- Add BAM output option to ``vc-gatk4-hc`` 
 
 Changed
 -------
