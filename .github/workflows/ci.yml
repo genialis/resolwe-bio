@@ -20,7 +20,7 @@ env:
 
 jobs:
   test:
-    runs-on: arc-runner
+    runs-on: e2e-runner
 
     env:
       RESOLWE_POSTGRESQL_PORT: 55433
