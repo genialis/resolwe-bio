@@ -134,6 +134,12 @@ class GatkHaplotypeCaller(Process):
                 ],
                 disabled="!bam_out",
             )
+            max_mnp_distance = IntegerField(
+                label="Max MNP distance",
+                default=0,
+                description="Two or more phased substitutions separated by this distance or less are merged into MNPs. "
+                "Set 0 to disable.",
+            )
 
         advanced = GroupField(Advanced, label="Advanced options")
 
@@ -180,6 +186,8 @@ class GatkHaplotypeCaller(Process):
             inputs.stand_call_conf,
             "--tmp-dir",
             TMPDIR,
+            "--max-mnp-distance",
+            inputs.advanced.max_mnp_distance,
         ]
 
         if inputs.advanced.soft_clipped:
