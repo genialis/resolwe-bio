@@ -30,7 +30,7 @@ def component_top_factors(component, allgenes_array, max_size=20):
     return list(zip(np.array(allgenes_array)[ixs].tolist(), component[ixs].tolist()))
 
 
-def get_pca(expressions=pd.DataFrame(), gene_labels=[]):
+def get_pca(expressions=pd.DataFrame(), gene_labels=[], n_components=5):
     """Compute PCA."""
     if not gene_labels:
         gene_labels = expressions.index
@@ -41,11 +41,13 @@ def get_pca(expressions=pd.DataFrame(), gene_labels=[]):
         all_components = [[], []]
         all_explained_variance_ratios = [0.0, 0.0]
     else:
-        pca = PCA(n_components=2, whiten=True)
+        pca_components = min(expressions.shape[0], expressions.shape[1], n_components)
+        pca = PCA(n_components=pca_components, whiten=True)
         pca_expressions = pca.fit_transform(expressions.transpose())
 
         coordinates = [
-            t[:2].tolist() if len(t) > 1 else [t[0], 0.0] for t in pca_expressions
+            t[:pca_components].tolist() if len(t) > 1 else [t[0], 0.0]
+            for t in pca_expressions
         ]
         all_components = [
             component_top_factors(component=component, allgenes_array=gene_labels)
@@ -197,7 +199,7 @@ class PrinicipalComponentAnalysis(Process):
         },
     }
     data_name = "PCA"
-    version = "3.0.0"
+    version = "3.1.0"
     process_type = "data:pca"
     category = "Enrichment and Clustering"
     scheduling_class = SchedulingClass.INTERACTIVE

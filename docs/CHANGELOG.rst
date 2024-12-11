@@ -21,6 +21,7 @@ Changed
   dependencies
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 43.x
 - Use ``pyproject.toml`` instead of ``setup.py``
+- Calculate up to 5 principal components in ``pca`` process
 
 Fixed
 -----
