@@ -25,6 +25,11 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 42.x
 
+Fixed
+-----
+- Normalize project name from `resolwe-bio` to `resolwe_bio` in about file
+  to ensure setup.py is compliant with PEP 625 standard
+
 
 ===================
 60.0.0 - 2024-11-19
