@@ -15,6 +15,7 @@ Added
 -----
 - Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 - Use generic permission filters when filtering variants by related models
+- Return only distinct ``VariantExperiment`` objects
 
 
 ===================

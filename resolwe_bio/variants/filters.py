@@ -132,3 +132,8 @@ class VariantExperimentFilter(BaseResolweFilter):
             "timestamp": DATETIME_LOOKUPS,
             "variant_data_source": TEXT_LOOKUPS,
         }
+
+    @property
+    def qs(self):
+        """Always return distinct queryset."""
+        return super().qs.distinct()

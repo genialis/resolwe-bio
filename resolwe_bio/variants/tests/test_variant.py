@@ -1362,6 +1362,32 @@ class VariantExperimentTest(PrepareDataMixin, TestCase):
         self.view = VariantExperimentViewSet.as_view({"get": "list"})
         return super().setUp()
 
+    def test_distinct(self):
+        """Test only distynct experiments are returned."""
+        # Create another VariantCall that points to the first sample and experiment.
+        self.sample.set_permission(Permission.VIEW, self.contributor)
+        VariantCall.objects.create(
+            sample=self.sample,
+            variant=self.variants[0],
+            quality=0.7,
+            depth_norm_quality=0.7,
+            alternative_allele_depth=1,
+            depth=15,
+            filter="filter 1",
+            genotype="1",
+            genotype_quality=1,
+            experiment=self.experiments[0],
+        )
+        # Filter by sample with permissions. Make sure no duplicates are returned.
+        request = APIRequestFactory().get(
+            "/variantexperiment", {"variant_calls__sample": self.sample.id}
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        expected = VariantExperimentSerializer(self.experiments, many=True).data
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertCountEqual(response.data, expected)
+
     def test_filter(self):
         # Set the permission on sample.
         self.sample.set_permission(Permission.EDIT, self.contributor)
