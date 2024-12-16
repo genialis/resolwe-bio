@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+61.1.0 - 2024-12-16
+===================
+
+Added
+-----
 - Add filtering ``Variant`` by ``VariantExperiment`` and ``VariantCall``
 - Use generic permission filters when filtering variants by related models
 - Return only distinct ``VariantExperiment`` objects
