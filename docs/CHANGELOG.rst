@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add support for ``Python 3.13``
+- Save test folder data using actions/upload-artifact
 
 Changed
 -------
