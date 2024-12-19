@@ -23,9 +23,9 @@ class GTFtoBED(Process):
     slug = "gtf-to-bed"
     name = "GTF to BED"
     process_type = "data:bed"
-    version = "1.1.0"
+    version = "1.2.0"
     category = "Other"
-    data_name = "Converted GTF to BED file"
+    data_name = "{{ geneset|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -108,6 +108,7 @@ class GTFtoBED(Process):
             label="Canonical transcripts",
             description="Canonical transcripts to use for filtering. Only used for transcript and exon feature types.",
             required=False,
+            disabled="feature_type == 'gene'",
         )
 
         output_strand = BooleanField(
