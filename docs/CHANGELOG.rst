@@ -33,6 +33,11 @@ Added
 - Use generic permission filters when filtering variants by related models
 - Return only distinct ``VariantExperiment`` objects
 
+Changed
+-------
+- Change output data object name in ``gtf-to-bed`` process
+  and hide canonical transcripts table if gene feature type is selected
+
 
 ===================
 61.0.0 - 2024-11-21
