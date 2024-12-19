@@ -15,7 +15,7 @@ from resolwe.process import (
 
 
 class GTFtoBED(Process):
-    """GTF to BED conversion.
+    """GTF to BED conversion for predefined genes and feature types.
 
     Note that this process only works with ENSEMBL annotations.
     """
@@ -23,9 +23,9 @@ class GTFtoBED(Process):
     slug = "gtf-to-bed"
     name = "GTF to BED"
     process_type = "data:bed"
-    version = "1.1.0"
+    version = "1.2.0"
     category = "Other"
-    data_name = "Converted GTF to BED file"
+    data_name = "{{ geneset|name|default('?') }}"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
 
@@ -100,7 +100,7 @@ class GTFtoBED(Process):
             "geneset",
             label="Gene set",
             description="Gene set to use for filtering.",
-            required=False,
+            required=True,
         )
 
         canonical_transcripts = DataField(
@@ -108,6 +108,7 @@ class GTFtoBED(Process):
             label="Canonical transcripts",
             description="Canonical transcripts to use for filtering. Only used for transcript and exon feature types.",
             required=False,
+            disabled="feature_type == 'gene'",
         )
 
         output_strand = BooleanField(
@@ -180,17 +181,16 @@ class GTFtoBED(Process):
         gtf = gtf[gtf["source"].isin(inputs.annotation_source)]
         gtf = gtf[gtf["feature_type"] == feature_type]
 
-        if inputs.geneset:
-            if inputs.annotation.output.species != inputs.geneset.output.species:
-                self.error(
-                    "Gene set data object species does not match the annotation species."
-                )
-            geneset = pd.read_csv(
-                inputs.geneset.output.geneset.path,
-                delimiter="\t",
-                names=["ID"],
+        if inputs.annotation.output.species != inputs.geneset.output.species:
+            self.error(
+                "Species of the gene set data object does not match the species of the annotation data object."
             )
-            gtf = gtf[gtf["gene_id"].isin(geneset["ID"])]
+        geneset = pd.read_csv(
+            inputs.geneset.output.geneset.path,
+            delimiter="\t",
+            names=["ID"],
+        )
+        gtf = gtf[gtf["gene_id"].isin(geneset["ID"])]
 
         if inputs.canonical_transcripts and not feature_type == "gene":
             if (

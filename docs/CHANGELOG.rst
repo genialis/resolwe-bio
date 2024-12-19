@@ -35,6 +35,12 @@ Added
 - Add ``--bam-output`` input argument to ``vc-gatk4-hc``
 - Add ``--max-mnp-distance`` input argument to ``vc-gatk4-hc``
 
+Changed
+-------
+- Change output data object name in ``gtf-to-bed`` process,
+  add geneset as a required field
+  and hide canonical transcripts table if gene feature type is selected
+
 
 ===================
 61.0.0 - 2024-11-21

@@ -1789,6 +1789,7 @@ re-save-file lane_attributes "${NAME}".txt
             "gtf-to-bed",
             {
                 "annotation": gtf.id,
+                "geneset": geneset.id,
                 "annotation_field": "gene_name",
             },
         )
@@ -1798,6 +1799,7 @@ re-save-file lane_attributes "${NAME}".txt
             "gtf-to-bed",
             {
                 "annotation": gtf.id,
+                "geneset": geneset.id,
                 "annotation_field": "gene_id_feature_id",
                 "feature_type": "exon",
             },
