@@ -13,9 +13,11 @@ Unreleased
 
 Added
 -----
+- Save test folder data using actions/upload-artifact
 
 Changed
 -------
+- Calculate up to 5 principal components in ``pca`` process
 
 Fixed
 -----

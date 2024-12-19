@@ -96,7 +96,7 @@ jobs:
       - name: Migrations
         run: |
           tox -e migrations
-      
+
       - name: Run entire test suite
         if: github.event_name != 'pull_request'
         timeout-minutes: 120
@@ -108,6 +108,20 @@ jobs:
         timeout-minutes: 120
         run: |
           tox -e ${{ matrix.toxenv }}-partial
+
+      - name: List files in test data directory
+        if: always()
+        run: |
+          ls -a -R ${{ github.workspace }}/tests/.test_data
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ github.workspace }}/tests/.test_data/*
+          retention-days: 1
+          name: test_files
+          include-hidden-files: true
 
   build:
     runs-on: arc-runner
