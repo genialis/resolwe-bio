@@ -12,6 +12,8 @@ import django_filters as filters
 from rest_framework import mixins, viewsets
 
 from resolwe.flow.filters import OrderingFilter
+from resolwe.flow.views.mixins import ResolweCreateModelMixin
+from resolwe.flow.views.utils import IsStaffOrReadOnly
 
 from resolwe_bio.variants.filters import (
     VariantAnnotationFilter,
@@ -31,12 +33,15 @@ from .models import Variant, VariantAnnotation, VariantCall, VariantExperiment
 logger = logging.getLogger(__name__)
 
 
-class VariantViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class VariantViewSet(
+    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+):
     """Variant endpoint."""
 
     queryset = Variant.objects.all()
     serializer_class = VariantSerializer
     filter_backends = [filters.rest_framework.DjangoFilterBackend, OrderingFilter]
+    permission_classes = (IsStaffOrReadOnly,)
 
     filterset_class = VariantFilter
     ordering_fields = ("species", "genome_assembly", "position", "chromosome")

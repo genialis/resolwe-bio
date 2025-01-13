@@ -27,6 +27,7 @@ class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         """Serializer configuration."""
 
         model = Variant
+        optional_fields = ["annotation"]
         fields = [
             "id",
             "species",
@@ -37,6 +38,7 @@ class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
             "alternative",
             "annotation",
         ]
+        extra_kwargs = {"annotation": {"required": False}}
 
 
 class VariantTranscriptSerializer(SelectiveFieldMixin, serializers.ModelSerializer):

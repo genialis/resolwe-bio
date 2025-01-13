@@ -562,8 +562,53 @@ class ListenerPluginTest(TestCase):
 
 class VariantTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantViewSet.as_view({"get": "list"})
+        self.view = VariantViewSet.as_view({"get": "list", "post": "create"})
         return super().setUp()
+
+    def test_create(self):
+        """Test the Variant creation.
+
+        Only users with staff status are allowed to create Variant objects.
+        """
+        variant_data = {
+            "species": "Homo Sapiens",
+            "genome_assembly": "test_create",
+            "chromosome": "CHR_test_create",
+            "position": 1,
+            "reference": "test_create",
+            "alternative": "alt_test_create",
+        }
+
+        # Test creation as unauthenticated user.
+        request = APIRequestFactory().post("/variant", variant_data, format="json")
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as non-staff user.
+        request = APIRequestFactory().post("/variant", variant_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as staff user.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        request = APIRequestFactory().post("/variant", variant_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Check that the created object exists.
+        Variant.objects.get(**response.data)
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
 
     def test_filter(self):
         """Test the Variant filter."""
