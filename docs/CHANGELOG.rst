@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+61.2.0 - 2025-01-13
+===================
+
+Added
+-----
 - Allow overriding docker image prefix via environment variable
 
 Changed
