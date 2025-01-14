@@ -118,7 +118,7 @@ class MicroarrayProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(mapped, "probe_mapping", "Custom")
 
 
-class MethylationArrayTestCase(KBBioProcessTestCase):
+class MethylationArrayProcessorTestCase(KBBioProcessTestCase):
     @skipUnlessLargeFiles("methylation_beta_values_annotated.txt.gz")
     @tag_process("methylation-array-sesame")
     def test_methylation_array(self):
