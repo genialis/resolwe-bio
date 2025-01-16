@@ -10,7 +10,8 @@ concurrency:
 jobs:
   type_check:
     name: Type check
-    runs-on: arc-runner
+    runs-on: public-docker-runner
+    timeout-minutes: 30
 
     env:
       TOX_COMMAND: "tox --skip-missing-interpreters false"
