@@ -28,6 +28,7 @@ Fixed
 -----
 - Optimize ``variant-annotation`` process to handle a larger
   number of variants
+- Fix the disabling of BAM writer input in ``vc-gatk4-hc``
 
 
 ===================
