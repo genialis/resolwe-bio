@@ -371,9 +371,9 @@ class ListenerPluginTest(TestCase):
         variant2 = Variant.objects.get(chromosome="chr2")
         expected_calls = [
             {
-                "sample_id": self.data.entity.pk,
-                "variant_id": variant1.pk,
-                "experiment_id": experiment.pk,
+                "sample": self.data.entity.pk,
+                "variant": variant1.pk,
+                "experiment": experiment.pk,
                 "quality": 1.0,
                 "depth_norm_quality": None,
                 "alternative_allele_depth": None,
@@ -381,12 +381,12 @@ class ListenerPluginTest(TestCase):
                 "filter": "1",
                 "genotype": "1",
                 "genotype_quality": None,
-                "data_id": self.data.pk,
+                "data": self.data.pk,
             },
             {
-                "sample_id": self.data.entity.pk,
-                "variant_id": variant2.pk,
-                "experiment_id": experiment.pk,
+                "sample": self.data.entity.pk,
+                "variant": variant2.pk,
+                "experiment": experiment.pk,
                 "quality": 2.0,
                 "depth_norm_quality": 0.2,
                 "alternative_allele_depth": 2,
@@ -394,14 +394,14 @@ class ListenerPluginTest(TestCase):
                 "filter": "2",
                 "genotype": "2",
                 "genotype_quality": 2,
-                "data_id": self.data.pk,
+                "data": self.data.pk,
             },
         ]
         self.assertCountEqual(
             VariantCall.objects.all().values(
-                "sample_id",
-                "variant_id",
-                "experiment_id",
+                "sample",
+                "variant",
+                "experiment",
                 "quality",
                 "depth_norm_quality",
                 "alternative_allele_depth",
@@ -409,7 +409,7 @@ class ListenerPluginTest(TestCase):
                 "filter",
                 "genotype",
                 "genotype_quality",
-                "data_id",
+                "data",
             ),
             expected_calls,
         )

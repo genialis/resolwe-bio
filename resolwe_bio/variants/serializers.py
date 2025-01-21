@@ -96,9 +96,9 @@ class VariantCallSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
         model = VariantCall
         fields = [
             "id",
-            "sample_id",
-            "variant_id",
-            "experiment_id",
+            "sample",
+            "variant",
+            "experiment",
             "quality",
             "genotype_quality",
             "depth",
@@ -106,7 +106,7 @@ class VariantCallSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
             "alternative_allele_depth",
             "filter",
             "genotype",
-            "data_id",
+            "data",
         ]
 
 
