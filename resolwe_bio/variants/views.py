@@ -95,12 +95,15 @@ class VariantCallViewSet(
         return super().perform_create(serializer)
 
 
-class VariantExperimentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class VariantExperimentViewSet(
+    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+):
     """VariantExperiment endpoint."""
 
     queryset = VariantExperiment.objects.all()
     serializer_class = VariantExperimentSerializer
     filter_backends = [filters.rest_framework.DjangoFilterBackend, OrderingFilter]
+    permission_classes = (IsStaffOrReadOnly,)
 
     filterset_class = VariantExperimentFilter
     ordering_fields = ("id", "timestamp", "contributor__email")

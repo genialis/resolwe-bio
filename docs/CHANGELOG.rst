@@ -16,6 +16,8 @@ Added
 - Allow staff users to create new ``Variant`` objects through the API endpoint
 - Allow authenticated users to create new ``VariantCall`` objects via the API
   endpoint
+- Allow staff users to create new ``VariantExperiment`` objects through the API
+  endpoint
 
 Changed
 -------

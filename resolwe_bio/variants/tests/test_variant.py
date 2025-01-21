@@ -1497,8 +1497,55 @@ class VariantCallTest(PrepareDataMixin, TestCase):
 
 class VariantExperimentTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantExperimentViewSet.as_view({"get": "list"})
+        self.view = VariantExperimentViewSet.as_view({"get": "list", "post": "create"})
         return super().setUp()
+
+    def test_create(self):
+        """Test the VariantExperiment creation.
+
+        Only users with staff status are allowed to create VariantExperiment objects.
+        """
+        variant_experiment_data = {
+            "variant_data_source": "test",
+            "contributor": self.contributor.pk,
+        }
+
+        # Test creation as unauthenticated user.
+        request = APIRequestFactory().post(
+            "/variantexperiment", variant_experiment_data, format="json"
+        )
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as non-staff user.
+        request = APIRequestFactory().post(
+            "/variantexperiment", variant_experiment_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as staff user.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        request = APIRequestFactory().post(
+            "/variantexperiment", variant_experiment_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Check that the created object exists.
+        VariantExperiment.objects.get(**response.data)
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
 
     def test_distinct(self):
         """Test only distynct experiments are returned."""
