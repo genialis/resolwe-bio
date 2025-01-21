@@ -35,7 +35,10 @@ logger = logging.getLogger(__name__)
 
 
 class VariantViewSet(
-    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
 ):
     """Variant endpoint."""
 
@@ -65,7 +68,10 @@ class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 
 class VariantCallViewSet(
-    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
 ):
     """VariantCall endpoint.
 
@@ -94,9 +100,22 @@ class VariantCallViewSet(
 
         return super().perform_create(serializer)
 
+    def perform_destroy(self, instance: VariantCall) -> None:
+        """Check if user has EDIT permission on the sample."""
+        if not instance.sample.has_permission(Permission.EDIT, self.request.user):
+            raise exceptions.PermissionDenied()
+        if data := instance.data:
+            if not data.has_permission(Permission.EDIT, self.request.user):
+                raise exceptions.PermissionDenied()
+
+        return super().perform_destroy(instance)
+
 
 class VariantExperimentViewSet(
-    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
 ):
     """VariantExperiment endpoint."""
 

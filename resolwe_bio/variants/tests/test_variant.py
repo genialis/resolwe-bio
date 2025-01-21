@@ -562,11 +562,13 @@ class ListenerPluginTest(TestCase):
 
 class VariantTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantViewSet.as_view({"get": "list", "post": "create"})
+        self.view = VariantViewSet.as_view(
+            {"get": "list", "post": "create", "delete": "destroy"}
+        )
         return super().setUp()
 
-    def test_create(self):
-        """Test the Variant creation.
+    def test_create_destroy(self):
+        """Test the Variant create and destroy.
 
         Only users with staff status are allowed to create Variant objects.
         """
@@ -606,7 +608,45 @@ class VariantTest(PrepareDataMixin, TestCase):
         response = self.view(request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check that the created object exists.
-        Variant.objects.get(**response.data)
+        created = Variant.objects.get(**response.data)
+
+        # Delete as anonymous user.
+        request = APIRequestFactory().delete(
+            "/variant", {"pk": created.pk}, format="json"
+        )
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete as non-staff user.
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
+        request = APIRequestFactory().delete(
+            "/variant", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete as staff user.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        request = APIRequestFactory().delete(
+            "/variant", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=created.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(Variant.DoesNotExist):
+            created.refresh_from_db()
+
         self.contributor.is_staff = False
         self.contributor.save(update_fields=["is_staff"])
 
@@ -1177,10 +1217,12 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
 
 class VariantCallTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantCallViewSet.as_view({"get": "list", "post": "create"})
+        self.view = VariantCallViewSet.as_view(
+            {"get": "list", "post": "create", "delete": "destroy"}
+        )
         return super().setUp()
 
-    def test_create(self):
+    def test_create_destroy(self):
         """Test the VariantCall creation."""
         variant_call_data = {
             "sample": self.sample.pk,
@@ -1272,6 +1314,57 @@ class VariantCallTest(PrepareDataMixin, TestCase):
                 **variant_call_data,
             },
         )
+
+        # Delete as anonymous user.
+        request = APIRequestFactory().delete(
+            "/variantcall", {"pk": created.pk}, format="json"
+        )
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete without required permission to data and sample.
+        self.sample.set_permission(Permission.VIEW, user)
+        data.set_permission(Permission.VIEW, user)
+        request = APIRequestFactory().delete(
+            "/variantcall", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete without required permission to data.
+        self.sample.set_permission(Permission.EDIT, user)
+        data.set_permission(Permission.VIEW, user)
+        request = APIRequestFactory().delete(
+            "/variantcall", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete with required permission to data.
+        self.sample.set_permission(Permission.EDIT, user)
+        data.set_permission(Permission.EDIT, user)
+        request = APIRequestFactory().delete(
+            "/variantcall", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request, pk=created.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(VariantCall.DoesNotExist):
+            created.refresh_from_db()
 
     def test_filter(self):
         # No filter no permission for public.
@@ -1497,11 +1590,13 @@ class VariantCallTest(PrepareDataMixin, TestCase):
 
 class VariantExperimentTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantExperimentViewSet.as_view({"get": "list", "post": "create"})
+        self.view = VariantExperimentViewSet.as_view(
+            {"get": "list", "post": "create", "delete": "destroy"}
+        )
         return super().setUp()
 
-    def test_create(self):
-        """Test the VariantExperiment creation.
+    def test_create_destroy(self):
+        """Test the VariantExperiment creation and deletion.
 
         Only users with staff status are allowed to create VariantExperiment objects.
         """
@@ -1543,7 +1638,45 @@ class VariantExperimentTest(PrepareDataMixin, TestCase):
         response = self.view(request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Check that the created object exists.
-        VariantExperiment.objects.get(**response.data)
+        created = VariantExperiment.objects.get(**response.data)
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
+
+        # Delete as anonymous user.
+        request = APIRequestFactory().delete(
+            "/variantexperiment", {"pk": created.pk}, format="json"
+        )
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete as non-staff user.
+        request = APIRequestFactory().delete(
+            "/variantexperiment", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=created.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Delete as staff user.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        request = APIRequestFactory().delete(
+            "/variantexperiment", {"pk": created.pk}, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=created.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(VariantExperiment.DoesNotExist):
+            created.refresh_from_db()
+
         self.contributor.is_staff = False
         self.contributor.save(update_fields=["is_staff"])
 

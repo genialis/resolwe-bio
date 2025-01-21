@@ -18,6 +18,8 @@ Added
   endpoint
 - Allow staff users to create new ``VariantExperiment`` objects through the API
   endpoint
+- Allow staff users to delet ``Variant`` and ``VariantExperiment`` via API
+- Allow users with permissions to delete ``VariantCall`` objects via the API
 
 Changed
 -------
