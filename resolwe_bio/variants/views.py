@@ -9,11 +9,12 @@ Expose Variants models on API
 import logging
 
 import django_filters as filters
-from rest_framework import mixins, viewsets
+from rest_framework import exceptions, mixins, permissions, serializers, viewsets
 
 from resolwe.flow.filters import OrderingFilter
 from resolwe.flow.views.mixins import ResolweCreateModelMixin
 from resolwe.flow.views.utils import IsStaffOrReadOnly
+from resolwe.permissions.models import Permission
 
 from resolwe_bio.variants.filters import (
     VariantAnnotationFilter,
@@ -63,7 +64,9 @@ class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     )
 
 
-class VariantCallViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class VariantCallViewSet(
+    mixins.ListModelMixin, ResolweCreateModelMixin, viewsets.GenericViewSet
+):
     """VariantCall endpoint.
 
     The default filter backends are used so permissions are respected.
@@ -74,6 +77,22 @@ class VariantCallViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     filterset_class = VariantCallFilter
     ordering_fields = ("id", "quality", "depth")
+
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
+    def perform_create(self, serializer: serializers.BaseSerializer) -> None:
+        """Check if user has VIEW permission on the sample."""
+        # Check permission on sample.
+        sample = serializer.validated_data["sample"]
+        if not sample.has_permission(Permission.VIEW, self.request.user):
+            raise exceptions.PermissionDenied()
+
+        # Check permission on data (if given).
+        if data := serializer.validated_data.get("data"):
+            if not data.has_permission(Permission.VIEW, self.request.user):
+                raise exceptions.PermissionDenied()
+
+        return super().perform_create(serializer)
 
 
 class VariantExperimentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):

@@ -1177,8 +1177,101 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
 
 class VariantCallTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantCallViewSet.as_view({"get": "list"})
+        self.view = VariantCallViewSet.as_view({"get": "list", "post": "create"})
         return super().setUp()
+
+    def test_create(self):
+        """Test the VariantCall creation."""
+        variant_call_data = {
+            "sample": self.sample.pk,
+            "variant": self.variants[0].pk,
+            "quality": 1.0,
+            "depth_norm_quality": 0.1,
+            "alternative_allele_depth": 3,
+            "depth": 5,
+            "filter": "test_create",
+            "genotype": "l",
+            "genotype_quality": 1,
+            "experiment": self.experiments[0].pk,
+            "data": None,
+        }
+
+        # Test creation as unauthenticated user.
+        request = APIRequestFactory().post(
+            "/variantcall", variant_call_data, format="json"
+        )
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "Authentication credentials were not provided.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as user without permissions on the sample.
+        user = User.objects.get_or_create(username="user", email="user@genialis.com")[0]
+        request = APIRequestFactory().post(
+            "/variantcall", variant_call_data, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as user with permissions on the sample.
+        self.sample.set_permission(Permission.VIEW, user)
+        request = APIRequestFactory().post(
+            "/variantcall", variant_call_data, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request)
+        created = VariantCall.objects.get(**response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.data,
+            {
+                "id": created.id,
+                **variant_call_data,
+            },
+        )
+
+        data = Data.objects.create(
+            contributor=self.contributor,
+            process=Process.objects.create(contributor=self.contributor),
+            status=Data.STATUS_PROCESSING,
+        )
+        variant_call_data["data"] = data.pk
+
+        # Test creation as user without permissions on data object.
+        request = APIRequestFactory().post(
+            "/variantcall", variant_call_data, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Test creation as user with read permissions on data object.
+        data.set_permission(Permission.VIEW, user)
+        request = APIRequestFactory().post(
+            "/variantcall", variant_call_data, format="json"
+        )
+        force_authenticate(request, user)
+        response = self.view(request)
+        created = VariantCall.objects.get(**response.data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            response.data,
+            {
+                "id": created.id,
+                **variant_call_data,
+            },
+        )
 
     def test_filter(self):
         # No filter no permission for public.
