@@ -27,6 +27,8 @@ jobs:
       RESOLWE_POSTGRESQL_PORT: 55433
       RESOLWE_REDIS_PORT: 56380
       RESOLWE_TEST_ONLY_CHANGES_TO: "origin/master"
+      TOX_COMMAND: "tox --skip-missing-interpreters false"
+
     strategy:
       matrix:
         toxenv: ["py312"]
@@ -65,9 +67,9 @@ jobs:
 
       # NOTE: If we are building the "master" branch or a pull request against the
       # "master" branch, we allow installing pre-releases with the pip command.
-      - name: Allow pre-releases for master branch
-        if: github.ref == 'refs/heads/master'
-        run: echo "PIP_PRE=1" >> $GITHUB_ENV
+      - name: Allow pre-releases for PRs and merges with master branch
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
+        run: echo "TOX_COMMAND=${{ env.TOX_COMMAND }} --pre" >> $GITHUB_ENV
 
       - name: Assert PR is up-to-date
         if: github.event_name == 'pull_request'
@@ -83,35 +85,35 @@ jobs:
 
       - name: Documentation
         run: |
-          tox -e docs
+          ${{ env.TOX_COMMAND }} -e docs
 
       - name: Linters
         run: |
-          tox -e linters
+          ${{ env.TOX_COMMAND }} -e linters
 
       - name: Packaging
         run: |
-          tox -e packaging
+          ${{ env.TOX_COMMAND }} -e packaging
 
       - name: Extras
         run: |
-          tox -e extra
+          ${{ env.TOX_COMMAND }} -e extra
 
       - name: Migrations
         run: |
-          tox -e migrations
+          ${{ env.TOX_COMMAND }} -e migrations
       
       - name: Run entire test suite
         if: github.event_name != 'pull_request'
         timeout-minutes: 120
         run: |
-          tox -e ${{ matrix.toxenv }}
+          ${{ env.TOX_COMMAND }} -e ${{ matrix.toxenv }}
 
       - name: Unit partial test suite on pull request
         if: github.event_name == 'pull_request'
         timeout-minutes: 120
         run: |
-          tox -e ${{ matrix.toxenv }}-partial
+          ${{ env.TOX_COMMAND }} -e ${{ matrix.toxenv }}-partial
 
   build:
     runs-on: public-docker-runner
