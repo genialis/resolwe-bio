@@ -44,7 +44,7 @@ setuptools.setup(
         "Django~=5.1",
         "djangorestframework~=3.15.2",
         "django-filter~=24.3",
-        "resolwe==42.*",
+        "resolwe==43.*",
         "wrapt~=1.17.0",
     ),
     extras_require={
