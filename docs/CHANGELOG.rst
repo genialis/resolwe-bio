@@ -16,6 +16,8 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Django 5.1 and bump version of other
+  dependencies
 
 Fixed
 -----
