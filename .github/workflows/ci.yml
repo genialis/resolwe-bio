@@ -66,11 +66,11 @@ jobs:
           lfs: true
           fetch-depth: 0
 
-      # NOTE: If we are building the "master" branch or a pull request against the
-      # "master" branch, we allow installing pre-releases with the pip command.
-      - name: Allow pre-releases for PRs and merges with master branch
-        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/master'
-        run: echo "TOX_COMMAND=${{ env.TOX_COMMAND }} --pre" >> $GITHUB_ENV
+      - name: Use pre-releases except for production tags
+        run:
+          if ! [[ ${{ github.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "TOX_COMMAND=${{ env.TOX_COMMAND }} --pre" >> $GITHUB_ENV;
+          fi
 
       - name: Assert PR is up-to-date
         if: github.event_name == 'pull_request'
