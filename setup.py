@@ -62,7 +62,8 @@ setuptools.setup(
             "colorama",
             "django-stubs>=5.1.1",
             "django-filter-stubs>=0.1.3",
-            "djangorestframework-stubs[compatible-mypy]>=3.15.2",
+            # Temporarily disabled due to compatibility issues with mypy.
+            # "djangorestframework-stubs[compatible-mypy]>=3.15.2",
             "daphne",
             "flake8>=7.1.1",
             "isort>=5.13.2",
