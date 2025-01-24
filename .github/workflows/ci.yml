@@ -32,7 +32,7 @@ jobs:
 
     strategy:
       matrix:
-        toxenv: ["py312"]
+        toxenv: ["py313"]
 
     services:
       postgres:
@@ -130,10 +130,10 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install build
-        run: python3.12 -m pip install --user build
+        run: python3.13 -m pip install --user build
 
       - name: Build a binary wheel and a source tarball
-        run: python3.12 -m build --sdist --wheel --outdir dist/ .
+        run: python3.13 -m build --sdist --wheel --outdir dist/ .
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
