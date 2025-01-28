@@ -27,7 +27,7 @@ for i in range(1, len(sys.argv), 2):
             if "reads processed" in line:
                 processed = int(vals[-1])
 
-            if "reads with at least one reported alignment" in line:
+            if "reads with at least one alignment" in line:
                 onevalid = int(vals[-2])
 
             if "reads that failed to align" in line:

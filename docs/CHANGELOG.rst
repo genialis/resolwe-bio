@@ -17,6 +17,7 @@ Added
 Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 44.x
+- Bump ``alignment-bowtie``'s Docker image and reorder arguments
 
 Fixed
 -----

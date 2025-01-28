@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
+        image: public.ecr.aws/genialis/resolwebio/rnaseq:7.0.0
     resources:
       cores: 4
       memory: 16384
       storage: 250
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.5.2
+  version: 2.6.0
   type: data:alignment:bam:bowtie1
   category: Align
   flow_collection: sample
@@ -188,12 +188,15 @@
       echo "ALIGNING with bowtie:"
       {% if reads|type|subtype('data:reads:fastq:single:') or use_se %}
         bowtie \
-          --un "${FW_NAME}_unmapped1.fq" \
           --trim5 {{start_trimming.trim_5}} \
           --trim3 {{start_trimming.trim_3}} \
-          --chunkmbs 200 {{ mode }} {{ m }} \
-          -l {{ l }} ${reporting} \
-          --sam "${INDEX}" \
+          -l {{ l }} \
+          --chunkmbs 200 \
+          {{ mode }} {{ m }} \
+          ${reporting} \
+          --un "${FW_NAME}_unmapped1.fq" \
+          --sam \
+          -x "${INDEX}" \
           "${fw_reads}" 1>"${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
         re-checkrc
 
@@ -203,12 +206,15 @@
           echo "iterative alignment of unmapped reads:"
           {% for c in range(1, trimming.trim_iter + 1) %}
             bowtie \
-              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
               --trim5 {{start_trimming.trim_5}} \
               --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
-              --chunkmbs 200 {{ mode }} {{ m }} \
-              -l {{ l }} ${reporting} \
-              --sam "${INDEX}" \
+              -l {{ l }} \
+              --chunkmbs 200 \
+              {{ mode }} {{ m }} \
+              ${reporting} \
+              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
+              --sam \
+              -x "${INDEX}" \
               "${FW_NAME}_unmapped"{{ c }}".fq" 1>"${FW_NAME}_new_mapped"{{ c+1 }}".sam" 2>"${FW_NAME}_new_mapped"{{ c+1 }}".stats"
 
             samtools \
@@ -223,12 +229,15 @@
       {% else %}
         re-progress 0.4
         bowtie \
-          --un "${FW_NAME}_unmapped1.fq" \
           --trim5 {{start_trimming.trim_5}} \
           --trim3 {{start_trimming.trim_3}} \
-          --chunkmbs 200 {{ mode }} {{ m }} \
-          -l {{ l }} ${reporting} \
-          --sam "${INDEX}" \
+          -l {{ l }} \
+          --chunkmbs 200 \
+          {{ mode }} {{ m }} \
+          ${reporting} \
+          --un "${FW_NAME}_unmapped1.fq" \
+          --sam \
+          -x "${INDEX}" \
           -1 "${fw_reads}" \
           -2 "${rw_reads}" 1> "${FW_NAME}_align_unsorted.sam" 2> "${FW_NAME}_align_unsorted.stats"
         re-checkrc
@@ -239,12 +248,15 @@
           echo "iterative alignment of unmapped reads:"
           {% for c in range(1, trimming.trim_iter + 1) %}
             bowtie \
-              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
               --trim5 {{start_trimming.trim_5}} \
               --trim3 {{ c * trimming.trim_nucl + start_trimming.trim_3}} \
-              --chunkmbs 200 {{ mode }} {{ m }} \
-              -l {{ l }} ${reporting} \
-              --sam "${INDEX}" \
+              -l {{ l }} \
+              --chunkmbs 200 \
+              {{ mode }} {{ m }} \
+              ${reporting} \
+              --un "${FW_NAME}_unmapped"{{ c+1 }}".fq" \
+              --sam \
+              -x "${INDEX}" \
               -1 "${FW_NAME}_unmapped"{{ c }}"_1.fq" \
               -2 "${FW_NAME}_unmapped"{{ c }}"_2.fq" 1>"${FW_NAME}_new_mapped"{{ c+1 }}".sam" 2>"${FW_NAME}_new_mapped"{{ c+1 }}".stats"
             re-checkrc
