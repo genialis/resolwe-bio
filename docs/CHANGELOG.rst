@@ -29,9 +29,12 @@ Changed
   ``tximport_summarize.R`` script
 - Modify how ``rnanorm`` is called in ``star-quantification`` process and 
   bump Docker image version
+- Rework error handling in ``basespace-file-import``
 
 Fixed
 -----
+- Fix missing external files in ``basespace-file-import`` test files and
+  simplify them
 
 
 ===================

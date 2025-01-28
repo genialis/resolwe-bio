@@ -157,18 +157,28 @@ class ImportProcessorTestCase(BioProcessTestCase):
 
     @tag_process("basespace-file-import")
     def external_test_basespace_import(self):
-        """The following access token was created by the user Jan Otonicar
-        on December the 15th, 2021. All files used in this test were uploaded
-        to his basespace account. In order to create a new access token follow this link
-        https://developer.basespace.illumina.com/docs/content/documentation/authentication/obtaining-access-tokens.
+        """All files used in this test were uploaded to a BaseSpace account.
+        
+        To recreate the testing files workflow in this test:
+        - create a (new) account if needed
+        - create App at developer.basespace.illumina.com (use defaults)
+        - grant access to the data using the following command:
+          curl POST -d "response_type=device_code" -d "client_id=X" -d "scope=read project Y" https://api.basespace.illumina.com/v1pre3/oauthv2/deviceauthorization
+          where X is the client ID found in the app and Y is project ID found on BaseSpace
+          (hover over link). Click the verification_with_code_uri URL provided by the 
+          response and follow the instructions in the browser
+        - upload fastq file as a Samples (no need for a Biosample)
+        - view file IDs by authenticating as needed on the frontend and then visiting
+          https://api.basespace.illumina.com/v2/datasets/ to list available samples
+          and inherent files
         """
         output_folder = Path("basespace_import") / "output"
         # Token with limited scope pre-obtained from dedicated BaseSpace testing app.
         handle = Secret.objects.create_secret(
-            "d23ee29d4db4454480ad89d925475913", self.admin
+            "5fe65e708e324e78ad0007496fe382f1", self.admin
         )
 
-        file_id = "25157957505"
+        file_id = "39621027097"
 
         inputs = {"file_id": file_id, "access_token_secret": {"handle": handle}}
         file = self.run_process("basespace-file-import", inputs)

@@ -91,11 +91,17 @@ def make_get_request(session, url, headers, error, stream=False):
     response = session.get(url=url, headers=headers, stream=stream, timeout=60)
 
     if response.status_code == 401:
-        error(f"Authentication failed on URL {url}")
+        error_401 = f"Authentication failed on URL {url}"
+        error(error_401)
+        raise ConnectionRefusedError(error_401)
     elif response.status_code == 404:
-        error(f"BaseSpace file {url} not found")
+        error_404 = f"BaseSpace file {url} not found"
+        error(error_404)
+        raise LookupError(error_404)
     elif response.status_code != 200:
-        error(f"Failed to retrieve content from {url}")
+        error_any = f"Failed to retrieve content from {url}"
+        error(error_any)
+        raise Exception(error_any)
 
     return response
 
@@ -163,14 +169,14 @@ class BaseSpaceImport(Process):
     slug = "basespace-file-import"
     name = "BaseSpace file"
     process_type = "data:file"
-    version = "1.5.1"
+    version = "1.6.0"
     category = "Import"
     data_name = 'BaseSpace ({{ file_id|default("?") }})'
     persistence = Persistence.TEMP
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:5.0.0"}
         },
         "resources": {
             "cores": 1,
@@ -252,7 +258,9 @@ class BaseSpaceImport(Process):
                 error=self.error,
             )
             output(inputs.advanced.output, f"filename={file_name}")
-        except Exception as error:
+        except (ConnectionRefusedError, LookupError):
+            raise
+        except Exception:
             if inputs.advanced.verbose:
                 traceback.print_exc()
                 self.error(
@@ -260,7 +268,6 @@ class BaseSpaceImport(Process):
                     "Check standard output for more details."
                 )
             else:
-                print(str(error))
                 self.error(
                     "Unexpected error occurred while trying to download files from BaseSpace. "
                     "Set Verbose to True to see the traceback."
