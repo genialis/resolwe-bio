@@ -21,6 +21,8 @@ Changed
 - Move ``differentialexpression-edger`` to ``rpkgs`` Docker image and move
   external scripts ``diffexp_filtering.R`` and ``expressionmerge.py``
   into the process
+- Change ``differentialexpression-deseq2`` process Docker image to 
+  ``resolwebio/rpkgs``
 
 Fixed
 -----
