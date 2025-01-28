@@ -112,11 +112,11 @@ def infer_variant_type(ref, alt):
     Then, it groups the entries by the index and determines the variant type for each group.
     """
 
-    def determine_variant_type(vcf_entry):
-        """Determine variant type.
+    def determine_mixed_variants(vcf_entry):
+        """Determine if variant call is of a mixed type.
 
-        If there are multiple types for an index (VCF entry), the variant is considered mixed.
-        Otherwise, the type is the only type present.
+        If there are multiple different variant types present in a multiallelic call,
+        the variant is considered mixed.
         """
         unique_types = set(vcf_entry)
         return "MIXED" if len(unique_types) > 1 else unique_types.pop()
@@ -127,7 +127,7 @@ def infer_variant_type(ref, alt):
     variant_indices = np.repeat(alt_split.index, alt_split.str.len())
 
     types = compare_ref_alt(ref=pd.Series(refs.values), alt=pd.Series(alts))
-    inferred_types = types.groupby(variant_indices).agg(determine_variant_type)
+    inferred_types = types.groupby(variant_indices).agg(determine_mixed_variants)
 
     return inferred_types
 
@@ -188,7 +188,20 @@ def create_annotation_list(variants_table, canonical_transcripts, genome_assembl
 
 def prepare_variants_table(variants_table, ann_fields, vcf_fields):
     """Prepare variants table."""
-    variants_table = pd.read_csv(variants_table, sep="\t")
+    variants_table = pd.read_csv(
+        variants_table,
+        sep="\t",
+        dtype={
+            "CHROM": str,
+            "POS": int,
+            "REF": str,
+            "ALT": str,
+            "QUAL": float,
+            "ANN": str,
+            "CLNDN": str,
+            "CLNSIG": str,
+        },
+    )
     # First split each line to multiple lines, since every variant has
     # info for multiple transcripts.
     variants_table = variants_table.drop("ANN", axis=1).join(
@@ -233,7 +246,7 @@ class VariantAnnotation(ProcessBio):
         },
     }
     data_name = "Variant annotation"
-    version = "1.1.0"
+    version = "1.2.0"
     process_type = "data:annotation"
     category = "Annotation"
     scheduling_class = SchedulingClass.BATCH
@@ -312,6 +325,7 @@ class VariantAnnotation(ProcessBio):
 
         filters = {
             "genome_assembly": inputs.genome_assembly,
+            "__fields": ["chromosome", "position", "reference", "alternative"],
         }
         if not inputs.select_all:
             filters["annotation__isnull"] = True
@@ -403,6 +417,13 @@ class VariantAnnotation(ProcessBio):
         (Cmd["bgzip"]["-c", annotated_variants] > gzipped_variants)()
         (Cmd["tabix"]["-p", "vcf", gzipped_variants])()
 
+        if inputs.advanced.save_vcf:
+            outputs.vcf = gzipped_variants
+            outputs.tbi = f"{gzipped_variants}.tbi"
+
+        outputs.genes = "snpEff_genes.txt"
+        outputs.summary = "snpEff_summary.html"
+
         self.progress(0.5)
 
         TMPDIR = os.environ.get("TMPDIR")
@@ -440,10 +461,3 @@ class VariantAnnotation(ProcessBio):
         )
 
         self.add_variants_annotations(annotations_list)
-
-        if inputs.advanced.save_vcf:
-            outputs.vcf = gzipped_variants
-            outputs.tbi = f"{gzipped_variants}.tbi"
-
-        outputs.genes = "snpEff_genes.txt"
-        outputs.summary = "snpEff_summary.html"

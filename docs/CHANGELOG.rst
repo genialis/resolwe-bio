@@ -24,6 +24,8 @@ Changed
 
 Fixed
 -----
+- Optimize ``variant-annotation`` process to handle a larger
+  number of variants
 
 
 ===================
