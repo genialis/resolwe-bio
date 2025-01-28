@@ -8,7 +8,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 class SamtoolsProcessorTestCase(BioProcessTestCase):
     @tag_process("samtools-view")
-    def samtools_view(self):
+    def test_samtools_view(self):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
@@ -81,7 +81,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         self.assertEqual(samtools.process_warning, warning_msg)
 
     @tag_process("samtools-coverage-single", "samtools-coverage-multi")
-    def samtools_coverage(self):
+    def test_samtools_coverage(self):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
@@ -153,7 +153,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         )
 
     @tag_process("samtools-bedcov")
-    def samtools_bedcov(self):
+    def test_samtools_bedcov(self):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
@@ -196,7 +196,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         )
 
     @tag_process("samtools-depth-single")
-    def samtools_depth_single(self):
+    def test_samtools_depth_single(self):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
@@ -224,7 +224,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         )
 
     @tag_process("samtools-mpileup-single")
-    def samtools_mpileup_single(self):
+    def test_samtools_mpileup_single(self):
         input_folder = Path("samtools") / "inputs"
         output_folder = Path("samtools") / "outputs"
         with self.preparation_stage():
