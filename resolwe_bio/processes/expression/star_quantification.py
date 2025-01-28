@@ -3,11 +3,11 @@
 import gzip
 import io
 import json
-import shutil
 from pathlib import Path
 
 import pandas as pd
 from plumbum import TEE
+from rnanorm import CPM, TPM
 
 from resolwe.process import (
     Cmd,
@@ -36,7 +36,7 @@ STRANDEDNESS_CODES = {
 }
 
 
-def prepare_gene_counts(infile, outfile, summary, strandedness):
+def prepare_gene_counts(infile, summary, strandedness):
     """Extract gene counts from STAR input."""
     exp = pd.read_csv(
         infile,
@@ -47,12 +47,8 @@ def prepare_gene_counts(infile, outfile, summary, strandedness):
     )
     # Raw counts for genes
     gene_rc_df = exp.iloc[4:][[strandedness]]
-    gene_rc_df.to_csv(
-        outfile,
-        index_label="FEATURE_ID",
-        header=["EXPRESSION"],
-        sep="\t",
-    )
+    gene_rc_df.index.name = "FEATURE_ID"
+    gene_rc_df.columns = ["RAW_COUNT"]
 
     assigned_reads = gene_rc_df.sum()
     assigned_reads = int(assigned_reads.values)
@@ -65,53 +61,24 @@ def prepare_gene_counts(infile, outfile, summary, strandedness):
         header=["Read count"],
         sep="\t",
     )
-    return exp.iloc[4:].index.to_list()
+    return exp.iloc[4:].index.to_list(), gene_rc_df
 
 
-def rename_columns_and_compress(infile, outfile):
+def rename_columns_and_compress(exp, outfile):
     """Rename columns and compress the expression files."""
-    exp = pd.read_csv(
-        infile,
-        sep="\t",
-        usecols=["FEATURE_ID", "EXPRESSION"],
-        index_col="FEATURE_ID",
-        squeeze=True,
-        float_precision="round_trip",
-    )
+    exp = exp.squeeze(axis="columns")
+
     exp.to_csv(
         outfile, index_label="Gene", header=["Expression"], sep="\t", compression="gzip"
     )
 
 
-def compress_outputs(input_file, output_file):
-    """Compress outputs."""
-    with open(file=input_file, mode="rb") as f_in:
-        with gzip.open(filename=output_file, mode="wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-
-
-def exp_to_df(exp_file, exp_type):
-    """Prepare expression file for gene sets merging."""
-    with open(exp_file) as exp:
-        df = pd.read_csv(exp, sep="\t", float_precision="round_trip")
-        df.rename(
-            index=str,
-            columns={
-                "EXPRESSION": exp_type,
-            },
-            inplace=True,
-        )
-        # Cast FEATURE_ID column to string
-        df["FEATURE_ID"] = df["FEATURE_ID"].astype("str")
-
-    return df
-
-
 def prepare_expression_set(rc, tpm, cpm, feature_dict, outfile_name):
     """Prepare expression set output data."""
-    rc_exp = exp_to_df(rc, "RAW_COUNT")
-    tpm_exp = exp_to_df(tpm, "TPM")
-    cpm_exp = exp_to_df(cpm, "CPM")
+    rc_exp = rc.reset_index()
+    tpm_exp = tpm.reset_index()
+    cpm_exp = cpm.reset_index()
+
     rc_exp["GENE_SYMBOL"] = rc_exp["FEATURE_ID"].map(feature_dict)
     input_features = rc_exp["FEATURE_ID"].tolist()
     # Check if all of the input feature IDs could be mapped to the gene symbols
@@ -173,6 +140,32 @@ def expression_to_storage(rc_input, rc_output):
     return rc_output
 
 
+def normalize_counts(raw_counts, annotation_file):
+    """Normalize raw counts to TPM and CPM."""
+
+    exps = {"CPM": CPM, "TPM": TPM}
+    for mode, TRANSFORMATION in exps.items():
+        tt = raw_counts.copy(deep=True)
+        tt.columns = [mode]
+        tt = tt.transpose()
+
+        args = {}
+        if mode == "TPM":
+            args["gtf"] = annotation_file
+
+        transformed = (
+            TRANSFORMATION(**args).set_output(transform="pandas").fit_transform(tt)
+        )
+        transformed = transformed.transpose()
+        transformed.index.name = "FEATURE_ID"
+
+        exps[mode] = transformed
+
+    exps["RAW_COUNT"] = raw_counts
+
+    return exps
+
+
 class NormalizeSTARGeneQuantification(ProcessBio):
     """Normalize STAR quantification results.
 
@@ -187,7 +180,7 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.2.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:7.0.0",
             },
         },
         "resources": {
@@ -197,7 +190,7 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "1.2.0"
+    version = "1.3.0"
     process_type = "data:expression:star"
     category = "Quantify"
     entity = {
@@ -431,15 +424,10 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         else:
             strandedness = STRANDEDNESS_CODES[inputs.assay_type]
 
-        raw_counts = "rc.txt"
-        tpm = "tpm.txt"
-        cpm = "cpm.txt"
-
         # prepare_gene_counts() has a side effect of creating csv files
         # used in 'rnanorm'.
-        features = prepare_gene_counts(
+        features, raw_counts = prepare_gene_counts(
             infile=inputs.aligned_reads.output.gene_counts.path,
-            outfile=raw_counts,
             summary="summary.txt",
             strandedness=strandedness,
         )
@@ -460,19 +448,9 @@ class NormalizeSTARGeneQuantification(ProcessBio):
             with open(annotation_file, "w") as outfile:
                 outfile.write(annot_data)
 
-        # Normalize counts
-        rnanorm_args = [
-            raw_counts,
-            "--tpm-output",
-            tpm,
-            "--cpm-output",
-            cpm,
-            "--annotation",
-            annotation_file,
-        ]
-        return_code, _, _ = Cmd["rnanorm"][rnanorm_args] & TEE(retcode=None)
-        if return_code:
-            self.error("Error while normalizing counts using rnanorm.")
+        expressions = normalize_counts(
+            raw_counts=raw_counts, annotation_file=annotation_file
+        )
 
         feature_filters = {
             "source": inputs.annotation.output.source,
@@ -485,17 +463,17 @@ class NormalizeSTARGeneQuantification(ProcessBio):
         }
 
         prepare_expression_set(
-            rc=raw_counts,
-            tpm=tpm,
-            cpm=cpm,
+            rc=expressions["RAW_COUNT"],
+            tpm=expressions["TPM"],
+            cpm=expressions["CPM"],
             feature_dict=feature_ids_to_names,
             outfile_name=f"{name}_expressions",
         )
 
         # rename and compress the expression files
-        rename_columns_and_compress(raw_counts, f"{name}_rc.tab.gz")
-        rename_columns_and_compress(tpm, f"{name}_tpm.tab.gz")
-        rename_columns_and_compress(cpm, f"{name}_cpm.tab.gz")
+        rename_columns_and_compress(expressions["RAW_COUNT"], f"{name}_rc.tab.gz")
+        rename_columns_and_compress(expressions["TPM"], f"{name}_tpm.tab.gz")
+        rename_columns_and_compress(expressions["CPM"], f"{name}_cpm.tab.gz")
 
         exp_output = f"{name}_{inputs.normalization_type.lower()}.tab.gz"
 

@@ -27,6 +27,8 @@ Changed
   ``feature_counts``
 - Bump Docker image version for ``salmon-quant`` and modernize 
   ``tximport_summarize.R`` script
+- Modify how ``rnanorm`` is called in ``star-quantification`` process and 
+  bump Docker image version
 
 Fixed
 -----

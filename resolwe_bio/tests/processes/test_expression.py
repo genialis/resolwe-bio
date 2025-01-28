@@ -769,12 +769,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "species", "Homo sapiens")
         self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFile(
-            expression,
-            "exp",
-            outputs / "star_tpm.tab.gz",
+            obj=expression,
+            field_path="exp",
+            fn=outputs / "star_tpm.tab.gz",
             compression="gzip",
         )
-
         expression = self.run_process(
             "star-quantification",
             {
@@ -785,9 +784,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "species", "Homo sapiens")
         self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFile(
-            expression,
-            "exp_set",
-            outputs / "star_single_expressions.txt.gz",
+            obj=expression,
+            field_path="exp_set",
+            fn=outputs / "star_single_expressions.txt.gz",
             compression="gzip",
         )
 
