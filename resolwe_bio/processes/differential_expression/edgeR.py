@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import pandas as pd
 from plumbum import TEE
 
 from resolwe.process import (
@@ -18,6 +19,24 @@ from resolwe.process import (
     SchedulingClass,
     StringField,
 )
+
+
+def prepare_expressions(inputs, count_filter, output_file):
+    """Concatenate expression matrices and filter."""
+    exps = []
+    for exp in inputs:
+        temp = pd.read_csv(exp, sep="\t", index_col=0)
+        temp.columns = [exp]
+        exps.append(temp)
+
+    exps = pd.concat(exps, axis=1)
+    # Make sure the order of columns corresponds to the order of input
+    # data.
+    exps = exps.loc[:, inputs]
+    exps = exps.dropna(axis=1)
+    exps = exps.loc[exps.sum(axis=1, numeric_only=True) >= count_filter, :]
+
+    exps.to_csv(output_file, sep="\t")
 
 
 class EdgeR(Process):
@@ -38,14 +57,14 @@ class EdgeR(Process):
     slug = "differentialexpression-edger"
     name = "edgeR"
     process_type = "data:differentialexpression:edger"
-    version = "1.7.0"
+    version = "1.8.0"
     category = "Differential Expression"
     scheduling_class = SchedulingClass.BATCH
     persistence = Persistence.CACHED
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"}
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rpkgs:1.0.0"}
         },
         "resources": {"cores": 1, "memory": 8192},
     }
@@ -167,32 +186,16 @@ class EdgeR(Process):
         self.progress(0.1)
 
         sample_files = case_paths + control_paths
-        merge_args = [
-            sample_files,
-            "--experiments",
-            sample_files,
-            "--intersection",
-            "--out",
-            "counts.tab",
-        ]
-        return_code, _, _ = Cmd["expressionmerge.py"][merge_args] & TEE(retcode=None)
-        if return_code:
-            self.error("Error merging read counts.")
+        filtered_counts = "counts_filtered.tab"
 
-        filter_args = [
-            "-counts",
-            "counts.tab",
-            "-filter",
-            inputs.count_filter,
-            "-out",
-            "counts_filtered.tab",
-        ]
-        return_code, _, _ = Cmd["diffexp_filtering.R"][filter_args] & TEE(retcode=None)
-        if return_code:
-            self.error("Error while filtering read counts.")
+        prepare_expressions(
+            inputs=sample_files,
+            count_filter=inputs.count_filter,
+            output_file=filtered_counts,
+        )
 
         args = [
-            "counts_filtered.tab",
+            filtered_counts,
             "--sampleConditions",
             conditions,
         ]

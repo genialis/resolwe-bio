@@ -18,6 +18,9 @@ Changed
 -------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 44.x
 - Bump ``alignment-bowtie``'s Docker image and reorder arguments
+- Move ``differentialexpression-edger`` to ``rpkgs`` Docker image and move
+  external scripts ``diffexp_filtering.R`` and ``expressionmerge.py``
+  into the process
 
 Fixed
 -----

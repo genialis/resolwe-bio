@@ -399,7 +399,13 @@ re-save name name
         }
 
         diff_exp = self.run_process("differentialexpression-edger", inputs)
-        self.assertFile(diff_exp, "raw", "diffexp_edgeR.tab.gz", compression="gzip")
+        self.assertFile(
+            obj=diff_exp,
+            field_path="raw",
+            fn="diffexp_edgeR.tab.gz",
+            compression="gzip",
+        )
+
         self.assertJSON(diff_exp, diff_exp.output["de_json"], "", "edgeR.json.gz")
         self.assertFields(diff_exp, "source", "DICTYBASE")
         self.assertFields(diff_exp, "species", "Dictyostelium discoideum")
