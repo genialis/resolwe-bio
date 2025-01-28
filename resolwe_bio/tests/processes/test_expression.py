@@ -369,27 +369,27 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression,
-            "rc",
-            outputs / "feature_counts_out_rc.tab.gz",
+            obj=expression,
+            field_path="rc",
+            fn=outputs / "feature_counts_out_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            expression,
-            "cpm",
-            outputs / "feature_counts_out_cpm.tab.gz",
+            obj=expression,
+            field_path="cpm",
+            fn=outputs / "feature_counts_out_cpm.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            expression,
-            "exp",
-            outputs / "feature_counts_out_tpm.tab.gz",
+            obj=expression,
+            field_path="exp",
+            fn=outputs / "feature_counts_out_tpm.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            expression,
-            "exp_set",
-            outputs / "feature_counts_out_exp_set.txt.gz",
+            obj=expression,
+            field_path="exp_set",
+            fn=outputs / "feature_counts_out_exp_set.txt.gz",
             compression="gzip",
         )
         self.assertJSON(
@@ -412,15 +412,15 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression,
-            "rc",
-            outputs / "feature_counts_out_gff3_rc.tab.gz",
+            obj=expression,
+            field_path="rc",
+            fn=outputs / "feature_counts_out_gff3_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            expression,
-            "exp",
-            outputs / "feature_counts_out_gff3_tpm.tab.gz",
+            obj=expression,
+            field_path="exp",
+            fn=outputs / "feature_counts_out_gff3_tpm.tab.gz",
             compression="gzip",
         )
         self.assertFields(expression, "feature_type", "gene")
@@ -433,12 +433,11 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression_lanes,
-            "rc",
-            outputs / "feature_counts_single_lanes_rc.tab.gz",
+            obj=expression_lanes,
+            field_path="rc",
+            fn=outputs / "feature_counts_single_lanes_rc.tab.gz",
             compression="gzip",
         )
-
         # test using UCSC-derived annotation
         expression = self.run_process(
             "feature_counts",
@@ -448,15 +447,15 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression,
-            "rc",
-            outputs / "feature_counts_out_ucsc_rc.tab.gz",
+            obj=expression,
+            field_path="rc",
+            fn=outputs / "feature_counts_out_ucsc_rc.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            expression,
-            "exp",
-            outputs / "feature_counts_out_ucsc_tpm.tab.gz",
+            obj=expression,
+            field_path="exp",
+            fn=outputs / "feature_counts_out_ucsc_tpm.tab.gz",
             compression="gzip",
         )
 
@@ -468,9 +467,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression_lanes,
-            "exp",
-            outputs / "feature_counts_paired_lanes_tpm.tab.gz",
+            obj=expression_lanes,
+            field_path="exp",
+            fn=outputs / "feature_counts_paired_lanes_tpm.tab.gz",
             compression="gzip",
         )
 
@@ -665,9 +664,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression_paired,
-            "exp",
-            outputs / "auto_detect_strand_tpm.tab.gz",
+            obj=expression_paired,
+            field_path="exp",
+            fn=outputs / "auto_detect_strand_tpm.tab.gz",
             compression="gzip",
         )
 
@@ -681,9 +680,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         )
         self.assertFile(
-            expression_single,
-            "exp",
-            outputs / "auto_detect_strand_tpm.tab.gz",
+            obj=expression_single,
+            field_path="exp",
+            fn=outputs / "auto_detect_strand_tpm.tab.gz",
             compression="gzip",
         )
 

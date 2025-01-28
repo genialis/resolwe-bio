@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pandas as pd
 from plumbum import TEE
+from rnanorm import CPM, TPM
 
 from resolwe.process import (
     BooleanField,
@@ -25,8 +26,12 @@ from resolwe.process import (
 from resolwe_bio.process.runtime import ProcessBio
 
 
-def get_gene_counts(infile, outfile, sample_name):
-    """Rename columns and extract gene counts from featureCounts output file."""
+def get_gene_counts(infile, sample_name):
+    """Rename columns and extract gene counts from featureCounts output file.
+
+    Side effect of the function is writing an expression file to disk and
+    returns a list of feature IDs.
+    """
     exp = pd.read_csv(
         infile,
         sep="\t",
@@ -36,8 +41,9 @@ def get_gene_counts(infile, outfile, sample_name):
         dtype={
             "Geneid": str,
         },
-        squeeze=True,
     )
+    exp = exp.squeeze(axis="columns")
+
     filter_col = [col for col in exp if col.startswith(sample_name)]
 
     if len(filter_col) > 1:
@@ -56,15 +62,15 @@ def get_gene_counts(infile, outfile, sample_name):
         return_columns = sample_name
 
     exp = exp.astype({return_columns: int})
-    exp[[return_columns]].to_csv(
-        outfile,
-        index_label="FEATURE_ID",
-        header=["EXPRESSION"],
-        sep="\t",
-    )
+
+    exp = exp[[return_columns]]
+    exp.index.name = "FEATURE_ID"
+    exp.columns = ["RAW_COUNT"]
+
+    return exp, exp.index.to_list()
 
 
-def get_gene_lenghts(infile, outfile):
+def get_gene_lenghts(infile):
     """Rename columns and extract feature lengths from featureCounts output file."""
     exp = pd.read_csv(
         infile,
@@ -77,28 +83,27 @@ def get_gene_lenghts(infile, outfile):
             "Geneid": str,
             "Length": int,
         },
-        squeeze=True,
     )
+    exp = exp.squeeze(axis="columns")
+
+    exp.index.name = "FEATURE_ID"
+    exp.name = "GENE_LENGTHS"
+
+    return exp
+
+
+def rename_columns_and_compress(exp, outfile):
+    """Rename columns and compress the expression files."""
+    exp = exp.squeeze(axis="columns")
     exp.to_csv(
         outfile,
-        index_label="FEATURE_ID",
-        header=["GENE_LENGTHS"],
+        index_label="Gene",
+        header=["Expression"],
         sep="\t",
-    )
-
-
-def rename_columns_and_compress(infile, outfile):
-    """Rename columns and compress the expression files."""
-    exp = pd.read_csv(
-        infile,
-        sep="\t",
-        usecols=["FEATURE_ID", "EXPRESSION"],
-        index_col="FEATURE_ID",
-        squeeze=True,
-        float_precision="round_trip",
-    )
-    exp.to_csv(
-        outfile, index_label="Gene", header=["Expression"], sep="\t", compression="gzip"
+        compression={
+            "method": "gzip",
+            "mtime": 0,
+        },
     )
 
 
@@ -109,28 +114,12 @@ def compress_outputs(input_file, output_file):
             shutil.copyfileobj(f_in, f_out)
 
 
-def exp_to_df(exp_file, exp_type):
-    """Prepare expression file for gene sets merging."""
-    with open(exp_file) as exp:
-        df = pd.read_csv(exp, sep="\t", float_precision="round_trip")
-        df.rename(
-            index=str,
-            columns={
-                "EXPRESSION": exp_type,
-            },
-            inplace=True,
-        )
-        # Cast FEATURE_ID column to string
-        df["FEATURE_ID"] = df["FEATURE_ID"].astype("str")
-
-    return df
-
-
-def prepare_expression_set(rc, tpm, cpm, feature_dict, outfile_name):
+def prepare_expression_set(exps, feature_dict, outfile_name):
     """Prepare expression set output data."""
-    rc_exp = exp_to_df(rc, "RAW_COUNT")
-    tpm_exp = exp_to_df(tpm, "TPM")
-    cpm_exp = exp_to_df(cpm, "CPM")
+    rc_exp = exps["RAW_COUNT"].reset_index()
+    tpm_exp = exps["TPM"].reset_index()
+    cpm_exp = exps["CPM"].reset_index()
+
     rc_exp["GENE_SYMBOL"] = rc_exp["FEATURE_ID"].map(feature_dict)
     input_features = rc_exp["FEATURE_ID"].tolist()
     # Check if all of the input feature IDs could be mapped to the gene symbols
@@ -139,9 +128,11 @@ def prepare_expression_set(rc, tpm, cpm, feature_dict, outfile_name):
             f"{sum(rc_exp.isnull().values.ravel())} feature(s) "
             f"could not be mapped to the associated feature symbols."
         )
+
     # Merge with normalized expression values
     exp_set = rc_exp.merge(tpm_exp, on="FEATURE_ID")
     exp_set = exp_set.merge(cpm_exp, on="FEATURE_ID")
+
     # Reorder columns
     columns = ["FEATURE_ID", "GENE_SYMBOL", "RAW_COUNT", "TPM", "CPM"]
     exp_set = exp_set[columns]
@@ -192,6 +183,38 @@ def expression_to_storage(rc_input, rc_output):
     return rc_output
 
 
+def normalize_counts(fc_output, sample_name):
+    """Normalize counts using rnanorm."""
+    raw_counts, feature_ids = get_gene_counts(
+        infile=fc_output,
+        sample_name=sample_name,
+    )
+    
+    exps = {"CPM": CPM, "TPM": TPM}
+    for mode, TRANSFORMATION in exps.items():
+        tt = raw_counts.copy(deep=True)
+        tt.columns = [mode]
+        tt = tt.transpose()
+        
+        args = {}
+        if mode == "TPM":
+            args["gene_lengths"] = get_gene_lenghts(infile=fc_output)
+        
+        transformed = (
+            TRANSFORMATION(**args)
+            .set_output(transform="pandas")
+            .fit_transform(tt)
+        )
+        transformed = transformed.transpose()
+        transformed.index.name = "FEATURE_ID"
+
+        exps[mode] = transformed
+    
+    exps["RAW_COUNT"] = raw_counts
+
+    return exps, feature_ids
+
+
 class FeatureCounts(ProcessBio):
     """Quantify sequencing reads aligned to genomic features.
 
@@ -214,7 +237,7 @@ class FeatureCounts(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
+                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:7.0.0",
             },
         },
         "resources": {
@@ -224,7 +247,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "6.1.0"
+    version = "6.2.0"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
@@ -901,38 +924,9 @@ class FeatureCounts(ProcessBio):
 
         self.progress(0.8)
 
-        raw_counts = "rc.txt"
-        tpm = "tpm.txt"
-        cpm = "cpm.txt"
-
-        # parse featureCounts output
-        get_gene_counts(
-            infile=fc_output,
-            outfile=raw_counts,
-            sample_name=bam_file,
-        )
-        get_gene_lenghts(infile=fc_output, outfile="gene_lengths.txt")
-
-        # Normalize counts
-        rnanorm_args = [
-            raw_counts,
-            "--gene-lengths",
-            "gene_lengths.txt",
-            "--tpm-output",
-            tpm,
-            "--cpm-output",
-            cpm,
-        ]
-        return_code, _, _ = Cmd["rnanorm"][rnanorm_args] & TEE(retcode=None)
-        if return_code:
-            self.error("Error while normalizing counts using rnanorm.")
+        exps, feature_ids = normalize_counts(fc_output=fc_output, sample_name=bam_file)
 
         self.progress(0.9)
-
-        # prepare the expression set outputs
-        feature_ids = pd.read_csv(
-            raw_counts, sep="\t", index_col="FEATURE_ID"
-        ).index.to_list()
 
         feature_filters = {
             "source": inputs.annotation.output.source,
@@ -945,9 +939,7 @@ class FeatureCounts(ProcessBio):
         }
 
         prepare_expression_set(
-            rc=raw_counts,
-            tpm=tpm,
-            cpm=cpm,
+            exps=exps,
             feature_dict=feature_ids_to_names,
             outfile_name=f"{name}_expressions",
         )
@@ -955,9 +947,9 @@ class FeatureCounts(ProcessBio):
         self.progress(0.95)
 
         # rename and compress the expression files
-        rename_columns_and_compress(raw_counts, f"{name}_rc.tab.gz")
-        rename_columns_and_compress(tpm, f"{name}_tpm.tab.gz")
-        rename_columns_and_compress(cpm, f"{name}_cpm.tab.gz")
+        rename_columns_and_compress(exps["RAW_COUNT"], f"{name}_rc.tab.gz")
+        rename_columns_and_compress(exps["TPM"], f"{name}_tpm.tab.gz")
+        rename_columns_and_compress(exps["CPM"], f"{name}_cpm.tab.gz")
 
         # Compress the featureCounts output file
         compress_outputs(

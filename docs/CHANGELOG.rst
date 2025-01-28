@@ -23,6 +23,8 @@ Changed
   into the process
 - Change ``differentialexpression-deseq2`` process Docker image to 
   ``resolwebio/rpkgs``
+- Modify how ``rnanorm`` is called and bump Docker image version for
+  ``feature_counts``
 
 Fixed
 -----
