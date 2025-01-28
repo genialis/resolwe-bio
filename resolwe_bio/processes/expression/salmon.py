@@ -36,8 +36,9 @@ def parse_transcript_exp(infile, outfile):
             "Name": str,
             "TPM": float,
         },
-        squeeze=True,
     )
+    exp = exp.squeeze(axis="columns")
+
     return exp.to_csv(
         outfile,
         index_label="Transcript",
@@ -88,8 +89,9 @@ def rename_cols(infile, outfile, abundance_unit):
             "Gene": str,
             "Expression": float,
         },
-        squeeze=True,
     )
+    exp = exp.squeeze(axis="columns")
+
     return exp.to_csv(
         outfile,
         index_label="FEATURE_ID",
@@ -143,7 +145,7 @@ class SalmonQuant(ProcessBio):
         "expression-engine": "jinja",
         "executor": {
             "docker": {
-                "image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0",
+                "image": "public.ecr.aws/genialis/resolwebio/salmon:1.0.0",
             },
         },
         "resources": {
@@ -153,7 +155,7 @@ class SalmonQuant(ProcessBio):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "2.7.1"
+    version = "2.7.2"
     process_type = "data:expression:salmon"
     category = "Quantify"
     entity = {

@@ -504,6 +504,9 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("salmon-quant")
     def test_salmon_quant(self):
+        inputs = Path("salmon_quant", "input")
+        outputs = Path("salmon_quant", "output")
+        
         with self.preparation_stage():
             reads = self.prepare_reads(
                 [os.path.join("salmon_quant", "input", "hs sim_reads_single.fastq.gz")]
@@ -549,22 +552,22 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         }
         salmon_quant = self.run_process("salmon-quant", inputs)
         self.assertFile(
-            salmon_quant,
-            "exp_set",
-            os.path.join("salmon_quant", "output", "salmon_quant_tpm.tab.gz"),
+            obj=salmon_quant,
+            field_path="exp_set",
+            fn=outputs / "salmon_quant_tpm.tab.gz",
             compression="gzip",
         )
         self.assertFile(
-            salmon_quant,
-            "transcripts",
-            os.path.join("salmon_quant", "output", "salmon_transcripts_tpm.tab.gz"),
+            obj=salmon_quant,
+            field_path="transcripts",
+            fn=outputs / "salmon_transcripts_tpm.tab.gz",
             compression="gzip",
         )
 
         self.assertFile(
-            salmon_quant,
-            "rc",
-            os.path.join("salmon_quant", "output", "salmon_counts.txt.gz"),
+            obj=salmon_quant,
+            field_path="rc",
+            fn=outputs / "salmon_counts.txt.gz",
             compression="gzip",
         )
 
@@ -585,18 +588,17 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             },
         }
         salmon_quant = self.run_process("salmon-quant", inputs)
-
         self.assertFile(
-            salmon_quant,
-            "transcripts",
-            os.path.join("salmon_quant", "output", "salmon_transcripts_tpm.tab.gz"),
+            obj=salmon_quant,
+            field_path="transcripts",
+            fn=outputs / "salmon_transcripts_tpm.tab.gz",
             compression="gzip",
         )
 
         self.assertFile(
-            salmon_quant,
-            "variance",
-            os.path.join("salmon_quant", "output", "variance_salmon.txt.gz"),
+            obj=salmon_quant,
+            field_path="variance",
+            fn=outputs / "variance_salmon.txt.gz",
             compression="gzip",
         )
 

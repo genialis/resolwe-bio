@@ -2,6 +2,7 @@
 library(argparse)
 library(GenomicFeatures)
 library(tximport)
+library(txdbmaker)
 
 parser <- ArgumentParser(description = "Summarize TPM values to gene-level expressions.")
 parser$add_argument("infile", help = "Salmon output file (transcript-level).")

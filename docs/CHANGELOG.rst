@@ -25,6 +25,8 @@ Changed
   ``resolwebio/rpkgs``
 - Modify how ``rnanorm`` is called and bump Docker image version for
   ``feature_counts``
+- Bump Docker image version for ``salmon-quant`` and modernize 
+  ``tximport_summarize.R`` script
 
 Fixed
 -----
