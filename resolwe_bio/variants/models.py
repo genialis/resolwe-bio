@@ -79,6 +79,11 @@ class Variant(AuditModel):
             ),
         ]
 
+    @property
+    def has_annotation(self) -> bool:
+        """Return True if this variant has an annotation."""
+        return hasattr(self, "annotation")
+
 
 class VariantAnnotation(AuditModel):
     """Describes an annotation of a variant."""
