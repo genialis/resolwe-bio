@@ -180,6 +180,11 @@ class VariantCall(AuditModel, PermissionInterface):
         """Return the permission proxy name."""
         return "sample"
 
+    def in_container(self) -> bool:
+        """Is this object in a container."""
+        # The permissions depend on the sample container.
+        return True
+
     #: the referenced sample
     sample = models.ForeignKey(
         Sample, on_delete=models.CASCADE, related_name="variant_calls"

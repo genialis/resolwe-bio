@@ -15,6 +15,8 @@ Added
 -----
 - Add support for ``Python 3.13``
 - Save test folder data using actions/upload-artifact
+- Allow staff users to create and update ``Variant``, ``VariantCall`` and 
+  ``VariantExperiment`` objects via API endpoint
 
 Changed
 -------

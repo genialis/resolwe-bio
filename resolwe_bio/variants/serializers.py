@@ -6,10 +6,9 @@ Variants Serializers
 
 """
 
-from rest_framework import serializers
+from django.db import transaction
 
-from resolwe.flow.serializers.fields import DictRelatedField
-from resolwe.rest.serializers import SelectiveFieldMixin
+from resolwe.flow.serializers import ResolweBaseSerializer
 
 from resolwe_bio.variants.models import (
     Variant,
@@ -20,7 +19,7 @@ from resolwe_bio.variants.models import (
 )
 
 
-class VariantTranscriptSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+class VariantTranscriptSerializer(ResolweBaseSerializer):
     """Serializer for VariantAnnotationTranscript objects."""
 
     class Meta:
@@ -39,50 +38,72 @@ class VariantTranscriptSerializer(SelectiveFieldMixin, serializers.ModelSerializ
         ]
 
 
-class VariantAnnotationSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+class VariantAnnotationSerializer(ResolweBaseSerializer):
     """Serializer for VariantAnnotation objects."""
 
-    transcripts = DictRelatedField(
-        queryset=VariantAnnotationTranscript.objects.all(),
-        serializer=VariantTranscriptSerializer,
-        allow_null=True,
-        required=False,
-        many=True,
-    )
+    transcripts = VariantTranscriptSerializer(many=True, required=False)
 
     class Meta:
         """Serializer configuration."""
 
         model = VariantAnnotation
-        fields = [
-            "id",
-            "variant_id",
-            "type",
-            "clinical_diagnosis",
-            "clinical_significance",
-            "dbsnp_id",
-            "clinvar_id",
-            "transcripts",
-        ]
+        read_only_fields = ("id",)
+        update_protected_fields = ("variant_id",)
+        fields = (
+            read_only_fields
+            + update_protected_fields
+            + (
+                "type",
+                "clinical_diagnosis",
+                "clinical_significance",
+                "dbsnp_id",
+                "clinvar_id",
+                "transcripts",
+            )
+        )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """Create a new VariantAnnotation instance."""
+        transcripts_data = validated_data.pop("transcripts", None)
+        annotation = VariantAnnotation.objects.create(**validated_data)
+        if transcripts_data:
+            VariantAnnotationTranscript.objects.bulk_create(
+                VariantAnnotationTranscript(
+                    **transcript_data, variant_annotation=annotation
+                )
+                for transcript_data in transcripts_data
+            )
+        return annotation
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """Update the variant annotation."""
+        transcripts_data = validated_data.pop("transcripts", None)
+        annotation = super().update(instance, validated_data)
+        if transcripts_data is not None:
+            # Always create new transcripts since updating logic is tedious.
+            annotation.transcripts.all().delete()
+            VariantAnnotationTranscript.objects.bulk_create(
+                VariantAnnotationTranscript(
+                    **transcript_data, variant_annotation=annotation
+                )
+                for transcript_data in transcripts_data
+            )
+        return annotation
 
 
-class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+class VariantSerializer(ResolweBaseSerializer):
     """Serializer for Variant objects."""
 
-    annotation = DictRelatedField(
-        queryset=VariantAnnotation.objects.all(),
-        serializer=VariantAnnotationSerializer,
-        allow_null=True,
-        required=False,
-    )
+    annotation = VariantAnnotationSerializer(required=False, allow_null=True)
 
     class Meta:
         """Serializer configuration."""
 
         model = Variant
-
         read_only_fields = ("id",)
-        update_protected_fields = (
+        fields = read_only_fields + (
             "species",
             "genome_assembly",
             "chromosome",
@@ -91,37 +112,90 @@ class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
             "alternative",
             "annotation",
         )
-        fields = read_only_fields + update_protected_fields
+
+    @transaction.atomic
+    def create(self, validated_data):
+        """Create a new Variant instance."""
+        annotation_data = validated_data.pop("annotation", None)
+        variant = Variant.objects.create(**validated_data)
+        if annotation_data:
+            VariantAnnotationSerializer().create(
+                {"variant_id": variant.id, **annotation_data}
+            )
+        return variant
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        """Update the Variant instance."""
+        delete_annotation = (
+            "annotation" in validated_data and validated_data["annotation"] is None
+        )
+        annotation_data = validated_data.pop("annotation", None)
+        variant = super().update(instance, validated_data)
+        if annotation_data:
+            # Update existing annotation.
+            if instance.has_annotation:
+                VariantAnnotationSerializer().update(
+                    instance.annotation, annotation_data
+                )
+            # Create new annotation.
+            else:
+                VariantAnnotationSerializer().create(
+                    {"variant_id": variant.id, **annotation_data}
+                )
+        elif delete_annotation and instance.annotation:
+            instance.annotation.delete()
+            instance.annotation = None
+        return variant
 
 
-class VariantCallSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+class VariantCallSerializer(ResolweBaseSerializer):
     """Serializer for VariantCall objects."""
 
     class Meta:
         """Serializer configuration."""
 
         model = VariantCall
-        fields = [
-            "id",
-            "sample_id",
-            "variant_id",
-            "experiment_id",
-            "quality",
-            "genotype_quality",
-            "depth",
-            "depth_norm_quality",
-            "alternative_allele_depth",
-            "filter",
-            "genotype",
-            "data_id",
-        ]
+        read_only_fields = ("id",)
+        update_protected_fields = (
+            "sample",
+            "variant",
+            "experiment",
+            "data",
+        )
+        fields = (
+            read_only_fields
+            + update_protected_fields
+            + (
+                "quality",
+                "genotype_quality",
+                "depth",
+                "depth_norm_quality",
+                "alternative_allele_depth",
+                "filter",
+                "genotype",
+            )
+        )
 
 
-class VariantExperimentSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+class VariantExperimentSerializer(ResolweBaseSerializer):
     """Serializer for VariantExperiment objects."""
 
     class Meta:
         """Serializer configuration."""
 
         model = VariantExperiment
-        fields = ["id", "timestamp", "contributor", "variant_data_source"]
+        read_only_fields = ("id",)
+        update_protected_fields = ("timestamp", "contributor")
+        fields = read_only_fields + update_protected_fields + ("variant_data_source",)
+
+    def perform_create(self, serializer):
+        """Set the contributor to the current user."""
+        print("perform create", serializer.validated_data)
+        serializer.save(contributor=self.context["request"].user)
+        super().perform_create(serializer)
+
+    def create(self, validated_data):
+        """Create a new VariantExperiment instance."""
+        print("Creating, validated_data", validated_data)
+        return super().create(validated_data)
