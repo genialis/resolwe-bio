@@ -20,25 +20,6 @@ from resolwe_bio.variants.models import (
 )
 
 
-class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
-    """Serializer for Variant objects."""
-
-    class Meta:
-        """Serializer configuration."""
-
-        model = Variant
-        fields = [
-            "id",
-            "species",
-            "genome_assembly",
-            "chromosome",
-            "position",
-            "reference",
-            "alternative",
-            "annotation",
-        ]
-
-
 class VariantTranscriptSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
     """Serializer for VariantAnnotationTranscript objects."""
 
@@ -83,6 +64,34 @@ class VariantAnnotationSerializer(SelectiveFieldMixin, serializers.ModelSerializ
             "clinvar_id",
             "transcripts",
         ]
+
+
+class VariantSerializer(SelectiveFieldMixin, serializers.ModelSerializer):
+    """Serializer for Variant objects."""
+
+    annotation = DictRelatedField(
+        queryset=VariantAnnotation.objects.all(),
+        serializer=VariantAnnotationSerializer,
+        allow_null=True,
+        required=False,
+    )
+
+    class Meta:
+        """Serializer configuration."""
+
+        model = Variant
+
+        read_only_fields = ("id",)
+        update_protected_fields = (
+            "species",
+            "genome_assembly",
+            "chromosome",
+            "position",
+            "reference",
+            "alternative",
+            "annotation",
+        )
+        fields = read_only_fields + update_protected_fields
 
 
 class VariantCallSerializer(SelectiveFieldMixin, serializers.ModelSerializer):

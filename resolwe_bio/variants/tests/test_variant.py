@@ -565,6 +565,17 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.view = VariantViewSet.as_view({"get": "list"})
         return super().setUp()
 
+    def test_nested_serialization(self):
+        """Test that the annotation data is serialized correctly.
+
+        It must be serialized inside the variant data and include all the transcripts.
+        """
+        request = APIRequestFactory().get("/variant")
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        self.assertTrue("id" in response.data[0]["annotation"]["transcripts"][0])
+
     def test_filter(self):
         """Test the Variant filter."""
         request = APIRequestFactory().get("/variant")
