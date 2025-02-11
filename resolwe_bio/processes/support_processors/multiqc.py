@@ -425,7 +425,7 @@ class MultiQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:5.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -437,7 +437,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.25.0"
+    version = "1.26.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -578,23 +578,34 @@ class MultiQC(Process):
                         d.output.stats.path, os.path.join(sample_dir, globin_report)
                     )
                 else:
-                    count_report = "ReadsPerGene.out.tab.gz"
-                    report = f"{bam_name}.Log.final.out"
-                    alignment_count = 1
-                    alignment_dir = os.path.join(sample_dir, f"STAR_{alignment_count}")
-                    if not os.path.isdir(alignment_dir):
-                        os.makedirs(alignment_dir)
+                    # Legacy data objects do not have the downsampled attribute
+                    # this is to prevent the process from failing
+                    if getattr(d.output, "downsampled", False):
+                        downsampled_report = f"{bam_name}.downsampled.Log.final.out"
+                        create_symlink(
+                            d.output.stats.path,
+                            os.path.join(sample_dir, downsampled_report),
+                        )
                     else:
-                        while os.path.isdir(alignment_dir):
-                            alignment_count += 1
-                            alignment_dir = os.path.join(
-                                sample_dir, f"STAR_{alignment_count}"
-                            )
-                    os.makedirs(alignment_dir, exist_ok=True)
-                    dst = os.path.join(alignment_dir, report)
-                    create_symlink(d.output.stats.path, dst)
+                        report = f"{bam_name}.Log.final.out"
+                        alignment_count = 1
+                        alignment_dir = os.path.join(
+                            sample_dir, f"STAR_{alignment_count}"
+                        )
+                        if not os.path.isdir(alignment_dir):
+                            os.makedirs(alignment_dir)
+                        else:
+                            while os.path.isdir(alignment_dir):
+                                alignment_count += 1
+                                alignment_dir = os.path.join(
+                                    sample_dir, f"STAR_{alignment_count}"
+                                )
+                        os.makedirs(alignment_dir, exist_ok=True)
+                        dst = os.path.join(alignment_dir, report)
+                        create_symlink(d.output.stats.path, dst)
 
                 if d.output.gene_counts:
+                    count_report = "ReadsPerGene.out.tab.gz"
                     outfile = os.path.join(alignment_dir, count_report)
                     if not os.path.isfile(outfile):
                         with gzip.open(d.output.gene_counts.path, "rb") as f_in:

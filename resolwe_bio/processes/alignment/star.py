@@ -59,7 +59,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.3.2"
+    version = "5.4.0"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -505,6 +505,9 @@ class AlignmentStar(Process):
         stats = FileField(label="Statistics")
         species = StringField(label="Species")
         build = StringField(label="Build")
+        downsampled = BooleanField(
+            label="The input reads were downsampled prior to analysis"
+        )
 
     def run(self, inputs, outputs):
         """Run analysis."""
@@ -572,6 +575,11 @@ class AlignmentStar(Process):
             )
         else:
             self.error("Wrong reads input type.")
+
+        if "seqtk" in inputs.reads.type:
+            outputs.downsampled = True
+        else:
+            outputs.downsampled = False
 
         if inputs.annotation:
             star_params.extend(
