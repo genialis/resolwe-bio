@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     "django.contrib.staticfiles",
     "channels",
     "rest_framework",
-    "versionfield",
     "resolwe",
     "resolwe.permissions",
     "resolwe.flow",
