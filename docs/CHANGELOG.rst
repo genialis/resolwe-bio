@@ -24,7 +24,7 @@ Changed
 - Use ``pyproject.toml`` instead of ``setup.py``
 - Calculate up to 5 principal components in ``pca`` process
 - Add an output field in ``alignment-star``
-  indicating whether input reads were downsampled with Seqtk
+  indicating whether input reads were downsampled
 - Change the metric reporting gene body coverage in MultiQC
   to align with QoRTs vignette recommendations
 

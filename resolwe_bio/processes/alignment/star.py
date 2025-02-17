@@ -505,8 +505,8 @@ class AlignmentStar(Process):
         stats = FileField(label="Statistics")
         species = StringField(label="Species")
         build = StringField(label="Build")
-        seqtk_downsampled = BooleanField(
-            label="The input reads were downsampled with Seqtk"
+        downsampled = BooleanField(
+            label="The input reads were downsampled prior to analysis"
         )
 
     def run(self, inputs, outputs):
@@ -580,9 +580,9 @@ class AlignmentStar(Process):
             inputs.reads.type == "data:reads:fastq:single:seqtk"
             or inputs.reads.type == "data:reads:fastq:paired:seqtk"
         ):
-            outputs.seqtk_downsampled = True
+            outputs.downsampled = True
         else:
-            outputs.seqtk_downsampled = False
+            outputs.downsampled = False
 
         if inputs.annotation:
             star_params.extend(

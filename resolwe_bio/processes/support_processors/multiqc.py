@@ -427,7 +427,7 @@ class MultiQC(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:4.1.1"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:5.0.0"},
         },
         "resources": {
             "cores": 1,
@@ -581,7 +581,12 @@ class MultiQC(Process):
                     )
                 else:
                     count_report = "ReadsPerGene.out.tab.gz"
-                    if d.output.seqtk_downsampled == True:
+                    # Legacy data objects do not have the downsampled attribute
+                    # this is to prevent the process from failing
+                    if (
+                        hasattr(d.output, "downsampled")
+                        and d.output.downsampled == True
+                    ):
                         report = f"{bam_name}.downsampled.Log.final.out"
                     else:
                         report = f"{bam_name}.Log.final.out"
