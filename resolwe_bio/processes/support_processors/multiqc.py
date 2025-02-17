@@ -69,7 +69,9 @@ def parse_genebody_report(report):
     """Parse QoRTs gene body coverage metrics report file."""
     df = pd.read_csv(report, sep="\t", compression="gzip")
     df["QUANTILE"] *= 100
-    dict = {k: v for k, v in zip(df["QUANTILE"], df["TOTAL"])}
+    # Upper-middle-quartile plot is the preferred method of assessing gene body coverage
+    # according to QoRTs vignette
+    dict = {k: v for k, v in zip(df["QUANTILE"], df["2.upperMidQuartile"])}
     return dict
 
 

@@ -25,6 +25,8 @@ Changed
 - Calculate up to 5 principal components in ``pca`` process
 - Add an output field in ``alignment-star``
   indicating whether input reads were downsampled with Seqtk
+- Change the metric reporting gene body coverage in MultiQC
+  to align with QoRTs vignette recommendations
 
 Fixed
 -----
