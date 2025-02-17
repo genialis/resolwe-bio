@@ -13,9 +13,23 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+62.0.0 - 2025-02-17
+===================
+
+Added
+-----
 - Add support for ``Python 3.13``
 - Save test folder data using actions/upload-artifact
-- Allow staff users to create and update ``Variant``, ``VariantCall`` and 
+- Allow staff users to create and update ``Variant``, ``VariantCall`` and
   ``VariantExperiment`` objects via API endpoint
 
 Changed
@@ -41,9 +55,6 @@ Fixed
 Added
 -----
 - Allow overriding docker image prefix via environment variable
-
-Changed
--------
 
 Fixed
 -----
