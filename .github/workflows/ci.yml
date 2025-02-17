@@ -119,6 +119,7 @@ jobs:
       - name: List files in test data directory
         if: always()
         run: |
+          mkdir -p ${{ github.workspace }}/tests/.test_data
           ls -a -R ${{ github.workspace }}/tests/.test_data
 
       - name: Upload artifacts
