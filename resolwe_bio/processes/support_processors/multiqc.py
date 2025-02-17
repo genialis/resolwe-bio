@@ -69,7 +69,9 @@ def parse_genebody_report(report):
     """Parse QoRTs gene body coverage metrics report file."""
     df = pd.read_csv(report, sep="\t", compression="gzip")
     df["QUANTILE"] *= 100
-    dict = {k: v for k, v in zip(df["QUANTILE"], df["TOTAL"])}
+    # Upper-middle-quartile plot is the preferred method of assessing gene body coverage
+    # according to QoRTs vignette
+    dict = {k: v for k, v in zip(df["QUANTILE"], df["2.upperMidQuartile"])}
     return dict
 
 
@@ -77,7 +79,7 @@ def create_coverage_plot(sample_names, reports):
     """Prepare QoRTs gene body coverage plot."""
     genebody_qc_json = {
         "id": "genebody_qc",
-        "section_name": "QoRTs QC - gene body coverage information",
+        "section_name": "QoRTs QC - gene body coverage (upper-middle-quartile)",
         "plot_type": "linegraph",
         "file_format": "json",
         "pconfig": {
