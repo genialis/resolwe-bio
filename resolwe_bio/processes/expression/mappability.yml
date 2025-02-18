@@ -11,9 +11,9 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/s4q6j6e8/resolwebio/biox:2.0.0
+        image: public.ecr.aws/genialis/resolwebio/biox:2.0.0
   data_name: "Mappability ({{genome.fasta.file|basename|default('?')}}, length {{length}})"
-  version: 3.1.2
+  version: 3.1.3
   type: data:mappability:bcm
   category: Quantify
   persistence: CACHED

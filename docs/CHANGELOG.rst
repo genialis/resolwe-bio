@@ -30,6 +30,8 @@ Changed
 - Modify how ``rnanorm`` is called in ``star-quantification`` process and 
   bump Docker image version
 - Rework error handling in ``basespace-file-import``
+- Change URI of ``resolwebio/biox`` Docker image in ``mappability-bcm`` and 
+  ``expression-dicty`` processes
 
 Fixed
 -----
