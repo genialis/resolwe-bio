@@ -37,6 +37,8 @@ Fixed
 -----
 - Fix missing external files in ``basespace-file-import`` test files and
   simplify them
+- Send variants from processes in batches to avoid crash when variants list is
+  too big
 
 
 ===================
