@@ -20,6 +20,8 @@ Changed
 
 Fixed
 -----
+- Send variants from processes in batches to avoid crash when variants list is
+  too big
 
 
 ===================
