@@ -79,7 +79,7 @@ def create_coverage_plot(sample_names, reports):
     """Prepare QoRTs gene body coverage plot."""
     genebody_qc_json = {
         "id": "genebody_qc",
-        "section_name": "QoRTs QC - gene body coverage information",
+        "section_name": "QoRTs QC - gene body coverage (upper-middle-quartile)",
         "plot_type": "linegraph",
         "file_format": "json",
         "pconfig": {
