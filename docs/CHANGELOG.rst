@@ -62,6 +62,8 @@ Changed
   indicating whether input reads were downsampled
 - Change the metric reporting gene body coverage in MultiQC
   to align with QoRTs vignette recommendations
+- Add downsampled alignment as an input to MultiQC process
+  in ``workflow-bbduk-star-featurecounts-qc`` workflow
 
 Fixed
 -----

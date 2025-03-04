@@ -46,7 +46,7 @@ class WorkflowBBDukStarFcQC(Process):
     entity = {
         "type": "sample",
     }
-    version = "6.3.0"
+    version = "6.4.0"
     process_type = "data:workflow:rnaseq:featurecounts:qc"
     category = "Pipeline"
 
@@ -758,6 +758,7 @@ class WorkflowBBDukStarFcQC(Process):
                 quantification,
                 alignment_qc_rrna,
                 alignment_qc_globin,
+                alignment_downsampled,
                 idxstats,
                 qorts,
             ],

@@ -581,30 +581,24 @@ class MultiQC(Process):
                     )
                 else:
                     # Legacy data objects do not have the downsampled attribute
-                    # this is to prevent the process from failing
+                    # getattr is to prevent the process from failing
                     if getattr(d.output, "downsampled", False):
-                        downsampled_report = f"{bam_name}.downsampled.Log.final.out"
-                        create_symlink(
-                            d.output.stats.path,
-                            os.path.join(sample_dir, downsampled_report),
-                        )
+                        report = f"{bam_name}.downsampled.Log.final.out"
                     else:
                         report = f"{bam_name}.Log.final.out"
-                        alignment_count = 1
-                        alignment_dir = os.path.join(
-                            sample_dir, f"STAR_{alignment_count}"
-                        )
-                        if not os.path.isdir(alignment_dir):
-                            os.makedirs(alignment_dir)
-                        else:
-                            while os.path.isdir(alignment_dir):
-                                alignment_count += 1
-                                alignment_dir = os.path.join(
-                                    sample_dir, f"STAR_{alignment_count}"
-                                )
-                        os.makedirs(alignment_dir, exist_ok=True)
-                        dst = os.path.join(alignment_dir, report)
-                        create_symlink(d.output.stats.path, dst)
+                    alignment_count = 1
+                    alignment_dir = os.path.join(sample_dir, f"STAR_{alignment_count}")
+                    if not os.path.isdir(alignment_dir):
+                        os.makedirs(alignment_dir)
+                    else:
+                        while os.path.isdir(alignment_dir):
+                            alignment_count += 1
+                            alignment_dir = os.path.join(
+                                sample_dir, f"STAR_{alignment_count}"
+                            )
+                    os.makedirs(alignment_dir, exist_ok=True)
+                    dst = os.path.join(alignment_dir, report)
+                    create_symlink(d.output.stats.path, dst)
 
                 if d.output.gene_counts:
                     count_report = "ReadsPerGene.out.tab.gz"
