@@ -506,7 +506,7 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
     def test_salmon_quant(self):
         inputs = Path("salmon_quant", "input")
         outputs = Path("salmon_quant", "output")
-        
+
         with self.preparation_stage():
             reads = self.prepare_reads(
                 [os.path.join("salmon_quant", "input", "hs sim_reads_single.fastq.gz")]

@@ -189,27 +189,25 @@ def normalize_counts(fc_output, sample_name):
         infile=fc_output,
         sample_name=sample_name,
     )
-    
+
     exps = {"CPM": CPM, "TPM": TPM}
     for mode, TRANSFORMATION in exps.items():
         tt = raw_counts.copy(deep=True)
         tt.columns = [mode]
         tt = tt.transpose()
-        
+
         args = {}
         if mode == "TPM":
             args["gene_lengths"] = get_gene_lenghts(infile=fc_output)
-        
+
         transformed = (
-            TRANSFORMATION(**args)
-            .set_output(transform="pandas")
-            .fit_transform(tt)
+            TRANSFORMATION(**args).set_output(transform="pandas").fit_transform(tt)
         )
         transformed = transformed.transpose()
         transformed.index.name = "FEATURE_ID"
 
         exps[mode] = transformed
-    
+
     exps["RAW_COUNT"] = raw_counts
 
     return exps, feature_ids

@@ -19,7 +19,9 @@ from resolwe.flow.models.annotations import (
 from resolwe.flow.utils import dict_dot
 from resolwe.test import ProcessTestCase
 
-TEST_FILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "tests", "files"))
+TEST_FILES_DIR = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "tests", "files")
+)
 TEST_LARGE_FILES_DIR = os.path.join(TEST_FILES_DIR, "large")
 
 
@@ -49,7 +51,11 @@ def skipUnlessLargeFiles(*files):
         try:
             with open(file_path) as f:
                 if f.readline().startswith("version https://git-lfs.github.com/spec/"):
-                    return unittest.skip("Only Git LFS pointer is available for file '{}'".format(file_path))
+                    return unittest.skip(
+                        "Only Git LFS pointer is available for file '{}'".format(
+                            file_path
+                        )
+                    )
         except UnicodeDecodeError:
             # file_ is a binary file (this is expected)
             pass
@@ -90,7 +96,9 @@ class BioProcessTestCase(ProcessTestCase):
             },
         )
 
-        biospecimen_group = AnnotationGroup.objects.create(name="biospecimen_information", sort_order=2)
+        biospecimen_group = AnnotationGroup.objects.create(
+            name="biospecimen_information", sort_order=2
+        )
         AnnotationField.objects.create(
             name="organ",
             sort_order=1,
@@ -103,12 +111,16 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {"src": fn}
         return self.run_process("upload-fastq-single", inputs)
 
-    def prepare_paired_reads(self, mate1=["fw reads.fastq.gz"], mate2=["rw reads.fastq.gz"]):
+    def prepare_paired_reads(
+        self, mate1=["fw reads.fastq.gz"], mate2=["rw reads.fastq.gz"]
+    ):
         """Prepare NGS reads FASTQ."""
         inputs = {"src1": mate1, "src2": mate2}
         return self.run_process("upload-fastq-paired", inputs)
 
-    def prepare_bam(self, fn="sp_test.bam", species="Dictyostelium discoideum", build="dd-05-2009"):
+    def prepare_bam(
+        self, fn="sp_test.bam", species="Dictyostelium discoideum", build="dd-05-2009"
+    ):
         """Prepare alignment BAM."""
         inputs = {"src": fn, "species": species, "build": build}
         return self.run_process("upload-bam", inputs)
@@ -135,7 +147,9 @@ class BioProcessTestCase(ProcessTestCase):
         inputs = {"src": fn, "source": source, "species": species, "build": build}
         return self.run_process("upload-gff3", inputs)
 
-    def prepare_ref_seq(self, fn="adapters.fasta", species="Other", build="Illumina adapters"):
+    def prepare_ref_seq(
+        self, fn="adapters.fasta", species="Other", build="Illumina adapters"
+    ):
         """Prepare reference sequence FASTA."""
         return self.run_process(
             "upload-fasta-nucl",
@@ -172,7 +186,9 @@ class BioProcessTestCase(ProcessTestCase):
         expression = self.run_process("upload-expression", inputs)
         return expression
 
-    def assertDataFrameAlmostEqual(self, obj, field_path, truth_file, columns="all", **kwargs):
+    def assertDataFrameAlmostEqual(
+        self, obj, field_path, truth_file, columns="all", **kwargs
+    ):
         """Check if specified columns approximately match.
 
         Checking is done approximately for numeric types. Strings are matched
@@ -182,13 +198,13 @@ class BioProcessTestCase(ProcessTestCase):
         :type obj: ~resolwe.flow.models.Data
 
         :param field_path: Path to the field being tested. It should point to a
-        flat file (a la csv, tsv).
+            flat file (a la csv, tsv).
 
         :param truth_file: Path to the file that is consider the truth.
 
         :param columns: Which columns to test? Defaults to all.
 
-        :param **kwargs: Parameters passed to csv.DictReader, such as delimiter.
+        :param `**kwargs`: Parameters passed to csv.DictReader, such as delimiter.
         """
 
         def _read_dataframe(input_file, **kwargs):
@@ -211,7 +227,9 @@ class BioProcessTestCase(ProcessTestCase):
         test_header, test_df = _read_dataframe(input_file=test_path, **kwargs)
 
         if columns == "all":
-            self.assertEqual(truth_header, test_header, msg="Headers of files do not match.")
+            self.assertEqual(
+                truth_header, test_header, msg="Headers of files do not match."
+            )
             columns = truth_header
 
         for column in columns:
@@ -229,7 +247,9 @@ class BioProcessTestCase(ProcessTestCase):
                 pass
 
             self.assertAlmostEqualGeneric(
-                truthy, testy, msg=f"Column {column} may not be equal enough.\ntruth: {truthy}\ntest: {testy}"
+                truthy,
+                testy,
+                msg=f"Column {column} may not be equal enough.\ntruth: {truthy}\ntest: {testy}",
             )
 
 
@@ -256,10 +276,16 @@ class KBBioProcessTestCase(BioProcessTestCase, LiveServerTestCase):
         """Set up test gene information knowledge base, create collection."""
         super().setUp()
 
-        self.collection = Collection.objects.create(name="Test collection", contributor=self.admin)
+        self.collection = Collection.objects.create(
+            name="Test collection", contributor=self.admin
+        )
 
-        call_command("insert_features", os.path.join(TEST_FILES_DIR, "features_gsea.tab.zip"))
-        call_command("insert_mappings", os.path.join(TEST_FILES_DIR, "mappings_gsea.tab.zip"))
+        call_command(
+            "insert_features", os.path.join(TEST_FILES_DIR, "features_gsea.tab.zip")
+        )
+        call_command(
+            "insert_mappings", os.path.join(TEST_FILES_DIR, "mappings_gsea.tab.zip")
+        )
 
     def run_process(self, *args, **kwargs):
         """Run processes in collection."""

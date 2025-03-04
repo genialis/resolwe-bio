@@ -640,7 +640,7 @@ class VariantCallingTestCase(BioProcessTestCase):
             "gatk-variant-filtration-single", filtering_error, Data.STATUS_ERROR
         )
         error_msg = [
-            ("The number of filter expressions and filter names is not the same.")
+            "The number of filter expressions and filter names is not the same."
         ]
         self.assertEqual(filtering.process_error, error_msg)
 

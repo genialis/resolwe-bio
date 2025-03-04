@@ -158,14 +158,14 @@ class ImportProcessorTestCase(BioProcessTestCase):
     @tag_process("basespace-file-import")
     def external_test_basespace_import(self):
         """All files used in this test were uploaded to a BaseSpace account.
-        
+
         To recreate the testing files workflow in this test:
         - create a (new) account if needed
         - create App at developer.basespace.illumina.com (use defaults)
         - grant access to the data using the following command:
           curl POST -d "response_type=device_code" -d "client_id=X" -d "scope=read project Y" https://api.basespace.illumina.com/v1pre3/oauthv2/deviceauthorization
           where X is the client ID found in the app and Y is project ID found on BaseSpace
-          (hover over link). Click the verification_with_code_uri URL provided by the 
+          (hover over link). Click the verification_with_code_uri URL provided by the
           response and follow the instructions in the browser
         - upload fastq file as a Samples (no need for a Biosample)
         - view file IDs by authenticating as needed on the frontend and then visiting

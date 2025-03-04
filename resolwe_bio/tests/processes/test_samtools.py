@@ -64,7 +64,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             "bam": bam.id,
         }
         samtools = self.run_process("samtools-view", inputs, Data.STATUS_ERROR)
-        error_msg = [("No region or BED file specified.")]
+        error_msg = ["No region or BED file specified."]
         self.assertEqual(samtools.process_error, error_msg)
 
         inputs = {

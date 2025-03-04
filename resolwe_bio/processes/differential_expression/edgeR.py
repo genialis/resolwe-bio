@@ -100,8 +100,7 @@ class EdgeR(Process):
         )
         logfc = FloatField(
             label="Log2 fold change threshold for gene sets",
-            description="Genes above Log2FC are considered as "
-            "up-regulated and genes below -Log2FC as down-regulated.",
+            description="Genes above Log2FC are considered as up-regulated and genes below -Log2FC as down-regulated.",
             default=1.0,
             hidden="!create_sets",
         )
@@ -161,13 +160,11 @@ class EdgeR(Process):
                 )
             if exp.output.species != expressions[0].output.species:
                 self.error(
-                    "Input samples are of different Species: "
-                    f"{exp.output.species} and {expressions[0].output.species}."
+                    f"Input samples are of different Species: {exp.output.species} and {expressions[0].output.species}."
                 )
             if exp.output.build != expressions[0].output.build:
                 self.error(
-                    "Input samples are of different Panel types: "
-                    f"{exp.output.build} and {expressions[0].output.build}."
+                    f"Input samples are of different Panel types: {exp.output.build} and {expressions[0].output.build}."
                 )
             if exp.output.feature_type != expressions[0].output.feature_type:
                 self.error(
