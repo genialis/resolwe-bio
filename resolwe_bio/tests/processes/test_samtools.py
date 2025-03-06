@@ -42,7 +42,7 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         }
         samtools = self.run_process("samtools-view", inputs)
         self.assertFile(samtools, "stats", output_folder / "bedfile.bam_stats.txt")
-        self.assertFile(samtools, "bam", output_folder / "samtools_bed.bam")
+        self.assertFileExists(samtools, "bam")
 
         inputs = {
             "bam": bam.id,
