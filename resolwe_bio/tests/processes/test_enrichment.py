@@ -6,7 +6,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class EnrichmentProcessorTestCase(KBBioProcessTestCase):
+class EnrichmentGoDictyTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("goenrichment")
     def test_go_enrichment_dicty(self):
@@ -61,6 +61,8 @@ class EnrichmentProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(enrichment.process_warning, warning_msg)
         self.assertEqual(enrichment.process_error, error_msg)
 
+
+class EnrichmentDictyTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("goenrichment")
     def test_go_enrichment(self):

@@ -5,7 +5,7 @@ from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class FilesToReadsTestCase(BioProcessTestCase):
+class FilesToReadsSingleTestCase(BioProcessTestCase):
     @tag_process("upload-file", "files-to-fastq-single")
     def test_files_fq_single(self):
         input_folder = Path("test_fastq_upload") / "input"
@@ -62,6 +62,8 @@ class FilesToReadsTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class FilesToReadsPairedTestCase(BioProcessTestCase):
     @tag_process("upload-file", "files-to-fastq-paired")
     def test_files_fq_paired(self):
         input_folder = Path("test_fastq_upload") / "input"

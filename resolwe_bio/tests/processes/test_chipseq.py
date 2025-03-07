@@ -10,8 +10,7 @@ from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
-class ChipSeqProcessorTestCase(BioProcessTestCase):
-    fixtures = ["relationtypes.yaml"]
+class ChipSeqMacs14TestCase(BioProcessTestCase):
 
     @tag_process("macs14")
     def test_macs14(self):
@@ -41,6 +40,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(macs14, "summits_tbi_jbrowse", "macs14_summits.gz.tbi")
         self.assertFile(macs14, "treat_bigwig", "macs14_treat.bw")
 
+
+class ChipSeqMacsCallpeakTestCase(BioProcessTestCase):
     @tag_process("macs2-callpeak", "archive-samples")
     def test_macs2(self):
         base_folder = Path("macs2")
@@ -220,6 +221,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         ]
         self.assertEqual(macs_fraglen.process_warning, warning_msg)
 
+
+class ChipSeqRose2TestCase(BioProcessTestCase):
     @skipUnlessLargeFiles("rose2_case.bam", "rose2_control.bam")
     @tag_process("rose2")
     def test_rose2(self):
@@ -273,6 +276,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             file_filter=filter_created,
         )
 
+
+class ChipSeqPrepeakQCTestCase(BioProcessTestCase):
     @tag_process("qc-prepeak")
     def test_qc_prepeak(self):
         with self.preparation_stage():
@@ -329,6 +334,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFile(
             prepeak, "tagalign", "prepeak_pe_tn5.tagAlign.gz", compression="gzip"
         )
+
+
+class ChipSeqMacs2BatchTestCase(BioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @tag_process("macs2-batch")
     def test_macs2_batch(self):
@@ -469,6 +478,10 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
         self.assertFileExists(macs2, "control_lambda")
         self.assertFileExists(macs2, "control_lambda_bigwig")
 
+
+class ChipSeqMacsRoseTestCase(BioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
+
     @tag_process("macs2-rose2-batch")
     def test_macs2_rose2_batch(self):
         with self.preparation_stage():
@@ -546,6 +559,8 @@ class ChipSeqProcessorTestCase(BioProcessTestCase):
             file_filter=filter_created,
         )
 
+
+class ChipSeqChipQCTestCase(BioProcessTestCase):
     @tag_process("chipqc")
     def test_chipqc(self):
         with self.preparation_stage():
@@ -704,6 +719,8 @@ re-save build "hg19"
         self.assertFileExists(chipqc_macs14, "ccplot")
         self.assertFileExists(chipqc_macs14, "peak_profile")
 
+
+class ChipSeqWorkflowSubsampleAlnTestCase(BioProcessTestCase):
     @tag_process(
         "workflow-subsample-bwa-aln-single", "workflow-subsample-bwa-aln-paired"
     )

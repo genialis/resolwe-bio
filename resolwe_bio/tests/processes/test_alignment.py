@@ -7,7 +7,7 @@ from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class AlignmentProcessorTestCase(KBBioProcessTestCase):
+class AlignmentBowtieTestCase(KBBioProcessTestCase):
     @tag_process("bowtie-index", "alignment-bowtie")
     def test_bowtie(self):
         input_folder = Path("test_bowtie") / "input"
@@ -95,6 +95,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class AlignmentBowtie2TestCase(KBBioProcessTestCase):
     @tag_process("bowtie2-index", "alignment-bowtie2")
     def test_bowtie2(self):
         input_folder = Path("test_bowtie2") / "input"
@@ -182,6 +184,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             paired_end_dove, "stats", output_folder / "bowtie2_paired_end_report.txt"
         )
 
+
+class AlignmentStarTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("alignment-star-index", "alignment-star")
     def test_star(self):
@@ -358,6 +362,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class AlignmentBwaTestCase(KBBioProcessTestCase):
     @tag_process(
         "bwa-index", "alignment-bwa-aln", "alignment-bwa-sw", "alignment-bwa-mem"
     )
@@ -454,6 +460,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         sample = Sample.objects.get(data=paired_end_mem)
         self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
+
+class AlignmentBwamemTestCase(KBBioProcessTestCase):
     @tag_process("bwamem2-index", "alignment-bwa-mem2")
     def test_bwa2(self):
         input_folder = Path("test_bwa") / "input"
@@ -505,6 +513,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         sample = Sample.objects.get(data=paired_end_mem)
         self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
+
+class AlignmentBwamem2TestCase(KBBioProcessTestCase):
     @tag_process("upload-bwamem2-index", "alignment-bwa-mem2")
     def test_bwa2_upload(self):
         input_folder = Path("test_bwa") / "input"
@@ -559,6 +569,8 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         sample = Sample.objects.get(data=paired_end_mem)
         self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
+
+class AlignmentHisat2TestCase(KBBioProcessTestCase):
     @tag_process("hisat2-index", "alignment-hisat2")
     def test_hisat2(self):
         input_folder = Path("test_hisat2") / "input"

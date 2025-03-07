@@ -6,7 +6,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class ClusteringProcessTestCase(KBBioProcessTestCase):
+class ClusteringHierSamplesTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("clustering-hierarchical-samples")
     def test_sample_clustering(self):
@@ -447,6 +447,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 
+
+class ClusteringHierGenesTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("clustering-hierarchical-genes")
     def test_gene_clustering(self):
@@ -900,6 +902,8 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
         )
         self.assertEqual(test_json["linkage"], saved_json["linkage"])
 
+
+class ClusteringHierEtcTestCase(KBBioProcessTestCase):
     fixtures = ["relationtypes.yaml"]
 
     @with_resolwe_host
@@ -1317,6 +1321,10 @@ class ClusteringProcessTestCase(KBBioProcessTestCase):
             "",
             outputs / "clustering_euclidean.json.gz",
         )
+
+
+class ClusteringFindSimilarTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @with_resolwe_host
     @tag_process("find-similar")

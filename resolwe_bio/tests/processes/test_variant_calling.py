@@ -7,7 +7,7 @@ from resolwe_bio.utils.filter import filter_html, filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase, skipUnlessLargeFiles
 
 
-class VariantCallingTestCase(BioProcessTestCase):
+class VariantCallingChemutTestCase(BioProcessTestCase):
     @tag_process("vc-chemut")
     def test_variant_calling_chemut(self):
         input_folder = Path("chemut") / "input"
@@ -64,6 +64,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(variants, "build", "dd-05-2009")
         self.assertFields(variants, "species", "Dictyostelium discoideum")
 
+
+class VariantFilterChemutTestCase(BioProcessTestCase):
     @tag_process("filtering-chemut")
     def test_filtering_chemut(self):
         input_folder = Path("chemut") / "input"
@@ -125,6 +127,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         self.assertFields(filtered_variants, "build", "dd-05-2009")
         self.assertFields(filtered_variants, "species", "Dictyostelium discoideum")
 
+
+class VariantHaplotypeCallerTestCase(BioProcessTestCase):
     @skipUnlessLargeFiles("56GSID_10k.realigned.bqsrCal.bam")
     @tag_process("vc-gatk4-hc")
     def test_gatk_haplotypecaller(self):
@@ -214,6 +218,8 @@ class VariantCallingTestCase(BioProcessTestCase):
             gatk_rnaseq, "bai", output_folder / "56GSID_10k.rna-seq.gatkHC.bam.bai"
         )
 
+
+class VariantSnpeffTestCase(BioProcessTestCase):
     @tag_process("snpeff", "snpeff-single")
     def test_snpeff(self):
         with self.preparation_stage():
@@ -390,6 +396,8 @@ class VariantCallingTestCase(BioProcessTestCase):
             file_filter=filter_vcf_variable,
         )
 
+
+class VariantRefinementTestCase(BioProcessTestCase):
     @tag_process("gatk-refine-variants")
     def test_gatk_refinement(self):
         input_folder = Path("variant_refinement") / "input"
@@ -436,6 +444,8 @@ class VariantCallingTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class VariantEnsemblVepTestCase(BioProcessTestCase):
     @tag_process("ensembl-vep")
     def test_ensembl_vep(self):
         input_folder = Path("ensembl-vep") / "input"
@@ -496,6 +506,8 @@ class VariantCallingTestCase(BioProcessTestCase):
             ],
         )
 
+
+class VariantVariants2TableTestCase(BioProcessTestCase):
     @tag_process("variants-to-table")
     def test_variants_to_table(self):
         input_folder = Path("variants_to_table") / "input"
@@ -522,6 +534,8 @@ class VariantCallingTestCase(BioProcessTestCase):
         )
         self.assertFile(variants, "tsv", output_folder / "variants_to_table.tsv")
 
+
+class VariantFiltrationTestCase(BioProcessTestCase):
     @tag_process("gatk-variant-filtration", "gatk-variant-filtration-single")
     def test_variant_filtration(self):
         input_folder = Path("variant_filtration") / "input"

@@ -8,7 +8,7 @@ from resolwe.test import tag_process, with_docker_executor
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class ReadsFilteringProcessorTestCase(BioProcessTestCase):
+class ReadsFilteringTrimmomaticSingleTestCase(BioProcessTestCase):
     @tag_process("trimmomatic-single")
     def test_trimmomatic_single(self):
         with self.preparation_stage():
@@ -70,6 +70,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             ],
         )
 
+
+class ReadsFilteringTrimmomaticPairedTestCase(BioProcessTestCase):
     @tag_process("trimmomatic-paired")
     def test_trimmomatic_paired(self):
         with self.preparation_stage():
@@ -118,6 +120,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             ],
         )
 
+
+class ReadsFilteringCutadaptSingleTestCase(BioProcessTestCase):
     @tag_process("cutadapt-single")
     def test_cutadapt_single(self):
         with self.preparation_stage():
@@ -173,6 +177,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringCutadaptPairedTestCase(BioProcessTestCase):
     @tag_process("cutadapt-paired")
     def test_cutadapt_paired(self):
         with self.preparation_stage():
@@ -241,6 +247,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringCutadapt3PSingleTestCase(BioProcessTestCase):
     @tag_process("cutadapt-3prime-single")
     def test_cutadapt_3prime_single(self):
         with self.preparation_stage():
@@ -266,6 +274,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringCutadaptCorallSingleTestCase(BioProcessTestCase):
     @tag_process("cutadapt-corall-single")
     def test_cutadapt_corall_single(self):
         with self.preparation_stage():
@@ -282,6 +292,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringCutadaptCorallPairedTestCase(BioProcessTestCase):
     @tag_process("cutadapt-corall-paired")
     def test_cutadapt_corall_paired(self):
         with self.preparation_stage():
@@ -307,6 +319,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringBBDukTestCase(BioProcessTestCase):
     @with_docker_executor
     @override_settings(FLOW_PROCESS_MAX_CORES=4)
     @tag_process("bbduk-single", "bbduk-paired")
@@ -482,6 +496,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         ]
         self.assertFields(filtered_reads, "fastqc_url2", report2)
 
+
+class ReadsFilteringBamclipperTestCase(BioProcessTestCase):
     @tag_process("bamclipper")
     def test_bamclipper(self):
         species = "Homo sapiens"
@@ -515,6 +531,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(clipped, "species", species)
         self.assertFields(clipped, "build", build)
 
+
+class ReadsFilteringMarkDuplicatesTestCase(BioProcessTestCase):
     @tag_process("markduplicates")
     def test_markduplicates(self):
         species = "Homo sapiens"
@@ -561,6 +579,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(removed_md, "species", species)
         self.assertFields(removed_md, "build", build)
 
+
+class ReadsFilteringBQSRTestCase(BioProcessTestCase):
     @tag_process("bqsr")
     def test_bqsr(self):
         species = "Homo sapiens"
@@ -665,6 +685,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
                 "./bqsr/output/TP53.primerclipped.markduplicates.bam_stats.txt",
             )
 
+
+class ReadsFilteringAlignmentsieveTestCase(BioProcessTestCase):
     @tag_process("alignmentsieve")
     def test_alignmentsieve(self):
         species = "Homo sapiens"
@@ -703,6 +725,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             fn="./test_alignmentsieve/output/filtered_min_150_stats.txt",
         )
 
+
+class ReadsFilteringTrimgalorePairedTestCase(BioProcessTestCase):
     @tag_process("trimgalore-paired")
     def test_trimgalore_paired(self):
         with self.preparation_stage():
@@ -777,6 +801,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringGATKSplitNCigarTestCase(BioProcessTestCase):
     @tag_process("gatk-split-ncigar")
     def test_split_Ncigar_reads(self):
         input_folder = Path("splitNcigar_reads") / "input"
@@ -818,6 +844,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
         self.assertFields(splitNcigar, "species", species)
         self.assertFields(splitNcigar, "build", build)
 
+
+class ReadsFilteringXengsortTestCase(BioProcessTestCase):
     @tag_process("xengsort-index", "xengsort-classify")
     def test_xengsort(self):
         def filter_variable_lines(line):
@@ -980,6 +1008,8 @@ class ReadsFilteringProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class ReadsFilteringRNAseqVCPreprocessTestCase(BioProcessTestCase):
     @tag_process("rnaseq-vc-preprocess")
     def test_rnaseq_vc_preprocess(self):
         input_folder = Path("rnaseq_variantcalling") / "input"

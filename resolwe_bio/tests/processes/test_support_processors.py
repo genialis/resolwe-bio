@@ -8,13 +8,11 @@ from resolwe.test import tag_process, with_resolwe_host
 
 from resolwe_bio.models import Sample
 from resolwe_bio.utils.filter import filter_comment_lines, filter_rnaseqc_metrics
-from resolwe_bio.utils.test import KBBioProcessTestCase
+from resolwe_bio.utils.test import BioProcessTestCase, KBBioProcessTestCase
 from resolwe_bio.variants.models import Variant, VariantCall, VariantExperiment
 
 
-class SupportProcessorTestCase(KBBioProcessTestCase):
-    fixtures = ["relationtypes.yaml"]
-
+class SupportGff2GtfTestCase(BioProcessTestCase):
     @tag_process("gff-to-gtf")
     def test_gff_to_gtf(self):
         with self.preparation_stage():
@@ -31,6 +29,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             {"refs": ["tracks/annotation"], "file": "trackList.json"},
         )
 
+
+class SupportArchiveSamplesTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("archive-samples")
     def test_ars(self):
@@ -106,6 +106,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
             },
         )
 
+
+class SupportArchiveSamplesExpSetTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("archive-samples")
     def test_archive_samples_exp_set(self):
@@ -128,6 +130,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         # Structured zip files are not supported by assertFile. When implemented, add here
         # self.assertFile(_, 'archive', 'test_archive_samples_exp_set.zip', compression='zip').
 
+
+class SupportArchiveSamplesExpTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("archive-samples")
     def test_archive_samples_exp(self):
@@ -196,6 +200,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         # Structured zip files are not supported by assertFile. When implemented, add here
         # self.assertFile(_, 'archive', 'test_archive_samples_exp.zip', compression='zip').
 
+
+class SupportLibStrandTestCase(KBBioProcessTestCase):
     @tag_process("library-strandedness")
     def test_library_strandedness(self):
         with self.preparation_stage():
@@ -239,6 +245,8 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(lib_strandedness_paired, "strandedness", "IU")
         self.assertFields(lib_strandedness_paired, "fragment_ratio", 1.0)
 
+
+class SupportMultiqcDupInputsTestCase(KBBioProcessTestCase):
     @tag_process("multiqc")
     def test_multiqc_duplicate_inputs(self):
         with self.preparation_stage():
@@ -307,6 +315,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
                 },
             )
         self.assertFileExists(multiqc, "report")
+
+
+class SupportMultiqcTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @tag_process("multiqc")
     def test_multiqc(self):
@@ -428,6 +440,10 @@ class SupportProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertFileExists(multiqc, "report")
 
+
+class SupportMultiqcWGBSTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
+
     @tag_process("multiqc")
     def test_multiqc_wgbs(self):
         with self.preparation_stage():
@@ -499,6 +515,8 @@ re-save-file report "${NAME}".txt
         )
         self.assertFileExists(multiqc, "report")
 
+
+class SupportMultiqcMarkdupTestCase(KBBioProcessTestCase):
     @tag_process("multiqc")
     def test_multiqc_markdup(self):
         with self.preparation_stage():
@@ -566,6 +584,8 @@ re-save-file duplicates_report "${NAME}".txt
         )
         self.assertFileExists(multiqc, "report")
 
+
+class SupportMultiqcChipqcTestCase(KBBioProcessTestCase):
     @tag_process("multiqc")
     def test_multiqc_chipqc(self):
         with self.preparation_stage():
@@ -713,6 +733,8 @@ re-save-file case_prepeak_qc "${NAME}".txt
         )
         self.assertFileExists(multiqc, "report")
 
+
+class SupportMultiqcNanostringTestCase(KBBioProcessTestCase):
     @tag_process("multiqc")
     def test_multiqc_nanostring(self):
         with self.preparation_stage():
@@ -800,6 +822,8 @@ re-save-file lane_attributes "${NAME}".txt
         )
         self.assertFileExists(multiqc, "report")
 
+
+class SupportSeqtkSampleTestCase(BioProcessTestCase):
     @tag_process("seqtk-sample-single", "seqtk-sample-paired")
     def test_seqtk_sample(self):
         input_folder = Path("seqtk") / "input"
@@ -858,6 +882,8 @@ re-save-file lane_attributes "${NAME}".txt
             compression="gzip",
         )
 
+
+class SupportSpikeinqcTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("spikein-qc")
     def test_spikein_pairwise(self):
@@ -927,6 +953,8 @@ re-save-file lane_attributes "${NAME}".txt
 
         self.assertFileExists(sirv_set3, "report_zip")
 
+
+class SupportRNAseqcTestCase(BioProcessTestCase):
     @tag_process("rnaseqc-qc")
     def test_rnaseqc_qc(self):
         base = Path("rnaseqc")
@@ -1019,6 +1047,10 @@ re-save-file lane_attributes "${NAME}".txt
             file_filter=filter_rnaseqc_metrics,
         )
 
+
+class SupportQortsqcTestCase(BioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
+
     @tag_process("qorts-qc")
     def test_qorts_qc(self):
         with self.preparation_stage():
@@ -1071,6 +1103,8 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFileExists(qorts_report, "summary")
         self.assertFileExists(qorts_report, "qorts_data")
 
+
+class SupportSamtoolsIdxstatsTestCase(BioProcessTestCase):
     @tag_process("samtools-idxstats")
     def test_samtools_idxstats(self):
         with self.preparation_stage():
@@ -1081,6 +1115,8 @@ re-save-file lane_attributes "${NAME}".txt
         idxstats = self.run_process("samtools-idxstats", {"alignment": alignment.id})
         self.assertFile(idxstats, "report", "samtools_idxstats_report.txt")
 
+
+class SupportUMIToolsDedupTestCase(BioProcessTestCase):
     @tag_process("umi-tools-dedup")
     def test_umi_tools_dedup(self):
         with self.preparation_stage():
@@ -1108,6 +1144,8 @@ re-save-file lane_attributes "${NAME}".txt
         dedup_paired = self.run_process("umi-tools-dedup", {"alignment": bam_paired.id})
         self.assertFile(dedup_paired, "stats", "./corall/output/dedup_paired_stats.txt")
 
+
+class SupportAlignmentSummaryTestCase(BioProcessTestCase):
     @tag_process("alignment-summary")
     def test_alignment_summary(self):
         with self.preparation_stage():
@@ -1145,6 +1183,8 @@ re-save-file lane_attributes "${NAME}".txt
             file_filter=filter_comment_lines,
         )
 
+
+class SupportInsertSizeTestCase(BioProcessTestCase):
     @tag_process("insert-size")
     def test_insert_size(self):
         with self.preparation_stage():
@@ -1176,6 +1216,8 @@ re-save-file lane_attributes "${NAME}".txt
             file_filter=filter_comment_lines,
         )
 
+
+class SupportWGSMetricsTestCase(KBBioProcessTestCase):
     @tag_process("wgs-metrics")
     def test_wgs_metrics(self):
         with self.preparation_stage():
@@ -1208,6 +1250,8 @@ re-save-file lane_attributes "${NAME}".txt
             file_filter=filter_comment_lines,
         )
 
+
+class SupportRRBSMetricsTestCase(BioProcessTestCase):
     @tag_process("rrbs-metrics")
     def test_rrbs_metrics(self):
         with self.preparation_stage():
@@ -1240,6 +1284,10 @@ re-save-file lane_attributes "${NAME}".txt
             rrbs_metrics,
             "report",
         )
+
+
+class SupportMergeFastqTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @tag_process("merge-fastq-single", "merge-fastq-paired")
     def test_merge_fastq(self):
@@ -1342,6 +1390,8 @@ re-save-file lane_attributes "${NAME}".txt
             compression="gzip",
         )
 
+
+class SupportBedtoolsBam2BedTestCase(BioProcessTestCase):
     @tag_process("bedtools-bamtobed")
     def test_bedtools_bamtobed(self):
         with self.preparation_stage():
@@ -1368,6 +1418,8 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFields(bed, "species", species)
         self.assertFields(bed, "build", build)
 
+
+class SupportScaleBigwigTestCase(BioProcessTestCase):
     @tag_process("calculate-bigwig")
     def test_scale_bigwig(self):
         base = Path("bam_processing")
@@ -1427,6 +1479,8 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertFields(bigwig, "species", species)
         self.assertFields(bigwig, "build", build)
 
+
+class SupportBam2FastqPairedTestCase(BioProcessTestCase):
     @tag_process("bamtofastq-paired")
     def test_bamtofastq_paired(self):
         base = Path("bamtofastq")
@@ -1460,6 +1514,10 @@ re-save-file lane_attributes "${NAME}".txt
             [outputs / "output_reads_mate2.fastq.gz"],
             compression="gzip",
         )
+
+
+class SupportReportVariantsTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @tag_process("mutations-table")
     def test_report_variants(self):
@@ -1741,6 +1799,8 @@ re-save-file lane_attributes "${NAME}".txt
         self.assertEqual(variant_call_1.depth_norm_quality, 23.66)
         self.assertEqual(variant_call_1.filter, "DP")
 
+
+class SupportGtf2BedTestCase(BioProcessTestCase):
     @tag_process("gtf-to-bed")
     def test_gtf_to_bed(self):
         with self.preparation_stage():
