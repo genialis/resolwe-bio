@@ -6,7 +6,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class DiffExpProcessorTestCase(KBBioProcessTestCase):
+class DiffExpCuffdiffTestCase(KBBioProcessTestCase):
     @tag_process("cuffdiff")
     def test_cuffdiff(self):
         with self.preparation_stage():
@@ -57,6 +57,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(gene_set, "species", "Homo sapiens")
         self.assertFields(gene_set, "source", "UCSC")
 
+
+class DiffExpDeseq2GenesTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_genes(self):
@@ -119,6 +121,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(diff_exp, "build", "dd-05-2009")
         self.assertFields(diff_exp, "feature_type", "gene")
 
+
+class DiffExpDeseq2SourceTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_source(self):
@@ -130,6 +134,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
 
         self.run_process("differentialexpression-deseq2", inputs, Data.STATUS_ERROR)
 
+
+class DiffExpDeseq2BuildTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_build(self):
@@ -146,6 +152,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         error_msg = ["Input samples are of different Build: dd-42-2009 and dd-05-2009."]
         self.assertEqual(deseq2.process_error, error_msg)
 
+
+class DiffExpDeseq2ExpErrorTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_expression_error(self):
@@ -180,6 +188,8 @@ class DiffExpProcessorTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(deseq2.process_error, error_msg)
 
+
+class DiffExpDeseq2NanostringTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2")
     def test_deseq2_nanostring(self):
@@ -290,6 +300,8 @@ re-save feature_type "gene"
         self.assertFields(diff_exp, "build", "dd-05-2009")
         self.assertFields(diff_exp, "feature_type", "gene")
 
+
+class DiffExpMicroarrayTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-deseq2", "differentialexpression-edger")
     def test_de_microarray(self):
@@ -352,6 +364,8 @@ re-save name name
         self.assertEqual(deseq2.process_error, error_msg)
         self.assertEqual(edger.process_error, error_msg)
 
+
+class DiffExpEdgerTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("differentialexpression-edger")
     def test_edger(self):

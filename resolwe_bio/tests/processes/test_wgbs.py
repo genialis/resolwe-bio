@@ -6,7 +6,7 @@ from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class WgbsProcessorTestCase(BioProcessTestCase):
+class WgbsWaltIndexTestCase(BioProcessTestCase):
     @tag_process("walt-index")
     def test_walt_index(self):
         with self.preparation_stage():
@@ -35,6 +35,8 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         self.assertFields(walt_index, "species", "Dictyostelium discoideum")
         self.assertFields(walt_index, "build", "dd-05-2009")
 
+
+class WgbsWaltTestcase(BioProcessTestCase):
     @tag_process("walt")
     def test_walt(self):
         with self.preparation_stage():
@@ -71,6 +73,8 @@ class WgbsProcessorTestCase(BioProcessTestCase):
         self.assertFields(walt, "species", "Homo sapiens")
         self.assertFields(walt, "build", "hg19")
 
+
+class WgbsMethcountsTestCase(BioProcessTestCase):
     @tag_process("methcounts")
     def test_methcounts(self):
         with self.preparation_stage():
@@ -144,6 +148,8 @@ re-save build 'hg19'
         self.assertFields(methcounts, "species", "Homo sapiens")
         self.assertFields(methcounts, "build", "hg19")
 
+
+class WgbsHMRTestCase(BioProcessTestCase):
     @tag_process("hmr")
     def test_hmr(self):
         with self.preparation_stage():
@@ -209,6 +215,8 @@ re-save build 'hg19'
         self.assertFields(hmr, "species", "Homo sapiens")
         self.assertFields(hmr, "build", "hg19")
 
+
+class WgbsBsrateTestCase(BioProcessTestCase):
     @tag_process("bs-conversion-rate")
     def test_bsrate(self):
         with self.preparation_stage():
