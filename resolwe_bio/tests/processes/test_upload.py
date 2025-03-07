@@ -4,10 +4,14 @@ from pathlib import Path
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
-from resolwe_bio.utils.test import KBBioProcessTestCase, skipUnlessLargeFiles
+from resolwe_bio.utils.test import (
+    BioProcessTestCase,
+    KBBioProcessTestCase,
+    skipUnlessLargeFiles,
+)
 
 
-class UploadProcessorTestCase(KBBioProcessTestCase):
+class UploadBamTestCase(BioProcessTestCase):
     @tag_process("upload-bam", "upload-bam-indexed")
     def test_bam_upload(self):
         base_input = Path("test_bam")
@@ -75,6 +79,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(obj=upload_bam, path="species", value="Homo sapiens")
         self.assertFields(obj=upload_bam, path="build", value="hg19")
 
+
+class UploadExpTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("upload-expression")
     def test_upload_expression(self):
@@ -278,6 +284,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(exp_13, "rc", {"file": "exp.1_rc.tab.gz", "total_size": 99})
         self.assertFields(exp_13, "exp", {"file": "exp.1_rc.tab.gz", "total_size": 99})
 
+
+class UploadCuffquantTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("upload-cxb", "upload-expression-cuffnorm")
     def test_upload_cuffquant_expr(self):
@@ -301,6 +309,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class UploadFastqPairedTestCase(KBBioProcessTestCase):
     @tag_process("upload-fastq-paired")
     def test_upload_paired_end_reads(self):
         input_folder = Path("test_fastq_upload") / "input"
@@ -472,6 +482,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         }
         reads = self.run_process("upload-fastq-paired", inputs, Data.STATUS_ERROR)
 
+
+class UploadFastqSingleTestCase(KBBioProcessTestCase):
     @tag_process("upload-fastq-single")
     def test_upload_single_end_reads(self):
         input_folder = Path("test_fastq_upload") / "input"
@@ -595,6 +607,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class UploadDiffExpTestCase(BioProcessTestCase):
     @tag_process("upload-diffexp")
     def test_upload_de(self):
         inputs = {
@@ -631,6 +645,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(diff_bad.process_error, error_msg)
 
+
+class UploadDiffExpCheckFieldTypeTestCase(BioProcessTestCase):
     @tag_process("upload-diffexp")
     def test_upload_de_check_field_type(self):
         inputs = {
@@ -652,6 +668,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(test_json, saved_json)
         all(self.assertIsInstance(gene, str) for gene in test_json["gene_id"])
 
+
+class UploadBedTestCase(BioProcessTestCase):
     @tag_process("upload-bed")
     def test_upload_bed(self):
         inputs = {"src": "bad.bed", "species": "Homo sapiens", "build": "hg19"}
@@ -662,6 +680,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFile(bed, "bed", "good.bed")
         self.assertFile(bed, "tbi_jbrowse", "good.bed.gz.tbi")
 
+
+class UploadGenesetTestCase(BioProcessTestCase):
     @tag_process("upload-geneset")
     def test_upload_geneset(self):
         inputs = {"src": "geneset.tab.gz", "source": "UCSC", "species": "Homo sapiens"}
@@ -673,6 +693,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertJSON(geneset, geneset.output["geneset_json"], "", "geneset.json.gz")
         self.assertEqual(geneset.descriptor_schema.slug, "geneset")
 
+
+class UploadCreateGenesetTestcase(BioProcessTestCase):
     @tag_process("create-geneset")
     def test_create_geneset(self):
         inputs = {
@@ -704,6 +726,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertEqual(geneset_2.process_warning[0], "Removed duplicated genes.")
         self.assertEqual(geneset_2.descriptor_schema.slug, "geneset")
 
+
+class UploadReformatSingleTestCase(KBBioProcessTestCase):
     @tag_process("upload-fastq-single")
     def test_upload_reformating_single(self):
         inputs = {"src": ["old_encoding.fastq.gz"]}
@@ -712,6 +736,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             reads, "fastq", ["old_encoding_transformed.fastq.gz"], compression="gzip"
         )
 
+
+class UploadReformatPairedTestCase(KBBioProcessTestCase):
     @tag_process("upload-fastq-paired")
     def test_upload_reformating_paired(self):
         inputs = {
@@ -735,6 +761,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class UploadNuclSeqTestCase(KBBioProcessTestCase):
     @tag_process("upload-fasta-nucl")
     def test_upload_nucl_seq(self):
         self.run_process(
@@ -842,6 +870,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         ]
         self.assertEqual(incomplete.process_error, error_msg)
 
+
+class UploadVcfTestCase(KBBioProcessTestCase):
     @tag_process("upload-variants-vcf")
     def test_upload_vcf(self):
         vcf = self.run_process(
@@ -857,6 +887,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(vcf, "species", "Homo sapiens")
         self.assertFields(vcf, "build", "b37")
 
+
+class UploadGff3TestCase(KBBioProcessTestCase):
     @tag_process("upload-gff3")
     def test_upload_gff3(self):
         inputs = {
@@ -886,6 +918,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(upload_gff3, "species", "Solanum tuberosum")
         self.assertFields(upload_gff3, "build", "ST")
 
+
+class UploadGtfTestCase(KBBioProcessTestCase):
     @tag_process("upload-gtf")
     def test_upload_gtf(self):
         inputs = {
@@ -915,6 +949,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(upload_gtf, "species", "Homo Sapiens")
         self.assertFields(upload_gtf, "build", "hg19")
 
+
+class UploadBedpeTestCase(BioProcessTestCase):
     @tag_process("upload-bedpe")
     def test_upload_bedpe(self):
         species = "Homo sapiens"
@@ -929,6 +965,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(bedpe, "species", species)
         self.assertFields(bedpe, "build", build)
 
+
+class UploadIdatTestCase(KBBioProcessTestCase):
     @skipUnlessLargeFiles(
         "6042316072_R03C01_Red.idat.gz", "6042316072_R03C01_Grn.idat.gz"
     )
@@ -975,6 +1013,8 @@ class UploadProcessorTestCase(KBBioProcessTestCase):
         )
         self.run_process("upload-idat", inputs, Data.STATUS_ERROR)
 
+
+class UploadVepCacheTestCase(BioProcessTestCase):
     @tag_process("upload-vep-cache")
     def test_upload_vep_cache(self):
         input_folder = Path("ensembl-vep") / "input"
