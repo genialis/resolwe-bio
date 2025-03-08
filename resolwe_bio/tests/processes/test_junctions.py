@@ -3,7 +3,7 @@ from resolwe.test import tag_process, with_resolwe_host
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class JunctionsProcessorTestCase(KBBioProcessTestCase):
+class JunctionsRegtoolsTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("regtools-junctions-annotate")
     def test_regtools_annotate(self):
@@ -93,6 +93,8 @@ class JunctionsProcessorTestCase(KBBioProcessTestCase):
             junctions_bed, "novel_splice_junctions", "regtools_novel_SJ.txt"
         )
 
+
+class JunctionsNoSJTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("regtools-junctions-annotate")
     def test_no_sj_inputs(self):

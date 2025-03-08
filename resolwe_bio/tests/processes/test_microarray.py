@@ -12,7 +12,7 @@ from resolwe_bio.utils.test import (
 )
 
 
-class MicroarrayProcessorTestCase(KBBioProcessTestCase):
+class MicroarrayUploadTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("upload-microarray-expression", "mapped-microarray-expression")
     def test_microarray_upload(self):
@@ -69,6 +69,8 @@ class MicroarrayProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(mapped, "feature_type", "gene")
         self.assertFields(mapped, "probe_mapping", "affy_hg_u133_plus_2")
 
+
+class MicroarrayProbeMappingTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("map-microarray-probes")
     def test_probe_mapping(self):
