@@ -29,4 +29,6 @@ class ProcessBio(Process):
 
     def add_variants_annotations(self, variants: List[Dict[str, Any]]):
         """Add variants annotations to the database."""
-        return communicator.add_variants_annotations(variants)
+        BATCH_SIZE = 1000
+        for i in range(0, len(variants), BATCH_SIZE):
+            communicator.add_variants_annotations(variants[i : i + BATCH_SIZE])
