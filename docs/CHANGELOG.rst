@@ -32,6 +32,7 @@ Changed
 - Rework error handling in ``basespace-file-import``
 - Change URI of ``resolwebio/biox`` Docker image in ``mappability-bcm`` and 
   ``expression-dicty`` processes
+- Fix genebody coverage plot in ``multiqc`` process
 
 Fixed
 -----

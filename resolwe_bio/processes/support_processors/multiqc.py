@@ -69,6 +69,7 @@ def parse_genebody_report(report):
     """Parse QoRTs gene body coverage metrics report file."""
     df = pd.read_csv(report, sep="\t", compression="gzip")
     df["QUANTILE"] *= 100
+    df["QUANTILE"] = df["QUANTILE"].round(1)
     # Upper-middle-quartile plot is the preferred method of assessing gene body coverage
     # according to QoRTs vignette
     dict = {k: v for k, v in zip(df["QUANTILE"], df["2.upperMidQuartile"])}
@@ -85,6 +86,7 @@ def create_coverage_plot(sample_names, reports):
         "pconfig": {
             "ylab": "Proportion of Read-Pairs",
             "xlab": "Percentile of Gene Body (5' -> 3')",
+            "categories": "true",
         },
         "data": {},
     }
@@ -439,7 +441,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.26.0"
+    version = "1.27.0"
 
     class Input:
         """Input fields to process MultiQC."""
