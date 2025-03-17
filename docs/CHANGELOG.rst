@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Allow creating multiple ``Variant`` objects with one API request
 
 Changed
 -------

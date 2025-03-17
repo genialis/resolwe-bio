@@ -661,6 +661,33 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(variant.annotation, annotation)
         self.assertTrue(annotation.transcripts.filter(pk=transcript.pk).exists())
 
+        # Test bulk create.
+        post_data = [
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 4",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 5",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+        ]
+        request = APIRequestFactory().post("/variant", post_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Variant.objects.count(), variant_count + 4)
+        self.assertTrue(Variant.objects.filter(genome_assembly="assembly 4").exists())
+        self.assertTrue(Variant.objects.filter(genome_assembly="assembly 5").exists())
+
         self.contributor.is_staff = False
         self.contributor.save(update_fields=["is_staff"])
 

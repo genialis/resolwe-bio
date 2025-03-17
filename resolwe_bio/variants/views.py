@@ -54,6 +54,12 @@ class VariantViewSet(
     filterset_class = VariantFilter
     ordering_fields = ("species", "genome_assembly", "position", "chromosome")
 
+    def get_serializer(self, *args, **kwargs):
+        """Set many to True when dealing with list data."""
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
+
 
 class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """VariantAnnotation endpoint."""
