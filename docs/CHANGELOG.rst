@@ -16,23 +16,33 @@ Added
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+63.0.0 - 2025-03-17
+===================
+
+Changed
+-------
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 44.x
 - Bump ``alignment-bowtie``'s Docker image and reorder arguments
 - Move ``differentialexpression-edger`` to ``rpkgs`` Docker image and move
   external scripts ``diffexp_filtering.R`` and ``expressionmerge.py``
   into the process
-- Change ``differentialexpression-deseq2`` process Docker image to 
+- Change ``differentialexpression-deseq2`` process Docker image to
   ``resolwebio/rpkgs``
 - Modify how ``rnanorm`` is called and bump Docker image version for
   ``feature_counts``
-- Bump Docker image version for ``salmon-quant`` and modernize 
+- Bump Docker image version for ``salmon-quant`` and modernize
   ``tximport_summarize.R`` script
-- Modify how ``rnanorm`` is called in ``star-quantification`` process and 
+- Modify how ``rnanorm`` is called in ``star-quantification`` process and
   bump Docker image version
 - Rework error handling in ``basespace-file-import``
-- Change URI of ``resolwebio/biox`` Docker image in ``mappability-bcm`` and 
+- Change URI of ``resolwebio/biox`` Docker image in ``mappability-bcm`` and
   ``expression-dicty`` processes
-- Fix genebody coverage plot in ``multiqc`` process
 
 Fixed
 -----
@@ -40,6 +50,7 @@ Fixed
   simplify them
 - Send variants from processes in batches to avoid crash when variants list is
   too big
+- Fix genebody coverage plot in ``multiqc`` process
 
 
 ===================
