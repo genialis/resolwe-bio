@@ -48,7 +48,7 @@ class VariantAnnotationSerializer(ResolweBaseSerializer):
 
         model = VariantAnnotation
         read_only_fields = ("id",)
-        update_protected_fields = ("variant_id",)
+        update_protected_fields = ("variant",)
         fields = (
             read_only_fields
             + update_protected_fields

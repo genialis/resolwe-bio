@@ -511,7 +511,7 @@ class ListenerPluginTest(TestCase):
 
         expected_annotation_1 = {
             "id": variant1.annotation.id,
-            "variant_id": variant1.id,
+            "variant": variant1.id,
             "type": "SNP",
             "clinical_diagnosis": "diagnosis 1",
             "clinical_significance": "significance 1",
@@ -532,7 +532,7 @@ class ListenerPluginTest(TestCase):
         }
         expected_annotation_2 = {
             "id": variant2.annotation.id,
-            "variant_id": variant2.id,
+            "variant": variant2.id,
             "type": "SNP",
             "clinical_diagnosis": "diagnosis 2",
             "clinical_significance": "significance 2",
@@ -551,9 +551,6 @@ class ListenerPluginTest(TestCase):
                 }
             ],
         }
-
-        print(VariantAnnotationSerializer(variant1.annotation).data)
-
         self.assertDictEqual(
             VariantAnnotationSerializer(variant1.annotation).data, expected_annotation_1
         )
@@ -1242,7 +1239,14 @@ class VariantTest(PrepareDataMixin, TestCase):
 
 class VariantAnnotationTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantAnnotationViewSet.as_view({"get": "list"})
+        self.view = VariantAnnotationViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+                "delete": "destroy",
+                "patch": "partial_update",
+            }
+        )
         self.annotations.append(
             VariantAnnotation.objects.create(
                 variant=self.variants[1],
@@ -1428,6 +1432,147 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
         response = self.view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected)
+
+    def test_create_api(self):
+        """Test the VariantAnnotation creation using the API endpoint."""
+        variant = self.variants[0]
+        variant.annotation.delete()
+        post_data = {
+            "variant": variant.id,
+            "type": "SNP",
+            "clinical_diagnosis": "clinical diagnosis 1",
+            "clinical_significance": "clinical significance 1",
+            "dbsnp_id": "dbsnp_id 1",
+            "clinvar_id": "clinical_var_id 1",
+        }
+        annotations_count = VariantAnnotation.objects.count()
+
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().post(
+            "/variant_annotation", post_data, format="json"
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotation.objects.count(), annotations_count + 1)
+        annotation = VariantAnnotation.objects.order_by("id").last()
+        self.assertEqual(annotation.variant.species, "Homo Sapiens")
+        self.assertEqual(annotation.type, "SNP")
+        self.assertEqual(annotation.clinical_diagnosis, "clinical diagnosis 1")
+        self.assertEqual(annotation.clinical_significance, "clinical significance 1")
+        self.assertEqual(annotation.dbsnp_id, "dbsnp_id 1")
+        self.assertEqual(annotation.clinvar_id, "clinical_var_id 1")
+
+        # Test bulk create.
+        post_data = [
+            {
+                "variant": self.variants[0].id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+            {
+                "variant": self.variants[1].id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+        ]
+        VariantAnnotation.objects.all().delete()
+        request = APIRequestFactory().post(
+            "/variant_annotation", post_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotation.objects.count(), 2)
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
+
+    def test_delete_api(self):
+        """Test staff user can delete variant annotations."""
+        annotations_count = VariantAnnotation.objects.count()
+        annotation_to_delete = VariantAnnotation.objects.first()
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().delete("/variant_annotation")
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(VariantAnnotation.objects.count(), annotations_count - 1)
+        with self.assertRaises(VariantAnnotation.DoesNotExist):
+            annotation_to_delete.refresh_from_db()
+
+    def test_patch_api(self):
+        """Test staff user can updating variant annotation objects."""
+        # Unauthenticated request must be denied.
+        annotation = VariantAnnotation.objects.first()
+        request = APIRequestFactory().patch("/variant_annotation")
+        response = self.view(request, pk=annotation.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+
+        patch_data: dict = {"clinvar_id": "new clinvar_id"}
+        request = APIRequestFactory().patch(
+            "/variant_annotation", patch_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation.pk)
+        annotation.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(annotation.clinvar_id, "new clinvar_id")
 
 
 class VariantCallTest(PrepareDataMixin, TestCase):

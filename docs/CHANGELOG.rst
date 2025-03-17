@@ -14,7 +14,7 @@ Unreleased
 Added
 -----
 - Allow creating multiple ``Variant`` objects with one API request
-
+- Allow creating, updating and deleting ``VariantAnnotation`` objects via API
 Changed
 -------
 

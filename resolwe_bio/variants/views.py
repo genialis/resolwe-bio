@@ -61,12 +61,19 @@ class VariantViewSet(
         return super().get_serializer(*args, **kwargs)
 
 
-class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class VariantAnnotationViewSet(
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     """VariantAnnotation endpoint."""
 
     queryset = VariantAnnotation.objects.all()
     serializer_class = VariantAnnotationSerializer
     filter_backends = [filters.rest_framework.DjangoFilterBackend, OrderingFilter]
+    permission_classes = (IsStaffOrReadOnly,)
 
     filterset_class = VariantAnnotationFilter
     ordering_fields = (
@@ -75,6 +82,12 @@ class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         "transcripts__annotation",
         "clinical_significance",
     )
+
+    def get_serializer(self, *args, **kwargs):
+        """Set many to True when dealing with list data."""
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
 
 
 class VariantCallViewSet(
