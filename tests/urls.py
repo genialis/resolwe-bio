@@ -7,6 +7,7 @@ from resolwe.flow.views import EntityViewSet
 from resolwe_bio.filters import BioEntityFilter
 from resolwe_bio.kb.views import FeatureViewSet, MappingSearchViewSet
 from resolwe_bio.variants.views import (
+    VariantAnnotationTranscriptViewSet,
     VariantAnnotationViewSet,
     VariantCallViewSet,
     VariantExperimentViewSet,
@@ -21,6 +22,7 @@ api_router = routers.DefaultRouter(trailing_slash=False)
 api_router.register(r"sample", EntityViewSet)
 api_router.register(r"variant", VariantViewSet)
 api_router.register(r"variant_annotations", VariantAnnotationViewSet)
+api_router.register(r"variant_transcripts", VariantAnnotationTranscriptViewSet)
 api_router.register(r"variant_calls", VariantCallViewSet)
 api_router.register(r"variant_experiment", VariantExperimentViewSet)
 

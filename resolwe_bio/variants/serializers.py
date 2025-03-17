@@ -28,7 +28,7 @@ class VariantTranscriptSerializer(ResolweBaseSerializer):
         model = VariantAnnotationTranscript
         fields = [
             "id",
-            "variant_annotation_id",
+            "variant_annotation",
             "annotation",
             "annotation_impact",
             "gene",
