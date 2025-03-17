@@ -1435,7 +1435,7 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.data, expected)
 
     def test_create_api(self):
-        """Test the VariantAnnotation creation using the API endpoint."""
+        """Test staff user can create variant annotations."""
         variant = self.variants[0]
         variant.annotation.delete()
         post_data = {
