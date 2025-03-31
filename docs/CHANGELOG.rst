@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Fix ``feature_counts`` process to handle processing of BAM files
+  with a single read group defined
 
 
 ===================

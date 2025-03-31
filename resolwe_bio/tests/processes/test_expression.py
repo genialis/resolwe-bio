@@ -336,6 +336,15 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
                 },
             )
 
+            bam_with_read_group = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "bam_with_read_group.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38_ens90",
+                },
+            )
+
             paired_lanes = self.run_process(
                 "upload-bam",
                 {
@@ -401,6 +410,21 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "species", "Homo sapiens")
         self.assertFields(expression, "build", "GRCh38_ens90")
         self.assertFields(expression, "feature_type", "gene")
+
+        # test using bam with a single read group defined
+        expression_with_rg = self.run_process(
+            "feature_counts",
+            {
+                "aligned_reads": bam_with_read_group.id,
+                "annotation": annotation_gtf.id,
+            },
+        )
+        self.assertFile(
+            obj=expression_with_rg,
+            field_path="rc",
+            fn=outputs / "feature_counts_out_rc_with_rg.tab.gz",
+            compression="gzip",
+        )
 
         # test using BAM file containing single-end reads and a GFF input file
         expression = self.run_process(

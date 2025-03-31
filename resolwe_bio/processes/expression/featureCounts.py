@@ -59,7 +59,7 @@ def get_gene_counts(infile, sample_name):
         return_columns = "sum_count"
         exp[return_columns] = exp[filter_col].sum(axis=1)
     else:
-        return_columns = sample_name
+        return_columns = filter_col[0]
 
     exp = exp.astype({return_columns: int})
 
@@ -245,7 +245,7 @@ class FeatureCounts(ProcessBio):
         },
     }
     data_name = "{{ aligned_reads|name|default('?') }}"
-    version = "6.2.0"
+    version = "6.2.1"
     process_type = "data:expression:featurecounts"
     category = "Quantify"
     entity = {
