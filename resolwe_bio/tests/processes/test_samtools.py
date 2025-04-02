@@ -6,7 +6,7 @@ from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class SamtoolsProcessorTestCase(BioProcessTestCase):
+class SamtoolsViewTestCase(BioProcessTestCase):
     @tag_process("samtools-view")
     def test_samtools_view(self):
         input_folder = Path("samtools") / "inputs"
@@ -80,6 +80,8 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
         ]
         self.assertEqual(samtools.process_warning, warning_msg)
 
+
+class SamtoolsCoverageTestCase(BioProcessTestCase):
     @tag_process("samtools-coverage-single", "samtools-coverage-multi")
     def test_samtools_coverage(self):
         input_folder = Path("samtools") / "inputs"
@@ -152,6 +154,8 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             "samtools-coverage-single", inputs, Data.STATUS_ERROR
         )
 
+
+class SamtoolsBedCovTestCase(BioProcessTestCase):
     @tag_process("samtools-bedcov")
     def test_samtools_bedcov(self):
         input_folder = Path("samtools") / "inputs"
@@ -195,6 +199,8 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class SamtoolsDepthTestCase(BioProcessTestCase):
     @tag_process("samtools-depth-single")
     def test_samtools_depth_single(self):
         input_folder = Path("samtools") / "inputs"
@@ -223,6 +229,8 @@ class SamtoolsProcessorTestCase(BioProcessTestCase):
             compression="gzip",
         )
 
+
+class SamtoolsMpileupTestCase(BioProcessTestCase):
     @tag_process("samtools-mpileup-single")
     def test_samtools_mpileup_single(self):
         input_folder = Path("samtools") / "inputs"

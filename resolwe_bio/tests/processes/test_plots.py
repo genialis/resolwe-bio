@@ -4,7 +4,7 @@ from resolwe.test import tag_process
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class PlotsProcessorTestCase(BioProcessTestCase):
+class PlotsBamplotTestCase(BioProcessTestCase):
     @tag_process("bamplot")
     def test_bamplot(self):
         with self.preparation_stage():
@@ -67,6 +67,8 @@ class PlotsProcessorTestCase(BioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
+
+class PlotsBamliquidatorTestCase(BioProcessTestCase):
     @tag_process("bamliquidator")
     def test_bamliquidator(self):
         with self.preparation_stage():
