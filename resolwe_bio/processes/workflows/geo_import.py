@@ -152,7 +152,7 @@ class GeoImport(Process):
         },
     }
     data_name = "{{ gse_accession }}"
-    version = "2.9.1"
+    version = "2.9.2"
     process_type = "data:geo"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
@@ -368,16 +368,21 @@ class GeoImport(Process):
                 f"GEO series accessions (GSE) are supported but {inputs.gse_accession} was provided."
             )
 
-        try:
-            gse = GEOparse.get_GEO(geo=inputs.gse_accession, destdir="./")
-        except IOError:
+        gse = None
+        for _ in range(10):
+            try:
+                time.sleep(1)
+                gse = GEOparse.get_GEO(geo=inputs.gse_accession, destdir="./")
+                break
+            except (IOError, Exception) as err:
+                self.warning(
+                    f"Download of {inputs.gse_accession} failed. GEO parse failed with {err} Retrying."
+                )
+
+        if gse is None:
             self.error(
                 f"Download of {inputs.gse_accession} failed. ID could be incorrect or the data might not be "
                 "public yet."
-            )
-        except Exception as err:
-            self.error(
-                f"Download of {inputs.gse_accession} failed. GEO parse failed with {err}"
             )
 
         supported = [
