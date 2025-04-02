@@ -19,6 +19,7 @@ Added
 
 Changed
 -------
+- Remove nested update support for ``Variant`` objects
 
 Fixed
 -----
