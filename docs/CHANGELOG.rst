@@ -21,6 +21,8 @@ Fixed
 -----
 - Fix ``feature_counts`` process to handle processing of BAM files
   with a single read group defined
+- Allow for repeated retries for GEO metadata fetching in
+  ``geo-import`` process
 
 
 ===================
