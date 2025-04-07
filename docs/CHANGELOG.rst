@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Optionally run external process tests
 
 Fixed
 -----
