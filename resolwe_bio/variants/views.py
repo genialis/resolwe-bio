@@ -21,6 +21,7 @@ from resolwe.permissions.models import Permission
 
 from resolwe_bio.variants.filters import (
     VariantAnnotationFilter,
+    VariantAnnotationTranscriptFilter,
     VariantCallFilter,
     VariantExperimentFilter,
     VariantFilter,
@@ -30,9 +31,16 @@ from resolwe_bio.variants.serializers import (
     VariantCallSerializer,
     VariantExperimentSerializer,
     VariantSerializer,
+    VariantTranscriptSerializer,
 )
 
-from .models import Variant, VariantAnnotation, VariantCall, VariantExperiment
+from .models import (
+    Variant,
+    VariantAnnotation,
+    VariantAnnotationTranscript,
+    VariantCall,
+    VariantExperiment,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -54,13 +62,26 @@ class VariantViewSet(
     filterset_class = VariantFilter
     ordering_fields = ("species", "genome_assembly", "position", "chromosome")
 
+    def get_serializer(self, *args, **kwargs):
+        """Set many to True when dealing with list data."""
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
 
-class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+
+class VariantAnnotationViewSet(
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
     """VariantAnnotation endpoint."""
 
     queryset = VariantAnnotation.objects.all()
     serializer_class = VariantAnnotationSerializer
     filter_backends = [filters.rest_framework.DjangoFilterBackend, OrderingFilter]
+    permission_classes = (IsStaffOrReadOnly,)
 
     filterset_class = VariantAnnotationFilter
     ordering_fields = (
@@ -69,6 +90,41 @@ class VariantAnnotationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         "transcripts__annotation",
         "clinical_significance",
     )
+
+    def get_serializer(self, *args, **kwargs):
+        """Set many to True when dealing with list data."""
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
+
+
+class VariantAnnotationTranscriptViewSet(
+    mixins.ListModelMixin,
+    ResolweCreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    viewsets.GenericViewSet,
+):
+    """Variant annotation transcript endpoint."""
+
+    queryset = VariantAnnotationTranscript.objects.all()
+    serializer_class = VariantTranscriptSerializer
+    filter_backends = [filters.rest_framework.DjangoFilterBackend, OrderingFilter]
+    permission_classes = (IsStaffOrReadOnly,)
+
+    filterset_class = VariantAnnotationTranscriptFilter
+    ordering_fields = (
+        "gene",
+        "protein_impact",
+        "annotation",
+        "canonical",
+    )
+
+    def get_serializer(self, *args, **kwargs):
+        """Set many to True when dealing with list data."""
+        if isinstance(kwargs.get("data", {}), list):
+            kwargs["many"] = True
+        return super().get_serializer(*args, **kwargs)
 
 
 class VariantCallViewSet(
