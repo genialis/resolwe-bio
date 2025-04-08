@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.test import tag
+
 from resolwe.flow.models import Data, Secret
 from resolwe.test import tag_process
 
@@ -9,7 +11,8 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 class ImportProcessorTestCase(BioProcessTestCase):
     @tag_process("import-sra", "import-sra-single", "import-sra-paired")
-    def external_test_sra(self):
+    @tag("external")
+    def test_sra(self):
         # single-end reads from Polyak RNA-seq demo dataset
         # prefetch needs to be disabled in tests to avoid downloading the whole SRA file bundle
         inputs = {
@@ -156,7 +159,8 @@ class ImportProcessorTestCase(BioProcessTestCase):
         )
 
     @tag_process("basespace-file-import")
-    def external_test_basespace_import(self):
+    @tag("external")
+    def test_basespace_import(self):
         """All files used in this test were uploaded to a BaseSpace account.
 
         To recreate the testing files workflow in this test:
