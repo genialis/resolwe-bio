@@ -19,6 +19,14 @@ Changed
 
 Fixed
 -----
+
+
+===================
+63.1.0 - 2025-04-14
+===================
+
+Fixed
+-----
 - Fix ``feature_counts`` process to handle processing of BAM files
   with a single read group defined
 - Allow for repeated retries for GEO metadata fetching in
