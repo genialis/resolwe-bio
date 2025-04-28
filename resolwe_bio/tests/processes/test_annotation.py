@@ -134,7 +134,7 @@ class AnnotationTestCase(BioProcessTestCase):
 
         expected_transcript = {
             "id": variant_A_T[0].annotation.transcripts.first().id,
-            "variant_annotation_id": variant_A_T[0].annotation.pk,
+            "variant_annotation": variant_A_T[0].annotation.pk,
             "annotation": "3_prime_UTR_variant",
             "annotation_impact": "MODIFIER",
             "gene": "KRAS",
@@ -145,7 +145,7 @@ class AnnotationTestCase(BioProcessTestCase):
 
         expected_annotation = {
             "id": variant_A_T[0].annotation.id,
-            "variant_id": variant_A_T[0].id,
+            "variant": variant_A_T[0].id,
             "type": "SNP",
             "clinical_diagnosis": "Noonan_syndrome",
             "clinical_significance": "Likely_benign",
