@@ -16,6 +16,9 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Require Resolwe 45.x
+- **BACKWARD INCOMPATIBLE:** Require ``Django 5.2.x`` and bump version of
+  dependencies
 
 Fixed
 -----
