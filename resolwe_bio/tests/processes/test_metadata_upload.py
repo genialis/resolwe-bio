@@ -7,7 +7,7 @@ from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class MetaDataUploadProcessorTestCase(BioProcessTestCase):
+class MetadataUploadUniqueTestCase(BioProcessTestCase):
     @tag_process("upload-metadata-unique")
     def test_upload_metadata_unique(self):
         base = Path("metadata_upload")
@@ -129,6 +129,8 @@ class MetaDataUploadProcessorTestCase(BioProcessTestCase):
         ]
         self.assertEqual(empty.process_error, error_msg)
 
+
+class MetadataUploadTestCase(BioProcessTestCase):
     @tag_process("upload-metadata")
     def test_upload_metadata(self):
         base = Path("metadata_upload")

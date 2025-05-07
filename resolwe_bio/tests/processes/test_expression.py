@@ -9,7 +9,7 @@ from resolwe_bio.expression_filters.relation import replicate_groups
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class ExpressionProcessorTestCase(KBBioProcessTestCase):
+class ExpressionCufflinksTestCase(KBBioProcessTestCase):
     fixtures = ["relationtypes.yaml"]
 
     @tag_process("cufflinks")
@@ -44,6 +44,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(cuff_exp, "build", "dd-05-2009")
         self.assertFields(cuff_exp, "source", "DICTYBASE")
 
+
+class ExpressionCuffquantTestCase(KBBioProcessTestCase):
     @tag_process("cuffquant")
     def test_cuffquant(self):
         with self.preparation_stage():
@@ -66,6 +68,10 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(cuffquant, "species", "Homo sapiens")
         self.assertFields(cuffquant, "build", "hg19")
         self.assertFields(cuffquant, "source", "UCSC")
+
+
+class ExpressionCuffnormTestCase(KBBioProcessTestCase):
+    fixtures = ["relationtypes.yaml"]
 
     @with_resolwe_host
     @tag_process("cuffnorm")
@@ -198,6 +204,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         )
         self.assertJSON(exp, exp.output["exp_set_json"], "", "cuffnorm_exp_set.json.gz")
 
+
+class ExpressionMappabilityTestCase(KBBioProcessTestCase):
     @tag_process("mappability-bcm")
     def test_mappability(self):
         with self.preparation_stage():
@@ -216,6 +224,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
 
         self.assertFileExists(mappability, "mappability")
 
+
+class ExpressionDictyTestCase(KBBioProcessTestCase):
     @tag_process("expression-dicty")
     def test_expression_dicty(self):
         with self.preparation_stage():
@@ -250,6 +260,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(expression, "build", "dd-05-2009")
         self.assertFields(expression, "feature_type", "gene")
 
+
+class ExpressionMergeTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("mergeexpressions")
     def test_mergeexpression(self):
@@ -283,6 +295,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         }
         self.run_process("mergeexpressions", inputs, Data.STATUS_ERROR)
 
+
+class ExpressionFeaturecountsTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_feature_counts(self):
@@ -497,6 +511,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class ExpressionSalmonIndexTestCase(KBBioProcessTestCase):
     @tag_process("salmon-index")
     def test_salmon_index(self):
         with self.preparation_stage():
@@ -525,6 +541,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
         self.assertFields(salmon_index, "species", "Homo sapiens")
         self.assertFields(salmon_index, "build", "ens_90")
 
+
+class ExpressionSalmonQuantTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("salmon-quant")
     def test_salmon_quant(self):
@@ -626,6 +644,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class ExpressionFeaturecountsStrandTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("feature_counts")
     def test_featurecounts_strandedness(self):
@@ -712,6 +732,8 @@ class ExpressionProcessorTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class ExpressionStarQuantTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("star-quantification")
     def test_star_quantification(self):
