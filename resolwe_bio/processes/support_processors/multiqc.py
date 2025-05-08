@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yaml
 from plumbum import TEE
@@ -441,7 +442,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.27.0"
+    version = "1.28.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -488,6 +489,12 @@ class MultiQC(Process):
                 required=False,
                 description="Enter text with command-line configuration options to override the "
                 "defaults (e.g. custom_logo_url: https://www.genialis.com).",
+            )
+
+            qc_evaluation = BooleanField(
+                label="Enable QC evaluation",
+                default=False,
+                description="Evaluate QC status based on MultiQC outputs.",
             )
 
         advanced = GroupField(Advanced, label="Advanced options")
@@ -825,3 +832,82 @@ class MultiQC(Process):
 
         outputs.report = "multiqc_report.html"
         outputs.report_data = "multiqc_data"
+
+        if inputs.advanced.qc_evaluation:
+            if len(samples) != 1:
+                self.warning(
+                    "QC evaluation skipped: MultiQC process detected multiple samples."
+                )
+            else:
+                sample_name = samples[0]
+                qc_report_path = os.path.join(
+                    "multiqc_data", "multiqc_general_stats.txt"
+                )
+
+                if not os.path.exists(qc_report_path):
+                    self.warning(
+                        "QC evaluation skipped: QC report not found in MultiQC outputs."
+                    )
+                else:
+                    qc_data = pd.read_csv(qc_report_path, sep="\t")
+
+                    # Perform QC evaluation using thresholds
+                    qc_status, qc_message = self.evaluate_qc_status(qc_data)
+
+                    # Annotate sample with QC results
+                    sample = self.get_sample(sample_name)
+                    sample.set_annotation("qc.status", qc_status)
+                    sample.set_annotation("qc.message", qc_message)
+
+                    self.info("Sample QC status was reevaluated.")
+
+    def evaluate_qc_status(self, qc_data):
+        """Evaluate QC status based on thresholds."""
+        thresholds = {
+            "total_read_count_trimmed": {
+                "warning": 3e7,
+                "fail": 1e7,
+                "comparison": np.less,
+            },
+            "gc_content_trimmed": {
+                "warning": 60.0,
+                "fail": 80.0,
+                "comparison": np.greater,
+            },
+            "seq_duplication_trimmed": {
+                "warning": 75.0,
+                "fail": 90.0,
+                "comparison": np.greater,
+            },
+            "mapped_reads_percent_rRNA": {
+                "warning": 10,
+                "fail": 60,
+                "comparison": np.greater,
+            },
+            "mapped_reads_percent_globin": {
+                "warning": 3,
+                "fail": 5,
+                "comparison": np.greater,
+            },
+            "n_assigned_reads": {"warning": 1e7, "fail": 1e6, "comparison": np.less},
+        }
+
+        qc_status = "PASS"
+        qc_message = []
+
+        for field, limits in thresholds.items():
+            if field in qc_data.columns:
+                value = qc_data[field].iloc[0]
+                if limits["comparison"](value, limits["fail"]):
+                    qc_status = "FAIL"
+                    qc_message.append(
+                        f"{field.replace('_', ' ')} {value} ({'<' if limits['comparison'] == np.less else '>'}{limits['fail']})"
+                    )
+                elif limits["comparison"](value, limits["warning"]):
+                    if qc_status != "FAIL":
+                        qc_status = "WARNING"
+                    qc_message.append(
+                        f"{field.replace('_', ' ')} {value} ({'<' if limits['comparison'] == np.less else '>'}{limits['warning']})"
+                    )
+
+        return qc_status, "; ".join(qc_message)
