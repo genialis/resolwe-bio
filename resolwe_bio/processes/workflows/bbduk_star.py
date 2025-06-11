@@ -41,7 +41,7 @@ class WorkflowSTAR(Process):
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "1.7.1"
+    version = "1.8.0"
     entity = {
         "type": "sample",
     }
@@ -102,6 +102,11 @@ class WorkflowSTAR(Process):
             data_type="index:star",
             label="Indexed Globin reference sequence",
             description="Reference sequence index prepared by STAR aligner indexing tool.",
+        )
+        qc_evaluation = BooleanField(
+            label="Enable QC evaluation in MultiQC",
+            default=True,
+            description="Control whether QC evaluation and annotation is performed in the MultiQC process.",
         )
 
         class Preprocessing:
@@ -827,7 +832,11 @@ class WorkflowSTAR(Process):
                 idxstats,
                 qorts,
             ],
-            "advanced": {"dirs": True, "config": True},
+            "advanced": {
+                "dirs": True,
+                "config": True,
+                "qc_evaluation": inputs.qc_evaluation,
+            },
         }
 
         Data.create(process=BioProcess.get_latest(slug="multiqc"), input=input_multiqc)

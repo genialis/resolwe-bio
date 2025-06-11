@@ -5,6 +5,7 @@ from django.test import override_settings
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_docker_executor, with_resolwe_host
 
+from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
@@ -1007,7 +1008,7 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
             },
         }
 
-        self.run_process("workflow-bbduk-star-qc", inputs)
+        bbduk_star_qc = self.run_process("workflow-bbduk-star-qc", inputs)
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
         star_quant = Data.objects.filter(process__slug="star-quantification").last()
@@ -1084,3 +1085,6 @@ class STARRNASeqWorkflowTestCase(KBBioProcessTestCase):
         )
         multiqc = Data.objects.filter(process__slug="multiqc").last()
         self.assertFileExists(multiqc, "report")
+
+        sample = Sample.objects.get(data=bbduk_star_qc)
+        self.assertAnnotation(sample, "qc.status", "FAIL")

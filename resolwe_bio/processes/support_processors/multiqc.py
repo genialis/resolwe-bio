@@ -7,6 +7,7 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yaml
 from plumbum import TEE
@@ -415,6 +416,225 @@ def update_generalstats_table(sample_names, reports):
         json.dump(counts_json, out_file)
 
 
+def _filter_and_rename_columns(df, column_map):
+    """Filter, apply a scaling factor and rename columns based on provided specifications."""
+    selected_columns = []
+    rename_map = {}
+
+    for col in column_map:
+        names = col.get("name", [])
+        slug = col.get("slug", "")
+        scaling_factor = col.get("scaling_factor", {})
+
+        if isinstance(names, str):
+            names = [names]
+
+        for name in names:
+            if name in df.columns:
+                selected_columns.append(name)
+                rename_map[name] = slug
+                # Some column values are given a specific format (e.g. millions)
+                # and need to be scaled on a common scale
+                df[name] = df[name] * scaling_factor.get(name, 1)
+                break
+
+    df = df[selected_columns].rename(columns=rename_map)
+
+    return df
+
+
+def _aggregate_df(df, column_map, prefix=None):
+    """Perform aggregation on specified columns of a DataFrame and return a Series."""
+    agg_map = {
+        col["slug"]: (
+            # This fixes an issue where pandas mistakenly interprets "first" as a method
+            (lambda x: x.iloc[0])
+            if col["agg_func"] == "first"
+            else col["agg_func"]
+        )
+        for col in column_map
+        if col["slug"] in df.columns
+    }
+    series = df.agg(agg_map)
+
+    if prefix:
+        series = series.add_prefix(prefix)
+
+    return series
+
+
+def general_multiqc_parser(file_object, name, column_map):
+    """General parser for MultiQC files.
+
+    If the column_map argument is not specified the function will retain the original column names
+    and apply mean aggregation to the rows.
+    """
+
+    df = pd.read_csv(file_object, sep="\t", index_col=0).convert_dtypes()
+
+    if column_map:
+        df = _filter_and_rename_columns(df=df, column_map=column_map)
+    else:
+        # Mean aggregation was chosen as a default aggregation function
+        # for columns that are not specified in the column_map.
+        column_map = [{"slug": col, "agg_func": "mean"} for col in df.columns]
+
+    if df.empty:
+        return pd.Series(name=name)
+
+    series = _aggregate_df(df=df, column_map=column_map)
+
+    series.name = name
+
+    return series
+
+
+# QC column mappings for MultiQC parsing
+QC_MAPPINGS_FASTQ = [
+    {
+        "name": [
+            "FastQC (trimmed)_mqc-generalstats-fastqc_trimmed-total_sequences",
+            "fastqc_trimmed-total_sequences",
+        ],
+        "slug": "total_read_count_trimmed",
+        "type": "Int64",
+        "agg_func": "sum",
+        "scaling_factor": {"fastqc_trimmed-total_sequences": 1e6},
+    },
+    {
+        "name": [
+            "FastQC (trimmed)_mqc-generalstats-fastqc_trimmed-percent_gc",
+            "fastqc_trimmed-percent_gc",
+        ],
+        "slug": "gc_content_trimmed",
+        "type": "Float64",
+        "agg_func": "mean",
+    },
+    {
+        "name": [
+            "FastQC (trimmed)_mqc-generalstats-fastqc_trimmed-percent_duplicates",
+            "fastqc_trimmed-percent_duplicates",
+        ],
+        "slug": "seq_duplication_trimmed",
+        "type": "Float64",
+        "agg_func": "mean",
+    },
+]
+
+QC_MAPPINGS_ALIGNMENT = [
+    {
+        "name": [
+            "STAR (rRNA)_mqc-generalstats-star_rrna-uniquely_mapped_percent",
+            "star_rrna-uniquely_mapped_percent",
+        ],
+        "slug": "mapped_reads_percent_rRNA",
+        "type": "Float64",
+        "agg_func": "mean",
+    },
+    {
+        "name": [
+            "STAR (Globin)_mqc-generalstats-star_globin-uniquely_mapped_percent",
+            "star_globin-uniquely_mapped_percent",
+        ],
+        "slug": "mapped_reads_percent_globin",
+        "type": "Float64",
+        "agg_func": "mean",
+    },
+]
+
+GENERAL_QUANTIFICATION_MAP = [
+    {
+        "name": [
+            "STAR quantification_mqc-generalstats-star_quantification-Assigned_reads",
+            "custom_content-Assigned_reads",
+        ],
+        "slug": "star_assigned_reads",
+        "type": "Int64",
+        "agg_func": "sum",
+    },
+]
+
+
+def evaluate_qc_status(qc_data):
+    """Evaluate QC status based on thresholds."""
+    QC_CHECKS = [
+        {
+            "qc_field": "total_read_count_trimmed",
+            "warning": "No. of trimmed reads < 30M.",
+            "warning_threshold": 3e7,
+            "fail": "No. of trimmed reads < 10M.",
+            "fail_threshold": 1e7,
+            "comparison_fun": np.less,
+        },
+        {
+            "qc_field": "gc_content_trimmed",
+            "warning": "GC content > 60%",
+            "warning_threshold": 60.0,
+            "fail": "GC content > 80%",
+            "fail_threshold": 80.0,
+            "comparison_fun": np.greater,
+        },
+        {
+            "qc_field": "seq_duplication_trimmed",
+            "warning": "Seq. duplication rate > 75%",
+            "warning_threshold": 75.0,
+            "fail": "Seq. duplication rate > 90%",
+            "fail_threshold": 90.0,
+            "comparison_fun": np.greater,
+        },
+        {
+            "qc_field": "mapped_reads_percent_rRNA",
+            "warning": "Mapped reads to rRNA > 10%",
+            "warning_threshold": 10,
+            "fail": "Mapped reads to rRNA > 60%",
+            "fail_threshold": 60,
+            "comparison_fun": np.greater,
+        },
+        {
+            "qc_field": "mapped_reads_percent_globin",
+            "warning": "Mapped reads to globin > 3%",
+            "warning_threshold": 3,
+            "fail": "Mapped reads to globin > 5%",
+            "fail_threshold": 5,
+            "comparison_fun": np.greater,
+        },
+        {
+            "qc_field": "star_assigned_reads",
+            "warning": "No. of assigned reads < 10M",
+            "warning_threshold": 1e7,
+            "fail": "No. of assigned reads < 1M",
+            "fail_threshold": 1e6,
+            "comparison_fun": np.less,
+        },
+    ]
+
+    def _run_qc_check(row, check):
+        if check["qc_field"] not in row:
+            return 0, None
+
+        value = row[check["qc_field"]]
+        if check["comparison_fun"](value, check["fail_threshold"]):
+            return 2, check["fail"]
+        elif check["comparison_fun"](value, check["warning_threshold"]):
+            return 1, check["warning"]
+        return 0, None
+
+    qc_status = 0
+    qc_messages = []
+
+    for _, row in qc_data.iterrows():
+        for check in QC_CHECKS:
+            status, message = _run_qc_check(row, check)
+            qc_status = max(qc_status, status)
+            if message:
+                qc_messages.append(message)
+
+    qc_message = "; ".join(qc_messages) if qc_messages else "PASS"
+    qc_status_label = ["PASS", "WARNING", "FAIL"][qc_status]
+
+    return qc_status_label, qc_message
+
+
 class MultiQC(Process):
     """Aggregate results from bioinformatics analyses across many samples into a single report.
 
@@ -441,7 +661,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.27.0"
+    version = "1.28.0"
 
     class Input:
         """Input fields to process MultiQC."""
@@ -488,6 +708,12 @@ class MultiQC(Process):
                 required=False,
                 description="Enter text with command-line configuration options to override the "
                 "defaults (e.g. custom_logo_url: https://www.genialis.com).",
+            )
+
+            qc_evaluation = BooleanField(
+                label="Enable QC evaluation",
+                default=False,
+                description="Evaluate QC status based on MultiQC outputs.",
             )
 
         advanced = GroupField(Advanced, label="Advanced options")
@@ -825,3 +1051,75 @@ class MultiQC(Process):
 
         outputs.report = "multiqc_report.html"
         outputs.report_data = "multiqc_data"
+
+        if inputs.advanced.qc_evaluation:
+            self.info("Evaluating QC status based on MultiQC outputs...")
+
+            list_of_samples = []
+            for d in inputs.data:
+                try:
+                    list_of_samples.append(d.entity.id)
+                except AttributeError:
+                    pass
+
+            unique_samples = list(set(list_of_samples))
+
+            if len(unique_samples) != 1:
+                self.info(
+                    "QC evaluation skipped: all input data must belong to a single sample."
+                )
+            else:
+                sample_name = samples[0]
+                qc_report_path = os.path.join(
+                    "multiqc_data", "multiqc_general_stats.txt"
+                )
+
+                if not os.path.exists(qc_report_path):
+                    self.warning(
+                        "QC evaluation skipped: QC report not found in MultiQC outputs."
+                    )
+                else:
+                    self.info(
+                        "QC evaluation started for sample: {}".format(sample_name)
+                    )
+                    series_list = []
+                    for column_map in [
+                        QC_MAPPINGS_FASTQ,
+                        QC_MAPPINGS_ALIGNMENT,
+                        GENERAL_QUANTIFICATION_MAP,
+                    ]:
+                        series = general_multiqc_parser(
+                            qc_report_path, sample_name, column_map
+                        )
+                        series_list.append(series)
+
+                    qc_data = pd.concat(series_list, axis=0).to_frame().T
+
+                    if qc_data.empty:
+                        self.warning("QC evaluation skipped: No QC data available.")
+                        return
+
+                    num_evaluated_fields = len(qc_data.columns)
+                    self.info(f"Number of evaluated QC fields: {num_evaluated_fields}")
+
+                    qc_status, qc_message = evaluate_qc_status(qc_data)
+
+                    qc_status_annotation = d.entity.annotations["qc.status"]
+                    if qc_status_annotation is not None:
+                        self.info(
+                            "Overwriting pre-existing QC annotations for sample: {}".format(
+                                sample_name
+                            )
+                        )
+                    else:
+                        self.info(
+                            "Adding QC annotations for sample: {}".format(sample_name)
+                        )
+
+                    annotations = {
+                        "qc.status": qc_status,
+                        "qc.message": qc_message,
+                    }
+                    d.entity.annotations = annotations
+
+                    self.info("Sample QC status was reevaluated.")

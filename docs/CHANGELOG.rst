@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Extend the `multiqc` process for reporting of sample QC status
 
 Changed
 -------

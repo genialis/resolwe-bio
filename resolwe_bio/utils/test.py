@@ -106,6 +106,20 @@ class BioProcessTestCase(ProcessTestCase):
             type=AnnotationType.STRING.value,
         )
 
+        qc_group = AnnotationGroup.objects.create(name="qc", sort_order=2)
+        AnnotationField.objects.create(
+            name="status",
+            sort_order=1,
+            group=qc_group,
+            type=AnnotationType.STRING.value,
+        )
+        AnnotationField.objects.create(
+            name="message",
+            sort_order=1,
+            group=qc_group,
+            type=AnnotationType.STRING.value,
+        )
+
     def prepare_reads(self, fn=["reads.fastq.gz"]):
         """Prepare NGS reads FASTQ."""
         inputs = {"src": fn}
