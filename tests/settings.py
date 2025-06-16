@@ -187,6 +187,9 @@ REST_FRAMEWORK = {
         "resolwe.permissions.filters.ResolwePermissionsFilter",
         "django_filters.rest_framework.DjangoFilterBackend",
         "resolwe.flow.filters.OrderingFilter",
+        # Full text search filter must be the last one in the list so it can override
+        # the default order specified by the ordering filter.
+        "resolwe.flow.filters.FullTextSearchFilter",
     ),
     # Python<3.7 cannot parse iso-8601 formatted datetimes with tz-info form
     # "+01:00" (DRF default). It can only parse "+0100" form, so we need to
