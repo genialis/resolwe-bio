@@ -9,7 +9,7 @@ from resolwe_bio.models import Sample
 from resolwe_bio.utils.test import KBBioProcessTestCase
 
 
-class RNASeqWorkflowTestCase(KBBioProcessTestCase):
+class RNASeqCuffQuantWorkflowTestCase(KBBioProcessTestCase):
     @tag_process("workflow-rnaseq-cuffquant")
     def test_cuffquant_workflow(self):
         with self.preparation_stage():
@@ -34,6 +34,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
 
+
+class RNASeqBBdukStarFCQuantWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("workflow-quantseq")
     def test_bbduk_star_fc_quant_workflow(self):
@@ -174,6 +176,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(fc_paired, "source", "ENSEMBL")
         self.assertFields(fc_paired, "species", "Homo sapiens")
 
+
+class RNASeqCutadaptStarFCWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("workflow-quantseq")
     def test_cutadapt_star_fc_quant_workflow(self):
@@ -310,6 +314,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(feature_counts, "source", "ENSEMBL")
         self.assertFields(feature_counts, "species", "Homo sapiens")
 
+
+class RNASeqBBDukStarFCWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @with_docker_executor
     @override_settings(FLOW_PROCESS_MAX_CORES=4)
@@ -484,6 +490,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
             compression="gzip",
         )
 
+
+class RNASeqCorallWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("workflow-corall-single", "workflow-corall-paired")
     def test_corall(self):
@@ -612,6 +620,8 @@ class RNASeqWorkflowTestCase(KBBioProcessTestCase):
         self.assertFields(exp, "source", "ENSEMBL")
         self.assertFields(exp, "species", "Homo sapiens")
 
+
+class RNASeqSalmonWorkflowTestCase(KBBioProcessTestCase):
     @with_resolwe_host
     @tag_process("workflow-bbduk-salmon-qc")
     def test_salmon_workflow(self):

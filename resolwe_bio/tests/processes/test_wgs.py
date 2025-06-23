@@ -7,7 +7,7 @@ from resolwe_bio.utils.filter import filter_vcf_variable
 from resolwe_bio.utils.test import BioProcessTestCase
 
 
-class WgsProcessorTestCase(BioProcessTestCase):
+class WgsBwa2TestCase(BioProcessTestCase):
     @tag_process("wgs-preprocess-bwa2")
     def test_wgs_preprocess_bwa2(self):
         def filter_startedon(line):
@@ -100,6 +100,8 @@ class WgsProcessorTestCase(BioProcessTestCase):
             file_filter=filter_startedon,
         )
 
+
+class WgsGatkGvcfTestCase(BioProcessTestCase):
     @tag_process("gatk-haplotypecaller-gvcf")
     def test_gatk_hc_gvcf(self):
         base = Path("wgs")
@@ -152,6 +154,8 @@ class WgsProcessorTestCase(BioProcessTestCase):
         self.assertFields(variants, "build", "custom_build")
         self.assertFields(variants, "species", "Homo sapiens")
 
+
+class WgsGatkGenomicsdbTestCase(BioProcessTestCase):
     @tag_process("gatk-genomicsdb-import")
     def test_gatk_genomicsdb(self):
         base = Path("wgs")
@@ -259,6 +263,8 @@ re-save build "custom_build"
         self.assertFields(database2, "build", "custom_build")
         self.assertFields(database2, "species", "Homo sapiens")
 
+
+class WgsGatkGenotypegvcfsTestCase(BioProcessTestCase):
     @tag_process("gatk-genotype-gvcfs")
     def test_gatk_genotypegvcfs(self):
         base = Path("wgs")
@@ -390,6 +396,8 @@ re-save build "custom_build"
         self.assertFields(joint_variants, "build", "custom_build")
         self.assertFields(joint_variants, "species", "Homo sapiens")
 
+
+class WgsGatkMergeVcfsTestCase(BioProcessTestCase):
     @tag_process("gatk-merge-vcfs")
     def test_gatk_merge_vcfs(self):
         base = Path("wgs")
@@ -429,6 +437,8 @@ re-save build "custom_build"
         self.assertFields(merged_vcfs, "build", "custom_build")
         self.assertFields(merged_vcfs, "species", "Homo sapiens")
 
+
+class WgsGatkSelectVariantsTestCase(BioProcessTestCase):
     @tag_process("gatk-select-variants", "gatk-select-variants-single")
     def test_gatk_select_variants(self):
         base = Path("wgs")
