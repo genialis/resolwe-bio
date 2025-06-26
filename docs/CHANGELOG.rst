@@ -13,6 +13,20 @@ Unreleased
 
 Added
 -----
+
+Changed
+-------
+
+Fixed
+-----
+
+
+===================
+64.0.0 - 2025-06-26
+===================
+
+Added
+-----
 - Extend the `multiqc` process for reporting of sample QC status
 
 Changed
@@ -20,9 +34,6 @@ Changed
 - **BACKWARD INCOMPATIBLE:** Require Resolwe 45.x
 - **BACKWARD INCOMPATIBLE:** Require ``Django 5.2.x`` and bump version of
   dependencies
-
-Fixed
------
 
 
 ===================
