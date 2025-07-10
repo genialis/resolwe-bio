@@ -22,7 +22,7 @@ def main():
     with open(args.gtf_file, "w") as f:
         for line in inFile:
             line = line.strip()
-            if line[0] != "#":
+            if line and line[0] != "#":
                 # split line into columns by tab
                 data = line.split("\t")
 
