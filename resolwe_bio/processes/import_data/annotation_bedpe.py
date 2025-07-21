@@ -1,6 +1,12 @@
 """Upload BEDPE files."""
 
-from resolwe.process import FileField, Process, SchedulingClass, StringField
+from resolwe.process import (
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+    StringField,
+)
 
 
 class ImportBEDPEFile(Process):
@@ -10,7 +16,7 @@ class ImportBEDPEFile(Process):
     name = "BEDPE file"
     process_type = "data:bedpe:"
     data_name = '{{ src.file|default("?") }}'
-    version = "1.3.1"
+    version = "1.3.2"
     category = "Import"
     requirements = {
         "expression-engine": "jinja",
@@ -26,6 +32,7 @@ class ImportBEDPEFile(Process):
         },
     }
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.RAW
 
     class Input:
         """Input parameters."""

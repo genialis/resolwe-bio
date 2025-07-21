@@ -14,6 +14,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -130,7 +131,7 @@ class WgsPreprocess_BWA2(Process):
     slug = "wgs-preprocess-bwa2"
     name = "WGS preprocess data with bwa-mem2"
     process_type = "data:alignment:bam:wgsbwa2"
-    version = "1.4.0"
+    version = "1.4.1"
     category = "WGS"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -148,6 +149,7 @@ class WgsPreprocess_BWA2(Process):
     data_name = (
         "{{ reads|name|default('?') if reads else aligned_reads|name|default('?') }}"
     )
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process WgsPreprocess_BWA2."""

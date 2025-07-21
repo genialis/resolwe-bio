@@ -8,6 +8,7 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -32,7 +33,7 @@ class GatkGenotypeRefinement(Process):
     name = "GATK refine variants"
     category = "GATK"
     process_type = "data:variants:vcf:refinevariants"
-    version = "1.1.1"
+    version = "1.1.2"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -46,6 +47,7 @@ class GatkGenotypeRefinement(Process):
         },
     }
     data_name = "Refined variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkGenotypeRefinement."""

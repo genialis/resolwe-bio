@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -30,7 +31,7 @@ class GatkVariantsToTable(Process):
     name = "GATK VariantsToTable"
     category = "GATK"
     process_type = "data:variantstable"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -44,6 +45,7 @@ class GatkVariantsToTable(Process):
         },
     }
     data_name = "Variants in table"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GATK VariantsToTable."""

@@ -11,6 +11,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -29,7 +30,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.5.1"
+    version = "2.5.2"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -40,6 +41,7 @@ class BQSR(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to perform Base quality score recalibration."""

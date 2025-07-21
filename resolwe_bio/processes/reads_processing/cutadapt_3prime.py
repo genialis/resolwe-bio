@@ -12,6 +12,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
 )
@@ -23,7 +24,7 @@ class Cutadapt3Prime(Process):
     slug = "cutadapt-3prime-single"
     name = "Cutadapt (3' mRNA-seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.4.2"
+    version = "1.4.3"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -38,6 +39,7 @@ class Cutadapt3Prime(Process):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

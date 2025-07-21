@@ -7,6 +7,7 @@ from resolwe.process import (
     Cmd,
     DirField,
     FileField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -19,7 +20,7 @@ class ImportBWA2Index(Process):
     slug = "upload-bwamem2-index"
     name = "BWA-MEM2 index files"
     process_type = "data:index:bwamem2"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -30,6 +31,7 @@ class ImportBWA2Index(Process):
     }
     data_name = '{{ ref_seq.file|default("?") }}'
     version = "1.0.0"
+    persistence = Persistence.RAW
 
     class Input:
         """Input fields to process Import BWA-MEM2 index."""

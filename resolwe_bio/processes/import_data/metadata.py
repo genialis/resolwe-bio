@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from resolwe.process import FileField, IntegerField, Process, SchedulingClass
+from resolwe.process import (
+    FileField,
+    IntegerField,
+    Persistence,
+    Process,
+    SchedulingClass,
+)
 from resolwe.process.models import Collection, Entity
 
 SAMPLE_COLUMNS = {
@@ -71,7 +77,7 @@ class UploadMetadataUnique(Process):
     slug = "upload-metadata-unique"
     name = "Metadata table (one-to-one)"
     process_type = "data:metadata:unique"
-    version = "1.1.1"
+    version = "1.1.2"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -86,6 +92,7 @@ class UploadMetadataUnique(Process):
         },
     }
     data_name = '{{ src.file|default("?") }}'
+    persistence = Persistence.RAW
 
     class Input:
         """Input field to process UploadMetadataUnique."""
@@ -174,6 +181,7 @@ class UploadMetadata(Process):
         },
     }
     data_name = '{{ src.file|default("?") }}'
+    persistence = Persistence.RAW
 
     class Input:
         """Input field to process UploadMetadata."""

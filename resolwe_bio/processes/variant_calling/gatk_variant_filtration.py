@@ -11,6 +11,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -40,7 +41,7 @@ class GatkVariantFiltration(Process):
     slug = "gatk-variant-filtration"
     process_type = "data:variants:vcf:variantfiltration"
     name = "GATK VariantFiltration (multi-sample)"
-    version = "1.3.0"
+    version = "1.3.1"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -55,6 +56,7 @@ class GatkVariantFiltration(Process):
         },
     }
     data_name = "Filtered variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkVariantFiltration."""

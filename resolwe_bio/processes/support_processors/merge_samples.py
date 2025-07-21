@@ -2,7 +2,14 @@
 
 from pathlib import Path
 
-from resolwe.process import Data, DataField, ListField, Process, SchedulingClass
+from resolwe.process import (
+    Data,
+    DataField,
+    ListField,
+    Persistence,
+    Process,
+    SchedulingClass,
+)
 
 
 def get_label(data, warning):
@@ -60,7 +67,7 @@ class MergeFastqSingle(Process):
     slug = "merge-fastq-single"
     name = "Merge FASTQ (single-end)"
     process_type = "data:mergereads:single"
-    version = "2.2.2"
+    version = "2.2.3"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -71,6 +78,7 @@ class MergeFastqSingle(Process):
         "relations": [{"type": "group"}],
     }
     data_name = "Merge FASTQ (single-end)"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process MergeFastqSingle."""
@@ -146,6 +154,7 @@ class MergeFastqPaired(Process):
         "relations": [{"type": "group"}],
     }
     data_name = "Merge FASTQ (paired-end)"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process MergeFastqPaired."""

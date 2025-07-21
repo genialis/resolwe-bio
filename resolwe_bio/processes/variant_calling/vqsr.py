@@ -13,6 +13,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -26,7 +27,7 @@ class VariantFiltrationVqsr(Process):
     name = "GATK filter variants (VQSR)"
     category = "GATK"
     process_type = "data:variants:vcf:vqsr"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -39,6 +40,7 @@ class VariantFiltrationVqsr(Process):
         },
     }
     data_name = "VQSR filtered variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for VariantFiltrationVqsr."""

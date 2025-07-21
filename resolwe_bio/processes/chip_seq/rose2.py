@@ -13,6 +13,7 @@ from resolwe.process import (
     FileField,
     IntegerField,
     JsonField,
+    Persistence,
     Process,
     StringField,
 )
@@ -33,7 +34,7 @@ class Rose2(Process):
     slug = "rose2"
     name = "ROSE2"
     process_type = "data:chipseq:rose2"
-    version = "5.2.1"
+    version = "5.2.2"
     category = "ChIP-seq"
     entity = {
         "type": "sample",
@@ -50,6 +51,7 @@ class Rose2(Process):
     data_name = (
         "{{ input_macs|name|default('?') if input_macs else rankby|name|default('?') }}"
     )
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process ROSE2."""

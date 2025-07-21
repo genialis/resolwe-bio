@@ -11,6 +11,7 @@ from resolwe.process import (
     DataField,
     FileField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -93,7 +94,7 @@ class MapMicroarrayProbes(Process):
     slug = "map-microarray-probes"
     name = "Map microarray probes"
     process_type = "data:microarray:mapping"
-    version = "1.1.1"
+    version = "1.1.2"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -102,6 +103,7 @@ class MapMicroarrayProbes(Process):
         },
     }
     data_name = "Probe mapping"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process MapMicroarrayProbes."""

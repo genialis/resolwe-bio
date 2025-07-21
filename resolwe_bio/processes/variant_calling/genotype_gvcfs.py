@@ -12,6 +12,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -67,7 +68,7 @@ class GatkGenotypeGVCFs(Process):
     name = "GATK GenotypeGVCFs"
     category = "GATK"
     process_type = "data:variants:vcf:genotypegvcfs"
-    version = "2.3.0"
+    version = "2.3.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -81,6 +82,7 @@ class GatkGenotypeGVCFs(Process):
         },
     }
     data_name = "Cohort variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkGenotypeGVCFs."""

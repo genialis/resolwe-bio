@@ -13,6 +13,7 @@ from resolwe.process import (
     FloatField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -35,11 +36,12 @@ class BamToBedpe(Process):
         "resources": {"cores": 1, "memory": 8192},
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.3.1"
+    version = "1.3.2"
     process_type = "data:bedpe"
     category = "BAM processing"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

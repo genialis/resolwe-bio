@@ -15,6 +15,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -112,9 +113,10 @@ class SamtoolsMpileupSingle(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "2.0.0"
+    version = "2.0.1"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for SamtoolsMpileupSingle."""

@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     FloatField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
 )
@@ -27,7 +28,7 @@ class BsConversionRate(Process):
     slug = "bs-conversion-rate"
     name = "Bisulfite conversion rate"
     process_type = "data:wgbs:bsrate"
-    version = "1.3.1"
+    version = "1.3.2"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -42,6 +43,7 @@ class BsConversionRate(Process):
     }
     data_name = "{{ mr|name|default('?') }}"
     category = "WGBS"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for BsConversionRate."""

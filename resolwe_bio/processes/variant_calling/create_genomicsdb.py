@@ -14,6 +14,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -28,7 +29,7 @@ class GenomicsDBImport(Process):
     name = "GATK GenomicsDBImport"
     category = "GATK"
     process_type = "data:genomicsdb"
-    version = "1.3.0"
+    version = "1.3.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -42,6 +43,7 @@ class GenomicsDBImport(Process):
         },
     }
     data_name = '{{ "GATK GenomicsDB (%s %s)"|format(gvcfs|length, "samples added" if use_existing else "samples" ) }}'
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GenomicsDBImport."""

@@ -12,6 +12,7 @@ from resolwe.process import (
     FloatField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -46,9 +47,10 @@ class SamtoolsView(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.0.1"
+    version = "1.0.2"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for SamtoolsView."""

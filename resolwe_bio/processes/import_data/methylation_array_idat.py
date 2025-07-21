@@ -1,6 +1,12 @@
 """Upload methylation array data (IDAT)."""
 
-from resolwe.process import FileField, Process, SchedulingClass, StringField
+from resolwe.process import (
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+    StringField,
+)
 
 
 def validate_filename_suffix(filename, suffix, resolwe_process=Process):
@@ -26,7 +32,7 @@ class UploadIdatData(Process):
     slug = "upload-idat"
     name = "IDAT file"
     process_type = "data:methylationarray:idat"
-    version = "1.1.1"
+    version = "1.1.2"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -41,6 +47,7 @@ class UploadIdatData(Process):
         "descriptor_schema": "sample",
     }
     data_name = "{{ red_channel.file|default('?') }}"
+    persistence = Persistence.RAW
 
     class Input:
         """Input field to process UploadIdatData."""

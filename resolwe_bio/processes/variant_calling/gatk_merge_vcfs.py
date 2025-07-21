@@ -11,6 +11,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -24,7 +25,7 @@ class GatkMergeVcfs(Process):
     name = "GATK MergeVcfs"
     category = "GATK"
     process_type = "data:variants:vcf:mergevcfs"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -38,6 +39,7 @@ class GatkMergeVcfs(Process):
         },
     }
     data_name = "Combined variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkMergeVcfs."""

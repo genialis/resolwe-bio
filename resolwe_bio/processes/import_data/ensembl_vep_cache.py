@@ -3,7 +3,14 @@
 import shutil
 from pathlib import Path
 
-from resolwe.process import DirField, FileField, Process, SchedulingClass, StringField
+from resolwe.process import (
+    DirField,
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+    StringField,
+)
 
 
 class ImportEnsemblVepCache(Process):
@@ -12,7 +19,7 @@ class ImportEnsemblVepCache(Process):
     slug = "upload-vep-cache"
     name = "Ensembl-VEP cache directory"
     process_type = "data:vep:cache"
-    version = "1.1.0"
+    version = "1.1.1"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -22,6 +29,7 @@ class ImportEnsemblVepCache(Process):
         },
     }
     data_name = '{{ cache_file.file|default("?") }}'
+    persistence = Persistence.RAW
 
     class Input:
         """Input fields to process Import VEP cache directory."""

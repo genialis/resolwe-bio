@@ -9,6 +9,7 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -33,7 +34,7 @@ class UmiToolsDedup(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.5.1"
+    version = "1.5.2"
     process_type = "data:alignment:bam:umitools:dedup"
     category = "FASTQ processing"
     entity = {
@@ -41,6 +42,7 @@ class UmiToolsDedup(Process):
         "input": "alignment",
     }
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

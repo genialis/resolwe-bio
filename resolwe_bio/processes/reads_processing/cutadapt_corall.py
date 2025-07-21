@@ -12,6 +12,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
 )
@@ -26,7 +27,7 @@ class CutadaptCorallSingle(Process):
     slug = "cutadapt-corall-single"
     name = "Cutadapt (Corall RNA-Seq, single-end)"
     process_type = "data:reads:fastq:single:cutadapt:"
-    version = "1.4.2"
+    version = "1.4.3"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -41,6 +42,7 @@ class CutadaptCorallSingle(Process):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

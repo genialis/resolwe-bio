@@ -8,6 +8,7 @@ from resolwe.process import (
     FileField,
     FileHtmlField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -58,7 +59,7 @@ class EnsemblVep(Process):
     name = "Ensembl Variant Effect Predictor"
     category = "VEP"
     process_type = "data:variants:vcf:vep"
-    version = "2.1.0"
+    version = "2.1.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -72,6 +73,7 @@ class EnsemblVep(Process):
         },
     }
     data_name = "Annotated variants (VEP)"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for EnsemblVep."""

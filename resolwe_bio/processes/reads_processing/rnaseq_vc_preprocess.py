@@ -14,6 +14,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -137,7 +138,7 @@ class RNASeqVC_Preprocess(Process):
     name = "RNA-seq variant calling preprocess"
     category = "GATK"
     process_type = "data:alignment:bam:rnaseqvc"
-    version = "1.3.0"
+    version = "1.3.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -151,8 +152,8 @@ class RNASeqVC_Preprocess(Process):
         },
     }
     entity = {"type": "sample"}
-
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for RNASeqVC_Preprocess."""

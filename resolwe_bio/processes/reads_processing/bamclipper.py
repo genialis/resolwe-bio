@@ -8,6 +8,7 @@ from resolwe.process import (
     Cmd,
     DataField,
     FileField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -24,7 +25,7 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.5.1"
+    version = "1.5.2"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -35,6 +36,7 @@ class Bamclipper(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process Bamclipper."""

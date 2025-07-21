@@ -1,6 +1,13 @@
 """Samtools idxstats."""
 
-from resolwe.process import Cmd, DataField, FileField, Process, SchedulingClass
+from resolwe.process import (
+    Cmd,
+    DataField,
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+)
 
 
 class SamtoolsIdxstats(Process):
@@ -21,7 +28,7 @@ class SamtoolsIdxstats(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.4.2"
+    version = "1.4.3"
     process_type = "data:samtools:idxstats"
     category = "Samtools"
     entity = {
@@ -29,6 +36,7 @@ class SamtoolsIdxstats(Process):
         "input": "alignment",
     }
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

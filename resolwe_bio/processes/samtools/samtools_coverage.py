@@ -12,6 +12,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -42,8 +43,9 @@ class SamtoolsCoverageMulti(Process):
     }
     category = "Samtools"
     data_name = "Samtools coverage"
-    version = "1.0.0"
+    version = "1.0.1"
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for SamtoolsCoverageMulti."""

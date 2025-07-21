@@ -4,7 +4,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from resolwe.process import DataField, FileField, Process, SchedulingClass, StringField
+from resolwe.process import (
+    DataField,
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+    StringField,
+)
 from resolwe.process.models import Entity
 
 
@@ -14,7 +21,7 @@ class UploadMLExpression(Process):
     slug = "upload-ml-expression"
     name = "ML-ready expression"
     process_type = "data:ml:table:expressions"
-    version = "1.0.2"
+    version = "1.0.3"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -29,6 +36,7 @@ class UploadMLExpression(Process):
         },
     }
     data_name = "{{ reference_space|name }}"
+    persistence = Persistence.RAW
 
     class Input:
         """Inputs."""

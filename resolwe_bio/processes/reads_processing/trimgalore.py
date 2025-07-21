@@ -14,6 +14,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -46,7 +47,7 @@ class TrimGalorePaired(Process):
     slug = "trimgalore-paired"
     name = "Trim Galore (paired-end)"
     process_type = "data:reads:fastq:paired:trimgalore"
-    version = "1.3.2"
+    version = "1.3.3"
     category = "FASTQ processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -61,6 +62,7 @@ class TrimGalorePaired(Process):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields of trimGalorePaired."""

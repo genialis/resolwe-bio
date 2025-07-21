@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     FloatField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -32,7 +33,7 @@ class CollectRrbsMetrics(Process):
     name = "Picard CollectRrbsMetrics"
     category = "Picard"
     process_type = "data:picard:rrbs"
-    version = "2.3.0"
+    version = "2.3.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -45,6 +46,7 @@ class CollectRrbsMetrics(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for CollectRrbsMetrics."""

@@ -10,6 +10,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -25,7 +26,7 @@ class MarkDuplicates(Process):
     slug = "markduplicates"
     name = "MarkDuplicates"
     process_type = "data:alignment:bam:markduplicate:"
-    version = "1.7.0"
+    version = "1.7.1"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -36,6 +37,7 @@ class MarkDuplicates(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process MarkDuplicates."""

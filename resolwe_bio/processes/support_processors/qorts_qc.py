@@ -9,6 +9,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -44,7 +45,7 @@ class QortsQC(Process):
         },
     }
     data_name = "{{ alignment|name|default('?') }}"
-    version = "1.8.0"
+    version = "1.8.1"
     process_type = "data:qorts:qc"
     category = "QC"
     entity = {
@@ -53,6 +54,7 @@ class QortsQC(Process):
     }
     scheduling_class = SchedulingClass.BATCH
     description = "Quality of RNA-seq Tool-Set."
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields."""

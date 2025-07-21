@@ -15,6 +15,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -59,7 +60,7 @@ class AlignmentStar(Process):
     slug = "alignment-star"
     name = "STAR"
     process_type = "data:alignment:bam:star"
-    version = "5.4.0"
+    version = "5.4.1"
     category = "Align"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -74,6 +75,7 @@ class AlignmentStar(Process):
         },
     }
     data_name = "{{ reads|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process AlignmentStar."""

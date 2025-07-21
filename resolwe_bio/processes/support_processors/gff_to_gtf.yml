@@ -17,6 +17,7 @@
   category: Other
   description: |
     Convert GFF3 file to GTF format.
+  persistence : CACHED
   input:
     - name: annotation
       label: Annotation (GFF3)

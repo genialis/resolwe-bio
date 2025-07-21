@@ -12,6 +12,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -37,7 +38,7 @@ class GatkSelectVariants(Process):
     slug = "gatk-select-variants"
     process_type = "data:variants:vcf:selectvariants"
     name = "GATK SelectVariants (multi-sample)"
-    version = "1.2.0"
+    version = "1.2.1"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -51,8 +52,8 @@ class GatkSelectVariants(Process):
             "storage": 200,
         },
     }
-
     data_name = "Selected variants"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkSelectVariants."""

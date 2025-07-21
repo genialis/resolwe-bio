@@ -6,7 +6,14 @@ from pathlib import Path
 import pandas as pd
 from plumbum import TEE
 
-from resolwe.process import Cmd, DataField, FileField, Process, SchedulingClass
+from resolwe.process import (
+    Cmd,
+    DataField,
+    FileField,
+    Persistence,
+    Process,
+    SchedulingClass,
+)
 
 
 def get_contig_names(gtf_file):
@@ -40,7 +47,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.1.1"
+    version = "1.1.2"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -55,6 +62,7 @@ class Arriba(Process):
         },
     }
     data_name = '{{ bam|name|default("?") }}'
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for Arriba process."""

@@ -5,7 +5,15 @@ from pathlib import Path
 
 from plumbum import TEE
 
-from resolwe.process import Cmd, DataField, DirField, FileField, Process, StringField
+from resolwe.process import (
+    Cmd,
+    DataField,
+    DirField,
+    FileField,
+    Persistence,
+    Process,
+    StringField,
+)
 
 
 class BWAIndex(Process):
@@ -26,7 +34,8 @@ class BWAIndex(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.2.0"
+    version = "1.2.1"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for BWAIndex."""

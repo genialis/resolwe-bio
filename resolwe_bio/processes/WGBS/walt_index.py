@@ -5,7 +5,15 @@ from pathlib import Path
 
 from plumbum import TEE
 
-from resolwe.process import Cmd, DataField, DirField, FileField, Process, StringField
+from resolwe.process import (
+    Cmd,
+    DataField,
+    DirField,
+    FileField,
+    Persistence,
+    Process,
+    StringField,
+)
 
 
 class WaltIndex(Process):
@@ -26,7 +34,8 @@ class WaltIndex(Process):
     }
     category = "WGBS"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.2.1"
+    version = "1.2.2"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for WaltIndex."""

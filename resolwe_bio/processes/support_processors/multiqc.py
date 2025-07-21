@@ -21,6 +21,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     StringField,
 )
@@ -661,7 +662,8 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.28.0"
+    version = "1.28.1"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process MultiQC."""

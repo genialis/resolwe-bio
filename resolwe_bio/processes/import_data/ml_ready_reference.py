@@ -6,7 +6,13 @@ from pathlib import Path
 
 import pandas as pd
 
-from resolwe.process import FileField, JsonField, SchedulingClass, StringField
+from resolwe.process import (
+    FileField,
+    JsonField,
+    Persistence,
+    SchedulingClass,
+    StringField,
+)
 from resolwe.process.models import Collection, DescriptorSchema, Entity
 
 from resolwe_bio.process.runtime import ProcessBio
@@ -25,7 +31,7 @@ class ReferenceSpace(ProcessBio):
     slug = "reference-space"
     name = "Reference space"
     process_type = "data:ml:space"
-    version = "1.0.2"
+    version = "1.0.3"
     category = "Import"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
@@ -40,6 +46,7 @@ class ReferenceSpace(ProcessBio):
         },
     }
     data_name = "{{ name }}"
+    persistence = Persistence.RAW
 
     class Input:
         """Inputs."""

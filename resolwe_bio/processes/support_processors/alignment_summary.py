@@ -11,6 +11,7 @@ from resolwe.process import (
     DataField,
     FileField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -28,7 +29,7 @@ class AlignmentSummary(Process):
     name = "Picard AlignmentSummary"
     category = "Picard"
     process_type = "data:picard:summary"
-    version = "2.3.0"
+    version = "2.3.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -38,6 +39,7 @@ class AlignmentSummary(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for AlignmentSummary."""

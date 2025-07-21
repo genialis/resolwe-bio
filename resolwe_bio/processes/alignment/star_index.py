@@ -12,6 +12,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     StringField,
 )
@@ -27,7 +28,7 @@ class StarIndex(Process):
     slug = "alignment-star-index"
     name = "STAR genome index"
     process_type = "data:index:star"
-    version = "4.0.0"
+    version = "4.0.1"
     category = "Genome index"
     requirements = {
         "expression-engine": "jinja",
@@ -40,6 +41,7 @@ class StarIndex(Process):
         },
     }
     data_name = "{{ ref_seq.fasta.file|basename|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields to process StarIndex."""

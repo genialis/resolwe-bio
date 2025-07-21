@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -31,7 +32,7 @@ class GatkSplitNCigarReads(Process):
     name = "GATK SplitNCigarReads"
     category = "GATK"
     process_type = "data:alignment:bam:splitncigar"
-    version = "1.2.0"
+    version = "1.2.1"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -45,8 +46,8 @@ class GatkSplitNCigarReads(Process):
         },
     }
     entity = {"type": "sample"}
-
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkSplitNCigarReads."""

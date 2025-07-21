@@ -14,6 +14,7 @@ from resolwe.process import (
     GroupField,
     IntegerField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -71,9 +72,10 @@ class SamtoolsBedcov(Process):
     }
     category = "Samtools"
     data_name = "{{ bam|name|default('?') }}"
-    version = "1.3.0"
+    version = "1.3.1"
     entity = {"type": "sample"}
     scheduling_class = SchedulingClass.BATCH
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for SamtoolsBedcov."""

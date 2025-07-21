@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     GroupField,
     IntegerField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -49,7 +50,7 @@ class InsertSizeMetrics(Process):
     name = "Picard WGS Metrics"
     category = "Picard"
     process_type = "data:picard:wgsmetrics"
-    version = "2.4.0"
+    version = "2.4.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -59,6 +60,7 @@ class InsertSizeMetrics(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for CollectWgsMetrics."""

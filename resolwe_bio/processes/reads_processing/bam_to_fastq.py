@@ -10,6 +10,7 @@ from resolwe.process import (
     FileField,
     FileHtmlField,
     ListField,
+    Persistence,
     Process,
     SchedulingClass,
 )
@@ -22,7 +23,7 @@ class BamToFastqPaired(Process):
     name = "Samtools fastq (paired-end)"
     category = "Samtools"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.3.2"
+    version = "1.3.3"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -37,6 +38,7 @@ class BamToFastqPaired(Process):
     }
     entity = {"type": "sample"}
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for BamToFastqPaired."""

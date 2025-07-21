@@ -11,6 +11,7 @@ from resolwe.process import (
     FileField,
     FloatField,
     GroupField,
+    Persistence,
     Process,
     SchedulingClass,
     StringField,
@@ -24,7 +25,7 @@ class GatkHaplotypeCallerGvcf(Process):
     name = "GATK HaplotypeCaller (GVCF)"
     category = "GATK"
     process_type = "data:variants:gvcf"
-    version = "1.3.0"
+    version = "1.3.1"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
     requirements = {
@@ -38,6 +39,7 @@ class GatkHaplotypeCallerGvcf(Process):
         },
     }
     data_name = "{{ bam|name|default('?') }}"
+    persistence = Persistence.CACHED
 
     class Input:
         """Input fields for GatkHaplotypeCallerGvcf."""
