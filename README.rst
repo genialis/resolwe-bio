@@ -4,8 +4,8 @@ Resolwe Bioinformatics
 
 |build| |coverage| |docs| |pypi_version| |pypi_pyversions|
 
-.. |build| image:: https://public.ci.genialis.io/buildStatus/icon/resolwe-bio/master
-    :target: https://ci.genialis.io/blue/organizations/jenkins/resolwe-bio/activity
+.. |build| image:: https://github.com/genialis/resolwe-bio/actions/workflows/ci.yml/badge.svg?branch=master
+    :target: https://github.com/genialis/resolwe-bio/actions?query=branch%3Amaster
     :alt: Build Status
 
 .. |coverage| image:: https://img.shields.io/codecov/c/github/genialis/resolwe-bio/master.svg
@@ -40,10 +40,7 @@ Docs & Help
 
 Read about getting started and how to write `processes` in the documentation_.
 
-To chat with developers or ask for help, join us on Slack_.
-
 .. _documentation: http://resolwe-bio.readthedocs.io/
-.. _Slack: http://resolwe.slack.com/
 
 
 Install
@@ -52,32 +49,12 @@ Install
 Prerequisites
 -------------
 
-Make sure you have Python_ 3.6 installed on your system. If you don't have it
+Make sure you have Python_ 3.10 or later installed on your system. If you don't have it
 yet, follow `these instructions
 <https://docs.python.org/3/using/index.html>`__.
 
-Resolwe requires PostgreSQL_ (9.4+). Many Linux distributions already include
-the required version of PostgreSQL (e.g. Fedora 22+, Debian 8+, Ubuntu 15.04+)
-and you can simply install it via distribution's package manager.
-Otherwise, follow `these instructions
-<https://wiki.postgresql.org/wiki/Detailed_installation_guides>`__.
-
-Additionally, installing some (indirect) dependencies from PyPI_ will require
-having a C compiler (e.g. GCC_) as well as Python development files installed
-on the system.
-
-Note
-^^^^
-
-The preferred way to install the C compiler and Python development files is to
-use your distribution's packages, if they exist. For example, on a
-Fedora/RHEL-based system, that would mean installing ``gcc`` and
-``python3-devel`` packages.
-
 .. _Python: https://www.python.org/
-.. _PostgreSQL: http://www.postgresql.org/
-.. _PyPi: https://pypi.python.org/
-.. _GCC: https://gcc.gnu.org/
+
 
 Using PyPI_
 -----------
@@ -91,6 +68,9 @@ To install a pre-release, use:
 .. code::
 
     pip install --pre resolwe-bio
+
+.. _PyPi: https://pypi.python.org/
+
 
 Using source on GitHub_
 -----------------------
