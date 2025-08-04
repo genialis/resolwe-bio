@@ -4,18 +4,19 @@
 Writing processes
 =================
 
-A tutorial about writing bioinformatics pipelines (process is a
-step in the pipeline) is in `Resolwe SDK for Python documentation`_.
+A short tutorial about writing bioinformatics pipelines (process is a
+step in the pipeline) is contained in `Resolwe documentation`_. While the
+Resolwe documentation describes the syntax of the YAML-based processes that are
+slowly being deprecated, the Resolwe Bioinformatics processes are most often written
+in Python. An example `Python process template`_ is available in the Resolwe documentation.
 
 Tools
 =====
 
-Frequently, it is very useful to write a custom script in Python or R to
-perform a certain task in process' algorithm. For an example, see the
-tutorial in `Resolwe SDK for Python documentation`_.
-
-Custom scripts needed by processes included with Resolwe Bioinformatics are
-located in the `resolwe_bio/tools`_ directory.
+Sometimes, it is very useful to write a custom script in R or other languages
+to perform a certain task in process' algorithm. Custom scripts needed by
+processes included with Resolwe Bioinformatics are located in the
+`resolwe_bio/tools`_ directory.
 
 .. note::
 
@@ -23,5 +24,6 @@ located in the `resolwe_bio/tools`_ directory.
     searches for tools in a Django application's ``tools`` directory or
     directories specified in the ``RESOLWE_CUSTOM_TOOLS_PATHS`` Django setting.
 
-.. _Resolwe SDK for Python documentation: http://resdk.readthedocs.io/en/latest/tutorial.html
+.. _Resolwe documentation: https://resolwe.readthedocs.io/en/latest/proc.html
 .. _resolwe_bio/tools: https://github.com/genialis/resolwe-bio/tree/master/resolwe_bio/tools
+.. _Python process template: https://github.com/genialis/resolwe/blob/master/docs/example/example/processes/template_py_process.py

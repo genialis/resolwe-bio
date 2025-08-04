@@ -9,14 +9,7 @@ Make sure you have Python_ 3.10+ installed on your system. If you don't have it
 yet, follow `these instructions
 <https://docs.python.org/3/using/index.html>`__.
 
-Resolwe Bioinformatics requires PostgreSQL_ (14+). Many Linux distributions
-already include the required version of PostgreSQL (e.g. Fedora 28+,
-Debian 12+, Ubuntu 22.04+) and you can simply install it via distribution's
-package manager. Otherwise, follow `these instructions
-<https://wiki.postgresql.org/wiki/Detailed_installation_guides>`__.
-
 .. _Python: https://www.python.org/
-.. _PostgreSQL: http://www.postgresql.org/
 
 The pip_ tool will install all Resolwe Bioinformatics' dependencies from PyPI_.
 Installing some (indirect) dependencies from PyPI_ will require having a C
@@ -33,6 +26,8 @@ system.
 Optional prerequisites
 ----------------------
 
+Running Resolwe bio tests requires Docker_ to be installed on your system.
+
 If you want to run or develop tests with large input or output files, then
 install the `Git Large File Storage`_ extension.
 
@@ -40,6 +35,7 @@ install the `Git Large File Storage`_ extension.
 .. _PyPi: https://pypi.python.org/
 .. _GCC: https://gcc.gnu.org/
 .. _Git Large File Storage: https://git-lfs.github.com/
+.. _Docker: https://docs.docker.com/get-started/get-docker/
 
 Preparing environment
 =====================
@@ -67,13 +63,6 @@ Prepare Resolwe Bioinformatics for development::
 
 .. _Resolwe Bioinformatics' git repository: https://github.com/genialis/resolwe-bio
 
-Preparing database
-==================
-
-Add a postgres user::
-
-    createuser -s -r postgres
-
 Running tests
 =============
 
@@ -86,7 +75,7 @@ Change directory to the ``tests`` Django project::
 
 Run docker::
 
-    docker compose up
+    docker compose up -d
 
 .. note::
     On Mac or Windows, Docker might complain about non-mounted volumes.
@@ -103,6 +92,10 @@ Run docker::
     about overlapping volumes. Here's a workaround: Change ``/private`` to
     ``/var/folders`` and then add ``/private`` again.
 
+Before running the tests, prepare the database::
+
+    ./manage.py migrate
+    ./manage.py createsuperuser
 
 To run the tests, use::
 
