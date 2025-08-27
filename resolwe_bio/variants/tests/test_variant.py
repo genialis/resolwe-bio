@@ -29,6 +29,7 @@ from resolwe_bio.variants.models import (
 )
 from resolwe_bio.variants.views import (
     VariantAnnotationSerializer,
+    VariantAnnotationTranscriptViewSet,
     VariantAnnotationViewSet,
     VariantCallSerializer,
     VariantCallViewSet,
@@ -511,7 +512,7 @@ class ListenerPluginTest(TestCase):
 
         expected_annotation_1 = {
             "id": variant1.annotation.id,
-            "variant_id": variant1.id,
+            "variant": variant1.id,
             "type": "SNP",
             "clinical_diagnosis": "diagnosis 1",
             "clinical_significance": "significance 1",
@@ -520,7 +521,7 @@ class ListenerPluginTest(TestCase):
             "transcripts": [
                 {
                     "id": variant1.annotation.transcripts.get().id,
-                    "variant_annotation_id": variant1.annotation.pk,
+                    "variant_annotation": variant1.annotation.pk,
                     "annotation": "annotation 1",
                     "annotation_impact": "annotation impact 1",
                     "gene": "gene 1",
@@ -532,7 +533,7 @@ class ListenerPluginTest(TestCase):
         }
         expected_annotation_2 = {
             "id": variant2.annotation.id,
-            "variant_id": variant2.id,
+            "variant": variant2.id,
             "type": "SNP",
             "clinical_diagnosis": "diagnosis 2",
             "clinical_significance": "significance 2",
@@ -541,7 +542,7 @@ class ListenerPluginTest(TestCase):
             "transcripts": [
                 {
                     "id": variant2.annotation.transcripts.get().id,
-                    "variant_annotation_id": variant2.annotation.pk,
+                    "variant_annotation": variant2.annotation.pk,
                     "annotation": "annotation 2",
                     "annotation_impact": "annotation impact 2",
                     "gene": "gene 2",
@@ -551,9 +552,6 @@ class ListenerPluginTest(TestCase):
                 }
             ],
         }
-
-        print(VariantAnnotationSerializer(variant1.annotation).data)
-
         self.assertDictEqual(
             VariantAnnotationSerializer(variant1.annotation).data, expected_annotation_1
         )
@@ -584,6 +582,122 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
         self.assertTrue("id" in response.data[0]["annotation"]["transcripts"][0])
+
+    def test_bulk_create(self):
+        """Test creating variant, annotation and transcripts with 3 requests."""
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+
+        post_data = [
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 4",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 5",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+        ]
+        request = APIRequestFactory().post("/variant", post_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        variant1 = Variant.objects.get(pk=response.data[0]["id"])
+        variant2 = Variant.objects.get(pk=response.data[1]["id"])
+
+        # Create annotations.
+        annotation_view = VariantAnnotationViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+                "delete": "destroy",
+                "patch": "partial_update",
+            }
+        )
+
+        post_data = [
+            {
+                "variant": variant1.id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+            {
+                "variant": variant2.id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+        ]
+        VariantAnnotation.objects.all().delete()
+        request = APIRequestFactory().post(
+            "/variant_annotation", post_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = annotation_view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotation.objects.count(), 2)
+
+        variant1.refresh_from_db()
+        variant2.refresh_from_db()
+        annotation1 = variant1.annotation
+        annotation2 = variant2.annotation
+
+        # Create transcripts.
+        transcript_view = VariantAnnotationTranscriptViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+                "delete": "destroy",
+                "patch": "partial_update",
+            }
+        )
+        post_data = [
+            {
+                "variant_annotation": annotation1.id,
+                "annotation": "annotation 1",
+                "annotation_impact": "impact 1",
+                "gene": "gene 1",
+                "protein_impact": "protein impact 1",
+                "transcript_id": "f1",
+            },
+            {
+                "variant_annotation": annotation1.id,
+                "annotation": "annotation 1.1",
+                "annotation_impact": "impact 1",
+                "gene": "gene 1",
+                "protein_impact": "protein impact 1",
+                "transcript_id": "f1",
+            },
+            {
+                "variant_annotation": annotation2.id,
+                "annotation": "annotation 2",
+                "annotation_impact": "impact 2",
+                "gene": "gene 2",
+                "protein_impact": "protein impact 2",
+                "transcript_id": "f2",
+            },
+        ]
+        VariantAnnotationTranscript.objects.all().delete()
+        request = APIRequestFactory().post("/", post_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = transcript_view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotationTranscript.objects.count(), 3)
+        self.assertEqual(annotation1.transcripts.count(), 2)
+        self.assertEqual(annotation2.transcripts.count(), 1)
 
     def test_create_api(self):
         """Test the Variant creation using the API endpoint."""
@@ -628,38 +742,32 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(variant.reference, "ref3")
         self.assertEqual(variant.alternative, "alt3")
 
-        # Test nested objects creation (annotation & transcripts).
-        post_data["position"] = 4
-        post_data["annotation"] = {
-            "type": "SNP",
-            "slug": "test_slug",
-            "clinical_diagnosis": "clinical diagnosis 1",
-            "clinical_significance": "clinical significance 1",
-            "dbsnp_id": "dbsnp_id 1",
-            "clinvar_id": "clinical_var_id 1",
-            "transcripts": [
-                {
-                    "annotation": "created 1",
-                    "annotation_impact": "impact created 1",
-                    "gene": "gene created 1",
-                    "protein_impact": "protein impact created 1",
-                    "transcript_id": "f1",
-                    "canonical": True,
-                }
-            ],
-        }
-
+        # Test bulk create.
+        post_data = [
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 4",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+            {
+                "species": "Homo sapiens",
+                "genome_assembly": "assembly 5",
+                "chromosome": "chr3",
+                "position": 3,
+                "reference": "ref3",
+                "alternative": "alt3",
+            },
+        ]
         request = APIRequestFactory().post("/variant", post_data, format="json")
         force_authenticate(request, self.contributor)
         response = self.view(request)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Variant.objects.count(), variant_count + 2)
-        variant = Variant.objects.last()
-        annotation = VariantAnnotation.objects.last()
-        transcript = VariantAnnotationTranscript.objects.last()
-        self.assertEqual(variant.species, "Homo sapiens")
-        self.assertEqual(variant.annotation, annotation)
-        self.assertTrue(annotation.transcripts.filter(pk=transcript.pk).exists())
+        self.assertEqual(Variant.objects.count(), variant_count + 3)
+        self.assertTrue(Variant.objects.filter(genome_assembly="assembly 4").exists())
+        self.assertTrue(Variant.objects.filter(genome_assembly="assembly 5").exists())
 
         self.contributor.is_staff = False
         self.contributor.save(update_fields=["is_staff"])
@@ -729,25 +837,7 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(variant.species, "new species")
 
         # Update existing annotation.
-        patch_data = {
-            "annotation": {
-                "type": "INDEL",
-                "clinical_diagnosis": "new diagnosis",
-                "clinical_significance": "new significance",
-                "dbsnp_id": "new dbsnp",
-                "clinvar_id": "new clinvar",
-                "transcripts": [
-                    {
-                        "annotation": "new annotation",
-                        "annotation_impact": "new impact",
-                        "gene": "new gene",
-                        "protein_impact": "new protein impact",
-                        "transcript_id": "new transcript",
-                        "canonical": False,
-                    }
-                ],
-            }
-        }
+        patch_data = {"position": 1234}
         variant_count = Variant.objects.count()
         request = APIRequestFactory().patch("/variant", patch_data, format="json")
         force_authenticate(request, self.contributor)
@@ -755,88 +845,7 @@ class VariantTest(PrepareDataMixin, TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Variant.objects.count(), variant_count)
         variant.refresh_from_db()
-        self.assertEqual(variant.annotation.type, "INDEL")
-        self.assertEqual(variant.annotation.clinical_diagnosis, "new diagnosis")
-        self.assertEqual(variant.annotation.clinical_significance, "new significance")
-        self.assertEqual(variant.annotation.dbsnp_id, "new dbsnp")
-        self.assertEqual(variant.annotation.clinvar_id, "new clinvar")
-        self.assertEqual(variant.annotation.transcripts.count(), 1)
-        transcript = variant.annotation.transcripts.first()
-        self.assertEqual(transcript.annotation, "new annotation")
-        self.assertEqual(transcript.annotation_impact, "new impact")
-        self.assertEqual(transcript.gene, "new gene")
-        self.assertEqual(transcript.protein_impact, "new protein impact")
-        self.assertEqual(transcript.transcript_id, "new transcript")
-        self.assertEqual(transcript.canonical, False)
-
-        # Delete the transcripts.
-        patch_data = {"annotation": {"transcripts": []}}
-        variant_count = Variant.objects.count()
-        request = APIRequestFactory().patch("/variant", patch_data, format="json")
-        force_authenticate(request, self.contributor)
-        response = self.view(request, pk=variant.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Variant.objects.count(), variant_count)
-        variant.refresh_from_db()
-        self.assertEqual(variant.annotation.type, "INDEL")
-        self.assertEqual(variant.annotation.clinical_diagnosis, "new diagnosis")
-        self.assertEqual(variant.annotation.clinical_significance, "new significance")
-        self.assertEqual(variant.annotation.dbsnp_id, "new dbsnp")
-        self.assertEqual(variant.annotation.clinvar_id, "new clinvar")
-        self.assertEqual(variant.annotation.transcripts.count(), 0)
-
-        # Delete the annotation.
-        patch_data = {"annotation": None}
-        variant_count = Variant.objects.count()
-        request = APIRequestFactory().patch("/variant", patch_data, format="json")
-        force_authenticate(request, self.contributor)
-        response = self.view(request, pk=variant.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Variant.objects.count(), variant_count)
-        variant.refresh_from_db()
-        with self.assertRaises(VariantAnnotation.DoesNotExist):
-            variant.annotation
-
-        # Create new annotation.
-        patch_data = {
-            "annotation": {
-                "type": "INDEL",
-                "clinical_diagnosis": "new diagnosis",
-                "clinical_significance": "new significance",
-                "dbsnp_id": "new dbsnp",
-                "clinvar_id": "new clinvar",
-                "transcripts": [
-                    {
-                        "annotation": "new annotation",
-                        "annotation_impact": "new impact",
-                        "gene": "new gene",
-                        "protein_impact": "new protein impact",
-                        "transcript_id": "new transcript",
-                        "canonical": False,
-                    }
-                ],
-            }
-        }
-        variant_count = Variant.objects.count()
-        request = APIRequestFactory().patch("/variant", patch_data, format="json")
-        force_authenticate(request, self.contributor)
-        response = self.view(request, pk=variant.pk)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(Variant.objects.count(), variant_count)
-        variant.refresh_from_db()
-        self.assertEqual(variant.annotation.type, "INDEL")
-        self.assertEqual(variant.annotation.clinical_diagnosis, "new diagnosis")
-        self.assertEqual(variant.annotation.clinical_significance, "new significance")
-        self.assertEqual(variant.annotation.dbsnp_id, "new dbsnp")
-        self.assertEqual(variant.annotation.clinvar_id, "new clinvar")
-        self.assertEqual(variant.annotation.transcripts.count(), 1)
-        transcript = variant.annotation.transcripts.first()
-        self.assertEqual(transcript.annotation, "new annotation")
-        self.assertEqual(transcript.annotation_impact, "new impact")
-        self.assertEqual(transcript.gene, "new gene")
-        self.assertEqual(transcript.protein_impact, "new protein impact")
-        self.assertEqual(transcript.transcript_id, "new transcript")
-        self.assertEqual(transcript.canonical, False)
+        self.assertEqual(variant.position, 1234)
 
     def test_filter(self):
         """Test the Variant filter."""
@@ -1215,7 +1224,14 @@ class VariantTest(PrepareDataMixin, TestCase):
 
 class VariantAnnotationTest(PrepareDataMixin, TestCase):
     def setUp(self) -> None:
-        self.view = VariantAnnotationViewSet.as_view({"get": "list"})
+        self.view = VariantAnnotationViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+                "delete": "destroy",
+                "patch": "partial_update",
+            }
+        )
         self.annotations.append(
             VariantAnnotation.objects.create(
                 variant=self.variants[1],
@@ -1401,6 +1417,361 @@ class VariantAnnotationTest(PrepareDataMixin, TestCase):
         response = self.view(request)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, expected)
+
+    def test_create_api(self):
+        """Test staff user can create variant annotations."""
+        variant = self.variants[0]
+        variant.annotation.delete()
+        post_data = {
+            "variant": variant.id,
+            "type": "SNP",
+            "clinical_diagnosis": "clinical diagnosis 1",
+            "clinical_significance": "clinical significance 1",
+            "dbsnp_id": "dbsnp_id 1",
+            "clinvar_id": "clinical_var_id 1",
+        }
+        annotations_count = VariantAnnotation.objects.count()
+
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().post(
+            "/variant_annotation", post_data, format="json"
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotation.objects.count(), annotations_count + 1)
+        annotation = VariantAnnotation.objects.order_by("id").last()
+        self.assertEqual(annotation.variant.species, "Homo Sapiens")
+        self.assertEqual(annotation.type, "SNP")
+        self.assertEqual(annotation.clinical_diagnosis, "clinical diagnosis 1")
+        self.assertEqual(annotation.clinical_significance, "clinical significance 1")
+        self.assertEqual(annotation.dbsnp_id, "dbsnp_id 1")
+        self.assertEqual(annotation.clinvar_id, "clinical_var_id 1")
+
+        # Test bulk create.
+        post_data = [
+            {
+                "variant": self.variants[0].id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+            {
+                "variant": self.variants[1].id,
+                "type": "SNP",
+                "clinical_diagnosis": "clinical diagnosis 1",
+                "clinical_significance": "clinical significance 1",
+                "dbsnp_id": "dbsnp_id 1",
+                "clinvar_id": "clinical_var_id 1",
+            },
+        ]
+        VariantAnnotation.objects.all().delete()
+        request = APIRequestFactory().post(
+            "/variant_annotation", post_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotation.objects.count(), 2)
+        self.contributor.is_staff = False
+        self.contributor.save(update_fields=["is_staff"])
+
+    def test_delete_api(self):
+        """Test staff user can delete variant annotations."""
+        annotations_count = VariantAnnotation.objects.count()
+        annotation_to_delete = VariantAnnotation.objects.first()
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().delete("/variant_annotation")
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request, pk=annotation_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(VariantAnnotation.objects.count(), annotations_count - 1)
+        with self.assertRaises(VariantAnnotation.DoesNotExist):
+            annotation_to_delete.refresh_from_db()
+
+    def test_patch_api(self):
+        """Test staff user can updating variant annotation objects."""
+        # Unauthenticated request must be denied.
+        annotation = VariantAnnotation.objects.first()
+        request = APIRequestFactory().patch("/variant_annotation")
+        response = self.view(request, pk=annotation.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+
+        patch_data: dict = {"clinvar_id": "new clinvar_id"}
+        request = APIRequestFactory().patch(
+            "/variant_annotation", patch_data, format="json"
+        )
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=annotation.pk)
+        annotation.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(annotation.clinvar_id, "new clinvar_id")
+
+
+class VariantAnnotationTranscriptTest(PrepareDataMixin, TestCase):
+    """Test the VariantAnnotationTranscript API endpoint."""
+
+    def setUp(self) -> None:
+        self.view = VariantAnnotationTranscriptViewSet.as_view(
+            {
+                "get": "list",
+                "post": "create",
+                "delete": "destroy",
+                "patch": "partial_update",
+            }
+        )
+
+    def test_create_api(self):
+        """Test staff user can create variant annotation transcripts."""
+        annotation = self.annotations[0]
+        post_data = {
+            "variant_annotation": annotation.id,
+            "annotation": "annotation 1",
+            "annotation_impact": "impact 1",
+            "gene": "gene 1",
+            "protein_impact": "protein impact 1",
+            "transcript_id": "f1",
+        }
+        transcripts_count = VariantAnnotationTranscript.objects.count()
+
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().post("/", post_data, format="json")
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(
+            VariantAnnotationTranscript.objects.count(), transcripts_count + 1
+        )
+        transcript = VariantAnnotationTranscript.objects.order_by("id").last()
+        self.assertEqual(transcript.variant_annotation, annotation)
+        self.assertEqual(transcript.annotation, "annotation 1")
+        self.assertEqual(transcript.annotation_impact, "impact 1")
+        self.assertEqual(transcript.gene, "gene 1")
+        self.assertEqual(transcript.protein_impact, "protein impact 1")
+        self.assertEqual(transcript.transcript_id, "f1")
+
+        # Test bulk create.
+        post_data = [
+            {
+                "variant_annotation": annotation.id,
+                "annotation": "annotation 1",
+                "annotation_impact": "impact 1",
+                "gene": "gene 1",
+                "protein_impact": "protein impact 1",
+                "transcript_id": "f1",
+            },
+            {
+                "variant_annotation": annotation.id,
+                "annotation": "annotation 2",
+                "annotation_impact": "impact 2",
+                "gene": "gene 2",
+                "protein_impact": "protein impact 2",
+                "transcript_id": "f2",
+            },
+        ]
+        VariantAnnotationTranscript.objects.all().delete()
+        request = APIRequestFactory().post("/", post_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(VariantAnnotationTranscript.objects.count(), 2)
+
+    def test_delete_api(self):
+        """Test staff user can delete variant annotation transcripts."""
+        transcripts_count = VariantAnnotationTranscript.objects.count()
+        transcript_to_delete = VariantAnnotationTranscript.objects.first()
+        # Unauthenticated request must be denied.
+        request = APIRequestFactory().delete("/")
+        response = self.view(request, pk=transcript_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=transcript_to_delete.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+        response = self.view(request, pk=transcript_to_delete.pk)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(
+            VariantAnnotationTranscript.objects.count(), transcripts_count - 1
+        )
+        with self.assertRaises(VariantAnnotationTranscript.DoesNotExist):
+            transcript_to_delete.refresh_from_db()
+
+    def test_update_api(self):
+        """Test staff user can update variant annotation transcripts."""
+        # Unauthenticated request must be denied.
+        transcript = VariantAnnotationTranscript.objects.first()
+        request = APIRequestFactory().patch("/")
+        response = self.view(request, pk=transcript.pk)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data, {"detail": "Authentication credentials were not provided."}
+        )
+
+        # Request from non-staff user must be denied.
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=transcript.pk)
+        self.assertContains(
+            response,
+            "You do not have permission to perform this action.",
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+
+        # Request from staff users must be granted.
+        self.contributor.is_staff = True
+        self.contributor.save(update_fields=["is_staff"])
+
+        patch_data: dict = {"gene": "new gene"}
+        request = APIRequestFactory().patch("/", patch_data, format="json")
+        force_authenticate(request, self.contributor)
+        response = self.view(request, pk=transcript.pk)
+        transcript.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(transcript.gene, "new gene")
+
+    def test_filter(self):
+        """Test filtering annotation transcripts."""
+        VariantAnnotationTranscript.objects.create(
+            variant_annotation=self.annotations[0],
+            annotation="annotation 2",
+            annotation_impact="impact 2",
+            gene="gene 2",
+            protein_impact="protein impact 2",
+            transcript_id="f2",
+            canonical=True,
+        )
+
+        request = APIRequestFactory().get("/")
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        # Filter by variant annotation.
+        request = APIRequestFactory().get(
+            "/variantcall", {"variant_annotation": self.annotations[0].pk}
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        request = APIRequestFactory().get("/variantcall", {"variant_annotation": -1})
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Filter by annotation.
+        request = APIRequestFactory().get(
+            "/variantcall", {"annotation": "annotation 1"}
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        # Filter by gene.
+        request = APIRequestFactory().get("/variantcall", {"gene": "gene 1"})
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        # Filter by protein impact.
+        request = APIRequestFactory().get(
+            "/variantcall", {"protein_impact": "protein impact 1"}
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+        request = APIRequestFactory().get(
+            "/variantcall", {"protein_impact__contains": "protein impact"}
+        )
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+        # Filter by canonical.
+        request = APIRequestFactory().get("/variantcall", {"canonical": True})
+        response = self.view(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
 
 
 class VariantCallTest(PrepareDataMixin, TestCase):

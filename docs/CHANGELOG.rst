@@ -13,9 +13,13 @@ Unreleased
 
 Added
 -----
+- Allow creating multiple ``Variant`` objects with one API request
+- Allow creating, updating and deleting ``VariantAnnotation`` objects via API
+- Add ``VariantAnnotationTranscript`` endpoint
 
 Changed
 -------
+- Remove nested update support for ``Variant`` objects
 
 Fixed
 -----

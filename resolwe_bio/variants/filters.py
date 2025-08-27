@@ -19,6 +19,7 @@ from resolwe.flow.filters import (
 from resolwe_bio.variants.models import (
     Variant,
     VariantAnnotation,
+    VariantAnnotationTranscript,
     VariantCall,
     VariantExperiment,
 )
@@ -112,6 +113,23 @@ class VariantAnnotationFilter(BaseResolweFilter):
             "clinical_significance": TEXT_LOOKUPS,
             "dbsnp_id": TEXT_LOOKUPS,
             "clinvar_id": TEXT_LOOKUPS,
+        }
+
+
+class VariantAnnotationTranscriptFilter(BaseResolweFilter):
+    """Filter the VariantAnnotationTranscript objects endpoint."""
+
+    class Meta:
+        """Filter configuration."""
+
+        model = VariantAnnotationTranscript
+        fields = {
+            "id": NUMBER_LOOKUPS,
+            "variant_annotation": RELATED_LOOKUPS,
+            "annotation": TEXT_LOOKUPS,
+            "gene": TEXT_LOOKUPS,
+            "protein_impact": TEXT_LOOKUPS,
+            "canonical": ["exact"],
         }
 
 
