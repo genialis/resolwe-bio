@@ -25,7 +25,7 @@ class BWAIndex(Process):
     requirements = {
         "expression-engine": "jinja",
         "executor": {
-            "docker": {"image": "public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0"},
+            "docker": {"image": "public.ecr.aws/genialis/resolwebio/common:5.1.0"},
         },
         "resources": {
             "cores": 1,
@@ -34,7 +34,7 @@ class BWAIndex(Process):
     }
     category = "Genome index"
     data_name = '{{ ref_seq.fasta.file|basename|default("?") }}'
-    version = "1.2.1"
+    version = "1.3.0"
     persistence = Persistence.CACHED
 
     class Input:
@@ -42,6 +42,10 @@ class BWAIndex(Process):
 
         ref_seq = DataField(
             "seq:nucleotide", label="Reference sequence (nucleotide FASTA)"
+        )
+        alt_file = FileField(
+            label="Alternative FASTA index (SAM format)",
+            required=False,
         )
 
     class Output:
@@ -72,6 +76,12 @@ class BWAIndex(Process):
             index_dir / f"{name}.fasta",
             inputs.ref_seq.output.fasta.path,
         ]
+
+        if inputs.alt_file:
+            alt_fname = f"{name}.fasta.alt"
+            alt_path = Path(alt_fname)
+            src = Path(inputs.alt_file.import_file(imported_format="extracted"))
+            shutil.copy(src, index_dir / alt_path.name)
 
         return_code, _, _ = Cmd["bwa"]["index"][args] & TEE(retcode=None)
         if return_code:

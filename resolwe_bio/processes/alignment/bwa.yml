@@ -9,13 +9,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:5.1.0
     resources:
       cores: 4
       memory: 32768
       storage: 300
   data_name: "{{ reads|name|default('?') }}"
-  version: 3.6.0
+  version: 3.7.0
   type: data:alignment:bam:bwamem
   category: Align
   flow_collection: sample
@@ -140,6 +140,7 @@
     program: |
       GENOME_NAME=`basename {{ genome.fasta.file }} .fasta`
       INDEX={{genome.index.dir}}/"${GENOME_NAME}.fasta"
+      ALT_FASTA={{genome.index.dir}}"/${GENOME_NAME}.fasta.alt"
 
       {% set species = ["Caenorhabditis elegans", "Cricetulus griseus", "Dictyostelium discoideum",
                         "Dictyostelium purpureum", "Drosophila melanogaster", "Homo sapiens", "Macaca mulatta",
@@ -246,8 +247,20 @@
       bamToFastq -i "${NAME}_unmapped.bam" -fq "${NAME}_unmapped.fastq"
       pigz -c "${NAME}_unmapped.fastq" > "${NAME}_unmapped.fastq.gz"
 
-      re-save-file bam "${NAME}.bam"
-      re-save-file bai "${NAME}.bam.bai"
+
+      if [ -f "$ALT_FASTA" ]; then
+        echo "Post processing the results using bwa-postalt.js"
+        k8 /opt/bwa-kit/bwa-kit/bwa-postalt.js "$ALT_FASTA" "${NAME}_align_unsorted.sam" > "${NAME}_postalt.sam"
+        samtools view -b -S -o "${NAME}_postalt.bam" "${NAME}_postalt.sam"
+        samtools sort -@ $(nproc) -o "${NAME}_postalt_sorted.bam" "${NAME}_postalt.bam"
+        samtools index -@ $(nproc) "${NAME}_postalt_sorted.bam" "${NAME}_postalt_sorted.bam.bai"
+        re-save-file bam "${NAME}_postalt_sorted.bam"
+        re-save-file bai "${NAME}_postalt_sorted.bam.bai"
+      else
+        re-save-file bam "${NAME}.bam"
+        re-save-file bai "${NAME}.bam.bai"
+      fi
+      
       re-save-file stats "${NAME}_report.txt"
       re-save species {{genome.species}}
       re-save build {{genome.build}}
@@ -263,13 +276,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:5.1.0
     resources:
       cores: 4
       memory: 16384
       storage: 300
   data_name: "{{ reads.fastq.0.file|basename|default('?') }}"
-  version: 2.5.2
+  version: 2.6.0
   type: data:alignment:bam:bwasw
   category: Align
   flow_collection: sample
@@ -436,13 +449,13 @@
     expression-engine: jinja
     executor:
       docker:
-        image: public.ecr.aws/genialis/resolwebio/rnaseq:6.0.0
+        image: public.ecr.aws/genialis/resolwebio/common:5.1.0
     resources:
       cores: 4
       memory: 16384
       storage: 300
   data_name: "{{ reads|name|default('?') }}"
-  version: 2.6.2
+  version: 2.7.0
   type: data:alignment:bam:bwaaln
   category: Align
   flow_collection: sample

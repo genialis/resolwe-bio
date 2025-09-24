@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ALT aware alignment option to BWA-MEM process
 
 Changed
 -------

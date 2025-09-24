@@ -454,6 +454,40 @@ class AlignmentProcessorTestCase(KBBioProcessTestCase):
         sample = Sample.objects.get(data=paired_end_mem)
         self.assertAnnotation(sample, "general.species", "Dictyostelium discoideum")
 
+    @tag_process("bwa-index", "alignment-bwa-mem")
+    def test_bwa_alt(self):
+        input_folder = Path("test_bwa") / "input"
+        output_folder = Path("test_bwa") / "output"
+        with self.preparation_stage():
+            ref_seq = self.run_process(
+                "upload-fasta-nucl",
+                {
+                    "src": str(input_folder / "chr6_hla.fasta.gz"),
+                    "species": "Homo sapiens",
+                    "build": "custom_build",
+                },
+            )
+
+            bwa_index_w_alt = self.run_process(
+                "bwa-index",
+                {
+                    "ref_seq": ref_seq.id,
+                    "alt_file": input_folder
+                    / "references_hg38_v0_Homo_sapiens_assembly38_chr6.fasta.64.alt",
+                },
+            )
+
+            reads = self.prepare_paired_reads(
+                mate1=[str(input_folder / "SRR741411_subset_1.fastq.gz")],
+                mate2=[str(input_folder / "SRR741411_subset_2.fastq.gz")],
+            )
+
+        alt_mem = self.run_process(
+            "alignment-bwa-mem", {"genome": bwa_index_w_alt.id, "reads": reads.id}
+        )
+
+        self.assertFile(alt_mem, "stats", output_folder / "bwa_mem_w_alt_stats.txt")
+
     @tag_process("bwamem2-index", "alignment-bwa-mem2")
     def test_bwa2(self):
         input_folder = Path("test_bwa") / "input"
