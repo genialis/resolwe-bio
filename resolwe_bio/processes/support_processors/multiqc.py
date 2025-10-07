@@ -662,7 +662,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.28.1"
+    version = "1.28.2"
     persistence = Persistence.CACHED
 
     class Input:
@@ -956,7 +956,10 @@ class MultiQC(Process):
                 bsrate_reports.append(d.output.report.path)
                 create_bsrate_table(bsrate_samples, bsrate_reports)
 
-            elif d.process.type == "data:chipqc:":
+            # Exclude ChIPQC figures from multi-sample reports
+            # As they clutter the report and may even cause issues during processing
+            # when many samples are present
+            elif d.process.type == "data:chipqc:" and len(chip_seq_samples) <= 1:
                 plot_paths = [
                     d.output.ccplot.path,
                     d.output.coverage_histogram.path,

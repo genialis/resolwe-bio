@@ -23,6 +23,7 @@ Fixed
 - Fix an issue in ``gff3_to_gtf.py`` script where GFF3 to GTF conversion
   fails if the GFF3 file contains an empty line
 - Add data persistence status to processes that currently lack it
+- Fix an issue of truncated multi-sample MultiQC reports by excluding ChiPQC figures
 
 
 ===================
