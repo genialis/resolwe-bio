@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Extend the documentation with examples of writing workflows and tests
 
 Changed
 -------
