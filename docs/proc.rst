@@ -95,7 +95,7 @@ that maps the input fields to output fields. The processing logic is written in 
 and can use any Python packages and installed tools available in the execution environment
 defined in the ``docker`` section of the process requirements.
 
-The ``upload-fastq-paired-docs`` process uses the ``import_file()`` utiliy function
+The ``upload-fastq-paired-docs`` process uses the ``import_file()`` utility function
 to import the input FASTQ files in compressed format. The returned file handles are
 then evaluated and renamed to contain the ``fastq.gz`` suffix before they are assigned to
 the output fields ``mate1`` and ``mate2``. If the optional ``species`` input field is
@@ -157,7 +157,7 @@ dependencies installed. Then, navigate to the ``resolwe-bio/tests`` directory an
     By default, each test run triggers the download of all the required Docker images.
     To avoid this, and download only the images required by the tests you are running,
     you can set the ``RESOLWE_DOCKER_DONT_PULL`` environment variable to ``1`` in the
-    ``resolwe-bio/settings.py`` file.
+    shell environment, or directly in the ``resolwe-bio/settings.py`` file.
 
 A workflow test that runs the file upload process and triggers the example QC workflow
 is shown below. The test uses the ``KBBioProcessTestCase`` class that provides
