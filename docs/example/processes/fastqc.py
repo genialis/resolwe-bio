@@ -1,4 +1,5 @@
 """Run FastQC quality control on paired-end FASTQ reads."""
+
 from pathlib import Path
 from plumbum import TEE
 
@@ -46,8 +47,8 @@ class FastQC(Process):
     class Output:
         """Output fields to process FastQC."""
 
-        fastqc_report_mate1 = FileField(label="Quality control with FastQC (Mate 1)")
-        fastqc_report_mate2 = FileField(label="Quality control with FastQC (Mate 2)")
+        fastqc_report_mate1 = FileField(label="QC report (Mate 1)")
+        fastqc_report_mate2 = FileField(label="QC report (Mate 2)")
         fastqc_archive_mate1 = FileField(label="FastQC archive (Mate 1)")
         fastqc_archive_mate2 = FileField(label="FastQC archive (Mate 2)")
 

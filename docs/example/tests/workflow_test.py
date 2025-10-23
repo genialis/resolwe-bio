@@ -1,3 +1,5 @@
+"""Workflow test for documentation example."""
+
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host
 
@@ -8,8 +10,10 @@ class DocsProcessTestCase(KBBioProcessTestCase):
     @tag_process("upload-fastq-paired-docs", "workflow-qc-docs")
     def test_qc_workflow(self):
 
-        mate1 = "mate1.fastq.gz"
-        mate2 = "mate2.fastq.gz"
+        # place the test files in the
+        # resolwe_bio/tests/files/ directory
+        mate1 = "mate1.fastq.gz" # replace with actual test file
+        mate2 = "mate2.fastq.gz" # replace with actual test file
 
         with self.preparation_stage():
             fastq_reads = self.run_process(

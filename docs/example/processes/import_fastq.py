@@ -1,4 +1,5 @@
 """Import paired-end FASTQ reads."""
+
 from pathlib import Path
 
 from resolwe.process import (
@@ -9,25 +10,38 @@ from resolwe.process import (
     StringField,
 )
 
+SUPPORTED_EXTENSIONS = (
+    ".fastq.gz",
+    ".fq.gz",
+)
 
-def ensure_fastq_gz(file_path: str) -> str:
-    """Ensure the file has a .fastq.gz suffix by renaming if needed."""
-    path = Path(file_path)
-    suffixes = [suffix.lower() for suffix in path.suffixes]
-    if suffixes[-2:] == [".fastq", ".gz"]:
-        return str(path)
 
-    base = path
-    for _ in path.suffixes:
-        base = base.with_suffix("")
+def check_file(infile):
+    """Check if the input file exists and has correct extensions."""
+    fq_file = Path(infile)
+    if not fq_file.is_file():
+        message = "Input file {} does not exist".format(fq_file.name)
+        return message
 
-    new_path = base.with_name(f"{base.name}.fastq.gz")
+    if not fq_file.name.lower().endswith(SUPPORTED_EXTENSIONS):
+        message = (
+            "Unrecognized file name extension in file {}. "
+            "Supported file name extensions are {}.".format(
+                fq_file.name, SUPPORTED_EXTENSIONS
+            )
+        )
+        return message
 
-    if path != new_path:
-        path.rename(new_path)
+    message = "Correct input file."
+    return message
 
-    return str(new_path)
 
+def replace_extension(infile):
+    """Replace extensions of file."""
+    extensions = "".join(Path(str(infile)).suffixes[-2:])
+    new_ext = ".fastq.gz"
+    outfile = str(infile).replace(extensions, new_ext)
+    return outfile
 
 class UploadFastqPaired(Process):
     """Import paired-end reads in FASTQ format."""
@@ -92,10 +106,18 @@ class UploadFastqPaired(Process):
         mate1 = inputs.mate1.import_file(imported_format="compressed")
         mate2 = inputs.mate2.import_file(imported_format="compressed")
 
-        # ensure that the files have the correct suffix and save to the
-        # output fields
-        outputs.mate1 = ensure_fastq_gz(mate1)
-        outputs.mate2 = ensure_fastq_gz(mate2)
+        # ensure that the files have the correct suffix
+        for mate_file in (mate1, mate2):
+            msg = check_file(infile=mate_file)
+            if "Correct input file." not in msg:
+                self.error(msg)
+
+            renamed_reads = replace_extension(infile=mate_file)
+            Path(mate_file).rename(renamed_reads)
+
+        # save the outputs
+        outputs.mate1 = mate1
+        outputs.mate2 = mate2
 
         # set sample species annotation
         if inputs.species:

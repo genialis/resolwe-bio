@@ -12,7 +12,7 @@ class ExampleQcWorkflow(Process):
     """Example workflow.
 
     This is an example workflow that takes FASTQ reads as input and performs
-    the quality control using FastQC tool.
+    quality control using FastQC tool.
     """
 
     slug = "workflow-qc-docs"
@@ -40,7 +40,7 @@ class ExampleQcWorkflow(Process):
     class Output:
         """Output fields."""
 
-        # Workflows do not have output fields.
+        # workflows do not have output fields.
 
     def run(self, inputs, outputs):
         """Run the workflow."""

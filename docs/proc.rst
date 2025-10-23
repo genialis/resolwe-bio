@@ -7,7 +7,7 @@ Writing processes
 Resolwe bioinformatics (resolwe-bio) contains a collection of bioinformatics
 processes written for the `Resolwe`_ dataflow engine. `Resolwe processes`_
 are defined by their input and output fields, process requirements
-(e.g. execution environment, compute requirements), and the processing logic
+(e.g., execution environment, compute requirements), and the processing logic
 that maps the inputs into outputs. Resolwe processes are written in Python and
 can be joined into bioinformatics pipelines (workflows). An example
 `Python process template`_ is available in the Resolwe documentation.
@@ -50,7 +50,7 @@ fields used in the process are:
   affects the output of the process. Only the highest version of a process is
   available for execution on the Resolwe server.
 
-- ``category = "Import"``: a string that classifies the process (e.g. 'Import')
+- ``category = "Import"``: a string that classifies the process (e.g., 'Import')
 
 - ``data_name = '{{ mate1.file|default("?") }}'``: a string that defines how
   the data object created by the process will be named. The string can contain
@@ -81,7 +81,7 @@ fields used in the process are:
   sample object as the input data object.
 
 - ``requirements = { ... }``: a dictionary that defines the process requirements
-  (e.g. execution environment, compute requirements). The ``resources`` section
+  (e.g., execution environment, compute requirements). The ``resources`` section
   defines the compute requirements of the process, including ``cores`` (integer), ``memory``
   (in MB, integer), and ``storage`` (in GB, integer). The ``docker`` section defines the
   execution environment of the process. Docker images commonly used by the Resolwe
@@ -152,21 +152,12 @@ dependencies installed. Then, navigate to the ``resolwe-bio/tests`` directory an
     # Start the required docker containers
     docker compose up -d
 
-    # Migrate the database
-    ./manage.py migrate
-
-    # Create a superuser
-    ./manage.py createsuperuser
-
 .. note::
 
     By default, each test run triggers the download of all the required Docker images.
     To avoid this, and download only the images required by the tests you are running,
     you can set the ``RESOLWE_DOCKER_DONT_PULL`` environment variable to ``1`` in the
     ``resolwe-bio/settings.py`` file.
-
-    # Don't pull Docker images if set via the environment variable.
-    FLOW_DOCKER_DONT_PULL = strtobool(os.environ.get("RESOLWE_DOCKER_DONT_PULL", "1"))
 
 A workflow test that runs the file upload process and triggers the example QC workflow
 is shown below. The test uses the ``KBBioProcessTestCase`` class that provides
@@ -178,6 +169,11 @@ The test is triggered by calling the ``test`` management command on the specifie
 
 .. code-block:: bash
 
-    # Run the QC workflow test. Adjust the path to the test file as needed.
-    ./manage.py test resolwe_bio.tests.processes.test_docs.DocsProcessTestCase.test_qc_workflow
+    # Example test command. Adjust the path to the test file as needed.
+    # This command runs the QC workflow test defined in the example workflow test file.
+    # The input files used in the test should be placed in the
+    # resolwe_bio/tests/files/ directory. The process scripts are expected to be
+    # placed in the resolwe_bio/processes/ directory for the Resolwe server to successfully
+    # locate and register them.
+    ./manage.py test docs.example.tests.DocsProcessTestCase.test_qc_workflow
 
