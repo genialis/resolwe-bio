@@ -1,4 +1,4 @@
-"""Workflow test for documentation example."""
+"""Example workflow test."""
 
 from resolwe.flow.models import Data
 from resolwe.test import tag_process, with_resolwe_host

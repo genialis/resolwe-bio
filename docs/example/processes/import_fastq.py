@@ -16,32 +16,14 @@ SUPPORTED_EXTENSIONS = (
 )
 
 
-def check_file(infile):
-    """Check if the input file exists and has correct extensions."""
-    fq_file = Path(infile)
-    if not fq_file.is_file():
-        message = "Input file {} does not exist".format(fq_file.name)
-        return message
+def rename_reads_file(mate_file):
+    """Rename reads file to have .fastq.gz extension."""
+    mate_file = Path(mate_file)
+    extensions = "".join(mate_file.suffixes[-2:])
+    renamed_reads = str(mate_file).replace(extensions, ".fastq.gz")
+    mate_file.rename(renamed_reads)
+    return renamed_reads
 
-    if not fq_file.name.lower().endswith(SUPPORTED_EXTENSIONS):
-        message = (
-            "Unrecognized file name extension in file {}. "
-            "Supported file name extensions are {}.".format(
-                fq_file.name, SUPPORTED_EXTENSIONS
-            )
-        )
-        return message
-
-    message = "Correct input file."
-    return message
-
-
-def replace_extension(infile):
-    """Replace extensions of file."""
-    extensions = "".join(Path(str(infile)).suffixes[-2:])
-    new_ext = ".fastq.gz"
-    outfile = str(infile).replace(extensions, new_ext)
-    return outfile
 
 class UploadFastqPaired(Process):
     """Import paired-end reads in FASTQ format."""
@@ -108,12 +90,19 @@ class UploadFastqPaired(Process):
 
         # ensure that the files have the correct suffix
         for mate_file in (mate1, mate2):
-            msg = check_file(infile=mate_file)
-            if "Correct input file." not in msg:
-                self.error(msg)
+            mate_file = Path(mate_file)
+            if not mate_file.is_file():
+                self.error("Input file {} does not exist".format(mate_file.name))
+            if not mate_file.name.lower().endswith(SUPPORTED_EXTENSIONS):
+                self.error(
+                    "Unrecognized file name extension in file {}. "
+                    "Supported file name extensions are {}.".format(
+                        mate_file.name, SUPPORTED_EXTENSIONS
+                    )
+                )
 
-            renamed_reads = replace_extension(infile=mate_file)
-            Path(mate_file).rename(renamed_reads)
+        mate1 = rename_reads_file(mate1)
+        mate2 = rename_reads_file(mate2)
 
         # save the outputs
         outputs.mate1 = mate1

@@ -157,7 +157,7 @@ dependencies installed. Then, navigate to the ``resolwe-bio/tests`` directory an
     By default, each test run triggers the download of all the required Docker images.
     To avoid this, and download only the images required by the tests you are running,
     you can set the ``RESOLWE_DOCKER_DONT_PULL`` environment variable to ``1`` in the
-    shell environment, or directly in the ``resolwe-bio/settings.py`` file.
+    shell environment, or directly in the ``tests/settings.py`` file.
 
 A workflow test that runs the file upload process and triggers the example QC workflow
 is shown below. The test uses the ``KBBioProcessTestCase`` class that provides
@@ -175,5 +175,5 @@ The test is triggered by calling the ``test`` management command on the specifie
     # resolwe_bio/tests/files/ directory. The process scripts are expected to be
     # placed in the resolwe_bio/processes/ directory for the Resolwe server to successfully
     # locate and register them.
-    ./manage.py test docs.example.tests.DocsProcessTestCase.test_qc_workflow
+    ./manage.py test docs.example.tests.workflow_test.DocsProcessTestCase.test_qc_workflow
 
