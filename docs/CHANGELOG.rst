@@ -13,11 +13,22 @@ Unreleased
 
 Added
 -----
-- Add ALT aware alignment option to BWA-MEM process
-- Extend the documentation with examples of writing workflows and tests
 
 Changed
 -------
+
+Fixed
+-----
+
+
+===================
+64.1.0 - 2025-11-17
+===================
+
+Added
+-----
+- Add ALT aware alignment option to BWA-MEM process
+- Extend the documentation with examples of writing workflows and tests
 
 Fixed
 -----
