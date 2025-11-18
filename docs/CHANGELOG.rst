@@ -16,6 +16,7 @@ Added
 
 Changed
 -------
+- Change ChipSeq reference in MultiQC custom tables to MACS2
 
 Fixed
 -----

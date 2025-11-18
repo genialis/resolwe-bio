@@ -105,26 +105,26 @@ def create_coverage_plot(sample_names, reports):
         json.dump(genebody_qc_json, out_file)
 
 
-def parse_chip_qc_report(report):
-    """Parse ChiP-seq QC report file."""
+def parse_macs2_qc_report(report):
+    """Parse MACS2 QC report file."""
     df = pd.read_csv(report, sep="\t")
     df.fillna("", inplace=True)
     return df.to_dict(orient="records")[0]
 
 
 def create_prepeak_table(sample_names, reports):
-    """Prepare ChIP-seq pre-peak MultiQC table."""
+    """Prepare MACS2 pre-peak MultiQC table."""
     prepeak_qc_json = {
         "pconfig": {"format": "{:,.2f}"},
         "id": "chip_seq_prepeak_qc",
-        "section_name": "ChIP-seq pre-peak QC",
+        "section_name": "MACS2 pre-peak QC",
         "plot_type": "table",
         "file_format": "json",
         "data": {},
     }
 
     for sample_name, report in zip(sample_names, reports):
-        report_data = parse_chip_qc_report(report)
+        report_data = parse_macs2_qc_report(report)
         prepeak_qc_json["data"][sample_name] = report_data
 
     with open("chipseq_prepeak_qc_mqc.json", "w") as out_file:
@@ -132,18 +132,18 @@ def create_prepeak_table(sample_names, reports):
 
 
 def create_postpeak_table(sample_names, reports):
-    """Prepare ChIP-seq pre-peak MultiQC table."""
+    """Prepare MACS2 post-peak MultiQC table."""
     postpeak_qc_json = {
         "pconfig": {"format": "{:,.2f}"},
         "id": "chip_seq_postpeak_qc",
-        "section_name": "ChIP-seq post-peak QC",
+        "section_name": "MACS2 post-peak QC",
         "plot_type": "table",
         "file_format": "json",
         "data": {},
     }
 
     for sample_name, report in zip(sample_names, reports):
-        report_data = parse_chip_qc_report(report)
+        report_data = parse_macs2_qc_report(report)
         postpeak_qc_json["data"][sample_name] = report_data
 
     with open("chipseq_postpeak_qc_mqc.json", "w") as out_file:
@@ -662,7 +662,7 @@ class MultiQC(Process):
     }
     category = "QC"
     data_name = "MultiQC report"
-    version = "1.28.2"
+    version = "1.28.3"
     persistence = Persistence.CACHED
 
     class Input:
@@ -734,9 +734,9 @@ class MultiQC(Process):
         lib_type_samples = []
         lib_type_reports = []
         chip_seq_samples = []
-        chip_seq_prepeak_reports = []
-        chip_seq_postpeak_samples = []
-        chip_seq_postpeak_reports = []
+        macs2_prepeak_reports = []
+        macs2_postpeak_samples = []
+        macs2_postpeak_reports = []
         bsrate_samples = []
         bsrate_reports = []
         markdup_samples = []
@@ -894,13 +894,13 @@ class MultiQC(Process):
                     d.output.called_peaks.path, os.path.join(sample_dir, name)
                 )
                 chip_seq_samples.append(sample_name)
-                chip_seq_prepeak_reports.append(d.output.case_prepeak_qc.path)
+                macs2_prepeak_reports.append(d.output.case_prepeak_qc.path)
                 # When MACS2 analysis is run in broad peak mode (--broad), the postpeak
                 # reports are not generated
                 try:
                     if os.path.isfile(d.output.chip_qc.path):
-                        chip_seq_postpeak_samples.append(sample_name)
-                        chip_seq_postpeak_reports.append(d.output.chip_qc.path)
+                        macs2_postpeak_samples.append(sample_name)
+                        macs2_postpeak_reports.append(d.output.chip_qc.path)
                 except AttributeError:
                     pass
                 # MACS2 analysis can be run without the background sample,
@@ -908,9 +908,7 @@ class MultiQC(Process):
                 try:
                     if os.path.isfile(d.output.control_prepeak_qc.path):
                         chip_seq_samples.append(f"Background of {sample_name}")
-                        chip_seq_prepeak_reports.append(
-                            d.output.control_prepeak_qc.path
-                        )
+                        macs2_prepeak_reports.append(d.output.control_prepeak_qc.path)
                 except AttributeError:
                     pass
 
@@ -1021,11 +1019,11 @@ class MultiQC(Process):
         if lib_type_samples and lib_type_reports:
             create_lib_strand_table(lib_type_samples, lib_type_reports)
 
-        if chip_seq_samples and chip_seq_prepeak_reports:
-            create_prepeak_table(chip_seq_samples, chip_seq_prepeak_reports)
+        if chip_seq_samples and macs2_prepeak_reports:
+            create_prepeak_table(chip_seq_samples, macs2_prepeak_reports)
 
-        if chip_seq_postpeak_samples and chip_seq_postpeak_reports:
-            create_postpeak_table(chip_seq_postpeak_samples, chip_seq_postpeak_reports)
+        if macs2_postpeak_samples and macs2_postpeak_reports:
+            create_postpeak_table(macs2_postpeak_samples, macs2_postpeak_reports)
 
         args = [
             "-dd",
