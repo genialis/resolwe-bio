@@ -13,6 +13,7 @@ Unreleased
 
 Added
 -----
+- Add ``atac-seq-workflow-beta`` workflow for ATAC-seq data analysis
 
 Changed
 -------
