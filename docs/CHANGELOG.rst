@@ -25,6 +25,7 @@ Fixed
   fails if the GFF3 file contains an empty line
 - Add data persistence status to processes that currently lack it
 - Fix an issue of truncated multi-sample MultiQC reports by excluding ChiPQC figures
+- Change ChipSeq reference in MultiQC custom tables to MACS2
 
 
 ===================
