@@ -15,6 +15,7 @@ Added
 -----
 - Add ALT aware alignment option to BWA-MEM process
 - Extend the documentation with examples of writing workflows and tests
+- Add ``atac-seq-workflow-beta`` workflow for ATAC-seq data analysis
 
 Changed
 -------

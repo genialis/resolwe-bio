@@ -5,7 +5,7 @@ from resolwe_bio.utils.test import BioProcessTestCase
 
 
 class AtacSeqWorkflowTestCase(BioProcessTestCase):
-    @tag_process("workflow-atac-seq")
+    @tag_process("workflow-atac-seq-beta")
     def test_atac_seq_workflow(self):
         with self.preparation_stage():
             inputs = {
@@ -26,16 +26,16 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
             promoters = self.run_process("upload-bed", inputs)
 
         self.run_process(
-            "workflow-atac-seq",
+            "workflow-atac-seq-beta",
             {
                 "reads": reads.id,
                 "genome": bowtie2_index.id,
                 "promoter": promoters.id,
-                "settings": {"bedgraph": False},
+                "macs2_options": {"bedgraph": False},
             },
         )
         for data in Data.objects.all():
             self.assertStatus(data, Data.STATUS_DONE)
-        macs2 = Data.objects.last()
+        macs2 = Data.objects.get(process__slug="macs2-callpeak")
         self.assertFile(macs2, "chip_qc", "atac_seq_report.txt")
         self.assertFile(macs2, "case_prepeak_qc", "atac_seq_prepeak_report.txt")
