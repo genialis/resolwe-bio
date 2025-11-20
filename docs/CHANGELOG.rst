@@ -21,6 +21,9 @@ Fixed
 -----
 - Fix an issue in ``bamclipper`` process where not supplying a BEDPE file
   caused the process to fail
+- Fix an issue in ``bqsr``, where a default empty string for read group replacement
+  was interpreted as an empty input, causing the front end to reject the triggering
+  of the process
 
 
 ===================
