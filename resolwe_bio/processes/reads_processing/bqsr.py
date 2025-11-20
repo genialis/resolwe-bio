@@ -30,7 +30,7 @@ class BQSR(Process):
     slug = "bqsr"
     name = "BaseQualityScoreRecalibrator"
     process_type = "data:alignment:bam:bqsr:"
-    version = "2.5.2"
+    version = "2.5.3"
     category = "GATK"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -65,14 +65,14 @@ class BQSR(Process):
         )
         read_group = StringField(
             label="Replace read groups in BAM",
-            description="Replace read groups in a BAM file.This argument enables the user to replace all read groups "
+            description="Replace read groups in a BAM file. This argument enables the user to replace all read groups "
             "in the INPUT file with a single new read group and assign all reads to this read group in "
             "the OUTPUT BAM file. Addition or replacement is performed using Picard's "
             "AddOrReplaceReadGroups tool. Input should take the form of -name=value delimited by a "
             '";", e.g. "-ID=1;-LB=GENIALIS;-PL=ILLUMINA;-PU=BARCODE;-SM=SAMPLENAME1". See tool\'s '
             "documentation for more information on tag names. Note that PL, LB, PU and SM are require "
             "fields. See caveats of rewriting read groups in the documentation.",
-            default="",
+            required=False,
         )
         validation_stringency = StringField(
             label="Validation stringency",
