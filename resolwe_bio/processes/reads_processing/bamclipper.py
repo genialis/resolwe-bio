@@ -25,7 +25,7 @@ class Bamclipper(Process):
     slug = "bamclipper"
     name = "Bamclipper"
     process_type = "data:alignment:bam:bamclipped:"
-    version = "1.5.2"
+    version = "1.5.3"
     category = "BAM processing"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -66,7 +66,7 @@ class Bamclipper(Process):
         name = os.path.splitext(os.path.basename(inputs.alignment.output.bam.path))[0]
 
         # If so specified, skip bamclipper step. Prepare outputs to match those of as if bamclipping proceeded.
-        if inputs.skip:
+        if inputs.skip or not inputs.bedpe:
             bam = f"{name}.bamclipper_skipped.bam"
             bai = f"{bam}.bai"
 

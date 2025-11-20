@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Fix an issue in ``bamclipper`` process where not supplying a BEDPE file
+  caused the process to fail
 
 
 ===================
