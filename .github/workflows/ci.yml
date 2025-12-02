@@ -32,7 +32,7 @@ jobs:
 
     strategy:
       matrix:
-        toxenv: ["py313"]
+        toxenv: ["py314"]
 
     services:
       postgres:
@@ -67,9 +67,9 @@ jobs:
           fetch-depth: 0
 
       - name: Use pre-releases except for production tags
-        run:
+        run: |
           if ! [[ ${{ github.ref }} =~ ^refs/tags/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "TOX_COMMAND=${{ env.TOX_COMMAND }} --pre" >> $GITHUB_ENV;
+              echo "UV_PRERELEASE=allow" >> $GITHUB_ENV;
           fi
 
       - name: Assert PR is up-to-date
@@ -144,11 +144,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build
-        run: python3.13 -m pip install --user build
-
       - name: Build a binary wheel and a source tarball
-        run: python3.13 -m build --sdist --wheel --outdir dist/ .
+        run: uv build
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
