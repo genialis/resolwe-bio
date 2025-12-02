@@ -144,11 +144,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install build
-        run: python3.14 -m pip install --user build
-
       - name: Build a binary wheel and a source tarball
-        run: python3.14 -m build --sdist --wheel --outdir dist/ .
+        run: uv build
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
