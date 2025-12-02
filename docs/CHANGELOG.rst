@@ -18,6 +18,7 @@ Added
 
 Changed
 -------
+- **BACKWARD INCOMPATIBLE:** Drop support for ``Python <= 3.11``
 - Change ChipSeq reference in MultiQC custom tables to MACS2
 
 Fixed

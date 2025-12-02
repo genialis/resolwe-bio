@@ -24,7 +24,7 @@ readme = "README.rst"
 dynamic = ["version"]
 authors = [{ name = "Genialis, Inc", email = "dev-team@genialis.com" }]
 license = { text = "Apache License (2.0)" }
-requires-python = ">=3.10, <3.15"
+requires-python = ">=3.12, <3.15"
 keywords = [
     "bioinformatics",
     "resolwe",
@@ -44,7 +44,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
