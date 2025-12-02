@@ -24,7 +24,7 @@ readme = "README.rst"
 dynamic = ["version"]
 authors = [{ name = "Genialis, Inc", email = "dev-team@genialis.com" }]
 license = { text = "Apache License (2.0)" }
-requires-python = ">=3.10, <3.14"
+requires-python = ">=3.10, <3.15"
 keywords = [
     "bioinformatics",
     "resolwe",
@@ -47,6 +47,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
     "Django~=5.2.0",
@@ -85,7 +86,7 @@ Documentation = "https://resolwe-bio.readthedocs.io/en/latest/"
 Repository = "https://github.com/genialis/resolwe-bio"
 
 [tool.black]
-target-version = ["py36", "py37", "py38", "py39", "py310", "py311"]
+target-version = ["py36", "py37", "py38", "py39", "py310", "py311", "py312", "py313", "py314"]
 
 [tool.mypy]
 plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]

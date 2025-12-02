@@ -14,6 +14,7 @@ Unreleased
 Added
 -----
 - Add ``atac-seq-workflow-beta`` workflow for ATAC-seq data analysis
+- Add support for ``Python 3.14``
 
 Changed
 -------
