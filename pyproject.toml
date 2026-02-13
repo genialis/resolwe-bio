@@ -76,7 +76,12 @@ test = [
     "tblib>=3.2.2",
     "twine==6.1.0",
 ]
-docs = ["daphne", "Sphinx~=8.2.3", "sphinx-rtd-theme==3.0.2", "pyasn1>=0.6.1"]
+docs = [
+    "daphne",
+    "Sphinx~=8.2.3",
+    "pyasn1>=0.6.1",
+    "sphinx-nefertiti @ git+https://github.com/genialis/genialis-docs-theme",
+]
 package = ["twine", "wheel", "check-manifest", "setuptools_scm"]
 
 [project.urls]
