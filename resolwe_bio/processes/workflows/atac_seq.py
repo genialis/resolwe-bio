@@ -14,7 +14,7 @@ from resolwe.process.models import Process as BioProcess
 
 
 class WorkflowATACSeq(Process):
-    """Beta ATAC-Seq workflow.
+    """ATAC-Seq workflow.
 
     This ATAC-seq pipeline follows the official ENCODE DCC pipeline with additional modifications.
 
@@ -31,13 +31,13 @@ class WorkflowATACSeq(Process):
     Finally, a bigWig file is produced along with the ChipQC and MultiQC reports.
     """
 
-    slug = "workflow-atac-seq-beta"
-    name = "ATAC-Seq (Beta)"
+    slug = "workflow-atac-seq"
+    name = "ATAC-Seq"
     requirements = {
         "expression-engine": "jinja",
     }
     data_name = "{{ reads|name|default('?') }}"
-    version = "0.1.0"
+    version = "4.0.0"
     entity = {"type": "sample"}
     process_type = "data:workflow:atacseq"
     category = "ATAC-seq"
@@ -78,7 +78,7 @@ class WorkflowATACSeq(Process):
             )
             two_pass = BooleanField(
                 label="2-pass mode",
-                default=False,
+                default=True,
                 disabled="!downsampling_options.downsample_reads",
                 description="Enable two-pass mode when down-sampling. "
                 "Two-pass mode is twice as slow but with much reduced memory.",

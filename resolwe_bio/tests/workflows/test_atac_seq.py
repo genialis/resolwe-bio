@@ -31,37 +31,6 @@ class AtacSeqWorkflowTestCase(BioProcessTestCase):
                 "reads": reads.id,
                 "genome": bowtie2_index.id,
                 "promoter": promoters.id,
-            },
-        )
-        for data in Data.objects.all():
-            self.assertStatus(data, Data.STATUS_DONE)
-
-    @tag_process("workflow-atac-seq-beta")
-    def test_beta_atac_seq_workflow(self):
-        with self.preparation_stage():
-            inputs = {
-                "src": "mm10_chr17_44M-45M.fa.gz",
-                "species": "Mus musculus",
-                "build": "mm10",
-            }
-            ref_seq = self.run_process("upload-fasta-nucl", inputs)
-            bowtie2_index = self.run_process("bowtie2-index", {"ref_seq": ref_seq.id})
-            reads = self.prepare_paired_reads(
-                mate1=["atac_R1.fastq.gz"], mate2=["atac_R2.fastq.gz"]
-            )
-            inputs = {
-                "src": "promoters_mm10_chr17_subregion.bed",
-                "species": "Mus musculus",
-                "build": "mm10",
-            }
-            promoters = self.run_process("upload-bed", inputs)
-
-        self.run_process(
-            "workflow-atac-seq-beta",
-            {
-                "reads": reads.id,
-                "genome": bowtie2_index.id,
-                "promoter": promoters.id,
                 "macs2_options": {"bedgraph": False},
             },
         )
