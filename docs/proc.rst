@@ -12,8 +12,8 @@ that maps the inputs into outputs. Resolwe processes are written in Python and
 can be joined into bioinformatics pipelines (workflows). An example
 `Python process template`_ is available in the Resolwe documentation.
 
-.. _Resolwe: https://resolwe.readthedocs.io/en/latest/
-.. _Resolwe processes: https://resolwe.readthedocs.io/en/latest/proc.html
+.. _Resolwe: https://docs.genialis.com/resolwe/
+.. _Resolwe processes: https://docs.genialis.com/resolwe/proc.html
 .. _Python process template: https://github.com/genialis/resolwe/blob/master/docs/example/example/processes/template_py_process.py
 
 Example process

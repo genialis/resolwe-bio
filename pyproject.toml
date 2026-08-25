@@ -86,7 +86,7 @@ package = ["twine", "wheel", "check-manifest", "setuptools_scm"]
 
 [project.urls]
 Homepage = "https://github.com/genialis/resolwe-bio"
-Documentation = "https://resolwe-bio.readthedocs.io/en/latest/"
+Documentation = "https://docs.genialis.com/resolwe-bio/"
 Repository = "https://github.com/genialis/resolwe-bio"
 
 [tool.black]

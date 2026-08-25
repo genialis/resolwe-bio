@@ -226,4 +226,4 @@ Follow `Resolwe's documentation on preparing a release`_. Resolwe
 Bioinformatics code is automatically released to the PyPI when tagged.
 
 .. _Resolwe's documentation on preparing a release:
-  http://resolwe.readthedocs.io/en/latest/contributing.html#preparing-release
+  https://docs.genialis.com/resolwe/contributing.html#preparing-release

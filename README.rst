@@ -2,7 +2,7 @@
 Resolwe Bioinformatics
 ======================
 
-|build| |coverage| |docs| |pypi_version| |pypi_pyversions|
+|build| |coverage| |pypi_version| |pypi_pyversions|
 
 .. |build| image:: https://github.com/genialis/resolwe-bio/actions/workflows/ci.yml/badge.svg?branch=master
     :target: https://github.com/genialis/resolwe-bio/actions?query=branch%3Amaster
@@ -11,10 +11,6 @@ Resolwe Bioinformatics
 .. |coverage| image:: https://img.shields.io/codecov/c/github/genialis/resolwe-bio/master.svg
     :target: http://codecov.io/github/genialis/resolwe-bio?branch=master
     :alt: Coverage Status
-
-.. |docs| image:: https://readthedocs.org/projects/resolwe-bio/badge/?version=latest
-    :target: http://resolwe-bio.readthedocs.io/
-    :alt: Documentation Status
 
 .. |pypi_version| image:: https://img.shields.io/pypi/v/resolwe-bio.svg
     :target: https://pypi.python.org/pypi/resolwe-bio
@@ -40,7 +36,7 @@ Docs & Help
 
 Read about getting started and how to write `processes` in the documentation_.
 
-.. _documentation: http://resolwe-bio.readthedocs.io/
+.. _documentation: https://docs.genialis.com/resolwe-bio/
 
 
 Install
@@ -97,4 +93,4 @@ Contribute
 We welcome new contributors. To learn more, read Contributing_ section of the
 documentation.
 
-.. _Contributing: http://resolwe-bio.readthedocs.io/en/latest/contributing.html
+.. _Contributing: https://docs.genialis.com/resolwe-bio/contributing.html

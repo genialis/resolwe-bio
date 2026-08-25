@@ -113,5 +113,5 @@ intersphinx_mapping = {
         "https://docs.djangoproject.com/en/{}/".format(_django_major_version),
         "https://docs.djangoproject.com/en/{}/_objects/".format(_django_major_version),
     ),
-    "resolwe": ("https://resolwe.readthedocs.io/en/latest", None),
+    "resolwe": ("https://docs.genialis.com/resolwe", None),
 }
