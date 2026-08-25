@@ -78,9 +78,9 @@ test = [
 ]
 docs = [
     "daphne",
-    "Sphinx~=8.2.3",
     "pyasn1>=0.6.1",
-    "sphinx-nefertiti @ git+https://github.com/genialis/genialis-docs-theme",
+    "Sphinx~=8.2.3",
+    "sphinx-nefertiti>=0.9",
 ]
 package = ["twine", "wheel", "check-manifest", "setuptools_scm"]
 
