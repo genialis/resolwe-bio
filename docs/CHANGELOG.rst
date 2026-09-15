@@ -16,12 +16,20 @@ Added
 
 Changed
 -------
-- Deprecate the old yaml based ATAC-seq workflow in favour of the Python one
-  (previously in beta) implemented in the process ``workflow-atac-seq``
-  and bump the version of the new workflow to 4.0.0
 
 Fixed
 -----
+
+
+===================
+65.1.0 - 2026-09-15
+===================
+
+Changed
+-------
+- Deprecate the old yaml based ATAC-seq workflow in favour of the Python one
+  (previously in beta) implemented in the process ``workflow-atac-seq``
+  and bump the version of the new workflow to 4.0.0
 
 
 ===================
