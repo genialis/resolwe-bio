@@ -5,6 +5,7 @@ from pathlib import Path
 from plumbum import TEE
 
 from resolwe.process import (
+    BooleanField,
     Cmd,
     DataField,
     FileField,
@@ -23,7 +24,7 @@ class BamToFastqPaired(Process):
     name = "Samtools fastq (paired-end)"
     category = "Samtools"
     process_type = "data:reads:fastq:paired:bamtofastq"
-    version = "1.3.3"
+    version = "1.4.0"
     scheduling_class = SchedulingClass.BATCH
     requirements = {
         "expression-engine": "jinja",
@@ -44,12 +45,21 @@ class BamToFastqPaired(Process):
         """Input fields for BamToFastqPaired."""
 
         bam = DataField("alignment:bam", label="BAM file")
+        singletons = BooleanField(
+            label="Write singleton reads to a separate file [-s]",
+            description="Singleton reads are reads whose mate is missing from the "
+            "BAM file. When this option is selected, singletons are written to a "
+            "separate FASTQ file and only properly paired reads are written to the "
+            "mate1 and mate2 outputs.",
+            default=False,
+        )
 
     class Output:
         """Output fields for BamToFastqPaired."""
 
         fastq = ListField(FileField(), label="Remaining mate1 reads")
         fastq2 = ListField(FileField(), label="Remaining mate2 reads")
+        fastq_singletons = FileField(label="Singleton reads", required=False)
         fastqc_url = ListField(
             FileHtmlField(), label="Mate1 quality control with FastQC"
         )
@@ -65,6 +75,7 @@ class BamToFastqPaired(Process):
         sorted_bam = f"{name}_sorted.bam"
         mate1_gz = f"{name}_mate1.fastq.gz"
         mate2_gz = f"{name}_mate2.fastq.gz"
+        singletons_gz = f"{name}_singletons.fastq.gz"
 
         # For extracted paired-end reads to match, BAM file needs to be name sorted first.
         sort_args = [
@@ -92,8 +103,13 @@ class BamToFastqPaired(Process):
             mate1_gz,
             "-2",
             mate2_gz,
-            sorted_bam,
         ]
+
+        if inputs.singletons:
+            extract_args.extend(["-s", singletons_gz])
+
+        extract_args.append(sorted_bam)
+
         return_code, _, _ = Cmd["samtools"]["fastq"][extract_args] & TEE(retcode=None)
         if return_code:
             self.error("Samtools fastq command failed.")
@@ -126,3 +142,5 @@ class BamToFastqPaired(Process):
         # Save the outputs
         outputs.fastq = [mate1_gz]
         outputs.fastq2 = [mate2_gz]
+        if inputs.singletons and Path(singletons_gz).exists():
+            outputs.fastq_singletons = singletons_gz

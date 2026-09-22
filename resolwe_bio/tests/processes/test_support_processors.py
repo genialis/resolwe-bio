@@ -1461,6 +1461,47 @@ re-save-file lane_attributes "${NAME}".txt
             compression="gzip",
         )
 
+    @tag_process("bamtofastq-paired")
+    def test_bamtofastq_paired_singletons(self):
+        base = Path("bamtofastq")
+        inputs = base / "input"
+        outputs = base / "output"
+        with self.preparation_stage():
+            bam = self.run_process(
+                "upload-bam",
+                {
+                    "src": inputs / "alignment_singletons.bam",
+                    "species": "Homo sapiens",
+                    "build": "hg38",
+                },
+            )
+
+        reads = self.run_process(
+            "bamtofastq-paired",
+            {"bam": bam.id, "singletons": True},
+        )
+
+        self.assertFiles(
+            reads,
+            "fastq",
+            [outputs / "output_singletons_mate1.fastq.gz"],
+            compression="gzip",
+        )
+
+        self.assertFiles(
+            reads,
+            "fastq2",
+            [outputs / "output_singletons_mate2.fastq.gz"],
+            compression="gzip",
+        )
+
+        self.assertFile(
+            reads,
+            "fastq_singletons",
+            outputs / "output_singletons.fastq.gz",
+            compression="gzip",
+        )
+
     @tag_process("mutations-table")
     def test_report_variants(self):
         input_folder = Path("report_variants") / "input"

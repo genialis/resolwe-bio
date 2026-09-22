@@ -13,6 +13,8 @@ Unreleased
 
 Added
 -----
+- Add singleton ``-s`` parameter to ``bamtofastq-paired`` process to write
+  singleton reads to a separate optional output
 
 Changed
 -------
