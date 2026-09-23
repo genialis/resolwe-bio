@@ -21,6 +21,8 @@ Changed
 
 Fixed
 -----
+- Return a response from the ``add_variants_annotations`` listener handler so
+  the command no longer fails with ``Error processing message``
 
 
 ===================

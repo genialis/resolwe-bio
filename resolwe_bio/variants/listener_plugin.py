@@ -210,3 +210,5 @@ class VariantCommands(ListenerPlugin):
                 )
                 for transcript_data in annotation_data["transcripts"]
             )
+
+        return message.respond_ok(len(typed_data))
