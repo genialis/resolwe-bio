@@ -13,6 +13,9 @@ Unreleased
 
 Added
 -----
+- Add ``protein_domains_file`` input to the ``arriba`` process and the
+  ``gene-fusion-calling-arriba`` workflow to report the protein domains that
+  each fusion retains
 
 Changed
 -------
