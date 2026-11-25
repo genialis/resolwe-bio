@@ -19,6 +19,8 @@ Changed
 
 Fixed
 -----
+- Pin ``isort`` below version 10 so that its pre-releases, which CI
+  installs, do not change the import order that the linters check
 
 
 ===================
