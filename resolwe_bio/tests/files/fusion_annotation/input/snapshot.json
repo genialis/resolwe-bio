@@ -204,6 +204,7 @@
  },
  "versions": {
   "civic_downloaded": "2026-11-25",
+  "civic_license": "CC0 1.0",
   "snapshot": "test-2026-11-25"
  }
 }
