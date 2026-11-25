@@ -152,7 +152,8 @@ def retained_kinase_domain(retained_protein_domains):
     result names the partner that retains the domain, e.g.
     ``3':Protein_kinase_domain(100%)``.
     """
-    partners = zip(("5'", "3'"), retained_protein_domains.split("|"), strict=True)
+    five_prime, three_prime = retained_protein_domains.split("|")
+    partners = (("5'", five_prime), ("3'", three_prime))
     return ",".join(
         f"{partner}:{domain}"
         for partner, domains in partners
@@ -313,10 +314,11 @@ class FusionAnnotation(Process):
     (``GENE1::GENE2``, 5' gene first, ``v`` for any partner) to a list of
     evidence items with the keys ``profile``, ``disease``, ``therapies``,
     ``therapy_interaction_type``, ``type``, ``direction``, ``level``,
-    ``significance``, ``source_type``, ``citation_id`` and ``nct_ids``. ``chimerkb`` maps a fusion to the lists
-    ``Disease`` and ``Validation``. ``normal_tissue`` maps a fusion to a list
-    of sources. The process reads only the snapshot, so the results do not
-    change until the snapshot changes.
+    ``significance``, ``source_type``, ``citation_id`` and ``nct_ids``.
+    ``chimerkb`` maps a fusion to the lists ``Disease`` and ``Validation``.
+    ``normal_tissue`` maps a fusion to a list of sources. The process reads
+    only the snapshot, so the results do not change until the snapshot
+    changes.
     """
 
     slug = "fusion-annotation"
@@ -364,7 +366,7 @@ class FusionAnnotation(Process):
         """Annotate fusions with the knowledge base snapshot."""
 
         fusions_file = Path(inputs.fusions.output.fusions.path)
-        name = fusions_file.name.removesuffix(".tsv.gz")
+        name = fusions_file.name[: -len(".tsv.gz")]
         annotated_file = f"{name}_annotated.tsv.gz"
         summary_file = f"{name}_annotation_summary.json"
 
