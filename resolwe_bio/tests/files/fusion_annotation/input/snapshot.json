@@ -1,0 +1,209 @@
+{
+ "chimerkb": {
+  "CCDC6::RET": {
+   "Disease": [
+    "thyroid carcinoma"
+   ],
+   "Validation": [
+    "RT-PCR"
+   ]
+  }
+ },
+ "civic": {
+  "CCDC6::RET": [
+   {
+    "citation_id": "26787234",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "1601",
+    "level": "C",
+    "nct_ids": "",
+    "profile": "CCDC6::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Nintedanib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "29538669",
+    "direction": "Supports",
+    "disease": "Colorectal Cancer",
+    "evidence_id": "7480",
+    "level": "C",
+    "nct_ids": "NCT01877811",
+    "profile": "CCDC6::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Agerafenib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   }
+  ],
+  "v::RET": [
+   {
+    "citation_id": "27825636",
+    "direction": "Supports",
+    "disease": "Lung Adenocarcinoma",
+    "evidence_id": "4847",
+    "level": "B",
+    "nct_ids": "NCT01639508",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Cabozantinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "27803005",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "4848",
+    "level": "B",
+    "nct_ids": "NCT01823068",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Vandetanib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "27825616",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "4849",
+    "level": "B",
+    "nct_ids": "",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Vandetanib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "27544060",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "4850",
+    "level": "C",
+    "nct_ids": "",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Alectinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "10.1200/JCO.2018.36.15_suppl.102",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "7066",
+    "level": "B",
+    "nct_ids": "NCT03157128",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "ASCO",
+    "therapies": "Selpercatinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "10.1200/JCO.2018.36.15_suppl.102",
+    "direction": "Supports",
+    "disease": "Papillary Thyroid Carcinoma",
+    "evidence_id": "7069",
+    "level": "B",
+    "nct_ids": "NCT03157128",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "ASCO",
+    "therapies": "Selpercatinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "32846060",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "8850",
+    "level": "B",
+    "nct_ids": "NCT03157128",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Selpercatinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "32846061",
+    "direction": "Supports",
+    "disease": "Thyroid Cancer",
+    "evidence_id": "8852",
+    "level": "A",
+    "nct_ids": "NCT03157128",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Selpercatinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "34118197",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "11233",
+    "level": "A",
+    "nct_ids": "NCT03037385",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Pralsetinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "34118198",
+    "direction": "Supports",
+    "disease": "Thyroid Cancer",
+    "evidence_id": "11234",
+    "level": "A",
+    "nct_ids": "NCT03037385",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Pralsetinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   },
+   {
+    "citation_id": "39983053",
+    "direction": "Supports",
+    "disease": "Lung Non-small Cell Carcinoma",
+    "evidence_id": "13437",
+    "level": "A",
+    "nct_ids": "NCT03157128",
+    "profile": "v::RET Fusion",
+    "significance": "Sensitivity/Response",
+    "source_type": "PubMed",
+    "therapies": "Selpercatinib",
+    "therapy_interaction_type": "",
+    "type": "Predictive"
+   }
+  ]
+ },
+ "normal_tissue": {
+  "GENEA::GENEB": [
+   "GTEx_recurrent_StarF2019"
+  ]
+ },
+ "versions": {
+  "civic_downloaded": "2026-11-25",
+  "snapshot": "test-2026-11-25"
+ }
+}
