@@ -68,7 +68,7 @@ test = [
     # "djangorestframework-stubs[compatible-mypy]>=3.15.2",
     "daphne",
     "flake8>=7.3.0",
-    "isort>=7.0.0",
+    "isort>=7.0.0,<10",
     "mypy>=1.19.0",
     "pydocstyle~=6.3.0",
     "setuptools_scm",
