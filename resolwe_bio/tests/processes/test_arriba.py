@@ -92,3 +92,76 @@ class ArribaProcessorTestCase(KBBioProcessTestCase):
         ]
 
         self.assertEqual(arriba.process_error, error_msg)
+
+    @with_resolwe_host
+    @tag_process("arriba")
+    def test_arriba_protein_domains(self):
+        input_folder = Path("arriba") / "input"
+        output_folder = Path("arriba") / "output"
+
+        with self.preparation_stage():
+            bam = self.run_process(
+                process_slug="upload-bam",
+                input_={
+                    "src": input_folder / "aligned_samples.bam",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+
+            gtf_file = self.run_process(
+                process_slug="upload-gtf",
+                input_={
+                    "src": input_folder / "minigenome.gtf.gz",
+                    "source": "ENSEMBL",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+
+            genome_file = self.run_process(
+                process_slug="upload-fasta-nucl",
+                input_={
+                    "src": input_folder / "minigenome.fasta.gz",
+                    "species": "Homo sapiens",
+                    "build": "GRCh38",
+                },
+            )
+
+            known_fusions_file = self.run_process(
+                process_slug="upload-file",
+                input_={
+                    "src": input_folder / "known_fusions.tsv.gz",
+                },
+            )
+
+            protein_domains_file = self.run_process(
+                process_slug="upload-file",
+                input_={
+                    "src": input_folder / "protein_domains.gff3.gz",
+                },
+            )
+
+        arriba = self.run_process(
+            "arriba",
+            {
+                "bam": bam.id,
+                "gtf": gtf_file.id,
+                "genome": genome_file.id,
+                "known_fusions_file": known_fusions_file.id,
+                "protein_domains_file": protein_domains_file.id,
+            },
+        )
+
+        self.assertFile(
+            arriba,
+            "fusions",
+            output_folder / "expected_fusions_protein_domains.tsv.gz",
+            compression="gzip",
+        )
+        self.assertFile(
+            arriba,
+            "discarded_fusions",
+            output_folder / "expected_discarded_fusions_protein_domains.tsv.gz",
+            compression="gzip",
+        )

@@ -47,7 +47,7 @@ class Arriba(Process):
     slug = "arriba"
     name = "Arriba"
     process_type = "data:genefusions:arriba"
-    version = "1.1.2"
+    version = "1.2.0"
     category = "Gene fusions"
     scheduling_class = SchedulingClass.BATCH
     entity = {"type": "sample"}
@@ -95,6 +95,14 @@ class Arriba(Process):
             data_type="file",
             label="Known fusions file",
             description="Arriba known fusions file.",
+            required=False,
+        )
+
+        protein_domains_file = DataField(
+            data_type="file",
+            label="Protein domains file",
+            description="Protein domains annotation in GFF3 format. When provided, "
+            "Arriba reports the protein domains that each fusion retains.",
             required=False,
         )
 
@@ -165,6 +173,9 @@ class Arriba(Process):
 
         if inputs.known_fusions_file:
             args.extend(["-k", inputs.known_fusions_file.output.file.path])
+
+        if inputs.protein_domains_file:
+            args.extend(["-p", inputs.protein_domains_file.output.file.path])
 
         return_code, stdout, stderr = Cmd["arriba"][args] & TEE(retcode=None)
 

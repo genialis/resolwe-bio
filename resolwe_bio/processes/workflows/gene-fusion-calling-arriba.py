@@ -34,7 +34,7 @@ class WorkflowGeneFusionCallingArriba(Process):
 
     slug = "gene-fusion-calling-arriba"
     name = "Gene Fusion Calling with Arriba"
-    version = "1.1.1"
+    version = "1.2.0"
     process_type = "data:workflow:genefusions:arriba"
     category = "Pipeline"
     entity = {"type": "sample"}
@@ -93,6 +93,14 @@ class WorkflowGeneFusionCallingArriba(Process):
             data_type="file",
             label="Known fusions file",
             description="Arriba known fusions file.",
+            required=False,
+        )
+
+        protein_domains_file = DataField(
+            data_type="file",
+            label="Protein domains file",
+            description="Protein domains annotation in GFF3 format. When provided, "
+            "Arriba reports the protein domains that each fusion retains.",
             required=False,
         )
 
@@ -255,6 +263,9 @@ class WorkflowGeneFusionCallingArriba(Process):
 
         if inputs.known_fusions_file:
             arriba_input["known_fusions_file"] = inputs.known_fusions_file.id
+
+        if inputs.protein_domains_file:
+            arriba_input["protein_domains_file"] = inputs.protein_domains_file.id
 
         fusion_name = (
             f"Fusions ({inputs.bam.name})"

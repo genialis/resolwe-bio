@@ -13,6 +13,11 @@ Unreleased
 
 Added
 -----
+- Add ``protein_domains_file`` input to the ``arriba`` process and the
+  ``gene-fusion-calling-arriba`` workflow to report the protein domains that
+  each fusion retains
+- Add ``fusion-annotation`` process that adds clinical annotation from a
+  knowledge base snapshot to gene fusions detected by Arriba
 
 Changed
 -------
