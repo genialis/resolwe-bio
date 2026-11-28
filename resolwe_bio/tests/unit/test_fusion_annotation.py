@@ -120,9 +120,6 @@ SNAPSHOT = {
         ],
         "KMT2A::v": [evidence("KMT2A::v Fusion", "A", "Diagnostic")],
     },
-    "chimerkb": {
-        "KIF5B::RET": {"Disease": ["NSCLC"], "Validation": ["FISH", "RT-PCR"]}
-    },
     "normal_tissue": {"CTBS::GNG5": ["GTEx_recurrent_StarF2019"]},
 }
 
@@ -180,16 +177,12 @@ class FusionAnnotationTestCase(SimpleTestCase):
         self.assertEqual(annotation["civic_any_partner_profiles"], "v::RET Fusion")
         self.assertEqual(annotation["civic_any_partner_best_levels"], "Predictive:A")
         self.assertEqual(annotation["civic_any_partner_evidence_ids"], "7066")
-        self.assertEqual(annotation["chimerkb_match"], "exact")
-        self.assertEqual(annotation["chimerkb_diseases"], "NSCLC")
 
     def test_reciprocal_fusion_matches_and_is_labelled(self):
         annotation = annotate(fusion("RET", "KIF5B"))
 
         self.assertEqual(annotation["civic_match"], "reciprocal")
         self.assertEqual(annotation["civic_any_partner_profiles"], "")
-        self.assertEqual(annotation["chimerkb_match"], "reciprocal")
-        self.assertEqual(annotation["chimerkb_validation"], "FISH; RT-PCR")
 
     def test_unknown_transcribed_strand_matches_both_gene_orders(self):
         strands = [("+/.", "+/+"), ("+/+", "-/."), ("./.", "+/+")]
@@ -203,9 +196,8 @@ class FusionAnnotationTestCase(SimpleTestCase):
                 self.assertEqual(
                     annotation["civic_any_partner_profiles"], "v::RET Fusion"
                 )
-                self.assertEqual(annotation["chimerkb_match"], "unknown_orientation")
 
-    def test_events_that_are_not_two_gene_fusions_get_no_knowledge_base_records(self):
+    def test_events_that_are_not_two_gene_fusions_get_no_civic_evidence(self):
         cases = {
             "no_chimeric_protein": fusion("KIF5B", "RET", "translocation/5'-5'"),
             "read_through,no_chimeric_protein": fusion(
@@ -222,7 +214,6 @@ class FusionAnnotationTestCase(SimpleTestCase):
                 self.assertEqual(annotation["flags"], flags)
                 self.assertEqual(annotation["civic_match"], "")
                 self.assertEqual(annotation["civic_any_partner_profiles"], "")
-                self.assertEqual(annotation["chimerkb_match"], "")
 
     def test_fusion_seen_in_healthy_tissue_is_flagged(self):
         for gene1, gene2 in (("CTBS", "GNG5"), ("GNG5", "CTBS")):
@@ -314,11 +305,11 @@ class FusionAnnotationTestCase(SimpleTestCase):
             snapshot[section] = value
             return snapshot
 
-        no_chimerkb = copy.deepcopy(SNAPSHOT)
-        del no_chimerkb["chimerkb"]
+        no_civic = copy.deepcopy(SNAPSHOT)
+        del no_civic["civic"]
         cases = {
             "is not a JSON object": [],
-            "has no section: chimerkb": no_chimerkb,
+            "has no section: civic": no_civic,
             "The section 'versions' is not an object": changed("versions", "snapshot"),
             "has no version": changed("versions", {"snapshot": ""}),
             "The CIViC evidence of A::B is not a list": changed("civic", {"A::B": {}}),
@@ -330,9 +321,6 @@ class FusionAnnotationTestCase(SimpleTestCase):
             ),
             "has an evidence_id that is not a number": changed(
                 "civic", {"A::B": [evidence("A::B Fusion", "A", evidence_id="EID1")]}
-            ),
-            "has no lists Disease and Validation": changed(
-                "chimerkb", {"A::B": {"Disease": ["x"]}}
             ),
             "The healthy-tissue sources of A::B are not a list": changed(
                 "normal_tissue", {"A::B": "GTEx"}

@@ -1,14 +1,4 @@
 {
- "chimerkb": {
-  "CCDC6::RET": {
-   "Disease": [
-    "thyroid carcinoma"
-   ],
-   "Validation": [
-    "RT-PCR"
-   ]
-  }
- },
  "civic": {
   "CCDC6::RET": [
    {

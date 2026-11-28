@@ -25,7 +25,7 @@ ARRIBA_COLUMNS = (
     "retained_protein_domains",
 )
 
-SNAPSHOT_SECTIONS = ("versions", "civic", "chimerkb", "normal_tissue")
+SNAPSHOT_SECTIONS = ("versions", "civic", "normal_tissue")
 
 EVIDENCE_KEYS = (
     "evidence_id",
@@ -42,8 +42,6 @@ EVIDENCE_KEYS = (
     "nct_ids",
 )
 
-CHIMERKB_KEYS = ("Disease", "Validation")
-
 ANNOTATION_COLUMNS = (
     "civic_match",
     "civic_best_levels",
@@ -57,9 +55,6 @@ ANNOTATION_COLUMNS = (
     "civic_any_partner_evidence_ids",
     "civic_any_partner_pubmed_ids",
     "civic_any_partner_nct_ids",
-    "chimerkb_match",
-    "chimerkb_diseases",
-    "chimerkb_validation",
     "retained_kinase_domain",
     "in_frame_kinase_fusion",
     "normal_tissue_sources",
@@ -130,13 +125,6 @@ def section_error(name, section):
                 error = evidence_item_error(item)
                 if error:
                     return f"A CIViC evidence item of {key} {error}."
-        elif name == "chimerkb":
-            if not isinstance(value, dict) or not all(
-                isinstance(value.get(field), list) for field in CHIMERKB_KEYS
-            ):
-                return (
-                    f"The ChimerKB record of {key} has no lists Disease and Validation."
-                )
         elif name == "normal_tissue" and not isinstance(value, list):
             return f"The healthy-tissue sources of {key} are not a list."
     return None
@@ -167,7 +155,7 @@ def snapshot_error(snapshot):
 def normalize_snapshot(snapshot):
     """Return the snapshot with upper-case gene symbols in the fusion keys."""
     normalized = {"versions": snapshot["versions"]}
-    for name in ("civic", "chimerkb", "normal_tissue"):
+    for name in ("civic", "normal_tissue"):
         normalized[name] = {
             normalize_key(key): value for key, value in snapshot[name].items()
         }
@@ -351,8 +339,8 @@ def find_record(records, gene1, gene2, known_orientation):
     return "", None
 
 
-def knowledge_base_annotation(gene1, gene2, known_orientation, snapshot):
-    """Return the CIViC and ChimerKB columns of a fusion of two genes."""
+def civic_annotation(gene1, gene2, known_orientation, snapshot):
+    """Return the CIViC columns of a fusion of two genes."""
     annotation = {}
     civic = snapshot["civic"]
 
@@ -379,12 +367,6 @@ def knowledge_base_annotation(gene1, gene2, known_orientation, snapshot):
     annotation["civic_any_partner_evidence_ids"] = evidence_ids(any_partner)
     annotation["civic_any_partner_pubmed_ids"] = pubmed_ids(any_partner)
     annotation["civic_any_partner_nct_ids"] = nct_ids(any_partner)
-
-    match, record = find_record(snapshot["chimerkb"], gene1, gene2, known_orientation)
-    if record is not None:
-        annotation["chimerkb_match"] = match
-        annotation["chimerkb_diseases"] = "; ".join(record["Disease"])
-        annotation["chimerkb_validation"] = "; ".join(record["Validation"])
     return annotation
 
 
@@ -418,11 +400,11 @@ def annotate_fusion(row, snapshot, domains_reported):
             flags.append("seen_in_normal")
     annotation["flags"] = ",".join(flags)
 
-    # Knowledge base records describe fusions of two genes that can yield a
+    # CIViC fusion profiles describe fusions of two genes that can yield a
     # chimeric protein, so they do not apply to other events.
     if two_genes and "no_chimeric_protein" not in flags:
         annotation.update(
-            knowledge_base_annotation(gene1, gene2, orientation_known(row), snapshot)
+            civic_annotation(gene1, gene2, orientation_known(row), snapshot)
         )
     return annotation
 
@@ -446,9 +428,6 @@ def summarize(rows, snapshot):
         "civic_any_partner": sum(
             bool(row["civic_any_partner_profiles"]) for row in rows
         ),
-        "chimerkb_match": dict(
-            Counter(row["chimerkb_match"] or "none" for row in rows)
-        ),
         "in_frame_kinase_fusion": sum(
             row["in_frame_kinase_fusion"] == "yes" for row in rows
         ),
@@ -469,8 +448,6 @@ class FusionAnnotation(Process):
       strongest, E the weakest), a summary of the supporting evidence with
       diseases and therapies, and the CIViC evidence, PubMed and
       ClinicalTrials.gov identifiers.
-    - Diseases and validation methods from
-      [ChimerKB](https://www.kobic.re.kr/chimerdb/).
     - The retained protein kinase domain and whether the fusion is an in-frame
       kinase fusion, which requires a fully retained kinase domain.
     - Sources that report the fusion in healthy tissue.
@@ -479,14 +456,14 @@ class FusionAnnotation(Process):
       ``no_chimeric_protein`` (genes fused head-to-head or tail-to-tail) and
       ``seen_in_normal``.
 
-    Knowledge base records describe fusions of two genes that can yield a
+    CIViC fusion profiles describe fusions of two genes that can yield a
     chimeric protein. Events flagged ``intergenic``, ``same_gene``, ``itd`` or
-    ``no_chimeric_protein`` therefore get no CIViC or ChimerKB annotation.
+    ``no_chimeric_protein`` therefore get no CIViC annotation.
 
-    A CIViC or ChimerKB record matches as ``exact`` when its 5' and 3' genes
-    are the genes of the fusion in the same order, and as ``reciprocal`` when
-    they are in the reverse order. When Arriba cannot predict the transcribed
-    strand, the 5' gene is unknown: a record in either order then matches as
+    A CIViC profile matches as ``exact`` when its 5' and 3' genes are the
+    genes of the fusion in the same order, and as ``reciprocal`` when they
+    are in the reverse order. When Arriba cannot predict the transcribed
+    strand, the 5' gene is unknown: a profile in either order then matches as
     ``unknown_orientation``, and profiles for any fusion partner are looked up
     for both genes.
 
@@ -496,7 +473,7 @@ class FusionAnnotation(Process):
     empty when no fusion of the sample has retained domains, because Arriba
     then most likely ran without a protein domains file.
 
-    The snapshot is a JSON file with four sections:
+    The snapshot is a JSON file with three sections:
 
     - ``versions`` describes the snapshot. It must include the key
       ``snapshot`` with the snapshot version and should record the version
@@ -505,7 +482,6 @@ class FusionAnnotation(Process):
       ``evidence_id``, ``profile``, ``disease``, ``therapies``,
       ``therapy_interaction_type``, ``type``, ``direction``, ``level``,
       ``significance``, ``source_type``, ``citation_id`` and ``nct_ids``.
-    - ``chimerkb`` maps a fusion to the lists ``Disease`` and ``Validation``.
     - ``normal_tissue`` maps a fusion to a list of sources.
 
     A fusion key is ``GENE1::GENE2`` with the 5' gene first and ``v`` for any
